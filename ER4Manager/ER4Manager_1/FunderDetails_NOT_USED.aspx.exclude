@@ -1,0 +1,152 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true"
+    CodeFile="FunderDetails_NOT_USED.aspx.cs" Inherits="FunderDetails" Title="Funder details" %>
+    <%@ Register Assembly="ComponentArt.Web.UI" Namespace="ComponentArt.Web.UI" TagPrefix="ComponentArt" %>
+    <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+    
+    <script language="javascript" type="text/javascript">
+    var DetailsWindow = null;
+    
+    function openCalendar1(date)
+	{
+		var iWidthOfWin = 270;
+		var iHeightOfWin = 290;
+		var iLocX = ( screen.width - iWidthOfWin ) / 2;
+		var iLocY = ( screen.height - iHeightOfWin ) / 2;
+		
+		var strFeatures = "scrollbars=yes,self.focus()"
+                 + ",width=" + iWidthOfWin
+                 + ",height=" + iHeightOfWin
+                 + ",screenX=" + iLocX
+                 + ",screenY=" + iLocY
+                 + ",left=" + iLocX
+                 + ",top=" + iLocY;
+                 
+        var theURL = "Calendar_window_1.aspx?date=" + date;
+		windowName = new String(Math.round(Math.random() * 100000));
+		DetailsWindow = window.open(theURL, windowName, strFeatures);	
+	}
+    </script>
+        <div>
+    
+            <b>Funder details<br />
+            </b>
+            <asp:Button ID="cmdPlaceDate" runat="server" BackColor="White" 
+                BorderColor="White" BorderStyle="None" ForeColor="White" Height="1px" 
+                OnClick="cmdPlaceDate_Click" style="font-weight: bold" Width="1px" />
+            <b>
+            <br />
+            </b>
+    <table id="Table1"
+            border="1" cellpadding="1" cellspacing="1" width="100%">
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Funder name*</td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="tbContactName" runat="server" Columns="60" ReadOnly="True" 
+                        Enabled="False" MaxLength="50"></asp:TextBox></td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Funder details*</td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="TextBox1" runat="server" Columns="60" Rows="8" 
+                        TextMode="MultiLine"></asp:TextBox>
+                    </td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Contact details*</td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="tbEmail" runat="server" Columns="60" ReadOnly="True" 
+                        Enabled="False"></asp:TextBox>
+                    </td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Contract start*&nbsp;&nbsp;&nbsp;
+                </td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="tbDateCreated" runat="server" Columns="60" ReadOnly="True" 
+                        Enabled="False"></asp:TextBox>
+                    
+                    &nbsp;<asp:ImageButton ID="IBCalendar1" runat="server" Enabled="False" 
+                        ImageUrl="~/images/calbtn.gif" Visible="False" />
+                    
+                    </td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Contract end*</td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="tbLastLogin" runat="server" Columns="60" ReadOnly="True" 
+                        Enabled="False"></asp:TextBox>
+                        
+                    &nbsp;<asp:ImageButton ID="IBCalendar2" runat="server" Enabled="False" 
+                        ImageUrl="~/images/calbtn.gif" Visible="False" />
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    Status</td>
+                <td style="width: 75%">
+                    <asp:DropDownList ID="ddlERStatus" runat="server" Enabled="False">
+                        <asp:ListItem Selected="True" Value="ACTIVE">Active</asp:ListItem>
+                        <asp:ListItem Value="FROZEN">Frozen</asp:ListItem>
+                    </asp:DropDownList>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #99ccff; width: 25%;">
+                    ER3 funder</td>
+                <td style="width: 75%">
+                    <asp:TextBox ID="tbER3ContactID" runat="server" Columns="60" ReadOnly="True" 
+                        Enabled="False"></asp:TextBox></td>
+            </tr>
+            </table>
+
+            <asp:Button ID="cmdSave" runat="server" Text="Save" Visible="False" 
+                onclick="cmdSave_Click" />
+            &nbsp;
+            <asp:Label ID="lblMissingFields" runat="server" 
+                Text="Please fill in all of the fields" Visible="False" Font-Bold="True"></asp:Label>
+            <br />
+            <br />
+            <b>This funders reviews</b><br />
+
+            <componentart:grid ID="Grid1" runat="server" CssClass="Grid" FooterCssClass="GridFooter" 
+                GroupingNotificationText="" GroupingPageSize="6" height="200px" 
+                ImagesBaseUrl="images/" PagerStyle="Numbered" PagerTextCssClass="PagerText" 
+                PageSize="6" RunningMode="Client" SearchOnKeyPress="true" 
+                SearchTextCssClass="GridHeaderText" ShowHeader="true" ShowSearchBox="true" 
+                TreeLineImageHeight="21" TreeLineImagesFolderUrl="images/lines/" 
+                TreeLineImageWidth="22" width="900px">
+                <levels>
+                    <ComponentArt:GridLevel AllowGrouping="False" DataCellCssClass="DataCell" 
+                        GroupHeadingCssClass="GroupHeading" HeadingCellCssClass="HeadingCell" 
+                        HeadingRowCssClass="HeadingRow" HeadingTextCssClass="HeadingCellText" 
+                        RowCssClass="Row" SelectedRowCssClass="SelectedRow" 
+                        SortAscendingImageUrl="asc.gif" SortDescendingImageUrl="desc.gif" 
+                        SortImageHeight="10" SortImageWidth="10">
+                        <Columns>
+                            <ComponentArt:GridColumn DataField="REVIEW_ID" HeadingText="Review ID" />
+                            <ComponentArt:GridColumn DataField="ER3_REVIEW_ID" HeadingText="ER3 Review ID" />
+                            <ComponentArt:GridColumn DataCellServerTemplateID="ContactTemplate" DataField="REVIEW_NAME" 
+                                HeadingText="Review" />
+                            <ComponentArt:GridColumn DataField="ROLE" HeadingText="Contact<br />review role" />
+                            <ComponentArt:GridColumn DataField="CONTACT_REVIEW_STATUS" HeadingText="Contact<br /> review status" />
+                            <ComponentArt:GridColumn DataField="DATE_CREATED" HeadingText="Review created" />
+                        </Columns>
+                    </ComponentArt:GridLevel>
+                </levels>
+                <servertemplates>
+                    <ComponentArt:GridServerTemplate ID="ContactTemplate" runat="server">
+                        <template>
+                            <a href='../ER4Manager/ReviewDetails.aspx?ID=<%# Container.DataItem["REVIEW_ID"] %>'><%# Container.DataItem["REVIEW_NAME"]%></a>
+                        </template>
+                    </ComponentArt:GridServerTemplate>
+                </servertemplates>
+            </componentart:grid><br />
+            <br />
+    
+    </div>
+</asp:Content>

@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web.Security;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+using System.IO;
+using System.Data.SqlClient;
+
+public partial class Funders : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+
+            ComponentArt.Web.UI.TabStrip ts = (ComponentArt.Web.UI.TabStrip)Master.FindControl("tsMenu");
+            if (ts != null)
+            {
+                ts.SelectedTab = ts.Tabs[3];
+                ts.SelectedTab = ts.Tabs[3].Tabs[0];
+            }
+            System.Web.UI.WebControls.Label lbl = (Label)Master.FindControl("lblPageTitle");
+            if (lbl != null)
+            {
+                lbl.Text = "Funders";
+            }
+            if (Utils.GetSessionString("ER_Role") == "Admin")
+            {
+                lbNewFunder.Enabled = true;
+            }
+
+            buildGrid();
+        }
+    }
+
+    private void buildGrid()
+    {
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+        dt.Columns.Add(new DataColumn("FUNDER_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("FUNDER_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("FUNDER_DESCRIPTION", typeof(string)));
+        string SQL = "select FUNDER_ID, FUNDER_NAME, FUNDER_DESCRIPTION FROM TB_FUNDER";
+        SQL += " order by FUNDER_NAME";
+        bool isAdmDB = false;
+        SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
+        while (sdr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["FUNDER_ID"] = sdr["FUNDER_ID"].ToString();
+            newrow["FUNDER_NAME"] = sdr["FUNDER_NAME"].ToString();
+            newrow["FUNDER_DESCRIPTION"] = sdr["FUNDER_DESCRIPTION"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        sdr.Close();
+
+        Grid1.DataSource = dt;
+        Grid1.DataBind();
+    }
+    protected void lbNewFunder_Click(object sender, EventArgs e)
+    {
+        Server.Transfer("FunderDetails.aspx?ID=New");
+    }
+}

@@ -1,0 +1,52 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true"
+    CodeFile="Funders_NOT_USED.aspx.cs" Inherits="Funders" Title="Funders" %>
+   <%@ Register Assembly="ComponentArt.Web.UI" Namespace="ComponentArt.Web.UI" TagPrefix="ComponentArt" %>
+    <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+        <div>
+    
+
+    
+            <strong>
+            <asp:LinkButton ID="lbNewFunder" runat="server" Enabled="False" 
+                OnClick="lbNewFunder_Click">Create new funder</asp:LinkButton>
+            <br />
+            </strong>
+    
+
+    
+            <br />
+            <ComponentArt:Grid ID="Grid1" runat="server" CssClass="Grid" FooterCssClass="GridFooter" 
+                GroupingNotificationText="" GroupingPageSize="15" height="320px" 
+                ImagesBaseUrl="images/" PagerStyle="Numbered" PagerTextCssClass="PagerText" 
+                PageSize="15" RunningMode="Client" SearchOnKeyPress="true" 
+                SearchTextCssClass="GridHeaderText" ShowHeader="true" ShowSearchBox="true" 
+                TreeLineImageHeight="21" TreeLineImagesFolderUrl="images/lines/" 
+                TreeLineImageWidth="22" width="750px">
+                <levels>
+                    <ComponentArt:GridLevel AllowGrouping="False" DataCellCssClass="DataCell" 
+                        GroupHeadingCssClass="GroupHeading" HeadingCellCssClass="HeadingCell" 
+                        HeadingRowCssClass="HeadingRow" HeadingTextCssClass="HeadingCellText" 
+                        RowCssClass="Row" SelectedRowCssClass="SelectedRow" 
+                        SortAscendingImageUrl="asc.gif" SortDescendingImageUrl="desc.gif" 
+                        SortImageHeight="10" SortImageWidth="10">
+                        <Columns>
+                            <ComponentArt:GridColumn DataField="FUNDER_ID" HeadingText="Funder ID" />
+                            <ComponentArt:GridColumn DataCellServerTemplateID="ContactTemplate" DataField="FUNDER_NAME" 
+                                HeadingText="Funder" />
+                            <ComponentArt:GridColumn DataField="FUNDER_DESCRIPTION" HeadingText="Description" />
+                        </Columns>
+                    </ComponentArt:GridLevel>
+                </levels>
+                <servertemplates>
+                    <ComponentArt:GridServerTemplate ID="ContactTemplate" runat="server">
+                        <template>
+                            <a href='../ER4Manager/FunderDetails.aspx?funder=<%# Container.DataItem["FUNDER_ID"] %>'><%# Container.DataItem["FUNDER_NAME"]%></a>
+                        </template>
+                    </ComponentArt:GridServerTemplate>
+                </servertemplates>
+            </ComponentArt:Grid>
+    
+            <br />
+    
+    </div>
+</asp:Content>

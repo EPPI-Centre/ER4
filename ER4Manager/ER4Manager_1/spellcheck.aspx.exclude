@@ -1,0 +1,60 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="spellcheck.aspx.cs" Inherits="spellcheck" %>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body style="background-color: #f3f0f0; margin-top: 0; margin-left: 0; margin-right: 0;
+    margin-bottom: 0">
+    <form id="SpellingForm" method="post" runat="server">
+        <input id="setUICulture" type="hidden" runat="server" />
+        <input id="setCulture" type="hidden" runat="server" />
+        <RTB:SpellCheck ID="Spell" runat="server" />
+    </form>
+
+    <script runat="server">
+
+        private void Page_Load(object sender, System.EventArgs e)
+        {
+            //Reset UICulture so that it continues to keep 
+            //the same culture on subsequent requests 
+            //ViewState is turned off to cut down page size & load time
+            if (Request.Params["setUICulture"] != null && !Request.Params["setUICulture"].ToString().Equals(""))
+            {
+                setUICulture.Value = Request.Params["setUICulture"].ToString();
+            }
+
+            //Set Culture hidden field so that it continues to keep 
+            //the same culture on subsequent requests 
+            //ViewState is turned off to cut down page size & load time
+            if (Request.Params["setCulture"] != null && !Request.Params["setCulture"].ToString().Equals(""))
+            {
+                setCulture.Value = Request.Params["setCulture"].ToString();
+            }
+
+        }
+
+        protected void Page_Init(object src, EventArgs e)
+        {
+            //This sets the Spell Checker dialog box localisation.
+            //"UICulture" is passed to this page from the calling RichTextBox, & is set to the 
+            //Thread.CurrentThread.CurrentUICulture that is being used by the RichTextBox.
+            if (Request.Params["setUICulture"] != null && !Request.Params["setUICulture"].ToString().Equals(""))
+            {
+                this.UICulture = Request.Params["setUICulture"].ToString();
+            }
+
+            //This sets the Spell Checker Culture based on the Culture of the calling RichTextBox.
+            //"Culture" is passed to this page from the calling RichTextBox, & is set to the 
+            //Thread.CurrentThread.CurrentCulture that is being used by the RichTextBox.
+            if (Request.Params["setCulture"] != null && !Request.Params["setCulture"].ToString().Equals(""))
+            {
+                this.Culture = Request.Params["setCulture"].ToString();
+            }
+        }
+    </script>
+</body>
+</html>

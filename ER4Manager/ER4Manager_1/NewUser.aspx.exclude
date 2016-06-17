@@ -1,0 +1,177 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true"
+    CodeFile="NewUser.aspx.cs" Inherits="NewUser" Title="NewUser" %>
+    <%@ Register assembly="ComponentArt.Web.UI" namespace="ComponentArt.Web.UI" tagprefix="ComponentArt" %>
+    <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+        <div style="max-width:800px">
+            
+            <asp:Panel ID="pnlEmail" runat="server" BorderColor="Black" BorderStyle="Solid" 
+                BorderWidth="1px" Visible="False" Width="800px">
+                ID:
+                <asp:Label ID="lblContactID" runat="server" Text="ID"></asp:Label>
+                &nbsp; Name:
+                <asp:Label ID="lblName" runat="server" Text="Name"></asp:Label>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Email:
+                <asp:TextBox ID="tbEmailAddress" runat="server"></asp:TextBox>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <asp:DropDownList ID="ddlEmail" runat="server" AutoPostBack="True" 
+                    onselectedindexchanged="ddlEmail_SelectedIndexChanged">
+                    <asp:ListItem Value="1">1 week email</asp:ListItem>
+                    <asp:ListItem Value="3">3 week email</asp:ListItem>
+                    <asp:ListItem Value="4">Expired email</asp:ListItem>
+                </asp:DropDownList>
+                &nbsp;&nbsp;&nbsp;<asp:LinkButton ID="lbMarkAsSent" runat="server" 
+                    onclick="lbMarkAsSent_Click">Mark as sent</asp:LinkButton>
+                &nbsp;
+                <asp:LinkButton ID="lbMarkAsNotSent" runat="server" 
+                    onclick="lbMarkAsNotSent_Click">Mark as not sent</asp:LinkButton>
+                &nbsp;&nbsp;
+                <asp:LinkButton ID="lbUpdate" runat="server" onclick="lbUpdate_Click" 
+                    ToolTip="This will update the email message on the server">Update message</asp:LinkButton>
+                &nbsp;<br />
+                <br />
+                <asp:TextBox ID="tbSubject" runat="server" Width="50%"></asp:TextBox>
+                &nbsp; Subject<br />
+                <asp:TextBox ID="tbGreeting" runat="server" Width="30%"></asp:TextBox>
+                &nbsp; Greeting<br />
+                <asp:TextBox ID="tbEmail" runat="server" Rows="10" TextMode="MultiLine" 
+                    Width="90%"></asp:TextBox>
+                <br />
+                <br />
+                <asp:Button ID="cmdSend" runat="server" onclick="cmdSend_Click" Text="Send" />
+                &nbsp;&nbsp;
+                <asp:LinkButton ID="lbCancel" runat="server" onclick="lbCancel_Click">Cancel</asp:LinkButton>
+                <br />
+                <br />
+            </asp:Panel>
+            <br />
+            
+            Total number of accounts created after 20/03/2010:
+            <asp:Label ID="lblAccountsCreated" runat="server" Font-Bold="True" Text="n "></asp:Label>
+            (both active and expired)<br />
+            Total number of accounts that have logged on after 01/07/2010:
+            <asp:Label ID="lblNumActiveUsers" runat="server" Text="n" Font-Bold="True"></asp:Label>
+            &nbsp;(both active and expired)<br />
+                        <br />
+                        <br />
+            &nbsp;Most active users&nbsp;&nbsp;&nbsp;
+            <asp:DropDownList ID="ddlTimePeriod" runat="server" AutoPostBack="True" 
+                onselectedindexchanged="ddlTimePeriod_SelectedIndexChanged">
+                <asp:ListItem Value="10000">All time</asp:ListItem>
+                <asp:ListItem Value="1">Today</asp:ListItem>
+                <asp:ListItem Value="7">1 week</asp:ListItem>
+                <asp:ListItem Value="30">1 Month</asp:ListItem>
+                <asp:ListItem Value="90">3 Months</asp:ListItem>
+                <asp:ListItem Value="180">6 Months</asp:ListItem>
+                <asp:ListItem Value="365">1 Year</asp:ListItem>
+            </asp:DropDownList>
+            &nbsp; (starting 01/07/2010)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            Sort by&nbsp;
+            <asp:DropDownList ID="ddlSortBy" runat="server" AutoPostBack="True" 
+                onselectedindexchanged="ddlSortBy_SelectedIndexChanged">
+                <asp:ListItem Value="DAYS_REMAINING">Days remaining</asp:ListItem>
+                <asp:ListItem Value="NUMBER_LOGINS">Number logins</asp:ListItem>
+                <asp:ListItem Value="CONTACT_ID">Contact ID</asp:ListItem>
+                <asp:ListItem Value="CONTACT_NAME">Name</asp:ListItem>
+                <asp:ListItem Value="DAYS_SINCE_CREATION">Account age</asp:ListItem>
+                <asp:ListItem Value="LAST_ACCESS">Last access</asp:ListItem>
+            </asp:DropDownList>
+            <br />
+            <asp:CheckBox ID="cbAsc" runat="server" AutoPostBack="True" 
+                oncheckedchanged="cbAsc_CheckedChanged" Text="ascending" Checked="True" />
+&nbsp;&nbsp;&nbsp;&nbsp;<asp:CheckBox ID="cbWithLogin" runat="server" AutoPostBack="True" Text="With &gt; 0 ER4 logins" 
+                oncheckedchanged="cbWithLogin_CheckedChanged" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+            
+                        &nbsp;
+            <asp:DropDownList ID="ddlDaysRemaining" runat="server" 
+                onselectedindexchanged="ddlDaysRemaining_SelectedIndexChanged" 
+                AutoPostBack="True">
+                <asp:ListItem Value="-10000:10000">All</asp:ListItem>
+                <asp:ListItem Value="-10:-5">-10 to -5 days</asp:ListItem>
+                <asp:ListItem Value="-5:0">-5 to 0 days</asp:ListItem>
+                <asp:ListItem Value="0:4">0 - 4 days </asp:ListItem>
+                <asp:ListItem Value="4:10">4 - 10 days</asp:ListItem>
+                <asp:ListItem Value="10:20">10 - 20 days</asp:ListItem>
+                <asp:ListItem Value="20:26">20 to 26 days</asp:ListItem>
+                <asp:ListItem Value="26:10000">&gt; 26 days</asp:ListItem>
+            </asp:DropDownList>
+&nbsp;Days remaining<br />
+                        <br />
+                        <ComponentArt:Grid ID="Grid1" 
+                runat="server" CssClass="Grid" 
+                FooterCssClass="GridFooter" 
+                GroupingNotificationText="" 
+                GroupingPageSize="15" 
+                height="350px" 
+                ImagesBaseUrl="images/" 
+                PagerStyle="Numbered" 
+                PagerTextCssClass="PagerText" 
+                PageSize="15"                 
+                RunningMode="Client" 
+                SearchOnKeyPress="true" 
+                SearchTextCssClass="GridHeaderText" 
+                ShowHeader="true" 
+                ShowSearchBox="true" 
+                TreeLineImageHeight="21" 
+                TreeLineImagesFolderUrl="images/lines/" 
+                TreeLineImageWidth="22" 
+                width="800px" onitemcommand="Grid1_ItemCommand" 
+                onitemcontentcreated="Grid1_ItemContentCreated">
+                <levels>
+                    <ComponentArt:GridLevel 
+                        DataKeyField="CONTACT_ID" 
+                        AllowGrouping="False"
+                        AllowSorting="false" 
+                        DataCellCssClass="DataCell" 
+                        GroupHeadingCssClass="GroupHeading" 
+                        HeadingCellCssClass="HeadingCell" 
+                        HeadingRowCssClass="HeadingRow" 
+                        HeadingTextCssClass="HeadingCellText" 
+                        RowCssClass="Row" 
+                        SelectedRowCssClass="SelectedRow" 
+                        SortAscendingImageUrl="asc.gif" 
+                        SortDescendingImageUrl="desc.gif" 
+                        SortImageHeight="10" 
+                        SortImageWidth="10">
+                        <Columns>
+                            <ComponentArt:GridColumn DataField="CONTACT_ID" HeadingText="Contact ID" />
+                            <ComponentArt:GridColumn DataCellServerTemplateID="ContactTemplate" DataField="CONTACT_NAME" 
+                            HeadingText="Contact name" />
+                            <ComponentArt:GridColumn DataField="NUMBER_LOGINS" HeadingText="Number logins" />
+                            <ComponentArt:GridColumn DataField="DAYS_SINCE_CREATION" HeadingText="Account age" />
+                            <ComponentArt:GridColumn DataField="DAYS_REMAINING" HeadingText="Days remaining" />
+                            <ComponentArt:GridColumn DataField="LAST_ACCESS" HeadingText="Last access" />
+                            <ComponentArt:GridColumn DataField="1_WK_SENT" HeadingText="1 week <br>email sent?" />
+                            <ComponentArt:GridColumn DataField="3_WK_SENT" HeadingText="3 week <br>email sent?" />
+                            <ComponentArt:GridColumn DataField="EXPIRED_SENT" HeadingText="Expired <br>email sent?" />
+                            <ComponentArt:GridColumn HeadingText="Send email" Align="Center" DataCellServerTemplateID="EmailTemplate" />
+                        </Columns>
+                    </ComponentArt:GridLevel>
+                </levels>
+                <servertemplates>
+                    <ComponentArt:GridServerTemplate ID="ContactTemplate" runat="server">
+                        <template>
+                            <a href='../ER4Manager/ContactDetails.aspx?ID=<%# Container.DataItem["CONTACT_ID"] %>'>
+                            <%# Container.DataItem["CONTACT_NAME"]%></a>
+                        </template>
+                        
+       </ComponentArt:GridServerTemplate>
+       <ComponentArt:GridServerTemplate ID="EmailTemplate" runat="server">
+            <Template>
+                <asp:LinkButton ID="lbEmail" runat="server" CommandName="Email">Email</asp:LinkButton>
+            
+</Template>
+                    </ComponentArt:GridServerTemplate>
+                </servertemplates>
+            </ComponentArt:Grid>
+    
+                        <br />
+                        <asp:HyperLink ID="HyperLink1" runat="server">HyperLink</asp:HyperLink>
+                        <br />
+                        <br />
+            
+                        </div>
+</asp:Content>
+
+
+

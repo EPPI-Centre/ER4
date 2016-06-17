@@ -1,0 +1,525 @@
+﻿body
+{
+  /*background-color:White; 
+  font-family: verdana; 
+  font-size: 12px;
+  color:#3F3F3F; */
+  font-family: verdana; 
+  font-size: 11px; 
+  /*font-weight: bold; */
+  text-align: left;
+}
+.Grid 
+{ 
+  border: 1px solid #7C7C94; 
+  background-color: #FFFFFF; 
+  cursor: pointer; 
+}
+.GridHeader
+{ 
+  background-color: #8988A5; 
+  background-image: url(Images/grid_BheaderBg.gif); 
+  border-bottom: 1px solid #57566F; 
+  height: 28px;
+  padding-left: 3px;
+  cursor: default; 
+}
+.GridFooter
+{
+  cursor: default; 
+  padding: 5px;
+  vertical-align: bottom;
+}
+.GridHeaderText
+{
+  color: #FFFFFF;  
+  font-family: verdana; 
+  font-size: 10px;
+  font-weight: bold; 
+}
+.HeadingRow 
+{ 
+  background-color: #E2E2E2; 
+}
+
+.HeadingCell 
+{ 
+  background-color: #C4DBFF; 
+  border: 1px solid #FFFFFF; 
+  border-right-color: #B5B5B5; 
+  border-bottom-color: #B5B5B5; 
+  padding: 3px;
+}
+
+.HeadingCellText
+{
+  font-family: verdana; 
+  font-size: 10px; 
+  font-weight: bold; 
+  text-align: left;
+}
+
+.DataRow 
+{ 
+  background-color: #FFFFFF; 
+}
+
+.DataCell 
+{ 
+  cursor: default;
+  padding: 3px; 
+  border-right: 1px solid #EAE9E1; 
+  border-bottom: 1px solid #EAE9E1; 
+  font-family: verdana; 
+  font-size: 10px; 
+} 
+
+.DataRow td.FirstDataCell 
+{ 
+  padding-left: 3px; 
+} 
+
+.SelectedRow 
+{ 
+  background-color: #FFEEC2; 
+}
+
+.rgRow 
+{
+  white-space:nowrap;
+}
+
+.SelectedRow td.DataCell 
+{ 
+  cursor: default; 
+  padding: 2px; 
+  padding-left: 3px; 
+  padding-bottom: 3px; 
+  font-family: verdana; 
+  font-size: 10px; 
+  border-bottom: 1px solid #4B4B6F; 
+  border-top: 1px solid #4B4B6F; 
+  border-right: 0px; 
+}
+
+.SelectorCell 
+{ 
+  background-color: #E2E2E2; 
+  border: 1px solid #FFFFFF; 
+  border-right-color: #B5B5B5; 
+  border-bottom-color: #B5B5B5; 
+}
+
+.GridFooter
+{
+  cursor: default;
+  padding:5px;
+}
+
+.GridFooter a 
+{
+  color: Black;
+  font-weight: bold;
+}
+
+
+.PagerText
+{ 
+  font-family: verdana; 
+  font-size: 11px; 
+} 
+
+.OtherText
+{
+
+}
+
+.ScrollBar
+{
+  background-image: url(images/scroller/scroller_bg.gif); 
+}
+
+.ScrollGrip
+{
+  background-image: url(images/scroller/scroll_gripBg.gif); 
+}
+
+.ScrollPopup
+{
+  background-color: #FFFFFF; 
+  border: 1px solid #666666;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+  height: 23px;
+}
+
+
+/* STYLES FOR SOFT CORNER BLUE TABSTRIP */
+
+.Level2Group
+{
+  background-color: #4544AF;
+  position:relative;
+  top:-1px;
+}
+
+.DefaultTab 
+{
+  color: white; 
+  background-color: #6F8AD2;
+  font-family: verdana; 
+  font-weight:bold;
+  font-size:11px; 
+  cursor:pointer;
+}
+
+.DisabledTab 
+{
+  color:#AAAAAA; 
+  background-color: #4544AF;
+  font-family:Verdana; 
+  font-size:10px; 
+  font-weight: bold;
+  cursor:default;
+}
+
+.DefaultTabHover 
+{
+  color: white; 
+  background-color: #6F8AD2;
+  font-family: verdana; 
+  font-weight:bold;
+  font-size:11px; 
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+.SelectedTab 
+{
+  color: white; 
+  background-color: #4544AF;
+  font-family: verdana; 
+  font-size:11px; 
+  font-weight:bold;
+  cursor:default;
+}
+
+.Level2Tab 
+{
+  color: white; 
+  font-family: verdana; 
+  font-size:11px; 
+  cursor:pointer;
+}
+
+.Level2TabHover 
+{
+  color: white; 
+  font-family: verdana; 
+  font-size:11px; 
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+.SelectedLevel2Tab 
+{
+  color: white; 
+  /*background-color: #4544AF;*/
+  font-family: verdana; 
+  font-size:11px; 
+  /*position:relative;*/
+  font-weight:bold;
+  /*top:2px;*/
+  cursor:default;
+}
+
+.Spacer
+{
+  background-color: #4544AF;
+}
+
+.Textbox
+{
+  font-family: verdana; 
+  font-size: 11px; 
+  text-align: left;
+}
+.Textbox2
+{
+  font-family: verdana; 
+  font-size: 12px; 
+  text-align: left;
+}
+.gvSummaryPage
+{
+    table-layout:fixed; 
+}
+
+.gvReviewNonShareableCol1
+{
+    width:10%;
+}
+.gvReviewNonShareableCol2
+{
+    width:55%;
+}
+.gvReviewNonShareableCol3
+{  
+    width:10%;
+}
+.gvReviewNonShareableCol4
+{
+    width:15%;
+}
+.gvReviewNonShareableCol5
+{
+    width:10%;
+}
+
+.gvReviewShareableMemberCol1
+{
+    width:80px;
+}
+.gvReviewShareableMemberCol2
+{
+    width:320px;
+}
+.gvReviewShareableMemberCol3
+{
+    width:160px;
+}
+.gvReviewShareableMemberCol4
+{
+    width:80px;
+}
+.gvReviewShareableMemberCol5
+{
+    width:80px;
+}
+.gvReviewShareableMemberCol6
+{
+    width:80px;
+}
+.gvReviewNonShareable
+{
+    width:400px;
+    table-layout:fixed;
+}
+.dropdown
+{
+  background-color:White; 
+  font-family: verdana; 
+  font-size:5;
+  color: Blue
+  /*color:#3F3F3F;*/ 
+}
+.TreeView 
+{ 
+  background-color: #f0f0f0; 
+  border: 1px solid black; 
+  padding: 2px; 
+  padding-left: 5px;
+} 
+
+.TreeNode 
+{ 
+  font-family: verdana; 
+  font-size: 11px; 
+  padding: 2px; 
+  padding-left: 3px; 
+  padding-right: 3px; 
+  border: 1px solid #f0f0f0; 
+  cursor: pointer;
+} 
+
+.SelectedTreeNode 
+{ 
+  font-family: verdana; 
+  font-size: 11px; 
+  padding: 2px; 
+  padding-left: 3px; 
+  padding-right: 3px; 
+  background-color:white; 
+  border: 1px solid gray; 
+  cursor: default; 
+} 
+
+.HoverTreeNode 
+{
+  font-family: verdana; 
+  font-size: 11px; 
+  padding: 2px; 
+  padding-left: 3px; 
+  padding-right: 3px; 
+  background-color:#cccccc; 
+  border: 1px solid gray; 
+  cursor: pointer;
+}
+
+.TreeNodeRow 
+{ 
+  height: 20px; 
+}
+
+.NoNodeSelect  
+{ 
+    color: #000 !important; 
+    border-color: white !important; 
+    background: none !important; 
+} 
+
+#ContinueToWPM
+{
+    display: block;
+    width:91px;
+    height:24px;
+    min-height:23px;
+    min-width:91px;
+    background-image: url('Images/WPMContinue.png');
+    background-repeat:no-repeat;
+    background-position:0 0;
+}
+
+#ContinueToWPM:Hover
+{
+    background-position: 0 -23px;
+}
+#ContinueToWPM font
+{
+    position: absolute;
+    top: -999em;
+}
+.grviewFixedWidth
+{
+    max-width:800px;
+    min-width:800px;
+    margin-top: 1px;
+}
+td.Cell2b
+{
+    background-color: #3C529F;
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    
+}
+td.CellTop
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:#3C529F white white white; 
+    
+}
+td.CellRight
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:white #3C529F white white; 
+    
+}
+td.CellBottom
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:white white #3C529F white; 
+    
+}
+td.CellLeft
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:white white white #3C529F; 
+    
+}
+td.CellTL
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:#3C529F white white #3C529F; 
+    
+}
+td.CellTR
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:#3C529F #3C529F white white; 
+    
+}
+td.CellBL
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:white white #3C529F #3C529F; 
+    
+}
+td.CellBR
+{
+    /*background-color: #3C529F;*/
+    font-family:Verdana; 
+    font-size:10px; 
+    font-weight: bold;
+    border: 2px solid #3C529F;
+    color:#ffffff;
+    border-color:white #3C529F #3C529F white; 
+    
+}
+.imageBox
+{
+    border: 1px solid #3C529F;
+    /*border-color:#3C529F;*/
+}
+.HeaderBox
+{
+    font-family: verdana; 
+    font-size: 11px; 
+    font-weight: bold;
+}
+.ParagraphBox
+{
+    font-family: verdana; 
+    font-size: 15px; 
+}
+.IndentedTextBox
+{
+    font-family: verdana; 
+    font-size: 15px; 
+    text-indent:50px;
+}
+
+.RadGrid  .rgHeader,
+.RadGrid  .rgRow  td,
+.RadGrid  .rgAltRow  td
+ {
+    overflow: hidden ;
+    white-space:nowrap;           
+ }
