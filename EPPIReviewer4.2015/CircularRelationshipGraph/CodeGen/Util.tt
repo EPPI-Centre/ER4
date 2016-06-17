@@ -1,0 +1,366 @@
+﻿<#@ template hostspecific="true" #>
+
+<#@ assembly name="System.Core.dll" #>
+<#@ assembly name="System.Xml.Linq.dll" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ assembly name="EnvDTE" #>
+
+<#@ import Namespace="EnvDTE" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Xml.Xsl" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#+
+
+/// <summary
+/// Executes the given transform on the given source, adding the
+/// generated output to the given project.
+/// </summary>
+public void RunTransform(string transformPath, string sourcePath,
+							string outputPath, Project project)
+{
+
+	XslCompiledTransform transform = new XslCompiledTransform();
+	transform.Load(transformPath);
+
+	XDocument source = XDocument.Load(sourcePath);
+
+	StringWriter strWriter = new StringWriter();
+	var args = new XsltArgumentList();
+	transform.Transform(source.CreateReader(), args, strWriter);
+
+	WriteLine(strWriter.ToString());
+	
+	SaveOutput(outputPath, project);
+}
+
+/// <summary
+/// Adds the given file to the given project.
+/// </summary>
+public void SaveOutput(string outputFileName, Project project)
+{
+    // write all of the generated output to a file
+    string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+    string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+    File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+
+		// clear the generated output
+    this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+
+		// add to the project
+		project.ProjectItems.AddFromFile(outputFilePath);
+}
+
+// --------------------------------------------------------------------------------
+
+/// <summary>
+
+/// Converts a C# literal string into a normal string.
+
+/// </summary>
+
+/// <param name="source">Source C# literal string.</param>
+
+/// <returns>
+
+/// Normal string representation.
+
+/// </returns>
+
+// --------------------------------------------------------------------------------
+
+public  string StringFromCSharpLiteral(string source)
+
+{
+
+  StringBuilder sb = new StringBuilder(source.Length);
+
+  int pos = 0;
+
+  while (pos < source.Length)
+
+  {
+
+    char c = source[pos];
+
+    if (c == '\\')
+
+    {
+
+      // --- Handle escape sequences
+
+      pos++;
+
+      if (pos >= source.Length) throw new ArgumentException("Missing escape sequence");
+
+      switch (source[pos])
+
+      {
+
+        // --- Simple character escapes
+
+        case '\'': c = '\''; break;
+
+        case '\"': c = '\"'; break;
+
+        case '\\': c = '\\'; break;
+
+        case '0': c = '\0'; break;
+
+        case 'a': c = '\a'; break;
+
+        case 'b': c = '\b'; break;
+
+        case 'f': c = '\f'; break;
+
+        case 'n': c = ' '; break;
+
+        case 'r': c = ' '; break;
+
+        case 't': c = '\t'; break;
+
+        case 'v': c = '\v'; break;
+
+        case 'x':
+
+          // --- Hexa escape (1-4 digits)
+
+          StringBuilder hexa = new StringBuilder(10);
+
+          pos++;
+
+          if (pos >= source.Length)
+
+            throw new ArgumentException("Missing escape sequence");
+
+          c = source[pos];
+
+          if (Char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+
+          {
+
+            hexa.Append(c);
+
+            pos++;
+
+            if (pos < source.Length)
+
+            {
+
+              c = source[pos];
+
+              if (Char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+
+              {
+
+                hexa.Append(c);
+
+                pos++;
+
+                if (pos < source.Length)
+
+                {
+
+                  c = source[pos];
+
+                  if (Char.IsDigit(c) || (c >= 'a' && c <= 'f') ||
+
+                    (c >= 'A' && c <= 'F'))
+
+                  {
+
+                    hexa.Append(c);
+
+                    pos++;
+
+                    if (pos < source.Length)
+
+                    {
+
+                      c = source[pos];
+
+                      if (Char.IsDigit(c) || (c >= 'a' && c <= 'f') ||
+
+                        (c >= 'A' && c <= 'F'))
+
+                      {
+
+                        hexa.Append(c);
+
+                        pos++;
+
+                      }
+
+                    }
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+
+          c = (char)Int32.Parse(hexa.ToString(), NumberStyles.HexNumber);
+
+          pos--;
+
+          break;
+
+        case 'u':
+
+          // Unicode hexa escape (exactly 4 digits)
+
+          pos++;
+
+          if (pos + 3 >= source.Length)
+
+            throw new ArgumentException("Unrecognized escape sequence");
+
+          try
+
+          {
+
+            uint charValue = UInt32.Parse(source.Substring(pos, 4),
+
+              NumberStyles.HexNumber);
+
+            c = (char)charValue;
+
+            pos += 3;
+
+          }
+
+          catch (SystemException)
+
+          {
+
+            throw new ArgumentException("Unrecognized escape sequence");
+
+          }
+
+          break;
+
+        case 'U':
+
+          // Unicode hexa escape (exactly 8 digits, first four must be 0000)
+
+          pos++;
+
+          if (pos + 7 >= source.Length)
+
+            throw new ArgumentException("Unrecognized escape sequence");
+
+          try
+
+          {
+
+            uint charValue = UInt32.Parse(source.Substring(pos, 8),
+
+              NumberStyles.HexNumber);
+
+            if (charValue > 0xffff)
+
+              throw new ArgumentException("Unrecognized escape sequence");
+
+            c = (char)charValue;
+
+            pos += 7;
+
+          }
+
+          catch (SystemException)
+
+          {
+
+            throw new ArgumentException("Unrecognized escape sequence");
+
+          }
+
+          break;
+
+        default:
+
+          throw new ArgumentException("Unrecognized escape sequence");
+
+      }
+
+    }
+
+    pos++;
+
+    sb.Append(c);
+
+  }
+
+  return sb.ToString();
+
+}
+
+ 
+
+// --------------------------------------------------------------------------------
+
+/// <summary>
+
+/// Converts a C# verbatim literal string into a normal string.
+
+/// </summary>
+
+/// <param name="source">Source C# literal string.</param>
+
+/// <returns>
+
+/// Normal string representation.
+
+/// </returns>
+
+// --------------------------------------------------------------------------------
+
+public string StringFromVerbatimLiteral(string source)
+
+{
+
+  StringBuilder sb = new StringBuilder(source.Length);
+
+  int pos = 0;
+
+  while (pos < source.Length)
+
+  {
+
+    char c = source[pos];
+
+    if (c == '\"')
+
+    {
+
+      // --- Handle escape sequences
+
+      pos++;
+
+      if (pos >= source.Length) throw new ArgumentException("Missing escape sequence");
+
+      if (source[pos] == '\"') c = '\"';
+
+      else throw new ArgumentException("Unrecognized escape sequence");
+
+    }
+
+    pos++;
+
+    sb.Append(c);
+
+  }
+
+  return sb.ToString();
+
+}
+
+
+#>

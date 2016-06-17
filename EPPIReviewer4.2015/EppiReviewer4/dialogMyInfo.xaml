@@ -1,0 +1,155 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogMyInfo"
+    xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input" 
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation" 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+    xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:core="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+    xmlns:telerikData="clr-namespace:Telerik.Windows.Data;assembly=Telerik.Windows.Data"
+    xmlns:my="clr-namespace:MindFusion.Diagramming.Silverlight;assembly=MindFusion.Diagramming.Silverlight"
+    xmlns:dragDrop="clr-namespace:Telerik.Windows.Controls.DragDrop;assembly=Telerik.Windows.Controls"
+    xmlns:dpager="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Data"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    >
+    <UserControl.Resources>
+        <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+        <helper:LoginToReviewIsEn x:Key="LoginToReviewIsEnK"/>
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
+        <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
+        <Style TargetType="grid:GridViewCell" x:Name="selectReviewCellStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdSelectReview" Content="Go" Tag="{Binding ReviewId}" Click="cmdSelectReview_Click" 
+                                IsEnabled="{Binding ContactReviewRoles, Converter={StaticResource LoginToReviewIsEnK}}"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="csCodeOnlyBt">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="btCodeOnly" ToolTipService.ToolTip="Coding Only" Tag="{Binding ReviewId}" Click="btCodeOnly_Click" Margin="2">
+                            <Image Width="16" Height="16" Source="Icons/CodingOnly.png"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleArchieActions">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <Button x:Name="ActionButtonArchieCheckout" Content="Check Out" Click="ActionButtonArchieCheckout_Click"
+                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
+                            <Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
+                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>
+                            <Button x:Name="ActionButtonArchieOpen" Content="Open" Tag="{Binding ReviewId}" Click="ActionButtonArchieOpen_Click"
+                                    IsEnabled="{Binding ContactReviewRoles, Converter={StaticResource LoginToReviewIsEnK}}"
+                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="csArchieCodeOnlyBt">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="btArchieCodeOnly" ToolTipService.ToolTip="Coding Only" Tag="{Binding ReviewId}" Click="btArchieCodeOnly_Click" Margin="2"
+                                IsEnabled="{Binding isLocal}">
+                            <Image Width="16" Height="16" Source="Icons/CodingOnly.png"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="GridMyTab" MinWidth="50" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MaxHeight="100"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="80" ></ColumnDefinition>
+            <ColumnDefinition Width="*" MinWidth="80"></ColumnDefinition>
+            <ColumnDefinition MinWidth="80" ></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+
+        <Border Grid.Row="0" Grid.Column="1" BorderThickness="1,0,1,0" BorderBrush="#FF3C7FB1" Margin="1,4,1,4" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <TextBlock x:Name="AccountExpirationTBMyInfo" TextWrapping="Wrap" Margin="6,1,6,1"></TextBlock>
+                <TextBlock x:Name="ReviewExpirationTBMyInfo" TextWrapping="Wrap" Margin="6,0,6,1"></TextBlock>
+            </StackPanel>
+        </Border>
+        <Button Grid.Column="0" Grid.Row="0" Content="Priority Screening" x:Name="cmdStartScreening" Margin="6,6,6,6" Width="114" Height="35" 
+                Click="cmdStartScreening_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed"></Button>
+        <Button Grid.Column="2" Grid.Row="0" Content="New review" x:Name="cmdShowWindowCreateReview" Margin="6,6,6,6" Width="100" Height="35" 
+                Click="cmdShowWindowCreateReview_Click" HorizontalAlignment="Right" VerticalAlignment="Top"></Button>
+        <telerikNavigation:RadTabControl x:Name="Tabhost" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" SelectionChanged="Tabhost_SelectionChanged">
+            <telerikNavigation:RadTabItem x:Name="er4ReviewsTab" Header="Reviews in EPPI-Reviewer" IsSelected="True" Visibility="Collapsed">
+                <telerikGridView:RadGridView x:Name="GridViewMyReviews" AutoGenerateColumns="False" ShowGroupPanel="False" DataLoaded="GridViewMyReviews_DataLoaded"
+                                    MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                    RowIndicatorVisibility="Collapsed" ItemsSource="{Binding Source={StaticResource ReviewsData}, Path=Data}"
+                                    SelectionMode="Single" FrozenColumnCount="1" >
+                    <telerikGridView:RadGridView.Columns>
+                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource selectReviewCellStyle}" Width="40" Header="Select" DataMemberBinding="{Binding ReviewName}"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="*"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="ID" DataMemberBinding="{Binding ReviewId}" Width="40"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Last Logon" DataMemberBinding="{Binding LastAccess}" Width="120"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Owner" DataMemberBinding="{Binding ReviewOwner}" Width="95"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn IsVisible="True" IsFilterable="False" IsSortable="False" CellStyle="{StaticResource csCodeOnlyBt}" Width="35" 
+                        Header="" DataMemberBinding="{Binding ReviewName}"></telerikGridView:GridViewDataColumn>
+                    </telerikGridView:RadGridView.Columns>
+                </telerikGridView:RadGridView>
+            </telerikNavigation:RadTabItem>
+            <telerikNavigation:RadTabItem  x:Name="ArchieReviewsTab" Header="Archie Reviews" IsSelected="False" Visibility="Collapsed" >
+                <telerikGridView:RadGridView x:Name="GridViewArchieReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Top"
+                                  AutoGenerateColumns="False" HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding Source={StaticResource ArchieReviewsData}, Path=Data}" 
+                                  RowIndicatorVisibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+                    <telerikGridView:RadGridView.Columns>
+                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleArchieActions}" Width="100" Header="Select" DataMemberBinding="{Binding ReviewName}"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="*" MinWidth="60"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Is Local" DataMemberBinding="{Binding isLocal}" Width="40"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Is Editable" DataMemberBinding="{Binding isCheckedOutHere}" Width="40"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Local ID" DataMemberBinding="{Binding ReviewId}" Width="40"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Stage" DataMemberBinding="{Binding Stage}" Width="20"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Status" DataMemberBinding="{Binding Status}" Width="20"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Archie ID" DataMemberBinding="{Binding ArchieReviewId}" Width="120"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn Header="Archie CD" DataMemberBinding="{Binding ArchieReviewCD}" Width="120"></telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn IsVisible="True" IsFilterable="False" Width="35" IsSortable="False" CellStyle="{StaticResource csArchieCodeOnlyBt}" Header="" DataMemberBinding="{Binding ReviewName}"></telerikGridView:GridViewDataColumn>
+                    </telerikGridView:RadGridView.Columns>
+                </telerikGridView:RadGridView>
+            </telerikNavigation:RadTabItem>
+        </telerikNavigation:RadTabControl>
+        
+
+        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="1" x:Name="txtAlloc"
+                   Text="My work allocations:" VerticalAlignment="Bottom" Margin="6,6,1,1" HorizontalAlignment="Left" TextWrapping="Wrap"  ></TextBlock>
+        <telerikGridView:RadGridView x:Name="GridViewMyWorkAllocation" AutoGenerateColumns="False" ShowGroupPanel="False" LayoutUpdated="GridViewMyWorkAllocation_DataLoaded"  DataLoaded="GridViewMyWorkAllocation_DataLoaded"
+                                    MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                                    RowIndicatorVisibility="Collapsed" ItemsSource="{Binding Source={StaticResource WorkAllocationContactListData}, Path=Data}"
+                                    SelectionMode="Single" CanUserSelect="False" CanUserReorderColumns="False" >
+            <telerikGridView:RadGridView.Columns>
+                <telerikGridView:GridViewDataColumn Header="Codes to apply:" DataMemberBinding="{Binding SetName}" IsFilterable="False" Width="*" MinWidth="10" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Group of studies" DataMemberBinding="{Binding AttributeName}" IsFilterable="False" Width="190" MinWidth="10" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Allocated" DataMemberBinding="{Binding TotalAllocation}" IsFilterable="False" Width="60" MinWidth="10" IsReadOnly="True" TextAlignment="Right" CellStyle="{StaticResource HandStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Started" DataMemberBinding="{Binding TotalStarted}" IsFilterable="False" Width="60" MinWidth="10" IsReadOnly="True" TextAlignment="Right" CellStyle="{StaticResource HandStyle}"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Remaining" DataMemberBinding="{Binding TotalRemaining}" IsFilterable="False" Width="65" MinWidth="10" IsReadOnly="True" TextAlignment="Right" CellStyle="{StaticResource HandStyle}"></telerikGridView:GridViewDataColumn>
+            </telerikGridView:RadGridView.Columns>
+        </telerikGridView:RadGridView>
+
+    </Grid>
+</UserControl>

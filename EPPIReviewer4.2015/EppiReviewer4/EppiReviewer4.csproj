@@ -1,0 +1,1108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EppiReviewer4</RootNamespace>
+    <AssemblyName>EppiReviewer4</AssemblyName>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>EppiReviewer4.xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>EppiReviewer4.App</SilverlightAppEntry>
+    <TestPageFileName>TestPage.html</TestPageFileName>
+    <CreateTestPage>true</CreateTestPage>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>false</ThrowErrorsInValidation>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <OutOfBrowserSettingsFile>Properties\OutOfBrowserSettings.xml</OutOfBrowserSettingsFile>
+    <EnableOutOfBrowser>false</EnableOutOfBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>Bin\Debug\EppiReviewer4.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>Bin\Release\EppiReviewer4.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Csla, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Core.4.3.13\lib\sl50\Csla.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Csla.Xaml, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Silverlight.4.3.13\lib\sl50\Csla.Xaml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MindFusion.Diagramming.Silverlight">
+      <HintPath>..\Solution Items\MindFusion.Diagramming.Silverlight.dll</HintPath>
+    </Reference>
+    <Reference Include="RefParsingLib">
+      <HintPath>..\Solution Items\RefParsingLib.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Controls, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Controls.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Controls.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Controls.Data.Input, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Controls.Data.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Browser" />
+    <Reference Include="System.Xml.Linq, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Chart, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.Chart.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Data, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Docking, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.Docking.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.FixedDocumentViewers, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.FixedDocumentViewers.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.GridView, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.GridView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.ImageEditor, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.ImageEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Input, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.Navigation, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.Navigation.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.RibbonView, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.RibbonView.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Controls.RichTextBoxUI, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Controls.RichTextBoxUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Data, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Documents.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.Core, Version=2016.1.212.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Documents.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.Fixed, Version=2016.1.212.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Documents.Fixed.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.Html, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Documents.FormatProviders.Html.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Documents.FormatProviders.OpenXml, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Documents.FormatProviders.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.PersistenceFramework, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.PersistenceFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Themes.Vista, Version=2016.1.217.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Themes.Vista.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.Windows.Zip, Version=2016.1.212.1050, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\Telerik\UI for Silverlight Q2 2014\Binaries\Silverlight\Telerik.Windows.Zip.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ArchieLogin.xaml.cs">
+      <DependentUpon>ArchieLogin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ArchieUserSetupNew.xaml.cs">
+      <DependentUpon>ArchieUserSetupNew.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="codesSelectControl.xaml.cs">
+      <DependentUpon>codesSelectControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CodesTreeControl.xaml.cs">
+      <DependentUpon>CodesTreeControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CodesTreeViewOnlyControl.xaml.cs">
+      <DependentUpon>CodesTreeViewOnlyControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogDuplicateGroups.xaml.cs">
+      <DependentUpon>dialogDuplicateGroups.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dataTemplateDuplicateGroupDetails.xaml.cs">
+      <DependentUpon>dataTemplateDuplicateGroupDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogAxialCoding.xaml.cs">
+      <DependentUpon>dialogAxialCoding.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogCoding.xaml.cs">
+      <DependentUpon>dialogCoding.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogEditOutcome.xaml.cs">
+      <DependentUpon>dialogEditOutcome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogEditOutcomes.xaml.cs">
+      <DependentUpon>dialogEditOutcomes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogItemDetails.xaml.cs">
+      <DependentUpon>dialogItemDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogItemReportWriter.xaml.cs">
+      <DependentUpon>dialogItemReportWriter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogLinkedItemDetail.xaml.cs">
+      <DependentUpon>dialogLinkedItemDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogLinkedItems.xaml.cs">
+      <DependentUpon>dialogLinkedItems.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogMetaAnalysis.xaml.cs">
+      <DependentUpon>dialogMetaAnalysis.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogMetaAnalysisSetup.xaml.cs">
+      <DependentUpon>dialogMetaAnalysisSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogMyInfo.xaml.cs">
+      <DependentUpon>dialogMyInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogReports.xaml.cs">
+      <DependentUpon>dialogReports.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogReportViewer.xaml.cs">
+      <DependentUpon>dialogReportViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialogSearch.xaml.cs">
+      <DependentUpon>dialogSearch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PDFCoding\Annotation.xaml.cs">
+      <DependentUpon>Annotation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\AttributeTypeConverter.cs" />
+    <Compile Include="Helpers\AttributeTypesConverter.cs" />
+    <Compile Include="Helpers\CustomFilterDescriptor.cs" />
+    <Compile Include="Helpers\CustomRadWindowControl.xaml.cs">
+      <DependentUpon>CustomRadWindowControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ItemListRefreshEventArgs.cs" />
+    <Compile Include="Helpers\ItemTypeConvertersd.cs" />
+    <Compile Include="Helpers\LaunchReportViewerEventArgs.cs" />
+    <Compile Include="Helpers\LoginSuccessfulEventArgs.cs" />
+    <Compile Include="PDFCoding\AnnotationsUILayer.cs" />
+    <Compile Include="PDFCoding\CustomUILayersBuilder.cs" />
+    <Compile Include="PDFCoding\HighlightUILayer.cs" />
+    <Compile Include="PDFCoding\LayersData.cs" />
+    <Compile Include="PDFCoding\NotesColumn.xaml.cs">
+      <DependentUpon>NotesColumn.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ReviewerTerms.xaml.cs">
+      <DependentUpon>ReviewerTerms.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWAddColumnToMA.xaml.cs">
+      <DependentUpon>RadWAddColumnToMA.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWAdditionalText.xaml.cs">
+      <DependentUpon>RadWAdditionalText.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWArchieAuthenticationSignal.xaml.cs">
+      <DependentUpon>RadWArchieAuthenticationSignal.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWAssignDocuments.xaml.cs">
+      <DependentUpon>RadWAssignDocuments.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWChangeMethodToSingle.xaml.cs">
+      <DependentUpon>RadWChangeMethodToSingle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCheckAssignItemsToCode.xaml.cs">
+      <DependentUpon>RadWCheckAssignItemsToCode.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCheckAttributeDelete.xaml.cs">
+      <DependentUpon>RadWCheckAttributeDelete.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCheckRemoveItemsFromCode.xaml.cs">
+      <DependentUpon>RadWCheckRemoveItemsFromCode.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWClassifier.xaml.cs">
+      <DependentUpon>RadWClassifier.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCodeProperties.xaml.cs">
+      <DependentUpon>RadWCodeProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCodingOnlyHelp.xaml.cs">
+      <DependentUpon>RadWCodingOnlyHelp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWColumnSelect.xaml.cs">
+      <DependentUpon>RadWColumnSelect.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWComparisonComplete.xaml.cs">
+      <DependentUpon>RadWComparisonComplete.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWComparisonReportOptions.xaml.cs">
+      <DependentUpon>RadWComparisonReportOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWComparisonStats.xaml.cs">
+      <DependentUpon>RadWComparisonStats.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWConfirmDeleteSource.xaml.cs">
+      <DependentUpon>RadWConfirmDeleteSource.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWConfirmDocDelete.xaml.cs">
+      <DependentUpon>RadWConfirmDocDelete.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWConfirmOutcomeDelete.xaml.cs">
+      <DependentUpon>RadWConfirmOutcomeDelete.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCopyingCodes.xaml.cs">
+      <DependentUpon>RadWCopyingCodes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCreateComparison.xaml.cs">
+      <DependentUpon>RadWCreateComparison.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCreateEditLink.xaml.cs">
+      <DependentUpon>RadWCreateEditLink.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWCreateReview.xaml.cs">
+      <DependentUpon>RadWCreateReview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWDeleteSourceForeverDialog.xaml.cs">
+      <DependentUpon>RadWDeleteSourceForeverDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_AddGroup.xaml.cs">
+      <DependentUpon>RadWduplgr_AddGroup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_ConfirmWipeOut.xaml.cs">
+      <DependentUpon>RadWduplgr_ConfirmWipeOut.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_CreateGroupWindow1.xaml.cs">
+      <DependentUpon>RadWduplgr_CreateGroupWindow1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_CreateGroupWindow2.xaml.cs">
+      <DependentUpon>RadWduplgr_CreateGroupWindow2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_customThresholdAutoAssign.xaml.cs">
+      <DependentUpon>RadWduplgr_customThresholdAutoAssign.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_DeleteGroup.xaml.cs">
+      <DependentUpon>RadWduplgr_DeleteGroup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWduplgr_Find.xaml.cs">
+      <DependentUpon>RadWduplgr_Find.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWEditAnnotation.xaml.cs">
+      <DependentUpon>RadWEditAnnotation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWEditCodeSet.xaml.cs">
+      <DependentUpon>RadWEditCodeSet.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWFindLikeThese.xaml.cs">
+      <DependentUpon>RadWFindLikeThese.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWGettingDuplicates1.xaml.cs">
+      <DependentUpon>RadWGettingDuplicates1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWItemSetProperties.xaml.cs">
+      <DependentUpon>RadWItemSetProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWItemsGridSelectWarning.xaml.cs">
+      <DependentUpon>RadWItemsGridSelectWarning.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWLoadDiagram.xaml.cs">
+      <DependentUpon>RadWLoadDiagram.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWDocumentCluster.xaml.cs">
+      <DependentUpon>RadWDocumentCluster.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ReviewSelectedEventArgs.cs" />
+    <Compile Include="Helpers\ButtonConverters.cs" />
+    <Compile Include="HomeCodingOnly.xaml.cs">
+      <DependentUpon>HomeCodingOnly.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="homeDocuments.xaml.cs">
+      <DependentUpon>homeDocuments.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="homeReports.xaml.cs">
+      <DependentUpon>homeReports.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="homeReviewStatistics.xaml.cs">
+      <DependentUpon>homeReviewStatistics.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LoginControl.xaml.cs">
+      <DependentUpon>LoginControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MetaAnalysisTraining.xaml.cs">
+      <DependentUpon>MetaAnalysisTraining.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Page.xaml.cs">
+      <DependentUpon>Page.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RefParsing.xaml.cs">
+      <DependentUpon>RefParsing.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SelectReview.xaml.cs">
+      <DependentUpon>SelectReview.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ImportItems.xaml.cs">
+      <DependentUpon>ImportItems.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWDeleteItems.xaml.cs">
+      <DependentUpon>RadWDeleteItems.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWLoadReport.xaml.cs">
+      <DependentUpon>RadWLoadReport.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWMetaAnalysisOptions.xaml.cs">
+      <DependentUpon>RadWMetaAnalysisOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWMOTD.xaml.cs">
+      <DependentUpon>RadWMOTD.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWNewCodeSet.xaml.cs">
+      <DependentUpon>RadWNewCodeSet.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWPrintCodesetOptions.xaml.cs">
+      <DependentUpon>RadWPrintCodesetOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWQuickReportComparison.xaml.cs">
+      <DependentUpon>RadWQuickReportComparison.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWRandomAllocate.xaml.cs">
+      <DependentUpon>RadWRandomAllocate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWReconcile.xaml.cs">
+      <DependentUpon>RadWReconcile.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWReconcileHelp.xaml.cs">
+      <DependentUpon>RadWReconcileHelp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWResetPdfCoding.xaml.cs">
+      <DependentUpon>RadWResetPdfCoding.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWReviewWizard.xaml.cs">
+      <DependentUpon>RadWReviewWizard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWRiskOfBias.xaml.cs">
+      <DependentUpon>RadWRiskOfBias.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWSaveDiagram.xaml.cs">
+      <DependentUpon>RadWSaveDiagram.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWShowCodingAssignment.xaml.cs">
+      <DependentUpon>RadWShowCodingAssignment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\RadWTrainingResults.xaml.cs">
+      <DependentUpon>RadWTrainingResults.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="ArchieLogin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ArchieUserSetupNew.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="codesSelectControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CodesTreeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="CodesTreeViewOnlyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogDuplicateGroups.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dataTemplateDuplicateGroupDetails.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogAxialCoding.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogCoding.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogEditOutcome.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogEditOutcomes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogItemDetails.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogItemReportWriter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogLinkedItemDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogLinkedItems.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogMetaAnalysis.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogMetaAnalysisSetup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogMyInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogReports.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogReportViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialogSearch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PDFCoding\Annotation.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Helpers\CustomRadWindowControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Helpers\StyledDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="PDFCoding\NotesColumn.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ReviewerTerms.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWAddColumnToMA.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWAdditionalText.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWArchieAuthenticationSignal.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWAssignDocuments.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWChangeMethodToSingle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCheckAssignItemsToCode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCheckAttributeDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCheckRemoveItemsFromCode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWClassifier.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCodeProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCodingOnlyHelp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWColumnSelect.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWComparisonComplete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWComparisonReportOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWComparisonStats.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWConfirmDeleteSource.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWConfirmDocDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWConfirmOutcomeDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCopyingCodes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCreateComparison.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCreateEditLink.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCreateReview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWDeleteSourceForeverDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_AddGroup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_ConfirmWipeOut.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_CreateGroupWindow1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_CreateGroupWindow2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_customThresholdAutoAssign.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_DeleteGroup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWduplgr_Find.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWEditAnnotation.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\RadWEditCodeSet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWFindLikeThese.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWGettingDuplicates1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWItemSetProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWItemsGridSelectWarning.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWLoadDiagram.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\RadWDocumentCluster.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HomeCodingOnly.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="homeDocuments.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="homeReports.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="homeReviewStatistics.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="LoginControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MetaAnalysisTraining.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Page.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RefParsing.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SelectReview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ImportItems.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\RadWDeleteItems.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWLoadReport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWMetaAnalysisOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWMOTD.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWNewCodeSet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWPrintCodesetOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWQuickReportComparison.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWRandomAllocate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWReconcile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWReconcileHelp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWResetPdfCoding.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWReviewWizard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWRiskOfBias.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWSaveDiagram.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWShowCodingAssignment.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWTrainingResults.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
+    <None Include="Properties\AppManifest.xml" />
+    <Resource Include="Icons\AutoCode.png" />
+    <Resource Include="Icons\checkedbox.png" />
+    <Resource Include="Icons\CodeSetProperties.png" />
+    <Resource Include="Icons\Export.png" />
+    <Resource Include="Icons\Import.png" />
+    <Resource Include="Icons\ManageDuplicates.png" />
+    <Resource Include="Icons\NewCodeSet.png" />
+    <Resource Include="Icons\NewItem.png" />
+    <Resource Include="Icons\RandomAssign.png" />
+    <Resource Include="Icons\RunReports.png" />
+    <Resource Include="Icons\person.png" />
+    <Resource Include="Icons\team.png" />
+    <Resource Include="Icons\CodingComplete.png" />
+    <Resource Include="Icons\CodingNotComplete.png" />
+    <Resource Include="Icons\CodeSetLocked.png" />
+    <Resource Include="Icons\CodeSetEditable.png" />
+    <Resource Include="Icons\CodingLocked.png" />
+    <Resource Include="Icons\NextDocument.png" />
+    <Resource Include="Icons\PreviousDocument.png" />
+    <Resource Include="Icons\DocumentCancel.png" />
+    <Resource Include="Icons\DocumentSave.png" />
+    <Resource Include="Icons\DocumentSaveAndClose.png" />
+    <Resource Include="Icons\ColumnSelect.png" />
+    <Resource Include="Icons\PrintCodeSet.png" />
+    <Resource Include="Icons\FindOnGoogle.png" />
+    <Resource Include="Icons\AddNumbersToDiagram.png" />
+    <Resource Include="Icons\ExpandAll.png" />
+    <Resource Include="Icons\Find.png" />
+    <Resource Include="Icons\ListDeleted.png" />
+    <Resource Include="Icons\ListExcluded.png" />
+    <Resource Include="Icons\ListIncluded.png" />
+    <Resource Include="Icons\DeleteDiagramNode.png" />
+    <Resource Include="Icons\DiagramCodedText.png" />
+    <Resource Include="Icons\EPPI-Centre_logo.png" />
+    <Resource Include="Icons\SearchDeleteAll.png" />
+    <Resource Include="Icons\SearchDoSearch.png" />
+    <Resource Include="Icons\SearchCombine.png" />
+    <Resource Include="Icons\FindLikeThese.png" />
+    <Resource Include="Icons\SelectableCode.png" />
+    <Resource Include="Icons\AddNewColumn.png" />
+    <Resource Include="Icons\ReportOpen.png" />
+    <Resource Include="Icons\trash_full.png" />
+    <Resource Include="Icons\assign.png" />
+    <Resource Include="Icons\edit-undo.png" />
+    <Resource Include="Icons\trash.png" />
+    <Resource Include="Icons\MetaSubGroup.png" />
+    <Resource Include="Icons\MetaTraining.png" />
+    <Resource Include="Icons\ItemCodingReport.png" />
+    <Resource Include="Icons\arrow-left.png" />
+    <Resource Include="Icons\list-add-2.png" />
+    <Resource Include="Icons\DiagramExport.png" />
+    <Resource Include="Icons\DiagramNew.png" />
+    <Resource Include="Icons\AddCodeToReport.png" />
+    <Resource Include="Icons\ReportGuidance.jpg" />
+    <Resource Include="Icons\CodingOnly.png" />
+    <Resource Include="Icons\Help.png" />
+    <Resource Include="Icons\AddPDFCode.png" />
+    <Resource Include="Icons\RemPDFCode.png" />
+    <Resource Include="Icons\edit-copy.png" />
+    <Resource Include="Icons\edit-cut.png" />
+    <Resource Include="Icons\edit-paste.png" />
+    <Resource Include="Icons\print-preview.png" />
+    <Resource Include="Icons\ScreenItems.png" />
+    <Resource Include="Icons\RunTraining.png" />
+    <Resource Include="Icons\GreenTick.png" />
+    <Resource Include="Icons\RedX.png" />
+    <Resource Include="Icons\ShowTextBold.png" />
+    <Resource Include="Icons\SwitchToEdit.png" />
+    <Resource Include="Icons\TermNegativeAdd.png" />
+    <Resource Include="Icons\TermPositiveAdd.png" />
+    <Resource Include="Icons\TermRemove.png" />
+    <Resource Include="Icons\Classifier.png" />
+    <Resource Include="Icons\EPPI-Centre_logo2.png" />
+    <Resource Include="Icons\translate.png" />
+    <Resource Include="Icons\FollowUs.png" />
+    <Resource Include="Icons\wizard.png" />
+    <Resource Include="Icons\Save.png" />
+    <Resource Include="Icons\RIcon5.png" />
+    <Resource Include="Icons\Archie.png" />
+    <Resource Include="Icons\cochrane_logo.png" />
+    <Resource Include="Icons\HideRow.png" />
+    <Resource Include="Icons\ShowRow.png" />
+    <Resource Include="Icons\arrow-down.png" />
+    <Resource Include="Icons\view-refresh-7.png" />
+    <Content Include="pMed.png" />
+    <Content Include="ServiceReferences.ClientConfig">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CircularRelationshipGraph\CircularRelationshipGraph.csproj">
+      <Project>{51CFA1CE-A376-4058-940C-70AE8400DD00}</Project>
+      <Name>CircularRelationshipGraph</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Client\Client.csproj">
+      <Project>{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}</Project>
+      <Name>Client</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

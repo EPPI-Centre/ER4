@@ -1,0 +1,192 @@
+﻿<#@ assembly name="System.Core.dll" #>
+<#@ assembly name="System.Xml.Linq.dll" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ assembly name="EnvDTE" #>
+<#@ import Namespace="EnvDTE" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Xml.Xsl" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#+
+
+public Project FindProjectHost()
+{
+	/* 
+		Thanks to Oleg Sych and T4 Toolbox for demonstrating how to derive the host. 
+
+		This template will work in vs2010rc - Change Microsoft.VisualStudio.TextTemplating.ITextTemplatingEngineHost to Microsoft.VisualStudio.TextTemplating.Interfaces.ITextTemplatingEngineHost below to get the template to work in the VS2008 or VS2010b2
+	*/
+
+	Type transformationType = this.GetType();
+	System.Reflection.PropertyInfo hostProperty = transformationType.GetProperty("Host");
+	if (hostProperty == null)
+	{
+			throw new Exception("Unable to retrieve templating engine host. " 
+									+ "Ensure that the template includes hostspecific=\"True\" "
+									+ "parameter in the \<#@ template \#> directive.");
+	}
+
+	Microsoft.VisualStudio.TextTemplating.ITextTemplatingEngineHost host 
+		= (Microsoft.VisualStudio.TextTemplating.ITextTemplatingEngineHost)hostProperty.GetValue(this, null);
+
+	IServiceProvider hostServiceProvider = (IServiceProvider)host;
+	EnvDTE.DTE dte = (EnvDTE.DTE)hostServiceProvider.GetService(typeof(EnvDTE.DTE));
+	EnvDTE.ProjectItem containingProjectItem = dte.Solution.FindProjectItem(host.TemplateFile);
+	Project project = containingProjectItem.ContainingProject;
+	return project;
+}
+
+
+private string GetClassVisiblityString(CodeClass clazz)
+{
+	switch(clazz.Access)
+	{
+		case vsCMAccess.vsCMAccessPrivate:
+			return "private";
+		case vsCMAccess.vsCMAccessProtected:
+			return "protected";
+		case vsCMAccess.vsCMAccessProject:
+			return "internal";
+		default:
+			return "public";
+	}
+}
+
+/// <summary>
+/// Extracts the code that the given element represents
+/// </summary>
+public string GetElementText(CodeElement element)
+{
+    var sp = element.GetStartPoint();
+		var ep = element.GetEndPoint();
+		var edit = sp.CreateEditPoint();
+		return edit.GetText(ep);
+}
+
+/// <summary>
+/// Enumerates the CodeAttributes of the given CodeClass
+/// </summary>
+public IEnumerable<CodeAttribute> Attributes(CodeClass codeClass)
+{
+    foreach(CodeElement element in codeClass.Attributes)
+    {
+        yield return (CodeAttribute)element;
+    }
+}
+
+/// <summary>
+/// Enumerates the members of the given CodeClass
+/// </summary>
+public IEnumerable<CodeElement> Members(CodeClass codeClass)
+{
+    foreach(CodeElement element in codeClass.Members)
+    {
+        yield return element;
+    }
+}
+
+/// <summary>
+/// Enumerates the ProjectItems of the given Project
+/// </summary>
+public IEnumerable<ProjectItem> GetProjectItems(Project project)
+{
+  foreach(ProjectItem projectItem in project.ProjectItems)
+	{
+		yield return projectItem;
+		foreach(ProjectItem descendantItem in GetDescendantItems(projectItem))
+		{
+		  yield return descendantItem;
+		}
+	}
+}
+
+/// <summary>
+/// Enumerates the descendant ProjectItems of the given ProjectItem
+/// </summary>
+public IEnumerable<ProjectItem> GetDescendantItems(ProjectItem projectItem)
+{	
+	if (projectItem.ProjectItems != null)
+	{
+	  foreach (ProjectItem childItem in projectItem.ProjectItems)
+		{
+			yield return childItem;
+
+			foreach(ProjectItem descendantItem in GetDescendantItems(childItem))
+			{
+				yield return descendantItem;
+			}
+		}
+	}
+}
+
+/// <summary>
+/// Enumerates the CodeElements of the given ProjectItem
+/// </summary>
+public IEnumerable<CodeElement> GetCodeElements(ProjectItem projectItem)
+{
+  FileCodeModel fileCodeModel = projectItem.FileCodeModel;
+			
+	if (fileCodeModel != null)
+	{
+		foreach (CodeElement codeElement in fileCodeModel.CodeElements)
+		{
+			foreach(CodeElement el in CodeElementDescendantsAndSelf(codeElement))
+			{
+			    yield return el;
+			}
+		}
+	}
+}
+
+/// <summary>
+/// Enumerates the descendant CodeElements of the given CodeElement
+/// </summary>
+public IEnumerable<CodeElement> CodeElementsDescendants(CodeElements codeElements)
+{
+  foreach(CodeElement element in codeElements)
+	{
+	    foreach (CodeElement descendant in CodeElementDescendantsAndSelf(element))
+        {
+            yield return descendant;			    
+        }
+    }
+}
+
+private IEnumerable<CodeElement> CodeElementDescendantsAndSelf(CodeElement codeElement)
+{
+  yield return codeElement;
+    
+  CodeElements codeElements;
+        	
+  switch(codeElement.Kind)
+	{		
+	
+	    /* namespaces */
+		case vsCMElement.vsCMElementNamespace:
+		{
+			CodeNamespace codeNamespace = (CodeNamespace)codeElement;										
+			codeElements = codeNamespace.Members;
+			foreach(CodeElement descendant in CodeElementsDescendants(codeElements))
+			{
+			    yield return descendant;			    
+	    }
+			break;
+		}
+		
+		/* Process classes */
+		case vsCMElement.vsCMElementClass:
+		{	        
+			CodeClass codeClass = (CodeClass)codeElement;			
+			codeElements = codeClass.Members;
+			foreach(CodeElement descendant in CodeElementsDescendants(codeElements))
+			{			    
+			    yield return descendant;			    
+	        }	        
+			break;	
+		}
+		
+	}
+	
+}
+#>

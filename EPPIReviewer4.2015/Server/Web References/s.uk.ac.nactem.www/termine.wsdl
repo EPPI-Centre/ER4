@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WSDL:definitions xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/" xmlns:tns="urn:termine" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="urn:termine" name="termine" targetNamespace="urn:termine" xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/">
+  <WSDL:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="urn:termine">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+    </xsd:schema>
+  </WSDL:types>
+  <WSDL:message name="analyze_request">
+    <WSDL:part name="src" type="xsd:string" />
+    <WSDL:part name="key" type="xsd:string" />
+    <WSDL:part name="input_format" type="xsd:string" />
+    <WSDL:part name="output_format" type="xsd:string" />
+    <WSDL:part name="stoplist" type="xsd:string" />
+    <WSDL:part name="filter" type="xsd:string" />
+  </WSDL:message>
+  <WSDL:message name="analyze_response">
+    <WSDL:part name="result" type="xsd:string" />
+  </WSDL:message>
+  <WSDL:portType name="termine_porttype">
+    <WSDL:operation name="analyze">
+      <documentation>Service definition of function analyze</documentation>
+      <WSDL:input message="ns:analyze_request" />
+      <WSDL:output message="ns:analyze_response" />
+    </WSDL:operation>
+  </WSDL:portType>
+  <WSDL:binding name="termine" type="ns:termine_porttype">
+    <SOAP:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <WSDL:operation name="analyze">
+      <SOAP:operation soapAction="" style="rpc" />
+      <WSDL:input>
+        <SOAP:body use="encoded" namespace="urn:termine" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </WSDL:input>
+      <WSDL:output>
+        <SOAP:body use="encoded" namespace="urn:termine" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </WSDL:output>
+    </WSDL:operation>
+  </WSDL:binding>
+  <WSDL:service name="termine">
+    <WSDL:port name="termine" binding="ns:termine">
+      <SOAP:address location="http://www.nactem.ac.uk/termine_key" />
+    </WSDL:port>
+  </WSDL:service>
+</WSDL:definitions>

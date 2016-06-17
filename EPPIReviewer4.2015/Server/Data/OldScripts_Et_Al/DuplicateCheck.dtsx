@@ -1,0 +1,506 @@
+<?xml version="1.0"?><DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts" DTS:ExecutableType="SSIS.Package.2">
+<DTS:Property DTS:Name="PackageFormatVersion">3</DTS:Property>
+<DTS:Property DTS:Name="VersionComments"></DTS:Property>
+<DTS:Property DTS:Name="CreatorName">SILVIE\James</DTS:Property>
+<DTS:Property DTS:Name="CreatorComputerName">SILVIE</DTS:Property>
+<DTS:Property DTS:Name="CreationDate" DTS:DataType="7">7/3/2009 3:33:14 PM</DTS:Property>
+<DTS:Property DTS:Name="PackageType">5</DTS:Property>
+<DTS:Property DTS:Name="ProtectionLevel">0</DTS:Property>
+<DTS:Property DTS:Name="MaxConcurrentExecutables">-1</DTS:Property>
+<DTS:Property DTS:Name="PackagePriorityClass">0</DTS:Property>
+<DTS:Property DTS:Name="VersionMajor">1</DTS:Property>
+<DTS:Property DTS:Name="VersionMinor">0</DTS:Property>
+<DTS:Property DTS:Name="VersionBuild">117</DTS:Property>
+<DTS:Property DTS:Name="VersionGUID">{C84C1337-9A63-4439-AA19-D4E1AFF3BFC3}</DTS:Property>
+<DTS:Property DTS:Name="EnableConfig">-1</DTS:Property>
+<DTS:Property DTS:Name="CheckpointFileName"></DTS:Property>
+<DTS:Property DTS:Name="SaveCheckpoints">0</DTS:Property>
+<DTS:Property DTS:Name="CheckpointUsage">0</DTS:Property>
+<DTS:Property DTS:Name="SuppressConfigurationWarnings">0</DTS:Property>
+<DTS:ConnectionManager>
+<DTS:Property DTS:Name="DelayValidation">0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">Conn1</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{F909B0C3-86BD-4161-8361-61D5140DB657}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName">OLEDB</DTS:Property><DTS:ObjectData><DTS:ConnectionManager>
+<DTS:Property DTS:Name="Retain">0</DTS:Property>
+<DTS:Property DTS:Name="ConnectionString">Data Source=LOCALHOST;Initial Catalog=Reviewer;Provider=SQLNCLI10.1;Integrated Security=SSPI;Auto Translate=False;Application Name=SSIS-Package-{F909B0C3-86BD-4161-8361-61D5140DB657}SSRULAP41\LAP2008.Reviewer;</DTS:Property></DTS:ConnectionManager></DTS:ObjectData></DTS:ConnectionManager>
+<DTS:ConnectionManager>
+<DTS:Property DTS:Name="DelayValidation">0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">Conn2</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{F2473252-7957-44C5-B881-D792E85DEAD3}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName">ADO.NET:System.Data.SqlClient.SqlConnection, System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</DTS:Property><DTS:ObjectData><DTS:ConnectionManager>
+<DTS:Property DTS:Name="Retain">0</DTS:Property>
+<DTS:Property DTS:Name="ConnectionString">Data Source=LOCALHOST;Initial Catalog=Reviewer;Integrated Security=True;Application Name=SSIS-Package-{F2473252-7957-44C5-B881-D792E85DEAD3}SSRULAP41\LAP2008.Reviewer1;</DTS:Property></DTS:ConnectionManager></DTS:ObjectData></DTS:ConnectionManager>
+<DTS:Property DTS:Name="LastModifiedProductVersion">10.0.2531.0</DTS:Property>
+<DTS:Property DTS:Name="ForceExecValue">0</DTS:Property>
+<DTS:Property DTS:Name="ExecValue" DTS:DataType="3">0</DTS:Property>
+<DTS:Property DTS:Name="ForceExecutionResult">-1</DTS:Property>
+<DTS:Property DTS:Name="Disabled">0</DTS:Property>
+<DTS:Property DTS:Name="FailPackageOnFailure">0</DTS:Property>
+<DTS:Property DTS:Name="FailParentOnFailure">0</DTS:Property>
+<DTS:Property DTS:Name="MaxErrorCount">1</DTS:Property>
+<DTS:Property DTS:Name="ISOLevel">1048576</DTS:Property>
+<DTS:Property DTS:Name="LocaleID">2057</DTS:Property>
+<DTS:Property DTS:Name="TransactionOption">1</DTS:Property>
+<DTS:Property DTS:Name="DelayValidation">0</DTS:Property>
+<DTS:Variable>
+<DTS:Property DTS:Name="Expression"></DTS:Property>
+<DTS:Property DTS:Name="EvaluateAsExpression">0</DTS:Property>
+<DTS:Property DTS:Name="Namespace">User</DTS:Property>
+<DTS:Property DTS:Name="ReadOnly">0</DTS:Property>
+<DTS:Property DTS:Name="RaiseChangedEvent">0</DTS:Property>
+<DTS:Property DTS:Name="IncludeInDebugDump">2345</DTS:Property><DTS:VariableValue DTS:DataType="8">3</DTS:VariableValue>
+<DTS:Property DTS:Name="ObjectName">RevID</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{EA183CB8-98C0-436B-9BD7-CEFB967661F1}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:Variable>
+<DTS:Variable>
+<DTS:Property DTS:Name="Expression"></DTS:Property>
+<DTS:Property DTS:Name="EvaluateAsExpression">-1</DTS:Property>
+<DTS:Property DTS:Name="Namespace">User</DTS:Property>
+<DTS:Property DTS:Name="ReadOnly">0</DTS:Property>
+<DTS:Property DTS:Name="RaiseChangedEvent">0</DTS:Property>
+<DTS:Property DTS:Name="IncludeInDebugDump">2345</DTS:Property><DTS:VariableValue DTS:DataType="8">""</DTS:VariableValue>
+<DTS:Property DTS:Name="ObjectName">UID</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{FDE31B07-55A1-45E4-A3F9-CB57BB1B3DE8}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:Variable>
+<DTS:LoggingOptions>
+<DTS:Property DTS:Name="LoggingMode">0</DTS:Property>
+<DTS:Property DTS:Name="FilterKind">1</DTS:Property>
+<DTS:Property DTS:Name="EventFilter" DTS:DataType="8"></DTS:Property></DTS:LoggingOptions>
+<DTS:Executable DTS:ExecutableType="{E3CFBEA8-1F48-40D8-91E1-2DEDC1EDDD56}">
+<DTS:Property DTS:Name="ExecutionLocation">0</DTS:Property>
+<DTS:Property DTS:Name="ExecutionAddress"></DTS:Property>
+<DTS:Property DTS:Name="TaskContact"></DTS:Property>
+<DTS:Property DTS:Name="ForceExecValue">0</DTS:Property>
+<DTS:Property DTS:Name="ExecValue" DTS:DataType="3">0</DTS:Property>
+<DTS:Property DTS:Name="ForceExecutionResult">-1</DTS:Property>
+<DTS:Property DTS:Name="Disabled">0</DTS:Property>
+<DTS:Property DTS:Name="FailPackageOnFailure">0</DTS:Property>
+<DTS:Property DTS:Name="FailParentOnFailure">0</DTS:Property>
+<DTS:Property DTS:Name="MaxErrorCount">1</DTS:Property>
+<DTS:Property DTS:Name="ISOLevel">1048576</DTS:Property>
+<DTS:Property DTS:Name="LocaleID">-1</DTS:Property>
+<DTS:Property DTS:Name="TransactionOption">1</DTS:Property>
+<DTS:Property DTS:Name="DelayValidation">0</DTS:Property>
+<DTS:LoggingOptions>
+<DTS:Property DTS:Name="LoggingMode">0</DTS:Property>
+<DTS:Property DTS:Name="FilterKind">1</DTS:Property>
+<DTS:Property DTS:Name="EventFilter" DTS:DataType="8"></DTS:Property></DTS:LoggingOptions>
+<DTS:Property DTS:Name="ObjectName">Data Flow Task</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}</DTS:Property>
+<DTS:Property DTS:Name="Description">Data Flow Task</DTS:Property>
+<DTS:Property DTS:Name="CreationName">{E3CFBEA8-1F48-40D8-91E1-2DEDC1EDDD56}</DTS:Property>
+<DTS:Property DTS:Name="DisableEventHandlers">0</DTS:Property><DTS:ObjectData><pipeline id="0" name="pipelineXml" description="pipelineXml" defaultBufferMaxRows="10000" engineThreads="10" defaultBufferSize="10485760" BLOBTempStoragePath="" bufferTempStoragePath="" runInOptimizedMode="true">
+<components>
+<component id="1829" name="Fuzzy Grouping" componentClassID="{0A1BDBA0-9C6E-4AD7-97B1-E0E79E462629}" description="Groups rows in a dataset that contain similar values." localeId="-1" usesDispositions="false" validateExternalMetadata="True" version="3" pipelineVersion="0" contactInfo="Fuzzy Grouping;Microsoft Corporation; Microsoft SqlServer v10; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;3">
+<properties>
+<property id="1832" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0.8</property>
+<property id="1833" name="Delimiters" dataType="System.String" state="default" isArray="false" description="Specifies the white-space and punctuation characters used to separate strings into multiple words." typeConverter="" UITypeEditor="" containsID="false" expressionType="None"> 	
+,.;:-"'&amp;/\@!?()&lt;&gt;[]{}|#*^%</property>
+<property id="1834" name="MaxMemoryUsage" dataType="System.Null" state="default" isArray="false" description="Specifies the maximum amount of memory (MB) that transform should use.  A value of 0 will enable dynamic memory usage based upon requirements and available system memory." typeConverter="" UITypeEditor="" containsID="false" expressionType="Notify"/>
+<property id="1835" name="Exhaustive" dataType="System.Boolean" state="default" isArray="false" description="If true, each input record will be directly compared against EVERY other input record.  This may produce slightly better results, but will be extremely slow unless the number of input records is very small.  This option is primarily intended for debugging purposes and should be used with care." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">false</property></properties>
+<connections>
+<connection id="1845" name="OleDbConnection" description="" connectionManagerID="{F909B0C3-86BD-4161-8361-61D5140DB657}"/></connections>
+<inputs>
+<input id="1830" name="Fuzzy Grouping Input" description="" hasSideEffects="false" dangling="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><inputColumns>
+<inputColumn id="2620" name="" description="" lineageId="2937" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2621" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">false</property>
+<property id="2622" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">1</property>
+<property id="2623" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">3</property>
+<property id="2624" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2625" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+<inputColumn id="2629" name="" description="" lineageId="2777" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2630" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">true</property>
+<property id="2631" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="2632" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2633" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2634" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+<inputColumn id="2894" name="" description="" lineageId="2765" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2895" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">false</property>
+<property id="2896" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">1</property>
+<property id="2897" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">3</property>
+<property id="2898" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2899" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+<inputColumn id="2973" name="" description="" lineageId="2919" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2974" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">true</property>
+<property id="2975" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="2976" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2977" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2978" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+<inputColumn id="2982" name="" description="" lineageId="2922" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2983" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">true</property>
+<property id="2984" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="2985" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2986" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2987" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+<inputColumn id="3030" name="" description="" lineageId="3028" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3031" name="ToBeCleaned" dataType="System.Boolean" state="default" isArray="false" description="Indicates whether to use the column to determine if two records are similar." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">true</property>
+<property id="3032" name="ExactFuzzy" dataType="System.Int32" state="default" isArray="false" description="Specifies whether rows must be exact matches or fuzzy matches to be considered duplicates." typeConverter="tcJoinType" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="3033" name="LeadingTrailingNumeralsSignificant" dataType="System.Int32" state="default" isArray="false" description="Specifies the hint that causes similar rows that contain differing leading or trailing numeric values be less likely to be considered duplicates." typeConverter="tcNumeralsSignificant" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="3034" name="MinSimilarity" dataType="System.Single" state="default" isArray="false" description="Specifies the minimum similarity threshold, expressed as a value between 0 and 1." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="3035" name="FuzzyComparisonFlags" dataType="System.Int32" state="default" isArray="false" description="Specifies how string data in a column is compared." typeConverter="tcComparisonFlags" UITypeEditor="" containsID="false" expressionType="None">196611</property></properties></inputColumn>
+</inputColumns><externalMetadataColumns isUsed="False"/></input>
+</inputs>
+<outputs>
+<output id="1831" name="Fuzzy Grouping Output" description="" exclusionGroup="0" synchronousInputId="0" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="false" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="1836" name="_key_in" description="" lineageId="1836" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="1837" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">1</property>
+<property id="1838" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">-1</property></properties></outputColumn>
+<outputColumn id="1839" name="_key_out" description="" lineageId="1839" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="1840" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="1841" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">-1</property></properties></outputColumn>
+<outputColumn id="1842" name="_score" description="" lineageId="1842" precision="0" scale="0" length="0" dataType="r4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="1843" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">3</property>
+<property id="1844" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">-1</property></properties></outputColumn>
+<outputColumn id="2626" name="REVIEW_ID" description="" lineageId="2626" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2627" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="2628" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2937</property></properties></outputColumn>
+<outputColumn id="2635" name="TITLE" description="" lineageId="2635" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2636" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="2637" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2777</property></properties></outputColumn>
+<outputColumn id="2665" name="TITLE_clean" description="" lineageId="2665" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2666" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">6</property>
+<property id="2667" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2777</property></properties></outputColumn>
+<outputColumn id="2677" name="_Similarity_TITLE" description="Column-level similarity score for fuzzy join on column &quot;T1&quot;." lineageId="2677" precision="0" scale="0" length="0" dataType="r4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2678" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">4</property>
+<property id="2679" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2777</property></properties></outputColumn>
+<outputColumn id="2900" name="ITEM_ID" description="" lineageId="2900" precision="0" scale="0" length="0" dataType="i8" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2901" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="2902" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2765</property></properties></outputColumn>
+<outputColumn id="2979" name="AUTHORS" description="" lineageId="2979" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2980" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="2981" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2919</property></properties></outputColumn>
+<outputColumn id="2988" name="PARENTAUTHORS" description="" lineageId="2988" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="2989" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="2990" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2922</property></properties></outputColumn>
+<outputColumn id="3006" name="AUTHORS_clean" description="" lineageId="3006" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3007" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">6</property>
+<property id="3008" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2919</property></properties></outputColumn>
+<outputColumn id="3009" name="PARENTAUTHORS_clean" description="" lineageId="3009" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3010" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">6</property>
+<property id="3011" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2922</property></properties></outputColumn>
+<outputColumn id="3015" name="_Similarity_AUTHORS" description="Column-level similarity score for fuzzy join on column &quot;AUTHORS&quot;." lineageId="3015" precision="0" scale="0" length="0" dataType="r4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3016" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">4</property>
+<property id="3017" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2919</property></properties></outputColumn>
+<outputColumn id="3018" name="_Similarity_PARENTAUTHORS" description="Column-level similarity score for fuzzy join on column &quot;PARENTAUTHORS&quot;." lineageId="3018" precision="0" scale="0" length="0" dataType="r4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3019" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">4</property>
+<property id="3020" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">2922</property></properties></outputColumn>
+<outputColumn id="3036" name="PARENT_TITLE" description="" lineageId="3036" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3037" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">5</property>
+<property id="3038" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">3028</property></properties></outputColumn>
+<outputColumn id="3039" name="PARENT_TITLE_clean" description="" lineageId="3039" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3040" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">6</property>
+<property id="3041" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">3028</property></properties></outputColumn>
+<outputColumn id="3042" name="_Similarity_PARENT_TITLE" description="Column-level similarity score for fuzzy join on column &quot;PARENT_TITLE&quot;." lineageId="3042" precision="0" scale="0" length="0" dataType="r4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3043" name="ColumnType" dataType="System.Int32" state="default" isArray="false" description="Specifies the column type. The valid values are KeyIn, KeyOut, Score, Input, and Clean." typeConverter="tcColumnType" UITypeEditor="" containsID="false" expressionType="None">4</property>
+<property id="3044" name="InputId" dataType="System.Int32" state="default" isArray="false" description="Specifies the ID of the input column. The value must be a positive integer." typeConverter="" UITypeEditor="" containsID="true" expressionType="None">3028</property></properties></outputColumn></outputColumns><externalMetadataColumns isUsed="False"/></output>
+</outputs>
+</component>
+<component id="2692" name="ADO NET Destination" componentClassID="{2E42D45B-F83C-400F-8D77-61DDE6A7DF29}" description="Writes to a database using ADO.NET provider." localeId="-1" usesDispositions="true" validateExternalMetadata="True" version="0" pipelineVersion="0" contactInfo="Writes to a database using ADO.NET provider.;Microsoft Corporation; Microsoft SqlServer v10; © 2007 Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0">
+<properties>
+<property id="2699" name="TableOrViewName" dataType="System.String" state="default" isArray="false" description="The Destination database table name." typeConverter="" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version= 10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" containsID="false" expressionType="Notify">"dbo"."TB_ITEM_DUPLICATES_TEMP"</property>
+<property id="2700" name="BatchSize" dataType="System.Int32" state="default" isArray="false" description="Specify the number of rows per batch. The default is 0 which uses the same size as SSIS internal buffer. " typeConverter="" UITypeEditor="" containsID="false" expressionType="Notify">0</property>
+<property id="2701" name="CommandTimeout" dataType="System.Int32" state="default" isArray="false" description="The number of seconds before a command times out. A value of 0 indicates infinite time-out. " typeConverter="" UITypeEditor="" containsID="false" expressionType="Notify">30</property>
+<property id="2702" name="UserComponentTypeName" dataType="System.String" state="default" isArray="false" description="" typeConverter="" UITypeEditor="" containsID="false" expressionType="None">Microsoft.SqlServer.Dts.Pipeline.ADONETDestination, Microsoft.SqlServer.ADONETDest, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91</property></properties>
+<connections>
+<connection id="2694" name="IDbConnection" description="Managed connection manager" connectionManagerID="{F2473252-7957-44C5-B881-D792E85DEAD3}"/></connections>
+<inputs>
+<input id="2695" name="ADO NET Destination Input" description="" hasSideEffects="true" dangling="false" errorOrTruncationOperation="" errorRowDisposition="FailComponent" truncationRowDisposition="NotUsed"><inputColumns>
+<inputColumn id="3103" name="" description="" lineageId="1836" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3097" mappedColumnId="0"/>
+<inputColumn id="3104" name="" description="" lineageId="1839" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3099" mappedColumnId="0"/>
+<inputColumn id="3105" name="" description="" lineageId="1842" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3098" mappedColumnId="0"/>
+<inputColumn id="3106" name="" description="" lineageId="2626" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3101" mappedColumnId="0"/>
+<inputColumn id="3107" name="" description="" lineageId="2900" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3100" mappedColumnId="0"/>
+<inputColumn id="3108" name="" description="" lineageId="3091" usageType="readOnly" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="3102" mappedColumnId="0"/>
+</inputColumns><externalMetadataColumns isUsed="True">
+<externalMetadataColumn id="3096" name="ITEM_DUPLICATES_ID" description="" precision="0" scale="0" length="0" dataType="i8" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3097" name="_key_in" description="" precision="0" scale="0" length="0" dataType="i4" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3098" name="_SCORE" description="" precision="0" scale="0" length="0" dataType="r8" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3099" name="_key_out" description="" precision="0" scale="0" length="0" dataType="i4" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3100" name="ITEM_ID" description="" precision="0" scale="0" length="0" dataType="i8" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3101" name="REVIEW_ID" description="" precision="0" scale="0" length="0" dataType="i4" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3102" name="EXTR_UI" description="" precision="0" scale="0" length="0" dataType="guid" codePage="0" mappedColumnId="0"/></externalMetadataColumns></input>
+</inputs>
+<outputs>
+<output id="2696" name="ADO NET Destination Error Output" description="" exclusionGroup="1" synchronousInputId="2695" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="true" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="2697" name="ErrorCode" description="" lineageId="2697" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="1" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2698" name="ErrorColumn" description="" lineageId="2698" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="2" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/></outputColumns><externalMetadataColumns isUsed="False"/></output>
+</outputs>
+</component>
+<component id="2748" name="OLE DB Source" componentClassID="{BCEFE59B-6819-47F7-A125-63753B33ABB7}" description="OLE DB Source" localeId="-1" usesDispositions="true" validateExternalMetadata="True" version="7" pipelineVersion="0" contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SqlServer v10; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7">
+<properties>
+<property id="2749" name="CommandTimeout" dataType="System.Int32" state="default" isArray="false" description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">0</property>
+<property id="2750" name="OpenRowset" dataType="System.String" state="default" isArray="false" description="Specifies the name of the database object used to open a rowset." typeConverter="" UITypeEditor="" containsID="false" expressionType="None"></property>
+<property id="2751" name="OpenRowsetVariable" dataType="System.String" state="default" isArray="false" description="Specifies the variable that contains the name of the database object used to open a rowset." typeConverter="" UITypeEditor="" containsID="false" expressionType="None"></property>
+<property id="2752" name="SqlCommand" dataType="System.String" state="default" isArray="false" description="The SQL command to be executed." typeConverter="" UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" containsID="false" expressionType="None">exec st_ItemDuplicatesGetItemsList @review_id_st = ?</property>
+<property id="2753" name="SqlCommandVariable" dataType="System.String" state="default" isArray="false" description="The variable that contains the SQL command to be executed." typeConverter="" UITypeEditor="" containsID="false" expressionType="None"></property>
+<property id="2754" name="DefaultCodePage" dataType="System.Int32" state="default" isArray="false" description="Specifies the column code page to use when code page information is unavailable from the data source." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">1252</property>
+<property id="2755" name="AlwaysUseDefaultCodePage" dataType="System.Boolean" state="default" isArray="false" description="Forces the use of the DefaultCodePage property value when describing character data." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">false</property>
+<property id="2756" name="AccessMode" dataType="System.Int32" state="default" isArray="false" description="Specifies the mode used to access the database." typeConverter="AccessMode" UITypeEditor="" containsID="false" expressionType="None">2</property>
+<property id="2762" name="ParameterMapping" dataType="System.String" state="default" isArray="false" description="The mappings between the parameters in the SQL command and variables." typeConverter="" UITypeEditor="" containsID="false" expressionType="None">"@REVIEW_ID_ST",{EA183CB8-98C0-436B-9BD7-CEFB967661F1};</property></properties>
+<connections>
+<connection id="2757" name="OleDbConnection" description="The OLE DB runtime connection used to access the database." connectionManagerID="{F909B0C3-86BD-4161-8361-61D5140DB657}"/></connections>
+<outputs>
+<output id="2758" name="OLE DB Source Output" description="" exclusionGroup="0" synchronousInputId="0" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="false" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="2765" name="ITEM_ID" description="" lineageId="2765" precision="0" scale="0" length="0" dataType="i8" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="2764" mappedColumnId="0"/>
+<outputColumn id="2777" name="TITLE" description="" lineageId="2777" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="2776" mappedColumnId="0"/>
+<outputColumn id="2919" name="AUTHORS" description="" lineageId="2919" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="2918" mappedColumnId="0"/>
+<outputColumn id="2922" name="PARENTAUTHORS" description="" lineageId="2922" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="2921" mappedColumnId="0"/>
+<outputColumn id="2937" name="REVIEW_ID" description="" lineageId="2937" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="2936" mappedColumnId="0"/>
+<outputColumn id="3028" name="PARENT_TITLE" description="" lineageId="3028" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Conversion" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="3027" mappedColumnId="0"/></outputColumns><externalMetadataColumns isUsed="True">
+<externalMetadataColumn id="2764" name="ITEM_ID" description="" precision="0" scale="0" length="0" dataType="i8" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="2776" name="TITLE" description="" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="2918" name="AUTHORS" description="" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="2921" name="PARENTAUTHORS" description="" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="2936" name="REVIEW_ID" description="" precision="0" scale="0" length="0" dataType="i4" codePage="0" mappedColumnId="0"/>
+<externalMetadataColumn id="3027" name="PARENT_TITLE" description="" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" mappedColumnId="0"/></externalMetadataColumns></output>
+<output id="2759" name="OLE DB Source Error Output" description="" exclusionGroup="0" synchronousInputId="0" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="true" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="2766" name="ITEM_ID" description="" lineageId="2766" precision="0" scale="0" length="0" dataType="i8" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2778" name="TITLE" description="" lineageId="2778" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="3029" name="PARENT_TITLE" description="" lineageId="3029" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2920" name="AUTHORS" description="" lineageId="2920" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2923" name="PARENTAUTHORS" description="" lineageId="2923" precision="0" scale="0" length="1999" dataType="wstr" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2938" name="REVIEW_ID" description="" lineageId="2938" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2760" name="ErrorCode" description="" lineageId="2760" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="1" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="2761" name="ErrorColumn" description="" lineageId="2761" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="2" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/></outputColumns><externalMetadataColumns isUsed="False"/></output>
+</outputs>
+</component>
+<component id="3045" name="Derived Column" componentClassID="{2932025B-AB99-40F6-B5B8-783A73F80E24}" description="Updates column values using expressions" localeId="-1" usesDispositions="true" validateExternalMetadata="True" version="0" pipelineVersion="0" contactInfo="Derived Column;Microsoft Corporation; Microsoft SqlServer v10; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0">
+<inputs>
+<input id="3046" name="Derived Column Input" description="Input to the Derived Column Transformation" hasSideEffects="false" dangling="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><externalMetadataColumns isUsed="False"/></input>
+</inputs>
+<outputs>
+<output id="3047" name="Derived Column Output" description="Default Output of the Derived Column Transformation" exclusionGroup="1" synchronousInputId="3046" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="false" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="3091" name="EXTR_UI" description="" lineageId="3091" precision="0" scale="0" length="0" dataType="nText" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="0" errorOrTruncationOperation="Computation" errorRowDisposition="FailComponent" truncationRowDisposition="FailComponent" externalMetadataColumnId="0" mappedColumnId="0"><properties>
+<property id="3092" name="Expression" dataType="System.String" state="default" isArray="false" description="Derived Column Expression" typeConverter="" UITypeEditor="" containsID="true" expressionType="None">(DT_NTEXT)@[User::UID]</property>
+<property id="3093" name="FriendlyExpression" dataType="System.String" state="default" isArray="false" description="Derived Column Friendly Expression" typeConverter="" UITypeEditor="" containsID="true" expressionType="Notify">(DT_NTEXT)@[User::UID]</property></properties></outputColumn></outputColumns><externalMetadataColumns isUsed="False"/></output>
+<output id="3048" name="Derived Column Error Output" description="Error Output of the Derived Column Transformation" exclusionGroup="1" synchronousInputId="3046" deleteOutputOnPathDetached="false" hasSideEffects="false" dangling="false" isErrorOut="true" isSorted="false" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed"><outputColumns>
+<outputColumn id="3049" name="ErrorCode" description="" lineageId="3049" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="1" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/>
+<outputColumn id="3050" name="ErrorColumn" description="" lineageId="3050" precision="0" scale="0" length="0" dataType="i4" codePage="0" sortKeyPosition="0" comparisonFlags="0" specialFlags="2" errorOrTruncationOperation="" errorRowDisposition="NotUsed" truncationRowDisposition="NotUsed" externalMetadataColumnId="0" mappedColumnId="0"/></outputColumns><externalMetadataColumns isUsed="False"/></output>
+</outputs>
+</component>
+</components>
+<paths>
+<path id="2972" name="OLE DB Source Output" description="" startId="2758" endId="1830"/>
+<path id="3051" name="Fuzzy Grouping Output" description="" startId="1831" endId="3046"/>
+<path id="3052" name="Derived Column Output" description="" startId="3047" endId="2695"/>
+</paths></pipeline></DTS:ObjectData></DTS:Executable>
+<DTS:Property DTS:Name="ObjectName">Package</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{BDD43A2F-031E-4A98-B9E5-D8C9D353AF0D}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName">SSIS.Package.2</DTS:Property>
+<DTS:Property DTS:Name="DisableEventHandlers">0</DTS:Property>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;TaskHost xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:DtsDataFlowDiagram&gt;&lt;dwd:BoundingTop&gt;-434&lt;/dwd:BoundingTop&gt;&lt;dwd:Layout&gt;&lt;dds&gt;
+  &lt;diagram fontclsid="{0BE35203-8F91-11CE-9DE3-00AA004BB851}" mouseiconclsid="{0BE35204-8F91-11CE-9DE3-00AA004BB851}" defaultlayout="Microsoft.DataWarehouse.Layout.GraphLayout100" defaultlineroute="Microsoft.DataWarehouse.Layout.GraphLayout100" version="7" nextobject="18" scale="100" pagebreakanchorx="0" pagebreakanchory="0" pagebreaksizex="0" pagebreaksizey="0" scrollleft="-1000" scrolltop="-1434" gridx="150" gridy="150" marginx="1000" marginy="1000" zoom="100" x="24897" y="10795" backcolor="15334399" defaultpersistence="2" PrintPageNumbersMode="3" PrintMarginTop="0" PrintMarginBottom="635" PrintMarginLeft="0" PrintMarginRight="0" marqueeselectionmode="1" mousepointer="0" snaptogrid="0" autotypeannotation="1" showscrollbars="0" viewpagebreaks="0" donotforceconnectorsbehindshapes="0" backpictureclsid="{00000000-0000-0000-0000-000000000000}"&gt;
+    &lt;font&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="01010000900180380100065461686f6d61" /&gt;
+    &lt;/font&gt;
+    &lt;mouseicon&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="6c74000000000000" /&gt;
+    &lt;/mouseicon&gt;
+  &lt;/diagram&gt;
+  &lt;layoutmanager&gt;
+    &lt;ddsxmlobj /&gt;
+  &lt;/layoutmanager&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="Groups rows in a dataset that contain similar values." left="7092" top="3227" logicalid="6" controlid="1" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/components/1829" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="Writes to a database using ADO.NET provider." left="14631" top="7170" logicalid="7" controlid="2" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/components/2692" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="OLE DB Source" left="0" top="-434" logicalid="9" controlid="4" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/components/2748" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="MSDDS.Polyline" left="1400" top="331" logicalid="10" controlid="5" masterid="0" hint1="0" hint2="0" width="7891" height="3396" noresize="0" nomove="0" nodefaultattachpoints="1" autodrag="0" usedefaultiddshape="0" selectable="1" showselectionhandles="0" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;polyline endtypedst="3" endtypesrc="1" usercolor="32768" linestyle="0" linerender="1" customendtypedstid="0" customendtypesrcid="0" adornsvisible="1" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/paths/2972" vartype="8" /&gt;
+        &lt;property name="Virtual" value="0" vartype="11" /&gt;
+        &lt;property name="VisibleAP" value="0" vartype="3" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;connector lineroutestyle="Microsoft.DataWarehouse.Layout.GraphLayout100" sourceid="4" destid="1" sourceattachpoint="7" destattachpoint="6" segmenteditmode="0" bendpointeditmode="0" bendpointvisibility="2" relatedid="0" virtual="0"&gt;
+      &lt;point x="1799" y="730" /&gt;
+      &lt;point x="1799" y="1978" /&gt;
+      &lt;point x="8891" y="1978" /&gt;
+      &lt;point x="8891" y="3227" /&gt;
+    &lt;/connector&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="Updates column values using expressions" left="13737" top="4255" logicalid="15" controlid="10" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/components/3045" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="MSDDS.Polyline" left="10291" top="3410" logicalid="16" controlid="11" masterid="0" hint1="0" hint2="0" width="3746" height="1827" noresize="0" nomove="0" nodefaultattachpoints="1" autodrag="0" usedefaultiddshape="0" selectable="1" showselectionhandles="0" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;polyline endtypedst="3" endtypesrc="1" usercolor="32768" linestyle="0" linerender="1" customendtypedstid="0" customendtypesrcid="0" adornsvisible="1" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/paths/3051" vartype="8" /&gt;
+        &lt;property name="Virtual" value="0" vartype="11" /&gt;
+        &lt;property name="VisibleAP" value="0" vartype="3" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;connector lineroutestyle="Microsoft.DataWarehouse.Layout.GraphLayout100" sourceid="1" destid="10" sourceattachpoint="15" destattachpoint="14" segmenteditmode="0" bendpointeditmode="0" bendpointvisibility="2" relatedid="0" virtual="0"&gt;
+      &lt;point x="10690" y="3809" /&gt;
+      &lt;point x="12213" y="3809" /&gt;
+      &lt;point x="12213" y="4837" /&gt;
+      &lt;point x="13737" y="4837" /&gt;
+    &lt;/connector&gt;
+  &lt;/ddscontrol&gt;
+  &lt;ddscontrol controlprogid="MSDDS.Polyline" left="15137" top="5020" logicalid="17" controlid="12" masterid="0" hint1="0" hint2="0" width="1693" height="2650" noresize="0" nomove="0" nodefaultattachpoints="1" autodrag="0" usedefaultiddshape="0" selectable="1" showselectionhandles="0" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;polyline endtypedst="3" endtypesrc="1" usercolor="32768" linestyle="0" linerender="1" customendtypedstid="0" customendtypesrcid="0" adornsvisible="1" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}/paths/3052" vartype="8" /&gt;
+        &lt;property name="Virtual" value="0" vartype="11" /&gt;
+        &lt;property name="VisibleAP" value="0" vartype="3" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;connector lineroutestyle="Microsoft.DataWarehouse.Layout.GraphLayout100" sourceid="10" destid="2" sourceattachpoint="7" destattachpoint="6" segmenteditmode="0" bendpointeditmode="0" bendpointvisibility="2" relatedid="0" virtual="0"&gt;
+      &lt;point x="15536" y="5419" /&gt;
+      &lt;point x="15536" y="6294" /&gt;
+      &lt;point x="16430" y="6294" /&gt;
+      &lt;point x="16430" y="7170" /&gt;
+    &lt;/connector&gt;
+  &lt;/ddscontrol&gt;
+&lt;/dds&gt;&lt;/dwd:Layout&gt;&lt;dwd:PersistedViewPortLeft&gt;-1000&lt;/dwd:PersistedViewPortLeft&gt;&lt;dwd:PersistedViewPortTop&gt;-1434&lt;/dwd:PersistedViewPortTop&gt;&lt;/dwd:DtsDataFlowDiagram&gt;&lt;dwd:DtsComponentDesignerPropertiesList&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;2748	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;175	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;127	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;268	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;572	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;1	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;528	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;202	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:DtsComponentDesignTimeProperty&gt;&lt;dwd:key xsi:type="xsd:string"&gt;2692	DataSourceViewID&lt;/dwd:key&gt;&lt;/dwd:DtsComponentDesignTimeProperty&gt;&lt;/dwd:DtsComponentDesignerPropertiesList&gt;&lt;/TaskHost&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{76C99D65-1680-402A-9E68-C57F1D9D8051}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;PipelinePath xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:SourceName&gt;OLE DB Source Output&lt;/dwd:SourceName&gt;&lt;dwd:DestinationName&gt;Fuzzy Grouping Input&lt;/dwd:DestinationName&gt;&lt;/PipelinePath&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}-2972</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{D3F08377-F5C6-406B-902F-220040A4EAC0}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;PipelinePath xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:SourceName&gt;Fuzzy Grouping Output&lt;/dwd:SourceName&gt;&lt;dwd:DestinationName&gt;Derived Column Input&lt;/dwd:DestinationName&gt;&lt;/PipelinePath&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}-3051</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{42444246-4238-4480-B55A-035110C82BAC}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;PipelinePath xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:SourceName&gt;Derived Column Output&lt;/dwd:SourceName&gt;&lt;dwd:DestinationName&gt;ADO NET Destination Input&lt;/dwd:DestinationName&gt;&lt;/PipelinePath&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}-3052</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{F55C053A-8F28-449D-BD99-BA937DD5F42E}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:DtsControlFlowDiagram&gt;&lt;dwd:BoundingLeft&gt;1000&lt;/dwd:BoundingLeft&gt;&lt;dwd:BoundingTop&gt;1000&lt;/dwd:BoundingTop&gt;&lt;dwd:Layout&gt;&lt;dds&gt;
+  &lt;diagram fontclsid="{0BE35203-8F91-11CE-9DE3-00AA004BB851}" mouseiconclsid="{0BE35204-8F91-11CE-9DE3-00AA004BB851}" defaultlayout="Microsoft.DataWarehouse.Layout.GraphLayout100" defaultlineroute="Microsoft.DataWarehouse.Layout.GraphLayout100" version="7" nextobject="5" scale="100" pagebreakanchorx="0" pagebreakanchory="0" pagebreaksizex="0" pagebreaksizey="0" scrollleft="0" scrolltop="0" gridx="150" gridy="150" marginx="1000" marginy="1000" zoom="100" x="32755" y="11721" backcolor="15334399" defaultpersistence="2" PrintPageNumbersMode="3" PrintMarginTop="0" PrintMarginBottom="635" PrintMarginLeft="0" PrintMarginRight="0" marqueeselectionmode="1" mousepointer="0" snaptogrid="0" autotypeannotation="1" showscrollbars="0" viewpagebreaks="0" donotforceconnectorsbehindshapes="1" backpictureclsid="{00000000-0000-0000-0000-000000000000}"&gt;
+    &lt;font&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="01010000900180380100065461686f6d61" /&gt;
+    &lt;/font&gt;
+    &lt;mouseicon&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="6c74000000000000" /&gt;
+    &lt;/mouseicon&gt;
+  &lt;/diagram&gt;
+  &lt;layoutmanager&gt;
+    &lt;ddsxmlobj /&gt;
+  &lt;/layoutmanager&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="Data Flow Task" left="6033" top="5159" logicalid="2" controlid="1" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+&lt;/dds&gt;&lt;/dwd:Layout&gt;&lt;/dwd:DtsControlFlowDiagram&gt;&lt;/Package&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">{BDD43A2F-031E-4A98-B9E5-D8C9D353AF0D}</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{721C6A00-958A-4210-836D-5367E2B82E45}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable>
+<DTS:PackageVariable>
+<DTS:Property DTS:Name="PackageVariableValue" DTS:DataType="8">&lt;Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0"&gt;&lt;dwd:DtsControlFlowDiagram&gt;&lt;dwd:BoundingLeft&gt;1000&lt;/dwd:BoundingLeft&gt;&lt;dwd:BoundingTop&gt;1000&lt;/dwd:BoundingTop&gt;&lt;dwd:Layout&gt;&lt;dds&gt;
+  &lt;diagram fontclsid="{0BE35203-8F91-11CE-9DE3-00AA004BB851}" mouseiconclsid="{0BE35204-8F91-11CE-9DE3-00AA004BB851}" defaultlayout="Microsoft.DataWarehouse.Layout.GraphLayout100" defaultlineroute="Microsoft.DataWarehouse.Layout.GraphLayout100" version="7" nextobject="5" scale="100" pagebreakanchorx="0" pagebreakanchory="0" pagebreaksizex="0" pagebreaksizey="0" scrollleft="0" scrolltop="0" gridx="150" gridy="150" marginx="1000" marginy="1000" zoom="100" x="32755" y="11721" backcolor="15334399" defaultpersistence="2" PrintPageNumbersMode="3" PrintMarginTop="0" PrintMarginBottom="635" PrintMarginLeft="0" PrintMarginRight="0" marqueeselectionmode="1" mousepointer="0" snaptogrid="0" autotypeannotation="1" showscrollbars="0" viewpagebreaks="0" donotforceconnectorsbehindshapes="1" backpictureclsid="{00000000-0000-0000-0000-000000000000}"&gt;
+    &lt;font&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="01010000900180380100065461686f6d61" /&gt;
+    &lt;/font&gt;
+    &lt;mouseicon&gt;
+      &lt;ddsxmlobjectstreamwrapper binary="6c74000000000000" /&gt;
+    &lt;/mouseicon&gt;
+  &lt;/diagram&gt;
+  &lt;layoutmanager&gt;
+    &lt;ddsxmlobj /&gt;
+  &lt;/layoutmanager&gt;
+  &lt;ddscontrol controlprogid="DdsShapes.DdsObjectManagedBridge.2" tooltip="Data Flow Task" left="6033" top="5159" logicalid="2" controlid="1" masterid="0" hint1="0" hint2="0" width="3598" height="1164" noresize="0" nomove="0" nodefaultattachpoints="0" autodrag="1" usedefaultiddshape="1" selectable="1" showselectionhandles="1" allownudging="1" isannotation="0" dontautolayout="0" groupcollapsed="0" tabstop="1" visible="1" snaptogrid="0"&gt;
+    &lt;control&gt;
+      &lt;ddsxmlobjectstreaminitwrapper binary="000800000e0e00008c040000" /&gt;
+    &lt;/control&gt;
+    &lt;layoutobject&gt;
+      &lt;ddsxmlobj&gt;
+        &lt;property name="LogicalObject" value="{B1C87BB3-7E9F-4286-888F-C72B8E812B1D}" vartype="8" /&gt;
+        &lt;property name="ShowConnectorSource" value="0" vartype="2" /&gt;
+      &lt;/ddsxmlobj&gt;
+    &lt;/layoutobject&gt;
+    &lt;shape groupshapeid="0" groupnode="0" /&gt;
+  &lt;/ddscontrol&gt;
+&lt;/dds&gt;&lt;/dwd:Layout&gt;&lt;/dwd:DtsControlFlowDiagram&gt;&lt;/Package&gt;</DTS:Property>
+<DTS:Property DTS:Name="Namespace">dts-designer-1.0</DTS:Property>
+<DTS:Property DTS:Name="ObjectName">package-diagram</DTS:Property>
+<DTS:Property DTS:Name="DTSID">{2A1324B4-F361-48FE-BA51-CB3031C33C4E}</DTS:Property>
+<DTS:Property DTS:Name="Description"></DTS:Property>
+<DTS:Property DTS:Name="CreationName"></DTS:Property></DTS:PackageVariable></DTS:Executable>

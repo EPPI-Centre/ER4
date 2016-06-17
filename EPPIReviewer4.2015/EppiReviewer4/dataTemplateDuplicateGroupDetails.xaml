@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="EppiReviewer4.dataTemplateDuplicateGroupDetails"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+  >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="22" />
+            <RowDefinition Height="22" />
+            <RowDefinition Height="22" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="22" />
+            <RowDefinition Height="28" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="74" />
+            <ColumnDefinition Width="647" />
+        </Grid.ColumnDefinitions>
+
+        
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Reference" FontWeight="Bold" HorizontalAlignment="Right" Margin="2,2,2,2"></TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <TextBlock Text="{Binding ItemId}" x:Name="txtItemID" HorizontalAlignment="Left" Margin="2,2,0,2"></TextBlock>
+            <TextBlock Text=" (" HorizontalAlignment="Left" Margin="0,2,0,2"></TextBlock>
+            <TextBlock Text="{Binding OldItemId}" HorizontalAlignment="Left" Margin="1,2,0,2"></TextBlock>
+            <TextBlock Text=")" HorizontalAlignment="Left" Margin="0,2,0,2"></TextBlock>
+            <TextBlock Text="Similarity score:" HorizontalAlignment="Left" Margin="20,2,0,2" FontWeight="Bold"  
+                       ToolTipService.ToolTip="Scores can only be shown when the master item has not been changed"></TextBlock>
+            <TextBlock x:Name="scoreTxt" Text="{Binding SimilarityScore}" HorizontalAlignment="Left"  Margin="1,2,0,2" ></TextBlock>
+            <TextBlock Text="Coded" HorizontalAlignment="Left" FontWeight="Bold" Margin="6,2,2,2"></TextBlock>
+            <TextBlock Text="{Binding CodedCount}" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="times, " HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="Contains" HorizontalAlignment="Left" Margin="2,2,2,2" FontWeight="Bold"></TextBlock>
+            <TextBlock Text="{Binding DocCount}" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="Documents" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="Pages:" HorizontalAlignment="Left" Margin="2,2,2,2" FontWeight="Bold"></TextBlock>
+            <TextBlock Text="{Binding Pages}" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Pub type:" FontWeight="Bold" HorizontalAlignment="Right" Margin="2,2,2,2"></TextBlock>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <TextBlock Text="{Binding TypeName}" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text=" - Date: " FontWeight="Bold" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="{Binding Year}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <TextBlock Text="{Binding Month}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+            <TextBlock Text=" - Source:" FontWeight="Bold" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+            <TextBlock Text="{Binding Source}" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="NoWrap" TextTrimming="WordEllipsis"></TextBlock>
+        </StackPanel>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Author(s):" FontWeight="Bold" HorizontalAlignment="Right" Margin="2,2,2,2"></TextBlock>
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Authors}" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Title:" FontWeight="Bold" HorizontalAlignment="Right" Margin="2,2,2,2"></TextBlock>
+        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Title}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+
+        <cslaXAML:BusyAnimation x:Name="BusyLoading"  Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" />
+        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding ParentTitle}" FontStyle="Italic" HorizontalAlignment="Left" Margin="2,2,2,2"></TextBlock>
+        
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Mark as" FontWeight="Bold" HorizontalAlignment="Right" Margin="2,5,2,2"></TextBlock>
+        
+        
+        
+        
+        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+            <Button x:Name="cmdMakeDuplicate" Content="A duplicate" Margin="1,1,1,1" Width="105" Click="cmdMakeDuplicate_Click"></Button>
+            <Button x:Name="cmdMakeNotDuplicate" Content="Not a duplicate" Margin="1,1,1,1" Width="105" Click="cmdMakeNotDuplicate_Click"></Button>
+            <Button x:Name="cmdMarkAsMaster" Content="Mark as Master" Margin="1,1,1,1" Width="105" Click="cmdMarkAsMaster_Click"></Button>
+            <CheckBox Content="This is a duplicate" IsChecked="{Binding IsDuplicate}" IsEnabled="False" Margin="2,2,10,2" VerticalAlignment="Center"></CheckBox>
+            <CheckBox Content="This Item has been checked" IsChecked="{Binding IsChecked}" IsEnabled="False" Margin="2,2,10,2" VerticalAlignment="Center"></CheckBox>
+        </StackPanel>
+    </Grid>
+</UserControl>

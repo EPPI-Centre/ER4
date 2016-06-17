@@ -1,0 +1,114 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWClassifier"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+                   xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+		           Header="Classifier"
+                   Height="400" 
+                   Width="600"
+                   CanClose="True"
+                   CanMove="False" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="22"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Maximized"
+                   >
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        <cslaXAML:CslaDataProvider x:Key="ClassifierModelListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="True"
+                           ObjectType="BusinessLibrary.BusinessClasses.ClassifierModelList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="ClassifierModelsData_DataChanged"
+                           FactoryMethod="GetClassifierModelList"/>
+    </telerik:RadWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="220"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="5,5,5,5" Text="The classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which are saved for future use); and then the model is applied to new items." TextWrapping="Wrap"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 1: build the model" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="2" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 2: apply the model" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="3,3,3,3" Text="Learn to apply this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlTrainOn" Grid.Row="2" Grid.Column="1" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to apply"></local:codesSelectControl>
+        <TextBlock Grid.Row="3" Grid.Column="0" Margin="3,3,3,3" Text="Distinguish from this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlTrainNotOn" Grid.Row="3" Grid.Column="1" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to distinguish from"></local:codesSelectControl>
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
+        <TextBox Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
+        <Button x:Name="cmdBuildModel" Grid.Row="6" Margin="10,2,10,2" Grid.Column="1" Click="cmdBuildModel_Click">Build model</Button>
+
+        <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="2" Grid.RowSpan="5" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,0"
+                                    RowIndicatorVisibility="Collapsed" ItemsSource="{Binding Source={StaticResource ClassifierModelListData}, Path=Data}"
+                                    SelectionMode="Single">
+
+            <telerikGridView:RadGridView.Columns>
+                <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding ModelTitle}" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Applies" DataMemberBinding="{Binding AttributeOn}" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Compared with" DataMemberBinding="{Binding AttributeNotOn}" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Precision" DataMemberBinding="{Binding Precision}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Recall" DataMemberBinding="{Binding Recall}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+            </telerikGridView:RadGridView.Columns>
+
+        </telerik:RadGridView>
+        <TextBlock Grid.Row="8" Grid.Column="2" Margin="3,3,3,3" Text="Apply to items with this code" VerticalAlignment="Center"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlClassifyTo" Grid.Row="8" Grid.Column="3" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you have used to define the items you want to be classified"></local:codesSelectControl>
+        <Button x:Name="cmdApplyModel" Grid.Row="9" Margin="10,2,10,2" Grid.Column="3" Click="cmdApplyModel_Click">Apply code</Button>
+
+        <Button x:Name="cmdRefreshModelList" ToolTipService.ToolTip="Refresh model list" Grid.Row="9" Grid.Column="2" Click="cmdRefreshModelList_Click"
+                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="16" Height="16" Source="../Icons/view-refresh-7.png"/>
+                <TextBlock Text="Refresh model list" Margin="5,0,5,0"></TextBlock>
+            </StackPanel>
+        </Button>
+
+        <TextBlock Grid.Row="10" Grid.Column="0" Margin="3,3,3,3" Text="Stages 1 and 2 combined" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
+        <Button x:Name="cmdLearnAndApplyModel" Grid.Row="11" Margin="10,2,10,2" Grid.Column="0" Click="cmdLearnAndApplyModel_Click">Learn and apply code</Button>
+    </Grid>
+</telerik:RadWindow>

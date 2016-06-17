@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogReportViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="400" d:DesignWidth="600"
+             xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:RichTextBoxUI="clr-namespace:Telerik.Windows.Controls.RichTextBoxUI;assembly=Telerik.Windows.Controls.RichTextBoxUI"
+             >
+    
+    <Grid x:Name="LayoutRoot">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="315*" />
+            <ColumnDefinition Width="285" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <!--<RowDefinition Height="30"></RowDefinition>-->
+        </Grid.RowDefinitions>
+        
+        <telerikNavigation:RadToolBar HorizontalAlignment="Stretch" Margin="0,0,2,0"
+                                      Grid.Column="0" Grid.Row="0">
+                 <Button FontSize="10" ToolTipService.ToolTip="Save"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                         DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding SaveCommand}">
+                    <Image Width="16" Height="16" Source="Icons/DocumentSave.png"/>
+                </Button>
+                <Button FontSize="10" ToolTipService.ToolTip="Print"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                         DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding PrintCommand}" CommandParameter="Html">
+                <!--may also consider Native-->
+                    <Image Width="16" Height="16" Source="Icons/PrintCodeSet.png"/>
+                </Button>
+                <Button FontSize="10" ToolTipService.ToolTip="Print Preview"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                         DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding PrintPreviewCommand}">
+                    <Image Width="16" Height="16" Source="Icons/print-preview.png"/>
+                </Button>
+                <Button FontSize="10" ToolTipService.ToolTip="Cut"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                         DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding CutCommand}">
+                    <Image Width="16" Height="16" Source="Icons/edit-cut.png"/>
+                </Button>
+                <Button FontSize="10" ToolTipService.ToolTip="Copy"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                                DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding CopyCommand}">
+                    <Image Width="16" Height="16" Source="Icons/edit-copy.png"/>
+                </Button>
+                <Button FontSize="10" ToolTipService.ToolTip="Paste"
+                                             Width="22" HorizontalAlignment="Center" Height="25" Margin="2,2,2,2" 
+                         DataContext="{Binding Commands, ElementName=radRichTextBox1}"
+                                Command="{Binding PasteCommand}">
+                    <Image Width="16" Height="16" Source="Icons/edit-paste.png"/>
+                </Button>
+                <TextBox Margin="2" x:Name="tbFindTxt" KeyUp="tbFindTxt_KeyUp" HorizontalAlignment="Stretch" MinWidth="55" MaxLength="200"
+                                                 ToolTipService.ToolTip="Find">
+                </TextBox>
+
+                <telerik:RadButton x:Name="btnFindTxt" Visibility="Visible" Margin="2" Click="btnFindTxt_Click" Width="22"
+                                   Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="Find" />
+                    </ToolTipService.ToolTip>
+                    <Image Source="/Telerik.Windows.Controls.RichTextBoxUI;component/Images/MSOffice/16/Find.png" Stretch="None" />
+                </telerik:RadButton>
+
+                <telerik:RadButton x:Name="btnPrevTxt" Visibility="Collapsed" Click="btnPrevTxt_Click"  Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="Find Previous" />
+                    </ToolTipService.ToolTip>
+                    <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-previous.png" Stretch="None" />
+                </telerik:RadButton>
+
+                <telerik:RadButton x:Name="btnNextTxt" Visibility="Collapsed" Click="btnNextTxt_Click" Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                    <ToolTipService.ToolTip>
+                        <TextBlock Text="Find Next" />
+                    </ToolTipService.ToolTip>
+                    <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-next.png" Stretch="None" />
+                </telerik:RadButton>
+        </telerikNavigation:RadToolBar>
+            
+
+        <RichTextBoxUI:RadRichTextBoxStatusBar AssociatedRichTextBox="{Binding ElementName=radRichTextBox1, Mode=OneTime}"
+                                                  HorizontalAlignment="Right" Background="BlueViolet" HorizontalContentAlignment="Right" 
+                                               Grid.Column="1" Grid.Row="0"/>
+
+        <telerik:RadRichTextBox Name="radRichTextBox1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="False" 
+                                Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                 IsSpellCheckingEnabled="False" IsImageMiniToolBarEnabled="False"
+                                IsSelectionMiniToolBarEnabled="False"
+                                />
+
+        
+
+        <!--<rEdit:RichEdit HorizontalAlignment="Stretch" Margin="0,0,0,0" Name="richEdit1" VerticalAlignment="Stretch" Visibility="Collapsed"
+                        ActiveViewType="PrintLayout"/>-->
+    </Grid>
+</UserControl>

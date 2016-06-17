@@ -1,0 +1,186 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWComparisonStats"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
+		
+		           Header="Comparison statistics"
+                   MaxWidth="645"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        <helper:BooleanToVisibilityReversedConverter x:Key="BooleanToVisibilityCo"/>
+    </telerik:RadWindow.Resources>
+        <Grid Margin="0,0,6,6">
+            <Grid.RowDefinitions>
+                <RowDefinition MaxHeight="35"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition MaxHeight="70"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                
+                
+                
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="113"></ColumnDefinition>
+                <ColumnDefinition Width="102"></ColumnDefinition>
+                <ColumnDefinition Width="204"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <cslaXAML:BusyAnimation x:Name="BusyLoadingComparisonStats" Height="16" Margin="0,14,0,0" VerticalAlignment="Top" />
+            <TextBlock x:Name="StaticText" TextWrapping="Wrap" Margin="6,6,6,6">
+                The statistics are based on the status of the database at the time the comparison was created.
+            </TextBlock>
+            </StackPanel>
+            
+            
+            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonReviewer1" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonReviewer2" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonReviewer3" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonNumber1vs2" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonNumber2vs3" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" x:Name="TextBlockComparisonNumber1vs3" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>
+        <sdk:TabControl Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="4" x:Name="CompTabs">
+            <sdk:TabItem x:Name="NormalTab" Header="Full">
+                    <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition MaxHeight="39"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="113"></ColumnDefinition>
+                        <ColumnDefinition Width="102"></ColumnDefinition>
+                        <ColumnDefinition Width="113"></ColumnDefinition>
+                        <ColumnDefinition Width="90"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Border x:Name="borderAgr" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2" BorderBrush="#FF3C7FB1" Margin="0,1,0,0" BorderThickness="1,1,1,1"></Border>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="Agreements" Margin="6,6,6,6" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+                    <Border x:Name="borderDis" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="2" BorderBrush="#FF3C7FB1" Margin="0,1,0,0" BorderThickness="0,1,1,1"></Border>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Disagreements" Margin="6,6,6,6" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" x:Name="TextBlockComparison1vs2" Margin="6,9,6,6" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" x:Name="TextBlockComparison2vs3" Margin="6,6,6,9" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0" x:Name="TextBlockComparison1vs3" Margin="6,6,6,9" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <Button Grid.Row="1" Grid.Column="1" x:Name="cmdListComparisonAgreements1vs2" Height="29" Margin="6,3,3,6" Tag="Agree1vs2" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="1" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements1vs2" Content="Complete" Margin="3,3,4,6" Tag="Complete1vs2" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="1" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements1vs2" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements1vs2, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                            Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements1vs2}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements1vs2}"></Rectangle>
+                    <Button Grid.Row="1" Grid.Column="3" x:Name="cmdListComparisonDisagreements1vs2" Height="29" Margin="3,3,6,6" Tag="Disagree1vs2" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="1" Grid.Column="4" x:Name="cmdReconcileDisagreements1vs2" Height="29" Margin="3,3,6,6" Tag="Reconcile1vs2"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+
+                    <Button Grid.Row="2" Grid.Column="1" x:Name="cmdListComparisonAgreements2vs3" Height="29" Margin="6,0,3,6" Tag="Agree2vs3" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="2" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements2vs3" Content="Complete" Margin="3,0,4,6" Tag="Complete2vs3" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="2" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements2vs3" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements2vs3, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                             Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements2vs3}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements2vs3}"></Rectangle>
+                    <Button Grid.Row="2" Grid.Column="3" x:Name="cmdListComparisonDisagreements2vs3" Height="29" Margin="3,0,6,6" Tag="Disagree2vs3" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="2" Grid.Column="4" x:Name="cmdReconcileDisagreements2vs3" Height="29" Margin="3,3,6,6" Tag="Reconcile2vs3"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+                        
+                    <Button Grid.Row="3" Grid.Column="1" x:Name="cmdListComparisonAgreements1vs3" Height="29" Margin="6,0,3,6" Tag="Agree1vs3" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="3" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements1vs3" Content="Complete" Margin="3,0,4,6" Tag="Complete1vs3" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="3" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements1vs3" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements1vs3, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                             Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements1vs3}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements1vs3}"></Rectangle>
+                    <Button Grid.Row="3" Grid.Column="3" x:Name="cmdListComparisonDisagreements1vs3" Height="29" Margin="3,0,6,6" Tag="Disagree1vs3" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="3" Grid.Column="4" x:Name="cmdReconcileDisagreements1vs3" Height="29" Margin="3,3,6,6" Tag="Reconcile1vs3"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+                </Grid>
+            </sdk:TabItem>
+            <sdk:TabItem x:Name="ScreeningTab" Header="Include/Exclude Only" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition MaxHeight="39"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="113"></ColumnDefinition>
+                        <ColumnDefinition Width="102"></ColumnDefinition>
+                        <ColumnDefinition Width="113"></ColumnDefinition>
+                        <ColumnDefinition Width="90"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Border x:Name="borderAgrSc" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2" BorderBrush="#FF3C7FB1" Margin="0,1,0,0" BorderThickness="1,1,1,1"></Border>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="Agreements" Margin="6,6,6,6" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+                    <Border x:Name="borderDisSc" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" Grid.RowSpan="2" BorderBrush="#FF3C7FB1" Margin="0,1,0,0" BorderThickness="0,1,1,1"></Border>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Disagreements" Margin="6,6,6,6" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" x:Name="TextBlockComparison1vs2Sc" Margin="6,9,6,6" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" x:Name="TextBlockComparison2vs3Sc" Margin="6,6,6,9" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0" x:Name="TextBlockComparison1vs3Sc" Margin="6,6,6,9" HorizontalAlignment="Right" TextWrapping="Wrap"></TextBlock>
+                    <Button Grid.Row="1" Grid.Column="1" x:Name="cmdListComparisonAgreements1vs2Sc" Height="29" Margin="6,3,3,6" Tag="Agree1vs2Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="1" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements1vs2Sc" Content="Complete" Margin="3,3,4,6" Tag="Complete1vs2Sc" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="1" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements1vs2Sc" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements1vs2Sc, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                            Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements1vs2Sc}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements1vs2Sc}"></Rectangle>
+                    <Button Grid.Row="1" Grid.Column="3" x:Name="cmdListComparisonDisagreements1vs2Sc" Height="29" Margin="3,3,6,6" Tag="Disagree1vs2Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="1" Grid.Column="4" x:Name="cmdReconcileDisagreements1vs2Sc" Height="29" Margin="3,3,6,6" Tag="Reconcile1vs2Sc"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+                    
+                    <Button Grid.Row="2" Grid.Column="1" x:Name="cmdListComparisonAgreements2vs3Sc" Height="29" Margin="6,0,3,6" Tag="Agree2vs3Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="2" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements2vs3Sc" Content="Complete" Margin="3,0,4,6" Tag="Complete2vs3Sc" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="2" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements2vs3Sc" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements2vs3Sc, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                             Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements2vs3Sc}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements2vs3Sc}"></Rectangle>
+                    <Button Grid.Row="2" Grid.Column="3" x:Name="cmdListComparisonDisagreements2vs3Sc" Height="29" Margin="3,0,6,6" Tag="Disagree2vs3Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="2" Grid.Column="4" x:Name="cmdReconcileDisagreements2vs3Sc" Height="29" Margin="3,3,6,6" Tag="Reconcile2vs3Sc"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+                    
+                    <Button Grid.Row="3" Grid.Column="1" x:Name="cmdListComparisonAgreements1vs3Sc" Height="29" Margin="6,0,3,6" Tag="Agree1vs3Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="3" Grid.Column="2" x:Name="cmdCompleteComparisonAgreements1vs3Sc" Content="Complete" Margin="3,0,4,6" Tag="Complete1vs3Sc" Click="cmdCompleteComparisonAgreements1vs2_Click"
+                        Height="29" ></Button>
+                    <Rectangle Grid.Row="3" Grid.Column="2" x:Name="tippercmdCompleteComparisonAgreements1vs3Sc" Visibility="{Binding Path=IsEnabled, ElementName=cmdCompleteComparisonAgreements1vs3Sc, Converter={StaticResource BooleanToVisibilityCo}}"  Fill="Transparent"
+                             Width="{Binding Path=ActualWidth, ElementName=cmdCompleteComparisonAgreements1vs3Sc}" Height="{Binding Path=ActualHeight, ElementName=cmdCompleteComparisonAgreements1vs3Sc}"></Rectangle>
+                    <Button Grid.Row="3" Grid.Column="3" x:Name="cmdListComparisonDisagreements1vs3Sc" Height="29" Margin="3,0,6,6" Tag="Disagree1vs3Sc" Click="cmdListComparisonAgreements1vs2_Click"></Button>
+                    <Button Grid.Row="3" Grid.Column="4" x:Name="cmdReconcileDisagreements1vs3Sc" Height="29" Margin="3,3,6,6" Tag="Reconcile1vs3Sc"
+                             Content="Reconcile" Click="cmdReconcileDisagreements_Click"></Button>
+                    
+                </Grid>
+            </sdk:TabItem>
+        </sdk:TabControl>
+        </Grid>
+</telerik:RadWindow>

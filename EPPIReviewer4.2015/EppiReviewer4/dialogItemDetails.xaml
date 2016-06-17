@@ -1,0 +1,267 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogItemDetails"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+             xmlns:local="clr-namespace:EppiReviewer4"
+             xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+             xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    >
+    <UserControl.Resources>
+        
+        <cslaXAML:CslaDataProvider x:Key="ItemTypesData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="True"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemTypeNVL, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemTypeNVL"
+                           DataChanged="ItemTypesData_DataChanged"
+                           />
+        <cslaXAML:CslaDataProvider x:Key="ItemDuplicateListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemDuplicatesReadOnlyList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="getItemDuplicatesReadOnlyList"
+                           DataChanged="CslaDataProvider_DataChanged_ItemDuplicateListData"
+                           />
+        <cslaXAML:CslaDataProvider x:Key="ItemSourceData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReadOnlySource, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemReadOnlySource"
+                           DataChanged="CslaDataProvider_DataChanged_ItemSourceData"
+                           />
+        
+        <local:ItemTypeConverter x:Key="ItemTypeConverter" />
+        <helper:ShowMasterItemConverter x:Key="ShowMasterItem"/>
+        <helper:ReverseBooleanConverter x:Key="ReverseBooleanConverter"/>
+        <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+        <local:TextBlockBlockConvertor x:Key="blockConverter" />
+
+    </UserControl.Resources>
+
+    <Grid Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" x:Name="GridHost">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition x:Name="RowAuthors" Height="30"></RowDefinition>
+            <RowDefinition x:Name="RowMonth" Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="29" />
+            <RowDefinition Height="90"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="70"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <cslaXAML:BusyAnimation x:Name="BusyTranslate" Visibility="Collapsed" Width="40" Height="40" IsRunning="False"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Title" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxTitle" Grid.Column="1" Grid.ColumnSpan="3" FontWeight="Bold" Grid.Row="0" TextWrapping="Wrap" Margin="3,3,3,3" 
+           IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" Text="{Binding Title, Mode=TwoWay}"></TextBox>
+
+        <Border x:Name="BorderBoldTermsTitle" Visibility="Collapsed" BorderThickness="1" BorderBrush="Gray" 
+                Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3,3,3,5">
+            <RichTextBlock x:Name="TextBlockBoldTermsTitle" TextWrapping="Wrap" Visibility="Collapsed" Margin="3,3,3,3"
+                  local:dialogItemDetails.parasList="{Binding Title, Converter={StaticResource blockConverter}}">
+            </RichTextBlock>
+        </Border>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Author(s)" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        
+        <TextBox Grid.Row="1" Name="itemAuthors" Grid.Column="1" Text="{Binding Authors, Mode=TwoWay}" Margin="3,3,3,3" ToolTipService.ToolTip="Format example: Smith A; Jones A (semicolon separates authors)"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="Item IDs" Margin="3,6,3,3" HorizontalAlignment="Right"></TextBlock>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="3">
+            <TextBlock Text="Internal: " Margin="6,6,0,6"></TextBlock>
+            <TextBox Text="{Binding ItemId}" Margin="0,4,0,4" BorderThickness="0" IsReadOnly="True"></TextBox>
+            <TextBlock Text=" Imported: " Margin="3,6,0,6"></TextBlock>
+            <TextBox Text="{Binding OldItemId}" Margin="0,4,0,4" BorderThickness="0" IsReadOnly="True" ></TextBox>
+        </StackPanel>
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Month" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="2" Name="itemMonth" Grid.Column="1" Text="{Binding Month, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="2" Grid.Column="2" Text="Pub type" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <ComboBox Grid.Row="2" Grid.Column="3" x:Name="ComboPubType" Margin="4,4,4,4" ItemsSource="{Binding Source={StaticResource ItemTypesData}, Path=Data}" 
+                  SelectedItem="{Binding Path=TypeId, Converter={StaticResource ItemTypeConverter}, ConverterParameter={StaticResource ItemTypesData}, Mode=TwoWay}" 
+                  SelectionChanged="ComboPubType_SelectionChanged"
+                  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" ></ComboBox>
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Year" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="3" Name="itemYear" Grid.Column="1" Text="{Binding Year, Mode=TwoWay}" Margin="3,3,3,3" MaxLength="4" 
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        
+        <TextBlock Grid.Row="3" Grid.Column="2" Text="Included?" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <StackPanel Grid.Row="3" Grid.Column="3" Orientation="Horizontal">
+            <CheckBox  x:Name="CheckBoxIsIncluded" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,3,3,3" 
+                  IsChecked="{Binding Path=IsIncluded, Mode=TwoWay}" 
+                  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" ></CheckBox>
+            <Button x:Name="cmdShowHideReviewerTerms" ToolTipService.ToolTip="Show/Hide List of highlighting terms" Margin="5,3,3,3" Content="Show/Hide Terms List"
+                    Click="ShowTermsClick" Visibility="Collapsed"/>
+            <Button x:Name="cmdShowUnnecessaryRowsForScreening" ToolTipService.ToolTip="Shows hidden rows (currently hidden to aid screening on title and abstract)" Margin="3,3,3,3"
+                    Click="cmdShowUnnecessaryRowsForScreening_Click"  Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/ShowRow.png"/>
+                    <TextBlock Text="Show hidden rows" Margin="3,1,3,4"></TextBlock>
+                </StackPanel>
+            </Button>
+            <Button x:Name="cmdHideUnnecessaryRowsForScreening" ToolTipService.ToolTip="Hides less important rows to allow more space for the abstract" Margin="3,3,3,3"
+                    Click="cmdHideUnnecessaryRowsForScreening_Click"  Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/HideRow.png"/>
+                    <TextBlock Text="Hide less important rows" Margin="3,1,3,4"></TextBlock>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        
+
+        <TextBlock x:Name="TextBlockAbstract" Grid.Row="4" Grid.Column="0" Text="Abstract" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxAbstract" Grid.Row="4" Grid.Column="1" Grid.RowSpan="2" Text="{Binding Abstract, Mode=TwoWay}" Grid.ColumnSpan="3" TextWrapping="Wrap" AcceptsReturn="True" 
+                 VerticalScrollBarVisibility="Auto" Margin="3,3,3,3" 
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <!--
+        <TextBlock x:Name="TextBlockBoldTermsAbstract" Grid.Row="4" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="3" TextWrapping="Wrap" Visibility="Collapsed"
+                 Margin="3,6,3,3" local:dialogItemDetails.InlineList="{Binding Abstract, Converter={StaticResource inlineConverter}}">
+        </TextBlock>
+        -->
+        
+        <Border x:Name="BorderBoldTermsAbstract" Visibility="Collapsed" BorderThickness="1" BorderBrush="Gray" 
+                Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3,6,3,3">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" x:Name="termsToolBar" Visibility="Collapsed">
+                    <Button x:Name="cmdAddPositiveTerm" Click="cmdAddPositiveTerm_Click" ToolTipService.ToolTip="Add selected term to list of relevant terms" Margin="3,3,3,3" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="16" Height="16" Source="Icons/TermPositiveAdd.png"/>
+                            <TextBlock Text="Relevant Term" Margin="3,1,3,5"></TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="cmdAddNegativeTerm" ToolTipService.ToolTip="Add selected term to list of not relevant terms" Margin="3,3,3,3" Click="cmdAddPositiveTerm_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="16" Height="16" Source="Icons/TermNegativeAdd.png"/>
+                            <TextBlock Text="Irrelevant Term" Margin="3,1,3,4"></TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="cmdRemoveTerm" ToolTipService.ToolTip="Remove from list of terms" Margin="3,3,3,3" Click="cmdRemoveTerm_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="16" Height="16" Source="Icons/TermRemove.png"/>
+                            <TextBlock Text="Remove Term" Margin="3,1,3,4"></TextBlock>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <RichTextBlock x:Name="TextBlockBoldTermsAbstract"  TextWrapping="Wrap" Visibility="Collapsed" Margin="3,6,3,3" Cursor="IBeam"
+                          local:dialogItemDetails.parasList="{Binding Abstract, Converter={StaticResource blockConverter}}">
+                </RichTextBlock>
+            </StackPanel>
+        </Border>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Journal" x:Name="TextBlockParentTitle" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="6" Grid.Column="1" x:Name="TextBoxParentTitle" Text="{Binding ParentTitle, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="6" Grid.Column="2" Text="Short title" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Column="3" Grid.Row="6" x:Name="TextBoxShortTitle" TextWrapping="NoWrap" Margin="3,3,3,3" Text="{Binding ShortTitle, Mode=TwoWay}"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="Book authors" x:Name="TextBlockBookAuthors" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="7" Grid.Column="1" x:Name="TextBoxBookAuthors" Text="{Binding ParentAuthors, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <!--
+                                        <TextBlock Grid.Row="6" Grid.Column="2" Text="Short title" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+                                        <TextBox Grid.Column="3" Grid.Row="6" x:Name="TextBoxShortTitle" TextWrapping="NoWrap" Margin="3,3,3,3" Text="{Binding ShortTitle, Mode=TwoWay}"></TextBox>
+                                    -->
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="Pages" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="8" Name="itemPages" Grid.Column="1" Text="{Binding Pages, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="8" Grid.Column="2" x:Name="TextBlockEdition" Text="Edition" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="8" Grid.Column="4" x:Name="TextBoxEdition" Text="{Binding Edition, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <!--<TextBlock Grid.Row="9" Grid.Column="0" Text="URL" x:Name="TextBlockURL" FontStyle="Italic" TextDecorations="Underline" HorizontalAlignment="Right" Margin="3,6,3,3" 
+                   MouseLeftButtonDown="TextBlockURL_MouseLeftButtonDown" MouseEnter="TextBlockURL_MouseEnter" MouseLeave="TextBlockURL_MouseLeave" Foreground="Blue"></TextBlock>-->
+        <HyperlinkButton x:Name="hLinkUrL" Foreground="Blue" Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" 
+                         TargetName="_blank">URL</HyperlinkButton>
+        <TextBox Grid.Row="9" Name="itemURL" Grid.Column="1" Text="{Binding URL, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" TextChanged="itemURL_TextChanged" ></TextBox>
+        <TextBlock Grid.Row="9" Grid.Column="2" Text="ISBN/ISSN" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="9" Name="itemStandardNumber" Grid.Column="4" Text="{Binding StandardNumber, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <TextBlock Grid.Row="10" Grid.Column="0" Text="Volume" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="10" Name="itemVolume" Grid.Column="1" Text="{Binding Volume, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="10" Grid.Column="2" Text="Issue" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="10" Name="itemIssue" Grid.Column="4" Text="{Binding Issue, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <TextBlock Grid.Row="11" Grid.Column="0" Text="Publisher" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="11" Name="itemPublisher" Grid.Column="1" Text="{Binding Publisher, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="11" Grid.Column="2" Text="Institution" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="11" Name="itemInstitution" Grid.Column="4" Text="{Binding Institution, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <TextBlock Grid.Row="12" Grid.Column="0" Text="City" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="12" Name="itemCity" Grid.Column="1" Text="{Binding City, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="12" Grid.Column="2" Text="Country" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="12" Name="itemCountry" Grid.Column="4" Text="{Binding Country, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+
+        <TextBlock Grid.Row="13" Grid.Column="0" Text="DOI" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="13" Name="itemDOI" Grid.Column="1" Text="{Binding DOI, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="13" Grid.Column="2" Text="Availability" HorizontalAlignment="Right" Margin="3,6,3,3" ></TextBlock>
+        <TextBox Grid.Row="13" Name="itemAvailability" Grid.Column="4" Text="{Binding Availability, Mode=TwoWay}" Margin="3,3,3,3" TextWrapping="Wrap" 
+                 VerticalScrollBarVisibility="Disabled"  AcceptsReturn="True"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" ></TextBox>
+        <TextBlock Grid.Row="14" Grid.Column="0" Text="Comments" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="14" Name="itemComments" Grid.Column="1" Text="{Binding Comments, Mode=TwoWay}" Margin="3,3,3,3" TextWrapping="Wrap" AcceptsReturn="True" 
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" VerticalScrollBarVisibility="Auto"></TextBox>
+        <TextBlock Grid.Row="14" Grid.Column="2" Text="KeyWords" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox Grid.Row="14" Name="itemKeyWords" Grid.Column="4" Text="{Binding Keywords, Mode=TwoWay}" Margin="3,3,3,3"
+                 IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}"
+                 TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 AcceptsReturn="True" VerticalScrollBarVisibility="Auto"></TextBox>
+      
+        <StackPanel Grid.Row="15" Grid.Column="0" Grid.ColumnSpan="2"  Orientation="Horizontal">
+            <TextBlock  Text="Created by" HorizontalAlignment="Right" Margin="3,3,3,3"></TextBlock>
+            <TextBlock  Text="{Binding CreatedBy}" HorizontalAlignment="Left" Margin="3,3,3,3"></TextBlock>
+            <TextBlock  Text="Edited by" HorizontalAlignment="Right" Margin="15,3,3,3"></TextBlock>
+            <TextBlock  Text="{Binding EditedBy}" HorizontalAlignment="Left" Margin="3,3,3,3"></TextBlock>
+        </StackPanel>
+
+        <TextBlock Grid.Row="15" Grid.Column="2" Text="Created on" HorizontalAlignment="Right" Margin="3,3,3,3"></TextBlock>
+        <TextBlock Grid.Row="15" Grid.Column="3" Text="{Binding DateCreated}" HorizontalAlignment="Left" Margin="3,3,3,3"></TextBlock>
+
+        <TextBlock Grid.Row="16" Grid.Column="0" Text="Duplicate IDs" HorizontalAlignment="Right" Margin="3,8,3,3"></TextBlock>
+        <TextBox Grid.Row="16" Grid.Column="1" x:Name="DuplIDsList" HorizontalAlignment="Left" Margin="3,3,3,3" IsReadOnly="True" Visibility="Collapsed" />
+        <TextBlock Grid.Row="16" Grid.Column="2" Text="Edited on" HorizontalAlignment="Right" Margin="3,3,3,3"></TextBlock>
+        <TextBlock Grid.Row="16" Grid.Column="3" Text="{Binding DateEdited}" HorizontalAlignment="Left" Margin="3,3,3,3"></TextBlock>
+
+        <TextBlock Grid.Row="17" Grid.Column="0" Text="Source" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+        <TextBlock Grid.Row="17" Grid.Column="1" Text="{Binding Source_Name}" x:Name="TextBlockSourceName" HorizontalAlignment="Left" Margin="6,6,6,6"/>
+        <TextBlock Grid.Row="17" Grid.Column="2" Text="Master ID" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+        <StackPanel Orientation="Horizontal" Grid.Row="17" Grid.Column="3" Visibility="{Binding IsDupilcate, Converter={StaticResource ShowMasterItem}}">
+            <TextBox  x:Name="tbx_MasterID" HorizontalAlignment="Left" Margin="3,3,3,3" 
+                     Text="{Binding MasterItemId}" IsReadOnly="True" ToolTipService.ToolTip="The Document ID of the Master (current Document is a Duplicate)"/>
+            <Button x:Name="bt_UnDuplicate_docDetails" Tag="{Binding ItemId}" Content="Restore" ToolTipService.ToolTip="Marks Document as 'Not a Duplicate'"
+                    Click="bt_UnDuplicate_docDetails_Click"
+                    IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

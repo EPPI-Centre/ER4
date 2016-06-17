@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogEditOutcomes"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"  
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+    >
+    <UserControl.Resources>
+        
+        <cslaXAML:CslaDataProvider x:Key="OutcomeItemListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.OutcomeItemList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetOutcomeItemList"
+                           DataChanged="CslaDataProviderItemList_DataChanged"
+                           />
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleEdit">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdEditOutcome" Content="Edit" Click="cmdEditOutcome_Click" 
+                                IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDelete">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdDeleteOutcome" Content="Delete" Click="cmdDeleteOutcome_Click" 
+                                IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="350"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <telerikGridView:RadGridView x:Name="GridOutcomes" Grid.Row="0" ShowGroupPanel="False" Margin="3,3,3,3"
+                ItemsSource="{Binding Source={StaticResource OutcomeItemListData}, Path=Data}" AutoGenerateColumns="False"
+                MaxHeight="445">
+            <telerikGridView:RadGridView.Columns>
+                <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Intervention" DataMemberBinding="{Binding InterventionText}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEdit}" Width="70" Header="" DataMemberBinding="{Binding OutcomeId}" ></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDelete}" Width="70" Header="" DataMemberBinding="{Binding OutcomeId}" ></telerikGridView:GridViewDataColumn>
+            </telerikGridView:RadGridView.Columns>
+        </telerikGridView:RadGridView>
+
+        <Button x:Name="cmdNewOutcome" Content="New outcome" Grid.Row="1" Width="100" Margin="4,4,4,4" Click="cmdNewOutcome_Click" 
+                IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" HorizontalAlignment="Left"></Button>
+
+        <!--<telerikNavigation:RadWindow x:Name="windowEditOutcome" Header="Edit / create outcome" CanClose="False"  ResizeMode="CanResize" WindowStartupLocation="CenterScreen" Width="1020" Height="700"
+            Opened="windowEditOutcome_Opened">
+            <Grid x:Name="GridEditOutcome">
+                <local:dialogEditOutcome x:Name="dialogEditOutcomeControl" CloseWindowRequest="dialogEditOutcomeControl_CloseWindowRequest"></local:dialogEditOutcome>
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        
+        <!--<telerikNavigation:RadWindow x:Name="windowConfirmOutcomeDelete" Header="Delete outcome?" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Width="300">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                    <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"></ColumnDefinition>
+                    <ColumnDefinition Width="140"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TextBlockCheckDeleteDoc" TextWrapping="Wrap" Text="Are you sure you want to delete this outcome?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+                <cslaXAML:BusyAnimation x:Name="BusyCheckOutcomeDelete" Grid.Row="1" Grid.Column="0" />
+                <Button x:Name="cmdDeleteOutcome"  Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Click="cmdDeleteOutcome_Click_1"
+                        IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+                <Button x:Name="cmdCancelDeleteOutcome"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelDeleteOutcome_Click" ></Button>
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        
+    </Grid>
+</UserControl>
+    

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Lists reviews that a contact has permissions to access.">
+    <Position X="4.24" Y="2.167" Height="0.74" Width="1.492" />
+  </Comment>
+  <Comment CommentText="All attributes that are in sets in a given review.">
+    <Position X="0.531" Y="2.104" Height="0.74" Width="1.492" />
+  </Comment>
+  <Comment CommentText="Sets in a given review.">
+    <Position X="2.281" Y="2.125" Height="0.771" Width="1.492" />
+  </Comment>
+  <Class Name="BusinessLibrary.BusinessClasses.AttributeSet" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CGAAAAIAAAAFMIAAoAAMAGEAAABAAAEQQBAMABRgCAA=</HashCode>
+      <FileName>BusinessClasses\AttributeSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.BusinessClasses.AttributeSetList" Collapsed="true">
+    <Position X="0.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAABAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BusinessClasses\AttributeSetList.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.BusinessClasses.ReadOnlyReview" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAJAAAIAAACAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>BusinessClasses\ReadOnlyReview.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.BusinessClasses.ReadOnlyReviewList" Collapsed="true">
+    <Position X="4.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BusinessClasses\ReadOnlyReviewList.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.BusinessClasses.ReviewSet" Collapsed="true">
+    <Position X="2.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAABABIAAIAAAIAgACAAAAAwAQEAAAwABCCAA=</HashCode>
+      <FileName>BusinessClasses\ReviewSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.BusinessClasses.ReviewSetsList" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>BusinessClasses\ReviewSetsList.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.Data.DataConnection" Collapsed="true">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>Data\DataConnection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.Security.CredentialsCriteria" Collapsed="true">
+    <Position X="9.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAQAAAAAAAAAAAAACAAIAAAAAEAA=</HashCode>
+      <FileName>Security\CredentialsCriteria.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.Security.ReviewerIdentity" Collapsed="true">
+    <Position X="9.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAAAAEAAAAEAAgAAAAAAA=</HashCode>
+      <FileName>Security\ReviewerIdentity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BusinessLibrary.Security.ReviewerPrincipal" Collapsed="true">
+    <Position X="9.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAAAAAAAAAAIAAAAAAAAAAAEQAAAAAAA=</HashCode>
+      <FileName>Security\ReviewerPrincipal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

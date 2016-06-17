@@ -1,0 +1,72 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWTrainingResults"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Training results"
+                   Height="400" 
+                   Width="600"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="CanResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        
+    </telerik:RadWindow.Resources>
+        <Grid x:Name="GridTrainingResults">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <TextBox x:Name="TextBoxTrainingResults" Grid.Row="0" Grid.RowSpan="5" Grid.Column="0" IsReadOnly="True" AcceptsReturn="True" Margin="2,2,2,2" VerticalScrollBarVisibility="Auto" ></TextBox>
+
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="Assign items classified as being:" Margin="6,8,6,6" HorizontalAlignment="Left"></TextBlock>
+            <ComboBox x:Name="ComboTrainingAssignItems" Grid.Row="1" Grid.Column="1" Margin="6,4,6,4">
+                <ComboBoxItem Content="included" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="excluded"></ComboBoxItem>
+            </ComboBox>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="to code" Margin="6,10,6,6" HorizontalAlignment="Center"></TextBlock>
+            <local:codesSelectControl x:Name="codesSelectControlTrainingAssignment" Grid.Row="3" Grid.Column="1" Margin="6,4,6,4"></local:codesSelectControl>
+            <Button x:Name="cmdTrainingAssignmentGo" Content="Assign now" HorizontalAlignment="Right" Width="90" Height="40" Grid.Row="4" Grid.Column="1" Margin="6,20,6,6" Click="cmdTrainingAssignmentGo_Click"></Button>
+            <cslaXAML:BusyAnimation x:Name="BusyTrainingAssignment" Width="20" Height="20" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" />
+        </Grid>
+</telerik:RadWindow>

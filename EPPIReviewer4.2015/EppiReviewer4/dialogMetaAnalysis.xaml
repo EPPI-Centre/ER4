@@ -1,0 +1,91 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogMetaAnalysis"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+             xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking"
+    xmlns:gridView="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+             xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    >
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="27"></RowDefinition>
+            <RowDefinition MaxHeight="200"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <TextBlock x:Name="TextBlockTitle" Grid.Row="0" Margin="6,6,6,6" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock x:Name="TextBlockDetails" Grid.Row="1" Margin="6,6,6,6" HorizontalAlignment="Center"></TextBlock>
+        <Button x:Name="cmdReCalculate" Grid.Row="2" Margin="4,4,4,4" HorizontalAlignment="Left" Content="Recalculate" Click="cmdReCalculate_Click"></Button>
+        
+        <telerikGridView:RadGridView x:Name="GridData" Grid.Row="3" AutoGenerateColumns="False" ShowGroupPanel="False" 
+                RowIndicatorVisibility="Collapsed" IsReadOnly="False">
+            <telerikGridView:RadGridView.Columns>
+                <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding IsSelected}" Width="20" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Study" DataMemberBinding="{Binding ShortTitle}" Width="*"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Outcome description" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SMD" DataMemberBinding="{Binding SMD}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SESMD}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="R" DataMemberBinding="{Binding R}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SER}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="OR" DataMemberBinding="{Binding OddsRatio}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SEOddsRatio}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="RR" DataMemberBinding="{Binding RiskRatio}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SERiskRatio}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="RD" DataMemberBinding="{Binding RiskDifference}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SERiskDifference}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Peto OR" DataMemberBinding="{Binding PetoOR}" Width="80" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SEPetoOR}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="MD" DataMemberBinding="{Binding MeanDifference}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="SE" DataMemberBinding="{Binding SEMeanDifference}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="CI-" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="CI+" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+            </telerikGridView:RadGridView.Columns>
+        </telerikGridView:RadGridView>
+
+        <ScrollViewer VerticalScrollBarVisibility="Visible" Grid.Row="4" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                <TextBlock Text="Fixed effect model" Margin="10,10,10,0" FontSize="15" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"></TextBlock>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="290"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="feResults" Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+                        <TextBlock x:Name="feHeterogeneity" Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+                        <TextBlock x:Name="feFileDrawerZ" Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                        <Image x:Name="ImageFePlot" Grid.Column="1" Width="580"></Image>
+                        <TextBlock Margin="10,10,10,10" x:Name="filler" Grid.Column="1"></TextBlock>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="Random effects model" Margin="10,10,10,0" FontSize="15" FontWeight="Bold" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"></TextBlock>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="290"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="reResults" Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+                        <TextBlock x:Name="reHeterogeneity" Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+                    </StackPanel>
+                    <Image x:Name="ImageRePlot" Grid.Column="1" Width="580"></Image>
+                </Grid>
+                <TextBlock Text="Funnel plot" Margin="10,20,10,0" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                <Image x:Name="ImageFunnelPlot" Grid.Column="1" Width="340" Height="340"></Image>
+            </StackPanel>
+        </ScrollViewer>
+
+
+    </Grid>
+</UserControl>

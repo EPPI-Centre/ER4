@@ -1,0 +1,272 @@
+﻿<UserControl x:Class="EppiReviewer4.homeReports"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+             xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+             xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+             xmlns:core="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+             >
+
+    <UserControl.Resources>
+        <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+       
+        
+
+
+
+        <core:HierarchicalDataTemplate x:Key="CodeTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding UserDefText}" />
+                <Button x:Name="cmdDeleteColumnCode" Content="Delete" Height="30" Width="60"></Button>
+            </StackPanel>
+        </core:HierarchicalDataTemplate>
+        
+        <DataTemplate x:Key="HeaderTemplate">
+            <TextBlock Text="{Binding Name, Mode=TwoWay}" />
+            
+        </DataTemplate>
+        <Style TargetType="telerikNavigation:RadTileViewItem" x:Key="HeaderStyle">
+            <Setter Property="Position" Value="{Binding ColumnOrder, Mode=TwoWay}" />
+        </Style>
+        <DataTemplate x:Key="ContentTemplate">
+            <telerik:RadFluidContentControl ContentChangeMode="Manual" State="Normal">
+                <!-- Small Content -->
+                <telerik:RadFluidContentControl.SmallContent>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </telerik:RadFluidContentControl.SmallContent>
+                
+                <!-- Normal Content -->
+                <telerik:RadFluidContentControl.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="50" />
+                            <RowDefinition Height="*" MinHeight="50" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Drag codes onto this column and edit its properties by clicking the icon on the top right." TextWrapping="Wrap" FontStyle="Italic" HorizontalAlignment="Left"></TextBlock>
+                        <telerikNavigation:RadTreeView Grid.Row="1" AllowDrop="True" Margin="0,10,0,0" Background="LightBlue" 
+                                IsDragDropEnabled="True" IsLineEnabled="False" MinHeight="100" MinWidth="50" 
+                                SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                IsEditable="False" ItemsSource="{Binding Codes}"  Loaded="RadTreeView_Loaded">
+                            <!-- the element above used to have the following: PreviewDragEnded="RadTreeView_PreviewDragEnded" -->
+                            <telerikNavigation:RadContextMenu.ContextMenu>
+                                <telerikNavigation:RadContextMenu x:Name="contextMenu">
+                                    <telerikNavigation:RadMenuItem x:Name="contextMenuDelete" Header="Delete" Click="contextMenuDelete_Click" />
+                                </telerikNavigation:RadContextMenu>
+                            </telerikNavigation:RadContextMenu.ContextMenu>
+                        </telerikNavigation:RadTreeView>
+                        
+                            <Button Grid.Row="2" x:Name="cmdDeleteColumn" Content="Delete column" Width="100" Margin="6,6,6,6" Click="cmdDeleteColumn_Click"></Button>
+                    </Grid>
+                </telerik:RadFluidContentControl.Content>
+
+                <!-- Large Content -->
+                <telerik:RadFluidContentControl.LargeContent>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35" />
+                            <RowDefinition Height="35" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Edit the title of this column and which data you want displayed. When you have finished editing, click the '-' icon on the right." TextWrapping="Wrap" FontStyle="Italic" HorizontalAlignment="Left"></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Column title" HorizontalAlignment="Right" Margin="6,10,3,6" />
+                        <TextBox  Grid.Row="1" Grid.Column="1" Text="{Binding Name, Mode=TwoWay}" HorizontalAlignment="Stretch" Margin="6,6,6,6" />
+                        
+                        <telerikGridView:RadGridView Grid.Row="2" Grid.ColumnSpan="2" ShowGroupPanel="False" AutoGenerateColumns="False"
+                    ItemsSource="{Binding Codes, Mode=TwoWay}" RowIndicatorVisibility="Collapsed" IsReadOnly="False">
+                            <telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewDataColumn Header="Column title" DataMemberBinding="{Binding UserDefText}" Width="*"></telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding ParentAttributeText}" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn Header="Code" DataMemberBinding="{Binding DisplayCode}" Width="60"></telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn Header="Additional text" DataMemberBinding="{Binding DisplayAdditionalText}" Width="110"></telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn Header="Coded text" DataMemberBinding="{Binding DisplayCodedText}" Width="90"></telerikGridView:GridViewDataColumn>
+                            </telerikGridView:RadGridView.Columns>
+                        </telerikGridView:RadGridView>
+
+                    </Grid>
+                </telerik:RadFluidContentControl.LargeContent>
+
+            </telerik:RadFluidContentControl>
+        </DataTemplate>
+
+    </UserControl.Resources>
+    
+    <Grid x:Name="LayoutRoot" HorizontalAlignment="Stretch">
+        <Grid.Resources>
+            <Style TargetType="TextBlock" x:Key="HeaderTitle">
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="FontFamily" Value="Segoe UI" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+            <Style TargetType="TextBlock" x:Key="SmallBox">
+                <Setter Property="Foreground" Value="#0b4366" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="FontFamily" Value="Segoe UI" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Padding" Value="10 0" />
+            </Style>
+
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="80"></ColumnDefinition>
+            <ColumnDefinition Width="148"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <telerikNavigation:RadToolBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch"
+				                        VerticalAlignment="Top" x:Name="reportsToolBar">
+
+            <Button x:Name="cmdSaveReport" Click="cmdSaveReport_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/Export.png"
+                        ToolTipService.ToolTip="Save this report" />
+                    <TextBlock Text="Save" Margin="5,0,0,0"></TextBlock>
+                    <cslaXAML:BusyAnimation x:Name="BusyReportSave"></cslaXAML:BusyAnimation>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="cmdOpenReport" Click="cmdOpenReport_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/ReportOpen.png"
+                        ToolTipService.ToolTip="Load previously saved report" />
+                    <TextBlock Text="Load" Margin="5,0,0,0"></TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="cmdNewReport" Click="cmdNewReport_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/NewItem.png"
+                        ToolTipService.ToolTip="New report" />
+                    <TextBlock Text="New" Margin="5,0,0,0"></TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button x:Name="cmdOpenReportsWindow" ToolTipService.ToolTip="Run reports" Click="cmdOpenReportsWindow_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/RunReports.png"
+						                    ToolTipService.ToolTip="Run reports" />
+                    <TextBlock Text="Run" Margin="5,0,0,0"></TextBlock>
+                </StackPanel>
+            </Button>
+
+            <telerikNavigation:RadToolBarSeparator Margin="7,2,7,2" />
+
+            <!--
+            <Button x:Name="cmdAddNewColumn" Click="cmdAddNewColumn_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/AddNewColumn.png"
+                        ToolTipService.ToolTip="Add new column" />
+                    <TextBlock Text="Add new column" Margin="5,0,0,0"></TextBlock>
+                </StackPanel>
+            </Button>
+            
+
+            <Button x:Name="cmdAddCodeToReport" Width="150" Click="cmdAddCodeToReport_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="Icons/AddCodeToReport.png"
+                        ToolTipService.ToolTip="Add code to report" />
+                    <TextBlock Text="Add code to report:" Margin="5,0,0,0"></TextBlock>
+                </StackPanel>
+            </Button>
+
+            <TextBlock x:Name="TextBlockAddCodeToReport" Width="110" FontStyle="Italic"></TextBlock>
+            -->
+            
+        </telerikNavigation:RadToolBar>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Report Title" Margin="2,9,3,6"></TextBlock>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="TextBlockReportTitle" FontWeight="Bold" Text="{Binding Name, Mode=TwoWay}" Margin="4,4,4,4"></TextBox>
+
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="Report type" Margin="6,9,6,6" HorizontalAlignment="Right"></TextBlock>
+        <ComboBox Grid.Row="1" Grid.Column="3" x:Name="ComboReportType" Margin="4,4,14,4" HorizontalAlignment="Right" Width="100" SelectionChanged="ComboReportType_SelectionChanged">
+            <ComboBoxItem Content="Question"></ComboBoxItem>
+            <ComboBoxItem Content="Answer"></ComboBoxItem>
+        </ComboBox>
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="4" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Text="Drag and Drop eligible codes or code-sets from the right onto columns on the left" />
+        <Button Grid.Row="2" Grid.Column="3" x:Name="cmdAddNewColumn2" Click="cmdAddNewColumn_Click" Width="120" Height="29" 
+                VerticalAlignment="Center" HorizontalAlignment="Right" Margin="4,2,14,2">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="16" Height="16" Source="Icons/AddNewColumn.png"
+                        ToolTipService.ToolTip="Add new column" />
+                <TextBlock Text="Add new column" Margin="5,0,0,0"></TextBlock>
+            </StackPanel>
+        </Button>
+
+        <!--<Image Grid.Row="3" Grid.Column="3" Margin="1,1,1,1" Source="Icons/ReportGuidance.jpg" />-->
+
+        <telerikNavigation:RadTileView x:Name="TileViewActiveReport" MinimizedColumnWidth="140" Grid.Row="3" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="4"
+                                       Margin="0, 9, 0, 0"
+                                       ItemContainerStyle="{StaticResource HeaderStyle}" 
+                                       ItemTemplate="{StaticResource HeaderTemplate}"
+                                       ContentTemplate="{StaticResource ContentTemplate}"
+                                       TileStateChanged="TileViewActiveReport_TileStateChanged"
+                                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                       HorizontalAlignment="Stretch"
+                                       MaxRows="1" 
+                                       IsAutoScrollingEnabled="True"
+                                       ColumnWidth="360" 
+                                       >
+           
+        </telerikNavigation:RadTileView>
+
+        <TextBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Margin="4,4,4,4" IsReadOnly="True" TextWrapping="Wrap" FontStyle="Italic" Text="There are two types of report. 'Question' reports summarise all the answers given below a specified code / code set. e.g. If you had a question entitled 'Intervention type', dragging the question into a column would result in all the answers to that question being presented in the report. These reports can have multiple 'questions' per column. 'Answer' reports contain one answer (code) per column and can also contain information about outcomes; where this is selected, they default to a format that is suitable for use in other statistical software."></TextBox>
+        
+        
+        <!--<telerikNavigation:RadWindow x:Name="windowLoadReport" Header="Load report" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen" Width="400"
+            RestrictedAreaMargin="20" IsRestricted="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <telerikGridView:RadGridView Grid.Row="0" x:Name="GridViewReports" ShowGroupPanel="False" AutoGenerateColumns="False"
+                    ItemsSource="{Binding Source={StaticResource ReportListData}, Path=Data, Mode=TwoWay}"
+                                             RowIndicatorVisibility="Collapsed" IsReadOnly="True">
+                    <telerikGridView:RadGridView.Columns>
+                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleGo}"
+                                             Width="60" Header="Edit" DataMemberBinding="{Binding Name}"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Report title" DataMemberBinding="{Binding Name}" Width="*"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Created by" DataMemberBinding="{Binding ContactName}" Width="120"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDelete}"
+                                             Width="60" Header="Delete" DataMemberBinding="{Binding Name}"></telerikGridView:GridViewDataColumn>
+                    </telerikGridView:RadGridView.Columns>
+                </telerikGridView:RadGridView>
+                
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        
+    </Grid>
+</UserControl>

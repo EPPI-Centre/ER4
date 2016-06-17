@@ -1,0 +1,580 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CC3D9B09-6A73-4918-8167-15A391C84936}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BusinessLibrary</RootNamespace>
+    <AssemblyName>BusinessLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\BusinessLibrary.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\BusinessLibrary.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Csla, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Core.4.3.13\lib\net40\Csla.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Csla.XmlSerializers, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Core.4.3.13\lib\net40\Csla.XmlSerializers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DeployR7.4">
+      <HintPath>..\Solution Items\DeployR7.4.dll</HintPath>
+    </Reference>
+    <Reference Include="DeployRBroker7.4">
+      <HintPath>..\Solution Items\DeployRBroker7.4.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPIiFilter, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Solution Items\EPPIiFilter.dll</HintPath>
+    </Reference>
+    <Reference Include="Graphs1, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Solution Items\Graphs1.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Solution Items\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.1.0.0\lib\net40\Microsoft.Azure.KeyVault.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Data.Edm, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Edm.5.6.4\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.OData.5.6.4\lib\net40\Microsoft.Data.OData.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.6.4\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.SQLServer.ManagedDTS, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.3.1.0\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=6.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.Storage.6.2.0\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SVM, Version=1.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SVM\bin\Debug\SVM.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Spatial, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Spatial.5.6.4\lib\net40\System.Spatial.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Data, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" />
+    <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
+    <Compile Include="BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" />
+    <Compile Include="BusinessClasses\ArchieReviewPrepareCommand.cs" />
+    <Compile Include="BusinessClasses\ArchieReviewUndoCheckoutCommand.cs" />
+    <Compile Include="BusinessClasses\AttributeMoveCommand.cs" />
+    <Compile Include="BusinessClasses\AttributeSet.cs" />
+    <Compile Include="BusinessClasses\AttributeSetDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\AttributeSetDeleteWarningCommand.cs" />
+    <Compile Include="BusinessClasses\AttributeSetList.cs" />
+    <Compile Include="BusinessClasses\AttributeTypes.cs" />
+    <Compile Include="BusinessClasses\AttributeTypesFactory.cs" />
+    <Compile Include="BusinessClasses\AttributeUpdateCommand.cs" />
+    <Compile Include="BusinessClasses\AuthorsHandling.cs" />
+    <Compile Include="BusinessClasses\CheckTicketExpirationCommand.cs" />
+    <Compile Include="BusinessClasses\ClassifierCommand.cs" />
+    <Compile Include="BusinessClasses\ClassifierModel.cs" />
+    <Compile Include="BusinessClasses\ClassifierModelList.cs" />
+    <Compile Include="BusinessClasses\ComparisonAttribute.cs" />
+    <Compile Include="BusinessClasses\ComparisonAttributeList.cs" />
+    <Compile Include="BusinessClasses\ComparisonCompleteCommand.cs" />
+    <Compile Include="BusinessClasses\ComparisonList.cs" />
+    <Compile Include="BusinessClasses\ComparisonScreeningCompleteCommand.cs" />
+    <Compile Include="BusinessClasses\ComparisonStatsCommand.cs" />
+    <Compile Include="BusinessClasses\Contact.cs" />
+    <Compile Include="BusinessClasses\GetLatestUpdateMsgCommand.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeCountsCommand.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeFullTextDetails.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeFullTextDetailsList .cs" />
+    <Compile Include="BusinessClasses\ItemAttributePDF.cs" />
+    <Compile Include="BusinessClasses\ItemAttributePDFList.cs" />
+    <Compile Include="BusinessClasses\ItemAttributePDFResetCommand.cs" />
+    <Compile Include="BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateDirtyGroup.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateDirtyGroupMember.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateManualGroupMember.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicatesReadOnly.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicatesReadOnlyList.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateGroup.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateGroupMember.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateReadOnlyGroup.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateReadOnlyGroupList.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateUnDUPCommand.cs" />
+    <Compile Include="BusinessClasses\ItemLink.cs" />
+    <Compile Include="BusinessClasses\ItemLinkList.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisModeratorReferenceList.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisRunInRCommand.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyArchieReview.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyArchieReviewList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyTemplateReview.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyTemplateReviewList.cs" />
+    <Compile Include="BusinessClasses\ReviewInfo.cs" />
+    <Compile Include="BusinessClasses\ReviewSetCopyCommand.cs" />
+    <Compile Include="BusinessClasses\SearchNullAbstract.cs" />
+    <Compile Include="BusinessClasses\TablesForBulkCopy.cs">
+      <DependentUpon>TablesForBulkCopy.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="BusinessClasses\TablesForBulkCopy.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TablesForBulkCopy.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="BusinessClasses\ItemSetBulkCompleteCommand.cs" />
+    <Compile Include="BusinessClasses\OutcomeItemAttribute.cs" />
+    <Compile Include="BusinessClasses\OutcomeItemAttributeList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlySetType.cs" />
+    <Compile Include="BusinessClasses\ReadOnlySetTypeList.cs" />
+    <Compile Include="BusinessClasses\ReportData.cs" />
+    <Compile Include="BusinessClasses\ReviewSetCheckCodingStatusCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewSetDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewSetMoveCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewSetUpdateCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsCodeSet.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsCodeSetList.cs" />
+    <Compile Include="BusinessClasses\SearchDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\SearchForUploadedFilesCommand.cs" />
+    <Compile Include="BusinessClasses\SearchIDsCommand.cs" />
+    <Compile Include="BusinessClasses\SearchImportedIDsCommand.cs" />
+    <Compile Include="BusinessClasses\SourceDeleteForeverCommand.cs" />
+    <Compile Include="BusinessClasses\Cryptography.cs" />
+    <Compile Include="BusinessClasses\ExportItemToRISString.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeBulkDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDeleteUndeleteCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDocumentDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDocumentSaveBinCommand.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeBulkSaveCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicate.cs" />
+    <Compile Include="BusinessClasses\ItemDuplicateList.cs" />
+    <Compile Include="BusinessClasses\ItemIncludeExcludeCommand.cs" />
+    <Compile Include="BusinessClasses\ItemSet.cs" />
+    <Compile Include="BusinessClasses\ItemSetCompleteCommand.cs" />
+    <Compile Include="BusinessClasses\ItemSetList.cs" />
+    <Compile Include="BusinessClasses\ItemSetListAll.cs" />
+    <Compile Include="BusinessClasses\ItemTypeNVL.cs" />
+    <Compile Include="BusinessClasses\ItemTypeNVLFactory.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysisList.cs" />
+    <Compile Include="BusinessClasses\Outcome.cs" />
+    <Compile Include="BusinessClasses\OutcomeItemList.cs" />
+    <Compile Include="BusinessClasses\OutcomeListTraining.cs" />
+    <Compile Include="BusinessClasses\PerformRandomAllocateCommand.cs" />
+    <Compile Include="BusinessClasses\PubMedSearch.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyImportFilterRule.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyImportFilterRuleList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttributeChildFrequency.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttributeChildFrequencyList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttributeCrosstab.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttributeCrosstabList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetControl.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetControlList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetIntervention.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetInterventionList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetOutcome.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewSetOutcomeList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlySource.cs" />
+    <Compile Include="BusinessClasses\ReadOnlySourceList.cs" />
+    <Compile Include="BusinessClasses\Report.cs" />
+    <Compile Include="BusinessClasses\ReportColumn.cs" />
+    <Compile Include="BusinessClasses\ReportColumnCode.cs" />
+    <Compile Include="BusinessClasses\ReportExecuteCommand.cs" />
+    <Compile Include="BusinessClasses\ReportList.cs" />
+    <Compile Include="BusinessClasses\Review.cs" />
+    <Compile Include="BusinessClasses\ReviewContactList.cs" />
+    <Compile Include="BusinessClasses\ReviewContactNVL.cs" />
+    <Compile Include="BusinessClasses\ReviewContactNVLFactory.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsCountsCommand.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsReviewer.cs" />
+    <Compile Include="BusinessClasses\ReviewStatisticsReviewerList.cs" />
+    <Compile Include="BusinessClasses\Search.cs" />
+    <Compile Include="BusinessClasses\SearchCodesCommand.cs" />
+    <Compile Include="BusinessClasses\SearchCodeSetCheckCommand.cs" />
+    <Compile Include="BusinessClasses\SearchCombineCommand.cs" />
+    <Compile Include="BusinessClasses\SearchFreeTextCommand.cs" />
+    <Compile Include="BusinessClasses\SearchList.cs" />
+    <Compile Include="BusinessClasses\SearchWeightedTermsCommand.cs" />
+    <Compile Include="BusinessClasses\Source.cs" />
+    <Compile Include="BusinessClasses\SourceDeleteCommand.cs" />
+    <Compile Include="BusinessClasses\SourceList.cs" />
+    <Compile Include="BusinessClasses\Term.cs" />
+    <Compile Include="BusinessClasses\TermList.cs" />
+    <Compile Include="BusinessClasses\ImportItems.cs" />
+    <Compile Include="BusinessClasses\Diagram.cs" />
+    <Compile Include="BusinessClasses\DiagramList.cs" />
+    <Compile Include="BusinessClasses\GetItemsWithTheseCodesCommand.cs" />
+    <Compile Include="BusinessClasses\Item.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeSaveCommand.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeTextSaveCommand.cs" />
+    <Compile Include="BusinessClasses\ItemDocument.cs" />
+    <Compile Include="BusinessClasses\ItemDocumentList.cs" />
+    <Compile Include="BusinessClasses\ItemDocumentSaveCommand.cs" />
+    <Compile Include="BusinessClasses\MetaAnalyse.cs" />
+    <Compile Include="BusinessClasses\MetaAnalysis.cs" />
+    <Compile Include="BusinessClasses\OutcomeList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyAttributeTextAllItems.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyAttributeTextAllItemsList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttributeList.cs" />
+    <Compile Include="BusinessClasses\ItemList.cs" />
+    <Compile Include="BusinessClasses\PerformClusterCommand.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyAttributeSet.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyAttributeSetList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyItemAttribute.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeText.cs" />
+    <Compile Include="BusinessClasses\ItemAttributeTextList.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReview.cs" />
+    <Compile Include="BusinessClasses\ReadOnlyReviewList.cs" />
+    <Compile Include="BusinessClasses\ReviewSet.cs" />
+    <Compile Include="BusinessClasses\ReviewSetsList.cs" />
+    <Compile Include="BusinessClasses\StatFunctions.cs" />
+    <Compile Include="BusinessClasses\TestDataSet.cs">
+      <DependentUpon>TestDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="BusinessClasses\TestDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="BusinessClasses\Training.cs" />
+    <Compile Include="BusinessClasses\TrainingList.cs" />
+    <Compile Include="BusinessClasses\TrainingNextItem.cs" />
+    <Compile Include="BusinessClasses\TrainingPreviousItem.cs" />
+    <Compile Include="BusinessClasses\TrainingProcessTermsCommand.cs" />
+    <Compile Include="BusinessClasses\TrainingProcessText.cs" />
+    <Compile Include="BusinessClasses\TrainingReviewerTermList.cs" />
+    <Compile Include="BusinessClasses\TrainingRunCommand.cs" />
+    <Compile Include="BusinessClasses\TrainingScreeningCriteria.cs" />
+    <Compile Include="BusinessClasses\TrainingScreeningCriteriaList.cs" />
+    <Compile Include="BusinessClasses\TrainingSetScreeningCodeSetCommand.cs" />
+    <Compile Include="BusinessClasses\TrainingStatisticsCommand.cs" />
+    <Compile Include="BusinessClasses\WorkAllocation.cs" />
+    <Compile Include="BusinessClasses\WorkAllocationContactList.cs" />
+    <Compile Include="BusinessClasses\WorkAllocationList.cs" />
+    <Compile Include="BusinessClasses\Comparison.cs" />
+    <Compile Include="Compression\CompressedHost.cs" />
+    <Compile Include="Compression\CompressionUtility.cs" />
+    <Compile Include="Compression\sCompressedHost.cs" />
+    <Compile Include="Data\DataConnection.cs">
+    </Compile>
+    <Compile Include="Data\FullTextSearch.cs" />
+    <Compile Include="BusinessClasses\OutcomeItemAttributesSaveCommand.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="BusinessClasses\ReportColumnList.cs" />
+    <Compile Include="BusinessClasses\ReportColumnCodeList.cs" />
+    <Compile Include="Security\ArchieIdentity.cs" />
+    <Compile Include="Security\CreateER4ContactViaArchieCommand.cs" />
+    <Compile Include="Security\CredentialsCriteria.cs" />
+    <Compile Include="Security\ReviewerIdentity.cs" />
+    <Compile Include="Security\ReviewerPrincipal.cs" />
+    <Compile Include="BusinessClasses\TrainingReviewerTerm.cs" />
+    <Compile Include="BusinessClasses\TrainingAssignCommand.cs" />
+    <Compile Include="BusinessClasses\TranslationCommand.cs" />
+    <Compile Include="Web References\s.uk.ac.nactem.www\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\uk.ac.nactem.www\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="BusinessClasses\TablesForBulkCopy.xsc">
+      <DependentUpon>TablesForBulkCopy.xsd</DependentUpon>
+    </None>
+    <None Include="BusinessClasses\TablesForBulkCopy.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>TablesForBulkCopy.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="BusinessClasses\TablesForBulkCopy.xss">
+      <DependentUpon>TablesForBulkCopy.xsd</DependentUpon>
+    </None>
+    <None Include="BusinessClasses\TestDataSet.xsc">
+      <DependentUpon>TestDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="BusinessClasses\TestDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>TestDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="BusinessClasses\TestDataSet.xss">
+      <DependentUpon>TestDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
+    <None Include="ClassDiagram3.cd" />
+    <None Include="ClassDiagram4.cd" />
+    <None Include="Data\OldScripts_Et_Al\CreateScript2008.sql" />
+    <None Include="Data\DataTransferFromLinkedServer.sql" />
+    <None Include="Data\DuplicateCheckAzure.dtsx" />
+    <None Include="Data\OldScripts_Et_Al\DuplicateCheckNew.dtsx">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Data\Package.dtsx" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Data\TermExtraction.dtsx" />
+    <None Include="Data\TermLookup.dtsx" />
+    <None Include="Service References\er4mlAzureStorage\ConnectedService.json" />
+    <None Include="Web References\s.uk.ac.nactem.www\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\s.uk.ac.nactem.www\termine.wsdl" />
+    <None Include="Web References\uk.ac.nactem.www\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\uk.ac.nactem.www\termine.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\AdminDatabase_changes_SG.sql" />
+    <None Include="Data\OldScripts_Et_Al\CreateScriptJamesFinalBackup.sql" />
+    <Content Include="Data\generateReviewer 2nd Passage - DATA.sql" />
+    <Content Include="Data\generateReviewer.V2.sql" />
+    <Content Include="Data\OldScripts_Et_Al\Hasing All Changes -2DBs.V2.sql" />
+    <Content Include="Data\OldScripts_Et_Al\CreateScriptTemp.txt" />
+    <Content Include="Data\OldScripts_Et_Al\Database changes.txt" />
+    <Content Include="Data\OldScripts_Et_Al\IntegrationServicesConfig.txt" />
+    <Content Include="Data\OldScripts_Et_Al\ThirdPartyComponents.txt" />
+    <Content Include="Data\OldScripts_Et_Al\TransferData.txt" />
+    <None Include="Data\OldScripts_Et_Al\CommonData.sql" />
+    <None Include="Data\OldScripts_Et_Al\CreateAdminScript2008.sql" />
+    <None Include="Data\Database_changes_JT.sql" />
+    <None Include="Data\Database_changes_SG.sql" />
+    <None Include="Data\DNNloginToER4.zip" />
+    <None Include="Data\OldScripts_Et_Al\DuplicateCheck.dtsx" />
+    <None Include="Data\OldScripts_Et_Al\LocalReviewTransfer.sql" />
+    <None Include="Data\PackageS.dtsx" />
+    <None Include="Data\OldScripts_Et_Al\reviewTransferMain.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://www.nactem.ac.uk/software/termine/webservice/termine.wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\uk.ac.nactem.www\</RelPath>
+      <UpdateFromURL>http://www.nactem.ac.uk/software/termine/webservice/termine.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>BusinessLibrary_uk_ac_nactem_www_termine</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://www.nactem.ac.uk/software/termine/webservice_key/termine.wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\s.uk.ac.nactem.www\</RelPath>
+      <UpdateFromURL>http://www.nactem.ac.uk/software/termine/webservice_key/termine.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>BusinessLibrary_s_uk_ac_nactem_www_termine</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,1117 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DevExpress.Data.v10.1</name>
+    </assembly>
+    <members>
+        <member name="T:DevExpress.Utils.Commands.Command">
+
+            <summary>
+                <para>Serves as a base for classes that present commands.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Utils.Commands.Command.CanExecute">
+            <summary>
+                <para>Determines whether the command can execute in its current state.
+</para>
+            </summary>
+            <returns><b>true</b> if the command can execute; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.CommandSourceType">
+            <summary>
+                <para>Gets or sets the type of the object which invokes the command.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.Commands.CommandSourceType"/> enumeration value, specifying the object type.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.Utils.Commands.Command.CreateDefaultCommandUIState">
+            <summary>
+                <para>Creates an object defining the command state for the current command. 
+</para>
+            </summary>
+            <returns>An <see cref="T:DevExpress.Utils.Commands.ICommandUIState"/> interface that defines the command state.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.Description">
+            <summary>
+                <para>Gets the text description of a command.
+</para>
+            </summary>
+            <value>A string containing the command's description.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.Utils.Commands.Command.Execute">
+            <summary>
+                <para>Executes the command on the current command target.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.Utils.Commands.Command.ForceExecute(DevExpress.Utils.Commands.ICommandUIState)">
+            <summary>
+                <para>Performs a command action, regardless of a command state.
+</para>
+            </summary>
+            <param name="state">
+		An <see cref="T:DevExpress.Utils.Commands.ICommandUIState"/> interface defining the command state.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.HideDisabled">
+            <summary>
+                <para>Gets or sets whether the object to which the command is attached is hidden, if the command is disabled.
+</para>
+            </summary>
+            <value><b>true</b> to hide the object with a disabled command; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.Image">
+            <summary>
+                <para>Gets an image associated with the command.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Drawing.Image"/> object representing the associated image.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.LargeImage">
+            <summary>
+                <para>Gets a larger image associated with the command.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Drawing.Image"/> object representing the associated image.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Utils.Commands.Command.MenuCaption">
+            <summary>
+                <para>Gets the menu caption associated with the current command.
+</para>
+            </summary>
+            <value>A string representing the text of the menu item.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.Utils.Commands.Command.UpdateUIState(DevExpress.Utils.Commands.ICommandUIState)">
+            <summary>
+                <para>Updates the command state.
+</para>
+            </summary>
+            <param name="state">
+		An <see cref="T:DevExpress.Utils.Commands.ICommandUIState"/> interface defining the state of a command.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckOperation">
+
+            <summary>
+                <para>Lists implemented spell checker operations.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.AddToDictionary">
+            <summary>
+                <para>Replaces a word in the text with the user input, and adds the replacement to the custom dictionary.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Cancel">
+            <summary>
+                <para>Stops the spell check operation, resets the checking strategy and closes the spelling form. 
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Change">
+            <summary>
+                <para>Replaces the current word in the text being checked with the suggested word.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.ChangeAll">
+            <summary>
+                <para>Replaces all occurences of the current word in the text being checked with the suggested word.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Custom">
+            <summary>
+                <para>This enumeration member is intended for internal use only.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Delete">
+            <summary>
+                <para>Deletes the current word from the text.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Ignore">
+            <summary>
+                <para>Disregards the current word and proceeds to the next one.
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.IgnoreAll">
+            <summary>
+                <para>Disregards the current word and all its occurences in the text.
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.None">
+            <summary>
+                <para>This enumeration member is intended for internal use only. 
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Options">
+            <summary>
+                <para>Invokes the spelling options form. After closing the form, re-checks the text with the new spelling options, starting with the last checked word.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Recheck">
+            <summary>
+                <para>Forces the spell checker to check the last checked word again.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.SilentChange">
+            <summary>
+                <para>Replaces the current word in the text being checked with the suggested word. For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.SilentIgnore">
+            <summary>
+                <para>Disregards the current word and proceeds to the next one. For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckOperation.Undo">
+            <summary>
+                <para>Cancels the effect of the last operation, restoring the text to its previous state.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckMode">
+
+            <summary>
+                <para>Lists available operation modes of the spell checker.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckMode.AsYouType">
+            <summary>
+                <para>Starts spell check when you finish typing the word or moves the cursor after changing it.This operation mode underlines the misspelled word and allows you to select a suggestion from the context menu, invoked by right-clicking the word.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellCheckMode.OnDemand">
+            <summary>
+                <para>Starts spell check and invokes the spelling form for making corrections.
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.Data.SelectionChangedEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.SelectionChanged"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.SelectionChangedEventHandler.Invoke(System.Object,DevExpress.Data.SelectionChangedEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.SelectionChanged"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.SelectionChangedEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.SelectionChangedEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.SelectionChanged"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.SelectionChangedEventArgs.#ctor(System.Collections.Specialized.NotifyCollectionChangedAction,System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the SelectionChangedEventArgs class with the specified settings.
+</para>
+            </summary>
+            <param name="action">
+		A <see cref="T:System.Collections.Specialized.NotifyCollectionChangedAction"/> enumeration value that specifies how the grid's selection has been changed. This value is assigned to the <see cref="P:DevExpress.Data.SelectionChangedEventArgs.Action"/> property.
+
+            </param>
+            <param name="controllerRow">
+		An integer value that identifies the row whose selected state has been changed. This value is assigned to the <see cref="P:DevExpress.Data.SelectionChangedEventArgs.ControllerRow"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.Data.SelectionChangedEventArgs.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SelectionChangedEventArgs class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.Data.SelectionChangedEventArgs.Action">
+            <summary>
+                <para>Gets an action which indicates how the grid's selection has been changed.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Collections.Specialized.NotifyCollectionChangedAction"/> enumeration value that specifies how the grid's selection has been changed.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.SelectionChangedEventArgs.ControllerRow">
+            <summary>
+                <para>Identifies the row whose selected state has been changed.
+</para>
+            </summary>
+            <value>An integer value that specifies the handle of the row whose selected state has been changed.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.RowDeletingEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleting"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.RowDeletingEventArgs.#ctor(System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the RowDeletingEventArgs class.
+</para>
+            </summary>
+            <param name="listIndex">
+		An integer value that specifies the row's index in the underlying data source. This value is assigned to the <see cref="P:DevExpress.Data.RowDeletedEventArgs.ListIndex"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.RowDeletingEventArgs.Cancel">
+            <summary>
+                <para>Gets or sets a value indicating whether the event should be canceled. 
+</para>
+            </summary>
+            <value><b>true</b> if the event should be canceled; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.RowDeletedEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleted"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.RowDeletedEventHandler.Invoke(System.Object,DevExpress.Data.RowDeletedEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleted"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.RowDeletedEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.RowDeletingEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleting"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.RowDeletingEventHandler.Invoke(System.Object,DevExpress.Data.RowDeletingEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleting"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.RowDeletingEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.RowDeletedEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.RowDeleted"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.RowDeletedEventArgs.#ctor(System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the RowDeletedEventArgs class.
+</para>
+            </summary>
+            <param name="listIndex">
+		An integer value that specifies the row's index in the underlying data source. This value is assigned to the <see cref="P:DevExpress.Data.RowDeletedEventArgs.ListIndex"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.RowDeletedEventArgs.ListIndex">
+            <summary>
+                <para>Gets the index of the row to delete in the <b>AgDataGrid</b> control's data source.
+</para>
+            </summary>
+            <value>An integer value that specifies the row's index in the underlying data source.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Utils.DefaultBoolean">
+
+            <summary>
+                <para>Lists values which specify the validity of a condition (indicates whether the condition is true or false).
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.Utils.DefaultBoolean.Default">
+            <summary>
+                <para>The value is determined by a control's current setting. The default value is automatically set for a control if an end-user doesn't specify a value.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Utils.DefaultBoolean.False">
+            <summary>
+                <para>Corresponds to a Boolean value of <b>false</b>.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Utils.DefaultBoolean.True">
+            <summary>
+                <para>Corresponds to a Boolean value of <b>true</b>.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.Data.FocusedRowChangingEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanging"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.FocusedRowChangingEventHandler.Invoke(System.Object,DevExpress.Data.FocusedRowChangingEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanging"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.FocusedRowChangingEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.FocusedRowChangingEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanging"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.FocusedRowChangingEventArgs.#ctor(DevExpress.Data.DataController,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the FocusedRowChangingEventArgs class.
+</para>
+            </summary>
+            <param name="dataController">
+		The data controller, implementing data-aware operations.
+
+            </param>
+            <param name="oldRowHandle">
+		An integer value, specifying the handle of the previously focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.OldRowHandle"/> property.
+
+            </param>
+            <param name="newRowHandle">
+		An integer value, specifying the handle of the currently focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.NewRowHandle"/> property.
+
+            </param>
+            <param name="oldVisibleIndex">
+		An integer value, specifying the visible index of the previously focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.OldVisibleIndex"/> property.
+
+            </param>
+            <param name="newVisibleIndex">
+		An integer value, specifying the visible index of the currently focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.NewVisibleIndex"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangingEventArgs.Cancel">
+            <summary>
+                <para>Gets or sets whether the event should be canceled.
+</para>
+            </summary>
+            <value><b>true</b> to cancel the event; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.FocusedRowChangedEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanged"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.FocusedRowChangedEventHandler.Invoke(System.Object,DevExpress.Data.FocusedRowChangedEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanged"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.FocusedRowChangedEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.FocusedRowChangedEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.FocusedRowChanged"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.FocusedRowChangedEventArgs.#ctor(DevExpress.Data.DataController,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the FocusedRowChangedEventArgs class.
+</para>
+            </summary>
+            <param name="dataController">
+		The data controller, implementing data-aware operations.
+
+            </param>
+            <param name="oldRowHandle">
+		An integer value, specifying the handle of the previously focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.OldRowHandle"/> property.
+
+            </param>
+            <param name="newRowHandle">
+		An integer value, specifying the handle of the currently focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.NewRowHandle"/> property.
+
+            </param>
+            <param name="oldVisibleIndex">
+		An integer value, specifying the visible index of the previously focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.OldVisibleIndex"/> property.
+
+            </param>
+            <param name="newVisibleIndex">
+		An integer value, specifying the visible index of the currently focused row. This value is assigned to the <see cref="P:DevExpress.Data.FocusedRowChangedEventArgs.NewVisibleIndex"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.IsNewRowGrouped">
+            <summary>
+                <para>Gets whether a group row has been focused.
+</para>
+            </summary>
+            <value><b>true</b> if a group row has been focused; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.IsNewRowValid">
+            <summary>
+                <para>Gets whether the focused row is valid.
+</para>
+            </summary>
+            <value><b>true</b> if the focused row is valid; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.IsOldRowGrouped">
+            <summary>
+                <para>Gets whether the group row was previously focused.
+</para>
+            </summary>
+            <value><b>true</b> if the group row was previously focused; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.IsOldRowValid">
+            <summary>
+                <para>Gets whether the previously focused row was valid.
+</para>
+            </summary>
+            <value><b>true</b> if the previously focused row was valid; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.NewDataRow">
+            <summary>
+                <para>Gets the source row that corresponds to the focused data row.
+</para>
+            </summary>
+            <value>An object that represents the focused data row. <b>null</b> (<b>Nothing</b> in Visual Basic) if a group row is currently focused.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.NewRowHandle">
+            <summary>
+                <para>Gets the focused row's handle.
+</para>
+            </summary>
+            <value>An integer value that specifies the focused row's handle.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.NewVisibleIndex">
+            <summary>
+                <para>Gets the focused row's visible index.
+</para>
+            </summary>
+            <value>An integer value that specifies the focused row's visible index.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.OldDataRow">
+            <summary>
+                <para>Gets the source row that corresponds to the previously focused data row.
+</para>
+            </summary>
+            <value>An object that represents the previously focused data row. <b>null</b> (<b>Nothing</b> in Visual Basic) if no row or a group row was previously focused.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.OldRowHandle">
+            <summary>
+                <para>Gets the previously focused row's handle.
+</para>
+            </summary>
+            <value>An integer value that specifies the previously focused row's handle.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.FocusedRowChangedEventArgs.OldVisibleIndex">
+            <summary>
+                <para>Gets the previously focused row's visible index.
+</para>
+            </summary>
+            <value>An integer value that specifies the previously focused row's visible index.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.CustomSummaryExistEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummaryExists"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryExistEventHandler.Invoke(System.Object,DevExpress.Data.CustomSummaryExistEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummaryExists"/> event.
+
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.CustomSummaryExistEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.CustomSummaryExistEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummaryExists"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryExistEventArgs.#ctor(System.Int32,System.Int32,System.Object)">
+            <summary>
+                <para>Initializes a new instance of the CustomSummaryExistEventArgs class with the specified settings.
+</para>
+            </summary>
+            <param name="groupRowHandle">
+		An integer value specifying the handle of the group row whose summary value is about to be calculated. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryExistEventArgs.GroupRowHandle"/> property.
+
+            </param>
+            <param name="groupLevel">
+		An integer value specifying the zero-based nesting level of the processed group. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryExistEventArgs.GroupLevel"/> property.
+
+            </param>
+            <param name="item">
+		An object which represents the summary item whose value is about to be calculated. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryExistEventArgs.Item"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryExistEventArgs.#ctor(DevExpress.Data.Helpers.GroupRowInfo,System.Object)">
+            <summary>
+                <para>Initializes a new instance of the CustomSummaryExistEventArgs class.
+</para>
+            </summary>
+            <param name="groupRow">
+		A <see cref="T:DevExpress.AgData.Helpers.GroupRowInfo"/> object that contains information on the group row whose summary is about to be calculated.
+
+            </param>
+            <param name="item">
+		An object which represents the summary item whose value is about to be calculated. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryExistEventArgs.Item"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.Exists">
+            <summary>
+                <para>Gets or sets whether the summary value should be calculated and displayed.
+</para>
+            </summary>
+            <value><b>true</b> to calculate and display the summary value; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.GroupLevel">
+            <summary>
+                <para>Gets the nesting level of a group row whose summary value is being calculated.
+</para>
+            </summary>
+            <value>An integer value that specifies the zero-based nesting level of the processed group row.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.GroupRowHandle">
+            <summary>
+                <para>Gets the handle of a group row whose summary value is calculated. 
+</para>
+            </summary>
+            <value>An integer value specifying the handle of the group row whose summary value is calculated.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.IsGroupSummary">
+            <summary>
+                <para>Gets whether a group summary value is calculated.
+</para>
+            </summary>
+            <value><b>true</b> if a group summary value is calculated; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.IsTotalSummary">
+            <summary>
+                <para>Gets whether a total summary value is calculated.
+</para>
+            </summary>
+            <value><b>true</b> if a total summary value is calculated; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryExistEventArgs.Item">
+            <summary>
+                <para>Gets a summary item whose value is calculated.
+</para>
+            </summary>
+            <value>An object representing a summary item whose value is calculated.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.CustomSummaryEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummary"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryEventHandler.Invoke(System.Object,DevExpress.Data.CustomSummaryEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummary"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.Data.CustomSummaryEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.Data.CustomSummaryEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgDataGrid.AgDataGrid.CustomSummary"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryEventArgs.#ctor">
+            <summary>
+                <para>Initializes a new instance of the CustomSummaryEventArgs class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryEventArgs.#ctor(DevExpress.Data.DataController)">
+            <summary>
+                <para>Initializes a new instance of the CustomSummaryEventArgs class.
+</para>
+            </summary>
+            <param name="controller">
+		The data controller.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryEventArgs.#ctor(System.Int32,System.Object,System.Object,System.Int32,DevExpress.Data.CustomSummaryProcess,System.Object,System.Int32)">
+            <summary>
+                <para>Initializes a new instance of the CustomSummaryEventArgs class.
+</para>
+            </summary>
+            <param name="controllerRow">
+		An integer value, identifying the processed row by its handle. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.RowHandle"/> property.
+
+            </param>
+            <param name="totalValue">
+		An object, representing the custom calculated summary value. This value is assigned to the  <see cref="P:DevExpress.Data.CustomSummaryEventArgs.TotalValue"/> property.
+
+            </param>
+            <param name="fieldValue">
+		An object, representing the processed field value. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.FieldValue"/> property.
+
+            </param>
+            <param name="groupRowHandle">
+		An integer value, identifying the group row whose child data rows are involved in summary calculation. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.GroupRowHandle"/> property.
+
+            </param>
+            <param name="summaryProcess">
+		A <see cref="T:DevExpress.Data.CustomSummaryProcess"/> enumeration value, identifying the current calculation stage. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.SummaryProcess"/> property.
+
+            </param>
+            <param name="item">
+		An object, representing the summary item whose value is being calculated. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.Item"/> property.
+
+            </param>
+            <param name="groupLevel">
+		An integer value indicating the nested group level of the processed row. This value is assigned to the <see cref="P:DevExpress.Data.CustomSummaryEventArgs.GroupLevel"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.FieldValue">
+            <summary>
+                <para>Gets the processed field value.
+</para>
+            </summary>
+            <value>An object, representing the processed field value.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.Data.CustomSummaryEventArgs.GetValue(System.String)">
+            <summary>
+                <para>Returns the specified field's value.
+</para>
+            </summary>
+            <param name="fieldName">
+		A <see cref="T:System.String"/> value that identifies the field whose value must be returned.
+
+            </param>
+            <returns>An object that represents the specified field value.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.GroupLevel">
+            <summary>
+                <para>Gets the nested level of the group whose summary value is being calculated.
+</para>
+            </summary>
+            <value>An integer value representing the zero-based nested level of the processed group.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.GroupRowHandle">
+            <summary>
+                <para>Gets the handle of a group row whose child data rows are involved in summary calculation.
+</para>
+            </summary>
+            <value>An integer value that specifies the group row's handle. <b>0</b> when calculating a total summary value.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.IsGroupSummary">
+            <summary>
+                <para>Gets whether a group summary value is being calculated.
+</para>
+            </summary>
+            <value><b>true</b> if a group summary value is being calculated; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.IsTotalSummary">
+            <summary>
+                <para>Gets whether a total summary value is being calculated.
+</para>
+            </summary>
+            <value><b>true</b> if a total summary value is being calculated; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.Item">
+            <summary>
+                <para>Gets a summary item whose value is being calculated.
+</para>
+            </summary>
+            <value>An object that represents a summary item whose value is being calculated.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.RowHandle">
+            <summary>
+                <para>Gets the processed row's handle.
+</para>
+            </summary>
+            <value>An integer value that identifies the processed data row by its handle.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.SummaryProcess">
+            <summary>
+                <para>Gets a value indicating the current calculation stage.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Data.CustomSummaryProcess"/> enumeration value, identifying the current calculation stage.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.TotalValue">
+            <summary>
+                <para>Gets or sets the total or group summary value.
+</para>
+            </summary>
+            <value>An object representing the total or group summary value.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Data.CustomSummaryEventArgs.TotalValueReady">
+            <summary>
+                <para>Gets or sets whether the Calculation stage of the custom summary calculation process should be skipped.
+</para>
+            </summary>
+            <value><b>true</b> to skip the Calculation stage of the custom summary calculation process; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Data.UnboundColumnType">
+
+            <summary>
+                <para>Contains values that specify the data type and binding mode of columns.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.Boolean">
+            <summary>
+                <para>Indicates that the column is unbound and it contains Boolean values (the <see cref="T:System.Boolean"/> type).
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.Bound">
+            <summary>
+                <para>Indicates that the column is bound to a field in the control's underlying data source. The type of data this column contains is determined by the bound field.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.DateTime">
+            <summary>
+                <para>Indicates that the column is unbound and it contains date/time values (the <see cref="T:System.DateTime"/> type). 
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.Decimal">
+            <summary>
+                <para>Indicates that the column is unbound and it contains decimal values (the <see cref="T:System.Decimal"/> type).
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.Integer">
+            <summary>
+                <para>Indicates that the column is unbound and it contains integer values (the <see cref="T:System.Int32"/> type).
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.Object">
+            <summary>
+                <para>Indicates that the column is unbound and it contains values of any type. A <see cref="T:DevExpress.Xpf.Editors.TextEdit"/> editor is assigned for the in-place editing of such a column.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.Data.UnboundColumnType.String">
+            <summary>
+                <para>Indicates that the column is unbound, and it contains string values (the <see cref="T:System.String"/> type). 
+</para>
+            </summary>
+
+
+        </member>
+    </members>
+</doc>

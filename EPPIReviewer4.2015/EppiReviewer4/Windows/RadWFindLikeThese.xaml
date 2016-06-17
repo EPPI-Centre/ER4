@@ -1,0 +1,115 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWFindLikeThese"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+        xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Find similar documents"
+                   Height="600" 
+                   Width="800"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        
+    </telerik:RadWindow.Resources>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="125"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" TextWrapping="Wrap" Margin="20,6,6,6" Text="Find similar items to:"></TextBlock>
+            <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Margin="30,6,6,6">
+                <RadioButton x:Name="RadioCurrentDocument" Content="Selected Item(s)" IsChecked="true" GroupName="TermOptions" Margin="0,0,6,0"></RadioButton>
+                <RadioButton x:Name="RadioListed" Content="All items listed" IsChecked="false" GroupName="TermOptions" Margin="0,0,0,0"></RadioButton>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical"  Grid.Column="0" Grid.Row="2" Margin="20,0,0,0">
+                <TextBlock Text="Using terms identified by:" Margin="6,6,6,6"></TextBlock>
+                <RadioButton x:Name="RadioTfidf" Content="TF*IDF" IsChecked="true" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>
+                <RadioButton x:Name="RadioTermine" Content="TerMine (NaCTeM)" IsChecked="false" GroupName="TermExtractionType" Margin="10,3,3,3" Click="RadioTermine_Click"></RadioButton>
+                <RadioButton x:Name="RadioZemanta" Content="Zemanta" IsChecked="false" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>
+                <!--<RadioButton x:Name="RadioYahoo" Content="Yahoo" IsChecked="false" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>-->
+            </StackPanel>
+
+            <Button x:Name="cmdGetTerms" Grid.Row="3" Grid.Column="0" Content="Get Terms" Margin="20,1,20,9" HorizontalAlignment="Stretch" Click="cmdGetTerms_Click"></Button>
+
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top" Grid.Column="0" Grid.Row="5" Margin="20,0,20,0">
+                <ComboBox x:Name="TermSearchComboSearchScope" Height="28" VerticalAlignment="Top" Margin="0,4,0,4" SelectionChanged="TermSearchComboSearchScope_SelectionChanged">
+                    <ComboBoxItem Content="Search all documents" IsSelected="True"></ComboBoxItem>
+                    <ComboBoxItem Content="Search all documents with this code"></ComboBoxItem>
+                    <ComboBoxItem Content="Search all documents without this code"></ComboBoxItem>
+                </ComboBox>
+                <local:codesSelectControl x:Name="codesSelectControlTermSearch" VerticalAlignment="Top" Height="28" Margin="0,4,0,4" Visibility="Collapsed"></local:codesSelectControl>
+                <RadioButton x:Name="RadioTermSearchIncluded" GroupName="SearchScope" VerticalAlignment="Top" IsChecked="True" Content="Included documents" Margin="6,6,6,6"></RadioButton>
+                <RadioButton x:Name="RadioTermSearchExcluded" GroupName="SearchScope" VerticalAlignment="Top" Content="Excluded documents" Margin="6,6,6,6"></RadioButton>
+                <Button x:Name="cmdTermSearch" Content="Search on terms" IsEnabled="False" Margin="6,6,6,6" Click="cmdTermSearch_Click"></Button>
+            <StackPanel x:Name="DeletionProgress" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Collapsed">
+                <TextBlock Text="Deleting Terms: " />
+                <TextBlock x:Name="DeletionProgressTxt" />
+                <TextBlock Text=" done" />
+            </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1">
+                <Button x:Name="cmdExportTermList" Width="140" Content="Export terms"
+                                        Margin="6,6,6,6" HorizontalAlignment="Left" Click="cmdExportTermList_Click"></Button>
+                <telerik:RadComboBox Margin="6,6,6,6" x:Name="ComboBoxExportTerms" SelectedIndex="0">
+                    <telerik:RadComboBoxItem Content="Excel"  />
+                    <telerik:RadComboBoxItem Content="ExcelML" />
+                    <telerik:RadComboBoxItem Content="Word" />
+                    <telerik:RadComboBoxItem Content="Csv"  />
+                </telerik:RadComboBox >
+                <Button x:Name="cmdDeleteTerm" IsEnabled="False" Content="Delete term(s)" Margin="6,6,6,6" HorizontalAlignment="Right" Click="cmdDeleteTerm_Click"></Button>
+            </StackPanel>
+
+            <telerikGridView:RadGridView x:Name="TermsGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="8" AutoGenerateColumns="False"
+                                    HorizontalAlignment="Stretch" ShowGroupPanel="False" RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" SelectionChanged="TermsGrid_SelectionChanged">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn IsSortable="False" Width="*" Header="Term" DataMemberBinding="{Binding Name}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn SortingState="Descending" Header="Score" DataMemberBinding="{Binding TermValue}" ShowDistinctFilters="False" DataFormatString="{}{0:F2}" Width="70"></telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+
+        </Grid>
+</telerik:RadWindow>

@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BusinessLibrary.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="BusinessLibrary_uk_ac_nactem_www_termine" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://www.nactem.ac.uk/termine</Value>
+    </Setting>
+    <Setting Name="BusinessLibrary_s_uk_ac_nactem_www_termine" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://www.nactem.ac.uk/termine_key</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

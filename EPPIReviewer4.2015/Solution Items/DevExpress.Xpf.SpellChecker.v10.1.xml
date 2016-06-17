@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DevExpress.Xpf.SpellChecker.v10.1</name>
+    </assembly>
+    <members>
+        <member name="T:DevExpress.XtraSpellChecker.FormShowingEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.CheckCompleteFormShowing"/>, <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsFormShowing"/> and the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> events.
+
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.FormShowingEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.FormShowingEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.CheckCompleteFormShowing"/>, the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsFormShowing"/> and the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> events.
+</para>
+            </summary>
+            <param name="sender">
+		The event source.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.FormShowingEventArgs"/> object containing event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.FormShowingEventArgs">
+
+            <summary>
+                <para>Provides data for <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.CheckCompleteFormShowing"/>, <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsFormShowing"/> and the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> events.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.FormShowingEventArgs.#ctor">
+            <summary>
+                <para>Initializes a new instance of the FormShowingEventArgs class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.FormShowingEventArgs.Handled">
+            <summary>
+                <para>Gets or sets a value that specifies whether the event is handled and no default processing is required.
+</para>
+            </summary>
+            <value><b>true</b> to handle the event; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellingFormShowingEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>SpellingFormShowing</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellingFormShowingEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs"/> object that provides data for the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>SpellingFormShowing</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs.#ctor(System.String,DevExpress.XtraSpellChecker.StringCollection)">
+            <summary>
+                <para>Initializes a new SpellingFormShowingEventArgs class instance.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object that represents a word being checked.
+
+            </param>
+            <param name="suggestions">
+		A collection of <see cref="T:System.String"/> objects, representing the suggested words.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs.Suggestions">
+            <summary>
+                <para>Provides access to the collection of suggested words to be displayed on the spelling form.
+
+</para>
+            </summary>
+            <value>A <see cref="T:System.Collections.Specialized.StringCollection"/> object representing a collection of suggested words.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellingFormShowingEventArgs.Word">
+            <summary>
+                <para>Gets a misspelled word for which the spelling form is invoked.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> object representing a misspelled word.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.Xpf.SpellChecker.OptionsSpelling">
+
+            <summary>
+                <para>Contains options that affect text processing.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.OptionsSpelling.#ctor">
+            <summary>
+                <para>Initializes a new instance of the OptionsSpelling class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.Xpf.SpellChecker.SpellChecker">
+
+            <summary>
+                <para>Represents the base component of the <b>AgSpellChecker Suite</b>.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellChecker class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.CanCheck(System.Windows.Controls.Control)">
+            <summary>
+                <para>Checks whether the control is registered for use with the AgSpellChecker.
+</para>
+            </summary>
+            <param name="control">
+		A <see cref="T:System.Windows.Forms.Control"/> descendant, representing a control to be checked for spelling mistakes.
+
+            </param>
+            <returns><b>true</b> if the control is already registered by AgSpellChecker; otherwise <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.Check(DevExpress.XtraSpellChecker.Native.ISpellCheckTextControlController)">
+            <summary>
+                <para>Checks the spelling of the text available through the controller interface.
+</para>
+            </summary>
+            <param name="controller">
+		An object implementing the <b>ISpellCheckTextController</b> interface.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.Check(System.Windows.Controls.Control)">
+            <summary>
+                <para>Checks the specified control for spelling mistakes.
+</para>
+            </summary>
+            <param name="editControl">
+		A <see cref="T:System.Windows.Controls.Control"/> object representing a control to be checked for spelling mistakes.
+
+            </param>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.CheckCompleteFormShowing">
+            <summary>
+                <para>Occurs when the spell check is complete. 
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.CheckContainer(System.Windows.Controls.Control)">
+            <summary>
+                <para>Checks the controls within the container for spelling mistakes.
+</para>
+            </summary>
+            <param name="container">
+		A <see cref="T:System.Windows.Forms.Control"/> object representing a control container to be checked for spelling mistakes.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.CheckContainer">
+            <summary>
+                <para>Checks the controls in the container of the current control for spelling mistakes.
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.CheckWord(System.Object,System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Checks whether the specified word is misspelled according to the dictionary for the specified culture.
+</para>
+            </summary>
+            <param name="control">
+		A control whose content is checked.
+
+            </param>
+            <param name="word">
+		A <see cref="T:System.String"/>, representing a word to check.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object, representing a culture for which the check is performed.
+
+            </param>
+            <returns><b>true</b> if a word is misspelled; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.CultureChanged">
+            <summary>
+                <para>Occurs when the culture setting of the spellcheker is changed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.Xpf.SpellChecker.SpellChecker.FormsManager">
+            <summary>
+                <para>Provides access to the object that manages the spelling forms for user interaction.
+</para>
+            </summary>
+            <value>A <b>SpellingFormsManager</b> object.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.GetCommandsByError(DevExpress.XtraSpellChecker.Rules.SpellCheckErrorBase)">
+            <summary>
+                <para>Creates a list of commands available to the end-user, which depend on the type of misspelling and current spellchecker operation mode.
+</para>
+            </summary>
+            <param name="error">
+		A <see cref="T:DevExpress.XtraSpellChecker.Rules.SpellCheckErrorBase"/> object, representing a situation when a misspelled word is found.
+
+            </param>
+            <returns>A generic list of <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerCommand"/> objects.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.GetSuggestions(System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Constructs an ordered list of suggestions for a given word.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> representing a word for which the suggestions should be calculated.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object, representing a culture for which the check is performed.
+
+            </param>
+            <returns>A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object representing a sorted list of suggested words.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.Xpf.SpellChecker.SpellChecker.GetSuggestions(System.String)">
+            <summary>
+                <para>Constructs an ordered list of suggestions for a given word.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> representing a word for which the suggestions should be calculated.
+
+            </param>
+            <returns>A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object representing a sorted list of suggested words.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.Xpf.SpellChecker.SpellChecker.IsChecking">
+            <summary>
+                <para>Indicates whether the current AgSpellChecker control performs a spelling check.
+</para>
+            </summary>
+            <value><b>true</b> if a spelling check is performed; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsChanged">
+            <summary>
+                <para>This event is not raised for the AgSpellChecker control.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsFormShowing">
+            <summary>
+                <para>Occurs when the form used to specify the <see cref="T:DevExpress.Xpf.SpellChecker.OptionsSpelling"/> is about to be shown.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.Xpf.SpellChecker.SpellChecker.OptionsSpelling">
+            <summary>
+                <para>Provides access to the spelling options set for the spell checker instance.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.Xpf.SpellChecker.OptionsSpelling"/> object containing the spell checking options.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Xpf.SpellChecker.SpellChecker.ParentContainer">
+            <summary>
+                <para>Gets or sets the control, representing the parent container for the AgSpellChecker instance.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Forms.Control"/> object, which is the parent container for the controls to be checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.Xpf.SpellChecker.SpellChecker.SpellCheckMode">
+            <summary>
+                <para>Gets or sets the XtraSpellChecker operation mode.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckMode"/> enumeration member.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellCheckModeChanged">
+            <summary>
+                <para>Occurs when the <see cref="P:DevExpress.Xpf.SpellChecker.SpellChecker.SpellCheckMode"/> property is changed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing">
+            <summary>
+                <para>Occurs when the spelling form is about to be displayed.
+</para>
+            </summary>
+
+
+        </member>
+    </members>
+</doc>

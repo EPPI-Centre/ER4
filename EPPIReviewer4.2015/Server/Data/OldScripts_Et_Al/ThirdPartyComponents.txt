@@ -1,0 +1,10 @@
+﻿To compile and run ER4 we need:
+
+Telerik Silverlight components
+Devexpress Silverlight components (for the RichEdit component)
+CSLA open source business objects framework
+Mindfusion Diagramlite control
+
+Lingo3G clustering server available
+SQL Server 2008 Enterprise
+Foxit ifilter?

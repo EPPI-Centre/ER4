@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogReports"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+             xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+             xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+             xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+             xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+             xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+             xmlns:local="clr-namespace:EppiReviewer4"
+    >
+    <UserControl.Resources>
+        
+    </UserControl.Resources>
+    
+    <Grid x:Name="dialogReportsGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="29"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="85"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="110"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Report" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
+        <cslaXAML:BusyAnimation x:Name="BusyReportProvider" IsRunning="{Binding Source={StaticResource ReportListData}, Path=IsBusy}"></cslaXAML:BusyAnimation>
+        <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ComboBoxReports" ItemsSource="{Binding Source={StaticResource ReportListData}, Path=Data, Mode=TwoWay}" Margin="6,6,8,6" SelectionChanged="ComboBoxReports_SelectionChanged" ></ComboBox>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Items to include" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
+        <ComboBox Margin="6,6,8,6" Name="comboBoxSelectWhichItems" Grid.Column="1" Grid.Row="1" SelectionChanged="comboBoxSelectWhichItems_SelectionChanged">
+            <ComboBoxItem Content="All included items" IsEnabled="False"></ComboBoxItem>
+            <ComboBoxItem Content="All selected items" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="Items with this code"></ComboBoxItem>
+        </ComboBox>
+        <local:codesSelectControl x:Name="codesSelectControlReports" Grid.Row="2" Grid.Column="1" Margin="4,4,8,4"></local:codesSelectControl>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Order by" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
+        
+        <ComboBox Grid.Row="3" Grid.Column="1" x:Name="ComboBoxOrderBy" Margin="6,6,8,6" SelectionChanged="ComboBoxOrderBy_SelectionChanged" >
+            <ComboBoxItem Content="Short title" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="Title"></ComboBoxItem>
+            <ComboBoxItem Content="Year"></ComboBoxItem>
+            <ComboBoxItem Content="Item Id"></ComboBoxItem>
+            <ComboBoxItem Content="Imported Id"></ComboBoxItem>
+        </ComboBox>
+        
+        <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="4" HorizontalAlignment="Left" Margin="2,2,2,2" />
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Display" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+            <CheckBox x:Name="CheckBoxShowId" Content="Item Id" IsChecked="true" Margin="6,6,6,6"></CheckBox>
+            <CheckBox x:Name="CheckBoxShowOldId" Content="Imported Id" Margin="6,6,6,6"></CheckBox>
+            <CheckBox x:Name="CheckBoxShowShortTitle" Content="Short Title" IsChecked="True" IsEnabled="False" Margin="6,6,6,6" ></CheckBox>
+            <CheckBox x:Name="CheckBoxShowTitle" Content="Title"  Margin="6,6,6,6" Checked="CheckBoxShowTitle_Checked"></CheckBox>
+        </StackPanel>
+        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+            <CheckBox x:Name="CheckBoxShowYear" Content="Year"  Margin="6,6,6,6" Checked="CheckBoxShowTitle_Checked"></CheckBox>
+            <CheckBox x:Name="CheckBoxShowAbstract" Content="Abstract" Margin="6,6,6,6" Checked="CheckBoxShowTitle_Checked"></CheckBox>
+            <CheckBox x:Name="CheckBoxShowUncoded" Content="Uncoded Items" IsChecked="True" Margin="6,6,6,6" ></CheckBox>
+            <CheckBox x:Name="CheckBoxShowOutcomes" Content="Outcomes" IsEnabled="{Binding ElementName=ComboBoxReports,Path=SelectedItem.isAnswer}" Margin="6,6,6,6"></CheckBox>
+        </StackPanel>
+        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Additional Text Tag:" Margin="6,6,6,6" VerticalAlignment="Center"/>
+            <TextBox x:Name="tboxInfoTag" MaxLength="16" Text="[Info]" Width="120" MaxWidth="120" Margin="0,6,0,6" VerticalAlignment="Center"/>
+            <CheckBox x:Name="CheckBoxBullets" Content="Add Bullets to Codes" IsChecked="True" Margin="6,6,6,6" VerticalAlignment="Center"></CheckBox>
+        </StackPanel>
+        
+        <Border BorderBrush="Gray" BorderThickness="1" Grid.RowSpan="2" Grid.Row="7"  Margin="8,4,145,4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Vertical">
+                <CheckBox Content="Show as Risk Of Bias figure"  Height="16" HorizontalAlignment="Left" Margin="5,2,2,2" Name="cbRiskOfBias" VerticalAlignment="Top" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Note" FontWeight="Bold" Margin="5,2,2,2"/>
+                    <TextBlock Text="- The order of the classification codes in the risk of bias codeset must be:" TextWrapping="Wrap" Margin="2"  Width="295" />
+                </StackPanel>
+                <TextBlock Text="- Low (1 code only)" Margin="35,2,2,0"/>
+                <TextBlock Text="- High (1 code only)" Margin="35,2,2,0"/>
+                <TextBlock Text="- Unclear (1 or more)" Margin="35,2,2,0"/>
+            </StackPanel>
+        </Border>
+        <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right" Margin="2,2,20,0">
+            <TextBlock Text="Alignment:" HorizontalAlignment="Left" Margin="8,2,0,0" ></TextBlock>
+            <RadioButton x:Name="RadioAlignHorizontal" Content="Horizontal" GroupName="RadioGroupAlignment" IsChecked="true" Margin="6,3,6,0"></RadioButton>
+            <RadioButton x:Name="RadioAlignVertical" Content="Vertical" GroupName="RadioGroupAlignment" Margin="6,6,6,6"></RadioButton>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Button x:Name="cmdGo" Content="Go" Width="60" Margin="4,4,4,4" Click="cmdGo_Click"></Button>
+            <Button Content="Close" Width="60" Margin="4,4,4,4" Click="Button_Click"></Button>
+        </StackPanel>
+        <!--<telerikNavigation:RadWindow x:Name="windowReports2" Header="Report viewer" WindowState="Maximized" WindowStartupLocation="CenterScreen" RestrictedAreaMargin="20"  Width="500" CanClose="True">
+            <Grid>
+                <local:dialogReportViewer x:Name="reportViewerControl2"></local:dialogReportViewer>
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        
+    </Grid>
+</UserControl>

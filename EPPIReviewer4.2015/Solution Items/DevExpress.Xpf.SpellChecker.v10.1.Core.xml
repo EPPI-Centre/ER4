@@ -1,0 +1,2117 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DevExpress.Xpf.SpellChecker.v10.1.Core</name>
+    </assembly>
+    <members>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary">
+
+            <summary>
+                <para>Represents a custom dictionary of the spell checker.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerCustomDictionary class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.#ctor(System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerCustomDictionary class with the specified settings.
+</para>
+            </summary>
+            <param name="dictionaryPath">
+		A <see cref="T:System.String"/> object that specifies the path to the dictionary file.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.AddWord(System.String)">
+            <summary>
+                <para>Appends a word to the custom dictionary and saves it.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object, that is a word to be added to the dictionary.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.AddWords(System.Collections.ICollection)">
+            <summary>
+                <para>Appends words to the custom dictionary.
+</para>
+            </summary>
+            <param name="words">
+		A collection of words to be added to the dictionary.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.BeginUpdate">
+            <summary>
+                <para>Locks the dictionary to prevent changes.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.EndUpdate">
+            <summary>
+                <para>Unlocks the dictionary locked by the <see cref="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.BeginUpdate"/> method.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.IsLocked">
+            <summary>
+                <para>Checks if the dictionary allows changes.
+</para>
+            </summary>
+            <returns><b>true</b> if the dictionary is locked; otherwise <b>false</b> .
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.Load">
+            <summary>
+                <para>Loads the custom dictionary from the file and initializes it.
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.Save">
+            <summary>
+                <para>Saves a custom dictionary to a file.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCustomDictionary.SaveAs(System.String)">
+            <summary>
+                <para>Saves the custom dictionary into a specified file.
+</para>
+            </summary>
+            <param name="fileName">
+		A <see cref="T:System.String"/> representing a path to a file where the dictionary is to be saved.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerCommand">
+
+            <summary>
+                <para>Serves as a base class for implementing classes that represent XtraSpellChecker actions.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCommand.#ctor(DevExpress.XtraSpellChecker.Strategies.TextOperationsManager)">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerCommand class with default settings.
+</para>
+            </summary>
+            <param name="operationsManager">
+		A <see cref="T:DevExpress.XtraSpellChecker.Strategies.TextOperationsManager"/> object, providing functionality for the text operations.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Caption">
+            <summary>
+                <para>Gets a localizable name of the command used in a menu.
+
+</para>
+            </summary>
+            <value>A string, representing the name of the action performed by this command.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerCommand.DoCommand">
+            <summary>
+                <para>Performs an action of the corresponding type.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Enabled">
+            <summary>
+                <para>Gets whether a command is enabled at the moment.
+</para>
+            </summary>
+            <value><b>true</b> if a command is enabled; otherwise, <b>false</b>.
+
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Finish">
+            <summary>
+                <para>Gets or sets the position at which the text segment finishes. For internal use only.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object, representing the location of the text segment's end.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Operation">
+            <summary>
+                <para>Gets the operation performed by the command.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckOperation"/> enumeration member, specifying the operation to perform.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Start">
+            <summary>
+                <para>Gets or sets the position at which the text segment starts.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object, representing the location of the text segment's beginning.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Suggestion">
+            <summary>
+                <para>Gets or sets the replacement for the current text segment.
+</para>
+            </summary>
+            <value>A string, representing the text which will replace the current text segment.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerCommand.Word">
+            <summary>
+                <para>Gets or sets a word used for several commands, such as Ignore or AddToDictionary.
+</para>
+            </summary>
+            <value>A string, representing a word to ignore or add to the dictionary.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerBase">
+
+            <summary>
+                <para>Represents the base class for the <b>SpellChecker</b> component.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerBase class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.AfterCheck">
+            <summary>
+                <para>Occurs when text checking is finished.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.AfterCheckWord">
+            <summary>
+                <para>Occurs after a word is checked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.AfterLoadDictionaries">
+            <summary>
+                <para>Occurs when the dictionaries have been loaded.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheck">
+            <summary>
+                <para>Occurs before the spell checker begins text processing.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheckWord">
+            <summary>
+                <para>Occurs before a given word is exposed to a search algorithm.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeLoadDictionaries">
+            <summary>
+                <para>Occurs when the spell checker starts loading dictionaries.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.ChangeAllList">
+            <summary>
+                <para>Provides access to the list of words and their counterparts that replace them on every occurrence.
+</para>
+            </summary>
+            <value>A <b>System.Collections.Generic.Dictionary@lt;[System.String],[System.String]@gt;</b> object, representing a collection of key words and their replacements.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.Check(System.String)">
+            <summary>
+                <para>Checks the spelling of words in a text string.
+</para>
+            </summary>
+            <param name="text">
+		A <see cref="T:System.String"/> containing the text to be checked.
+
+            </param>
+            <returns>A <see cref="T:System.String"/> of text processed by a spell-checker engine.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.Check(System.String,DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position)">
+            <summary>
+                <para>Checks the spelling of words in a text string.
+</para>
+            </summary>
+            <param name="text">
+		A <see cref="T:System.String"/> containing the text to be checked.
+
+            </param>
+            <param name="start">
+		A <b>Position</b> class object, representing the starting point within the text string where the check begins.
+
+            </param>
+            <param name="finish">
+		A <b>Position</b> class object, representing the ending point within the text string where the check finishes.
+
+            </param>
+            <returns>A <see cref="T:System.String"/> of text processed by a spell-checker engine.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.Check(DevExpress.XtraSpellChecker.Parser.ISpellCheckTextController)">
+            <summary>
+                <para>Checks the spelling of the text available through the controller interface.
+</para>
+            </summary>
+            <param name="controller">
+		An object implementing the <see cref="T:DevExpress.XtraSpellChecker.Parser.ISpellCheckTextController"/> interface.
+
+            </param>
+            <returns>A <see cref="T:System.String"/> object, containing the text of the text controller, processed by a spell-checker engine.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.Culture">
+            <summary>
+                <para>Gets or sets the culture-specific settings of the spell checker.
+</para>
+            </summary>
+            <value><see cref="T:System.Globalization.CultureInfo"/> object that specifies culture settings (the symbols encoding, language and phonetic specifics).
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.Dictionaries">
+            <summary>
+                <para>Provides access to the spell checker dictionaries collection.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.DictionaryCollection"/> object representing a collection of dictionaries.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.FinishCheckingMainPart">
+            <summary>
+                <para>Occurs when the selected part of the text is processed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.GetCommandsByError(DevExpress.XtraSpellChecker.Rules.SpellCheckErrorBase)">
+            <summary>
+                <para>Creates a list of commands, available to the end-user, which depend on the type of misspelling.
+</para>
+            </summary>
+            <param name="error">
+		A <see cref="T:DevExpress.XtraSpellChecker.Rules.SpellCheckErrorBase"/> object, representing a situation when a misspelled word is found.
+
+            </param>
+            <returns>A generic list of <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerCommand"/> objects.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.IgnoreList">
+            <summary>
+                <para>Provides access to a list of ignored words.
+</para>
+            </summary>
+            <value>An object exposing the <see cref="T:DevExpress.XtraSpellChecker.IgnoreList"/> interface, allowing you to perform operations with a list of ignored words.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.IsMisspelledWord(System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Checks whether the specified word is misspelled according to the dictionary for the specified culture.
+</para>
+            </summary>
+            <param name="text">
+		A <see cref="T:System.String"/>, representing a word to check.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object, representing a culture for which the check is performed.
+
+            </param>
+            <returns><b>true</b> if a word is misspelled; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerBase.IsMisspelledWord(System.String,System.Globalization.CultureInfo,DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position)">
+            <summary>
+                <para>Checks whether the specified word is misspelled according to the dictionary for the specified culture, starting from and ending at the specified positions.
+</para>
+            </summary>
+            <param name="text">
+		A <see cref="T:System.String"/>, representing a word to check.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object, representing a culture for which the check is performed.
+
+            </param>
+            <param name="start">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> class descendant, representing the position from which to start checking.
+
+            </param>
+            <param name="finish">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> class descendant, representing the position at which to finish checking.
+
+            </param>
+            <returns><b>true</b> if a word is misspelled; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.LevenshteinDistance">
+            <summary>
+                <para>Gets or sets the parameter used to measure the proximity of words to be included in a suggestion collection.
+</para>
+            </summary>
+            <value>An integer value that is the maximum number of steps used to convert the misspelled  word into a suggested one.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.NotInDictionaryWordFound">
+            <summary>
+                <para>Occurs when a word being checked is not found in a dictionary.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.OptionsSpelling">
+            <summary>
+                <para>Provides access to the spelling options set for the SpellCheckerBase instance.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.Xpf.SpellChecker.OptionsSpelling"/> object containing the spell checking options.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.PrepareSuggestions">
+            <summary>
+                <para>Occurs when a misspelled word is found and a list of suggested replacements is created and sorted.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.RepeatedWordFound">
+            <summary>
+                <para>Occurs when a word identical to the previous one is found.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.SpellingFormType">
+            <summary>
+                <para>Gets or sets the type of the form to be shown when a probable misspelled word is found.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SpellingFormType"/> enumeration specifying the form's layout.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerBase.UseSharedDictionaries">
+            <summary>
+                <para>Not in use for AgRichEdit.
+</para>
+            </summary>
+            <value><b>true</b> if shared dictionaries are added to the collection of dictionaries used for a word search; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.SpellCheckerBase.WordAdded">
+            <summary>
+                <para>Occurs after a new word is added to the custom dictionary.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>NotInDictionaryWordFound</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.NotInDictionaryWordFound"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.NotInDictionaryWordFound"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventArgs"/> object that provides data for the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.NotInDictionaryWordFound"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>NotInDictionaryFound</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventArgs.#ctor(System.String,DevExpress.XtraSpellChecker.SuggestionCollection,DevExpress.XtraSpellChecker.SpellCheckOperation,System.String,DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position,System.Boolean)">
+            <summary>
+                <para>Initializes a new NotInDictionaryWordFoundEventArgs class instance.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object representing a word not found in a dictionary.
+
+            </param>
+            <param name="suggestions">
+		A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object, representing the result of a suggestion search.
+
+            </param>
+            <param name="result">
+		A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckOperation"/> enumeration member, which defines the action which the spellchecker should perform.
+
+            </param>
+            <param name="suggestion">
+		A string, representing the most relevant suggested word.
+
+            </param>
+            <param name="startPosition">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object, representing the position in the text where the word begins.
+
+            </param>
+            <param name="length">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object, representing the length of a word.
+
+            </param>
+            <param name="handled">
+		When this parameter is set to <b>true</b>,  the default event handling code is not executed. 
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.NotInDictionaryWordFoundEventArgs.Suggestions">
+            <summary>
+                <para>Gets a collection of suggestions made when the word is not found in the dictionary.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object that contains suggestions for the word under consideration.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>FinishCheckingMainPart</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.FinishCheckingMainPartEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.FinishCheckingMainPart"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.FinishCheckingMainPart"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventArgs"/> object that provides data for the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.FinishCheckingMainPart"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>FinishCheckingMainPart</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventArgs.#ctor(System.Boolean)">
+            <summary>
+                <para>Initializes a new FinishCheckingMainPartEventArgs class instance.
+</para>
+            </summary>
+            <param name="needCheckRemainingPart">
+		<b>true</b> if the rest of the text should be checked; otherwise <b>false</b>.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.FinishCheckingMainPartEventArgs.NeedCheckRemainingPart">
+            <summary>
+                <para>Specifies whether the spell checker should check the rest of the text.
+</para>
+            </summary>
+            <value><b>true</b> if the remaining text has to be checked; otherwise <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.DictionaryCollection">
+
+            <summary>
+                <para>Represents a collection of XtraSpellChecker dictionaries.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.#ctor">
+            <summary>
+                <para>Initializes a new instance of the DictionaryCollection class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.Add(DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase)">
+            <summary>
+                <para>Appends the specified <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> object to the current collection.
+</para>
+            </summary>
+            <param name="dictionary">
+		A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> object to append to the collection.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.AddRange(System.Collections.ICollection)">
+            <summary>
+                <para>Appends the elements of a specified collection to the DictionaryCollection object.
+</para>
+            </summary>
+            <param name="c">
+		A generic collection object.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.Clear">
+            <summary>
+                <para>Removes all dictionaries from the collection.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.Contains(DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase)">
+            <summary>
+                <para>Determines whether a dictionary is in the collection.
+</para>
+            </summary>
+            <param name="item">
+		The dictionary to locate in the collection.
+
+            </param>
+            <returns><b>true</b> if the dictionary is found in the collection; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.CopyTo(DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase[],System.Int32)">
+            <summary>
+                <para>Copies the entire collection to a one-dimensional array of dictionaries, starting at the specified index of the target array.
+</para>
+            </summary>
+            <param name="array">
+		The one-dimensional array of <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> objects that is the destination of the elements copied from the collection.
+
+
+            </param>
+            <param name="arrayIndex">
+		The zero-based index in the array at which copying begins.
+
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.DictionaryCollection.Count">
+            <summary>
+                <para>Returns the number of elements in a sequence.
+</para>
+            </summary>
+            <value>A sequence that contains elements to be counted.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.GetEnumerator">
+            <summary>
+                <para>Returns an enumerator that iterates through the collection.
+</para>
+            </summary>
+            <returns>The <b>System.Collections.Generic.IEnumerator@lt;SpellCheckerDictionaryBase@gt;</b> object.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.IndexOf(DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase)">
+            <summary>
+                <para>Determines the index of a dictionary within the dictionary collection.
+</para>
+            </summary>
+            <param name="dictionary">
+		A dictionary to locate within the dictionary collection.
+
+            </param>
+            <returns>The index of the dictionary if found in the list; otherwise, -1.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.DictionaryCollection.IsReadOnly">
+            <summary>
+                <para>Overrides the corresponding property of the base class to hide it. 
+</para>
+            </summary>
+            <value>Always <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.DictionaryCollection.Item(System.Int32)">
+            <summary>
+                <para>Gets the element at the specified index.
+</para>
+            </summary>
+            <param name="index">
+		The index of the element to be obtained.
+
+            </param>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> element at the specified index in the collection.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.DictionaryCollection.Remove(DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase)">
+            <summary>
+                <para>Removes the dictionary from the collection.
+</para>
+            </summary>
+            <param name="dictionary">
+		A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> object to be removed.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.OptionsSpellingBase">
+
+            <summary>
+                <para>Contains options that affect text processing.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.#ctor">
+            <summary>
+                <para>Initializes a new instance of the OptionsSpellingBase class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.Assign(DevExpress.XtraSpellChecker.OptionsSpellingBase)">
+            <summary>
+                <para>Copies all the settings from the <b>OptionsSpellingBase</b> object passed as the parameter.
+</para>
+            </summary>
+            <param name="source">
+		An OptionsSpellingBase object whose settings are assigned to the current object.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.BeginUpdate">
+            <summary>
+                <para>Locks the object representing spelling options to prevent changes caused by a side process.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.CheckFromCursorPos">
+            <summary>
+                <para>Start spell check from the cursor position.
+
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the spell checker should start checking from the cursor position.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.CheckSelectedTextFirst">
+            <summary>
+                <para>Spell check the selected text first.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the spell checker should start checking the selected text first.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.CombineOptions(DevExpress.XtraSpellChecker.OptionsSpellingBase)">
+            <summary>
+                <para>Combines spelling options set for the <b>SpellChecker</b> and the control whose content is checked.
+</para>
+            </summary>
+            <param name="controlOptions">
+		An <see cref="T:DevExpress.XtraSpellChecker.OptionsSpellingBase"/> object specifying the spelling options set for the control.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.EndUpdate">
+            <summary>
+                <para>Unlocks the <b>OptionsSpellingBase</b> object locked by the <see cref="M:DevExpress.XtraSpellChecker.OptionsSpellingBase.BeginUpdate"/> method. 
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreEmails">
+            <summary>
+                <para>Gets or sets whether e-mail addresses should be excluded from the check.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the words which are e-mail addresses should be checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreMarkupTags">
+            <summary>
+                <para>Gets or sets whether the text enclosed with specific markup tags should be checked.
+</para>
+            </summary>
+            <value><b>true</b> to exclude the text within tags from the check; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreMixedCaseWords">
+            <summary>
+                <para>Gets or sets whether the spell checker ignores words containing different case letters in positions other than the first.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether mixed case words should be checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreRepeatedWords">
+            <summary>
+                <para>Gets or sets whether the spell checker ignores repeated words.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the text should be checked for repeated words.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreUpperCaseWords">
+            <summary>
+                <para>Gets or sets whether the spell checker ignores words in which all letters are uppercase.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the words in which all letters are uppercase should be checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreUrls">
+            <summary>
+                <para>Gets or sets whether the spell checker ignores the URLs in text.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether the words which are URLs should be checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.OptionsSpellingBase.IgnoreWordsWithNumbers">
+            <summary>
+                <para>Gets or sets whether the spell checker ignores words that contain numbers.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.Utils.DefaultBoolean"/> enumeration value specifying whether words which contain numbers should be checked.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.XtraSpellChecker.OptionsSpellingBase.OptionChanged">
+            <summary>
+                <para>Fires when any of the spelling check options are changed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.PrepareSuggestionsEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.PrepareSuggestions"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.PrepareSuggestionsEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.PrepareSuggestions"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.PrepareSuggestions"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs"/> object that provides data for the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.PrepareSuggestions"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>PrepareSuggestions</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs.#ctor(System.String,DevExpress.XtraSpellChecker.SuggestionCollection)">
+            <summary>
+                <para>Initializes a new PrepareSuggestionsEventArgs class instance.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object that represents a word being checked.
+
+            </param>
+            <param name="suggestions">
+		A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object representing a collection of suggested words.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs.Suggestions">
+            <summary>
+                <para>Provides access to the collection of prepared suggestions.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> object containing prepared suggestions.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.PrepareSuggestionsEventArgs.Word">
+            <summary>
+                <para>Gets a misspelled word for which the suggestions have been prepared.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> object representing a misspelled word.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.RepeatedWordFoundEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>RepeatedWordFound</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.RepeatedWordFoundEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.RepeatedWordFound"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.RepeatedWordFound"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs"/> object that provides data for the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.RepeatedWordFound"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>RepeatedWordFound</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.#ctor(System.String,DevExpress.XtraSpellChecker.SpellCheckOperation,System.String,DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position,System.Boolean)">
+            <summary>
+                <para>Initializes a new RepeatedWordFoundEventArgs class instance.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object representing a repeated word found.
+
+            </param>
+            <param name="result">
+		A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckOperation"/> enumeration member, which defines the action which the spellchecker should perform.
+
+            </param>
+            <param name="suggestion">
+		An empty string, since the repeated word can only be deleted. 
+
+            </param>
+            <param name="startPosition">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object,  representing the position in the text where the repeated word begins.
+
+            </param>
+            <param name="length">
+		A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object, representing the length of the repeated word.
+
+            </param>
+            <param name="handled">
+		When this parameter is set to <b>true</b>,  the default event handling code is not executed. 
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.Handled">
+            <summary>
+                <para>Gets or sets a value indicating whether default event actions are required.
+</para>
+            </summary>
+            <value><b>true</b> if the default action should be executed, <b>false</b> if the event is passed to the user for handling.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.Length">
+            <summary>
+                <para>Gets the length of the repeated word.
+</para>
+            </summary>
+            <value>An integer, specifying the word's length.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.Result">
+            <summary>
+                <para>Gets or sets the parameter that specifies the spell checker action when a repeated word is found.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.SpellCheckOperation"/> enumeration specifying the spell checker action.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.StartPosition">
+            <summary>
+                <para>Gets the beginning of the repeated word in a text.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.XtraSpellChecker.Parser.Position"/> object,  representing the position in the text where the repeated word begins.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.Suggestion">
+            <summary>
+                <para>A string to replace the repeated word.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> to replace the repeated word.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.RepeatedWordFoundEventArgs.Word">
+            <summary>
+                <para>Gets a word that is found to be repeated.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> object representing a repeated word in the text. 
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.BeforeCheckWordEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>BeforeCheck</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.BeforeCheckWordEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheckWord"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object of any type that triggers the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheckWord"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs"/> object that provides data for the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheckWord"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>BeforeCheckWord</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs.#ctor(System.Object,System.String,System.Boolean)">
+            <summary>
+                <para>Initializes a new BeforeCheckWordEventArgs class instance with specified settings.
+</para>
+            </summary>
+            <param name="editControl">
+		An object, representing a control being checked.
+
+            </param>
+            <param name="word">
+		A string representing a word to be checked.
+
+            </param>
+            <param name="cancel">
+		<b>true</b> if an event should be cancelled; otherwise, <b>false</b>.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs.EditControl">
+            <summary>
+                <para>Gets the control being checked.
+</para>
+            </summary>
+            <value>An object representing a control being checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.BeforeCheckWordEventArgs.Word">
+            <summary>
+                <para>Gets a word to be checked.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> object representing a word to be checked.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.BeforeCheckEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <b>BeforeCheck</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.BeforeCheckEventHandler.Invoke(System.Object,DevExpress.XtraSpellChecker.BeforeCheckEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.XtraSpellChecker.SpellCheckerBase.BeforeCheckWord"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		An object that triggers the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> event.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.XtraSpellChecker.FormShowingEventArgs"/> object that provides data for the <see cref="E:DevExpress.Xpf.SpellChecker.SpellChecker.SpellingFormShowing"/> event.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.BeforeCheckEventArgs">
+
+            <summary>
+                <para>Provides data for the <b>BeforeCheck</b> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.BeforeCheckEventArgs.#ctor(System.String,System.Object,System.Boolean)">
+            <summary>
+                <para>Initializes a new BeforeCheckEventArgs class instance with specified settings.
+</para>
+            </summary>
+            <param name="text">
+		A string, representing a text to be spell checked.
+
+            </param>
+            <param name="editControl">
+		A <see cref="T:System.Object"/>, representing the control being checked.
+
+            </param>
+            <param name="cancel">
+		A Boolean value indicating whether the event should be canceled.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.BeforeCheckEventArgs.EditControl">
+            <summary>
+                <para>Provides access to the control that contains text whose spelling will be checked.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Object"/>, representing the control being checked.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.BeforeCheckEventArgs.Text">
+            <summary>
+                <para>Gets the text on which a spell check will be performed.
+</para>
+            </summary>
+            <value>A string, representing the text to be spell checked.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellingFormType">
+
+            <summary>
+                <para>Lists the visual layouts available for the spelling form.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellingFormType.Outlook">
+            <summary>
+                <para><para>Indicates a layout of the spelling form like that in MS Outlook 2000.
+</para>
+
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.XtraSpellChecker.SpellingFormType.Word">
+            <summary>
+                <para><para>Indicates a layout of the spelling form like that in MS Word 2000.</para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SuggestionCollection">
+
+            <summary>
+                <para>Represents a collection of suggestions prepared for a missplelled word.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SuggestionCollection class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Add(DevExpress.XtraSpellChecker.SuggestionBase)">
+            <summary>
+                <para>Adds a <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> object to the end of the collection.
+</para>
+            </summary>
+            <param name="suggestion">
+		A <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> object to be added to the collection.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.AddRange(System.Collections.Generic.IEnumerable`1)">
+            <summary>
+                <para>Adds the elements of the specified collection to the end of the current collection.
+</para>
+            </summary>
+            <param name="collection">
+		The collection of <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> objects, whose elements should be added to the end of the current collection.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Contains(DevExpress.XtraSpellChecker.SuggestionBase)">
+            <summary>
+                <para>Determines whether a text string is in the collection of suggestions.
+</para>
+            </summary>
+            <param name="suggestion">
+		A <see cref="T:System.String"/> object to locate in the suggestion collection.
+
+            </param>
+            <returns><b>true</b> if an item is found within the collection; otherwise <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Contains(System.String)">
+            <summary>
+                <para>Determines whether an element is in the collection.
+</para>
+            </summary>
+            <param name="suggestion">
+		A <see cref="T:System.String"/> object to locate in the suggestion collection.
+
+            </param>
+            <returns><b>true</b> if the item is found within the collection; otherwise <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.CopyTo(DevExpress.XtraSpellChecker.SuggestionBase[],System.Int32)">
+            <summary>
+                <para>Copies the elements of the <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> to a <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> array, starting at a particular array index.
+</para>
+            </summary>
+            <param name="array">
+		The <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> array that is the destination of the elements copied from <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/>.
+
+
+            </param>
+            <param name="index">
+		The zero-based index in the array at which the copying is started.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SuggestionCollection.Count">
+            <summary>
+                <para>Gets the number of elements actually contained in the current collection.
+</para>
+            </summary>
+            <value>The number of elements actually contained in the SuggestionCollection collection.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.GetEnumerator">
+            <summary>
+                <para>Returns an enumerator that iterates through the current collection.
+</para>
+            </summary>
+            <returns>A <b>System.Collections.Generic.IEnumerator @lt;SuggestionBase@gt;</b> for the SuggestionCollection collection.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.IndexOf(DevExpress.XtraSpellChecker.SuggestionBase)">
+            <summary>
+                <para>Determines the index of a specific item in the <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/>.
+</para>
+            </summary>
+            <param name="suggestion">
+		A <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> object to locate within the <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/>.
+
+            </param>
+            <returns>The suggestion's index if found in the list; otherwise, -1.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Insert(System.Int32,DevExpress.XtraSpellChecker.SuggestionBase)">
+            <summary>
+                <para>Inserts an item into the <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> at the specified index.
+
+</para>
+            </summary>
+            <param name="index">
+		The zero-based index at which the suggestion should be inserted.
+
+            </param>
+            <param name="suggestion">
+		The <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> object to insert into the collection.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SuggestionCollection.Item(System.Int32)">
+            <summary>
+                <para>Gets or sets the element at the specified index.
+</para>
+            </summary>
+            <param name="index">
+		The zero-based index of the element to get or set.
+
+            </param>
+            <value>The <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> element at the specified index.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Merge(DevExpress.XtraSpellChecker.SuggestionCollection)">
+            <summary>
+                <para>Appends elements that are not found within the collection to that collection.
+</para>
+            </summary>
+            <param name="collection">
+		A <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/> whose elements are to be added to the collection.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Remove(DevExpress.XtraSpellChecker.SuggestionBase)">
+            <summary>
+                <para>Removes the first occurrence of a suggestion from the collection.
+</para>
+            </summary>
+            <param name="suggestion">
+		The <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> object to remove from the <see cref="T:DevExpress.XtraSpellChecker.SuggestionCollection"/>.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.RemoveAt(System.Int32)">
+            <summary>
+                <para>Removes the element at the specified index of the current collection.
+</para>
+            </summary>
+            <param name="index">
+		The zero-based index of the element to remove.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionCollection.Sort(System.Collections.Generic.IComparer`1)">
+            <summary>
+                <para>Sorts the elements in the current collection using the specified comparer.
+</para>
+            </summary>
+            <param name="comparer">
+		The <b>System.Collections.Generic.IComparer@lt;T@gt;</b> implementation to use when comparing elements, or <b>null</b>, to use the default comparer.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SuggestionBase">
+
+            <summary>
+                <para>An instance of this class combines the suggested word and the distance between the suggested and the misspelled words. 
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionBase.#ctor(System.String,System.Int32)">
+            <summary>
+                <para>Initializes a new SuggestionBase class instance with the specified settings.
+</para>
+            </summary>
+            <param name="suggestion">
+		A <see cref="T:System.String"/> object that specifies a suggested word.
+
+            </param>
+            <param name="distance">
+		An <see cref="T:System.Int32"/> object that specifies the Levenshtein distance between the original and the suggested words.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SuggestionBase.CompareTo(System.Object)">
+            <summary>
+                <para>Compares the <see cref="P:DevExpress.XtraSpellChecker.SuggestionBase.Distance"/> value of the <see cref="T:DevExpress.XtraSpellChecker.SuggestionBase"/> instance to the Levenshtein distance value of an object, and returns an indication of their relative values. 
+</para>
+            </summary>
+            <param name="obj">
+		An object to compare.
+
+            </param>
+            <returns>A number indicating the relative values of this instance and value. If it is less than zero, this instance is less then the value; if zero - this instance is equal to the value; if greater than zero, this instance is greater than the value.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SuggestionBase.Distance">
+            <summary>
+                <para>Gets a Levenshtein distance between the misspelled and suggested words.
+</para>
+            </summary>
+            <value>An integer value representing  the calculated Levenshtein distance.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SuggestionBase.Suggestion">
+            <summary>
+                <para>Gets or sets the word that is suggested by the spell checker.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> representing a suggested word.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary">
+
+            <summary>
+                <para>Represents an XtraSpellChecker dictionary originated from a dictionary and affix files of the OpenOffice.org project format.
+
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary.#ctor(System.String,System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Creates a new SpellCheckerOpenOfficeDictionary class instance for the specified culture and fills it with wordforms constructed from the base words using affixes.
+</para>
+            </summary>
+            <param name="dictionaryPath">
+		A <see cref="T:System.String"/> object that specifies the path to the dictionary file in OpenOffice.org format.
+
+            </param>
+            <param name="grammarPath">
+		A <see cref="T:System.String"/> object that specifies the path to the affix file in OpenOffice.org format.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerOpenOfficeDictionary class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary.AlphabetPath">
+            <summary>
+                <para>This property is not in effect for the <b>SpellCheckerOpenOfficeDictionary</b> class.
+</para>
+            </summary>
+            <value>An empty string by default.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary.FillAlphabetFromStream(System.IO.Stream)">
+            <summary>
+                <para>Hides the disused property of the base class.
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object which stores the alphabet.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary.LoadFromStream(System.IO.Stream,System.IO.Stream,System.IO.Stream)">
+            <summary>
+                <para>Loads dictionary and affix rules from specified streams into the current <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary"/> object, and initializes it.
+</para>
+            </summary>
+            <param name="dictionaryStream">
+		A <see cref="T:System.IO.Stream"/> object which stores the base word list  
+
+            </param>
+            <param name="grammarStream">
+		A <see cref="T:System.IO.Stream"/> object which stores the affix rules list. 
+
+            </param>
+            <param name="alphabethStream">
+		The parameter is ignored in overload for the <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerOpenOfficeDictionary"/>.
+
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary">
+
+            <summary>
+                <para>Represents an XtraSpellChecker dictionary originated from a dictionary in the ISpell format.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerISpellDictionary class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.#ctor(System.String,System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerISpellDictionary class with the specified settings.
+</para>
+            </summary>
+            <param name="dictionaryPath">
+		A <see cref="T:System.String"/> object that specifies the path to the ISpell dictionary file.
+
+            </param>
+            <param name="grammarPath">
+		A <see cref="T:System.String"/> object that specifies the path to the ISpell affix (.AFF) file.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.FindWord(System.String)">
+            <summary>
+                <para>Searches for the word in the dictionary.
+</para>
+            </summary>
+            <param name="word">
+		A string representing a word for which to search.
+
+
+            </param>
+            <returns><b>true</b> if the word is found within the dictionary; otherwise <b>false</b>
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.GrammarPath">
+            <summary>
+                <para>Gets or sets the filename of the affix file for the ISpell dictionary to be loaded.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> representing a path to the affix file.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.Load">
+            <summary>
+                <para>Loads the basic ISpell dictionary file and the affix file, then decompresses the dictionary and prepares it for use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary.LoadFromStream(System.IO.Stream,System.IO.Stream,System.IO.Stream)">
+            <summary>
+                <para>Loads the dictionary, affix rules and the alphabet  from the specified streams into the current <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary"/> object, and initializes it.
+</para>
+            </summary>
+            <param name="dictionaryStream">
+		A <see cref="T:System.IO.Stream"/> object which stores the base word list  
+
+            </param>
+            <param name="grammarStream">
+		A <see cref="T:System.IO.Stream"/> object which stores the affix rules list. 
+
+            </param>
+            <param name="alphabethStream">
+		A <see cref="T:System.IO.Stream"/> object which stores the language's alphabet. 
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase">
+
+            <summary>
+                <para>Defines the base class for XtraSpellChecker dictionaries.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerDictionaryBase class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.#ctor(System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerDictionaryBase class with the specified settings.
+</para>
+            </summary>
+            <param name="dictionaryPath">
+		A <see cref="T:System.String"/> object that specifies the path to the dictionary file.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.AlphabetPath">
+            <summary>
+                <para>Gets or sets the path to the alphabet file used for creating the <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerISpellDictionary"/>. 
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> representing a path to the file with the language alphabet.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.CacheKey">
+            <summary>
+                <para>Gets or sets a unique identifier of a dictionary instance for caching purposes.
+</para>
+            </summary>
+            <value>A string, representing the cache key under which a dictionary is stored in the cache.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.CanCacheDictionary">
+            <summary>
+                <para>Indicates whether a dictionary can be placed in the cache. You are advised against using it for AgSpellChecker.
+</para>
+            </summary>
+            <value><b>true</b> if a dictionary can be cached; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.CaseSensitive">
+            <summary>
+                <para>Gets or sets the flag that affects the case sensitivity of the search algorithm and the rules of comparison. 
+</para>
+            </summary>
+            <value>When set to <b>false</b>, the suggestion search algorithm ignores the letter case in a word.
+
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Clear">
+            <summary>
+                <para>Removes all words from the dictionary word list and all metaphone indexes from the hash table.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Culture">
+            <summary>
+                <para>Gets or sets the culture specific settings of the dictionary.
+</para>
+            </summary>
+            <value>The <see cref="T:System.Globalization.CultureInfo"/> object that specifies culture settings (the symbols encoding, language and phonetic specifics).
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.DictionaryPath">
+            <summary>
+                <para>Gets or sets the path to the dictionary file. 
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> representing a path to the dictionary file.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Encoding">
+            <summary>
+                <para>Gets or sets the dictionary text encoding.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Text.Encoding"/> object that represents the character encoding.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.FillAlphabetFromStream(System.IO.Stream)">
+            <summary>
+                <para>Loads the alphabet from the specified stream into the current <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase"/> object.
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object which stores the alphabet. 
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.FindWord(System.String)">
+            <summary>
+                <para>Searches for the word in the dictionary.
+</para>
+            </summary>
+            <param name="word">
+		A string representing a word to be searched for.
+
+            </param>
+            <returns><b>true</b> if the word is found within the dictionary; otherwise <b>false</b>
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.HasWord(System.String)">
+            <summary>
+                <para>Search the dictionary for the specified word.
+</para>
+            </summary>
+            <param name="word">
+		A <see cref="T:System.String"/> object that represents the word being searched for.
+
+            </param>
+            <returns><b>true</b> if the dictionary has this word, <b>false</b> if the word is not found within the dictionary.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Item(System.Int32)">
+            <summary>
+                <para>Gets or sets the word at the specified index in the dictionary.
+</para>
+            </summary>
+            <param name="index">
+		The zero-based index of the element to get or set.
+
+            </param>
+            <value>A <see cref="T:System.String"/> object that represents a word in a dictionary.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Load">
+            <summary>
+                <para>When implemented in inherited classes, loads and initializes the dictionary.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.Loaded">
+            <summary>
+                <para>Checks whether the dictionary is loaded.
+</para>
+            </summary>
+            <value><b>true</b> if the dictionary is loaded; otherwise <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.XtraSpellChecker.SpellCheckerDictionaryBase.WordCount">
+            <summary>
+                <para>Gets the number of words contained in the dictionary.
+</para>
+            </summary>
+            <value>An <see cref="T:System.Int32"/> object representing the number of words in the dictionary.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.SpellCheckerDictionary">
+
+            <summary>
+                <para>Represents a custom dictionary of the spell checker.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionary.#ctor">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerDictionary class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionary.#ctor(System.String,System.Globalization.CultureInfo)">
+            <summary>
+                <para>Initializes a new instance of the SpellCheckerDictionary class with the specified settings.
+</para>
+            </summary>
+            <param name="dictionaryPath">
+		A <see cref="T:System.String"/> object that specifies the path to the dictionary file.
+
+            </param>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionary.Load">
+            <summary>
+                <para>Loads and initializes the spell checker dictionary.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionary.LoadAlphabetFromStream(System.IO.Stream)">
+            <summary>
+                <para>Loads the alphabet from the specified stream into the current <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionary"/> object.
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object which stores the alphabet. 
+
+            </param>
+            <returns>An array of characters, representing the alphabet for the current language.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.SpellCheckerDictionary.LoadFromStream(System.IO.Stream)">
+            <summary>
+                <para>Loads the dictionary from the specified stream into the current <see cref="T:DevExpress.XtraSpellChecker.SpellCheckerDictionary"/> object and initializes it.
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object which stores the base word list  
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.XtraSpellChecker.IgnoreList">
+
+            <summary>
+                <para>Represents a list of words being ignored during spell check. 
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.#ctor(System.Globalization.CultureInfo)">
+            <summary>
+                <para>Initializes a new IgnoreList class instance with the specified settings.
+
+</para>
+            </summary>
+            <param name="culture">
+		A <see cref="T:System.Globalization.CultureInfo"/> object that specifies the culture settings (the symbols encoding, language and phonetic specifics).
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Add(DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position,System.String)">
+            <summary>
+                <para>Adds a specified word to a list of ignored words, so that it is ignored only in the specified location.
+</para>
+            </summary>
+            <param name="start">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text.
+
+            </param>
+            <param name="end">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text.
+
+            </param>
+            <param name="word">
+		A string representing a word to be ignored if located between the start and the end positions.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Add(System.String)">
+            <summary>
+                <para>Adds a specified word to a list of ignored words.
+</para>
+            </summary>
+            <param name="word">
+		A string representing a word to be ignored
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Contains(System.String)">
+            <summary>
+                <para>Determines whether a word is in the list of ignored words.
+</para>
+            </summary>
+            <param name="word">
+		A string to locate in the list of ignored words.
+
+            </param>
+            <returns><b>true</b> if the word is found within the list; otherwise <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Contains(DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position,System.String)">
+            <summary>
+                <para>Determines whether a word is in the list of ignored words, ignored in the specified location.
+
+</para>
+            </summary>
+            <param name="start">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text being checked.
+
+            </param>
+            <param name="end">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text being checked.
+
+            </param>
+            <param name="word">
+		A string to locate in the list of ignored words.
+
+            </param>
+            <returns><b>true</b> if the word is found within the list and marked as effective in the specified location; otherwise <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Remove(System.String)">
+            <summary>
+                <para>Removes a word from the list of ignored words.
+</para>
+            </summary>
+            <param name="word">
+		A string representing a word to remove form the list.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.XtraSpellChecker.IgnoreList.Remove(DevExpress.XtraSpellChecker.Parser.Position,DevExpress.XtraSpellChecker.Parser.Position,System.String)">
+            <summary>
+                <para>Removes a word from the list of words ignored only once.
+</para>
+            </summary>
+            <param name="start">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text being checked.
+
+
+            </param>
+            <param name="finish">
+		A <b>DevExpress.XtraSpellChecker.Parser.Position</b> object representing a position in the text being checked.
+
+            </param>
+            <param name="word">
+		A string representing a word to remove form the list.
+
+            </param>
+
+
+        </member>
+    </members>
+</doc>

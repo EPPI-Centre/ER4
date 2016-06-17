@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Implementation of INotifyPropertyChanged</Title>
+			<Shortcut>INotifyPropertyChanged</Shortcut>
+			<Description>Implementation of INotifyPropertyChanged</Description>
+			<Author>Colin Eberhardt</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Code Language="csharp">
+				<![CDATA[
+    #region INotifyPropertyChanged Members
+
+    /// <summary>
+    /// Occurs when a property changes
+    /// </summary>
+    public event PropertyChangedEventHandler  PropertyChanged;
+
+    /// <summary>
+    /// Raises a PropertyChanged event
+    /// </summary>
+    protected void OnPropertyChanged(string property)
+    {
+	    if (PropertyChanged != null)
+	    {
+		    PropertyChanged(this, new PropertyChangedEventArgs(property));
+	    }
+    }
+
+    #endregion
+    $end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
