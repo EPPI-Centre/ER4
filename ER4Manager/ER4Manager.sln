@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "ER4Manager_1", "{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "..\ER4Manager_1", "{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}"
 	ProjectSection(WebsiteProperties) = preProject
 		SccProjectName = "SAK"
 		SccAuxPath = "SAK"
@@ -11,14 +11,14 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "ER4Manager_
 		SccProvider = "SAK"
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
 		Debug.AspNetCompiler.VirtualPath = "/ER4Manager"
-		Debug.AspNetCompiler.PhysicalPath = "ER4Manager_1\"
+		Debug.AspNetCompiler.PhysicalPath = "..\ER4Manager_1\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\ER4Manager\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/ER4Manager"
-		Release.AspNetCompiler.PhysicalPath = "ER4Manager_1\"
+		Release.AspNetCompiler.PhysicalPath = "..\ER4Manager_1\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\ER4Manager\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
