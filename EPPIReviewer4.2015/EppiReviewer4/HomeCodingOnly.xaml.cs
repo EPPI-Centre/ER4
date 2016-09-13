@@ -524,5 +524,10 @@ namespace EppiReviewer4
         {
             COHelpWindow.ShowDialog();
         }
+        public void UnHookMe()
+        {
+            dialogCodingControl.UnHookMe();
+            DialogMyInfo2.UnHookMe();
+        }
     }
 }

@@ -249,11 +249,13 @@ namespace EppiReviewer4
                         SetUserReviewStatus(e);
                         if (_homeDocuments != null)
                         {
+                            _homeDocuments.UnHookMe();
                             _homeDocuments = null;
                             _gridDocuments.Children.Remove(_homeDocuments);
                         }
                         else if (_homeCodingOnly != null)
                         {
+                            //_homeCodingOnly.UnHookMe();
                             _homeCodingOnly = null;
                             _gridDocuments.Children.Remove(_homeCodingOnly);
                         }
@@ -289,11 +291,13 @@ namespace EppiReviewer4
                         SetUserReviewStatus(e);
                         if (_homeDocuments != null)
                         {
+                            _homeDocuments.UnHookMe();
                             _homeDocuments = null;
                             _gridDocuments.Children.Remove(_homeDocuments);
                         }
                         else if (_homeCodingOnly != null)
                         {
+                            _homeCodingOnly.UnHookMe();
                             _homeCodingOnly = null;
                             _gridDocuments.Children.Remove(_homeCodingOnly);
                         }

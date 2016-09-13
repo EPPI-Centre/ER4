@@ -1761,6 +1761,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     ItemR.URL = item.Url;
                     ItemR.VOLUME = item.Volume;
                     ItemR.YEAR = item.Year;
+                    ItemR.DOI = item.DOI;
+                    ItemR.KEYWORDS = item.Keywords;
                     TDS.tb_ITEM.Rows.Add(ItemR);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
@@ -1847,6 +1849,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
                     sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
                     sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
+                    sbc.ColumnMappings.Add("DOI", "DOI");
+                    sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
 
                     sbc.BatchSize = 1000;
                     sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;
@@ -1963,6 +1967,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     ItemR.URL = item.Url;
                     ItemR.VOLUME = item.Volume;
                     ItemR.YEAR = item.Year;
+                    ItemR.DOI = item.DOI;
+                    ItemR.KEYWORDS = item.Keywords;
                     TDS.tb_ITEM.Rows.Add(ItemR);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
@@ -2024,6 +2030,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
                     sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
                     sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
+                    sbc.ColumnMappings.Add("DOI", "DOI");
+                    sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
 
                     sbc.BatchSize = 1000;
                     sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;

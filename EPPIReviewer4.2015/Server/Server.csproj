@@ -404,8 +404,8 @@
     <Compile Include="BusinessClasses\TrainingRunCommand.cs" />
     <Compile Include="BusinessClasses\TrainingScreeningCriteria.cs" />
     <Compile Include="BusinessClasses\TrainingScreeningCriteriaList.cs" />
+    <Compile Include="BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs" />
     <Compile Include="BusinessClasses\TrainingSetScreeningCodeSetCommand.cs" />
-    <Compile Include="BusinessClasses\TrainingStatisticsCommand.cs" />
     <Compile Include="BusinessClasses\WorkAllocation.cs" />
     <Compile Include="BusinessClasses\WorkAllocationContactList.cs" />
     <Compile Include="BusinessClasses\WorkAllocationList.cs" />
@@ -431,7 +431,6 @@
     <Compile Include="Security\ReviewerIdentity.cs" />
     <Compile Include="Security\ReviewerPrincipal.cs" />
     <Compile Include="BusinessClasses\TrainingReviewerTerm.cs" />
-    <Compile Include="BusinessClasses\TrainingAssignCommand.cs" />
     <Compile Include="BusinessClasses\TranslationCommand.cs" />
     <Compile Include="Web References\s.uk.ac.nactem.www\Reference.cs">
       <AutoGen>True</AutoGen>

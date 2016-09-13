@@ -453,9 +453,9 @@
                                         <Image Width="22" Height="22" Source="Icons/FindLikeThese.png"
 						                    ToolTipService.ToolTip="Find more documents like the ones listed" />
                                     </Button>
-                                    
-                                    <TextBlock Text="Find:"></TextBlock>
-                                    <TextBox x:Name="TextBoxItemsGridFind" Width="60" TextChanged="TextBoxItemsGridFind_TextChanged" GotFocus="TextBoxItemsGridFind_GotFocus"></TextBox>
+
+                                    <TextBlock Text="Filter:" ToolTipService.ToolTip="Filter currently loaded list"></TextBlock>
+                                    <TextBox x:Name="TextBoxItemsGridFind" Width="60" TextChanged="TextBoxItemsGridFind_TextChanged" GotFocus="TextBoxItemsGridFind_GotFocus"  ToolTipService.ToolTip="Filter currently loaded list"></TextBox>
 
                                 </telerikNavigation:RadToolBar>
                                 
@@ -1035,7 +1035,6 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="5*"></ColumnDefinition>
                                     <ColumnDefinition Width="5*"></ColumnDefinition>
-                                    <ColumnDefinition Width="3*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="40"></RowDefinition>
@@ -1087,7 +1086,7 @@
 
                                     <TextBlock Text="Screening options" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                                     <TextBlock Text="Screening codeset" Grid.Column="0" Grid.Row="1" Margin="5,5,10,5" HorizontalAlignment="Right"></TextBlock>
-                                    <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></ComboBox>
+                                    <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" SelectionChanged="ScreeningCodeSetComboSelectCodeSet_SelectionChanged"></ComboBox>
                                     <TextBlock Text="Screening mode" Grid.Column="0" Grid.Row="2" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ComboScreeningMode" Grid.Column="1" Grid.Row="2" Margin="4,4,4,2" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                                         <ComboBoxItem Content="Random"></ComboBoxItem>
@@ -1097,7 +1096,7 @@
                                     <RadioButton x:Name="rbScreeningSelected" Margin="5,5,5,5" Grid.Column="1" Grid.Row="4" Content="Screen selected code" GroupName="ScreeningWhat" Click="rbScreeningEverything_Click"></RadioButton>
                                     <local:codesSelectControl x:Name="codesSelectControlScreening" Margin="5,0,5,0" Grid.Column="1" Grid.Row="5" VerticalAlignment="Top" Height="28"  Visibility="Collapsed"></local:codesSelectControl>
                                     <TextBlock Text="# people screening each item" Grid.Column="0" Grid.Row="6" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
-                                    <telerik:RadNumericUpDown x:Name="UpDownNScreening" Margin="5,4,5,4" Grid.Column="1" Grid.Row="6" Minimum="1" Maximum="10" Value="{Binding ScreeningNPeople, Mode=TwoWay}" ValueFormat="Numeric"></telerik:RadNumericUpDown>
+                                    <telerik:RadNumericUpDown x:Name="UpDownNScreening" Margin="5,4,5,4" Grid.Column="1" Grid.Row="6" Minimum="1" Maximum="10" IsInteger="True" NumberDecimalDigits="0" Value="{Binding ScreeningNPeople, Mode=TwoWay}" ValueFormat="Numeric"></telerik:RadNumericUpDown>
                                     <TextBlock Text="Reconcilliation mode" Grid.Column="0" Grid.Row="7" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ComboReconcilliationMode" Grid.Column="1" Grid.Row="7" Margin="4,4,4,2" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                                         <ComboBoxItem Content="Single (auto-completes)"></ComboBoxItem>
@@ -1112,6 +1111,7 @@
                                     <Button x:Name="cmdScreeningRefreshReviewInfo" Grid.Column="1" Grid.Row="11" Width="24" HorizontalAlignment="Left" Margin="4,4,0,4" Click="cmdScreeningRefreshReviewInfo_Click">
                                             <Image Width="16" Height="16" Source="Icons/view-refresh-7.png" ToolTipService.ToolTip="Refresh screening options status" />
                                     </Button>
+                                    <Button x:Name="cmdScreeningRunSimulation" Grid.Column="0" Grid.Row="10" Content="Run simulation" Margin="12,4,12,4" Click="cmdScreeningRunSimulation_Click"></Button>
                                     <Button x:Name="cmdScreeningSaveReviewOptions" Grid.Column="0" Grid.Row="11" Content="Save options" Margin="12,4,12,4" Click="cmdScreeningSaveReviewOptions_Click"></Button>
 
                                 </Grid>
@@ -1133,9 +1133,10 @@
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="22" Height="22" Source="Icons/arrow-down.png"
 						                    ToolTipService.ToolTip="Add to screening criteria" />
-                                            <TextBlock Text="Add selected code to include/exclude list" Margin="5,4,4,4"></TextBlock>
+                                            <TextBlock Text="Add selected code" Margin="5,4,4,4"></TextBlock>
                                         </StackPanel>
                                     </Button>
+                                    <CheckBox x:Name="cbScreeningAddAttributesAutomatically" Margin="5,5,5,5" IsChecked="True" Content="Add codes automatically"></CheckBox>
                                 </telerikNavigation:RadToolBar>
 
                                 <telerikNavigation:RadToolBar Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" OverflowButtonVisibility="Collapsed"
@@ -1183,7 +1184,7 @@
 
                                 <telerikNavigation:RadToolBar Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" OverflowButtonVisibility="Collapsed"
 				                        VerticalAlignment="Stretch" >
-                                    <TextBlock Text="Training history"></TextBlock>
+                                    <TextBlock Text="Screening history"></TextBlock>
                                 </telerikNavigation:RadToolBar>
 
                                 <telerikGridView:RadGridView x:Name="GridViewTrainingRecord" AutoGenerateColumns="False" ShowGroupPanel="False"
@@ -1222,36 +1223,10 @@
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
 
-                                <telerikNavigation:RadToolBar Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" OverflowButtonVisibility="Collapsed"
-				                        VerticalAlignment="Stretch" >
-                                    <Button x:Name="cmdProcessReviewerterms" Click="cmdProcessReviewerterms_Click" Visibility="Collapsed">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Width="22" Height="22" Source="Icons/RunTraining.png"/>
-                                            <TextBlock Text="Process key terms" Margin="5,4,4,4"></TextBlock>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button x:Name="cmdAddTrainingReviewerTerm" Click="cmdAddTrainingReviewerTerm_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
-                                            >
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Width="16" Height="16" Source="Icons/list-add-2.png"
-						                    ToolTipService.ToolTip="Add to list of terms"  />
-                                            <TextBlock Text="Add term" Margin="5,4,4,4"></TextBlock>
-                                        </StackPanel>
-                                    </Button>
-                                </telerikNavigation:RadToolBar>
-
-                                <local:ReviewerTerms x:Name="reviewerTerms" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Margin="6,0,1,0"></local:ReviewerTerms>
-                                
                                 <sdk:GridSplitter Grid.Row="1" Grid.Column="1" 
-                                       Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
-                                
-                                <sdk:GridSplitter Grid.Row="1" Grid.Column="2"
                                        Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
 
                                 <sdk:GridSplitter Grid.Row="3" Grid.Column="1"
-                                       Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
-
-                                <sdk:GridSplitter Grid.Row="3" Grid.Column="2"
                                        Width="8" HorizontalAlignment="Left" VerticalAlignment="Stretch" />
 
                             </Grid>

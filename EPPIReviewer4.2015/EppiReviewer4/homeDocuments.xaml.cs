@@ -32,6 +32,7 @@ using System.Collections.ObjectModel;
 using Telerik.Windows.Controls.ChartView;
 using Telerik.Charting;
 using CircularRelationshipGraph;
+using System.Windows.Threading;
 
 
 namespace EppiReviewer4
@@ -322,8 +323,14 @@ namespace EppiReviewer4
             if (provider2 != null)
                 provider2.Refresh();
 
+            //the Review Info object is used in screening tab, controls in there also rely on reviewSetsList data to exist, so we want the latter to be loaded before we load reviewInfo and (manually)bind to controls.
+            CslaDataProvider CsetsProvider = App.Current.Resources["CodeSetsData"] as CslaDataProvider;
+            if (CsetsProvider != null)
+                CsetsProvider.DataChanged += CsetsProvider_DataChanged;
+
+
             //put all event hooking codes for radWindow-dervied controls in here:
-             
+
             windowDocumentCluster.ClusterWhat_SelectionChanged += new EventHandler<System.Windows.Controls.SelectionChangedEventArgs>(ComboClusterWhat_SelectionChanged);
             windowDocumentCluster.cmdCluster_Clicked += new EventHandler<RoutedEventArgs>(cmdCluster_Click);
             windowLoadDiagram.cmdLoadDiagram_Clicked += new EventHandler<RoutedEventArgs>(cmdLoadDiagram_Click);
@@ -370,7 +377,6 @@ namespace EppiReviewer4
             windowMetaAnalysisOptions.cmdWindowMetaAnalysisOptionsClose_Clicked +=new EventHandler<RoutedEventArgs>(cmdWindowMetaAnalysisOptionsClose_Click);
             windowMetaAnalysisOptions.cmdWindowMetaAnalysisOptionsGo_Clicked +=new EventHandler<RoutedEventArgs>(cmdWindowMetaAnalysisOptionsGo_Click);
             windowMetaAnalysisOptions.cbShowMetaLabels_Clicked +=new EventHandler<RoutedEventArgs>(cbShowMetaLabels_Click);
-            windowTrainingResults.cmdTrainingAssignmentGo_Clicked +=new EventHandler<RoutedEventArgs>(cmdTrainingAssignmentGo_Click);
             AddSourceW.Closed +=new EventHandler<WindowClosedEventArgs>(AddSourceW_Closed);
             //end of event hooking
 
@@ -379,9 +385,44 @@ namespace EppiReviewer4
             provider.FactoryParameters.Clear();
             provider.FactoryMethod = "GetReviewContactNVL";
             provider.Refresh();
+
+            ResetScreeningUI();
+            cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            if (ri.UserId == 1451 || ri.UserId == 1576) // Alison and Ian
+            {
+                cmdScreeningRunSimulation.Visibility = Visibility.Visible;
+            }
         }
 
-        
+        private void CsetsProvider_DataChanged(object sender, EventArgs e)
+        {
+            CslaDataProvider CsetsProvider = App.Current.Resources["CodeSetsData"] as CslaDataProvider;
+            if (CsetsProvider != null)
+            {
+                CsetsProvider.DataChanged -= CsetsProvider_DataChanged;
+                CslaDataProvider RevInfoprovider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                if (RevInfoprovider != null)
+                {
+
+                    RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+                    RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+                    RevInfoprovider.DataChanged += RevInfoprovider_DataChanged;
+                    RevInfoprovider.Refresh();
+                }
+
+
+            }
+        }
+        private string checker = DateTime.Now.ToString("mm-ss");
+        private void RevInfoprovider_DataChanged(object sender, EventArgs e)
+        {
+            checker = checker.ToLower();
+            CslaDataProvider RevInfoprovider = sender as CslaDataProvider;
+            RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+            RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+            RevInfoprovider.DataChanged += RevInfoprovider_DataChanged;
+            UpdateReviewInfoForScreening();
+        }
         private List<ChartPalette> _palettes;
         public List<ChartPalette> Palettes
         {
@@ -534,20 +575,21 @@ namespace EppiReviewer4
                 //provider.DataChanged += new EventHandler(DialogMyInfo_GridViewMyReviews_DataLoaded);
                 provider.Refresh();
                 
-                provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-                if (provider != null)
-                {
-                    provider.Refresh();
-                    provider.DataChanged -= Provider_DataChanged;
-                    provider.DataChanged += Provider_DataChanged;
-                }
+                //not doing it here anymore, see initialisation instead
+                //provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                //if (provider != null)
+                //{
+                //    provider.Refresh();
+                //    provider.DataChanged -= Provider_DataChanged;
+                //    provider.DataChanged += Provider_DataChanged;
+                //}
             }
         }
-
-        private void Provider_DataChanged(object sender, EventArgs e)
-        {
-            UpdateReviewInfoForScreening();
-        }
+        //again, this is handled elsewhere now.
+        //private void Provider_DataChanged(object sender, EventArgs e)
+        //{
+        //    UpdateReviewInfoForScreening();
+        //}
 
         private void LoadWorkAllocation()
         {
@@ -4324,8 +4366,15 @@ on the right of the main screen");
 
                 else
                 {
-                    RadWindow.Alert("No references currently selected.");
+                    RadWindow.Alert("Sorry there is a confirguation error." + Environment.NewLine
+                        + "This is sometimes caused by inconsistent settings" + Environment.NewLine
+                        + "in the screening tab." + Environment.NewLine
+                        + "Please check your screening preferences and try again." );
                 }
+            }
+            else
+            {
+                RadWindow.Alert("No references currently selected.");
             }
         }
             
@@ -4969,35 +5018,6 @@ on the right of the main screen");
             }
         }
 
-        private void cmdTrainingAssignmentGo_Click(object sender, RoutedEventArgs e)
-        {
-            AttributeSet attributeSet = windowTrainingResults.codesSelectControlTrainingAssignment.SelectedAttributeSet();
-            if (attributeSet != null)
-            {
-                DataPortal<TrainingAssigncommand> dp = new DataPortal<TrainingAssigncommand>();
-                TrainingAssigncommand command = new TrainingAssigncommand(
-                    attributeSet.AttributeId,
-                    attributeSet.SetId,
-                    windowTrainingResults.ComboTrainingAssignItems.SelectedIndex == 0 ? true : false,
-                    (windowTrainingResults.GridTrainingResults.DataContext as TrainingStatisticsCommand).TrainingId);
-                dp.ExecuteCompleted += (o, e2) =>
-                {
-                    if (e2.Error != null)
-                        MessageBox.Show(e2.Error.Message);
-                    windowTrainingResults.BusyTrainingAssignment.IsRunning = false;
-                    windowTrainingResults.cmdTrainingAssignmentGo.IsEnabled = true;
-                    MessageBox.Show("Assignment complete");
-                };
-                windowTrainingResults.BusyTrainingAssignment.IsRunning = true;
-                windowTrainingResults.cmdTrainingAssignmentGo.IsEnabled = false;
-                dp.BeginExecute(command);
-            }
-            else
-            {
-                MessageBox.Show("No code selected");
-            }
-        }
-
         private void ComboClusterWhat_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             UpdateGridWindowDocumentCluster();
@@ -5278,18 +5298,19 @@ on the right of the main screen");
             if (PaneActiveScreening != null)
             {
                 CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-                ReviewInfo ri = provider.Data as ReviewInfo;
+                ReviewInfo rInfo = provider.Data as ReviewInfo;
 
 
-                if (ri != null)
+                if (rInfo != null)
                 {
                     // set the CodeSet combo
-                    if (ri.ScreeningCodeSetId != 0 && ScreeningCodeSetComboSelectCodeSet.ItemsSource != null)
+                    ScreeningCodeSetComboSelectCodeSet.SelectionChanged -= ScreeningCodeSetComboSelectCodeSet_SelectionChanged;
+                    if (rInfo.ScreeningCodeSetId != 0 && ScreeningCodeSetComboSelectCodeSet.ItemsSource != null)
                     {
                         int index = 0;
                         foreach (ReviewSet rs in (ScreeningCodeSetComboSelectCodeSet.ItemsSource as ReviewSetsList))
                         {
-                            if (rs.SetId == ri.ScreeningCodeSetId)
+                            if (rs.SetId == rInfo.ScreeningCodeSetId)
                             {
                                 ScreeningCodeSetComboSelectCodeSet.SelectedIndex = index;
                                 break;
@@ -5297,9 +5318,9 @@ on the right of the main screen");
                             index++;
                         }
                     }
-
+                    ScreeningCodeSetComboSelectCodeSet.SelectionChanged += ScreeningCodeSetComboSelectCodeSet_SelectionChanged;
                     // set screening mode combo
-                    if (ri.ScreeningMode == "Random")
+                    if (rInfo.ScreeningMode == "Random")
                     {
                         ComboScreeningMode.SelectedIndex = 0;
                     }
@@ -5309,7 +5330,7 @@ on the right of the main screen");
                     }
 
                     // set what to screen combo
-                    if (ri.ScreeningWhatAttributeId == 0)
+                    if (rInfo.ScreeningWhatAttributeId == 0)
                     {
                         rbScreeningEverything.IsChecked = true;
                         codesSelectControlScreening.Visibility = Visibility.Collapsed;
@@ -5318,11 +5339,11 @@ on the right of the main screen");
                     {
                         rbScreeningSelected.IsChecked = true;
                         codesSelectControlScreening.Visibility = Visibility.Visible;
-                        codesSelectControlScreening.SelectAttributeSetFromAttributeId(ri.ScreeningWhatAttributeId);
+                        codesSelectControlScreening.SelectAttributeSetFromAttributeId(rInfo.ScreeningWhatAttributeId);
                     }
 
                     // set reconcilliation combo
-                    switch (ri.ScreeningReconcilliation)
+                    switch (rInfo.ScreeningReconcilliation)
                     {
                         case "Single":
                             ComboReconcilliationMode.SelectedIndex = 0;
@@ -5340,6 +5361,7 @@ on the right of the main screen");
                             ComboReconcilliationMode.SelectedIndex = 4;
                             break;
                     }
+                    ResetScreeningUI();
                 }
             }
         }
@@ -5443,6 +5465,243 @@ on the right of the main screen");
             provider.FactoryParameters.Clear();
             provider.FactoryMethod = "GetSearchList";
             provider.Refresh();
+        }
+
+        private void cmdScreeningRunSimulation_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+            TrainingRunCommand command = new TrainingRunCommand();
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                    {
+                        //RadWindow.Alert("Caught timeout exception");
+                    }
+                    else
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                }
+            };
+            command.RevInfo = RevInfo;
+            command.Parameters = "DoSimulation";
+            dp.BeginExecute(command);
+            RadWindow.Alert("Simulations now running. This can take hours...");
+        }
+
+        private void ScreeningCodeSetComboSelectCodeSet_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ResetScreeningUI();
+            if (DocumentListPane.SelectedPane.Name != "PaneActiveScreening") return;
+            if (cbScreeningAddAttributesAutomatically.IsChecked == true)
+            {
+                GridViewScreeningCodes.IsEnabled = false;
+                ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
+                CslaDataProvider TsclProvider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
+                if (TsclProvider == null)
+                {
+                    RadWindow.Alert("ERROR: could not automatically add screening codes to the bottom"
+                        + Environment.NewLine + "left panel."
+                        + Environment.NewLine + "Priority Screening will not work if this list isn't correctly populated."
+                        // + Environment.NewLine + ""
+                        + Environment.NewLine + "You can manually add the codes and click 'Save options'."
+                        + Environment.NewLine + "If this doesn't work please contact EPPISupport@ucl.ac.uk.");
+                    return;
+                }
+                TrainingScreeningCriteriaList tscl = TsclProvider.Data as TrainingScreeningCriteriaList;
+                if (tscl != null)
+                {
+                    //DataPortal<TrainingScreeningCriteriaListDeleteAllCommand> dp = new DataPortal<TrainingScreeningCriteriaListDeleteAllCommand>();
+                    //TrainingScreeningCriteriaListDeleteAllCommand command = new TrainingScreeningCriteriaListDeleteAllCommand();                        
+                    //dp.ExecuteCompleted += (o, e2) =>
+                    //{
+                    //    foreach (AttributeSet aSet in rs.Attributes)
+                    //    {
+                    //        TrainingScreeningCriteria newTsc = new TrainingScreeningCriteria();
+                    //        newTsc.AttributeId = aSet.AttributeId;
+                    //        newTsc.AttributeName = aSet.AttributeName;
+                    //        newTsc.Included = aSet.AttributeTypeId == 10 ? true : false; // TypeId of 10 == 'Include' code type
+                    //        tscl.Add(newTsc);
+                    //        newTsc.BeginEdit();
+                    //        newTsc.ApplyEdit();
+                    //    }
+                    //    TsclProvider.Saved += TsclProvider_Saved;
+                    //    TsclProvider.Save(); // not idea, as not all attributes are saved before refresh
+
+                    //};
+                    //dp.BeginExecute(command);
+                    //while (tscl.Count > 0)
+                    foreach (TrainingScreeningCriteria tsc in tscl)
+                    {
+                        tsc.BeginEdit();
+                        tsc.Delete();
+                        
+                        tsc.Saved += Tsc_Saved;
+                        tsc.ApplyEdit();
+                    }
+                    //tscl.Clear();
+                    foreach (AttributeSet aSet in rs.Attributes)
+                    {
+                        TrainingScreeningCriteria newTsc = new TrainingScreeningCriteria();
+                        newTsc.AttributeId = aSet.AttributeId;
+                        newTsc.AttributeName = aSet.AttributeName;
+                        newTsc.Included = aSet.AttributeTypeId == 10 ? true : false; // TypeId of 10 == 'Include' code type
+                        tscl.Add(newTsc);
+                        newTsc.BeginEdit();
+                        
+
+                        if (rs.Attributes.Count > 0 && aSet == rs.Attributes[rs.Attributes.Count - 1])
+                        {
+                            System.Threading.Thread.Sleep(100);
+                            newTsc.Saved += LastTsc_Saved;
+                        }
+                        else
+                        {
+                            newTsc.Saved += Tsc_Saved;
+                        }
+                        newTsc.ApplyEdit();
+                        //newTsc.BeginSave();
+                    }
+                }
+            }
+           
+        }
+        private void LastTsc_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            Tsc_Saved(sender, e);
+            CslaDataProvider TsclProvider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
+            if (TsclProvider != null)
+            {
+                TsclProvider.DataChanged += TsclProvider_DataChanged;
+                TsclProvider.Refresh();
+            }
+        }
+        
+
+        private void Tsc_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                RadWindow.Alert("ERROR: could save changes to screening codes (bottom left panel)."
+                        + Environment.NewLine + "Priority Screening will not work if the list isn't correctly populated."
+                        + Environment.NewLine + "Error returned is:"
+                        + Environment.NewLine + e.Error.Message
+                        + Environment.NewLine + "If this problem persists please contact EPPISupport@ucl.ac.uk.");
+            }
+        }
+        private void TsclProvider_DataChanged(object sender, EventArgs e)
+        {
+            GridViewScreeningCodes.IsEnabled = true;
+            CslaDataProvider TsclProvider = sender as CslaDataProvider;
+            if (TsclProvider != null)
+            {
+                TsclProvider.DataChanged -= TsclProvider_DataChanged;
+                if (TsclProvider.Error != null)
+                {
+                    RadWindow.Alert("ERROR: could save changes to screening codes (bottom left panel)."
+                       + Environment.NewLine + "Priority Screening will not work if the list isn't correctly populated."
+                       + Environment.NewLine + "Error returned is:"
+                       + Environment.NewLine + TsclProvider.Error.Message
+                       + Environment.NewLine + "If this problem persists please contact EPPISupport@ucl.ac.uk.");
+                }
+                else
+                {
+                    RadWindow.Alert("Please note: the list of screening codes has been automatically populated"
+                    + Environment.NewLine + "and saved."
+                    + Environment.NewLine
+                    + Environment.NewLine + "However, your other changes have not been saved."
+                    + Environment.NewLine + "Please review all your settings, including the list of codes on"
+                    + Environment.NewLine + "the lower left panel (used by the classifier)."
+                    + Environment.NewLine + "If all settings are correct, please click 'Save Options'.");
+                }
+
+            }
+        }
+
+        
+
+        
+
+        private void ResetScreeningUI()
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider == null || RevInfoProvider.Data == null)
+            {//data isn't here, nothing to do!
+                return;
+            }
+            if (ScreeningCodeSetComboSelectCodeSet.SelectedIndex == -1) // No screening code set selected - all is disabled
+            {
+                ComboScreeningMode.IsEnabled = false;
+                rbScreeningEverything.IsEnabled = false;
+                rbScreeningSelected.IsEnabled = false;
+                UpDownNScreening.IsEnabled = false;
+                ComboReconcilliationMode.IsEnabled = false;
+                cbScreeningAutoExclude.IsEnabled = false;
+                cbScreeningFullIndex.IsEnabled = false;
+                return;
+            }
+
+            ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
+            if (rs != null)
+            {
+                if (rs.CodingIsFinal == true) // i.e. normal, not comparison coding
+                {
+                    ComboScreeningMode.IsEnabled = true;
+                    rbScreeningEverything.IsEnabled = true;
+                    rbScreeningSelected.IsEnabled = true;
+                    UpDownNScreening.Value = 1;
+                    UpDownNScreening.IsEnabled = false;
+                    ComboReconcilliationMode.SelectedIndex = 0;
+                    ComboReconcilliationMode.IsEnabled = false;
+                    cbScreeningAutoExclude.IsEnabled = true;
+                    cbScreeningFullIndex.IsEnabled = true;
+                }
+                else // COMPARISON coding
+                {
+                    ComboScreeningMode.IsEnabled = true;
+                    rbScreeningEverything.IsEnabled = true;
+                    rbScreeningSelected.IsEnabled = true;
+                    UpDownNScreening.IsEnabled = true;
+                    ComboReconcilliationMode.IsEnabled = true;
+                    cbScreeningAutoExclude.IsEnabled = true;
+                    cbScreeningFullIndex.IsEnabled = true;
+                }
+            }
+
+        }
+        public void UnHookMe()
+        {
+            windowRandomAllocate.codesSelectControlAllocate.UnhookMe();
+            windowRandomAllocate.codesSelectControlAllocateFilterCode.UnhookMe();
+            windowRandomAllocate.codesSelectControlAllocateFilterCodeSet.UnhookMe();
+            homeReportsControl.UnHookMe();
+            codesTreeControl.UnHookMe();
+            dialogCodingControl.UnHookMe();
+            DialogMyInfo.UnHookMe();
+
+            CslaDataProvider CsetsProvider = App.Current.Resources["CodeSetsData"] as CslaDataProvider;
+            if (CsetsProvider != null)
+            {
+                CsetsProvider.DataChanged -= CsetsProvider_DataChanged;
+                CsetsProvider.DataChanged -= CsetsProvider_DataChanged;
+            }
+            CslaDataProvider RevInfoprovider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoprovider != null)
+            {
+                RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+                RevInfoprovider.DataChanged -= RevInfoprovider_DataChanged;
+            }
+            CslaDataProvider CodeSetsData = App.Current.Resources["CodeSetsData"] as CslaDataProvider;
+            if (CodeSetsData != null)
+            {
+                CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
+                CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
+            }
+            
         }
     }
 }

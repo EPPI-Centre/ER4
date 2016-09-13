@@ -161,11 +161,14 @@ namespace EppiReviewer4
             else if (ea.Error != null)
             {
                 TextBlockDuplicateListCount1.Text = "";
-                if (ea.Error.Message == "DataPortal.Fetch failed (Execution still Running)")
+                //if (ea.Error.Message == "DataPortal.Fetch failed (Execution still Running)")
+                if (ea.Error.Message.Contains("Execution still Running") 
+                    || ea.Error.Message.ToLower().Contains("httprequesttimedout") 
+                    || ea.Error.Message.ToLower().Contains("allotted timeout"))
                 {
-                    GroupDuplicatesGrid1.ItemsSource = null;
+                        GroupDuplicatesGrid1.ItemsSource = null;
                     ((this.Parent as Grid).Parent as Telerik.Windows.Controls.RadWindow).Close();
-                    Telerik.Windows.Controls.RadWindow.Alert("Sorry, the duplicate checking is still running on the background."
+                    Telerik.Windows.Controls.RadWindow.Alert("Sorry, duplicate checking is still running on the background."
                         + System.Environment.NewLine + "Unfortunately long execution times are to be expected"
                         + System.Environment.NewLine + "when checking thousands of items."
                         + System.Environment.NewLine + "The 'Manage duplicates' function will be accessible as soon as the"

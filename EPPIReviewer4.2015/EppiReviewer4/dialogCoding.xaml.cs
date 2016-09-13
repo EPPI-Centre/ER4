@@ -2872,7 +2872,10 @@ Proceed?";
             dp.BeginExecute(command);
         }
 
-        
+        public void UnHookMe()
+        {
+            codesTreeControl.UnHookMe();
+        }
 
         
 

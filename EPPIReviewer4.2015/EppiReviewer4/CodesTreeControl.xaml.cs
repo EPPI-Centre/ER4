@@ -222,8 +222,10 @@ namespace EppiReviewer4
 
             CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
             if (provider != null)
+            {
+                provider.DataChanged -= CodeSetsProvider_DataChanged;
                 provider.DataChanged += new EventHandler(CodeSetsProvider_DataChanged);
-
+            }
             Helpers.ReverseBooleanConverter rbc = new Helpers.ReverseBooleanConverter();
             Binding binding = new Binding();
             binding.Converter = rbc;
@@ -3917,7 +3919,15 @@ namespace EppiReviewer4
             }
             if (HasWriteRights) windowWizard.ShowDialog();
         }
-
+        public void UnHookMe()
+        {
+            CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
+            if (provider != null)
+            {
+                provider.DataChanged -= CodeSetsProvider_DataChanged;
+                provider.DataChanged -= CodeSetsProvider_DataChanged;
+            }
+        }
     } // END MAIN CodesTreeControl CLASS
     public class AttributeSetToPaste : IComparable
     {

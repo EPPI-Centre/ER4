@@ -203,8 +203,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-            StringBuilder data = new StringBuilder();
-            data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
+            //StringBuilder data = new StringBuilder();
+            //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
             List<Int64> ItemIds = new List<Int64>();
             int positiveClassCount = 0;
             int negativeClasscount = 0;
@@ -212,6 +212,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -220,20 +221,30 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        while (reader.Read())
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
                         {
-                            if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+                            file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
+                            while (reader.Read())
                             {
-                                ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-                                    "\"" + reader["LABEL"].ToString() + "\"," +
-                                    "\"" + CleanText(reader, "TITLE") + "\"," +
-                                    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-                                    "\"" + CleanText(reader, "KEYWORDS") + "\"" + Environment.NewLine);
-                                if (reader["LABEL"].ToString() == "1")
-                                    positiveClassCount++;
-                                else
-                                    negativeClasscount++;
+                                if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+                                {
+                                    ItemIds.Add(reader.GetInt64("ITEM_ID"));
+                                    file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
+                                        "\"" + reader["LABEL"].ToString() + "\"," +
+                                        "\"" + CleanText(reader, "title") + "\"," +
+                                        "\"" + CleanText(reader, "abstract") + "\"," +
+                                        "\"" + CleanText(reader, "keywords") + "\"");
+                                    //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
+                                    //    "\"" + reader["LABEL"].ToString() + "\"," +
+                                    //    "\"" + CleanText(reader, "TITLE") + "\"," +
+                                    //    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
+                                    //    "\"" + CleanText(reader, "KEYWORDS") + "\"" + Environment.NewLine);
+
+                                    if (reader["LABEL"].ToString() == "1")
+                                        positiveClassCount++;
+                                    else
+                                        negativeClasscount++;
+                                }
                             }
                         }
                     }
@@ -249,7 +260,14 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
                 CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
                     + ".csv");
-                blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+                //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+
+                using (var fileStream = System.IO.File.OpenRead(fileName))
+                {
+                    blockBlobData.UploadFromStream(fileStream);
+                }
+                File.Delete(fileName);
+
                 ReportBack = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
@@ -326,10 +344,10 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
 
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-                StringBuilder data = new StringBuilder();
-                data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
+                //StringBuilder data = new StringBuilder();
+                //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
                 List<Int64> ItemIds = new List<Int64>();
-
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -337,16 +355,26 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdClassifyTo));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        while (reader.Read())
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
                         {
-                            if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+                            file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
+                            while (reader.Read())
                             {
-                                ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
-                                    "\"" + reader["LABEL"].ToString() + "\"," +
-                                    "\"" + CleanText(reader, "TITLE") + "\"," +
-                                    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
-                                    "\"" + CleanText(reader, "KEYWORDS") + "\"," + "\"" + ri.ReviewId.ToString() + "\"" + Environment.NewLine);
+                                if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
+                                {
+                                    ItemIds.Add(reader.GetInt64("ITEM_ID"));
+                                    file.WriteLine("\"" + reader["item_id"].ToString() + "\"," +
+                                        "\"" + reader["LABEL"].ToString() + "\"," +
+                                        "\"" + CleanText(reader, "title") + "\"," +
+                                        "\"" + CleanText(reader, "abstract") + "\"," +
+                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + ri.ReviewId.ToString() + "\"");
+
+                                    //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
+                                    //    "\"" + reader["LABEL"].ToString() + "\"," +
+                                    //    "\"" + CleanText(reader, "TITLE") + "\"," +
+                                    //    "\"" + CleanText(reader, "ABSTRACT") + "\"," +
+                                    //    "\"" + CleanText(reader, "KEYWORDS") + "\"," + "\"" + ri.ReviewId.ToString() + "\"" + Environment.NewLine);
+                                }
                             }
                         }
                     }
@@ -357,7 +385,12 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
                 CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
                     + "ToScore.csv");
-                blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+                //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+                using (var fileStream = System.IO.File.OpenRead(fileName))
+                {
+                    blockBlobData.UploadFromStream(fileStream);
+                }
+                File.Delete(fileName);
                 ReportBack = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "ScoreModel", modelId);
@@ -468,6 +501,7 @@ namespace BusinessLibrary.BusinessClasses
         const string apiKeyScoreModel = "KJY5g+fBBmiucEzfP7VXs/nVd7QfL2V8SEFSS8KoPDzK74vgyuK++XlgZfcEwkK5GbVUTMTukgP2MKGFBmhlmw=="; //EPPI-R Models: Apply Attribute Model
         const string BaseUrlBuildModel = "***REMOVED***";
         const string apiKeyBuildModel = "Texw2PtXoKYKlCRxGbQGKBY9UL+N8xMHKQCS/FKR45Ol7wdwV17hTcqamZcoN01s8Ynd0442shvuIaQ+nlwNkA=="; //EPPI-R Models: Build Attribute Model
+        const string TempPath = @"UserTempUploads/ContactId";
 
         const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
 

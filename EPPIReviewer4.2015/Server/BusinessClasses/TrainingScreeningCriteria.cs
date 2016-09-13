@@ -169,6 +169,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(IncludedProperty, reader.GetBoolean("INCLUDED"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.MarkOld();
+            //returnValue.MarkAsChild();
             return returnValue;
         }
 

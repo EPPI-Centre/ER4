@@ -662,9 +662,6 @@
     <Compile Include="..\Server\BusinessClasses\Training.cs">
       <Link>BusinessClasses\Training.cs</Link>
     </Compile>
-    <Compile Include="..\Server\BusinessClasses\TrainingAssignCommand.cs">
-      <Link>BusinessClasses\TrainingAssignCommand.cs</Link>
-    </Compile>
     <Compile Include="..\Server\BusinessClasses\TrainingList.cs">
       <Link>BusinessClasses\TrainingList.cs</Link>
     </Compile>
@@ -695,11 +692,11 @@
     <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteriaList.cs">
       <Link>BusinessClasses\TrainingScreeningCriteriaList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs">
+      <Link>BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\TrainingSetScreeningCodeSetCommand.cs">
       <Link>BusinessClasses\TrainingSetScreeningCodeSetCommand.cs</Link>
-    </Compile>
-    <Compile Include="..\Server\BusinessClasses\TrainingStatisticsCommand.cs">
-      <Link>BusinessClasses\TrainingStatisticsCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\TranslationCommand.cs">
       <Link>BusinessClasses\TranslationCommand.cs</Link>

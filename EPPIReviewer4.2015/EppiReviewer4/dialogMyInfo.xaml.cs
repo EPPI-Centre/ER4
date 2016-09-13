@@ -482,5 +482,14 @@ namespace EppiReviewer4
 
             }
         }
+        public void UnHookMe()
+        {
+            CslaDataProvider provider2 = App.Current.Resources["ArchieReviewsData"] as CslaDataProvider;
+            if (provider2 != null)
+            {
+                provider2.DataChanged -= ArchieReviewsProvider_DataChanged;
+                provider2.DataChanged -= ArchieReviewsProvider_DataChanged;
+            }
+        }
     }
 }

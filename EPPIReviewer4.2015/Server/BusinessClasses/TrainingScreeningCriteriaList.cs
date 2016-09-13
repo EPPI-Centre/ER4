@@ -38,8 +38,6 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
-
-
         protected void DataPortal_Fetch()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

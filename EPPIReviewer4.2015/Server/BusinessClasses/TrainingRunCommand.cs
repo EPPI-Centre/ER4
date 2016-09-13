@@ -71,6 +71,13 @@ namespace BusinessLibrary.BusinessClasses
             set { LoadProperty(ReportBackProperty, value); }
         }
 
+        private static PropertyInfo<string> ParametersProperty = RegisterProperty<string>(new PropertyInfo<string>("Parameters", "Parameters"));
+        public string Parameters
+        {
+            get { return ReadProperty(ParametersProperty); }
+            set { LoadProperty(ParametersProperty, value); }
+        }
+
         public int SearchId
         {
             get
@@ -104,8 +111,14 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override async void DataPortal_Execute() // can I override and make it async?? looks like it works
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (Parameters == "DoSimulation")
+            {
+                DoSimulation(ri.ReviewId);
+                return;
+            }
             bool justIndexed = false;
-            if (RevInfo.ScreeningMode == "Random" || RevInfo.ScreeningWhatAttributeId > 0)
+            if (RevInfo.ScreeningMode == "Random") // || RevInfo.ScreeningWhatAttributeId > 0)
             {
                 CreateNonMLLIst();
                 return;
@@ -118,7 +131,7 @@ namespace BusinessLibrary.BusinessClasses
                 // ************* STAGE 1: check that we have sufficient data to run the ML
                 // ************* a minimum of 5 includes and 5 excludes is currently looked for
 
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 int ReviewID = ri.ReviewId;
                 int n_includes = 0;
                 int n_excludes = 0;
@@ -168,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
                 // Stage 3: post the TB_ITEM data for the review up to azure if this hasn't already been done
                 if (RevInfo.ScreeningIndexed == false)
                 {
-                    UploadDataToAzureBlob(ReviewID);
+                    UploadDataToAzureBlob(ReviewID, true); // ScreeningIndexed == true, which sets the 'screening indexed' flag in reviewinfo (means data uploaded AND vectorised, so ready for active learning)
                     await InvokeBatchExecutionService(RevInfo, "Vectorise"); 
                     justIndexed = true;
                 }
@@ -218,7 +231,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 double dbl = 0;
                                 double.TryParse(data[0], out dbl);
-                                if (dbl == 0.0) throw new Exception("Gotcha!");
+                                //if (dbl == 0.0) throw new Exception("Gotcha!");
                                 data[0] = dbl.ToString("F10");
                             }
                             dt.Rows.Add(data);
@@ -355,8 +368,9 @@ namespace BusinessLibrary.BusinessClasses
 
         
 
-        private void UploadDataToAzureBlob(int ReviewID)
+        private void UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             //StringBuilder data = new StringBuilder();
             StringBuilder labels = new StringBuilder();
@@ -366,12 +380,12 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + RevInfo.ReviewId + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
+                    command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ScreeningIndexed));
                     command.CommandTimeout = 600;
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -454,6 +468,27 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private async void DoSimulation(int ReviewID)
+        {
+            // Simple: upload data if needed
+            bool justIndexed = false;
+            if (RevInfo.ScreeningIndexed == false)
+            {
+                UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
+                //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
+                justIndexed = true;
+            }
+
+            // Make sure we have include / exclude data written
+            if (justIndexed == false) // no need to update if we've only just written the data, as indexing also creates initial include/ exclude data file
+            {
+                UpdateAzureIncludeExcludeData(ReviewID);
+            }
+
+            // Then call the simulation
+            await InvokeBatchExecutionService(RevInfo, "Simulation");
+        }
+
         public enum BatchScoreStatusCode
         {
             NotStarted,
@@ -502,6 +537,8 @@ namespace BusinessLibrary.BusinessClasses
         const string apiKeyBuildAndScore = "0GrP/egb80etojoJNV2n/lKC3g4/F17wgfJ4Jkmmo5YtlOaLyN4irJt1OwfHhzw2l/o+3arijj4l/odL+ib/8A=="; //EPPI-R - build + score (blob storage)
         const string BaseUrlVectorise = "***REMOVED***";
         const string apiKeyVectorise = "nPfCOZtNCjozV49mdy1qZlYpruzT22QlhhDrJjSF6eazT0cfNVYLVD1YU7ZvihCereuNBx5UmnQlT7dQhBKqbw=="; //EPPI-R AL: index review
+        const string BaseUrlSimulation5 = "***REMOVED***";
+        const string apiKeySimulation5 = "SHEtFboe9xMDh2Q4YdpmVJXTho5GBcbBprJR2SrVxv0GT6QVC+RCVckz+xw4DrpCj0H2Qofy76pyy//ORzQd2A=="; // EPPI-R: active learning simulation (x10)
         const string TempPath = @"UserTempUploads/ReviewId";
 
         const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
@@ -531,7 +568,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     };
                 }
-                else
+                else if (ApiCall == "BuildAndScore")
                 {
                     apiKey = apiKeyBuildAndScore;
                     BaseUrl = BaseUrlBuildAndScore;
@@ -546,6 +583,22 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     };
                 }
+                else
+                {
+                    apiKey = apiKeySimulation5;
+                    BaseUrl = BaseUrlSimulation5;
+                    request = new BatchExecutionRequest()
+                    {
+                        GlobalParameters = new Dictionary<string, string>()
+                        {
+                            { "DataFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "LabelsFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
+                            { "ResultsFile", "simulations/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                        }
+                    };
+                }
+                        
+                        
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
                 // submit the job

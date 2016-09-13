@@ -124,15 +124,18 @@ namespace BusinessLibrary.BusinessClasses
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@revID", ri.ReviewId));
                 command.CommandTimeout = 300;
+                //string r = "";
                 try
                 {
                     command.ExecuteNonQuery();
                     //using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     //{
+                       
                     //    while (reader.Read())
                     //    {
-                    //        Add(ItemDuplicateReadOnlyGroup.GetItemDuplicateReadOnlyGroup(reader));
+                    //        if (reader[0] != null) r += reader[0].ToString() + Environment.NewLine;
                     //    }
+                    //    r += "!!";
                     //}
                 }
                 catch (Exception ex)

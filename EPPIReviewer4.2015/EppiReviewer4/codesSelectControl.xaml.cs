@@ -165,6 +165,7 @@ namespace EppiReviewer4
         //}
         public void SelectAttributeSetFromAttributeId(Int64 attributeId)
         {
+            if ((TreeViewSelectCode.ItemsSource as ReviewSetsList) == null) return;
             AttributeSet selected = (TreeViewSelectCode.ItemsSource as ReviewSetsList).GetAttributeSetFromAttributeId(attributeId);
             if (selected != null)
             {
@@ -211,6 +212,15 @@ namespace EppiReviewer4
                     codeSelectControlDropDown.IsOpen = false;
                 }
                 else lastID = current;
+            }
+        }
+        public void UnhookMe()
+        {
+            Csla.Xaml.CslaDataProvider Provider = App.Current.Resources["SetTypes"] as Csla.Xaml.CslaDataProvider;
+            if (Provider != null)
+            {
+                Provider.DataChanged -= Provider_DataChanged;
+                Provider.DataChanged -= Provider_DataChanged;
             }
         }
     }

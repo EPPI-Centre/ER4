@@ -792,7 +792,15 @@ namespace EppiReviewer4
             TreeViewSettings.SetDragDropExecutionMode(o2, TreeViewDragDropExecutionMode.Legacy);
         }
 
-        
+        public void UnHookMe()
+        {
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ReportListData"]);
+            if (provider != null)
+            {
+                provider.DataChanged -= CslaDataProvider_DataChanged;
+                provider.DataChanged -= CslaDataProvider_DataChanged;
+            }
+        }
 
         
     }

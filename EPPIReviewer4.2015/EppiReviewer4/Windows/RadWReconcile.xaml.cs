@@ -602,7 +602,7 @@ namespace EppiReviewer4
                         itSetR2 = iSet.ItemSetId;
                         foreach (ReadOnlyItemAttribute roia in iSet.ItemAttributes)
                         {
-                            ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId).Clone();
+                            ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
                             if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
                             {//in such situations r0 is null
                                 ReconcilingCode r = r0.Clone();
@@ -616,7 +616,7 @@ namespace EppiReviewer4
                         itSetR3 = iSet.ItemSetId;
                         foreach (ReadOnlyItemAttribute roia in iSet.ItemAttributes)
                         {
-                            ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId).Clone();
+                            ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
                             if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
                             {//in such situations r0 is null
                                 ReconcilingCode r = r0.Clone();
