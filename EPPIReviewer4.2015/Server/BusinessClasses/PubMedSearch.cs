@@ -257,8 +257,8 @@ namespace BusinessLibrary.BusinessClasses
                 //if showStart&End are set getresults to show them to client
         }
         private System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-        private string SearchAddress = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
-        private string FetchAddress = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+        private string SearchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
+        private string FetchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
 
         private void FetchResults()
         {
