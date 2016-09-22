@@ -105,6 +105,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 210;
                     switch (_saveType)
                     {
                         case "Delete":
