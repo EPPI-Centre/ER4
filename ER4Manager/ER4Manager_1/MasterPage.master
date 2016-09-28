@@ -134,6 +134,8 @@
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Emails.aspx" Text="Emails" 
                                                     Owner="">
                                                 </Telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/FilterBuilder.aspx" Text="Import filters">
+                                                </telerik:RadTab>
                                                 <Telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
                                                 </Telerik:RadTab>
                                             </Tabs>
