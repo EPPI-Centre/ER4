@@ -33,7 +33,7 @@ namespace EppiReviewer4
         {
 
             Paragraph _StartPreviewPar = new Paragraph();
-            Run cont = new Run(); cont.Text = "To enable this action, you need to grab the preview details first.";
+            Run cont = new Run(); cont.Text = "Please make your selections from the dropdown menus.";
             _StartPreviewPar.Inlines.Add(cont);
             return _StartPreviewPar;
         }
@@ -75,6 +75,7 @@ namespace EppiReviewer4
                 TxtCompleting.Visibility = Visibility.Visible;
                 TxtUnCompleting.Visibility = Visibility.Collapsed;
                 GridComplUncompl.RowDefinitions[1].Height = new GridLength(35);
+                ButtonDoIt.Content = "Complete!";
             }
             else
             {
@@ -83,6 +84,7 @@ namespace EppiReviewer4
                 TxtCompleting.Visibility = Visibility.Collapsed;
                 TxtUnCompleting.Visibility = Visibility.Visible;
                 GridComplUncompl.RowDefinitions[1].Height = new GridLength(0);
+                ButtonDoIt.Content = "Un-complete!";
             }
         }
         
@@ -122,7 +124,7 @@ namespace EppiReviewer4
                 if (aSet.SetId == rSet.SetId)
                 {
                     isOK = false;
-                    msg = "This can't be done: the selected code belongs to the Code-Set you wish to act on." + Environment.NewLine + "Please select a different Code/Code-Set combination.";
+                    msg = "This can't be done: the selected code belongs to the Codeset you wish to act on." + Environment.NewLine + "Please select a different Code/Codeset combination.";
                 }
             }
             ButtonPreview.IsEnabled = isOK;
@@ -180,8 +182,8 @@ namespace EppiReviewer4
                         MsgP = new Paragraph();
                         cont = new Run();
                         cont.Text = "Of these, "
-                            + (e2.Object.IsCompleting ? "incompleted" : "completed")  
-                            + " codings in the chosen Code-Set (\"" + rSet.SetName + "\") will be "
+                            + (e2.Object.IsCompleting ? "un-completed" : "completed")  
+                            + " codings in the chosen Codeset (\"" + rSet.SetName + "\") will be "
                             + (e2.Object.IsCompleting ? "completed, if they belong to " + rContact.Value : "un-completed")
                             + "." + Environment.NewLine;
                         
@@ -198,10 +200,11 @@ namespace EppiReviewer4
                         cont = new Run();
                         if (e2.Object.AffectedItems > 0)
                         {
-                            cont.Text = Environment.NewLine + "If this looks ok, you may now press the \"Do it!\" Button.";
+                            cont.Text = Environment.NewLine + "If this looks ok, you may now press the " 
+                                + (e2.Object.IsCompleting ? "\"Complete!\"" : "\"Un-Complete!\"")+ " button.";
                             MsgP.Inlines.Add(cont);
                             cont = new Run();
-                            cont.Text = Environment.NewLine + "Warning: this action does not provide a direct \"Undo\" function, it should be used with care!";
+                            cont.Text = Environment.NewLine + "Warning: this action does not have a direct \"Undo\" function so please use with care!";
                             cont.FontWeight = FontWeights.Bold;
                             MsgP.Inlines.Add(cont);
                             TxtPreviewStatus.Blocks.Add(MsgP);

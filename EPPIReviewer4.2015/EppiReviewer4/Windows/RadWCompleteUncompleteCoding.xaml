@@ -45,7 +45,7 @@
     <ContentControl x:Name="Enabler">
     <Grid x:Name="GridComplUncompl" Margin="2,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="70"></RowDefinition>
+            <RowDefinition Height="85"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
@@ -60,20 +60,20 @@
             <ColumnDefinition Width="90"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <RichTextBox x:Name="TxtCompleting" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="6,6,6,6" IsReadOnly="True">
-            <Paragraph>This window allows to '<Bold>Complete</Bold>' coding in bulk. Please be aware that this operation can
-                <Bold>significantly disrupt</Bold> the intended workflow, when used incorrectly.
+        <RichTextBox x:Name="TxtCompleting" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="2" IsReadOnly="True" Width="500" HorizontalAlignment="Center">
+                <Paragraph>This window allows you to '<Bold>Complete</Bold>' the coding of specified items in bulk. Please be aware that this operation can
+                    <Bold>significantly disrupt</Bold> the intended workflow so please use with care.
             </Paragraph>
-            <Paragraph>If in doubt, please drop us a line at EPPISupport@ucl.ac.uk.
+                <Paragraph>If in doubt, please contact us at EPPISupport@ucl.ac.uk.
             </Paragraph>
         </RichTextBox>
-        <RichTextBox x:Name="TxtUnCompleting" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="6,6,6,6"
+            <RichTextBox x:Name="TxtUnCompleting" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="2"  Width="500"
                      Visibility="Collapsed">
-            <Paragraph>This window allows to '<Bold>Un-complete</Bold>' coding in bulk. Please be aware that this operation can
-                <Bold>significantly disrupt</Bold> the intended workflow, when used incorrectly.
-            </Paragraph>
-            <Paragraph>If in doubt, please drop us a line at EPPISupport@ucl.ac.uk.
-            </Paragraph>
+                <Paragraph>This window allows you to '<Bold>Un-complete</Bold>' the coding of specified items in bulk. Please be aware that this operation can
+                    <Bold>significantly disrupt</Bold> the intended workflow so please use with care.
+                </Paragraph>
+                <Paragraph>If in doubt, please contact us at EPPISupport@ucl.ac.uk.
+                </Paragraph>
         </RichTextBox>
         <TextBlock Grid.Row="1" Grid.Column="0"  Text="Reviewer:" Margin="6,6,6,6" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
         <ComboBox x:Name="ComboBoxReviewer" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding Source={StaticResource ReviewContactNVLData}, Path=Data}" Margin="6,4,6,6" SelectionChanged="ComboBoxReviewer_SelectionChanged"/>
@@ -89,12 +89,12 @@
                                   ></local:codesSelectControl>
         <Button x:Name="ButtonPreview" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Content="Preview" 
                 Margin="6" Click="ButtonPreview_Click" Width="100"/>
-        <RichTextBox x:Name="TxtPreviewStatus" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="6,6,6,6" IsReadOnly="True">
-            <Paragraph>To enable this action, you need to grab the preview details first.</Paragraph>
+            <RichTextBox x:Name="TxtPreviewStatus" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="6" IsReadOnly="True"  Width="500" HorizontalAlignment="Center">
+                <Paragraph>Please make your selections from the dropdown menus.</Paragraph>
         </RichTextBox>
         <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <Button x:Name="ButtonDoIt" Margin="6" Click="ButtonDoIt_Click" Content="Do it!" Width="60" IsEnabled="False"/>
-            <Button x:Name="ButtonCancel" Margin="6" Click="ButtonCancel_Click" Content="Cancel" Width="120"/>
+            <Button x:Name="ButtonDoIt" Margin="6" Click="ButtonDoIt_Click" Content="Un-Complete!" Width="86" IsEnabled="False"/>
+            <Button x:Name="ButtonCancel" Margin="6" Click="ButtonCancel_Click" Content="Cancel" Width="160"/>
         </StackPanel>
         <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="6" Grid.Column="3" HorizontalAlignment="Right" IsRunning="False" />
     </Grid>
