@@ -229,6 +229,7 @@
     <Compile Include="BusinessClasses\AttributeTypesFactory.cs" />
     <Compile Include="BusinessClasses\AttributeUpdateCommand.cs" />
     <Compile Include="BusinessClasses\AuthorsHandling.cs" />
+    <Compile Include="BusinessClasses\BulkCompleteUncompleteCommand.cs" />
     <Compile Include="BusinessClasses\CheckTicketExpirationCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierModel.cs" />

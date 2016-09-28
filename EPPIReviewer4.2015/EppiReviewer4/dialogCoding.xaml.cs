@@ -79,10 +79,21 @@ namespace EppiReviewer4
 
         public List<Int64> ScreenedItemIds;
 
-        //first bunch of lines to make the read-only UI work
+        //first bunch of lines to make the read-only UI work, modified to make it possible to do PDF text coding possible in Coding-Only
         private BusinessLibrary.Security.ReviewerIdentity ri;
         public bool HasWriteRights
         {
+            get
+            {
+                if (ri == null) return false;
+                else
+                {
+                    return ri.HasWriteRights();//false if user does not have write rights.
+                }
+            }
+        }
+        public bool HasWriteRightsOrCodingOnly
+        {//used by most controls in here (needed to allow enabling "add/delete code" from text in PDFs
             get
             {
                 if (ri == null) return false;
@@ -93,7 +104,7 @@ namespace EppiReviewer4
             }
         }
         //end of read-only ui hack
-        
+
         public dialogCoding()
         {
             InitializeComponent();

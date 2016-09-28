@@ -34,6 +34,7 @@
                            />
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+        <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
         
         <Style TargetType="grid:GridViewCell" x:Name="cellStyleText">
             <Setter Property="Template">
@@ -96,7 +97,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Button x:Name="cmdViewPdf" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" 
+                        <Button x:Name="cmdViewPdf" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
                                 Content="Del" Tag="{Binding ItemDocumentId}"  Click="cmdDelFile_Click"></Button>
                     </ControlTemplate>
                 </Setter.Value>
@@ -175,7 +176,7 @@
                                         </telerikGridView:RadGridView.Columns>
                                     </telerikGridView:RadGridView>
                                     <StackPanel Orientation="Vertical">
-                                        <Button x:Name="cmdUploadFile" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" 
+                                        <Button x:Name="cmdUploadFile" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
                                             Content="Upload" Grid.Column="0" Height="25" VerticalAlignment="Top" Click="cmdUploadFile_Click"  Margin="3,3,3,3"></Button>
                                         <cslaXAML:BusyAnimation x:Name="busyDocList" IsRunning="{Binding Source={StaticResource ItemDocumentListData},Path=IsBusy}"></cslaXAML:BusyAnimation>
                                         <cslaXAML:BusyAnimation x:Name="busyUploading" IsRunning="False"></cslaXAML:BusyAnimation>
@@ -275,20 +276,20 @@
                                         </StackPanel>
                                     </Button>
                                     <telerikNavigation:RadToolBarSeparator Margin="5,2,5,2" />
-                                    <Button x:Name="cmdOk" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" Tag="Open" Width="40"
+                                    <Button x:Name="cmdOk" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" Tag="Open" Width="40"
                                             ToolTipService.ToolTip="Save">
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="16" Height="16" Source="Icons/DocumentSave.png"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button x:Name="cmdOkAndClose" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" 
+                                    <Button x:Name="cmdOkAndClose" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" 
                                             Tag="Close" Width="120">
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="16" Height="16" Source="Icons/DocumentSaveAndClose.png"/>
                                             <TextBlock Text="Save and close" Margin="4,0,0,0"></TextBlock>
                                         </StackPanel>
                                     </Button>
-                                    <Button x:Name="cmdCancelEditItem"  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Width="80" 
+                                    <Button x:Name="cmdCancelEditItem"  IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Width="80" 
                                             Click="cmdCancelEditItem_Click" ToolTipService.ToolTip="Close without saving (citation edits)">
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="16" Height="16" Source="Icons/DocumentCancel.png"/>
@@ -428,7 +429,7 @@
                                                    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
                                     <telerikNavigation:RadContextMenu.ContextMenu>
                                         <telerikNavigation:RadContextMenu x:Name="contextMenuRich" ItemClick="contextMenuRich_ItemClick">
-                                            <telerikNavigation:RadMenuItem Header="Send Selection to Reference Search" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" />
+                                            <telerikNavigation:RadMenuItem Header="Send Selection to Reference Search" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" />
                                             <telerikNavigation:RadMenuItem Header="Hightlight All"/>
                                         </telerikNavigation:RadContextMenu>
                                     </telerikNavigation:RadContextMenu.ContextMenu>

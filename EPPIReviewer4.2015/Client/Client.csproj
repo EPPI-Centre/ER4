@@ -200,6 +200,9 @@
     <Compile Include="..\Server\BusinessClasses\AuthorsHandling.cs">
       <Link>BusinessClasses\AuthorsHandling.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\BulkCompleteUncompleteCommand.cs">
+      <Link>BusinessClasses\BulkCompleteUncompleteCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\CheckTicketExpirationCommand.cs">
       <Link>BusinessClasses\CheckTicketExpirationCommand.cs</Link>
     </Compile>

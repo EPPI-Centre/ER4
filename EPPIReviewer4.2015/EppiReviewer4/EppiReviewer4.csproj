@@ -402,6 +402,9 @@
     <Compile Include="Windows\RadWComparisonStats.xaml.cs">
       <DependentUpon>RadWComparisonStats.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\RadWCompleteUncompleteCoding.xaml.cs">
+      <DependentUpon>RadWCompleteUncompleteCoding.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\RadWConfirmDeleteSource.xaml.cs">
       <DependentUpon>RadWConfirmDeleteSource.xaml</DependentUpon>
     </Compile>
@@ -733,6 +736,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\RadWComparisonStats.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWCompleteUncompleteCoding.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

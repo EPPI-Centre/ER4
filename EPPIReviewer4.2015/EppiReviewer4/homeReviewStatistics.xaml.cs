@@ -32,7 +32,7 @@ namespace EppiReviewer4
             }
         }
         //end of read-only ui hack
-
+        private RadWCompleteUncompleteCoding WCompleteUncompleteCoding = new RadWCompleteUncompleteCoding();
         public homeReviewStatistics()
         {
             InitializeComponent();
@@ -43,8 +43,15 @@ namespace EppiReviewer4
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
             //end of read-only ui hack
+           
+            WCompleteUncompleteCoding.Closed += WCompleteUncompleteCoding_Closed;
         }
-       
+
+        private void WCompleteUncompleteCoding_Closed(object sender, WindowClosedEventArgs e)
+        {
+            if (WCompleteUncompleteCoding.HasDoneSomething) RefreshStatistics();
+        }
+
         public event EventHandler<ItemListRefreshEventArgs> RefreshItemList;
         
         private void MouseDownOnGridViewReviewerStatistics(object sender, MouseEventArgs args)
@@ -87,6 +94,25 @@ namespace EppiReviewer4
 
         public void RefreshStatistics()
         {
+            if (ri != null)
+            {
+                Control Header = (TreeListViewReviewerUnCompleteStatistics.Columns["ButtonsColumn"].Header as Button);
+                if (Header != null)
+                {
+                    Header.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+                    //Button bt = Header.FindChildByType<Button>();
+                    //if (bt != null) bt.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+                }
+                Header = (TreeListViewReviewerCompleteStatistics.Columns["ButtonsColumn"].Header as Button);
+                if (Header != null)
+                {
+                    Header.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+                    //Button bt = Header.FindChildByType<Button>();
+                    //if (bt != null) bt.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+                }
+                //cmdUnCompleteCodingsOnAttribute.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+                //cmdCompleteCodingsOnAttribute.Visibility = ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin ? Visibility.Visible : Visibility.Collapsed;
+            }
             DataPortal<ReviewStatisticsCountsCommand> dp = new DataPortal<ReviewStatisticsCountsCommand>();
             ReviewStatisticsCountsCommand command = new ReviewStatisticsCountsCommand();
             dp.ExecuteCompleted += (o, e2) =>
@@ -186,5 +212,16 @@ namespace EppiReviewer4
             }
         }
 
+        private void cmdUnCompleteCodingsOnAttribute_Click(object sender, RoutedEventArgs e)
+        {
+            WCompleteUncompleteCoding.SetMode(false);
+            WCompleteUncompleteCoding.ShowDialog();
+        }
+
+        private void cmdCompleteCodingsOnAttribute_Click(object sender, RoutedEventArgs e)
+        {
+            WCompleteUncompleteCoding.SetMode(true);
+            WCompleteUncompleteCoding.ShowDialog();
+        }
     }
 }

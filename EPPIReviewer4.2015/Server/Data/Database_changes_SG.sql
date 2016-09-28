@@ -1,4 +1,5 @@
-﻿USE [Reviewer]
+﻿
+USE [Reviewer]
 GO
 
 /****** Object:  StoredProcedure [dbo].[st_ReportData]    Script Date: 9/12/2016 12:28:52 PM ******/
@@ -145,6 +146,136 @@ BEGIN
 	END
 END
 GO
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttribute]    Script Date: 09/26/2016 16:53:21 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemSetBulkCompleteOnAttribute]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemSetBulkCompleteOnAttribute]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttribute]    Script Date: 09/26/2016 16:53:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[st_ItemSetBulkCompleteOnAttribute]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@Affected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+	UPDATE TB_ITEM_SET
+			SET IS_COMPLETED = @COMPLETE
+			WHERE SET_ID = @SET_ID
+				AND ITEM_ID IN (SELECT itemID from @Items)
+
+	set @Affected = @@ROWCOUNT
+
+SET NOCOUNT OFF
+
+
+GO
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]    Script Date: 09/26/2016 16:54:11 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemSetBulkCompleteOnAttributePreview]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemSetBulkCompleteOnAttributePreview]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]    Script Date: 09/26/2016 16:54:11 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@PotentiallyAffected int = 0 output,
+	@WouldBeAffected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+set @PotentiallyAffected = (select count(itemID) from @Items)
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+set @WouldBeAffected = (select count(itemID) from @Items)
+SET NOCOUNT OFF
+
+
+GO
+
+
 
 
 
