@@ -7,7 +7,7 @@
     d:DesignHeight="40" d:DesignWidth="220">
     
     <StackPanel x:Name="container" Orientation="Horizontal">
-        <Button x:Name="BtLoginOnArchie" Click="BtLoginOnArchie_Click" Content=" Logon Via Archie " Height="30" Margin="4,0,4,0" VerticalAlignment="Center"></Button>
+        <Button x:Name="BtLoginOnArchie" Click="BtLoginOnArchie_Click" Content=" Log in with Cochrane " Height="30" Margin="4,0,4,0" VerticalAlignment="Center"></Button>
         <TextBlock x:Name="txtArchieMsg" TextWrapping="Wrap" Text="" VerticalAlignment="Center" />
     </StackPanel>
 </UserControl>

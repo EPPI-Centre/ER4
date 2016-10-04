@@ -44,7 +44,7 @@ namespace EppiReviewer4
             
             if (bd != null && bd.Tag != null && bd.Tag.ToString() != "" && bd.Resources["status"] != null)
             {
-                txtArchieMsg.Text = "Please wait..." + bd.Tag;
+                txtArchieMsg.Text = "Please wait...";// + bd.Tag;
                 //this is the actual Cochrane logon route, so now we start the route to server-side;
                 //fire a SL event when logging on is done
                 ReviewerPrincipal.Login(bd.Tag.ToString(), bd.Resources["status"].ToString(), "Archie", 0, (o1, e1) =>
@@ -65,7 +65,28 @@ namespace EppiReviewer4
                         {
                             txtArchieMsg.Text = "Invalid login. Please try again.";
                             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                            txtArchieMsg.Text = ri.Ticket;
+                            //txtArchieMsg.Text = ri.Ticket;
+                            if (ri.Ticket.IndexOf("Error: ") == 0)
+                            {
+                                StackPanel sp = new StackPanel();
+                                sp.Orientation = Orientation.Vertical;
+                                TextBlock tb1 = new TextBlock();
+                                tb1.Text = "Your Cochrane account does not grant access to EPPI-Reviewer.";
+                                tb1.FontWeight = FontWeights.Bold;
+                                sp.Children.Add(tb1);
+                                TextBlock tb2 = new TextBlock();
+                                tb2.Text = "Access is restricted to Cochrane authors and others involved in the review" + Environment.NewLine
+                                         + "writing process. If you believe you should have access, please contact" + Environment.NewLine 
+                                         + "your review group to verify you have been assigned the correct roles.";
+                                sp.Children.Add(tb2);
+                                TextBlock tb3 = new TextBlock();
+                                tb3.Text = "Otherwise, the details below will help the EPPI-Support team to understand" + Environment.NewLine + "the issue:";
+                                sp.Children.Add(tb3);
+                                TextBlock tb4 = new TextBlock();
+                                tb4.Text = ri.Ticket;
+                                sp.Children.Add(tb4);
+                                RadWindow.Alert(sp);
+                            }
                         }
                     }
                 );
@@ -83,7 +104,7 @@ namespace EppiReviewer4
                         + "Error message is:" + Environment.NewLine +
                         error + Environment.NewLine + errorDescr);
                 }
-                txtArchieMsg.Text = "Did not work!?!";
+                txtArchieMsg.Text = "Cochrane authentication failed.";
             }
         }
     }

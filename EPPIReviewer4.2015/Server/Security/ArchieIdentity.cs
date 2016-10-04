@@ -22,7 +22,7 @@ using System.Xml.Linq;
 
 namespace BusinessLibrary.Security
 {
-     
+
     [Serializable]
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
@@ -130,16 +130,16 @@ namespace BusinessLibrary.Security
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
             _code = code;
             _status = status;
-            string dest = BaseAddress + "oauth2/token";
+            string dest = AccountBaseAddress + "oauth2/token";
             string json = "";
             Dictionary<string, object> dict;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
             System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
-            
+
             if (!FromLocal)//we need to authenticate on Archie
             {
                 string host = Environment.MachineName.ToLower();
-                
+
                 string redirect = "";
                 if (host == "eppi.ioe.ac.uk" || host == "epi2" || host == "epi2.ioe.ac.uk")
                 {//use live address: this is the real published ER4
@@ -163,13 +163,13 @@ namespace BusinessLibrary.Security
                 //see http://code.pearson.com/pearson-learningstudio/apis/authentication/authentication-sample-code/sample-code-oauth-2-c_x
                 //and http://stackoverflow.com/questions/2764577/forcing-basic-authentication-in-webrequest
 
-                
+
                 WebClient webc = new WebClient();
                 webc.Headers[HttpRequestHeader.Authorization] = "Basic " + authInfo;
                 nvcoll.Add("code", _code);//apparently Uri.EscapeDataString(...) breaks this, so no escaping is done.
                 nvcoll.Add("redirect_uri", redirect);
                 nvcoll.Add("grant_type", "authorization_code");
-                
+
                 Token = "";
                 RefreshToken = "";
                 Error = "";
@@ -188,7 +188,7 @@ namespace BusinessLibrary.Security
                     {
                         throw new Exception("WebResponse is null: " + we.Message + Environment.NewLine
                             + (we.InnerException != null && we.InnerException.Message != null ? we.InnerException.Message : ""));
-                        
+
                     }
                     using (var reader = new StreamReader(wr.GetResponseStream()))
                     {
@@ -198,7 +198,7 @@ namespace BusinessLibrary.Security
                             + (we.InnerException != null && we.InnerException.Message != null ? we.InnerException.Message : ""));
                         }
                         json = reader.ReadToEnd();
-                        
+
                         webc.Dispose();
                     }
                 }
@@ -228,46 +228,49 @@ namespace BusinessLibrary.Security
                     ErrorReason = dict["error_description"].ToString();
                 }
                 if (Error == "")
-                {
-                    //all data from first round trip to Archie is filled in, now, if user is authenticated, we need to find out who this person is
-                    WebClient ValidateWC = new WebClient();
-                    ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                    nvcoll.Clear();
-                    nvcoll.Add("access_token", Token);
-                    nvcoll.Add("detailed", "true");
-                    dest = BaseAddress + "/oauth2/tokeninfo";
-                    try
-                    {
-                        byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                        json = Encoding.ASCII.GetString(responseArray);
-                        ValidateWC.Dispose();
-                    }
-                    catch (WebException we)
-                    {//if request is unsuccessful, we get an error inside the WebException
-                        WebResponse wr = we.Response;
-                        using (var reader = new StreamReader(wr.GetResponseStream()))
-                        {
-                            json = reader.ReadToEnd();
-                        }
-                    }
-                    dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                    if (dict.ContainsKey("error"))
-                    {
-                        Error = "Token Failed Validation: " + dict["error"].ToString();
-                        if (dict.ContainsKey("error_description"))
-                        {
-                            ErrorReason = dict["error_description"].ToString();
-                        }
-                    }
-                    else
-                    {
-                        if (dict.ContainsKey("user_id"))
-                        {
-                            ArchieID = dict["user_id"].ToString();
-                            SaveTokens();
-                        }
-                    }
-                }
+                    //legacy code, used when all Cochrane accounts had legitimate access to ER4. We now use a != API call to learn who the user is and if it has access.
+                    //{
+                    //    //all data from first round trip to Archie is filled in, now, if user is authenticated, we need to find out who this person is
+                    //    WebClient ValidateWC = new WebClient();
+                    //    ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
+                    //    nvcoll.Clear();
+                    //    nvcoll.Add("access_token", Token);
+                    //    nvcoll.Add("detailed", "true");
+                    //    dest = BaseAddress + "/oauth2/tokeninfo";
+                    //    try
+                    //    {
+                    //        byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
+                    //        json = Encoding.ASCII.GetString(responseArray);
+                    //        ValidateWC.Dispose();
+                    //    }
+                    //    catch (WebException we)
+                    //    {//if request is unsuccessful, we get an error inside the WebException
+                    //        WebResponse wr = we.Response;
+                    //        using (var reader = new StreamReader(wr.GetResponseStream()))
+                    //        {
+                    //            json = reader.ReadToEnd();
+                    //        }
+                    //    }
+                    //    dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                    //    if (dict.ContainsKey("error"))
+                    //    {
+                    //        Error = "Token Failed Validation: " + dict["error"].ToString();
+                    //        if (dict.ContainsKey("error_description"))
+                    //        {
+                    //            ErrorReason = dict["error_description"].ToString();
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        if (dict.ContainsKey("user_id"))
+                    //        {
+                    //            ArchieID = dict["user_id"].ToString();
+                    //            SaveTokens();
+                    //        }
+                    //    }
+                    //}
+                    VerifyUserRoles();
+                if (IsAuthenticated) SaveTokens();
             }
             else
             {
@@ -306,46 +309,50 @@ namespace BusinessLibrary.Security
                     if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
                             && ArchieID != null && ArchieID != "")
                     {//all is well: check token with Archie (just in case) and go back
-                        WebClient ValidateWC = new WebClient();
-                        ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
-                        nvcoll.Clear();
-                        nvcoll.Add("access_token", Token);
-                        //no need to get details?
-                        //nvcoll.Add("detailed", "true");
-                        dest = BaseAddress +  "/oauth2/tokeninfo";
-                        try
-                        {
-                            byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
-                            json = Encoding.ASCII.GetString(responseArray);
-                            ValidateWC.Dispose();
-                        }
-                        catch (WebException we)
-                        {//if request is unsuccessful, we get an error inside the WebException
-                            WebResponse wr = we.Response;
-                            using (var reader = new StreamReader(wr.GetResponseStream()))
-                            {
-                                json = reader.ReadToEnd();
-                            }
-                        }
-                        dict = (Dictionary<string, object>)ser.DeserializeObject(json);
-                        if (dict.ContainsKey("error"))
-                        {
-                            //Error = "Token Failed Validation: " + dict["error"].ToString();
-                            Token = "";//we just remove the token, reasons will be set below
-                            ValidUntil =  DateTime.Now.AddDays(-1);
-                            //if (dict.ContainsKey("error_description"))
-                            //{
-                            //    ErrorReason = dict["error_description"].ToString();
-                            //}
-                        }
-                        else
-                        {
-                            if (!dict.ContainsKey("user_name"))
-                            {//something is wrong, the tokeninfo call did not yeild the expected results
-                                Token = "";//we just remove the token, reasons will be set below
-                                ValidUntil = DateTime.Now.AddDays(-1);
-                            }
-                        }
+
+                        VerifyUserRoles();
+                        if (IsAuthenticated) SaveTokens();
+                        //old CODE using TokenInfo, we now get info about the person instead (to check for membership)
+                        //WebClient ValidateWC = new WebClient();
+                        //ValidateWC.Headers[HttpRequestHeader.Authorization] = "Bearer " + authInfo;
+                        //nvcoll.Clear();
+                        //nvcoll.Add("access_token", Token);
+                        ////no need to get details?
+                        ////nvcoll.Add("detailed", "true");
+                        //dest = BaseAddress + "/oauth2/tokeninfo";
+                        //try
+                        //{
+                        //    byte[] responseArray = ValidateWC.UploadValues(dest, "POST", nvcoll);
+                        //    json = Encoding.ASCII.GetString(responseArray);
+                        //    ValidateWC.Dispose();
+                        //}
+                        //catch (WebException we)
+                        //{//if request is unsuccessful, we get an error inside the WebException
+                        //    WebResponse wr = we.Response;
+                        //    using (var reader = new StreamReader(wr.GetResponseStream()))
+                        //    {
+                        //        json = reader.ReadToEnd();
+                        //    }
+                        //}
+                        //dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                        //if (dict.ContainsKey("error"))
+                        //{
+                        //    //Error = "Token Failed Validation: " + dict["error"].ToString();
+                        //    Token = "";//we just remove the token, reasons will be set below
+                        //    ValidUntil = DateTime.Now.AddDays(-1);
+                        //    //if (dict.ContainsKey("error_description"))
+                        //    //{
+                        //    //    ErrorReason = dict["error_description"].ToString();
+                        //    //}
+                        //}
+                        //else
+                        //{
+                        //    if (!dict.ContainsKey("user_name"))
+                        //    {//something is wrong, the tokeninfo call did not yeild the expected results
+                        //        Token = "";//we just remove the token, reasons will be set below
+                        //        ValidUntil = DateTime.Now.AddDays(-1);
+                        //    }
+                        //}
                     }
 
                     //actually, none of the below should happen:
@@ -366,6 +373,105 @@ namespace BusinessLibrary.Security
                     //    //we don't wipe ArchieID because:
                     //    //OK, archie Token is expired, but user might be changing review, so we can still trust him/her in case there is associated valid LogonTicket
                     //}
+                }
+            }
+        }
+
+        private void VerifyUserRoles()
+        {
+            {
+                //all data from first round trip to Archie is filled in, 
+                //now, if user is authenticated, we need to find out who this person is.
+                //But fisrt, check if it has some supervised role, otherwise it is a self-generated Cochrane account (open to anyone)
+                //in which case access should be denied.
+
+                string dest = BaseAddress + "rest/people/me";
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
+                HttpWebResponse response = null;
+                request.Method = "GET";
+                request.MediaType = "application/xml";
+                request.Headers.Add("Authorization", "Bearer " + Token);
+                string json = ""; Dictionary<string, object> dict;
+                try
+                {
+                    response = (HttpWebResponse)request.GetResponse();
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        json = reader.ReadToEnd();
+                    }
+                }
+                catch (WebException we)
+                {//if request is unsuccessful, we get an error inside the WebException
+                    WebResponse wr = we.Response;
+                    using (var reader = new StreamReader(wr.GetResponseStream()))
+                    {
+                        json = reader.ReadToEnd();
+                    }
+                }
+                System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+                dict = (Dictionary<string, object>)ser.DeserializeObject(json);
+                if (dict.ContainsKey("error"))
+                {
+                    Error = "Token Failed Validation: " + dict["error"].ToString();
+                    if (dict.ContainsKey("error_description"))
+                    {
+                        ErrorReason = dict["error_description"].ToString();
+                    }
+                }
+                else
+                {
+                    string result = "";
+                    if (dict.ContainsKey("groupRoles"))
+                    {
+                        object[] roles = dict["groupRoles"] as object[];
+                        foreach (Dictionary<string, object> role in roles)
+                        {
+                            if (role["name"].ToString().ToLower() != "possible contributor"
+                                && role["name"].ToString().ToLower() != "mailing list"
+                                && role["name"].ToString().ToLower() != "other")
+                            {
+                                if (dict.ContainsKey("user"))
+                                {
+                                    Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
+                                    if (userD.ContainsKey("userId"))
+                                    {
+                                        ArchieID = userD["userId"].ToString();
+                                        result = "OK";
+                                        break;
+                                    }
+                                    else result = "no userId for this person!";
+                                    //"user": {
+                                    //   "userId": "z1607150942450721585638601392868",
+                                    //    "userName": "rasmus.moustgaard@gmail.com",
+                                    //    "link": "https://test-archie.cochrane.org/rest/users/z1607150942450721585638601392868"
+                                    //  },
+                                }
+                                else
+                                {
+                                    result = "no user Info returned!";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (result != "OK")
+                    {
+                        Token = "";
+                        RefreshToken = "";
+                        ValidUntil = DateTime.Now.AddMonths(-1);
+                        if (result == "")
+                        {
+                            Error = "Access denied, not an Author";
+                            ErrorReason = "No suitable groupRoles found";
+                        }
+                        else
+                        {
+                            Error = "Access denied, can't verify";
+                            ErrorReason = "The call to rest/people/me returned data, but " + result;
+                        }
+
+                    }
+
                 }
             }
         }
@@ -505,16 +611,16 @@ namespace BusinessLibrary.Security
 
             //call the refresh API
             //if success, return true and save new Token to DB
-            string dest = BaseAddress + "oauth2/token";
+            string dest = AccountBaseAddress + "oauth2/token";
 
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
             WebClient webc = new WebClient();
             webc.Headers[HttpRequestHeader.Authorization] = "Basic " + authInfo;
-            nvcoll.Add("redirect_uri", redirect); 
+            nvcoll.Add("redirect_uri", redirect);
             nvcoll.Add("refresh_token", _RefreshToken);
             nvcoll.Add("grant_type", "refresh_token");
             string json = "";
-            
+
             int ValidFor;
             ValidUntil = new DateTime();
             Dictionary<string, object> dict;
@@ -568,8 +674,16 @@ namespace BusinessLibrary.Security
             }
             if (Error == "")
             {//save to DB
-                SaveTokens();
-                return true;
+                VerifyUserRoles();
+                if (IsAuthenticated)
+                {
+                    SaveTokens();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             //if fail:
@@ -585,11 +699,11 @@ namespace BusinessLibrary.Security
         private bool SaveTokens()
         {
             if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
-                && ArchieID != null && ArchieID !="")
+                && ArchieID != null && ArchieID != "")
             {//we can do something
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    connection.Open(); 
+                    connection.Open();
                     using (SqlCommand command = new SqlCommand("st_ArchieSaveTokens", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -621,7 +735,7 @@ namespace BusinessLibrary.Security
         {//this is used while logging on a review, we need to get the basic user details in order to log on a review and return a full RI object
             IsSiteAdmin = false;
             ContactName = "{UnidentifiedArchieUser}";
-            if (!IsAuthenticated && (RefreshToken == null || RefreshToken =="") )
+            if (!IsAuthenticated && (RefreshToken == null || RefreshToken == ""))
             {//we could just have the refresh token!!!!!!!!!!!
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 return 0;
@@ -663,8 +777,8 @@ namespace BusinessLibrary.Security
                 return _Token;
             }
             private set
-            { 
-                _Token = value; 
+            {
+                _Token = value;
             }
         }
         public string RefreshToken
@@ -683,7 +797,7 @@ namespace BusinessLibrary.Security
             get { return _ValidUntil; }
             private set { _ValidUntil = value; }
         }
-        
+
         private string BaseAddress
         {
             get
@@ -708,12 +822,36 @@ namespace BusinessLibrary.Security
                 }
             }
         }
+        private string AccountBaseAddress
+        {
+            get
+            {
+                string host = Environment.MachineName.ToLower();
+                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                {//use live address: this is the real published ER4
+                    return "https://account.cochrane.org/";
+                }
+                if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
+                {//use live address: this is the real published ER4
+                    return "https://account.cochrane.org/";
+                }
+                else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
+                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+                    //changes are to be made here depending on what test we're doing
+                    return "https://test-account.cochrane.org/";
+                }
+                else
+                {//not a live publish, use test archie
+                    return "https://test-account.cochrane.org/";
+                }
+            }
+        }
         public XDocument GetXMLQuery(string PartialEndpoint, Dictionary<string, string> parameters)
         {
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer(); 
+            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
             //WebClient webc = new WebClient();
             //webc.Headers[HttpRequestHeader.Authorization] = "Bearer " + accessToken ;
             //webc.Headers[HttpRequestHeader.ContentType] = "application/xml";
@@ -737,13 +875,13 @@ namespace BusinessLibrary.Security
                 {
                     First = false;
                 }
-                dest += KVP.Key + "=" +  KVP.Value;
+                dest += KVP.Key + "=" + KVP.Value;
             }
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
 
-            
-            
+
+
             //// Write data
             //Stream postStream = request.GetRequestStream();
             //postStream.Write(byteArray, 0, byteArray.Length);
@@ -772,8 +910,8 @@ namespace BusinessLibrary.Security
                     json = reader.ReadToEnd();
                 }
             }
-            
-            
+
+
             //try
             //{
             //    byte[] responseArray = webc.UploadValues(dest, "GET", nvcoll);
@@ -789,7 +927,7 @@ namespace BusinessLibrary.Security
             //}
             //Dictionary<string, object> dict = (Dictionary<string, object>)ser.DeserializeObject(json);
             //return dict;
-            return XDocument.Parse( json);
+            return XDocument.Parse(json);
         }
 
         public XDocument CheckOutReview(string ArchieReviewID)
@@ -852,7 +990,7 @@ namespace BusinessLibrary.Security
                 {
                     json = reader.ReadToEnd();
                 }
-                
+
             }
             catch (WebException we)
             {
