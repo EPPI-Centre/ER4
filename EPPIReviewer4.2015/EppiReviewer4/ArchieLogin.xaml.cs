@@ -44,7 +44,7 @@ namespace EppiReviewer4
             
             if (bd != null && bd.Tag != null && bd.Tag.ToString() != "" && bd.Resources["status"] != null)
             {
-                txtArchieMsg.Text = "Please wait..." + bd.Tag;
+                txtArchieMsg.Text = "Please wait...";// + bd.Tag;
                 //this is the actual Cochrane logon route, so now we start the route to server-side;
                 //fire a SL event when logging on is done
                 ReviewerPrincipal.Login(bd.Tag.ToString(), bd.Resources["status"].ToString(), "Archie", 0, (o1, e1) =>
@@ -65,7 +65,29 @@ namespace EppiReviewer4
                         {
                             txtArchieMsg.Text = "Invalid login. Please try again.";
                             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                            txtArchieMsg.Text = ri.Ticket;
+                            //txtArchieMsg.Text = ri.Ticket;
+                            if (ri.Ticket.IndexOf("Access denied, not an Author") == 0 || ri.Ticket.IndexOf("Access denied, can't verify") == 0)
+                            {//specific error, stuff worked user did authenticate, but user isn't a Cochrane author, so we will explain why this is happening
+                                StackPanel sp = new StackPanel();
+                                sp.Orientation = Orientation.Vertical;
+                                TextBlock tb1 = new TextBlock();
+                                tb1.Text = "Your Cochrane account does not grant access to EPPI-Reviewer.";
+                                tb1.FontWeight = FontWeights.Bold;
+                                sp.Children.Add(tb1);
+                                TextBlock tb2 = new TextBlock();
+                                tb2.Text = "Access is restricted to Cochrane authors and others involved in the review" + Environment.NewLine
+                                         + "writing process. If you believe you should have access, please contact" + Environment.NewLine 
+                                         + "your review group to verify you have been assigned the correct roles.";
+                                sp.Children.Add(tb2);
+                                TextBlock tb3 = new TextBlock();
+                                tb3.Text = "Otherwise, the details below will help the EPPI-Support team to understand" + Environment.NewLine + "the issue:";
+                                sp.Children.Add(tb3);
+                                TextBlock tb4 = new TextBlock();
+                                tb4.Text = ri.Ticket;
+                                sp.Children.Add(tb4);
+                                RadWindow.Alert(sp);
+                            }
+                            //we ignore all other error details and just say "Invalid login. Please try again."
                         }
                     }
                 );
@@ -83,7 +105,7 @@ namespace EppiReviewer4
                         + "Error message is:" + Environment.NewLine +
                         error + Environment.NewLine + errorDescr);
                 }
-                txtArchieMsg.Text = "Did not work!?!";
+                txtArchieMsg.Text = "Cochrane authentication failed.";
             }
         }
     }
@@ -103,16 +125,16 @@ namespace EppiReviewer4
                 string dest = "";
                 if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
                 {//use live address: this is the real published ER4
-                    dest = "https://archie.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://account.cochrane.org/oauth2/auth?client_id=";
                 }
                 else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
                 {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
                     //changes are to be made here depending on what test we're doing
-                    dest = "https://test-archie.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
                 }
                 else
                 {//not a live publish, use test archie
-                    dest = "https://test-archie.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
                 }
                 return dest;
             }

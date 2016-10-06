@@ -63,10 +63,18 @@
                     <Image Height="24" Width="81" Name="image1" Stretch="Fill" Source="/EppiReviewer4;component/Icons/FollowUs.png" />
                 </HyperlinkButton>
             <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="2,8,2,2">
-                <Image Source="Icons/cochrane_logo.png" Grid.Column="0" Grid.Row="0" Width="24" Height="31" Margin="0,2,4,0"/>
-                <TextBlock FontWeight="Bold" VerticalAlignment="Center">For Cochrane Authors: </TextBlock>
+                <Border Height="30" Width="34" BorderThickness="0">
+                    <Border.Clip>
+                        <RectangleGeometry Rect="0,0,30,34"/>
+                    </Border.Clip>
+                    <Image Source="Icons/cochrane_logo.png" Grid.Column="0" Grid.Row="0" Height="28" Width="132" Margin="3,0" VerticalAlignment="Top" />
+                </Border>
+                <TextBlock FontWeight="Bold" VerticalAlignment="Center">For </TextBlock>
+                
+                <TextBlock Foreground="#ff002d64" VerticalAlignment="Center" FontFamily="Source Sans Pro, Lucida Sans Unicode" Margin="2,0,2,0" FontWeight="Bold" FontSize="12"> Cochrane Authors:</TextBlock>
+                <!--<TextBlock FontWeight="Bold" VerticalAlignment="Center"> </TextBlock>-->
                 <HyperlinkButton x:Name="swithcToArche" FontWeight="Bold" Content="click HERE" Click="swithcToArche_Click" Foreground="#FF0082C8" VerticalAlignment="Center" />
-                <TextBlock VerticalAlignment="Center"> to logon with your Archie credentials</TextBlock>
+                <TextBlock VerticalAlignment="Center" Text="to logon with your Cochrane Account"/>
             </StackPanel>
            <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" BorderThickness="0,1,0,1" 
                 Background="#FFA7D9F3" BorderBrush="#FF0C4F91" Margin="6,6,6,12" 
@@ -129,12 +137,12 @@
                 <ColumnDefinition Width="125"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="Icons/cochrane_logo.png" Grid.Column="0" Grid.Row="0" Width="86" Height="111"/>
-            <Image Source="Icons/Archie.png" Width="243" Height="75" Grid.Column="1" Margin="57,18,65,21" />
+            <Image Source="Icons/cochrane_logo.png" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Width="472" Height="100"/>
+            <!--<Image Source="Icons/Archie.png" Width="243" Height="75" Grid.Column="1" Margin="57,18,65,21" />-->
             <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" BorderThickness="0,1,0,0" BorderBrush="#FF3C7FB1" 
                     Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="2,4,2,2">
                 <TextBlock  TextWrapping="Wrap" VerticalAlignment="Top" Margin="6,2,6,2">
-                This screen allows you to logon in EPPI-Reviewer using your Archie credentials.
+                This screen allows you to logon in EPPI-Reviewer using your Cochrane Account.
                 </TextBlock>
             </Border>
             <Button Content="&lt;- Back " Click="Back_Click" Height="28" Margin="0,29,19,44" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" />
