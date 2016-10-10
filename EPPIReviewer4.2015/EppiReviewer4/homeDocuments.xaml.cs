@@ -1193,6 +1193,7 @@ namespace EppiReviewer4
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "GetItemSearchList";
             SelectionCritieraItemList.SearchId = search.SearchId;
+            SelectionCritieraItemList.ShowScoreColumn = true;
 
             TextBlockShowing.Text = "Showing: " + search.Title;
             DocumentListPane.SelectedIndex = 0;
@@ -2998,6 +2999,7 @@ namespace EppiReviewer4
                 SelectionCritieraItemList.SourceId = 0;
                 SelectionCritieraItemList.PageNumber = 0;
                 SelectionCritieraItemList.AttributeSetIdList = attributeList;
+                SelectionCritieraItemList.ShowInfoColumn = true;
                 LoadItemList();
                 DocumentListPane.SelectedIndex = 0;
             }
@@ -3021,6 +3023,7 @@ namespace EppiReviewer4
                 SelectionCritieraItemList.SourceId = 0;
                 SelectionCritieraItemList.PageNumber = 0;
                 SelectionCritieraItemList.AttributeSetIdList = attributeList;
+                SelectionCritieraItemList.ShowInfoColumn = true;
                 LoadItemList();
                 DocumentListPane.SelectedIndex = 0;
             }
@@ -4087,6 +4090,8 @@ on the right of the main screen");
             CslaDataProvider provider = this.Resources["ItemListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
             SelectionCritieraItemList.PageSize = Convert.ToInt32(windowColumnSelect.UpDownPageSize.Value);
+            ItemsGrid.Columns[11].IsVisible = SelectionCritieraItemList.ShowInfoColumn && windowColumnSelect.cbDataColumnAdditionalText.IsChecked == true;
+            ItemsGrid.Columns[12].IsVisible = SelectionCritieraItemList.ShowScoreColumn && windowColumnSelect.cbDataColumnScore.IsChecked == true;
             provider.FactoryParameters.Add(SelectionCritieraItemList);
             provider.FactoryMethod = "GetItemList";
             provider.Refresh();
@@ -4102,6 +4107,8 @@ on the right of the main screen");
             windowColumnSelect.cbDataColumnShortTitle.IsChecked = ItemsGrid.Columns[8].IsVisible;
             windowColumnSelect.cbDataColumnItemType.IsChecked = ItemsGrid.Columns[9].IsVisible;
             windowColumnSelect.cbDataColumnYear.IsChecked = ItemsGrid.Columns[10].IsVisible;
+            windowColumnSelect.cbDataColumnAdditionalText.IsChecked = ItemsGrid.Columns[11].IsVisible;
+            windowColumnSelect.cbDataColumnScore.IsChecked = ItemsGrid.Columns[12].IsVisible;
             windowColumnSelect.ShowDialog();
         }
 
@@ -4115,6 +4122,8 @@ on the right of the main screen");
             ItemsGrid.Columns[8].IsVisible = windowColumnSelect.cbDataColumnShortTitle.IsChecked == true;
             ItemsGrid.Columns[9].IsVisible = windowColumnSelect.cbDataColumnItemType.IsChecked == true;
             ItemsGrid.Columns[10].IsVisible = windowColumnSelect.cbDataColumnYear.IsChecked == true;
+            ItemsGrid.Columns[11].IsVisible = windowColumnSelect.cbDataColumnAdditionalText.IsChecked == true;
+            ItemsGrid.Columns[12].IsVisible = windowColumnSelect.cbDataColumnScore.IsChecked == true;
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
             ItemList iL = provider.Data as ItemList;
             int I = Convert.ToInt32(windowColumnSelect.UpDownPageSize.Value);

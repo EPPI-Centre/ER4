@@ -110,16 +110,14 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            if (_classifierId > 0)
+            if (_attributeIdOn + _attributeIdNotOn != -2)
             {
-                DoApplyClassifier(_classifierId);
+                DoTrainClassifier(false);
+                
             }
             else
             {
-                if (_classifierId == -1)
-                    DoTrainClassifier(false);
-                else
-                    DoTrainClassifier(true);
+                DoApplyClassifier(_classifierId, _attributeIdClassifyTo);
             }
 
             
@@ -157,10 +155,10 @@ namespace BusinessLibrary.BusinessClasses
                 // Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
                 int ModelId = await UploadDataAndBuildModelAsync(newModelId);
 
-                if (applyToo == true)
-                {
-                    DoApplyClassifier(ModelId);
-                }
+                //if (applyToo == true)
+                //{
+                //    DoApplyClassifier(ModelId);
+                //}
             }
         }
         
@@ -316,27 +314,28 @@ namespace BusinessLibrary.BusinessClasses
 
         private double GetSafeValue(string data)
         {
-            double retval = 0.00001;
-            if (data == "1")
+            if (data.Length > 2 && data.Contains("E"))
             {
-                data = "0.999999";
+                if (data == "1")
+                {
+                    data = "0.999999";
+                }
+                else if (data == "0")
+                {
+                    data = "0.000001";
+                }
+                else if (data.Length > 2 && data.Contains("E"))
+                {
+                    double dbl = 0;
+                    double.TryParse(data, out dbl);
+                    //if (dbl == 0.0) throw new Exception("Gotcha!");
+                    data = dbl.ToString("F10");
+                }
             }
-            else if (data == "0")
-            {
-                data = "0.000001";
-            }
-            else if (data.Length > 2 && data.Contains("E"))
-            {
-                double dbl = 0;
-                double.TryParse(data, out dbl);
-                if (dbl == 0.0) throw new Exception("Gotcha!");
-                data = dbl.ToString("F10");
-            }
-            double.TryParse(data, out retval);
-            return retval;
+            return Convert.ToDouble(data);
         }
 
-        private async void DoApplyClassifier(int modelId)
+        private async void DoApplyClassifier(int modelId, Int64 ApplyToAttributeId)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -352,7 +351,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdClassifyTo));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
@@ -383,8 +382,9 @@ namespace BusinessLibrary.BusinessClasses
                 // upload data to blob
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-                CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
-                    + "ToScore.csv");
+                CloudBlockBlob blockBlobData;
+                
+                blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv");
                 //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
@@ -397,8 +397,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container2 = blobClient2.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Scores.csv");
-
+                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv");
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
                 MemoryStream ms = new MemoryStream(myFile);
 
@@ -413,15 +412,36 @@ namespace BusinessLibrary.BusinessClasses
                     csvReader.HasFieldsEnclosedInQuotes = false;
                     while (!csvReader.EndOfData)
                     {
-                        var data1 = csvReader.ReadFields();
-                        for (var i = 0; i < data1.Length; i++)
+                        string[] data = csvReader.ReadFields();
+                        if (data.Length == 3)
                         {
-                            if (data1[i] == "")
+                            if (data[0] == "1")
                             {
-                                data1[i] = null;
+                                data[0] = "0.999999";
                             }
+                            else if (data[0] == "0")
+                            {
+                                data[0] = "0.000001";
+                            }
+                            else if (data[0].Length > 2 && data[0].Contains("E"))
+                            {
+                                double dbl = 0;
+                                double.TryParse(data[0], out dbl);
+                                //if (dbl == 0.0) throw new Exception("Gotcha!");
+                                data[0] = dbl.ToString("F10");
+                            }
+                            dt.Rows.Add(data);
                         }
-                        dt.Rows.Add(data1);
+
+                        //var data1 = csvReader.ReadFields();
+                        //for (var i = 0; i < data1.Length; i++)
+                        //{
+                        //    if (data1[i] == "")
+                        //    {
+                        //        data1[i] = null;
+                        //    }
+                        //}
+                        //dt.Rows.Add(data);
                     }
                 }
                 using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
@@ -538,9 +558,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Scores.csv" },
+                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv" },
+                            { "ModelFile", @"attributemodels/"  + (modelId == -1 ? "RCTModel" : "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString()) + ".csv" },
+                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv" },
                         }
                     };
                 }

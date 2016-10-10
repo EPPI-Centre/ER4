@@ -777,6 +777,32 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(KeywordsProperty, value);
             }
         }
+        private static PropertyInfo<string> AttributeAdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAdditionalText", "AttributeAdditionalText", string.Empty));
+        public string AttributeAdditionalText
+        {
+            get
+            {
+                return GetProperty(AttributeAdditionalTextProperty);
+            }
+            set
+            {
+                SetProperty(AttributeAdditionalTextProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
+        public int Rank
+        {
+            get
+            {
+                return GetProperty(RankProperty);
+            }
+            set
+            {
+                SetProperty(RankProperty, value);
+            }
+        }
+
         /*
         [NotUndoable]
         private static PropertyInfo<ItemDocumentList> DocumentsProperty = RegisterProperty<ItemDocumentList>(new PropertyInfo<ItemDocumentList>("Documents", "Documents"));
@@ -1137,6 +1163,15 @@ namespace BusinessLibrary.BusinessClasses
 
         internal static Item GetItem(SafeDataReader reader)
         {
+            bool HasAdditionalText = false;
+            bool HasRank = false;
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals("ADDITIONAL_TEXT", StringComparison.InvariantCultureIgnoreCase))
+                    HasAdditionalText = true;
+                if (reader.GetName(i).Equals("ITEM_RANK", StringComparison.InvariantCultureIgnoreCase))
+                    HasRank = true;
+            }
             Item returnValue = new Item();
             returnValue.LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<Int64>(MasterItemIdProperty, reader.GetInt64("MASTER_ITEM_ID"));
@@ -1172,10 +1207,15 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(IsIncludedProperty, reader.GetBoolean("IS_INCLUDED"));
             returnValue.LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
             returnValue.LoadProperty<string>(KeywordsProperty, reader.GetString("KEYWORDS"));
+            if (HasAdditionalText == true)
+                returnValue.LoadProperty<string>(AttributeAdditionalTextProperty, reader.GetString("ADDITIONAL_TEXT"));
+            if (HasRank == true)
+                returnValue.LoadProperty<Int32>(RankProperty, reader.GetInt32("ITEM_RANK"));
             returnValue.SetItemStatusProperty();
             returnValue.MarkOld();
             return returnValue;
         }
+        
 
 #endif
 

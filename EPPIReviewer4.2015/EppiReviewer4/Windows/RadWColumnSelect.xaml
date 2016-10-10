@@ -54,7 +54,9 @@
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
-            </Grid.RowDefinitions>
+                <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="130"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -68,8 +70,11 @@
             <CheckBox x:Name="cbDataColumnShortTitle" Content="Short title" Grid.Row="6" Grid.Column="1"></CheckBox>
             <CheckBox x:Name="cbDataColumnItemType" Content="Document type" Grid.Row="7" Grid.Column="1"></CheckBox>
             <CheckBox x:Name="cbDataColumnYear" Content="Year" Grid.Row="8" Grid.Column="1"></CheckBox>
-            <TextBlock Grid.Row="9" Grid.Column="0" Text="Maximum no of rows" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
-            <telerik:RadNumericUpDown Grid.Row="9" Grid.Column="1" x:Name="UpDownPageSize" Margin="0,6,6,6" Width="50" Maximum="4000" Minimum="10" IsInteger="True" Value="700" HorizontalAlignment="Left" />
-            <Button x:Name="cmdCloseWindowColumnSelect" Grid.Row="10" Grid.Column="1" Width="80" Content="Close" HorizontalAlignment="Right" Margin="3,3,3,3" Click="cmdCloseWindowColumnSelect_Click"></Button>
+            <CheckBox x:Name="cbDataColumnAdditionalText" Content="Info" Grid.Row="9" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnScore" Content="Score" Grid.Row="10" Grid.Column="1"></CheckBox>
+
+        <TextBlock Grid.Row="11" Grid.Column="0" Text="Maximum no of rows" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
+            <telerik:RadNumericUpDown Grid.Row="11" Grid.Column="1" x:Name="UpDownPageSize" Margin="0,6,6,6" Width="50" Maximum="4000" Minimum="10" IsInteger="True" Value="700" HorizontalAlignment="Left" />
+            <Button x:Name="cmdCloseWindowColumnSelect" Grid.Row="12" Grid.Column="1" Width="80" Content="Close" HorizontalAlignment="Right" Margin="3,3,3,3" Click="cmdCloseWindowColumnSelect_Click"></Button>
         </Grid>
 </telerik:RadWindow>

@@ -5,9 +5,9 @@
         xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
         xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
                    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
-		           Header="Classifier"
-                   Height="400" 
-                   Width="600"
+		           Header="Machine learning classifier"
+                   Height="450" 
+                   Width="860"
                    CanClose="True"
                    CanMove="False" 
                    IsRestricted="True"
@@ -15,7 +15,7 @@
                    RestoreMinimizedLocation="True"
                    RestrictedAreaMargin="22"
                    WindowStartupLocation="CenterScreen"
-                   WindowState="Maximized"
+                   WindowState="Normal"
                    >
     <!--
     NOTES:
@@ -51,7 +51,7 @@
     </telerik:RadWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
@@ -66,49 +66,69 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"></ColumnDefinition>
-            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
             <ColumnDefinition Width="220"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="5,5,5,5" Text="The classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which are saved for future use); and then the model is applied to new items." TextWrapping="Wrap"></TextBlock>
-        <TextBlock Grid.Row="1" Grid.Column="0" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 1: build the model" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
-        <TextBlock Grid.Row="1" Grid.Column="2" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 2: apply the model" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
-        <TextBlock Grid.Row="2" Grid.Column="0" Margin="3,3,3,3" Text="Learn to apply this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
-        <local:codesSelectControl x:Name="codesSelectControlTrainOn" Grid.Row="2" Grid.Column="1" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to apply"></local:codesSelectControl>
-        <TextBlock Grid.Row="3" Grid.Column="0" Margin="3,3,3,3" Text="Distinguish from this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
-        <local:codesSelectControl x:Name="codesSelectControlTrainNotOn" Grid.Row="3" Grid.Column="1" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to distinguish from"></local:codesSelectControl>
-        <TextBlock Grid.Row="4" Grid.Column="0" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
-        <TextBox Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
-        <Button x:Name="cmdBuildModel" Grid.Row="6" Margin="10,2,10,2" Grid.Column="1" Click="cmdBuildModel_Click">Build model</Button>
+        <Border Background="LightBlue" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="9"></Border>
+        <Border Background="LightGray" Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="11"></Border>
+        <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Margin="5,10,5,5" TextWrapping="Wrap">
+            <Run Text="The machine learning classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which is saved for future use); and then the model is applied to new items. One 'pre-built' classifier is available: the 'RCT model', which will automatically identify RCTs for you; it has been trained on more than 280,000 records screened by the Cochrane Crowd."/>
+            <LineBreak/>
+            <Run Text="(This function enables you to build a linear classifier from a bag of words representation of your studies, using the scikit-learn python library.)" />
+        </TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="1" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 1: build the model" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="4" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 2: apply the model" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
+        <TextBlock Grid.Row="2" Grid.Column="1" Margin="3,3,3,3" Text="Learn to apply this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlTrainOn" Grid.Row="2" Grid.Column="2" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to apply"></local:codesSelectControl>
+        <TextBlock Grid.Row="3" Grid.Column="1" Margin="3,3,3,3" Text="Distinguish from this code" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlTrainNotOn" Grid.Row="3" Grid.Column="2" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to distinguish from"></local:codesSelectControl>
+        <TextBlock Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
+        <TextBox Grid.Row="4" Grid.Column="2" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
+        <Button x:Name="cmdBuildModel" ToolTipService.ToolTip="Build new model" Grid.Row="6" Grid.Column="2" Click="cmdBuildModel_Click" Margin="26,4,10,6">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="16" Height="16" Source="../Icons/run-build-configure.png"/>
+                <TextBlock Text="Build model" Margin="5,0,5,0"/>
+            </StackPanel>
+        </Button>
 
-        <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="2" Grid.RowSpan="5" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+        <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="4" Grid.RowSpan="5" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,0"
                                     RowIndicatorVisibility="Collapsed" ItemsSource="{Binding Source={StaticResource ClassifierModelListData}, Path=Data}"
                                     SelectionMode="Single">
 
             <telerikGridView:RadGridView.Columns>
                 <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding ModelTitle}" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn Header="Applies" DataMemberBinding="{Binding AttributeOn}" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn Header="Compared with" DataMemberBinding="{Binding AttributeNotOn}" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn Header="Precision" DataMemberBinding="{Binding Precision}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn Header="Recall" DataMemberBinding="{Binding Recall}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Applies" DataMemberBinding="{Binding AttributeOn}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Compared with" DataMemberBinding="{Binding AttributeNotOn}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Precision" DataMemberBinding="{Binding Precision}" Width="80" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                <telerikGridView:GridViewDataColumn Header="Recall" DataMemberBinding="{Binding Recall}" Width="80" DataFormatString="{}{0:F2}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
             </telerikGridView:RadGridView.Columns>
 
         </telerik:RadGridView>
-        <TextBlock Grid.Row="8" Grid.Column="2" Margin="3,3,3,3" Text="Apply to items with this code" VerticalAlignment="Center"></TextBlock>
-        <local:codesSelectControl x:Name="codesSelectControlClassifyTo" Grid.Row="8" Grid.Column="3" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you have used to define the items you want to be classified"></local:codesSelectControl>
-        <Button x:Name="cmdApplyModel" Grid.Row="9" Margin="10,2,10,2" Grid.Column="3" Click="cmdApplyModel_Click">Apply code</Button>
+        <local:codesSelectControl x:Name="codesSelectControlClassifyTo" Grid.Row="10" Grid.Column="5" Margin="3,1,5,7" ToolTipService.ToolTip="Select the code that you have used to define the items you want to be classified" IsEnabled="False"/>
+        <RadioButton x:Name="rbApplySelectedModel" Grid.Column="4" Grid.Row="8" Content="Apply above selected model" GroupName="ApplyWhat" IsChecked="true"  Margin="5,5,5,5"></RadioButton>
+        <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="9" Content="Apply RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+        <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
+        <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
 
-        <Button x:Name="cmdRefreshModelList" ToolTipService.ToolTip="Refresh model list" Grid.Row="9" Grid.Column="2" Click="cmdRefreshModelList_Click"
-                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+        <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="11" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
             <StackPanel Orientation="Horizontal">
-                <Image Width="16" Height="16" Source="../Icons/view-refresh-7.png"/>
-                <TextBlock Text="Refresh model list" Margin="5,0,5,0"></TextBlock>
+                <Image Width="16" Height="16" Source="../Icons/run-build-install.png"/>
+                <TextBlock Text="Apply model" Margin="5,0,5,0"/>
             </StackPanel>
         </Button>
 
-        <TextBlock Grid.Row="10" Grid.Column="0" Margin="3,3,3,3" Text="Stages 1 and 2 combined" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
-        <Button x:Name="cmdLearnAndApplyModel" Grid.Row="11" Margin="10,2,10,2" Grid.Column="0" Click="cmdLearnAndApplyModel_Click">Learn and apply code</Button>
+        <Button x:Name="cmdRefreshModelList" ToolTipService.ToolTip="Refresh model list" Grid.Row="1" Grid.Column="5" Click="cmdRefreshModelList_Click"
+                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Margin="26,4,10,6">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="16" Height="16" Source="../Icons/view-refresh-7.png"/>
+                <TextBlock Text="Refresh model list" Margin="5,0,5,0"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </telerik:RadWindow>

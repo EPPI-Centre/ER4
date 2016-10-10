@@ -1241,6 +1241,26 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<bool> ShowInfoColumnProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("ShowInfoColumn", "ShowInfoColumn", false));
+        public bool ShowInfoColumn
+        {
+            get { return ReadProperty(ShowInfoColumnProperty); }
+            set
+            {
+                SetProperty(ShowInfoColumnProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ShowScoreColumnProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("ShowScoreColumn", "ShowScoreColumn", false));
+        public bool ShowScoreColumn
+        {
+            get { return ReadProperty(ShowScoreColumnProperty); }
+            set
+            {
+                SetProperty(ShowScoreColumnProperty, value);
+            }
+        }
+
         public SelectionCriteria() { }
 
     }

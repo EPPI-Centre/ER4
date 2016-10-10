@@ -93,7 +93,7 @@ namespace EppiReviewer4
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
             //end of read-only ui hack
-            cmdShowClassificationWindow.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            //cmdShowClassificationWindow.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             //enter RadWindow properties...
             Thickness thk = new Thickness(20);
             windowEditOutcomes.Header = "Edit outcomes";
@@ -123,8 +123,8 @@ namespace EppiReviewer4
 
             windowClassifier.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
             windowClassifier.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            windowClassifier.WindowState = WindowState.Maximized;
-            windowClassifier.ResizeMode = ResizeMode.NoResize;
+            //windowClassifier.WindowState = WindowState.Maximized;
+            //windowClassifier.ResizeMode = ResizeMode.NoResize;
             windowClassifier.RestrictedAreaMargin = thk;
             windowClassifier.IsRestricted = true;
             //end of dialogCoding

@@ -332,11 +332,13 @@
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnId" Header="ID" DataMemberBinding="{Binding ItemId}" ShowDistinctFilters="False" Width="60" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnOldId" Header="YourID" DataMemberBinding="{Binding OldItemId}" ShowDistinctFilters="False" Width="71" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnAuthors" Header="Authors" DataMemberBinding="{Binding Authors}" ShowDistinctFilters="False" Width="100" ></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnTitle" Header="Title" DataMemberBinding="{Binding Title}" ShowDistinctFilters="False"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnTitle" Header="Title" DataMemberBinding="{Binding Title}" ShowDistinctFilters="False" Width="130*"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnJournal" Header="Journal" DataMemberBinding="{Binding ParentTitle}" ShowDistinctFilters="True" Width="70" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnShortTitle" Header="Short title" DataMemberBinding="{Binding ShortTitle}" ShowDistinctFilters="False" Width="70" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnItemType" Header="Type" DataMemberBinding="{Binding TypeName}" ShowDistinctFilters="True" Width="90" IsVisible="False"></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnYear" Header="Year" DataMemberBinding="{Binding Year}" ShowDistinctFilters="True" Width="*" MaxWidth="70" IsVisible="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnYear" Header="Year" DataMemberBinding="{Binding Year}" ShowDistinctFilters="True" Width="20*" MaxWidth="70" IsVisible="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnScore" Header="Info" DataMemberBinding="{Binding AttributeAdditionalText}" ShowDistinctFilters="True" Width="70*" IsVisible="False"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnRank" Header="Score" DataMemberBinding="{Binding Rank}" ShowDistinctFilters="True" Width="20*" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
 

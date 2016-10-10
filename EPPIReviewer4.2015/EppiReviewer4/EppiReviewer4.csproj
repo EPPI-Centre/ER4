@@ -1040,6 +1040,8 @@
     <Resource Include="Icons\ShowRow.png" />
     <Resource Include="Icons\arrow-down.png" />
     <Resource Include="Icons\view-refresh-7.png" />
+    <Resource Include="Icons\run-build-configure.png" />
+    <Resource Include="Icons\run-build-install.png" />
     <Content Include="pMed.png" />
     <Content Include="ServiceReferences.ClientConfig">
       <SubType>Designer</SubType>
