@@ -606,6 +606,674 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        // ****************************** THESE FIELDS ARE FOR THE GRADE ASSESSMENT OF THIS META-ANALYSIS *************************
+
+        private static PropertyInfo<int> RoBProperty = RegisterProperty<int>(new PropertyInfo<int>("RoB", "RoB"));
+        public int RoB
+        {
+            get
+            {
+                return GetProperty(RoBProperty);
+            }
+            set
+            {
+                SetProperty(RoBProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> InconProperty = RegisterProperty<int>(new PropertyInfo<int>("Incon", "Incon"));
+        public int Incon
+        {
+            get
+            {
+                return GetProperty(InconProperty);
+            }
+            set
+            {
+                SetProperty(InconProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> IndirectProperty = RegisterProperty<int>(new PropertyInfo<int>("Indirect", "Indirect"));
+        public int Indirect
+        {
+            get
+            {
+                return GetProperty(IndirectProperty);
+            }
+            set
+            {
+                SetProperty(IndirectProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> ImprecProperty = RegisterProperty<int>(new PropertyInfo<int>("Imprec", "Imprec"));
+        public int Imprec
+        {
+            get
+            {
+                return GetProperty(ImprecProperty);
+            }
+            set
+            {
+                SetProperty(ImprecProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> PubBiasProperty = RegisterProperty<int>(new PropertyInfo<int>("PubBias", "PubBias"));
+        public int PubBias
+        {
+            get
+            {
+                return GetProperty(PubBiasProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasProperty, value);
+            }
+        }
+
+        private static PropertyInfo<int> CertaintyLevelProperty = RegisterProperty<int>(new PropertyInfo<int>("CertaintyLevel", "CertaintyLevel"));
+        public int CertaintyLevel
+        {
+            get
+            {
+                return GetProperty(CertaintyLevelProperty);
+            }
+            set
+            {
+                SetProperty(CertaintyLevelProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> RoBCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("RoBComment", "RoBComment", string.Empty));
+        public string RoBComment
+        {
+            get
+            {
+                return GetProperty(RoBCommentProperty);
+            }
+            set
+            {
+                SetProperty(RoBCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBSequenceProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSequence", "RoBSequence", false));
+        public bool RoBSequence
+        {
+            get
+            {
+                return GetProperty(RoBSequenceProperty);
+            }
+            set
+            {
+                SetProperty(RoBSequenceProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBConcealmentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBConcealment", "RoBConcealment", false));
+        public bool RoBConcealment
+        {
+            get
+            {
+                return GetProperty(RoBConcealmentProperty);
+            }
+            set
+            {
+                SetProperty(RoBConcealmentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBBlindingParticipantsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingParticipants", "RoBBlindingParticipants", false));
+        public bool RoBBlindingParticipants
+        {
+            get
+            {
+                return GetProperty(RoBBlindingParticipantsProperty);
+            }
+            set
+            {
+                SetProperty(RoBBlindingParticipantsProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBBlindingAssessorsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBBlindingAssessors", "RoBBlindingAssessors", false));
+        public bool RoBBlindingAssessors
+        {
+            get
+            {
+                return GetProperty(RoBBlindingAssessorsProperty);
+            }
+            set
+            {
+                SetProperty(RoBBlindingAssessorsProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBIncompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBIncomplete", "RoBIncomplete", false));
+        public bool RoBIncomplete
+        {
+            get
+            {
+                return GetProperty(RoBIncompleteProperty);
+            }
+            set
+            {
+                SetProperty(RoBIncompleteProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBSelectiveProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBSelective", "RoBSelective", false));
+        public bool RoBSelective
+        {
+            get
+            {
+                return GetProperty(RoBSelectiveProperty);
+            }
+            set
+            {
+                SetProperty(RoBSelectiveProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBNoIntentionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBNoIntention", "RoBNoIntention", false));
+        public bool RoBNoIntention
+        {
+            get
+            {
+                return GetProperty(RoBNoIntentionProperty);
+            }
+            set
+            {
+                SetProperty(RoBNoIntentionProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBCarryoverProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBCarryover", "RoBCarryover", false));
+        public bool RoBCarryover
+        {
+            get
+            {
+                return GetProperty(RoBCarryoverProperty);
+            }
+            set
+            {
+                SetProperty(RoBCarryoverProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBStoppedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBStopped", "RoBStopped", false));
+        public bool RoBStopped
+        {
+            get
+            {
+                return GetProperty(RoBStoppedProperty);
+            }
+            set
+            {
+                SetProperty(RoBStoppedProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBUnvalidatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBUnvalidated", "RoBUnvalidated", false));
+        public bool RoBUnvalidated
+        {
+            get
+            {
+                return GetProperty(RoBUnvalidatedProperty);
+            }
+            set
+            {
+                SetProperty(RoBUnvalidatedProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> RoBOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("RoBOther", "RoBOther", false));
+        public bool RoBOther
+        {
+            get
+            {
+                return GetProperty(RoBOtherProperty);
+            }
+            set
+            {
+                SetProperty(RoBOtherProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> InconCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("InconComment", "InconComment", string.Empty));
+        public string InconComment
+        {
+            get
+            {
+                return GetProperty(InconCommentProperty);
+            }
+            set
+            {
+                SetProperty(InconCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> InconPointProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconPoint", "InconPoint", false));
+        public bool InconPoint
+        {
+            get
+            {
+                return GetProperty(InconPointProperty);
+            }
+            set
+            {
+                SetProperty(InconPointProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> InconCIsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconCIs", "InconCIs", false));
+        public bool InconCIs
+        {
+            get
+            {
+                return GetProperty(InconCIsProperty);
+            }
+            set
+            {
+                SetProperty(InconCIsProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> InconDirectionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconDirection", "InconDirection", false));
+        public bool InconDirection
+        {
+            get
+            {
+                return GetProperty(InconDirectionProperty);
+            }
+            set
+            {
+                SetProperty(InconDirectionProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> InconStatisticalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconStatistical", "InconStatistical", false));
+        public bool InconStatistical
+        {
+            get
+            {
+                return GetProperty(InconStatisticalProperty);
+            }
+            set
+            {
+                SetProperty(InconStatisticalProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> InconOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("InconOther", "InconOther", false));
+        public bool InconOther
+        {
+            get
+            {
+                return GetProperty(InconOtherProperty);
+            }
+            set
+            {
+                SetProperty(InconOtherProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> IndirectCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("IndirectComment", "IndirectComment", string.Empty));
+        public string IndirectComment
+        {
+            get
+            {
+                return GetProperty(IndirectCommentProperty);
+            }
+            set
+            {
+                SetProperty(IndirectCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectPopulationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectPopulation", "IndirectPopulation", false));
+        public bool IndirectPopulation
+        {
+            get
+            {
+                return GetProperty(IndirectPopulationProperty);
+            }
+            set
+            {
+                SetProperty(IndirectPopulationProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectOutcomeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOutcome", "IndirectOutcome", false));
+        public bool IndirectOutcome
+        {
+            get
+            {
+                return GetProperty(IndirectOutcomeProperty);
+            }
+            set
+            {
+                SetProperty(IndirectOutcomeProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectNoDirectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectNoDirect", "IndirectNoDirect", false));
+        public bool IndirectNoDirect
+        {
+            get
+            {
+                return GetProperty(IndirectNoDirectProperty);
+            }
+            set
+            {
+                SetProperty(IndirectNoDirectProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectInterventionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectIntervention", "IndirectIntervention", false));
+        public bool IndirectIntervention
+        {
+            get
+            {
+                return GetProperty(IndirectInterventionProperty);
+            }
+            set
+            {
+                SetProperty(IndirectInterventionProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectTimeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectTime", "IndirectTime", false));
+        public bool IndirectTime
+        {
+            get
+            {
+                return GetProperty(IndirectTimeProperty);
+            }
+            set
+            {
+                SetProperty(IndirectTimeProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> IndirectOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IndirectOther", "IndirectOther", false));
+        public bool IndirectOther
+        {
+            get
+            {
+                return GetProperty(IndirectOtherProperty);
+            }
+            set
+            {
+                SetProperty(IndirectOtherProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> ImprecCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("ImprecComment", "ImprecComment", string.Empty));
+        public string ImprecComment
+        {
+            get
+            {
+                return GetProperty(ImprecCommentProperty);
+            }
+            set
+            {
+                SetProperty(ImprecCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ImprecWideProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecWide", "ImprecWide", false));
+        public bool ImprecWide
+        {
+            get
+            {
+                return GetProperty(ImprecWideProperty);
+            }
+            set
+            {
+                SetProperty(ImprecWideProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ImprecFewProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecFew", "ImprecFew", false));
+        public bool ImprecFew
+        {
+            get
+            {
+                return GetProperty(ImprecFewProperty);
+            }
+            set
+            {
+                SetProperty(ImprecFewProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ImprecOnlyOneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOnlyOne", "ImprecOnlyOne", false));
+        public bool ImprecOnlyOne
+        {
+            get
+            {
+                return GetProperty(ImprecOnlyOneProperty);
+            }
+            set
+            {
+                SetProperty(ImprecOnlyOneProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ImprecOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ImprecOther", "ImprecOther", false));
+        public bool ImprecOther
+        {
+            get
+            {
+                return GetProperty(ImprecOtherProperty);
+            }
+            set
+            {
+                SetProperty(ImprecOtherProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> PubBiasCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("PubBiasComment", "PubBiasComment", string.Empty));
+        public string PubBiasComment
+        {
+            get
+            {
+                return GetProperty(PubBiasCommentProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasCommerciallyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasCommercially", "PubBiasCommercially", false));
+        public bool PubBiasCommercially
+        {
+            get
+            {
+                return GetProperty(PubBiasCommerciallyProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasCommerciallyProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasAsymmetricalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasAsymmetrical", "PubBiasAsymmetrical", false));
+        public bool PubBiasAsymmetrical
+        {
+            get
+            {
+                return GetProperty(PubBiasAsymmetricalProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasAsymmetricalProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasLimitedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasLimited", "PubBiasLimited", false));
+        public bool PubBiasLimited
+        {
+            get
+            {
+                return GetProperty(PubBiasLimitedProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasLimitedProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasMissingProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasMissing", "PubBiasMissing", false));
+        public bool PubBiasMissing
+        {
+            get
+            {
+                return GetProperty(PubBiasMissingProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasMissingProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasDiscontinuedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscontinued", "PubBiasDiscontinued", false));
+        public bool PubBiasDiscontinued
+        {
+            get
+            {
+                return GetProperty(PubBiasDiscontinuedProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasDiscontinuedProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasDiscrepancyProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasDiscrepancy", "PubBiasDiscrepancy", false));
+        public bool PubBiasDiscrepancy
+        {
+            get
+            {
+                return GetProperty(PubBiasDiscrepancyProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasDiscrepancyProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> PubBiasOtherProperty = RegisterProperty<bool>(new PropertyInfo<bool>("PubBiasOther", "PubBiasOther", false));
+        public bool PubBiasOther
+        {
+            get
+            {
+                return GetProperty(PubBiasOtherProperty);
+            }
+            set
+            {
+                SetProperty(PubBiasOtherProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> UpgradeCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("UpgradeComment", "UpgradeComment", string.Empty));
+        public string UpgradeComment
+        {
+            get
+            {
+                return GetProperty(UpgradeCommentProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeCommentProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> UpgradeLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeLarge", "UpgradeLarge", false));
+        public bool UpgradeLarge
+        {
+            get
+            {
+                return GetProperty(UpgradeLargeProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeLargeProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> UpgradeVeryLargeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeVeryLarge", "UpgradeVeryLarge", false));
+        public bool UpgradeVeryLarge
+        {
+            get
+            {
+                return GetProperty(UpgradeVeryLargeProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeVeryLargeProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> UpgradeAllPlausibleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeAllPlausible", "UpgradeAllPlausible", false));
+        public bool UpgradeAllPlausible
+        {
+            get
+            {
+                return GetProperty(UpgradeAllPlausibleProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeAllPlausibleProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> UpgradeClearProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeClear", "UpgradeClear", false));
+        public bool UpgradeClear
+        {
+            get
+            {
+                return GetProperty(UpgradeClearProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeClearProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> UpgradeNoneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UpgradeNone", "UpgradeNone", false));
+        public bool UpgradeNone
+        {
+            get
+            {
+                return GetProperty(UpgradeNoneProperty);
+            }
+            set
+            {
+                SetProperty(UpgradeNoneProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> CertaintyLevelCommentProperty = RegisterProperty<string>(new PropertyInfo<string>("CertaintyLevelComment", "CertaintyLevelComment", string.Empty));
+        public string CertaintyLevelComment
+        {
+            get
+            {
+                return GetProperty(CertaintyLevelCommentProperty);
+            }
+            set
+            {
+                SetProperty(CertaintyLevelCommentProperty, value);
+            }
+        }
+
+
+        // ***************************************** END FIELDS FOR GRADE ASSESSMENT ********************************************
+
         /* Meta-analysis types:
          *     1: Continuous: d (Hedges g)
          *     2: Continuous: r
@@ -1002,6 +1670,58 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_TYPE_ID", ReadProperty(MetaAnalysisTypeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
+                    command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBSequence", ReadProperty(RoBSequenceProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBConcealment", ReadProperty(RoBConcealmentProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBBlindingParticipants", ReadProperty(RoBBlindingParticipantsProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBBlindingAssessors", ReadProperty(RoBBlindingAssessorsProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBIncomplete", ReadProperty(RoBIncompleteProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBSelective", ReadProperty(RoBSelectiveProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBNoIntention", ReadProperty(RoBNoIntentionProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBCarryover", ReadProperty(RoBCarryoverProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBStopped", ReadProperty(RoBStoppedProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBUnvalidated", ReadProperty(RoBUnvalidatedProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBOther", ReadProperty(RoBOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Incon", ReadProperty(InconProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconComment", ReadProperty(InconCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconPoint", ReadProperty(InconPointProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconCIs", ReadProperty(InconCIsProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconDirection", ReadProperty(InconDirectionProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconStatistical", ReadProperty(InconStatisticalProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconOther", ReadProperty(InconOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Indirect", ReadProperty(IndirectProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectComment", ReadProperty(IndirectCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectPopulation", ReadProperty(IndirectPopulationProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectOutcome", ReadProperty(IndirectOutcomeProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectNoDirect", ReadProperty(IndirectNoDirectProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectIntervention", ReadProperty(IndirectInterventionProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectTime", ReadProperty(IndirectTimeProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectOther", ReadProperty(IndirectOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Imprec", ReadProperty(ImprecProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecComment", ReadProperty(ImprecCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecWide", ReadProperty(ImprecWideProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecFew", ReadProperty(ImprecFewProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecOnlyOne", ReadProperty(ImprecOnlyOneProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecOther", ReadProperty(ImprecOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBias", ReadProperty(PubBiasProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasComment", ReadProperty(PubBiasCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasCommercially", ReadProperty(PubBiasCommerciallyProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasAsymmetrical", ReadProperty(PubBiasAsymmetricalProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasLimited", ReadProperty(PubBiasLimitedProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasMissing", ReadProperty(PubBiasMissingProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasDiscontinued", ReadProperty(PubBiasDiscontinuedProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasDiscrepancy", ReadProperty(PubBiasDiscrepancyProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasOther", ReadProperty(PubBiasOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeComment", ReadProperty(UpgradeCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeLarge", ReadProperty(UpgradeLargeProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeVeryLarge", ReadProperty(UpgradeVeryLargeProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeAllPlausible", ReadProperty(UpgradeAllPlausibleProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeClear", ReadProperty(UpgradeClearProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeNone", ReadProperty(UpgradeNoneProperty)));
+                    command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
+                    command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
+
                     SqlParameter par = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT", System.Data.SqlDbType.NVarChar);
                     par.Size = 4000;
                     command.Parameters.Add(par);
@@ -1050,6 +1770,57 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
                     command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBSequence", ReadProperty(RoBSequenceProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBConcealment", ReadProperty(RoBConcealmentProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBBlindingParticipants", ReadProperty(RoBBlindingParticipantsProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBBlindingAssessors", ReadProperty(RoBBlindingAssessorsProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBIncomplete", ReadProperty(RoBIncompleteProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBSelective", ReadProperty(RoBSelectiveProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBNoIntention", ReadProperty(RoBNoIntentionProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBCarryover", ReadProperty(RoBCarryoverProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBStopped", ReadProperty(RoBStoppedProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBUnvalidated", ReadProperty(RoBUnvalidatedProperty)));
+                    command.Parameters.Add(new SqlParameter("@RoBOther", ReadProperty(RoBOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Incon", ReadProperty(InconProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconComment", ReadProperty(InconCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconPoint", ReadProperty(InconPointProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconCIs", ReadProperty(InconCIsProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconDirection", ReadProperty(InconDirectionProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconStatistical", ReadProperty(InconStatisticalProperty)));
+                    command.Parameters.Add(new SqlParameter("@InconOther", ReadProperty(InconOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Indirect", ReadProperty(IndirectProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectComment", ReadProperty(IndirectCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectPopulation", ReadProperty(IndirectPopulationProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectOutcome", ReadProperty(IndirectOutcomeProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectNoDirect", ReadProperty(IndirectNoDirectProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectIntervention", ReadProperty(IndirectInterventionProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectTime", ReadProperty(IndirectTimeProperty)));
+                    command.Parameters.Add(new SqlParameter("@IndirectOther", ReadProperty(IndirectOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@Imprec", ReadProperty(ImprecProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecComment", ReadProperty(ImprecCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecWide", ReadProperty(ImprecWideProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecFew", ReadProperty(ImprecFewProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecOnlyOne", ReadProperty(ImprecOnlyOneProperty)));
+                    command.Parameters.Add(new SqlParameter("@ImprecOther", ReadProperty(ImprecOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBias", ReadProperty(PubBiasProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasComment", ReadProperty(PubBiasCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasCommercially", ReadProperty(PubBiasCommerciallyProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasAsymmetrical", ReadProperty(PubBiasAsymmetricalProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasLimited", ReadProperty(PubBiasLimitedProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasMissing", ReadProperty(PubBiasMissingProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasDiscontinued", ReadProperty(PubBiasDiscontinuedProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasDiscrepancy", ReadProperty(PubBiasDiscrepancyProperty)));
+                    command.Parameters.Add(new SqlParameter("@PubBiasOther", ReadProperty(PubBiasOtherProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeComment", ReadProperty(UpgradeCommentProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeLarge", ReadProperty(UpgradeLargeProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeVeryLarge", ReadProperty(UpgradeVeryLargeProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeAllPlausible", ReadProperty(UpgradeAllPlausibleProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeClear", ReadProperty(UpgradeClearProperty)));
+                    command.Parameters.Add(new SqlParameter("@UpgradeNone", ReadProperty(UpgradeNoneProperty)));
+                    command.Parameters.Add(new SqlParameter("@CertaintyLevel", ReadProperty(CertaintyLevelProperty)));
+                    command.Parameters.Add(new SqlParameter("@CertaintyLevelComment", ReadProperty(CertaintyLevelCommentProperty)));
                     SqlParameter par = new SqlParameter("@NEW_META_ANALYSIS_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -1147,6 +1918,58 @@ namespace BusinessLibrary.BusinessClasses
                 returnValue.LoadProperty<string>(AttributeQuestionTextProperty, reader.GetString("ATTRIBUTE_QUESTION_TEXT"));
             else
                 returnValue.LoadProperty<string>(AttributeQuestionTextProperty, "");
+
+            returnValue.LoadProperty<string>(RoBCommentProperty, reader.GetString("RoBComment"));
+            returnValue.LoadProperty<int>(RoBProperty, reader.GetInt32("RoB"));
+            returnValue.LoadProperty<int>(InconProperty, reader.GetInt32("Incon"));
+            returnValue.LoadProperty<string>(InconCommentProperty, reader.GetString("InconComment"));
+            returnValue.LoadProperty<bool>(RoBSequenceProperty, reader.GetBoolean("RoBSequence"));
+            returnValue.LoadProperty<bool>(RoBConcealmentProperty, reader.GetBoolean("RoBConcealment"));
+            returnValue.LoadProperty<bool>(RoBBlindingParticipantsProperty, reader.GetBoolean("RoBBlindingParticipants"));
+            returnValue.LoadProperty<bool>(RoBBlindingAssessorsProperty, reader.GetBoolean("RoBBlindingAssessors"));
+            returnValue.LoadProperty<bool>(RoBIncompleteProperty, reader.GetBoolean("RoBIncomplete"));
+            returnValue.LoadProperty<bool>(RoBSelectiveProperty, reader.GetBoolean("RoBSelective"));
+            returnValue.LoadProperty<bool>(RoBNoIntentionProperty, reader.GetBoolean("RoBNoIntention"));
+            returnValue.LoadProperty<bool>(RoBCarryoverProperty, reader.GetBoolean("RoBCarryover"));
+            returnValue.LoadProperty<bool>(RoBStoppedProperty, reader.GetBoolean("RoBStopped"));
+            returnValue.LoadProperty<bool>(RoBUnvalidatedProperty, reader.GetBoolean("RoBUnvalidated"));
+            returnValue.LoadProperty<bool>(RoBOtherProperty, reader.GetBoolean("RoBOther"));
+            returnValue.LoadProperty<bool>(InconPointProperty, reader.GetBoolean("InconPoint"));
+            returnValue.LoadProperty<bool>(InconCIsProperty, reader.GetBoolean("InconCIs"));
+            returnValue.LoadProperty<bool>(InconDirectionProperty, reader.GetBoolean("InconDirection"));
+            returnValue.LoadProperty<bool>(InconStatisticalProperty, reader.GetBoolean("InconStatistical"));
+            returnValue.LoadProperty<bool>(InconOtherProperty, reader.GetBoolean("InconOther"));
+            returnValue.LoadProperty<int>(IndirectProperty, reader.GetInt32("Indirect"));
+            returnValue.LoadProperty<string>(IndirectCommentProperty, reader.GetString("IndirectComment"));
+            returnValue.LoadProperty<bool>(IndirectPopulationProperty, reader.GetBoolean("IndirectPopulation"));
+            returnValue.LoadProperty<bool>(IndirectOutcomeProperty, reader.GetBoolean("IndirectOutcome"));
+            returnValue.LoadProperty<bool>(IndirectNoDirectProperty, reader.GetBoolean("IndirectNoDirect"));
+            returnValue.LoadProperty<bool>(IndirectInterventionProperty, reader.GetBoolean("IndirectIntervention"));
+            returnValue.LoadProperty<bool>(IndirectTimeProperty, reader.GetBoolean("IndirectTime"));
+            returnValue.LoadProperty<bool>(IndirectOtherProperty, reader.GetBoolean("IndirectOther"));
+            returnValue.LoadProperty<int>(ImprecProperty, reader.GetInt32("Imprec"));
+            returnValue.LoadProperty<string>(ImprecCommentProperty, reader.GetString("ImprecComment"));
+            returnValue.LoadProperty<bool>(ImprecWideProperty, reader.GetBoolean("ImprecWide"));
+            returnValue.LoadProperty<bool>(ImprecFewProperty, reader.GetBoolean("ImprecFew"));
+            returnValue.LoadProperty<bool>(ImprecOnlyOneProperty, reader.GetBoolean("ImprecOnlyOne"));
+            returnValue.LoadProperty<bool>(ImprecOtherProperty, reader.GetBoolean("ImprecOther"));
+            returnValue.LoadProperty<int>(PubBiasProperty, reader.GetInt32("PubBias"));
+            returnValue.LoadProperty<string>(PubBiasCommentProperty, reader.GetString("PubBiasComment"));
+            returnValue.LoadProperty<bool>(PubBiasCommerciallyProperty, reader.GetBoolean("PubBiasCommercially"));
+            returnValue.LoadProperty<bool>(PubBiasAsymmetricalProperty, reader.GetBoolean("PubBiasAsymmetrical"));
+            returnValue.LoadProperty<bool>(PubBiasLimitedProperty, reader.GetBoolean("PubBiasLimited"));
+            returnValue.LoadProperty<bool>(PubBiasMissingProperty, reader.GetBoolean("PubBiasMissing"));
+            returnValue.LoadProperty<bool>(PubBiasDiscontinuedProperty, reader.GetBoolean("PubBiasDiscontinued"));
+            returnValue.LoadProperty<bool>(PubBiasDiscrepancyProperty, reader.GetBoolean("PubBiasDiscrepancy"));
+            returnValue.LoadProperty<bool>(PubBiasOtherProperty, reader.GetBoolean("PubBiasOther"));
+            returnValue.LoadProperty<string>(UpgradeCommentProperty, reader.GetString("UpgradeComment"));
+            returnValue.LoadProperty<bool>(UpgradeLargeProperty, reader.GetBoolean("UpgradeLarge"));
+            returnValue.LoadProperty<bool>(UpgradeVeryLargeProperty, reader.GetBoolean("UpgradeVeryLarge"));
+            returnValue.LoadProperty<bool>(UpgradeAllPlausibleProperty, reader.GetBoolean("UpgradeAllPlausible"));
+            returnValue.LoadProperty<bool>(UpgradeClearProperty, reader.GetBoolean("UpgradeClear"));
+            returnValue.LoadProperty<bool>(UpgradeNoneProperty, reader.GetBoolean("UpgradeNone"));
+            returnValue.LoadProperty<int>(CertaintyLevelProperty, reader.GetInt32("CertaintyLevel"));
+            returnValue.LoadProperty<string>(CertaintyLevelCommentProperty, reader.GetString("CertaintyLevelComment"));
             returnValue.MarkOld();
 
             //loading on the fly now, as they take too long if there's a lot of outcomes / meta-analyses

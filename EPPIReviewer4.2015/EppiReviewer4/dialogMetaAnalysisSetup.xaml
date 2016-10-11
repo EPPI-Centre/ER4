@@ -212,6 +212,13 @@
 
             </telerik:RadTabItem>
             <telerik:RadTabItem Header="Qualitative Comparative Analysis (QCA)" Content="Coming soon!" Visibility="Visible"></telerik:RadTabItem>
+
+            <telerik:RadTabItem Header="GRADE" Visibility="Visible">
+                <Grid x:Name="GRADEGrid">
+                    
+                </Grid>
+            </telerik:RadTabItem>
+
         </telerik:RadTabControl>
 
     <Grid Grid.Row="1" x:Name="OutcomesAndModeratorsGrid">
