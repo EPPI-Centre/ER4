@@ -388,9 +388,11 @@ namespace EppiReviewer4
 
             ResetScreeningUI();
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576) // Alison and Ian
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
+                cmdScreeningSimulationSave.Visibility = Visibility.Visible;
             }
         }
 
@@ -409,8 +411,6 @@ namespace EppiReviewer4
                     RevInfoprovider.DataChanged += RevInfoprovider_DataChanged;
                     RevInfoprovider.Refresh();
                 }
-
-
             }
         }
         private string checker = DateTime.Now.ToString("mm-ss");
