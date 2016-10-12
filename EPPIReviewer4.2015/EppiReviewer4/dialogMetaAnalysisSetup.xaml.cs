@@ -629,6 +629,26 @@ namespace EppiReviewer4
         {
             MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
             _currentSelectedMetaAnalysis.AnalysisType = TabControlAnalyses.SelectedIndex;
+            if (TabControlAnalyses.SelectedIndex == 3)
+            {
+                DetailsGridRow.Height = new GridLength(1, GridUnitType.Star);
+                OutcomesGridRow.Height = new GridLength(30);
+                cmdRunit.Visibility = Visibility.Collapsed;
+                cmdExportGrid.Visibility = Visibility.Collapsed;
+                ComboBoxExportOutcomes.Visibility = Visibility.Collapsed;
+                cmdShowModerators.Visibility = Visibility.Collapsed;
+                cmdAddColumn.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                DetailsGridRow.Height = new GridLength(300);
+                OutcomesGridRow.Height = new GridLength(1, GridUnitType.Star);
+                cmdRunit.Visibility = Visibility.Visible;
+                cmdExportGrid.Visibility = Visibility.Visible;
+                ComboBoxExportOutcomes.Visibility = Visibility.Visible;
+                cmdShowModerators.Visibility = Visibility.Visible;
+                cmdAddColumn.Visibility = Visibility.Visible;
+            }
         }
 
         private void ComboBoxNMAOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

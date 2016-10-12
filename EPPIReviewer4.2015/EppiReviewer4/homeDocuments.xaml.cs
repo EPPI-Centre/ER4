@@ -5478,28 +5478,31 @@ on the right of the main screen");
 
         private void cmdScreeningRunSimulation_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            ReviewInfo RevInfo = provider.Data as ReviewInfo;
-            DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
-            TrainingRunCommand command = new TrainingRunCommand();
-            dp.ExecuteCompleted += (o, e2) =>
+            if (MessageBox.Show("Are you sure you want to run this simulation?", "Confirm run simulation", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                if (e2.Error != null)
+                CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                ReviewInfo RevInfo = provider.Data as ReviewInfo;
+                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                TrainingRunCommand command = new TrainingRunCommand();
+                dp.ExecuteCompleted += (o, e2) =>
                 {
-                    if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                    if (e2.Error != null)
                     {
+                        if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                        {
                         //RadWindow.Alert("Caught timeout exception");
                     }
-                    else
-                    {
-                        RadWindow.Alert(e2.Error.Message);
+                        else
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
                     }
-                }
-            };
-            command.RevInfo = RevInfo;
-            command.Parameters = "DoSimulation";
-            dp.BeginExecute(command);
-            RadWindow.Alert("Simulations now running. This can take hours...");
+                };
+                command.RevInfo = RevInfo;
+                command.Parameters = "DoSimulation";
+                dp.BeginExecute(command);
+                RadWindow.Alert("Simulations now running. This can take hours...");
+            }
         }
 
         private void ScreeningCodeSetComboSelectCodeSet_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -5631,10 +5634,6 @@ on the right of the main screen");
             }
         }
 
-        
-
-        
-
         private void ResetScreeningUI()
         {
             CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
@@ -5712,5 +5711,91 @@ on the right of the main screen");
             }
             
         }
+
+        private void cmdExportItemsGrid_Click(object sender, RoutedEventArgs e)
+        {
+            string extension = "html";
+            ExportFormat format = ExportFormat.Html;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = extension;
+            dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "html");
+            dialog.FilterIndex = 1;
+
+            if (dialog.ShowDialog() == true)
+            {
+                using (Stream stream = dialog.OpenFile())
+                {
+                    GridViewExportOptions exportOptions = new GridViewExportOptions();
+                    exportOptions.Format = format;
+                    //exportOptions.ShowColumnFooters = true;
+                    exportOptions.ShowColumnHeaders = true;
+                    //exportOptions.ShowGroupFooters = true;
+                    //object o = Telerik.Windows.Data.TypeExtensions.DefaultValue;
+                    ItemsGrid.Columns[0].IsVisible = false;
+                    ItemsGrid.Export(stream, exportOptions);
+                    ItemsGrid.Columns[0].IsVisible = true;
+                }
+            }
+        }
+
+        private void cmdScreeningSimulationSave_Click(object sender, RoutedEventArgs e)
+        {
+           
+                CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                ReviewInfo RevInfo = provider.Data as ReviewInfo;
+                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                TrainingRunCommand command = new TrainingRunCommand();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                        {
+                                //RadWindow.Alert("Caught timeout exception");
+                            }
+                        else
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
+                    }
+                    else
+                    {
+                        string results = (e2.Object as TrainingRunCommand).SimulationResults;
+                        if (results == "")
+                        {
+                            cmdScreeningSimulationResults.Visibility = Visibility.Collapsed;
+                            RadWindow.Alert("No results available." + Environment.NewLine + "Please try again later.");
+                        }
+                        else
+                        {
+                            // annoying workaround as you can't open a dialog without user request!
+                            cmdScreeningSimulationResults.Tag = results;
+                            cmdScreeningSimulationResults.Visibility = Visibility.Visible;
+                            RadWindow.Alert("You can download the results now" + Environment.NewLine + "by clicking 'Save results'");
+                        }
+                    }
+                };
+                command.RevInfo = RevInfo;
+                command.Parameters = "FetchSimulationResults";
+                dp.BeginExecute(command);
+            }
+
+        private void cmdScreeningSimulationResults_Click(object sender, RoutedEventArgs e)
+        {
+            string extension = "csv";
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = extension;
+            dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "csv");
+            dialog.FilterIndex = 1;
+
+            if (dialog.ShowDialog() == true)
+            {
+                StreamWriter writer = new StreamWriter(dialog.OpenFile());
+                writer.WriteLine(cmdScreeningSimulationResults.Tag.ToString());
+                writer.Dispose();
+                writer.Close();
+            }
+        }
+
     }
 }

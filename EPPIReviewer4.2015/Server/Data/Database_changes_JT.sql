@@ -1,5 +1,6 @@
 ﻿alter table dbo.tb_meta_analysis
 ADD
+	[Randomised] [int] NULL,
 	[RoB] [int] NULL,
 	[RoBComment] [ntext] NULL,
 	[RoBSequence] [bit] NULL,
@@ -78,6 +79,7 @@ ALTER procedure [dbo].[st_MetaAnalysisInsert]
 	@GRID_SETTINGS NVARCHAR(MAX) = '',
 	@NEW_META_ANALYSIS_ID INT OUTPUT,
 
+	@Randomised [int] NULL,
 	@RoB [int] NULL,
 	@RoBComment [ntext] NULL,
 	@RoBSequence [bit] NULL,
@@ -151,6 +153,7 @@ SET NOCOUNT ON
 	,	ATTRIBUTE_ID_ANSWER
 	,	ATTRIBUTE_ID_QUESTION
 	,	GRID_SETTINGS,
+	[Randomised],
 	[RoB],
 	[RoBComment],
 	[RoBSequence],
@@ -218,6 +221,7 @@ SET NOCOUNT ON
 	,	@ATTRIBUTE_ID_QUESTION
 	,	@GRID_SETTINGS,
 	
+	@Randomised,
 	@RoB,
 	@RoBComment,
 	@RoBSequence,
@@ -317,6 +321,7 @@ ALTER procedure [dbo].[st_MetaAnalysisUpdate]
 	@META_ANALYSIS_TYPE_ID INT,
 	@GRID_SETTINGS NVARCHAR(MAX) = '',
 
+	@Randomised [int] NULL,
 	@RoB [int] NULL,
 	@RoBComment [ntext] NULL,
 	@RoBSequence [bit] NULL,
@@ -390,57 +395,58 @@ SET NOCOUNT ON
 	,	ATTRIBUTE_ID_ANSWER = @ATTRIBUTE_ID_ANSWER
 	,	ATTRIBUTE_ID_QUESTION = @ATTRIBUTE_ID_QUESTION
 	,	GRID_SETTINGS = @GRID_SETTINGS
+	,	Randomised = @Randomised
 	,	Rob = @RoB
 	,	RoBComment = @RoBComment
 	,	RoBSequence = @RoBSequence
-	,	RoBConcealment = RoBConcealment
-	,	RoBBlindingParticipants = RoBBlindingParticipants
-	,	RoBBlindingAssessors = RoBBlindingAssessors
-	,	RoBIncomplete = RoBIncomplete
-	,	RoBSelective = RoBSelective
-	,	RoBNoIntention = RoBNoIntention
-	,	RoBCarryover = RoBCarryover
-	,	RoBStopped = RoBStopped
-	,	RoBUnvalidated = RoBUnvalidated
-	,	RoBOther = RoBOther
-	,	Incon = Incon
-	,	InconComment = InconComment
-	,	InconPoint = InconPoint
-	,	InconCIs = InconCIs
-	,	InconDirection = InconDirection
-	,	InconStatistical = InconStatistical
-	,	InconOther = InconOther
-	,	Indirect = Indirect
-	,	IndirectComment = IndirectComment
-	,	IndirectPopulation = IndirectPopulation
-	,	IndirectOutcome = IndirectOutcome
-	,	IndirectNoDirect = IndirectNoDirect
-	,	IndirectIntervention = IndirectIntervention
-	,	IndirectTime = IndirectTime
-	,	IndirectOther = IndirectOther
-	,	Imprec = Imprec
-	,	ImprecComment = ImprecComment
-	,	ImprecWide = ImprecWide
-	,	ImprecFew = ImprecFew
-	,	ImprecOnlyOne = ImprecOnlyOne
-	,	ImprecOther = ImprecOther
-	,	PubBias = PubBias
-	,	PubBiasComment = PubBiasComment
-	,	PubBiasCommercially = PubBiasCommercially
-	,	PubBiasAsymmetrical = PubBiasAsymmetrical
-	,	PubBiasLimited = PubBiasLimited
-	,	PubBiasMissing = PubBiasMissing
-	,	PubBiasDiscontinued = PubBiasDiscontinued
-	,	PubBiasDiscrepancy = PubBiasDiscrepancy
-	,	PubBiasOther = PubBiasOther
-	,	UpgradeComment = UpgradeComment
-	,	UpgradeLarge = UpgradeLarge
-	,	UpgradeVeryLarge = UpgradeVeryLarge
-	,	UpgradeAllPlausible = UpgradeAllPlausible
-	,	UpgradeClear = UpgradeClear
-	,	UpgradeNone = UpgradeNone
-	,	CertaintyLevel = CertaintyLevel
-	,	CertaintyLevelComment = CertaintyLevelComment
+	,	RoBConcealment = @RoBConcealment
+	,	RoBBlindingParticipants = @RoBBlindingParticipants
+	,	RoBBlindingAssessors = @RoBBlindingAssessors
+	,	RoBIncomplete = @RoBIncomplete
+	,	RoBSelective = @RoBSelective
+	,	RoBNoIntention = @RoBNoIntention
+	,	RoBCarryover = @RoBCarryover
+	,	RoBStopped = @RoBStopped
+	,	RoBUnvalidated = @RoBUnvalidated
+	,	RoBOther = @RoBOther
+	,	Incon = @Incon
+	,	InconComment = @InconComment
+	,	InconPoint = @InconPoint
+	,	InconCIs = @InconCIs
+	,	InconDirection = @InconDirection
+	,	InconStatistical = @InconStatistical
+	,	InconOther = @InconOther
+	,	Indirect = @Indirect
+	,	IndirectComment = @IndirectComment
+	,	IndirectPopulation = @IndirectPopulation
+	,	IndirectOutcome = @IndirectOutcome
+	,	IndirectNoDirect = @IndirectNoDirect
+	,	IndirectIntervention = @IndirectIntervention
+	,	IndirectTime = @IndirectTime
+	,	IndirectOther = @IndirectOther
+	,	Imprec = @Imprec
+	,	ImprecComment = @ImprecComment
+	,	ImprecWide = @ImprecWide
+	,	ImprecFew = @ImprecFew
+	,	ImprecOnlyOne = @ImprecOnlyOne
+	,	ImprecOther = @ImprecOther
+	,	PubBias = @PubBias
+	,	PubBiasComment = @PubBiasComment
+	,	PubBiasCommercially = @PubBiasCommercially
+	,	PubBiasAsymmetrical = @PubBiasAsymmetrical
+	,	PubBiasLimited = @PubBiasLimited
+	,	PubBiasMissing = @PubBiasMissing
+	,	PubBiasDiscontinued = @PubBiasDiscontinued
+	,	PubBiasDiscrepancy = @PubBiasDiscrepancy
+	,	PubBiasOther = @PubBiasOther
+	,	UpgradeComment = @UpgradeComment
+	,	UpgradeLarge = @UpgradeLarge
+	,	UpgradeVeryLarge = @UpgradeVeryLarge
+	,	UpgradeAllPlausible = @UpgradeAllPlausible
+	,	UpgradeClear = @UpgradeClear
+	,	UpgradeNone = @UpgradeNone
+	,	CertaintyLevel = @CertaintyLevel
+	,	CertaintyLevelComment = @CertaintyLevelComment
 	
 	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
 	

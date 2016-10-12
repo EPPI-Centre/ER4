@@ -53,8 +53,8 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="300"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition x:Name="DetailsGridRow" Height="300"></RowDefinition>
+            <RowDefinition x:Name="OutcomesGridRow" Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         
         <telerik:RadTabControl x:Name="TabControlAnalyses" Grid.Row="0"  SelectionChanged="TabControlAnalyses_SelectionChanged">
@@ -214,9 +214,224 @@
             <telerik:RadTabItem Header="Qualitative Comparative Analysis (QCA)" Content="Coming soon!" Visibility="Visible"></telerik:RadTabItem>
 
             <telerik:RadTabItem Header="GRADE" Visibility="Visible">
-                <Grid x:Name="GRADEGrid">
-                    
-                </Grid>
+                <ScrollViewer VerticalScrollBarVisibility="Visible">
+                    <Grid x:Name="GRADEGrid" Background="Beige">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10"></ColumnDefinition>
+                            <ColumnDefinition Width="150"></ColumnDefinition>
+                            <ColumnDefinition Width="100*"></ColumnDefinition>
+                            <ColumnDefinition Width="80*"></ColumnDefinition>
+                            <ColumnDefinition Width="10"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            
+                            <RowDefinition Height="40"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+
+                            <RowDefinition Height="40"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+
+                            <RowDefinition Height="40"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="30*"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <Border Background="LightGray" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="2"></Border>
+                        <Border Background="LightGray" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="4" Grid.RowSpan="11"></Border>
+                        <Border Background="LightGray" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="16" Grid.RowSpan="3"></Border>
+                        <Border Background="LightGray" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="20" Grid.RowSpan="3"></Border>
+
+                        <TextBlock Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold" Margin="0,15,5,5" Text="1. Are the studies you took results from randomised?"></TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="STUDY TYPE" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox x:Name="comboStudyType" Grid.Column="1" Grid.Row="2" SelectedIndex="{Binding Randomised, Mode=TwoWay}" Height="20" Margin="5,5,5,5" VerticalAlignment="Top">
+                            <ComboBoxItem Content="Randomised controlled"/>
+                            <ComboBoxItem Content="Observational (non-randomised)"/>
+                        </ComboBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold" Margin="0,15,5,5" Text="2. Downgrade factors"></TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="4" Text="RISK OF BIAS" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox x:Name="comboRoB" Grid.Column="1" Grid.Row="5" SelectedIndex="{Binding RoB, Mode=TwoWay}" Height="20" Margin="5,5,5,5" VerticalAlignment="Top">
+                            <ComboBoxItem Content="No serious"/>
+                            <ComboBoxItem Content="Serious"/>
+                            <ComboBoxItem Content="Very serious"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="4" Text="PROBLEM AREAS" Margin="0,15,5,0"></TextBlock>
+                        <TextBlock Grid.Column="2" Grid.Row="5" Text="The 6 Cochrane RoB items" Margin="0,10,5,5"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Sequence generation" IsChecked="{Binding RoBSequence, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Concealment" IsChecked="{Binding RoBConcealment, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Blinding participants / personnel" IsChecked="{Binding RoBBlindingParticipants, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Blinding assessors" IsChecked="{Binding RoBBlindingAssessors, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Incomplete data" IsChecked="{Binding RoBIncomplete, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Selective outcome reporting" IsChecked="{Binding RoBSelective, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Intention-to-treat" IsChecked="{Binding RoBNoIntention, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Carryover effects" IsChecked="{Binding RoBCarryover, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Stopped early" IsChecked="{Binding RoBStopped, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Unvalidated measures" IsChecked="{Binding RoBUnvalidated, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Other issue" IsChecked="{Binding RoBOther, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="4" Text="COMMENT" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="5" Grid.RowSpan="2" Text="{Binding RoBComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="7" Text="INCONSISTENCY" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox Grid.Column="1" Grid.Row="8" Height="20" Margin="5,5,5,5" SelectedIndex="{Binding Incon, Mode=TwoWay}" VerticalAlignment="Top">
+                            <ComboBoxItem Content="No serious"/>
+                            <ComboBoxItem Content="Serious"/>
+                            <ComboBoxItem Content="Very serious"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="7" Text="PROBLEM AREAS" Margin="0,15,5,0"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Point estimates vary widely" IsChecked="{Binding InconPoint, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="CIs not overlapping" IsChecked="{Binding InconCIs, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Direction not consistent" IsChecked="{Binding InconDirection, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Statistical heterogeneity" IsChecked="{Binding InconStatistical, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Other issue" IsChecked="{Binding InconOther, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="7" Text="COMMENT" Margin="5,15,5,0"> </TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="8" Text="{Binding InconComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="9" Text="INDIRECTNESS" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox Grid.Column="1" Grid.Row="10" Height="20" Margin="5,5,5,5" SelectedIndex="{Binding Indirect, Mode=TwoWay}" VerticalAlignment="Top">
+                            <ComboBoxItem Content="No serious"/>
+                            <ComboBoxItem Content="Serious"/>
+                            <ComboBoxItem Content="Very serious"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="9" Text="PROBLEM AREAS" Margin="0,15,5,0"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="10" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Population dissimilarity" IsChecked="{Binding IndirectPopulation, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Outcome dissimilarity" IsChecked="{Binding IndirectOutcome, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="No direct comparison" IsChecked="{Binding IndirectNoDirect, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Intervention / comparator dissimilarity" IsChecked="{Binding IndirectIntervention, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Time frame insufficient" IsChecked="{Binding IndirectTime, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Other issue" IsChecked="{Binding IndirectOther, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="9" Text="COMMENT" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="10" Text="{Binding IndirectComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="11" Text="IMPRECISION" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox Grid.Column="1" Grid.Row="12" Height="20" Margin="5,5,5,5" SelectedIndex="{Binding Imprec, Mode=TwoWay}" VerticalAlignment="Top">
+                            <ComboBoxItem Content="No serious"/>
+                            <ComboBoxItem Content="Serious"/>
+                            <ComboBoxItem Content="Very serious"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="11" Text="PROBLEM AREAS" Margin="0,15,5,0"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Wide confidence intervals" IsChecked="{Binding ImprecWide, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Few patients" IsChecked="{Binding ImprecFew, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Only one study" IsChecked="{Binding ImprecOnlyOne, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Other issue" IsChecked="{Binding ImprecOther, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="11" Text="COMMENT" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="12" Text="{Binding ImprecComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="13" Text="PUBLICATION BIAS" Margin="5,15,5,0"></TextBlock>
+                        <ComboBox Grid.Column="1" Grid.Row="14" Height="20" Margin="5,5,5,5" SelectedIndex="{Binding PubBias, Mode=TwoWay}" VerticalAlignment="Top">
+                            <ComboBoxItem Content="No serious"/>
+                            <ComboBoxItem Content="Serious"/>
+                            <ComboBoxItem Content="Very serious"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="13" Text="PROBLEM AREAS" Margin="5,15,5,0"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Commercially funded" IsChecked="{Binding PubBiasCommercially, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Asymmetrical funnel plot" IsChecked="{Binding PubBiasAsymmetrical, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Limited search" IsChecked="{Binding PubBiasLimited, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Missing gray literature" IsChecked="{Binding PubBiasMissing, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Discontinued studies" IsChecked="{Binding PubBiasDiscontinued, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Discrepancy published vs. unpublished" IsChecked="{Binding PubBiasDiscrepancy, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Other issue" IsChecked="{Binding PubBiasOther, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="13" Text="COMMENT" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="14" Text="{Binding PubBiasComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="15" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold" Margin="0,15,5,5" Text="3. Upgrade factors (if relevant)"></TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="16" Text="UPGRADE FACTORS" Margin="5,15,5,0"></TextBlock>
+                        <TextBlock Grid.Column="2" Grid.Row="16" Text="UPGRADE AREAS" Margin="0,15,5,0"></TextBlock>
+                        <Grid Grid.Column="2" Grid.Row="17">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                                <ColumnDefinition Width="50*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Vertical" Grid.Column="0">
+                                <CheckBox Content="Large magnitude of effect" IsChecked="{Binding UpgradeLarge, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="Very large magnitude of effect" IsChecked="{Binding UpgradeVeryLarge, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="All plausible confounding would have reduced the effect" IsChecked="{Binding UpgradeAllPlausible, Mode=TwoWay}"></CheckBox>
+                                
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                <CheckBox Content="Clear dose-response gradient" IsChecked="{Binding UpgradeClear, Mode=TwoWay}"></CheckBox>
+                                <CheckBox Content="None" IsChecked="{Binding UpgradeNone, Mode=TwoWay}"></CheckBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Grid.Column="3" Grid.Row="16" Text="COMMENT" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="3" Grid.Row="17" Text="{Binding UpgradeComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+
+                        <TextBlock Grid.Column="1" Grid.Row="18" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold" Margin="5,15,5,5" Text="4. Certainty level"></TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="19" Text="CERTAINTY LEVEL" Margin="0,15,5,0"></TextBlock>
+                        <ComboBox Grid.Column="1" Grid.Row="20" Height="20" Margin="5,5,5,5" SelectedIndex="{Binding CertaintyLevel, Mode=TwoWay}" VerticalAlignment="Top">
+                            <ComboBoxItem Content="High"/>
+                            <ComboBoxItem Content="Moderate"/>
+                            <ComboBoxItem Content="Low"/>
+                            <ComboBoxItem Content="Very low"/>
+                        </ComboBox>
+                        <TextBlock Grid.Column="2" Grid.Row="19" Text="SHORT SUMMARY OF ASSESSMENTS" Margin="5,15,5,0"></TextBlock>
+                        <TextBox Grid.Column="2" Grid.Row="20" Grid.ColumnSpan="2" Text="{Binding CertaintyLevelComment, Mode=TwoWay}" ScrollViewer.VerticalScrollBarVisibility="Visible" TextWrapping="Wrap" Margin="5,5,5,5"></TextBox>
+                    </Grid>
+                </ScrollViewer>
             </telerik:RadTabItem>
 
         </telerik:RadTabControl>

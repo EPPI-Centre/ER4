@@ -78,6 +78,13 @@ namespace BusinessLibrary.BusinessClasses
             set { LoadProperty(ParametersProperty, value); }
         }
 
+        private static PropertyInfo<string> SimulationResultsProperty = RegisterProperty<string>(new PropertyInfo<string>("SimulationResults", "SimulationResults"));
+        public string SimulationResults
+        {
+            get { return ReadProperty(SimulationResultsProperty); }
+            set { LoadProperty(SimulationResultsProperty, value); }
+        }
+
         public int SearchId
         {
             get
@@ -115,6 +122,11 @@ namespace BusinessLibrary.BusinessClasses
             if (Parameters == "DoSimulation")
             {
                 DoSimulation(ri.ReviewId);
+                return;
+            }
+            if (Parameters == "FetchSimulationResults")
+            {
+                FetchSimulationResults(ri.ReviewId);
                 return;
             }
             bool justIndexed = false;
@@ -366,8 +378,6 @@ namespace BusinessLibrary.BusinessClasses
             //return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
         }
 
-        
-
         private void UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -487,6 +497,26 @@ namespace BusinessLibrary.BusinessClasses
 
             // Then call the simulation
             await InvokeBatchExecutionService(RevInfo, "Simulation");
+        }
+
+        private void FetchSimulationResults(int ReviewID)
+        {
+            // Stage 6: bring the data down from Azure BLOB and write to the tb_training item table
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("simulations");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference("ReviewId" + ReviewID.ToString() + ".csv");
+
+            try // if the simulation hasn't finished yet, there will be no file
+            {
+                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+                MemoryStream ms = new MemoryStream(myFile);
+                SimulationResults = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+            }
+            catch
+            {
+                SimulationResults = "";
+            }
         }
 
         public enum BatchScoreStatusCode

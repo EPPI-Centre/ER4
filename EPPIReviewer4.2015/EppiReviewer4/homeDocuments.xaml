@@ -384,6 +384,13 @@
                                         </Grid>
                                     </Button>
 
+                                    <Button x:Name="cmdExportItemsGrid" IsEnabled="True" Click="cmdExportItemsGrid_Click">
+                                        <Grid>
+                                            <Image Width="22" Height="22" Source="Icons/Save.png"
+						                    ToolTipService.ToolTip="Export current grid to html (for use in excel, word or web browser)" />
+                                        </Grid>
+                                    </Button>
+
                                     <telerikNavigation:RadToolBarSeparator Margin="7,2,7,2" />
 
                                     <Button x:Name="cmdAssignIncluded"  IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"  Click="cmdAssignIncluded_Click">
@@ -1113,7 +1120,11 @@
                                     <Button x:Name="cmdScreeningRefreshReviewInfo" Grid.Column="1" Grid.Row="11" Width="24" HorizontalAlignment="Left" Margin="4,4,0,4" Click="cmdScreeningRefreshReviewInfo_Click">
                                             <Image Width="16" Height="16" Source="Icons/view-refresh-7.png" ToolTipService.ToolTip="Refresh screening options status" />
                                     </Button>
-                                    <Button x:Name="cmdScreeningRunSimulation" Grid.Column="0" Grid.Row="10" Content="Run simulation" Margin="12,4,12,4" Click="cmdScreeningRunSimulation_Click"></Button>
+                                    <StackPanel Grid.Column="0" Grid.Row="10" Orientation="Horizontal">
+                                        <Button x:Name="cmdScreeningRunSimulation" Content="Run simulation" Margin="12,5,2,5" Width="90" Click="cmdScreeningRunSimulation_Click"></Button>
+                                        <Button x:Name="cmdScreeningSimulationSave" Content="Download results" Margin="2,5,2,5" Width="100" Click="cmdScreeningSimulationSave_Click"></Button>
+                                        <Button x:Name="cmdScreeningSimulationResults" Content="Save results" Margin="2,5,2,5" Visibility="Collapsed" Width="80" Click="cmdScreeningSimulationResults_Click"></Button>
+                                    </StackPanel>
                                     <Button x:Name="cmdScreeningSaveReviewOptions" Grid.Column="0" Grid.Row="11" Content="Save options" Margin="12,4,12,4" Click="cmdScreeningSaveReviewOptions_Click"></Button>
 
                                 </Grid>

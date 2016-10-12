@@ -608,6 +608,19 @@ namespace BusinessLibrary.BusinessClasses
 
         // ****************************** THESE FIELDS ARE FOR THE GRADE ASSESSMENT OF THIS META-ANALYSIS *************************
 
+        private static PropertyInfo<int> RandomisedProperty = RegisterProperty<int>(new PropertyInfo<int>("Randomised", "Randomised"));
+        public int Randomised
+        {
+            get
+            {
+                return GetProperty(RandomisedProperty);
+            }
+            set
+            {
+                SetProperty(RandomisedProperty, value);
+            }
+        }
+
         private static PropertyInfo<int> RoBProperty = RegisterProperty<int>(new PropertyInfo<int>("RoB", "RoB"));
         public int RoB
         {
@@ -1670,6 +1683,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_TYPE_ID", ReadProperty(MetaAnalysisTypeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
+                    command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBSequence", ReadProperty(RoBSequenceProperty)));
@@ -1770,6 +1784,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
                     command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBSequence", ReadProperty(RoBSequenceProperty)));
@@ -1919,6 +1934,7 @@ namespace BusinessLibrary.BusinessClasses
             else
                 returnValue.LoadProperty<string>(AttributeQuestionTextProperty, "");
 
+            returnValue.LoadProperty<int>(RandomisedProperty, reader.GetInt32("Randomised"));
             returnValue.LoadProperty<string>(RoBCommentProperty, reader.GetString("RoBComment"));
             returnValue.LoadProperty<int>(RoBProperty, reader.GetInt32("RoB"));
             returnValue.LoadProperty<int>(InconProperty, reader.GetInt32("Incon"));
