@@ -55,7 +55,12 @@
                                    Header="Completed coding" />
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding NumItems}" IsFilterable="False" IsReadOnly="True" Width="50" CellStyle="{StaticResource HandStyle}"
                                    Header="Count" />
-                <telerikGridView:GridViewColumn Width="22" IsResizable="False" IsFilterable="False" IsReorderable="False">
+                <telerikGridView:GridViewColumn Width="22" IsResizable="False" IsFilterable="False" IsReorderable="False" UniqueName="ButtonsColumn">
+                    <telerikGridView:GridViewColumn.Header>
+                        <Button x:Name="cmdUnCompleteCodingsOnAttribute" Margin="0" Click="cmdUnCompleteCodingsOnAttribute_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                            <Image Source="Icons/CodingNotComplete.png" ToolTipService.ToolTip="Advanced: Set coding to uncomplete"></Image>
+                        </Button>
+                    </telerikGridView:GridViewColumn.Header>
                     <telerikGridView:GridViewColumn.CellStyle>
                         <Style TargetType="grid:GridViewCell">
                             <Setter Property="Template">
@@ -85,7 +90,12 @@
                                    Header="Incomplete coding" />
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding NumItems}" IsFilterable="False" IsReadOnly="True" Width="50" CellStyle="{StaticResource HandStyle}"
                                    Header="Count" />
-                <telerikGridView:GridViewColumn Width="22" IsResizable="False" IsFilterable="False" IsReorderable="False">
+                <telerikGridView:GridViewColumn Width="22" IsResizable="False" IsFilterable="False" IsReorderable="False" UniqueName="ButtonsColumn">
+                    <telerikGridView:GridViewColumn.Header>
+                        <Button x:Name="cmdCompleteCodingsOnAttribute" Margin="0" Click="cmdCompleteCodingsOnAttribute_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                            <Image Source="Icons/CodingComplete.png" ToolTipService.ToolTip="Advanced: Set coding to complete"></Image>
+                        </Button>
+                    </telerikGridView:GridViewColumn.Header>
                     <telerikGridView:GridViewColumn.CellStyle>
                         <Style TargetType="grid:GridViewCell">
                             <Setter Property="Template">

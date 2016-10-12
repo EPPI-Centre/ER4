@@ -357,7 +357,10 @@ namespace BusinessLibrary.Security
                     if (!ArId.IsAuthenticated)
                     {//longon failed :-(
                         IsAuthenticated = false;
-                        LoadProperty(TicketProperty, "arid not auth");
+                        //LoadProperty(TicketProperty, "arid not auth");
+                        LoadProperty(TicketProperty, "Error: "
+                                                     + ArId.Error + Environment.NewLine
+                                                     + ArId.ErrorReason);
                         return;
                     }
                     //second step: find the user from ArchieID

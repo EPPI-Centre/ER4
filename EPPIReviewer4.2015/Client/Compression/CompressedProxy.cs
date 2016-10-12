@@ -78,7 +78,22 @@ namespace BusinessLibrary.Compression
                   this.EndPoint = "LocalBasicHttpBinding_IWcfPortal";
               }
           }
-          else
+            else if (host == "eppi-management" )
+            {
+                if (ri == null || ri.Ticket == null || ri.Ticket == "") //(ri != null && ri.Ticket != "")
+                {//not authenticated, use https
+                    this.EndPoint = "HttpsManagement_Binding_IWcfPortal";
+                }
+                else if (until != null && until > DateTime.Now)
+                {//current config tells us to use https (for archie, or from another option)
+                    this.EndPoint = "HttpsManagement_Binding_IWcfPortal";
+                }
+                else
+                {//all normal use http
+                    this.EndPoint = "Management_HttpBinding_IWcfPortal";
+                }
+            }
+            else
           {//don't care, this is local, use http
               this.EndPoint = "LocalBasicHttpBinding_IWcfPortal";
           }
