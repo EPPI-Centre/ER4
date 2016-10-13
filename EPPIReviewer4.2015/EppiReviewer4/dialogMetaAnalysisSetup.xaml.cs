@@ -170,7 +170,7 @@ namespace EppiReviewer4
 
         private void cmdMetaSaveMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
-            SaveMetaAnalysis(true, false);
+            SaveMetaAnalysis(false, false);
         }
 
         private void SaveMetaAnalysis(bool CloseWindow, bool SetSelectSelectable)
