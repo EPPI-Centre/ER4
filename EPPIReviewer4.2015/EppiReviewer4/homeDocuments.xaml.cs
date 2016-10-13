@@ -4317,59 +4317,67 @@ on the right of the main screen");
 
         private void cmdBibliography_Click(object sender, RadRoutedEventArgs e)
         {
+            RadMenuItem cbi = e.Source as RadMenuItem;
+            if (cbi == null) return;
+            else if (cbi.Tag.ToString() == "JustTheGrid")
+            {
+                cmdExportItemsGrid_Click(sender, e);
+                return;
+            }
             if (ItemsGrid.SelectedItems.Count > 0)
             {
+                
                 CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
                 if (provider != null && provider.Data != null)
                 {
                     ReviewInfo review = provider.Data as ReviewInfo;
                     if (review != null)
                     {
-                        RadMenuItem cbi = e.Source as RadMenuItem;
-                        if (cbi != null)
+                        
+                        //if (cbi != null)
+                        //{ //already checked
+                        string report = "";
+                        if (cbi.Tag.ToString() == "BL")
                         {
-                            string report = "";
-                            if (cbi.Tag.ToString() == "BL")
-                            {
-                                report = review.BL_ACCOUNT_CODE + Environment.NewLine +
-                                    review.BL_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                            }
-                            if (cbi.Tag.ToString() == "BLCopyrightCleared")
-                            {
-                                report = review.BL_CC_ACCOUNT_CODE + Environment.NewLine +
-                                    review.BL_CC_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                            }
-                            foreach (Item i in ItemsGrid.SelectedItems)
-                            {
-                                switch (cbi.Tag.ToString())
-                                {
-                                    case "Chicago":
-                                        report += "<p>" + i.GetCitation() + "</p>";
-                                        break;
-                                    case "Harvard":
-                                        report += "<p>" + i.GetHarvardCitation() + "</p>";
-                                        break;
-                                    case "BL":
-                                        report += review.BL_TX + Environment.NewLine +
-                                            i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                                        break;
-                                    case "BLCopyrightCleared":
-                                        report += review.BL_CC_TX + Environment.NewLine +
-                                            i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                                        break;
-                                }
-                            }
-                            if (cbi.Tag.ToString() == "BL" || cbi.Tag.ToString() == "BLCopyrightCleared")
-                            {
-                                report += "NNNN" + Environment.NewLine;
-                                reportViewerControlDocuments.SetContent("<html><body>" + report.Replace(Environment.NewLine, @"<br />") + "</body></html>");
-                            }
-                            else
-                            {
-                                reportViewerControlDocuments.SetContent("<html><body>" + report + "</body></html>");
-                            }
-                            windowReportsDocuments.ShowDialog();
+                            report = review.BL_ACCOUNT_CODE + Environment.NewLine +
+                                review.BL_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
                         }
+                        if (cbi.Tag.ToString() == "BLCopyrightCleared")
+                        {
+                            report = review.BL_CC_ACCOUNT_CODE + Environment.NewLine +
+                                review.BL_CC_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                        }
+                        foreach (Item i in ItemsGrid.SelectedItems)
+                        {
+                            switch (cbi.Tag.ToString())
+                            {
+                                case "Chicago":
+                                    report += "<p>" + i.GetCitation() + "</p>";
+                                    break;
+                                case "Harvard":
+                                    report += "<p>" + i.GetHarvardCitation() + "</p>";
+                                    break;
+                                case "BL":
+                                    report += review.BL_TX + Environment.NewLine +
+                                        i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                                    break;
+                                case "BLCopyrightCleared":
+                                    report += review.BL_CC_TX + Environment.NewLine +
+                                        i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                                    break;
+                            }
+                        }
+                        if (cbi.Tag.ToString() == "BL" || cbi.Tag.ToString() == "BLCopyrightCleared")
+                        {
+                            report += "NNNN" + Environment.NewLine;
+                            reportViewerControlDocuments.SetContent("<html><body>" + report.Replace(Environment.NewLine, @"<br />") + "</body></html>");
+                        }
+                        else
+                        {
+                            reportViewerControlDocuments.SetContent("<html><body>" + report + "</body></html>");
+                        }
+                        windowReportsDocuments.ShowDialog();
+                        //}
                     }
                 }
 
@@ -5720,9 +5728,24 @@ on the right of the main screen");
             dialog.DefaultExt = extension;
             dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "html");
             dialog.FilterIndex = 1;
-
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
             if (dialog.ShowDialog() == true)
             {
+                bool cleanup = false;
+                List<Item> selectedL = new List<Item>();
+                if (provider != null && provider.Data != null && provider.Data == ItemsGrid.ItemsSource &&
+                        ItemsGrid.SelectedItems != null && ItemsGrid.SelectedItems.Count > 0)
+                {//export only the selected, we could apply and remove filter, but I can't make it work, so will use a more radical approach
+                    cleanup = true;
+                    ObservableCollection<object> selected = ItemsGrid.SelectedItems as ObservableCollection<object>;
+                    
+                    foreach (Item it in selected)
+                    {
+                        selectedL.Add(it);
+                    }
+
+                    ItemsGrid.ItemsSource = selectedL;
+                }
                 using (Stream stream = dialog.OpenFile())
                 {
                     GridViewExportOptions exportOptions = new GridViewExportOptions();
@@ -5734,6 +5757,12 @@ on the right of the main screen");
                     ItemsGrid.Columns[0].IsVisible = false;
                     ItemsGrid.Export(stream, exportOptions);
                     ItemsGrid.Columns[0].IsVisible = true;
+                }
+                if (cleanup)
+                {
+                    ItemsGrid.ItemsSource = provider.Data;
+                    ItemsGrid.Select(selectedL);
+                    
                 }
             }
         }

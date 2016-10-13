@@ -384,12 +384,12 @@
                                         </Grid>
                                     </Button>
 
-                                    <Button x:Name="cmdExportItemsGrid" IsEnabled="True" Click="cmdExportItemsGrid_Click">
+                                    <!--<Button x:Name="cmdExportItemsGrid" IsEnabled="True" Click="cmdExportItemsGrid_Click" Visibility="Collapsed">
                                         <Grid>
                                             <Image Width="22" Height="22" Source="Icons/Save.png"
 						                    ToolTipService.ToolTip="Export current grid to html (for use in excel, word or web browser)" />
                                         </Grid>
-                                    </Button>
+                                    </Button>-->
 
                                     <telerikNavigation:RadToolBarSeparator Margin="7,2,7,2" />
 
@@ -421,7 +421,7 @@
                                     </Button>
                                     <telerikNavigation:RadToolBarSeparator Margin="7,2,7,2" />
 
-                                    <Button x:Name="cmdBibliography" ToolTipService.ToolTip="List formatted bibliography">
+                                    <Button x:Name="cmdBibliography" ToolTipService.ToolTip="List formatted bibliography / Export table">
                                         <telerik:RadContextMenu.ContextMenu>
                                             <telerik:RadContextMenu x:Name="ctxMenuTranslate" EventName="Click" ItemClick="cmdBibliography_Click" ScrollViewer.VerticalScrollBarVisibility="Visible"
                                                                      FontSize="11" MaxHeight="350"
@@ -430,6 +430,7 @@
                                                 <telerik:RadMenuItem Tag="Chicago" Header="Chicago" />
                                                 <telerik:RadMenuItem x:Name="BLdoc" Tag="BL" Header="BL document supply requests" />
                                                 <telerik:RadMenuItem x:Name="BLdocCC" Tag="BLCopyrightCleared" Header="BL document supply requests – copyright cleared" />
+                                                <telerik:RadMenuItem x:Name="JustTheGrid" Tag="JustTheGrid" Header="Export Current page/selection" ToolTipService.ToolTip="Exports current table/selection to html (for use in excel, word or web browser)" />
                                             </telerik:RadContextMenu>
                                         </telerik:RadContextMenu.ContextMenu>
                                         <StackPanel Orientation="Horizontal">
