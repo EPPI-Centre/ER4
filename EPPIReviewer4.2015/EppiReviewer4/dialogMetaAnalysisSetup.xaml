@@ -459,7 +459,13 @@
                     <TextBlock Text="Save changes" Margin="5,0,0,0"></TextBlock>
                 </StackPanel>
             </Button>
-            <Button x:Name="cmdExportGrid" Margin="4,4,4,4" Click="cmdExportGrid_Click">
+                <Button x:Name="cmdPreviewGRADE" Margin="4,4,4,4" Click="cmdPreviewGRADE_Click" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                        <Image Source="Icons/PrintCodeSet.png"/>
+                        <TextBlock Text="Preview GRADE report" Margin="5,0,0,0"></TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="cmdExportGrid" Margin="4,4,4,4" Click="cmdExportGrid_Click">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
                     <Image Source="Icons/Export.png"/>
                     <TextBlock Text="Export outcomes" Margin="5,0,0,0"></TextBlock>

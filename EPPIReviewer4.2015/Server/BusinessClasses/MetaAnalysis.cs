@@ -1639,6 +1639,118 @@ namespace BusinessLibrary.BusinessClasses
             return feSumWeight - (sumWeightsSquared / feSumWeight);
         }
 
+        public static readonly string[] levels = {"No serious", "Serious", "Very serious" };
+
+        public static readonly string[] cbRoB = { "Sequence generation", "Concealment", "Blinding participants / personnel", "Blinding assessors", "Incomplete data",
+            "Selective outcome reporting", "Intention-to-treat", "Carryover effects", "Stopped early", "Unvalidated measures", "Other issue"};
+
+        public static readonly string[] cbIncon = {"Point estimates vary widely", "CIs not overlapping", "Direction not consistent",
+                "Statistical heterogeneity", "Other issue"};
+        public static readonly string[] cbIndirect = {"Population dissimilarity",  "Outcome dissimilarity", "No direct comparison",
+            "Intervention / comparator dissimilarity", "Time frame insufficient", "Other issue"};
+
+        public static readonly string[] cbImprec = {"Wide confidence intervals", "Few patients", "Only one study", "Other issue"};
+
+        public static readonly string[] cbPubBias = {"Commercially funded", "Asymmetrical funnel plot", "Limited search", "Missing gray literature",
+                "Discontinued studies", "Discrepancy published vs. unpublished", "Other issue"};
+
+        public static readonly string[] cbUpgrade = {"Large magnitude of effect", "Very large magnitude of effect",
+                "All plausible confounding would have reduced the effect", "Clear dose-response gradient", "None"};
+
+       
+
+
+        public string GRADEReport()
+        {
+            string _Randomised = "";
+            string _CertaintyLevel = "";
+            if (Randomised == 0)
+            {
+                _Randomised = "Randomised controlled";
+            }
+            if (Randomised == 1)
+            {
+                _Randomised = "Observational (non-randomised)";
+            }
+            switch (CertaintyLevel)
+            {
+                case 0: _CertaintyLevel = "High";
+                    break;
+                case 1: _CertaintyLevel = "Moderate";
+                    break;
+                case 2: _CertaintyLevel = "Low";
+                    break;
+                case 3: _CertaintyLevel = "Very low";
+                    break;
+                default:
+                    break;
+            }
+            string report = "<p><h1>GRADE report</h1><h2>" + this.Title + "</h2>";
+            report += "<h3>1. Are the studies you took results from randomised?</h3>";
+            report += "<p><table border='1'><tr><td>STUDY TYPE</td><td>" + _Randomised + "</td></tr></table></p>";
+            report += "<h3>2. Downgrade factors</h3>";
+            report += "<p><table border = '1'><tr><td>FACTORS</td><td>PROBLEM AREAS</td><td>COMMENT</td></tr>";
+            report += "<td>RISK OF BIAS: " + levels[RoB] + "</td><td><ul>" +
+                (RoBSequence == true ? "<li>" + cbRoB[0] + "</li>" : "") +
+                (RoBConcealment == true ? "<li>" + cbRoB[1] + "</li>" : "") +
+                (RoBBlindingParticipants == true ? "<li>" + cbRoB[2] + "</li>" : "") +
+                (RoBBlindingAssessors == true ? "<li>" + cbRoB[3] + "</li>" : "") +
+                (RoBIncomplete == true ? "<li>" + cbRoB[4] + "</li>" : "") +
+                (RoBSelective == true ? "<li>" + cbRoB[5] + "</li>" : "") +
+                (RoBNoIntention == true ? "<li>" + cbRoB[6] + "</li>" : "") +
+                (RoBCarryover == true ? "<li>" + cbRoB[7] + "</li>" : "") +
+                (RoBStopped == true ? "<li>" + cbRoB[8] + "</li>" : "") +
+                (RoBUnvalidated == true ? "<li>" + cbRoB[9] + "</li>" : "") +
+                (RoBOther == true ? "<li>" + cbRoB[10] + "</li>" : "");
+            report += "</ul></td><td>" + RoBComment + "</td></tr>";
+            report += "<td>INCONSISTENCY: " + levels[Incon] + "</td><td><ul>" +
+                (InconPoint == true ? "<li>" + cbIncon[0] + "</li>" : "") +
+                (InconCIs == true ? "<li>" + cbIncon[1] + "</li>" : "") +
+                (InconDirection == true ? "<li>" + cbIncon[2] + "</li>" : "") +
+                (InconStatistical == true ? "<li>" + cbIncon[3] + "</li>" : "") +
+                (InconOther == true ? "<li>" + cbIncon[4] + "</li>" : "");
+            report += "</ul></td><td>" + InconComment + "</td></tr>";
+            report += "<td>INDIRECTNESS: " + levels[Indirect] + "</td><td><ul>" +
+                (IndirectPopulation == true ? "<li>" + cbIndirect[0] + "</li>" : "") +
+                (IndirectOutcome == true ? "<li>" + cbIndirect[1] + "</li>" : "") +
+                (IndirectNoDirect == true ? "<li>" + cbIndirect[2] + "</li>" : "") +
+                (IndirectIntervention == true ? "<li>" + cbIndirect[3] + "</li>" : "") +
+                (IndirectTime == true ? "<li>" + cbIndirect[4] + "</li>" : "")+
+                (IndirectOther == true ? "<li>" + cbIndirect[5] + "</li>" : "");
+            report += "</ul></td><td>" + IndirectComment + "</td></tr>";
+            report += "<td>IMPRECISION: " + levels[Imprec] + "</td><td><ul>" +
+                (ImprecWide == true ? "<li>" + cbImprec[0] + "</li>" : "") +
+                (ImprecFew == true ? "<li>" + cbImprec[1] + "</li>" : "") +
+                (ImprecOnlyOne == true ? "<li>" + cbImprec[2] + "</li>" : "") +
+                (ImprecOther == true ? "<li>" + cbImprec[3] + "</li>" : "");
+            report += "</ul></td><td>" + ImprecComment + "</td></tr>";
+            report += "<td>PUBLICATION BIAS: " + levels[PubBias] + "</td><td><ul>" +
+                (PubBiasCommercially == true ? "<li>" + cbPubBias[0] + "</li>" : "") +
+                (PubBiasAsymmetrical == true ? "<li>" + cbPubBias[1] + "</li>" : "") +
+                (PubBiasLimited == true ? "<li>" + cbPubBias[2] + "</li>" : "") +
+                (PubBiasMissing == true ? "<li>" + cbPubBias[3] + "</li>" : "") +
+                (PubBiasDiscontinued == true ? "<li>" + cbPubBias[4] + "</li>" : "") +
+                (PubBiasDiscrepancy == true ? "<li>" + cbPubBias[5] + "</li>" : "") +
+                (PubBiasOther == true ? "<li>" + cbPubBias[6] + "</li>" : "");
+            report += "</ul></td><td>" + PubBiasComment + "</td></tr>";
+            report += "</table></p>";
+            report += "<h3>3. Upgrade factors (if relevant)</h3>";
+            report += "<p><table border = '1'><tr><td>&nbsp</td><td>UPGRADE AREAS</td><td>COMMENT</td></tr>";
+            report += "<td>&nbsp</td><td><ul>" +
+                (UpgradeLarge == true ? "<li>" + cbUpgrade[0] + "</li>" : "") +
+                (UpgradeVeryLarge == true ? "<li>" + cbUpgrade[1] + "</li>" : "") +
+                (UpgradeAllPlausible == true ? "<li>" + cbUpgrade[2] + "</li>" : "") +
+                (UpgradeClear == true ? "<li>" + cbUpgrade[3] + "</li>" : "") +
+                (UpgradeNone == true ? "<li>" + cbUpgrade[4] + "</li>" : "");
+            report += "</ul></td><td>" + UpgradeComment + "</td></tr>";
+            report += "</table></p>";
+            report += "<h3>4. Certainty level</h3>";
+            report += "<p><table border = '1'><tr><td>CERTAINTY LEVEL</td><td>COMMENT</td></tr>";
+            report += "<tr><td>" + _CertaintyLevel + "</td><td>" + CertaintyLevelComment + "</td></tr>";
+            report += "</table></p>";
+            return report;
+        }
+
 
 #if SILVERLIGHT
     
