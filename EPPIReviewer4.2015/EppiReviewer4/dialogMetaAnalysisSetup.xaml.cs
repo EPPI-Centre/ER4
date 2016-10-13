@@ -170,7 +170,7 @@ namespace EppiReviewer4
 
         private void cmdMetaSaveMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
-            SaveMetaAnalysis(true, false);
+            SaveMetaAnalysis(false, false);
         }
 
         private void SaveMetaAnalysis(bool CloseWindow, bool SetSelectSelectable)
@@ -633,6 +633,7 @@ namespace EppiReviewer4
             {
                 DetailsGridRow.Height = new GridLength(1, GridUnitType.Star);
                 OutcomesGridRow.Height = new GridLength(30);
+                cmdPreviewGRADE.Visibility = Visibility.Visible;
                 cmdRunit.Visibility = Visibility.Collapsed;
                 cmdExportGrid.Visibility = Visibility.Collapsed;
                 ComboBoxExportOutcomes.Visibility = Visibility.Collapsed;
@@ -641,6 +642,7 @@ namespace EppiReviewer4
             }
             else
             {
+                cmdPreviewGRADE.Visibility = Visibility.Collapsed;
                 DetailsGridRow.Height = new GridLength(300);
                 OutcomesGridRow.Height = new GridLength(1, GridUnitType.Star);
                 cmdRunit.Visibility = Visibility.Visible;
@@ -694,8 +696,15 @@ namespace EppiReviewer4
             }
         }
 
-
-        
+        private void cmdPreviewGRADE_Click(object sender, RoutedEventArgs e)
+        {
+            MetaAnalysis _currentSelectedMetaAnalysis = this.DataContext as MetaAnalysis;
+            if (_currentSelectedMetaAnalysis != null)
+            {
+                reports.SetContent(_currentSelectedMetaAnalysis.GRADEReport());
+                windowReportsDocuments.ShowDialog();
+            }
+        }
     }
 
 
