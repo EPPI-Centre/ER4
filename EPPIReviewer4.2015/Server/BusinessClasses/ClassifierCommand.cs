@@ -110,10 +110,14 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+            if (_title == "DeleteThisModel~~")
+            {
+                DeleteModel();
+                return;
+            }
             if (_attributeIdOn + _attributeIdNotOn != -2)
             {
                 DoTrainClassifier(false);
-                
             }
             else
             {
@@ -145,15 +149,26 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
                 {
-                    ReportBack = "Sorry, another classifcation task is already in progress on this review";
+                    _returnMessage = "Already running";
                     return;
                 }
                 else
                 {
-                    ReportBack = "";
+                    _returnMessage = "";
                 }
                 // Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
                 int ModelId = await UploadDataAndBuildModelAsync(newModelId);
+
+                if (_returnMessage == "Insufficient data")
+                {
+                    using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
+                        command.ExecuteNonQuery();
+                    }
+                }
 
                 //if (applyToo == true)
                 //{
@@ -248,9 +263,9 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
 
-                if (positiveClassCount * negativeClasscount < 15)
+                if (positiveClassCount * negativeClasscount < 6)
                 {
-                    ReportBack = "Error: insufficient data for training";
+                    _returnMessage = "Insufficient data";
                     return 0;
                 }
                 // upload data to blob
@@ -266,7 +281,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 File.Delete(fileName);
 
-                ReportBack = "Successful upload of data";
+                _returnMessage = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
 
@@ -391,7 +406,7 @@ namespace BusinessLibrary.BusinessClasses
                     blockBlobData.UploadFromStream(fileStream);
                 }
                 File.Delete(fileName);
-                ReportBack = "Successful upload of data";
+                _returnMessage = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "ScoreModel", modelId);
 
@@ -471,6 +486,40 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+        }
+
+        private void DeleteModel()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            // now remove the blob from Azure
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("attributemodels");
+            CloudBlockBlob blockBlobModel = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
+            CloudBlockBlob blockBlobStats = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
+            try
+            {
+                blockBlobModel.Delete();
+                blockBlobStats.Delete();
+            }
+            catch
+            {
+                _returnMessage = "Error deleting. Blobs possibly not found.";
+            }
+            
         }
 
         public enum BatchScoreStatusCode

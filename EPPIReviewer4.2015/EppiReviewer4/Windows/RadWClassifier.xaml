@@ -7,7 +7,7 @@
                    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
 		           Header="Machine learning classifier"
                    Height="450" 
-                   Width="860"
+                   Width="890"
                    CanClose="True"
                    CanMove="False" 
                    IsRestricted="True"
@@ -95,11 +95,12 @@
                 <TextBlock Text="Build model" Margin="5,0,5,0"/>
             </StackPanel>
         </Button>
+        <TextBlock Grid.Row="9" Grid.Column="1" Margin="3,3,3,3" Text="(Go straight to stage 2 if you are applying the RCT model.)" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
 
         <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="4" Grid.RowSpan="5" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,0"
                                     RowIndicatorVisibility="Collapsed" ItemsSource="{Binding Source={StaticResource ClassifierModelListData}, Path=Data}"
-                                    SelectionMode="Single">
+                                    SelectionMode="Single" SelectionChanged="GridViewClassifierModels_SelectionChanged">
 
             <telerikGridView:RadGridView.Columns>
                 <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding ModelTitle}" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
@@ -122,13 +123,19 @@
                 <TextBlock Text="Apply model" Margin="5,0,5,0"/>
             </StackPanel>
         </Button>
-
-        <Button x:Name="cmdRefreshModelList" ToolTipService.ToolTip="Refresh model list" Grid.Row="1" Grid.Column="5" Click="cmdRefreshModelList_Click"
-                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Margin="26,4,10,6">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="5" HorizontalAlignment="Right">
+        <Button x:Name="cmdRefreshModelList" ToolTipService.ToolTip="Refresh model list" Click="cmdRefreshModelList_Click"
+                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Margin="4,4,4,4">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/view-refresh-7.png"/>
                 <TextBlock Text="Refresh model list" Margin="5,0,5,0"/>
             </StackPanel>
         </Button>
+            <Button x:Name="cmdDeleteModel" ToolTipService.ToolTip="Delete selected model" Click="cmdDeleteModel_Click" Margin="15,2,2,2" IsEnabled="False">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="16" Height="16" Source="../Icons/DeleteDiagramNode.png"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </telerik:RadWindow>
