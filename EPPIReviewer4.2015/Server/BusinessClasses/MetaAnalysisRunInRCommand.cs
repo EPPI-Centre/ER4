@@ -646,14 +646,15 @@ namespace BusinessLibrary.BusinessClasses
             {
                 SmallValues = ", small.values='good'";
             }
-
+            
             RCode = "if (!require(netmeta))"
                             + Environment.NewLine + "{"
                             + Environment.NewLine + "library(netmeta, lib.loc=\".\", verbose=TRUE)"
                             + Environment.NewLine + "}";
 
             string model = ma.NMAStatisticalModel == 1 ? ", comb.random=TRUE" : "";
-            RCode += Environment.NewLine + "net1 <- netmeta(yi, sei, Intervention, Comparison, studylabs, data=dat" + model + ", sm='" + ma.GetMetaAnalysisTypeText() + "')";
+            RCode += Environment.NewLine + "net1 <- netmeta(yi, sei, Intervention, Comparison, studylabs, data=dat" + model + 
+                (ma.GetMetaAnalysisTypeText() == "OR" && ma.Exponentiated == false ? "" : ", sm='" + ma.GetMetaAnalysisTypeText() + "'") + ")";
             RCode += Environment.NewLine + "Main_Results <- capture.output(summary(net1))";
             ResultsLabels.Add("Main Results");
 

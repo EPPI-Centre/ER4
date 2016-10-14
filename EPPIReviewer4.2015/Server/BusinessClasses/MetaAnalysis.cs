@@ -527,6 +527,32 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<bool> ExponentiatedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Exponentiated", "Exponentiated", false));
+        public bool Exponentiated
+        {
+            get
+            {
+                return GetProperty(ExponentiatedProperty);
+            }
+            set
+            {
+                SetProperty(ExponentiatedProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> AllTreatmentsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllTreatments", "AllTreatments", true));
+        public bool AllTreatments
+        {
+            get
+            {
+                return GetProperty(AllTreatmentsProperty);
+            }
+            set
+            {
+                SetProperty(AllTreatmentsProperty, value);
+            }
+        }
+
 
         /* ************* Database properties *****************/
 

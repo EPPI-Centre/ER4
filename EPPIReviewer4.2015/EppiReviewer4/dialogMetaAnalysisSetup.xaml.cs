@@ -656,6 +656,14 @@ namespace EppiReviewer4
         private void ComboBoxNMAOutcomeType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             ComboBoxMetaOutcomeType.SelectedIndex = ComboBoxNMAOutcomeType.SelectedIndex;
+            if (ComboBoxNMAOutcomeType.SelectedIndex == 2)
+            {
+                cbExponentiated.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                cbExponentiated.Visibility = Visibility.Collapsed;
+            }
             SelectSelectable();
         }
 

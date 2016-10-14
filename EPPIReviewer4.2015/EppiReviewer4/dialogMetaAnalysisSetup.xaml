@@ -172,8 +172,8 @@
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="30"></RowDefinition>
                         <RowDefinition Height="30"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="30" />
                         <RowDefinition Height="30" />
                         <RowDefinition Height="8"></RowDefinition>
@@ -197,16 +197,18 @@
                         </ComboBox.Items>
                     </ComboBox>
 
-                    <TextBlock Grid.Row="3" Text="Model" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
-                    <ComboBox x:Name="ComboBoxNetMetaOutcomeType" Grid.Row="3" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="cbExponentiated" Grid.Row="3" Grid.Column="1" Content="Print as OR (default = log OR)" HorizontalAlignment="Left" IsChecked="{Binding Exponentiated, Mode=TwoWay}"></CheckBox>
+
+                    <TextBlock Grid.Row="4" Text="Model" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                    <ComboBox x:Name="ComboBoxNetMetaOutcomeType" Grid.Row="4" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" Grid.ColumnSpan="2">
                         <ComboBox.Items>
                             <ComboBoxItem Content="Fixed Effect"></ComboBoxItem>
                             <ComboBoxItem Content="Random effects"></ComboBoxItem>
                         </ComboBox.Items>
                     </ComboBox>
-                    <TextBlock Grid.Row="4" Text="Reference" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
-                    <ComboBox x:Name="cbNMAReferences" Grid.Row="4" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" SelectedValuePath="Name" DisplayMemberPath="Name" SelectionChanged="cbNMAReferences_SelectionChanged" SelectedIndex="0"></ComboBox>
-                    <CheckBox x:Name="cbSmallValues" Grid.Row="5" Grid.Column="1" Content="Large values are good?" HorizontalAlignment="Left" IsChecked="{Binding LargeValuesGood, Mode=TwoWay}"></CheckBox>
+                    <TextBlock Grid.Row="5" Text="Reference" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                    <ComboBox x:Name="cbNMAReferences" Grid.Row="5" Grid.Column="1" Margin="0,3" Width="200" HorizontalAlignment="Left" SelectedValuePath="Name" DisplayMemberPath="Name" SelectionChanged="cbNMAReferences_SelectionChanged" SelectedIndex="0"></ComboBox>
+                    <CheckBox x:Name="cbSmallValues" Grid.Row="6" Grid.Column="1" Content="Large values are good?" HorizontalAlignment="Left" IsChecked="{Binding LargeValuesGood, Mode=TwoWay}"></CheckBox>
                     
                 </Grid>
 
