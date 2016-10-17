@@ -1,10 +1,21 @@
 ﻿USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ClassifierDeleteModel]    Script Date: 10/14/2016 10:56:14 PM ******/
+
+/****** Object:  StoredProcedure [dbo].[st_ClassifierDeleteModel]    Script Date: 10/17/2016 11:16:16 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ClassifierDeleteModel]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ClassifierDeleteModel]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ClassifierDeleteModel]    Script Date: 10/17/2016 11:16:16 ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
+
 CREATE procedure [dbo].[st_ClassifierDeleteModel]
 (
 	@REVIEW_ID INT
@@ -21,17 +32,20 @@ SET NOCOUNT ON
 
 SET NOCOUNT OFF
 
+
 GO
 
 
-
-/* ***********BELOW HERE YOU MAY ALREADY HAVE THESE CHANGES ****************** */
-/* **************************************************************************** */
 
 Use Reviewer
 GO
 update TB_IMPORT_FILTER set OLD_ITEM_ID = 'PMID-' where IMPORT_FILTER_NAME = 'PubMed'
 GO
+
+/* ***********BELOW HERE YOU MAY ALREADY HAVE THESE CHANGES ****************** */
+/* **************************************************************************** */
+
+
 
 alter table dbo.tb_meta_analysis
 ADD
@@ -92,7 +106,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisInsert]    Script Date: 10/14/2016 2:29:09 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisInsert]    Script Date: 10/17/2016 10:53:29 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -114,58 +128,58 @@ ALTER procedure [dbo].[st_MetaAnalysisInsert]
 	@GRID_SETTINGS NVARCHAR(MAX) = '',
 	@NEW_META_ANALYSIS_ID INT OUTPUT,
 
-	@Randomised [int] NULL,
-	@RoB [int] NULL,
-	@RoBComment [ntext] NULL,
-	@RoBSequence [bit] NULL,
-	@RoBConcealment [bit] NULL,
-	@RoBBlindingParticipants [bit] NULL,
-	@RoBBlindingAssessors [bit] NULL,
-	@RoBIncomplete [bit] NULL,
-	@RoBSelective [bit] NULL,
-	@RoBNoIntention [bit] NULL,
-	@RoBCarryover [bit] NULL,
-	@RoBStopped [bit] NULL,
-	@RoBUnvalidated [bit] NULL,
-	@RoBOther [bit] NULL,
-	@Incon [int] NULL,
-	@InconComment [ntext] NULL,
-	@InconPoint [bit] NULL,
-	@InconCIs [bit] NULL,
-	@InconDirection [bit] NULL,
-	@InconStatistical [bit] NULL,
-	@InconOther [bit] NULL,
-	@Indirect [int] NULL,
-	@IndirectComment [ntext] NULL,
-	@IndirectPopulation [bit] NULL,
-	@IndirectOutcome [bit] NULL,
-	@IndirectNoDirect [bit] NULL,
-	@IndirectIntervention [bit] NULL,
-	@IndirectTime [bit] NULL,
-	@IndirectOther [bit] NULL,
-	@Imprec [int] NULL,
-	@ImprecComment [ntext] NULL,
-	@ImprecWide [bit] NULL,
-	@ImprecFew [bit] NULL,
-	@ImprecOnlyOne [bit] NULL,
-	@ImprecOther [bit] NULL,
-	@PubBias [int] NULL,
-	@PubBiasComment [ntext] NULL,
-	@PubBiasCommercially [bit] NULL,
-	@PubBiasAsymmetrical [bit] NULL,
-	@PubBiasLimited [bit] NULL,
-	@PubBiasMissing [bit] NULL,
-	@PubBiasDiscontinued [bit] NULL,
-	@PubBiasDiscrepancy [bit] NULL,
-	@PubBiasOther [bit] NULL,
-	@UpgradeComment [ntext] NULL,
-	@UpgradeLarge [bit] NULL,
-	@UpgradeVeryLarge [bit] NULL,
-	@UpgradeAllPlausible [bit] NULL,
-	@UpgradeClear [bit] NULL,
-	@UpgradeNone [bit] NULL,
-	@CertaintyLevel [int] NULL,
-	@CertaintyLevelComment [ntext] NULL,
+	@Randomised int  = NULL,
+	@RoB [int]  = NULL,
+	@RoBComment [ntext]  = NULL,
+	@RoBSequence [bit] =  NULL,
+	@RoBConcealment [bit] =  NULL,
+	@RoBBlindingParticipants [bit]  = NULL,
+	@RoBBlindingAssessors [bit]  = NULL,
+	@RoBIncomplete [bit]  = NULL,
+	@RoBSelective [bit]  = NULL,
+	@RoBNoIntention [bit] =  NULL,
+	@RoBCarryover [bit] =  NULL,
+	@RoBStopped [bit]  = NULL,
+	@RoBUnvalidated [bit]  = NULL,
+	@RoBOther [bit] =  NULL,
+	@Incon [int]  = NULL,
+	@InconComment [ntext]  = NULL,
+	@InconPoint [bit] =  NULL,
+	@InconCIs [bit]  = NULL,
+	@InconDirection [bit]  = NULL,
+	@InconStatistical [bit]  = NULL,
+	@InconOther [bit]  = NULL,
+	@Indirect [int]  = NULL,
+	@IndirectComment [ntext]  = NULL,
+	@IndirectPopulation [bit] =  NULL,
+	@IndirectOutcome [bit] =  NULL,
+	@IndirectNoDirect [bit]  = NULL,
+	@IndirectIntervention [bit]  = NULL,
+	@IndirectTime [bit]  = NULL,
+	@IndirectOther [bit]  = NULL,
+	@Imprec [int]  = NULL,
+	@ImprecComment [ntext]  = NULL,
+	@ImprecWide [bit]  = NULL,
+	@ImprecFew [bit]  = NULL,
+	@ImprecOnlyOne [bit]  = NULL,
+	@ImprecOther [bit]  = NULL,
+	@PubBias [int]  = NULL,
+	@PubBiasComment [ntext]  = NULL,
+	@PubBiasCommercially [bit]  = NULL,
+	@PubBiasAsymmetrical [bit] =  NULL,
+	@PubBiasLimited [bit]  = NULL,
+	@PubBiasMissing [bit] = NULL,
+	@PubBiasDiscontinued [bit] =  NULL,
+	@PubBiasDiscrepancy [bit] =  NULL,
+	@PubBiasOther [bit] =  NULL,
+	@UpgradeComment [ntext] =  NULL,
+	@UpgradeLarge [bit] =  NULL,
+	@UpgradeVeryLarge [bit]  = NULL,
+	@UpgradeAllPlausible [bit]  = NULL,
+	@UpgradeClear [bit]  = NULL,
+	@UpgradeNone [bit]  = NULL,
+	@CertaintyLevel [int]  = NULL,
+	@CertaintyLevelComment [ntext] =  NULL,
 
 	@ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT,
 	@ATTRIBUTE_QUESTION_TEXT NVARCHAR(MAX) OUTPUT
@@ -354,58 +368,58 @@ ALTER procedure [dbo].[st_MetaAnalysisUpdate]
 	@META_ANALYSIS_TYPE_ID INT,
 	@GRID_SETTINGS NVARCHAR(MAX) = '',
 
-	@Randomised [int] NULL,
-	@RoB [int] NULL,
-	@RoBComment [ntext] NULL,
-	@RoBSequence [bit] NULL,
-	@RoBConcealment [bit] NULL,
-	@RoBBlindingParticipants [bit] NULL,
-	@RoBBlindingAssessors [bit] NULL,
-	@RoBIncomplete [bit] NULL,
-	@RoBSelective [bit] NULL,
-	@RoBNoIntention [bit] NULL,
-	@RoBCarryover [bit] NULL,
-	@RoBStopped [bit] NULL,
-	@RoBUnvalidated [bit] NULL,
-	@RoBOther [bit] NULL,
-	@Incon [int] NULL,
-	@InconComment [ntext] NULL,
-	@InconPoint [bit] NULL,
-	@InconCIs [bit] NULL,
-	@InconDirection [bit] NULL,
-	@InconStatistical [bit] NULL,
-	@InconOther [bit] NULL,
-	@Indirect [int] NULL,
-	@IndirectComment [ntext] NULL,
-	@IndirectPopulation [bit] NULL,
-	@IndirectOutcome [bit] NULL,
-	@IndirectNoDirect [bit] NULL,
-	@IndirectIntervention [bit] NULL,
-	@IndirectTime [bit] NULL,
-	@IndirectOther [bit] NULL,
-	@Imprec [int] NULL,
-	@ImprecComment [ntext] NULL,
-	@ImprecWide [bit] NULL,
-	@ImprecFew [bit] NULL,
-	@ImprecOnlyOne [bit] NULL,
-	@ImprecOther [bit] NULL,
-	@PubBias [int] NULL,
-	@PubBiasComment [ntext] NULL,
-	@PubBiasCommercially [bit] NULL,
-	@PubBiasAsymmetrical [bit] NULL,
-	@PubBiasLimited [bit] NULL,
-	@PubBiasMissing [bit] NULL,
-	@PubBiasDiscontinued [bit] NULL,
-	@PubBiasDiscrepancy [bit] NULL,
-	@PubBiasOther [bit] NULL,
-	@UpgradeComment [ntext] NULL,
-	@UpgradeLarge [bit] NULL,
-	@UpgradeVeryLarge [bit] NULL,
-	@UpgradeAllPlausible [bit] NULL,
-	@UpgradeClear [bit] NULL,
-	@UpgradeNone [bit] NULL,
-	@CertaintyLevel [int] NULL,
-	@CertaintyLevelComment [ntext] NULL,
+	@Randomised int  = NULL,
+	@RoB [int]  = NULL,
+	@RoBComment [ntext]  = NULL,
+	@RoBSequence [bit] =  NULL,
+	@RoBConcealment [bit] =  NULL,
+	@RoBBlindingParticipants [bit]  = NULL,
+	@RoBBlindingAssessors [bit]  = NULL,
+	@RoBIncomplete [bit]  = NULL,
+	@RoBSelective [bit]  = NULL,
+	@RoBNoIntention [bit] =  NULL,
+	@RoBCarryover [bit] =  NULL,
+	@RoBStopped [bit]  = NULL,
+	@RoBUnvalidated [bit]  = NULL,
+	@RoBOther [bit] =  NULL,
+	@Incon [int]  = NULL,
+	@InconComment [ntext]  = NULL,
+	@InconPoint [bit] =  NULL,
+	@InconCIs [bit]  = NULL,
+	@InconDirection [bit]  = NULL,
+	@InconStatistical [bit]  = NULL,
+	@InconOther [bit]  = NULL,
+	@Indirect [int]  = NULL,
+	@IndirectComment [ntext]  = NULL,
+	@IndirectPopulation [bit] =  NULL,
+	@IndirectOutcome [bit] =  NULL,
+	@IndirectNoDirect [bit]  = NULL,
+	@IndirectIntervention [bit]  = NULL,
+	@IndirectTime [bit]  = NULL,
+	@IndirectOther [bit]  = NULL,
+	@Imprec [int]  = NULL,
+	@ImprecComment [ntext]  = NULL,
+	@ImprecWide [bit]  = NULL,
+	@ImprecFew [bit]  = NULL,
+	@ImprecOnlyOne [bit]  = NULL,
+	@ImprecOther [bit]  = NULL,
+	@PubBias [int]  = NULL,
+	@PubBiasComment [ntext]  = NULL,
+	@PubBiasCommercially [bit]  = NULL,
+	@PubBiasAsymmetrical [bit] =  NULL,
+	@PubBiasLimited [bit]  = NULL,
+	@PubBiasMissing [bit] = NULL,
+	@PubBiasDiscontinued [bit] =  NULL,
+	@PubBiasDiscrepancy [bit] =  NULL,
+	@PubBiasOther [bit] =  NULL,
+	@UpgradeComment [ntext] =  NULL,
+	@UpgradeLarge [bit] =  NULL,
+	@UpgradeVeryLarge [bit]  = NULL,
+	@UpgradeAllPlausible [bit]  = NULL,
+	@UpgradeClear [bit]  = NULL,
+	@UpgradeNone [bit]  = NULL,
+	@CertaintyLevel [int]  = NULL,
+	@CertaintyLevelComment [ntext] =  NULL,
 
 	@ATTRIBUTE_ANSWER_TEXT NVARCHAR(MAX) OUTPUT,
 	@ATTRIBUTE_QUESTION_TEXT NVARCHAR(MAX) OUTPUT
