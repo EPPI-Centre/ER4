@@ -159,7 +159,7 @@ namespace BusinessLibrary.BusinessClasses
                 // Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
                 int ModelId = await UploadDataAndBuildModelAsync(newModelId);
 
-                if (_returnMessage == "Insufficient data")
+                if (_returnMessage == "Insufficient data" || _returnMessage == "BuildFailed")
                 {
                     using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                     {
@@ -290,28 +290,41 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
                     modelId.ToString() + "Stats.csv");
 
-                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-                MemoryStream ms = new MemoryStream(myFile);
-
                 double accuracy = 0;
                 double auc = 0;
                 double precision = 0;
                 double recall = 0;
-                using (TextFieldParser csvReader = new TextFieldParser(ms))
+                try
                 {
-                    csvReader.SetDelimiters(new string[] { "," });
-                    csvReader.HasFieldsEnclosedInQuotes = false;
-                    while (!csvReader.EndOfData)
+                    byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+                    MemoryStream ms = new MemoryStream(myFile);
+                    using (TextFieldParser csvReader = new TextFieldParser(ms))
                     {
-                        string [] data1 = csvReader.ReadFields(); // headers
-                        data1 = csvReader.ReadFields(); // now we get the data
-                        accuracy = GetSafeValue(data1[0]);
-                        auc = GetSafeValue(data1[1]);
-                        precision = GetSafeValue(data1[2]);
-                        recall = GetSafeValue(data1[3]);
+                        csvReader.SetDelimiters(new string[] { "," });
+                        csvReader.HasFieldsEnclosedInQuotes = false;
+                        while (!csvReader.EndOfData)
+                        {
+                            string[] data1 = csvReader.ReadFields(); // headers
+                            data1 = csvReader.ReadFields(); // now we get the data
+                            accuracy = GetSafeValue(data1[0]);
+                            auc = GetSafeValue(data1[1]);
+                            precision = GetSafeValue(data1[2]);
+                            recall = GetSafeValue(data1[3]);
+                        }
                     }
                 }
-                
+                catch
+                {
+                    _returnMessage = "BuildFailed";
+                    connection.Close();
+                    return modelId; // will be deleted
+                }
+
+                // We should ADD here a check to see whether the user has deleted the model while it's being built.
+                // If they have, we should delete the associated files on blob storage.
+                // To do - add an output field on the query below - check whether the database row for this model still exists!
+                // (Not doing now, as involves database changes too close to colloquium)
+
                 using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
                 {
                     command2.CommandType = System.Data.CommandType.StoredProcedure;
@@ -329,23 +342,21 @@ namespace BusinessLibrary.BusinessClasses
 
         private double GetSafeValue(string data)
         {
-            if (data.Length > 2 && data.Contains("E"))
+
+            if (data == "1")
             {
-                if (data == "1")
-                {
-                    data = "0.999999";
-                }
-                else if (data == "0")
-                {
-                    data = "0.000001";
-                }
-                else if (data.Length > 2 && data.Contains("E"))
-                {
-                    double dbl = 0;
-                    double.TryParse(data, out dbl);
-                    //if (dbl == 0.0) throw new Exception("Gotcha!");
-                    data = dbl.ToString("F10");
-                }
+                data = "0.999999";
+            }
+            else if (data == "0")
+            {
+                data = "0.000001";
+            }
+            else if (data.Length > 2 && data.Contains("E"))
+            {
+                double dbl = 0;
+                double.TryParse(data, out dbl);
+                //if (dbl == 0.0) throw new Exception("Gotcha!");
+                data = dbl.ToString("F10");
             }
             return Convert.ToDouble(data);
         }
@@ -492,13 +503,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
 
                 using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                     command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
                     command.ExecuteNonQuery();
                 }

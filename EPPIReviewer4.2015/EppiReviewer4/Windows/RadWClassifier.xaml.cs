@@ -115,11 +115,17 @@ namespace EppiReviewer4
                             else
                                 if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
                             {
-                                RadWindow.Alert("Insufficient data for training." + Environment.NewLine +
+                                RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
                                     "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
                                     "to 'learn' from. (For good performance, many more.)");
                             }
                             else
+                            if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
+                            {
+                                RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
+                                    "This is probably because your data set is too small." +
+                                    "If possible, try again with more data.");
+                            }
                             {
                                 RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
                                 "Building models can take a long time, so you can continue to work" + Environment.NewLine +
