@@ -1016,6 +1016,52 @@ SET NOCOUNT ON
 		
 SET NOCOUNT OFF
 go
+
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierUpdateModel]    Script Date: 10/17/2016 2:04:15 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ClassifierUpdateModel]
+(
+	@MODEL_ID INT
+,	@TITLE nvarchar(1000) = NULL
+,	@ACCURACY DECIMAL(18,18) = NULL
+,	@AUC DECIMAL(18,18) = NULL
+,	@PRECISION DECIMAL(18,18) = NULL
+,	@RECALL DECIMAL(18,18) = NULL
+,	@CHECK_MODEL_ID_EXISTS INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+SELECT @CHECK_MODEL_ID_EXISTS = COUNT(*) FROM tb_CLASSIFIER_MODEL WHERE MODEL_ID = @MODEL_ID
+
+IF (@CHECK_MODEL_ID_EXISTS = 1)
+BEGIN
+
+	update tb_CLASSIFIER_MODEL
+		SET TIME_ENDED = CURRENT_TIMESTAMP,
+		MODEL_TITLE = @TITLE,
+		ACCURACY = @ACCURACY,
+		AUC = @AUC,
+		[PRECISION] = @PRECISION,
+		RECALL = @RECALL
+		
+	WHERE MODEL_ID = @MODEL_ID
+END
+
+SET NOCOUNT OFF
+
+GO
+
+
+
 --USE [Reviewer]
 --GO
 --DROP PROCEDURE dbo.st_ClassifierGetModel, dbo.st_TrainingItemAttributeBulkInsert, st_TrainingStatistics
