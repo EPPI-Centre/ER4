@@ -1,4 +1,34 @@
-﻿Use Reviewer
+﻿USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ClassifierDeleteModel]    Script Date: 10/14/2016 10:56:14 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE procedure [dbo].[st_ClassifierDeleteModel]
+(
+	@REVIEW_ID INT
+,	@MODEL_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	DELETE FROM tb_CLASSIFIER_MODEL WHERE REVIEW_ID = @REVIEW_ID AND MODEL_ID = @MODEL_ID
+
+	
+
+SET NOCOUNT OFF
+
+GO
+
+
+
+/* ***********BELOW HERE YOU MAY ALREADY HAVE THESE CHANGES ****************** */
+/* **************************************************************************** */
+
+Use Reviewer
 GO
 update TB_IMPORT_FILTER set OLD_ITEM_ID = 'PMID-' where IMPORT_FILTER_NAME = 'PubMed'
 GO
