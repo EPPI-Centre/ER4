@@ -189,10 +189,9 @@ namespace EppiReviewer4
                 }
                 if (selectedModel.Precision < 0)
                 {
-                    RadWindow.Alert("Sorry, this model cannot be applied." + Environment.NewLine +
-                        "It failed to build properly." + Environment.NewLine +
-                        "The record remains for your information, but" + Environment.NewLine +
-                        "can be safely deleted.");
+                    RadWindow.Alert("Sorry, this model cannot be applied as it failed." + Environment.NewLine +
+                        "to build properly. (It is here for information only and" + Environment.NewLine +
+                        "can be deleted.)");
                     return;
                 }
             }

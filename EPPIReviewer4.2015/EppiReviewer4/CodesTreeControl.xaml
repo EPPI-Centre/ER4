@@ -127,7 +127,7 @@
                 <Image Width="22" Height="22" Source="Icons/wizard.png"
 						                    ToolTipService.ToolTip="Configure Review/Codesets" />
             </Button>
-            <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click">
+            <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                 <Image Width="22" Height="22" Source="Icons/Classifier.png"
 						                    ToolTipService.ToolTip="Open machine learning classification window" />
             </Button>
