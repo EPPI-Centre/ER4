@@ -98,6 +98,7 @@ namespace EppiReviewer4
                     dp.ExecuteCompleted += (o, e2) =>
                     {
                         //BusyLoading.IsRunning = false;
+                        textUploadingDataBuild.Visibility = Visibility.Collapsed;
                         cmdBuildModel.IsEnabled = true;
                         //cmdLearnAndApplyModel.IsEnabled = true;
                         cmdApplyModel.IsEnabled = true;
@@ -140,6 +141,7 @@ namespace EppiReviewer4
                         }
                     };
                     //BusyLoading.IsRunning = true;
+                    textUploadingDataBuild.Visibility = Visibility.Visible;
                     cmdBuildModel.IsEnabled = false;
                     cmdApplyModel.IsEnabled = false;
                     //cmdLearnAndApplyModel.IsEnabled = false;
@@ -221,6 +223,7 @@ namespace EppiReviewer4
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     //BusyLoading.IsRunning = false;
+                    textUploadingDataApply.Visibility = Visibility.Collapsed;
                     cmdBuildModel.IsEnabled = true;
                     //cmdLearnAndApplyModel.IsEnabled = true;
                     cmdApplyModel.IsEnabled = true;
@@ -243,6 +246,7 @@ namespace EppiReviewer4
                     }
                 };
                 //BusyLoading.IsRunning = true;
+                textUploadingDataApply.Visibility = Visibility.Visible;
                 cmdBuildModel.IsEnabled = false;
                 cmdApplyModel.IsEnabled = false;
                 //cmdLearnAndApplyModel.IsEnabled = false;

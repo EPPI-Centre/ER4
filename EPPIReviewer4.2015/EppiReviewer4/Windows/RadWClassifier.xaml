@@ -89,6 +89,7 @@
         <local:codesSelectControl x:Name="codesSelectControlTrainNotOn" Grid.Row="3" Grid.Column="2" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to distinguish from"></local:codesSelectControl>
         <TextBlock Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
         <TextBox Grid.Row="4" Grid.Column="2" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
+        <TextBlock x:Name="textUploadingDataBuild" Grid.Column="1" Grid.Row="6" Text="Uploading data. Please wait..." Grid.ColumnSpan="2" Visibility="Collapsed"></TextBlock>
         <Button x:Name="cmdBuildModel" ToolTipService.ToolTip="Build new model" Grid.Row="6" Grid.Column="2" Click="cmdBuildModel_Click" Margin="26,4,10,6">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-configure.png"/>
@@ -117,6 +118,7 @@
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
 
+        <TextBlock x:Name="textUploadingDataApply" Grid.Column="4" Grid.Row="11" Text="Uploading data. Please wait..." Visibility="Collapsed"></TextBlock>
         <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="11" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-install.png"/>

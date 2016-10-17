@@ -164,7 +164,7 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                         command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
                         command.ExecuteNonQuery();
                     }
@@ -225,7 +225,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -377,7 +377,7 @@ namespace BusinessLibrary.BusinessClasses
                 //StringBuilder data = new StringBuilder();
                 //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
                 List<Int64> ItemIds = new List<Int64>();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -397,7 +397,7 @@ namespace BusinessLibrary.BusinessClasses
                                         "\"" + reader["LABEL"].ToString() + "\"," +
                                         "\"" + CleanText(reader, "title") + "\"," +
                                         "\"" + CleanText(reader, "abstract") + "\"," +
-                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + ri.ReviewId.ToString() + "\"");
+                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
 
                                     //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
                                     //    "\"" + reader["LABEL"].ToString() + "\"," +
@@ -491,6 +491,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 300;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
