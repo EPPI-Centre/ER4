@@ -189,7 +189,7 @@ namespace EppiReviewer4
                 }
                 if (selectedModel.Precision < 0)
                 {
-                    RadWindow.Alert("Sorry, this model cannot be applied as it failed." + Environment.NewLine +
+                    RadWindow.Alert("Sorry, this model cannot be applied as it failed" + Environment.NewLine +
                         "to build properly. (It is here for information only and" + Environment.NewLine +
                         "can be deleted.)");
                     return;

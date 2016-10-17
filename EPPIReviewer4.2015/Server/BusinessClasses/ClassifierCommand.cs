@@ -138,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title));
+                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));

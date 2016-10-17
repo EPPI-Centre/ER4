@@ -9,9 +9,9 @@
                    Height="450" 
                    Width="890"
                    CanClose="True"
-                   CanMove="False" 
+                   CanMove="True" 
                    IsRestricted="True"
-                   ResizeMode="NoResize"
+                   ResizeMode="CanResize"
                    RestoreMinimizedLocation="True"
                    RestrictedAreaMargin="22"
                    WindowStartupLocation="CenterScreen"
@@ -67,11 +67,11 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="180"></ColumnDefinition>
-            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="180*"></ColumnDefinition>
+            <ColumnDefinition Width="180*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="220"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="220*"></ColumnDefinition>
+            <ColumnDefinition Width="240*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Border Background="LightBlue" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="9"></Border>
