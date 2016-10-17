@@ -196,7 +196,8 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Your data have been uploaded for classification successfully. As the classification can take some time, please refresh the list of searches periodially");
+                        RadWindow.Alert("Your data have been uploaded for classification successfully."
+                            + Environment.NewLine + "As the classification can take some time, please refresh the list of searches periodially");
                                 // no point in refreshing the search, as the command returns before it's been updated
                                 //RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
                                 //RadWindow.Alert("Check the latest search for your results");

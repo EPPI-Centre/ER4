@@ -1,4 +1,9 @@
-﻿alter table dbo.tb_meta_analysis
+﻿Use Reviewer
+GO
+update TB_IMPORT_FILTER set OLD_ITEM_ID = 'PMID-' where IMPORT_FILTER_NAME = 'PubMed'
+GO
+
+alter table dbo.tb_meta_analysis
 ADD
 	[Randomised] [int] NULL,
 	[RoB] [int] NULL,
@@ -57,7 +62,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisInsert]    Script Date: 10/10/2016 10:53:07 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisInsert]    Script Date: 10/14/2016 2:29:09 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -220,7 +225,6 @@ SET NOCOUNT ON
 	,	@ATTRIBUTE_ID_ANSWER
 	,	@ATTRIBUTE_ID_QUESTION
 	,	@GRID_SETTINGS,
-	
 	@Randomised,
 	@RoB,
 	@RoBComment,
@@ -294,12 +298,11 @@ SET NOCOUNT ON
 		WHERE ATTRIBUTE_NAME IS NOT NULL
 
 SET NOCOUNT OFF
-
 GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisUpdate]    Script Date: 10/10/2016 10:53:09 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisUpdate]    Script Date: 10/14/2016 2:29:32 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -470,12 +473,11 @@ SET NOCOUNT ON
 
 SET NOCOUNT OFF
 
-
 GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisList]    Script Date: 10/10/2016 10:53:19 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysisList]    Script Date: 10/14/2016 2:29:55 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -494,7 +496,7 @@ SET NOCOUNT ON
 	TB_META_ANALYSIS.ATTRIBUTE_ID, SET_ID, ATTRIBUTE_ID_INTERVENTION, ATTRIBUTE_ID_CONTROL,
 	ATTRIBUTE_ID_OUTCOME, TB_META_ANALYSIS.META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE,
 	ATTRIBUTE_ID_ANSWER, ATTRIBUTE_ID_QUESTION,	GRID_SETTINGS,
-	RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
+	Randomised, RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
 	 RoBNoIntention, RoBCarryover, RoBStopped, RoBUnvalidated, RoBOther, Incon, InconComment, InconPoint, InconCIs, InconDirection, 
 	 InconStatistical, InconOther, Indirect, IndirectComment, IndirectPopulation, IndirectOutcome, IndirectNoDirect, IndirectIntervention, 
 	 IndirectTime, IndirectOther, Imprec, ImprecComment, ImprecWide, ImprecFew, ImprecOnlyOne, ImprecOther, PubBias, PubBiasComment, 
@@ -538,12 +540,11 @@ SET NOCOUNT OFF
 		WHERE ATTRIBUTE_NAME IS NOT NULL) ATTRIBUTE_ANSWER_TEXT
 
 		*/
-
 GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MetaAnalysis]    Script Date: 10/10/2016 10:53:17 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_MetaAnalysis]    Script Date: 10/14/2016 2:30:27 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -561,7 +562,7 @@ SET NOCOUNT ON
 	ATTRIBUTE_ID, SET_ID, ATTRIBUTE_ID_INTERVENTION, ATTRIBUTE_ID_CONTROL,
 	ATTRIBUTE_ID_ANSWER, ATTRIBUTE_ID_QUESTION,	ATTRIBUTE_ID_OUTCOME, META_ANALYSIS_TYPE_ID,
 
-	 RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
+	 Randomised, RoB, RoBComment, RoBSequence, RoBConcealment, RoBBlindingParticipants, RoBBlindingAssessors, RoBIncomplete, RoBSelective, 
 	 RoBNoIntention, RoBCarryover, RoBStopped, RoBUnvalidated, RoBOther, Incon, InconComment, InconPoint, InconCIs, InconDirection, 
 	 InconStatistical, InconOther, Indirect, IndirectComment, IndirectPopulation, IndirectOutcome, IndirectNoDirect, IndirectIntervention, 
 	 IndirectTime, IndirectOther, Imprec, ImprecComment, ImprecWide, ImprecFew, ImprecOnlyOne, ImprecOther, PubBias, PubBiasComment, 
@@ -573,35 +574,7 @@ SET NOCOUNT ON
 	WHERE META_ANALYSIS_ID = @META_ANALYSIS_ID
 
 SET NOCOUNT OFF
-
 go
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -612,7 +585,7 @@ go
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ClassifierGetClassificationData]    Script Date: 10/10/2016 10:42:34 AM ******/
+/****** Object:  StoredProcedure [dbo].[st_ClassifierGetClassificationData]    Script Date: 10/14/2016 2:33:51 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -651,7 +624,7 @@ go
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemSearchList]    Script Date: 10/7/2016 6:29:03 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemSearchList]    Script Date: 10/14/2016 2:34:18 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -725,7 +698,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemList]    Script Date: 10/7/2016 4:15:50 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemList]    Script Date: 10/14/2016 2:34:45 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -948,7 +921,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ClassifierCreateSearchList]    Script Date: 10/10/2016 1:38:06 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_ClassifierCreateSearchList]    Script Date: 10/14/2016 2:35:18 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1012,7 +985,6 @@ SET NOCOUNT ON
 	DELETE FROM TB_CLASSIFIER_ITEM_TEMP WHERE REVIEW_ID = @REVIEW_ID	
 		
 SET NOCOUNT OFF
-
 go
 --USE [Reviewer]
 --GO
