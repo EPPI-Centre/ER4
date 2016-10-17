@@ -159,7 +159,7 @@ namespace BusinessLibrary.BusinessClasses
                 // Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
                 int ModelId = await UploadDataAndBuildModelAsync(newModelId);
 
-                if (_returnMessage == "Insufficient data" || _returnMessage == "BuildFailed")
+                if (_returnMessage == "Insufficient data")
                 {
                     using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                     {
@@ -316,24 +316,29 @@ namespace BusinessLibrary.BusinessClasses
                 catch
                 {
                     _returnMessage = "BuildFailed";
-                    connection.Close();
-                    return modelId; // will be deleted
+                    _title += " (failed)";
+                    accuracy = -0.99;
+                    auc = -0.99;
+                    precision = -0.99;
+                    recall = -0.99;
                 }
-
-                // We should ADD here a check to see whether the user has deleted the model while it's being built.
-                // If they have, we should delete the associated files on blob storage.
-                // To do - add an output field on the query below - check whether the database row for this model still exists!
-                // (Not doing now, as involves database changes too close to colloquium)
 
                 using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
                 {
                     command2.CommandType = System.Data.CommandType.StoredProcedure;
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
+                    command2.Parameters.Add(new SqlParameter("@TITLE", _title));
                     command2.Parameters.Add(new SqlParameter("@ACCURACY", accuracy));
                     command2.Parameters.Add(new SqlParameter("@AUC", auc));
                     command2.Parameters.Add(new SqlParameter("@PRECISION", precision));
                     command2.Parameters.Add(new SqlParameter("@RECALL", recall));
+                    command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
+                    command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
                     command2.ExecuteNonQuery();
+                    if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
+                    {
+                        DeleteModel();
+                    }
                 }
                 connection.Close();
             }
@@ -486,7 +491,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
                     command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));

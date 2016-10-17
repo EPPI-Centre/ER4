@@ -187,6 +187,14 @@ namespace EppiReviewer4
                         "or cannot distinguish between your selected codes.");
                     return;
                 }
+                if (selectedModel.Precision < 0)
+                {
+                    RadWindow.Alert("Sorry, this model cannot be applied." + Environment.NewLine +
+                        "It failed to build properly." + Environment.NewLine +
+                        "The record remains for your information, but" + Environment.NewLine +
+                        "can be safely deleted.");
+                    return;
+                }
             }
 
             if (rbApplyToSelected.IsChecked == true)
@@ -223,7 +231,9 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Your data have been uploaded for classification successfully. As the classification can take some time, please refresh the list of searches periodially");
+                        RadWindow.Alert("Your data have been uploaded for classification successfully." + Environment.NewLine +
+                            "As the classification can take some time," + Environment.NewLine +
+                            "please refresh the list of search results periodially.");
                         // no point in refreshing the search, as the command returns before it's been updated
                         //RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
                         //RadWindow.Alert("Check the latest search for your results");
