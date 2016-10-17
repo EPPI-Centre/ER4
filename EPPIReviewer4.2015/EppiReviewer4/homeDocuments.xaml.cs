@@ -4054,6 +4054,16 @@ on the right of the main screen");
                     ItemsGrid.Columns[8].IsFilterable = true;
                     ItemsGrid.Columns[9].IsFilterable = true;
                 }
+                // so that the 'score' column is visible when items have a rank (usually from machine learning classification
+                // and also from full text search)
+                ItemList il = provider.Data as ItemList;
+                if (il.Count > 0)
+                {
+                    if (il[0].Rank > 0)
+                    {
+                        ItemsGrid.Columns[12].IsVisible = true;
+                    }
+                }
             }
         }
         private void windowReconcile_HyperlinkButton_Click(object sender, RoutedEventArgs e)

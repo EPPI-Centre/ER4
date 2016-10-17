@@ -338,7 +338,7 @@
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnItemType" Header="Type" DataMemberBinding="{Binding TypeName}" ShowDistinctFilters="True" Width="90" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnYear" Header="Year" DataMemberBinding="{Binding Year}" ShowDistinctFilters="True" Width="20*" MaxWidth="70" IsVisible="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn x:Name="DataColumnScore" Header="Info" DataMemberBinding="{Binding AttributeAdditionalText}" ShowDistinctFilters="True" Width="70*" IsVisible="False"></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnRank" Header="Score" DataMemberBinding="{Binding Rank}" ShowDistinctFilters="True" Width="20*" IsVisible="False"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="DataColumnRank" Header="Score" DataMemberBinding="{Binding Rank}" ShowDistinctFilters="True" Width="60" IsVisible="False"></telerikGridView:GridViewDataColumn>
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
 
