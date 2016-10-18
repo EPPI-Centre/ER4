@@ -3,12 +3,15 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
         xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+        xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
         xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
                    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
 		           Header="Machine learning classifier"
                    Height="510" 
                    Width="890"
                    CanClose="True"
+                   MinHeight="510"
+                   MinWidth="831"
                    CanMove="True" 
                    IsRestricted="True"
                    ResizeMode="CanResize"
@@ -56,6 +59,8 @@
                            FactoryMethod="GetSources" 
                            DataChanged="CslaDataProvider_DataChanged"
                            />
+        <helper:SourceNameConverter x:Key="SourceNameConverter"/>
+        <helper:SourceNameStyleConverter x:Key="SourceNameStyleConverter"/>
     </telerik:RadWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -128,8 +133,16 @@
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
         <RadioButton x:Name="rbApplyToSource" Grid.Column="5" Grid.Row="11" Content="Apply to items from this source" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSource"/>
-        <ComboBox x:Name="comboSources" Grid.Column="5" Grid.Row="12" Margin="3,1,5,7" DisplayMemberPath="Source_Name"
-                  ItemsSource="{Binding Source={StaticResource SourcesData}, Path=Data.Sources, Mode=OneWay}" IsEnabled="False"></ComboBox>
+        <ComboBox x:Name="comboSources" Grid.Column="5" Grid.Row="12" Margin="3,1,5,7"  
+                  ItemsSource="{Binding Source={StaticResource SourcesData}, Path=Data.Sources, Mode=OneWay}" IsEnabled="False">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text= "{Binding Source_Name, Converter={StaticResource SourceNameConverter}}"
+                               FontStyle="{Binding Source_Name, Converter={StaticResource SourceNameStyleConverter}}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+
+        </ComboBox>
         <TextBlock x:Name="textUploadingDataApply" Grid.Column="4" Grid.Row="13" Text="Uploading data. Please wait..." Visibility="Collapsed"></TextBlock>
         <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="13" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
             <StackPanel Orientation="Horizontal">

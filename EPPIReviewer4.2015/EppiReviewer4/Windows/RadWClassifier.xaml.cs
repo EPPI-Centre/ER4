@@ -65,12 +65,6 @@ namespace EppiReviewer4
     /// </summary>
     public partial class RadWClassifier : RadWindow //change this to give it a unque name, must inherit from Radwindow.
     {
-        #region EVENTS
-        //put one event for each code-behind handler declared in XAML
-        //EXAMPLE: 
-        //public event EventHandler<RoutedEventArgs> cmdButton_Clicked;
-        //
-        #endregion
         public RadWClassifier()
         {
             InitializeComponent();
@@ -127,6 +121,7 @@ namespace EppiReviewer4
                                     "This is probably because your data set is too small." +
                                     "If possible, try again with more data.");
                             }
+                            else
                             {
                                 RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
                                 "Building models can take a long time, so you can continue to work" + Environment.NewLine +
@@ -167,7 +162,7 @@ namespace EppiReviewer4
             string modelTitle = "RCT";
             Int32 ModelId = -1; // the RCT model as default
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
-            int SourceId = -1;
+            int SourceId = -2;//source_id == -1 means "sourceless items"
 
             if (rbApplySelectedModel.IsChecked == true)
             {

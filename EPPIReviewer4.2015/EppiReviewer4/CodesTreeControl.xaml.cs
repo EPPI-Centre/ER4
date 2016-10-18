@@ -211,6 +211,7 @@ namespace EppiReviewer4
             {
                 TreeView.ItemTemplateSelector = this.Resources["myAttributeCodingTemplateSelector"] as AttributeCodingTemplateSelector;
                 cmdConfigureCodesets.Visibility = System.Windows.Visibility.Collapsed;
+                cmdShowClassificationWindow.Visibility = System.Windows.Visibility.Collapsed;
             }
             else
             {
