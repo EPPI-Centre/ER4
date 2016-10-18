@@ -6,16 +6,17 @@
         xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
                    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
 		           Header="Machine learning classifier"
-                   Height="450" 
+                   Height="510" 
                    Width="890"
                    CanClose="True"
-                   CanMove="False" 
+                   CanMove="True" 
                    IsRestricted="True"
-                   ResizeMode="NoResize"
+                   ResizeMode="CanResize"
                    RestoreMinimizedLocation="True"
                    RestrictedAreaMargin="22"
                    WindowStartupLocation="CenterScreen"
                    WindowState="Normal"
+                   Activated="RadWindow_Activated"
                    >
     <!--
     NOTES:
@@ -44,10 +45,17 @@
     <telerik:RadWindow.Resources>
         <cslaXAML:CslaDataProvider x:Key="ClassifierModelListData"
                            ManageObjectLifetime="True"
-                           IsInitialLoadEnabled="True"
+                           IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.ClassifierModelList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            DataChanged="ClassifierModelsData_DataChanged"
                            FactoryMethod="GetClassifierModelList"/>
+        <cslaXAML:CslaDataProvider x:Key="SourcesData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReadOnlySourceList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetSources" 
+                           DataChanged="CslaDataProvider_DataChanged"
+                           />
     </telerik:RadWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -63,19 +71,21 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="180"></ColumnDefinition>
-            <ColumnDefinition Width="180"></ColumnDefinition>
+            <ColumnDefinition Width="180*"></ColumnDefinition>
+            <ColumnDefinition Width="180*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="220"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="220*"></ColumnDefinition>
+            <ColumnDefinition Width="240*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Border Background="LightBlue" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="9"></Border>
-        <Border Background="LightGray" Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="11"></Border>
+        <Border Background="LightGray" Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="13"></Border>
         <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Margin="5,10,5,5" TextWrapping="Wrap">
             <Run Text="The machine learning classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which is saved for future use); and then the model is applied to new items. One 'pre-built' classifier is available: the 'RCT model', which will automatically identify RCTs for you; it has been trained on more than 280,000 records screened by the Cochrane Crowd."/>
             <LineBreak/>
@@ -89,6 +99,7 @@
         <local:codesSelectControl x:Name="codesSelectControlTrainNotOn" Grid.Row="3" Grid.Column="2" Margin="4,4,4,4" ToolTipService.ToolTip="Select the code that you want the model to be able to distinguish from"></local:codesSelectControl>
         <TextBlock Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="Name for your model" VerticalAlignment="Center"></TextBlock>
         <TextBox Grid.Row="4" Grid.Column="2" Margin="3,3,3,3" x:Name="tbModelTitle" Text="Edit title" VerticalAlignment="Center"></TextBox>
+        <TextBlock x:Name="textUploadingDataBuild" Grid.Column="1" Grid.Row="6" Text="Uploading data. Please wait..." Grid.ColumnSpan="2" Visibility="Collapsed"></TextBlock>
         <Button x:Name="cmdBuildModel" ToolTipService.ToolTip="Build new model" Grid.Row="6" Grid.Column="2" Click="cmdBuildModel_Click" Margin="26,4,10,6">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-configure.png"/>
@@ -116,8 +127,11 @@
         <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="9" Content="Apply RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
-
-        <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="11" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
+        <RadioButton x:Name="rbApplyToSource" Grid.Column="5" Grid.Row="11" Content="Apply to items from this source" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSource"/>
+        <ComboBox x:Name="comboSources" Grid.Column="5" Grid.Row="12" Margin="3,1,5,7" DisplayMemberPath="Source_Name"
+                  ItemsSource="{Binding Source={StaticResource SourcesData}, Path=Data.Sources, Mode=OneWay}" IsEnabled="False"></ComboBox>
+        <TextBlock x:Name="textUploadingDataApply" Grid.Column="4" Grid.Row="13" Text="Uploading data. Please wait..." Visibility="Collapsed"></TextBlock>
+        <Button x:Name="cmdApplyModel" ToolTipService.ToolTip="Apply selected model" Grid.Row="13" Grid.Column="5" Click="cmdApplyModel_Click" Margin="91,1,5,7">
             <StackPanel Orientation="Horizontal">
                 <Image Width="16" Height="16" Source="../Icons/run-build-install.png"/>
                 <TextBlock Text="Apply model" Margin="5,0,5,0"/>

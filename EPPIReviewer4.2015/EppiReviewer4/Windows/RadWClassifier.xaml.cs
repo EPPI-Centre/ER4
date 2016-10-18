@@ -94,10 +94,11 @@ namespace EppiReviewer4
                     ClassifierCommand command = new ClassifierCommand(
                         tbModelTitle.Text,
                         codesSelectControlTrainOn.SelectedAttributeSet().AttributeId,
-                        codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId, 0, -1);
+                        codesSelectControlTrainNotOn.SelectedAttributeSet().AttributeId, 0, -1, -1);
                     dp.ExecuteCompleted += (o, e2) =>
                     {
                         //BusyLoading.IsRunning = false;
+                        textUploadingDataBuild.Visibility = Visibility.Collapsed;
                         cmdBuildModel.IsEnabled = true;
                         //cmdLearnAndApplyModel.IsEnabled = true;
                         cmdApplyModel.IsEnabled = true;
@@ -140,6 +141,7 @@ namespace EppiReviewer4
                         }
                     };
                     //BusyLoading.IsRunning = true;
+                    textUploadingDataBuild.Visibility = Visibility.Visible;
                     cmdBuildModel.IsEnabled = false;
                     cmdApplyModel.IsEnabled = false;
                     //cmdLearnAndApplyModel.IsEnabled = false;
@@ -165,6 +167,7 @@ namespace EppiReviewer4
             string modelTitle = "RCT";
             Int32 ModelId = -1; // the RCT model as default
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
+            int SourceId = -1;
 
             if (rbApplySelectedModel.IsChecked == true)
             {
@@ -189,10 +192,9 @@ namespace EppiReviewer4
                 }
                 if (selectedModel.Precision < 0)
                 {
-                    RadWindow.Alert("Sorry, this model cannot be applied." + Environment.NewLine +
-                        "It failed to build properly." + Environment.NewLine +
-                        "The record remains for your information, but" + Environment.NewLine +
-                        "can be safely deleted.");
+                    RadWindow.Alert("Sorry, this model cannot be applied as it failed" + Environment.NewLine +
+                        "to build properly. (It is here for information only and" + Environment.NewLine +
+                        "can be deleted.)");
                     return;
                 }
             }
@@ -210,6 +212,19 @@ namespace EppiReviewer4
                 }
             }
 
+            if (rbApplyToSource.IsChecked == true)
+            {
+                if (comboSources.SelectedIndex > -1)
+                {
+                    SourceId = (comboSources.SelectedItem as ReadOnlySource).Source_ID;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a source first.");
+                    return;
+                }
+            }
+
             if (MessageBox.Show("Are you sure you want to apply the selected model?", "Are you sure?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
@@ -218,10 +233,12 @@ namespace EppiReviewer4
                     -1,
                     -1,
                     AttributeId,
-                    ModelId);
+                    ModelId,
+                    SourceId);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     //BusyLoading.IsRunning = false;
+                    textUploadingDataApply.Visibility = Visibility.Collapsed;
                     cmdBuildModel.IsEnabled = true;
                     //cmdLearnAndApplyModel.IsEnabled = true;
                     cmdApplyModel.IsEnabled = true;
@@ -244,6 +261,7 @@ namespace EppiReviewer4
                     }
                 };
                 //BusyLoading.IsRunning = true;
+                textUploadingDataApply.Visibility = Visibility.Visible;
                 cmdBuildModel.IsEnabled = false;
                 cmdApplyModel.IsEnabled = false;
                 //cmdLearnAndApplyModel.IsEnabled = false;
@@ -334,10 +352,18 @@ namespace EppiReviewer4
             if ((sender as RadioButton).Tag.ToString() == "ApplyToAll")
             {
                 codesSelectControlClassifyTo.IsEnabled = false;
+                comboSources.IsEnabled = false;
+            }
+            else
+            if ((sender as RadioButton).Tag.ToString() == "ApplyToSelected")
+            {
+                codesSelectControlClassifyTo.IsEnabled = true;
+                comboSources.IsEnabled = false;
             }
             else
             {
-                codesSelectControlClassifyTo.IsEnabled = true;
+                codesSelectControlClassifyTo.IsEnabled = false;
+                comboSources.IsEnabled = true;
             }
         }
 
@@ -358,7 +384,8 @@ namespace EppiReviewer4
                     -1,
                     -1,
                     -1,
-                    (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId);
+                    (GridViewClassifierModels.SelectedItem as ClassifierModel).ModelId,
+                    -1);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     cmdBuildModel.IsEnabled = true;
@@ -397,6 +424,29 @@ namespace EppiReviewer4
                 cmdDeleteModel.IsEnabled = false;
             }
 
+        }
+
+        private void CslaDataProvider_DataChanged(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["SourcesData"]);
+            if (provider.Error != null)
+            {
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+            }
+        }
+
+        private void RadWindow_Activated(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["SourcesData"]);
+            if (provider != null)
+            {
+                provider.Refresh();
+            }
+            CslaDataProvider provider2 = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
+            if (provider2 != null)
+            {
+                provider2.Refresh();
+            }
         }
     }
 }

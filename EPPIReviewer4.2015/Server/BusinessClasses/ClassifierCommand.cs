@@ -47,13 +47,14 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
+        private int _sourceId;
 
         // variables for applying the classifier
         private int _classifierId = -1;
 
         private string _returnMessage;
 
-        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId)
+        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {
             _title = title;
             _attributeIdOn = attributeIdOn;
@@ -61,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = "Success";
             _classifierId = classiferId;
             _attributeIdClassifyTo = attributeIdClassifyTo;
+            _sourceId = sourceId;
         }
 
         public string ReturnMessage
@@ -94,6 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_classifierId", _classifierId);
             info.AddValue("_attributeIdClassifyTo", _attributeIdClassifyTo);
+            info.AddValue("_sourceId", _sourceId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -103,6 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = info.GetValue<string>("_returnMessage");
             _classifierId = info.GetValue<int>("_classifierId");
             _attributeIdClassifyTo = info.GetValue<Int64>("_attributeIdClassifyTo");
+            _sourceId = info.GetValue<int>("_sourceId");
         }
 
 
@@ -123,8 +127,6 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DoApplyClassifier(_classifierId, _attributeIdClassifyTo);
             }
-
-            
         }
 
         private async void DoTrainClassifier(bool applyToo)
@@ -138,7 +140,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title));
+                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
@@ -164,7 +166,7 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                         command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
                         command.ExecuteNonQuery();
                     }
@@ -225,7 +227,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -377,12 +379,13 @@ namespace BusinessLibrary.BusinessClasses
                 //StringBuilder data = new StringBuilder();
                 //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
                 List<Int64> ItemIds = new List<Int64>();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
@@ -397,7 +400,7 @@ namespace BusinessLibrary.BusinessClasses
                                         "\"" + reader["LABEL"].ToString() + "\"," +
                                         "\"" + CleanText(reader, "title") + "\"," +
                                         "\"" + CleanText(reader, "abstract") + "\"," +
-                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + ri.ReviewId.ToString() + "\"");
+                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
 
                                     //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
                                     //    "\"" + reader["LABEL"].ToString() + "\"," +
@@ -491,6 +494,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 300;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));

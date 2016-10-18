@@ -213,7 +213,7 @@
                 </Grid>
 
             </telerik:RadTabItem>
-            <telerik:RadTabItem Header="Qualitative Comparative Analysis (QCA)" Content="Coming soon!" Visibility="Visible"></telerik:RadTabItem>
+            <telerik:RadTabItem Header="Qualitative Comparative Analysis (QCA)" Content="Coming soon!" Visibility="Collapsed"></telerik:RadTabItem>
 
             <telerik:RadTabItem Header="GRADE" Visibility="Visible">
                 <ScrollViewer VerticalScrollBarVisibility="Visible">
@@ -341,7 +341,9 @@
                                 <CheckBox Content="No direct comparison" IsChecked="{Binding IndirectNoDirect, Mode=TwoWay}"></CheckBox>
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Grid.Column="1">
-                                <CheckBox Content="Intervention / comparator dissimilarity" IsChecked="{Binding IndirectIntervention, Mode=TwoWay}"></CheckBox>
+                                <CheckBox IsChecked="{Binding IndirectIntervention, Mode=TwoWay}">
+                                    <TextBlock Text="Intervention / comparator dissimilarity" TextWrapping="Wrap"></TextBlock>
+                                </CheckBox>
                                 <CheckBox Content="Time frame insufficient" IsChecked="{Binding IndirectTime, Mode=TwoWay}"></CheckBox>
                                 <CheckBox Content="Other issue" IsChecked="{Binding IndirectOther, Mode=TwoWay}"></CheckBox>
                             </StackPanel>
@@ -393,7 +395,9 @@
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Grid.Column="1">
                                 <CheckBox Content="Discontinued studies" IsChecked="{Binding PubBiasDiscontinued, Mode=TwoWay}"></CheckBox>
-                                <CheckBox Content="Discrepancy published vs. unpublished" IsChecked="{Binding PubBiasDiscrepancy, Mode=TwoWay}"></CheckBox>
+                                <CheckBox IsChecked="{Binding PubBiasDiscrepancy, Mode=TwoWay}">
+                                    <TextBlock Text="Discrepancy published vs. unpublished" TextWrapping="Wrap"></TextBlock>
+                                </CheckBox>
                                 <CheckBox Content="Other issue" IsChecked="{Binding PubBiasOther, Mode=TwoWay}"></CheckBox>
                             </StackPanel>
                         </Grid>
@@ -411,7 +415,9 @@
                             <StackPanel Orientation="Vertical" Grid.Column="0">
                                 <CheckBox Content="Large magnitude of effect" IsChecked="{Binding UpgradeLarge, Mode=TwoWay}"></CheckBox>
                                 <CheckBox Content="Very large magnitude of effect" IsChecked="{Binding UpgradeVeryLarge, Mode=TwoWay}"></CheckBox>
-                                <CheckBox Content="All plausible confounding would have reduced the effect" IsChecked="{Binding UpgradeAllPlausible, Mode=TwoWay}"></CheckBox>
+                                <CheckBox IsChecked="{Binding UpgradeAllPlausible, Mode=TwoWay}">
+                                    <TextBlock Text="All plausible confounding would have reduced the effect"  TextWrapping="Wrap"></TextBlock>
+                                </CheckBox>
                                 
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Grid.Column="1">
@@ -464,7 +470,7 @@
                 <Button x:Name="cmdPreviewGRADE" Margin="4,4,4,4" Click="cmdPreviewGRADE_Click" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
                         <Image Source="Icons/PrintCodeSet.png"/>
-                        <TextBlock Text="Preview GRADE report" Margin="5,0,0,0"></TextBlock>
+                        <TextBlock Text="GRADE report" Margin="5,0,0,0"></TextBlock>
                     </StackPanel>
                 </Button>
                 <Button x:Name="cmdExportGrid" Margin="4,4,4,4" Click="cmdExportGrid_Click">
