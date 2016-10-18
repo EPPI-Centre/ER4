@@ -1018,7 +1018,7 @@ SET NOCOUNT OFF
 go
 
 
-/* ******************************* these are relatively new. Sorry - not sure which ones you'll have already run for testing... ***************
+/* ******************************* these are relatively new. Sorry - not sure which ones you'll have already run for testing... *************** */
 
 USE [Reviewer]
 GO
