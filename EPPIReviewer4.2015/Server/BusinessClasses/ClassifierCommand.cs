@@ -47,13 +47,14 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
+        private int _sourceId;
 
         // variables for applying the classifier
         private int _classifierId = -1;
 
         private string _returnMessage;
 
-        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId)
+        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {
             _title = title;
             _attributeIdOn = attributeIdOn;
@@ -61,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = "Success";
             _classifierId = classiferId;
             _attributeIdClassifyTo = attributeIdClassifyTo;
+            _sourceId = sourceId;
         }
 
         public string ReturnMessage
@@ -94,6 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_classifierId", _classifierId);
             info.AddValue("_attributeIdClassifyTo", _attributeIdClassifyTo);
+            info.AddValue("_sourceId", _sourceId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -103,6 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = info.GetValue<string>("_returnMessage");
             _classifierId = info.GetValue<int>("_classifierId");
             _attributeIdClassifyTo = info.GetValue<Int64>("_attributeIdClassifyTo");
+            _sourceId = info.GetValue<int>("_sourceId");
         }
 
 
@@ -123,8 +127,6 @@ namespace BusinessLibrary.BusinessClasses
             {
                 DoApplyClassifier(_classifierId, _attributeIdClassifyTo);
             }
-
-            
         }
 
         private async void DoTrainClassifier(bool applyToo)
@@ -383,6 +385,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
