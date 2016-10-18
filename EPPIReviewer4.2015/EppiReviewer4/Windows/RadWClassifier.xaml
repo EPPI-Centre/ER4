@@ -45,7 +45,7 @@
     <telerik:RadWindow.Resources>
         <cslaXAML:CslaDataProvider x:Key="ClassifierModelListData"
                            ManageObjectLifetime="True"
-                           IsInitialLoadEnabled="True"
+                           IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.ClassifierModelList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            DataChanged="ClassifierModelsData_DataChanged"
                            FactoryMethod="GetClassifierModelList"/>

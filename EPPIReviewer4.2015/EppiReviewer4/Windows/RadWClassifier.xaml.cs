@@ -442,6 +442,11 @@ namespace EppiReviewer4
             {
                 provider.Refresh();
             }
+            CslaDataProvider provider2 = ((CslaDataProvider)this.Resources["ClassifierModelListData"]);
+            if (provider2 != null)
+            {
+                provider2.Refresh();
+            }
         }
     }
 }
