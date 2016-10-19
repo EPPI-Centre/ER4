@@ -388,9 +388,11 @@ namespace EppiReviewer4
 
             ResetScreeningUI();
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576) // Alison and Ian
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
+                cmdScreeningSimulationSave.Visibility = Visibility.Visible;
             }
         }
 
@@ -409,8 +411,6 @@ namespace EppiReviewer4
                     RevInfoprovider.DataChanged += RevInfoprovider_DataChanged;
                     RevInfoprovider.Refresh();
                 }
-
-
             }
         }
         private string checker = DateTime.Now.ToString("mm-ss");
@@ -1193,6 +1193,7 @@ namespace EppiReviewer4
             SelectionCritieraItemList = new SelectionCriteria();
             SelectionCritieraItemList.ListType = "GetItemSearchList";
             SelectionCritieraItemList.SearchId = search.SearchId;
+            SelectionCritieraItemList.ShowScoreColumn = true;
 
             TextBlockShowing.Text = "Showing: " + search.Title;
             DocumentListPane.SelectedIndex = 0;
@@ -2998,6 +2999,7 @@ namespace EppiReviewer4
                 SelectionCritieraItemList.SourceId = 0;
                 SelectionCritieraItemList.PageNumber = 0;
                 SelectionCritieraItemList.AttributeSetIdList = attributeList;
+                SelectionCritieraItemList.ShowInfoColumn = true;
                 LoadItemList();
                 DocumentListPane.SelectedIndex = 0;
             }
@@ -3021,6 +3023,7 @@ namespace EppiReviewer4
                 SelectionCritieraItemList.SourceId = 0;
                 SelectionCritieraItemList.PageNumber = 0;
                 SelectionCritieraItemList.AttributeSetIdList = attributeList;
+                SelectionCritieraItemList.ShowInfoColumn = true;
                 LoadItemList();
                 DocumentListPane.SelectedIndex = 0;
             }
@@ -4051,6 +4054,16 @@ on the right of the main screen");
                     ItemsGrid.Columns[8].IsFilterable = true;
                     ItemsGrid.Columns[9].IsFilterable = true;
                 }
+                // so that the 'score' column is visible when items have a rank (usually from machine learning classification
+                // and also from full text search)
+                ItemList il = provider.Data as ItemList;
+                if (il.Count > 0)
+                {
+                    if (il[0].Rank > 0)
+                    {
+                        ItemsGrid.Columns[12].IsVisible = true;
+                    }
+                }
             }
         }
         private void windowReconcile_HyperlinkButton_Click(object sender, RoutedEventArgs e)
@@ -4087,6 +4100,8 @@ on the right of the main screen");
             CslaDataProvider provider = this.Resources["ItemListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
             SelectionCritieraItemList.PageSize = Convert.ToInt32(windowColumnSelect.UpDownPageSize.Value);
+            ItemsGrid.Columns[11].IsVisible = SelectionCritieraItemList.ShowInfoColumn && windowColumnSelect.cbDataColumnAdditionalText.IsChecked == true;
+            ItemsGrid.Columns[12].IsVisible = SelectionCritieraItemList.ShowScoreColumn && windowColumnSelect.cbDataColumnScore.IsChecked == true;
             provider.FactoryParameters.Add(SelectionCritieraItemList);
             provider.FactoryMethod = "GetItemList";
             provider.Refresh();
@@ -4102,6 +4117,8 @@ on the right of the main screen");
             windowColumnSelect.cbDataColumnShortTitle.IsChecked = ItemsGrid.Columns[8].IsVisible;
             windowColumnSelect.cbDataColumnItemType.IsChecked = ItemsGrid.Columns[9].IsVisible;
             windowColumnSelect.cbDataColumnYear.IsChecked = ItemsGrid.Columns[10].IsVisible;
+            windowColumnSelect.cbDataColumnAdditionalText.IsChecked = ItemsGrid.Columns[11].IsVisible;
+            windowColumnSelect.cbDataColumnScore.IsChecked = ItemsGrid.Columns[12].IsVisible;
             windowColumnSelect.ShowDialog();
         }
 
@@ -4115,6 +4132,8 @@ on the right of the main screen");
             ItemsGrid.Columns[8].IsVisible = windowColumnSelect.cbDataColumnShortTitle.IsChecked == true;
             ItemsGrid.Columns[9].IsVisible = windowColumnSelect.cbDataColumnItemType.IsChecked == true;
             ItemsGrid.Columns[10].IsVisible = windowColumnSelect.cbDataColumnYear.IsChecked == true;
+            ItemsGrid.Columns[11].IsVisible = windowColumnSelect.cbDataColumnAdditionalText.IsChecked == true;
+            ItemsGrid.Columns[12].IsVisible = windowColumnSelect.cbDataColumnScore.IsChecked == true;
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
             ItemList iL = provider.Data as ItemList;
             int I = Convert.ToInt32(windowColumnSelect.UpDownPageSize.Value);
@@ -4308,59 +4327,67 @@ on the right of the main screen");
 
         private void cmdBibliography_Click(object sender, RadRoutedEventArgs e)
         {
+            RadMenuItem cbi = e.Source as RadMenuItem;
+            if (cbi == null) return;
+            else if (cbi.Tag.ToString() == "JustTheGrid")
+            {
+                cmdExportItemsGrid_Click(sender, e);
+                return;
+            }
             if (ItemsGrid.SelectedItems.Count > 0)
             {
+                
                 CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
                 if (provider != null && provider.Data != null)
                 {
                     ReviewInfo review = provider.Data as ReviewInfo;
                     if (review != null)
                     {
-                        RadMenuItem cbi = e.Source as RadMenuItem;
-                        if (cbi != null)
+                        
+                        //if (cbi != null)
+                        //{ //already checked
+                        string report = "";
+                        if (cbi.Tag.ToString() == "BL")
                         {
-                            string report = "";
-                            if (cbi.Tag.ToString() == "BL")
-                            {
-                                report = review.BL_ACCOUNT_CODE + Environment.NewLine +
-                                    review.BL_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                            }
-                            if (cbi.Tag.ToString() == "BLCopyrightCleared")
-                            {
-                                report = review.BL_CC_ACCOUNT_CODE + Environment.NewLine +
-                                    review.BL_CC_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                            }
-                            foreach (Item i in ItemsGrid.SelectedItems)
-                            {
-                                switch (cbi.Tag.ToString())
-                                {
-                                    case "Chicago":
-                                        report += "<p>" + i.GetCitation() + "</p>";
-                                        break;
-                                    case "Harvard":
-                                        report += "<p>" + i.GetHarvardCitation() + "</p>";
-                                        break;
-                                    case "BL":
-                                        report += review.BL_TX + Environment.NewLine +
-                                            i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                                        break;
-                                    case "BLCopyrightCleared":
-                                        report += review.BL_CC_TX + Environment.NewLine +
-                                            i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
-                                        break;
-                                }
-                            }
-                            if (cbi.Tag.ToString() == "BL" || cbi.Tag.ToString() == "BLCopyrightCleared")
-                            {
-                                report += "NNNN" + Environment.NewLine;
-                                reportViewerControlDocuments.SetContent("<html><body>" + report.Replace(Environment.NewLine, @"<br />") + "</body></html>");
-                            }
-                            else
-                            {
-                                reportViewerControlDocuments.SetContent("<html><body>" + report + "</body></html>");
-                            }
-                            windowReportsDocuments.ShowDialog();
+                            report = review.BL_ACCOUNT_CODE + Environment.NewLine +
+                                review.BL_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
                         }
+                        if (cbi.Tag.ToString() == "BLCopyrightCleared")
+                        {
+                            report = review.BL_CC_ACCOUNT_CODE + Environment.NewLine +
+                                review.BL_CC_AUTH_CODE + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                        }
+                        foreach (Item i in ItemsGrid.SelectedItems)
+                        {
+                            switch (cbi.Tag.ToString())
+                            {
+                                case "Chicago":
+                                    report += "<p>" + i.GetCitation() + "</p>";
+                                    break;
+                                case "Harvard":
+                                    report += "<p>" + i.GetHarvardCitation() + "</p>";
+                                    break;
+                                case "BL":
+                                    report += review.BL_TX + Environment.NewLine +
+                                        i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                                    break;
+                                case "BLCopyrightCleared":
+                                    report += review.BL_CC_TX + Environment.NewLine +
+                                        i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                                    break;
+                            }
+                        }
+                        if (cbi.Tag.ToString() == "BL" || cbi.Tag.ToString() == "BLCopyrightCleared")
+                        {
+                            report += "NNNN" + Environment.NewLine;
+                            reportViewerControlDocuments.SetContent("<html><body>" + report.Replace(Environment.NewLine, @"<br />") + "</body></html>");
+                        }
+                        else
+                        {
+                            reportViewerControlDocuments.SetContent("<html><body>" + report + "</body></html>");
+                        }
+                        windowReportsDocuments.ShowDialog();
+                        //}
                     }
                 }
 
@@ -5469,28 +5496,31 @@ on the right of the main screen");
 
         private void cmdScreeningRunSimulation_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            ReviewInfo RevInfo = provider.Data as ReviewInfo;
-            DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
-            TrainingRunCommand command = new TrainingRunCommand();
-            dp.ExecuteCompleted += (o, e2) =>
+            if (MessageBox.Show("Are you sure you want to run this simulation?", "Confirm run simulation", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                if (e2.Error != null)
+                CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                ReviewInfo RevInfo = provider.Data as ReviewInfo;
+                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                TrainingRunCommand command = new TrainingRunCommand();
+                dp.ExecuteCompleted += (o, e2) =>
                 {
-                    if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                    if (e2.Error != null)
                     {
+                        if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                        {
                         //RadWindow.Alert("Caught timeout exception");
                     }
-                    else
-                    {
-                        RadWindow.Alert(e2.Error.Message);
+                        else
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
                     }
-                }
-            };
-            command.RevInfo = RevInfo;
-            command.Parameters = "DoSimulation";
-            dp.BeginExecute(command);
-            RadWindow.Alert("Simulations now running. This can take hours...");
+                };
+                command.RevInfo = RevInfo;
+                command.Parameters = "DoSimulation";
+                dp.BeginExecute(command);
+                RadWindow.Alert("Simulations now running. This can take hours...");
+            }
         }
 
         private void ScreeningCodeSetComboSelectCodeSet_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -5622,10 +5652,6 @@ on the right of the main screen");
             }
         }
 
-        
-
-        
-
         private void ResetScreeningUI()
         {
             CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
@@ -5703,5 +5729,112 @@ on the right of the main screen");
             }
             
         }
+
+        private void cmdExportItemsGrid_Click(object sender, RoutedEventArgs e)
+        {
+            string extension = "html";
+            ExportFormat format = ExportFormat.Html;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = extension;
+            dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "html");
+            dialog.FilterIndex = 1;
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
+            if (dialog.ShowDialog() == true)
+            {
+                bool cleanup = false;
+                List<Item> selectedL = new List<Item>();
+                if (provider != null && provider.Data != null && provider.Data == ItemsGrid.ItemsSource &&
+                        ItemsGrid.SelectedItems != null && ItemsGrid.SelectedItems.Count > 0)
+                {//export only the selected, we could apply and remove filter, but I can't make it work, so will use a more radical approach
+                    cleanup = true;
+                    ObservableCollection<object> selected = ItemsGrid.SelectedItems as ObservableCollection<object>;
+                    
+                    foreach (Item it in selected)
+                    {
+                        selectedL.Add(it);
+                    }
+
+                    ItemsGrid.ItemsSource = selectedL;
+                }
+                using (Stream stream = dialog.OpenFile())
+                {
+                    GridViewExportOptions exportOptions = new GridViewExportOptions();
+                    exportOptions.Format = format;
+                    //exportOptions.ShowColumnFooters = true;
+                    exportOptions.ShowColumnHeaders = true;
+                    //exportOptions.ShowGroupFooters = true;
+                    //object o = Telerik.Windows.Data.TypeExtensions.DefaultValue;
+                    ItemsGrid.Columns[0].IsVisible = false;
+                    ItemsGrid.Export(stream, exportOptions);
+                    ItemsGrid.Columns[0].IsVisible = true;
+                }
+                if (cleanup)
+                {
+                    ItemsGrid.ItemsSource = provider.Data;
+                    ItemsGrid.Select(selectedL);
+                    
+                }
+            }
+        }
+
+        private void cmdScreeningSimulationSave_Click(object sender, RoutedEventArgs e)
+        {
+           
+                CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                ReviewInfo RevInfo = provider.Data as ReviewInfo;
+                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                TrainingRunCommand command = new TrainingRunCommand();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        if (e2.Error.Message.Contains("has exceeded the allotted timeout") == true)
+                        {
+                                //RadWindow.Alert("Caught timeout exception");
+                            }
+                        else
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
+                    }
+                    else
+                    {
+                        string results = (e2.Object as TrainingRunCommand).SimulationResults;
+                        if (results == "")
+                        {
+                            cmdScreeningSimulationResults.Visibility = Visibility.Collapsed;
+                            RadWindow.Alert("No results available." + Environment.NewLine + "Please try again later.");
+                        }
+                        else
+                        {
+                            // annoying workaround as you can't open a dialog without user request!
+                            cmdScreeningSimulationResults.Tag = results;
+                            cmdScreeningSimulationResults.Visibility = Visibility.Visible;
+                            RadWindow.Alert("You can download the results now" + Environment.NewLine + "by clicking 'Save results'");
+                        }
+                    }
+                };
+                command.RevInfo = RevInfo;
+                command.Parameters = "FetchSimulationResults";
+                dp.BeginExecute(command);
+            }
+
+        private void cmdScreeningSimulationResults_Click(object sender, RoutedEventArgs e)
+        {
+            string extension = "csv";
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = extension;
+            dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "csv");
+            dialog.FilterIndex = 1;
+
+            if (dialog.ShowDialog() == true)
+            {
+                StreamWriter writer = new StreamWriter(dialog.OpenFile());
+                writer.WriteLine(cmdScreeningSimulationResults.Tag.ToString());
+                writer.Dispose();
+                writer.Close();
+            }
+        }
+
     }
 }

@@ -127,9 +127,9 @@
                 <Image Width="22" Height="22" Source="Icons/wizard.png"
 						                    ToolTipService.ToolTip="Configure Review/Codesets" />
             </Button>
-            <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click" Visibility="Collapsed" >
+            <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                 <Image Width="22" Height="22" Source="Icons/Classifier.png"
-						                    ToolTipService.ToolTip="Open automatic classification window" />
+						                    ToolTipService.ToolTip="Open machine learning classification window" />
             </Button>
 
             <CheckBox x:Name="CheckBoxAutoAdvance" Content="Auto advance" Margin="6,6,6,6" ToolTipService.ToolTip="Advances to the next document in the list when you select a code. Useful when you are screening lots of documents."></CheckBox>

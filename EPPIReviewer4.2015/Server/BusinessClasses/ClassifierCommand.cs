@@ -47,13 +47,14 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
+        private int _sourceId;
 
         // variables for applying the classifier
         private int _classifierId = -1;
 
         private string _returnMessage;
 
-        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId)
+        public ClassifierCommand(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {
             _title = title;
             _attributeIdOn = attributeIdOn;
@@ -61,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = "Success";
             _classifierId = classiferId;
             _attributeIdClassifyTo = attributeIdClassifyTo;
+            _sourceId = sourceId;
         }
 
         public string ReturnMessage
@@ -94,6 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_classifierId", _classifierId);
             info.AddValue("_attributeIdClassifyTo", _attributeIdClassifyTo);
+            info.AddValue("_sourceId", _sourceId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -103,6 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             _returnMessage = info.GetValue<string>("_returnMessage");
             _classifierId = info.GetValue<int>("_classifierId");
             _attributeIdClassifyTo = info.GetValue<Int64>("_attributeIdClassifyTo");
+            _sourceId = info.GetValue<int>("_sourceId");
         }
 
 
@@ -110,19 +114,19 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            if (_classifierId > 0)
+            if (_title == "DeleteThisModel~~")
             {
-                DoApplyClassifier(_classifierId);
+                DeleteModel();
+                return;
+            }
+            if (_attributeIdOn + _attributeIdNotOn != -2)
+            {
+                DoTrainClassifier(false);
             }
             else
             {
-                if (_classifierId == -1)
-                    DoTrainClassifier(false);
-                else
-                    DoTrainClassifier(true);
+                DoApplyClassifier(_classifierId, _attributeIdClassifyTo);
             }
-
-            
         }
 
         private async void DoTrainClassifier(bool applyToo)
@@ -136,7 +140,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title));
+                    command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
@@ -147,20 +151,31 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
                 {
-                    ReportBack = "Sorry, another classifcation task is already in progress on this review";
+                    _returnMessage = "Already running";
                     return;
                 }
                 else
                 {
-                    ReportBack = "";
+                    _returnMessage = "";
                 }
                 // Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
                 int ModelId = await UploadDataAndBuildModelAsync(newModelId);
 
-                if (applyToo == true)
+                if (_returnMessage == "Insufficient data")
                 {
-                    DoApplyClassifier(ModelId);
+                    using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@MODEL_ID", newModelId));
+                        command.ExecuteNonQuery();
+                    }
                 }
+
+                //if (applyToo == true)
+                //{
+                //    DoApplyClassifier(ModelId);
+                //}
             }
         }
         
@@ -212,7 +227,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -250,9 +265,9 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
 
-                if (positiveClassCount * negativeClasscount < 15)
+                if (positiveClassCount * negativeClasscount < 6)
                 {
-                    ReportBack = "Error: insufficient data for training";
+                    _returnMessage = "Insufficient data";
                     return 0;
                 }
                 // upload data to blob
@@ -268,7 +283,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 File.Delete(fileName);
 
-                ReportBack = "Successful upload of data";
+                _returnMessage = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
 
@@ -277,37 +292,55 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
                     modelId.ToString() + "Stats.csv");
 
-                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-                MemoryStream ms = new MemoryStream(myFile);
-
                 double accuracy = 0;
                 double auc = 0;
                 double precision = 0;
                 double recall = 0;
-                using (TextFieldParser csvReader = new TextFieldParser(ms))
+                try
                 {
-                    csvReader.SetDelimiters(new string[] { "," });
-                    csvReader.HasFieldsEnclosedInQuotes = false;
-                    while (!csvReader.EndOfData)
+                    byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+                    MemoryStream ms = new MemoryStream(myFile);
+                    using (TextFieldParser csvReader = new TextFieldParser(ms))
                     {
-                        string [] data1 = csvReader.ReadFields(); // headers
-                        data1 = csvReader.ReadFields(); // now we get the data
-                        accuracy = GetSafeValue(data1[0]);
-                        auc = GetSafeValue(data1[1]);
-                        precision = GetSafeValue(data1[2]);
-                        recall = GetSafeValue(data1[3]);
+                        csvReader.SetDelimiters(new string[] { "," });
+                        csvReader.HasFieldsEnclosedInQuotes = false;
+                        while (!csvReader.EndOfData)
+                        {
+                            string[] data1 = csvReader.ReadFields(); // headers
+                            data1 = csvReader.ReadFields(); // now we get the data
+                            accuracy = GetSafeValue(data1[0]);
+                            auc = GetSafeValue(data1[1]);
+                            precision = GetSafeValue(data1[2]);
+                            recall = GetSafeValue(data1[3]);
+                        }
                     }
                 }
-                
+                catch
+                {
+                    _returnMessage = "BuildFailed";
+                    _title += " (failed)";
+                    accuracy = -0.99;
+                    auc = -0.99;
+                    precision = -0.99;
+                    recall = -0.99;
+                }
+
                 using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
                 {
                     command2.CommandType = System.Data.CommandType.StoredProcedure;
                     command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
+                    command2.Parameters.Add(new SqlParameter("@TITLE", _title));
                     command2.Parameters.Add(new SqlParameter("@ACCURACY", accuracy));
                     command2.Parameters.Add(new SqlParameter("@AUC", auc));
                     command2.Parameters.Add(new SqlParameter("@PRECISION", precision));
                     command2.Parameters.Add(new SqlParameter("@RECALL", recall));
+                    command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
+                    command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
                     command2.ExecuteNonQuery();
+                    if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
+                    {
+                        DeleteModel();
+                    }
                 }
                 connection.Close();
             }
@@ -316,7 +349,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private double GetSafeValue(string data)
         {
-            double retval = 0.00001;
+
             if (data == "1")
             {
                 data = "0.999999";
@@ -329,14 +362,13 @@ namespace BusinessLibrary.BusinessClasses
             {
                 double dbl = 0;
                 double.TryParse(data, out dbl);
-                if (dbl == 0.0) throw new Exception("Gotcha!");
+                //if (dbl == 0.0) throw new Exception("Gotcha!");
                 data = dbl.ToString("F10");
             }
-            double.TryParse(data, out retval);
-            return retval;
+            return Convert.ToDouble(data);
         }
 
-        private async void DoApplyClassifier(int modelId)
+        private async void DoApplyClassifier(int modelId, Int64 ApplyToAttributeId)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -347,12 +379,13 @@ namespace BusinessLibrary.BusinessClasses
                 //StringBuilder data = new StringBuilder();
                 //data.Append("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"" + Environment.NewLine);
                 List<Int64> ItemIds = new List<Int64>();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
                 using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", _attributeIdClassifyTo));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_CLASSIFY_TO", ApplyToAttributeId));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", _sourceId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
@@ -367,7 +400,7 @@ namespace BusinessLibrary.BusinessClasses
                                         "\"" + reader["LABEL"].ToString() + "\"," +
                                         "\"" + CleanText(reader, "title") + "\"," +
                                         "\"" + CleanText(reader, "abstract") + "\"," +
-                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + ri.ReviewId.ToString() + "\"");
+                                        "\"" + CleanText(reader, "keywords") + "\"," + "\"" + RevInfo.ReviewId.ToString() + "\"");
 
                                     //data.Append("\"" + reader["ITEM_ID"].ToString() + "\"," +
                                     //    "\"" + reader["LABEL"].ToString() + "\"," +
@@ -383,22 +416,22 @@ namespace BusinessLibrary.BusinessClasses
                 // upload data to blob
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-                CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
-                    + "ToScore.csv");
+                CloudBlockBlob blockBlobData;
+                
+                blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv");
                 //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
                     blockBlobData.UploadFromStream(fileStream);
                 }
                 File.Delete(fileName);
-                ReportBack = "Successful upload of data";
+                _returnMessage = "Successful upload of data";
 
                 await InvokeBatchExecutionService(RevInfo, "ScoreModel", modelId);
 
                 CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container2 = blobClient2.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Scores.csv");
-
+                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv");
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
                 MemoryStream ms = new MemoryStream(myFile);
 
@@ -413,15 +446,36 @@ namespace BusinessLibrary.BusinessClasses
                     csvReader.HasFieldsEnclosedInQuotes = false;
                     while (!csvReader.EndOfData)
                     {
-                        var data1 = csvReader.ReadFields();
-                        for (var i = 0; i < data1.Length; i++)
+                        string[] data = csvReader.ReadFields();
+                        if (data.Length == 3)
                         {
-                            if (data1[i] == "")
+                            if (data[0] == "1")
                             {
-                                data1[i] = null;
+                                data[0] = "0.999999";
                             }
+                            else if (data[0] == "0")
+                            {
+                                data[0] = "0.000001";
+                            }
+                            else if (data[0].Length > 2 && data[0].Contains("E"))
+                            {
+                                double dbl = 0;
+                                double.TryParse(data[0], out dbl);
+                                //if (dbl == 0.0) throw new Exception("Gotcha!");
+                                data[0] = dbl.ToString("F10");
+                            }
+                            dt.Rows.Add(data);
                         }
-                        dt.Rows.Add(data1);
+
+                        //var data1 = csvReader.ReadFields();
+                        //for (var i = 0; i < data1.Length; i++)
+                        //{
+                        //    if (data1[i] == "")
+                        //    {
+                        //        data1[i] = null;
+                        //    }
+                        //}
+                        //dt.Rows.Add(data);
                     }
                 }
                 using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
@@ -440,7 +494,8 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.CommandTimeout = 300;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
                     command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
@@ -451,6 +506,39 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+        }
+
+        private void DeleteModel()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("st_ClassifierDeleteModel", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            // now remove the blob from Azure
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("attributemodels");
+            CloudBlockBlob blockBlobModel = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
+            CloudBlockBlob blockBlobStats = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
+            try
+            {
+                blockBlobModel.Delete();
+                blockBlobStats.Delete();
+            }
+            catch
+            {
+                _returnMessage = "Error deleting. Blobs possibly not found.";
+            }
+            
         }
 
         public enum BatchScoreStatusCode
@@ -538,9 +626,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Scores.csv" },
+                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv" },
+                            { "ModelFile", @"attributemodels/"  + (modelId == -1 ? "RCTModel" : "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString()) + ".csv" },
+                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv" },
                         }
                     };
                 }
