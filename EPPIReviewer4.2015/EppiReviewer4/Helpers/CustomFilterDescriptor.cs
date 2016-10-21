@@ -20,6 +20,8 @@ namespace EppiReviewer4
 
             foreach (GridViewDataColumn column in columns)
             {
+                //if (column.UniqueName == "Rank")
+                //    continue;
                 this.compositeFilterDesriptor.FilterDescriptors.Add(this.CreateFilterForColumn(column));
             }
         }
@@ -95,6 +97,16 @@ namespace EppiReviewer4
                     }
 
                 }
+                //else if (descriptor.MemberType.IsAssignableFrom(typeof(int)))
+                //{
+                //    continue;
+                //    int integer;
+                //    if (int.TryParse(this.FilterValue, out integer))
+                //    {
+                //        convertedValue = integer;
+                //    }
+
+                //}
 
                 descriptor.Value = convertedValue;
             }
@@ -102,6 +114,14 @@ namespace EppiReviewer4
 
         private static object DefaultValue(Type type)
         {
+            if (type == typeof(int))
+            {//problem, no data in "Item" becomes "0" in the UI, which is the default value for integers
+             //so when filtering for a non number, you get the clause "(OR [integer column] IsEqualTo 0)" which always applies
+             //thus, such columns make all filters match on "int" colums (if no data is present) and no filtering ever happens :-(
+             //solution:
+                return -2147483648;
+                //smallest possible int "(OR [integer column] IsEqualTo -2147483648)" is used when the filter doesn't parse into an Int
+            }
             if (type.IsValueType)
             {
                 return Activator.CreateInstance(type);
