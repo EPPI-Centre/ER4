@@ -50,9 +50,15 @@ namespace EppiReviewer4
             loginControl.ArchieLoginSuccessful += new EventHandler<LoginSuccessfulEventArgs>(ArchieLogonControl_ArchieLoginSuccessful);
             loginControl.RestrictedAreaMargin = new Thickness(10);
             loginControl.IsRestricted = true;
-            loginControl.ShowDialog();
+            this.Loaded += Page_Loaded;
             windowMOTD.cmdCloseMOTD_Clicked +=new EventHandler<RoutedEventArgs>(cmdCloseMOTD_Click);
             windowMOTD.windowMOTD_Close +=new EventHandler<WindowClosedEventArgs>(windowMOTD_Closed);
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.Loaded -= Page_Loaded;
+            loginControl.ShowDialog();
         }
 
         void windowReviews_Closed(object sender, WindowClosedEventArgs e)
