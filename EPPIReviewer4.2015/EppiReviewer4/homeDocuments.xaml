@@ -428,6 +428,7 @@
                                                                     IconColumnWidth="0" Opening="ctxMenuTranslate_Opening">
                                                 <telerik:RadMenuItem Tag="Harvard" Header="Harvard" />
                                                 <telerik:RadMenuItem Tag="Chicago" Header="Chicago" />
+                                                <telerik:RadMenuItem Tag="NICE" Header="NICE format" />
                                                 <telerik:RadMenuItem x:Name="BLdoc" Tag="BL" Header="BL document supply requests" />
                                                 <telerik:RadMenuItem x:Name="BLdocCC" Tag="BLCopyrightCleared" Header="BL document supply requests – copyright cleared" />
                                                 <telerik:RadMenuItem x:Name="JustTheGrid" Tag="JustTheGrid" Header="Export Current page/selection" ToolTipService.ToolTip="Exports current table/selection to html (for use in excel, word or web browser)" />

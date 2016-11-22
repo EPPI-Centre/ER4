@@ -4367,6 +4367,9 @@ on the right of the main screen");
                                 case "Harvard":
                                     report += "<p>" + i.GetHarvardCitation() + "</p>";
                                     break;
+                                case "NICE":
+                                    report += "<p>" + i.GetNICECitation() + "</p>";
+                                    break;
                                 case "BL":
                                     report += review.BL_TX + Environment.NewLine +
                                         i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
@@ -5258,6 +5261,14 @@ on the right of the main screen");
                         BLdocCC.IsEnabled = false;
                     }
                     ctxMenuTranslate.Opening -= ctxMenuTranslate_Opening;
+                }
+                if (BLdoc.IsEnabled == false)
+                {
+                    BLdoc.Header += " (no subscription details entered)";
+                }
+                if (BLdocCC.IsEnabled == false)
+                {
+                    BLdocCC.Header += " (no subscription details entered)";
                 }
             }
         }
