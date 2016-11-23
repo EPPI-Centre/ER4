@@ -63,19 +63,19 @@ namespace BusinessLibrary.Compression
                   this.EndPoint = "TestingBasicHttpBinding_IWcfPortal";
               }
           }
-          else if (host == "ssru38" | host == "ssru38.ioe.ac.uk")
+          else if (host == "ssru38" || host == "ssru38.inst.ioe.ac.uk" || host == "ssru38.ioe.ac.uk")
           {
               if (ri == null || ri.Ticket == null || ri.Ticket == "") //(ri != null && ri.Ticket != "")
               {//not authenticated, use https
-                  this.EndPoint = "LocalHttpsBinding_IWcfPortal";
+                  this.EndPoint = "SSRU38HttpsBinding_IWcfPortal";
               }
               else if (until != null && until > DateTime.Now)
               {//current config tells us to use https (for archie, or from another option)
-                  this.EndPoint = "LocalHttpsBinding_IWcfPortal";
+                  this.EndPoint = "SSRU38HttpsBinding_IWcfPortal";
               }
               else
               {//all normal use http
-                  this.EndPoint = "LocalBasicHttpBinding_IWcfPortal";
+                  this.EndPoint = "SSRU38BasicHttpBinding_IWcfPortal";
               }
           }
             else if (host == "eppi-management" )
