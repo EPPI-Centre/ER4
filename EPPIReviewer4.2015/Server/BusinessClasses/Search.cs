@@ -115,6 +115,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<bool> IsClassifierResultProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsClassifierResult", "IsClassifierResult", false));
+        public bool IsClassifierResult
+        {
+            get
+            {
+                return GetProperty(IsClassifierResultProperty);
+            }
+        }
+
         private static PropertyInfo<SmartDate> SearchDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("SearchDate", "SearchDate"));
         public SmartDate SearchDate
         {
@@ -215,6 +224,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
             returnValue.LoadProperty<string>(AnswersProperty, reader.GetString("ANSWERS"));
             returnValue.LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
+            returnValue.LoadProperty<bool>(IsClassifierResultProperty, reader.GetBoolean("IS_CLASSIFIER_RESULT"));
             returnValue.LoadProperty<SmartDate>(SearchDateProperty, reader.GetSmartDate("SEARCH_DATE"));
 
             returnValue.MarkOld();

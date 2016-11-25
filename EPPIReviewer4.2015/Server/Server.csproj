@@ -274,6 +274,8 @@
     <Compile Include="BusinessClasses\ReviewInfo.cs" />
     <Compile Include="BusinessClasses\ReviewSetCopyCommand.cs" />
     <Compile Include="BusinessClasses\SearchNullAbstract.cs" />
+    <Compile Include="BusinessClasses\SearchVisualise.cs" />
+    <Compile Include="BusinessClasses\SearchVisualiseList.cs" />
     <Compile Include="BusinessClasses\TablesForBulkCopy.cs">
       <DependentUpon>TablesForBulkCopy.xsd</DependentUpon>
     </Compile>

@@ -638,6 +638,12 @@
     <Compile Include="..\Server\BusinessClasses\SearchNullAbstract.cs">
       <Link>BusinessClasses\SearchNullAbstract.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchVisualise.cs">
+      <Link>BusinessClasses\SearchVisualise.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchVisualiseList.cs">
+      <Link>BusinessClasses\SearchVisualiseList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\SearchWeightedTermsCommand.cs">
       <Link>BusinessClasses\SearchWeightedTermsCommand.cs</Link>
     </Compile>

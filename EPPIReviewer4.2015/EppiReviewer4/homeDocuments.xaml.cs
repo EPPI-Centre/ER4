@@ -5847,5 +5847,16 @@ on the right of the main screen");
             }
         }
 
+        private void cmdVisualiseSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.windowSearchVisualise dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
+            Search sch = (sender as Button).DataContext as Search;
+            if (sch != null)
+            {
+                dlgWindowVisualiseSearch.SearchId = sch.SearchId;
+                dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
+                dlgWindowVisualiseSearch.Show();
+            }
+        }
     }
 }

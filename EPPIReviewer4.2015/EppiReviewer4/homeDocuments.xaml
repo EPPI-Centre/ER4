@@ -159,6 +159,15 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellSearchVisualiseStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdVisualiseSearch" Content="Visualise" Click="cmdVisualiseSearch_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style TargetType="grid:GridViewCell" x:Name="cellS9_del_S">
             <Setter Property="Template">
                 <Setter.Value>
@@ -538,6 +547,7 @@
                                         <telerikGridView:GridViewDataColumn Header="Created by" DataMemberBinding="{Binding ContactName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Date" DataMemberBinding="{Binding SearchDate}" Width="75" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Hits" DataMemberBinding="{Binding HitsNo}" Width="65" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellSearchVisualiseStyle}" Width="54" Header="Select" DataMemberBinding="{Binding SearchNo}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellSearchStyle}" Width="50" Header="Select" DataMemberBinding="{Binding SearchNo}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>

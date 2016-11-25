@@ -555,6 +555,9 @@
     <Compile Include="Windows\RadWTrainingResults.xaml.cs">
       <DependentUpon>RadWTrainingResults.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\windowSearchVisualise.xaml.cs">
+      <DependentUpon>windowSearchVisualise.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -664,6 +667,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Helpers\CustomRadWindowControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\windowSearchVisualise.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
