@@ -418,7 +418,7 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
                 CloudBlockBlob blockBlobData;
                 
-                blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv");
+                blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
                 //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
@@ -431,7 +431,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container2 = blobClient2.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv");
+                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
                 MemoryStream ms = new MemoryStream(myFile);
 
@@ -523,7 +523,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            // now remove the blob from Azure
+            // now remove the blob from Azure. the fact that it's always tied to the reviewId means that people can't delete the public classifiers (RCT / DARE)
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("attributemodels");
@@ -541,7 +541,37 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        public enum BatchScoreStatusCode
+        private static string ModelIdForScoring(int modId)
+        {
+            string retval = "RCT";
+            if (modId > 0)
+            {
+                retval = modId.ToString();
+            }
+            else
+            if (modId == -2)
+            {
+                retval = "DARE";
+            }
+
+            return retval;
+        }
+        private static string ReviewIdForScoring(int modId, int reviewId)
+        {
+            string retval = "RCTModel";
+            if (modId > 0)
+            {
+                retval = "ReviewId" + reviewId.ToString() + "ModelId" + modId.ToString();
+            }
+            else
+            if (modId == -2)
+            {
+                retval = "DAREModel";
+            }
+            return retval;
+        }
+
+public enum BatchScoreStatusCode
         {
             NotStarted,
             Running,
@@ -622,13 +652,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     apiKey = apiKeyScoreModel;
                     BaseUrl = BaseUrlScoreModel;
+                    
                     request = new BatchExecutionRequest()
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/"  + (modelId == -1 ? "RCTModel" : "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString()) + ".csv" },
-                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + (modelId == -1 ? "RCT" : modelId.ToString()) + "Scores.csv" },
+                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
+                            { "ModelFile", @"attributemodels/"  + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
+                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
                         }
                     };
                 }

@@ -161,6 +161,11 @@ namespace EppiReviewer4
             ReviewInfo RevInfo = provider1.Data as ReviewInfo;
             string modelTitle = "RCT";
             Int32 ModelId = -1; // the RCT model as default
+            if (rbApplyDAREModel.IsChecked == true)
+            {
+                modelTitle = "Systematic review";
+                ModelId = -2;
+            }
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
             int SourceId = -2;//source_id == -1 means "sourceless items"
 
