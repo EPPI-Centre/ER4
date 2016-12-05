@@ -11,18 +11,31 @@ namespace WcfHostPortal
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            string ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            string[] splittedVer = ver.Split('.');
-            if (splittedVer[1] == "0")
+            string pageURL = Request.Url.AbsoluteUri.ToLower();
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
+            System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["DomainRoot4Redirect"];
+            string badURLStart = "https://"+ customSetting.Value +"/", goodURLstart = "http://"+ customSetting.Value +"/";
+
+            if (pageURL.IndexOf(badURLStart) == 0)
             {
-                Title = "EPPI-Reviewer4 Beta " + splittedVer[2] + " (V." + ver + ")";
+                Response.BufferOutput = true;
+                Response.Redirect(pageURL.Replace(badURLStart, goodURLstart));
             }
             else
             {
-                Title = "EPPI-Reviewer4 (V." + ver + ")";
-            }
+                string ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                string[] splittedVer = ver.Split('.');
+                if (splittedVer[1] == "0")
+                {
+                    Title = "EPPI-Reviewer4 Beta " + splittedVer[2] + " (V." + ver + ")";
+                }
+                else
+                {
+                    Title = "EPPI-Reviewer4 (V." + ver + ")";
+                }
 
-            this.idSource.Attributes["value"] += "?"+System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                this.idSource.Attributes["value"] += "?" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            }
         }
     }
 }
