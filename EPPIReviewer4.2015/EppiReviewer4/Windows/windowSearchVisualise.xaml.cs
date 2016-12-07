@@ -14,6 +14,7 @@ using BusinessLibrary.BusinessClasses;
 using Csla.Silverlight;
 using Csla;
 using Telerik.Windows.Controls.ChartView;
+using System.IO;
 
 namespace EppiReviewer4.Windows
 {
@@ -35,33 +36,49 @@ namespace EppiReviewer4.Windows
                 provider.Refresh();
             }
         }
-
-        /*
-        private void Provider_DataChanged(object sender, EventArgs e)
-        {
+        //private void Provider_DataChanged(object sender, EventArgs e)
+        //{
             
-            CslaDataProvider provider = sender as CslaDataProvider;
-            SearchVisualiseList svl = provider.Data as SearchVisualiseList;
-            chart.Series.Clear();
-            BarSeries barSeries = new BarSeries() { ShowLabels = true };
-            barSeries.CategoryBinding = new PropertyNameDataPointBinding() { PropertyName = "Range" };
-            barSeries.ValueBinding = new GenericDataPointBinding<SearchVisualise, Int32>() { ValueSelector = SearchVisualise => SearchVisualise.Count };
-            barSeries.ItemsSource = svl;
-            chart.Series.Add(barSeries);
-            provider.DataChanged -= Provider_DataChanged;
-        }
-        */
+        //    CslaDataProvider provider = sender as CslaDataProvider;
+        //    SearchVisualiseList svl = provider.Data as SearchVisualiseList;
+        //    chart.Series.Clear();
+        //    BarSeries barSeries = new BarSeries() { ShowLabels = true };
+        //    barSeries.CategoryBinding = new PropertyNameDataPointBinding() { PropertyName = "Range" };
+        //    barSeries.ValueBinding = new GenericDataPointBinding<SearchVisualise, Int32>() { ValueSelector = SearchVisualise => SearchVisualise.Count };
+        //    barSeries.ItemsSource = svl;
+        //    chart.Series.Add(barSeries);
+        //    provider.DataChanged -= Provider_DataChanged;
+        //}
 
         public int SearchId { get; set; }
+        private string _SearchName;
+        public string SearchName
+        {
+            get { return _SearchName; }
+            set
+            {
+                _SearchName = value.Replace("Items classified according to model: ", "");
+                this.Title = "Distribution of classifier scores - Model: " + _SearchName;
+            }
+        }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = "*.png";
+            dialog.Filter = "Files(*.png)|*.png";
+            if (!(bool)dialog.ShowDialog())
+                return;
+            Telerik.Windows.Media.Imaging.PngBitmapEncoder enc = new Telerik.Windows.Media.Imaging.PngBitmapEncoder();
+            using (Stream fileStream = dialog.OpenFile())
+            {
+                Telerik.Windows.Media.Imaging.ExportExtensions.ExportToImage(chart, fileStream, enc);
+            }
         }
 
         private void ChartSelectionBehavior_SelectionChanged(object sender, ChartSelectionChangedEventArgs e)

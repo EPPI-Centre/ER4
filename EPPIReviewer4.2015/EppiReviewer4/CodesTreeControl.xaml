@@ -114,9 +114,13 @@
 						                    ToolTipService.ToolTip="Code / code set properties" />
             </Button>
 
-            <Button x:Name="cmdExpandAll" Click="cmdExpandAll_Click" >
+            <!--<Button x:Name="cmdExpandAll" Click="cmdExpandAll_Click" >
                 <Image Width="22" Height="22" Source="Icons/ExpandAll.png"
 						                    ToolTipService.ToolTip="Expand all codes" />
+            </Button>-->
+            <Button x:Name="cmdReloadAllSets" Click="cmdReloadAllSets_Click" >
+                <Image Width="19" Height="19" Source="Icons/view-refresh-7.png" Margin="3"
+						                    ToolTipService.ToolTip="Reload all codesets" />
             </Button>
 
             <Button x:Name="cmdPrintCodeSet" Click="cmdPrintCodeSet_Click">

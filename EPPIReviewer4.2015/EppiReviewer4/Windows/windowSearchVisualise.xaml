@@ -6,6 +6,7 @@
            xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
            xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
            Width="700" Height="500" 
+                       
            Title="Distribution of classifier scores">
     
 
@@ -17,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <telerik:RadCartesianChart x:Name="chart" Grid.Row="0" Margin="15,15,15,15"
-                                   >
+                                   Background="White">
             
             <telerik:RadCartesianChart.HorizontalAxis>
                 <telerik:CategoricalAxis Title="Range" />
@@ -29,7 +30,8 @@
             <telerik:BarSeries CategoryBinding="Range"
                        ValueBinding="Count"
                        IsHitTestVisible="True"
-                       ItemsSource="{Binding Source={StaticResource SearchVisualiseData}, Path=Data}">
+                       ItemsSource="{Binding Source={StaticResource SearchVisualiseData}, Path=Data}"
+                               >
             </telerik:BarSeries>
 
             <telerik:RadCartesianChart.Behaviors>
@@ -38,7 +40,7 @@
 
         </telerik:RadCartesianChart>
 
-        <Button x:Name="CancelButton" Content="Cancel" Click="CancelButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,0,0" Grid.Row="1" />
-        <Button x:Name="OKButton" Content="OK" Click="OKButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,79,0" Grid.Row="1" />
+        <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,79,0" Grid.Row="1" />
+        <Button x:Name="OKButton" Content="Close" Click="OKButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,0,0" Grid.Row="1" />
     </Grid>
 </controls:ChildWindow>

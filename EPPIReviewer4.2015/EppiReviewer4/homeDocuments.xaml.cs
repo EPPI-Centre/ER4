@@ -5854,6 +5854,7 @@ on the right of the main screen");
             if (sch != null)
             {
                 dlgWindowVisualiseSearch.SearchId = sch.SearchId;
+                dlgWindowVisualiseSearch.SearchName = sch.Title;
                 dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
                 dlgWindowVisualiseSearch.Show();
             }
