@@ -4,6 +4,7 @@
 -- new st_ContactDetailsGetAllFilter_2 - has restriction for site license members only
 -- new st_ChangeReviewOwner - changes the owner and makes sure new owner is in review and has admin access
 -- new st_AllowReviewOwnershipChangeInLicense - sets the ALLOW_REVIEW_OWNERSHIP_CHANGE flag
+-- new st_RecentActivityGetAllFilter
 
 
 
@@ -14,7 +15,8 @@
    Database: Reviewer
    Application: 
 */
-
+USE [Reviewer]
+GO
 /* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
 BEGIN TRANSACTION
 SET QUOTED_IDENTIFIER ON
@@ -37,7 +39,7 @@ ALTER TABLE dbo.TB_SITE_LIC SET (LOCK_ESCALATION = TABLE)
 GO
 COMMIT
 select Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'CONTROL') as Contr_Per 
-
+GO
 
 
 
@@ -307,7 +309,85 @@ GO
 
 ------------------------------------------------------------------------------------------------------------------
 
+USE [ReviewerAdmin]
+GO
 
+/****** Object:  StoredProcedure [dbo].[st_RecentActivityGetAllFilter]    Script Date: 12/08/2016 15:03:53 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RecentActivityGetAllFilter] 
+(
+	@TEXT_BOX nvarchar(255)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+ 
+	SELECT t.[CONTACT_ID] as C_ID        
+	,t.[REVIEW_ID] as R_ID        
+	,t.[CREATED]        
+	,t.[LAST_RENEWED]        
+	,CONTACT_NAME        
+	,EMAIL        
+	,REVIEW_NAME        
+	,case             
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID is null 
+			then 'Private'            
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID is not null AND r.ARCHIE_ID != 'prospective_______' 
+			then 'Archie'                  
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID = 'prospective_______' 
+			then 'P-Archie'                  
+		else 'Shared'                  
+		end 
+	as 'rev type'          
+	,SUM(DATEDIFF(HOUR, t1.CREATED, t1.LAST_RENEWED)) as [active hours]      
+	FROM[TB_LOGON_TICKET] t     
+	Inner JOIN Reviewer.dbo.TB_CONTACT c on t.CONTACT_ID = c.CONTACT_ID      
+	Inner Join Reviewer.dbo.TB_REVIEW r on r.REVIEW_ID = t.REVIEW_ID      
+	inner join TB_LOGON_TICKET t1 on t.CONTACT_ID = t1.CONTACT_ID      
+	where t.STATE = 1 and t.LAST_RENEWED > DATEADD(hh, -3, GETDATE())  
+	
+	and ((c.CONTACT_NAME like '%' + @TEXT_BOX + '%') OR 
+                (c.EMAIL like '%' + @TEXT_BOX + '%') OR
+                (t.REVIEW_ID like '%' + @TEXT_BOX + '%') OR
+                (c.CONTACT_ID like '%' + @TEXT_BOX + '%'))
+	    
+	group by t.[CONTACT_ID]          
+		,t.[REVIEW_ID]          
+		,t.[CREATED]         
+		,t.[LAST_RENEWED]          
+		,t.[STATE]          
+		,CONTACT_NAME          
+		,EMAIL          
+		,REVIEW_NAME         
+		, r.EXPIRY_DATE          
+		, r.ARCHIE_ID 
+		     
+	order by LAST_RENEWED desc
+       
+END
+
+
+
+
+GO
+
+
+------------------------------------------------------------------------------------------------------------------
 
 
 
