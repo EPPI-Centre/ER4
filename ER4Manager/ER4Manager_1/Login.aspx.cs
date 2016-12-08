@@ -38,6 +38,8 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("EnableDataPresenter", "");
             Utils.SetSessionString("WebDatabaseID", "");
             Utils.SetSessionString("DescriptionAdminEdit", "0");
+            Utils.SetSessionString("siteLicenseID", "0");
+            Utils.SetSessionString("siteLicenseReviewID", "0");
 
             try
             {

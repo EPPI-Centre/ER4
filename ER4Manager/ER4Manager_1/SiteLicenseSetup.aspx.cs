@@ -247,6 +247,13 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
                         lblInitialAdministrator.Text = idr["ADMIN_NAME"].ToString();
                         lblAdminID.Text = adminID;
 
+                        string test22 = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
+
+                        if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
+                            cbAllowReviewOwnershipChange.Checked = true;
+                        else
+                            cbAllowReviewOwnershipChange.Checked = false;
+
                         lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                         tbNumberMonths.Text = idr["MONTHS"].ToString();
                         tbNumberAccounts.Text = idr["ACCOUNTS_ALLOWANCE"].ToString();
@@ -1789,5 +1796,15 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_BritishLibraryCCValuesSetOnLicense", lblSiteLicID.Text,
             tbBritLibCRClearedAccountCode.Text, tbBritLibCRClearedAuthCode.Text, tbBritLibCRClearedTxLine.Text);
+    }
+
+    protected void cbAllowReviewOwnershipChange_CheckedChanged(object sender, EventArgs e)
+    {
+        bool isChecked = false;
+        if (cbAllowReviewOwnershipChange.Checked == true)
+            isChecked = true;
+
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_AllowReviewOwnershipChangeInLicense", lblSiteLicID.Text, isChecked);
     }
 }

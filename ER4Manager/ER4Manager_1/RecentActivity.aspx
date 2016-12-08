@@ -5,128 +5,106 @@
 <%@ Register assembly="Telerik.Web.UI" namespace="Telerik.Web.UI" tagprefix="telerik" %>
     <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
         <div>
-            <br />
-            <table style="width:100%;">
-                <tr>
-                    <td align="left" style="width: 60%">
-                        <b>Contacts</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;</td>
-                    <td align="right" width="50%">
-                        &nbsp;&nbsp;&nbsp; *Find&nbsp;&nbsp;
-                        <asp:TextBox ID="tbFilter" runat="server" onkeyup="KeyUp();"></asp:TextBox>
-                    </td>
-                </tr>
-            </table>
+            <asp:Panel ID="pnlNewDisplay" runat="server" Visible="False">
+                <table style="width:100%;">
+                    <tr>
+                        <td align="left" style="width: 60%"><b>Contacts</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;</td>
+                        <td align="right" width="50%">&nbsp;&nbsp;&nbsp; *Find&nbsp;&nbsp;
+                            <asp:TextBox ID="tbFilter0" runat="server" onkeyup="KeyUp0();"></asp:TextBox>
+                        </td>
+                    </tr>
+                </table>
+                <telerik:RadGrid ID="radGVContacts0" runat="server" AllowPaging="True" AllowSorting="True" AutoGenerateColumns="False" CssClass="Grid" Height="350px" onitemdatabound="radGVContacts0_ItemDataBound" onneeddatasource="radGVContacts0_NeedDataSource" onpageindexchanged="radGVContacts0_PageIndexChanged" PageSize="12" ResolvedRenderMode="Classic" Skin="Windows7" Width="800px">
+                    <ClientSettings>
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
+                        <Resizing AllowColumnResize="True" AllowResizeToFit="true" AllowRowResize="false" ClipCellContentOnResize="true" EnableRealTimeResize="false" ResizeGridOnColumnResize="false" />
+                    </ClientSettings>
+                    <PagerStyle Mode="NumericPages" PagerTextFormat="{4} Page {0} from {1}, rows {2} to {3} from {5}" />
+                    <MasterTableView TableLayout="Fixed">
+                        <Columns>
+                            <telerik:GridTemplateColumn AllowFiltering="False" DataField="REVIEW_ID" DataType="System.Int16" FilterControlAltText="Filter Review ID column" HeaderText="*Rev ID" Resizable="False" SortExpression="REVIEW_ID" UniqueName="ReviewID">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="ReviewID0" runat="server" DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" NavigateUrl='<%# "~/ReviewDetails.aspx?id=" + Eval("REVIEW_ID")  %>' Text='<%# Bind("REVIEW_ID") %>'>HyperLink</asp:HyperLink>
+                                </ItemTemplate>
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px" />
+                            </telerik:GridTemplateColumn>
+                            <telerik:GridTemplateColumn AllowFiltering="False" DataField="CONTACT_ID" DataType="System.Int16" FilterControlAltText="Filter Contact ID column" HeaderText="*Cont ID" Resizable="False" SortExpression="CONTACT_ID" UniqueName="ContactID">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="ContactID0" runat="server" DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" NavigateUrl='<%# "~/ContactDetails.aspx?id=" + Eval("CONTACT_ID")  %>' Text='<%# Bind("CONTACT_ID") %>'>HyperLink</asp:HyperLink>
+                                </ItemTemplate>
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="60px" />
+                            </telerik:GridTemplateColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="CREATED" DataFormatString="&lt;nobr&gt;{0:dd/MM/yyyy}&lt;/nobr&gt;" DataType="System.DateTime" FilterControlAltText="Filter column column" HeaderText="Created" Resizable="True" UniqueName="created">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="110px" />
+                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="LAST_RENEWED" DataFormatString="&lt;nobr&gt;{0:dd/MM/yyyy}&lt;/nobr&gt;" DataType="System.DateTime" FilterControlAltText="Filter column1 column" HeaderText="Last activity" Resizable="True" UniqueName="expiry">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="110px" />
+                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="CONTACT_NAME" DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" FilterControlAltText="Filter email column" HeaderText="*Name" Resizable="True" UniqueName="contactName">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="130px" />
+                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="EMAIL" DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" FilterControlAltText="Filter email column" HeaderText="*Email" Resizable="True" UniqueName="email">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="150px" />
+                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="REVIEW_TYPE" DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" FilterControlAltText="Filter email column" HeaderText="Rev Type" Resizable="True" UniqueName="revType">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="60px" />
+                            </telerik:GridBoundColumn>
+                            <telerik:GridBoundColumn AllowFiltering="False" DataField="ACTIVE_HOURS" DataType="System.Int16" FilterControlAltText="Filter email column" HeaderText="Hours" Resizable="False" UniqueName="activeHours">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px" />
+                            </telerik:GridBoundColumn>
+                            
+                            
+                        </Columns>
+                    </MasterTableView>
+                </telerik:RadGrid>
                 
-           <telerik:RadGrid ID="radGVContacts" runat="server"
-                 CssClass="Grid"  Skin="Windows7" AllowPaging="True" AutoGenerateColumns="False" 
-                    Height="350px" ResolvedRenderMode="Classic" Width="800px" 
-                    onitemdatabound="radGVContacts_ItemDataBound" 
-                    AllowSorting="True"
-                    onneeddatasource="radGVContacts_NeedDataSource" 
-                    onpageindexchanged="radGVContacts_PageIndexChanged" 
-                PageSize="12">
-                  
-                  <ClientSettings>
-                        <Resizing AllowColumnResize="True" AllowRowResize="false" ResizeGridOnColumnResize="false"
-                            ClipCellContentOnResize="true" EnableRealTimeResize="false" 
-                            AllowResizeToFit="true" />
-                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
-                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
-                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
-                        <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
-                        <Resizing AllowColumnResize="True" AllowResizeToFit="True"></Resizing>
-                 </ClientSettings>
-                 <PagerStyle Mode="NumericPages" 
-                      PagerTextFormat="{4} Page {0} from {1}, rows {2} to {3} from {5}" />
-               <MasterTableView TableLayout="Fixed">
-                   <Columns>
-
-                        <telerik:GridBoundColumn DataField="CONTACT_NAME" 
-                           FilterControlAltText="Filter email column" HeaderText="*Name" 
-                           UniqueName="email" DataFormatString="<nobr>{0}</nobr>" 
-                           Resizable="True" AllowFiltering="False">
-                           <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="200px"/>
-                       </telerik:GridBoundColumn>
-                       <telerik:GridBoundColumn DataField="EMAIL" 
-                           FilterControlAltText="Filter email column" HeaderText="*Email" 
-                           UniqueName="email" DataFormatString="<nobr>{0}</nobr>" 
-                           Resizable="True" AllowFiltering="False">
-                           <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="200px"/>
-                       </telerik:GridBoundColumn>
-                       
-                       <telerik:GridTemplateColumn DataField="CONTACT_ID" HeaderText="*Contact ID" 
-                           UniqueName="ContactID" Resizable="False"  AllowFiltering="False" 
-                           SortExpression="CONTACT_ID" 
-                           FilterControlAltText="Filter Contact ID column" DataType="System.Int16" >  
-                            <ItemTemplate>  
-                                <asp:HyperLink ID="ContactID" runat="server"  Text='<%# Bind("CONTACT_ID") %>' 
-                                NavigateUrl='<%# "~/ContactDetails.aspx?id=" + Eval("CONTACT_ID")  %>'  
-                                DataFormatString="<nobr>{0}</nobr>"
-                                >HyperLink</asp:HyperLink>  
-                            </ItemTemplate>  
-                            <HeaderStyle Width="80px" BackColor="#B6C6D6" ForeColor="Black"  />                       
-                        </telerik:GridTemplateColumn> 
-
-                        <telerik:GridTemplateColumn DataField="REVIEW_ID" HeaderText="*Review ID" 
-                           UniqueName="ReviewID" Resizable="False"  AllowFiltering="False" 
-                           SortExpression="REVIEW_ID" 
-                           FilterControlAltText="Filter Review ID column" DataType="System.Int16" >  
-                            <ItemTemplate>  
-                                <asp:HyperLink ID="ReviewID" runat="server"  Text='<%# Bind("REVIEW_ID") %>' 
-                                NavigateUrl='<%# "~/ReviewDetails.aspx?id=" + Eval("REVIEW_ID")  %>'  
-                                DataFormatString="<nobr>{0}</nobr>">HyperLink</asp:HyperLink>  
-                            </ItemTemplate>  
-                            <HeaderStyle Width="80px" BackColor="#B6C6D6" ForeColor="Black"  />                       
-                        </telerik:GridTemplateColumn>
-
-                        <telerik:GridBoundColumn DataField="CREATED" 
-                           DataFormatString="&lt;nobr&gt;{0:dd/MM/yyyy}&lt;/nobr&gt;" 
-                           AllowFiltering="False" HeaderText="Created" Resizable="False" 
-                           UniqueName="created" DataType="System.DateTime" 
-                           FilterControlAltText="Filter column column">
-                           <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="120px"></HeaderStyle>
-                        </telerik:GridBoundColumn>
-                       <telerik:GridBoundColumn DataField="LAST_RENEWED" 
-                           FilterControlAltText="Filter column1 column" HeaderText="Last activity" 
-                           UniqueName="expiry" DataFormatString="<nobr>{0:dd/MM/yyyy}</nobr>" 
-                           Resizable="False" AllowFiltering="False" DataType="System.DateTime" >
-                           <HeaderStyle BackColor="#B6C6D6"  ForeColor="Black" Width="120px"></HeaderStyle>
-                       </telerik:GridBoundColumn>
-                       
-                   </Columns>
-               </MasterTableView>
-            </telerik:RadGrid>
+                <br />
+                <br />
+            </asp:Panel>
+            <br />
+            <br />
             <br />
 
               <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server" OnAjaxRequest="RadAjaxManager1_AjaxRequest">
                 <AjaxSettings>
-                    <telerik:AjaxSetting AjaxControlID="radGVContacts">
+                    
+
+                    <telerik:AjaxSetting AjaxControlID="radGVContacts0">
                         <UpdatedControls>
-                            <telerik:AjaxUpdatedControl ControlID="radGVContacts" LoadingPanelID="RadAjaxLoadingPanel1" />
+                            <telerik:AjaxUpdatedControl ControlID="radGVContacts0" LoadingPanelID="RadAjaxLoadingPanel2" />
                         </UpdatedControls>
                     </telerik:AjaxSetting>
 
                     <telerik:AjaxSetting AjaxControlID="RadAjaxManager1">
                         <UpdatedControls>
-                            <telerik:AjaxUpdatedControl ControlID="radGVContacts" LoadingPanelID="RadAjaxLoadingPanel1" />
+                            <telerik:AjaxUpdatedControl ControlID="radGVContacts0" LoadingPanelID="RadAjaxLoadingPanel2" />
                         </UpdatedControls>
                     </telerik:AjaxSetting>
+
+
+
 
                 </AjaxSettings>
             </telerik:RadAjaxManager>
 
 
-            <telerik:RadAjaxLoadingPanel ID="RadAjaxLoadingPanel1" runat="server" Height="75px"
-                Width="75px" Transparency="25">
-            </telerik:RadAjaxLoadingPanel>
+
+            <telerik:RadAjaxLoadingPanel ID="RadAjaxLoadingPanel2" runat="server" Height="75px" Transparency="25" Width="75px">
+                </telerik:RadAjaxLoadingPanel>
 
 
-             <telerik:RadCodeBlock ID="RadCodeBlock1" runat="server">   
+
+
+
+           <telerik:RadCodeBlock ID="RadCodeBlock2" runat="server">   
                 <script type="text/javascript">
                     var timer = null;
 
-                    function KeyUp() {
+                    function KeyUp0() {
                         if (timer != null) {
                             clearTimeout(timer);
                         }
@@ -138,7 +116,6 @@
                     }
                 </script>   
             </telerik:RadCodeBlock>
-
 
 
             <br />

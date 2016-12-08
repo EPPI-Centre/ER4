@@ -28,7 +28,8 @@
                 <asp:CheckBox ID="cbValidER4Account" runat="server" AutoPostBack="True" 
                     oncheckedchanged="cbValidER4Account_CheckedChanged" 
                     Text="ER4 accounts only" Checked="True" />
-                &nbsp;(Expiry data &gt; 20/03/2010)</td>
+                        &nbsp;<asp:Label ID="lblActiveDate" runat="server" Text="(Expiry data &gt; 20/03/2010)"></asp:Label>
+                    </td>
                     <td align="right" width="50%">
                         &nbsp;&nbsp;&nbsp; *Find&nbsp;&nbsp;
                         <asp:TextBox ID="tbFilter" runat="server" onkeyup="KeyUp();"></asp:TextBox>

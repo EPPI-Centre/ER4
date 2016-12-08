@@ -1,6 +1,37 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true"
     CodeFile="SiteLicense.aspx.cs" Inherits="SiteLicense" Title="Site license" %>
+
+
+
+
+
+
     <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+
+        <script language="javascript" type="text/javascript">
+        function openContactList(ID) 
+        {
+            var iWidthOfWin = 800;
+            var iHeightOfWin = 450;
+            var iLocX = (screen.width - iWidthOfWin) / 2;
+            var iLocY = (screen.height - iHeightOfWin) / 2;
+
+            var strFeatures = "scrollbars=yes,self.focus(), resizable=yes "
+                         + ",width=" + iWidthOfWin
+                         + ",height=" + iHeightOfWin
+                         + ",screenX=" + iLocX
+                         + ",screenY=" + iLocY
+                         + ",left=" + iLocX
+                         + ",top=" + iLocY;
+
+            var theURL = "SelectFunder.aspx?funder=" + ID;
+            windowName = new String(Math.round(Math.random() * 100000));
+            DetailsWindow = window.open(theURL, windowName, strFeatures);
+        }
+
+            </script>
+
+
         <div>
 
         <asp:Panel ID="pnlMessage" runat="server" Visible="False">
@@ -62,7 +93,8 @@
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
-                                Site license ID</td>
+                                <asp:Label ID="lblSiteLicenceID" runat="server" Text="Site Licence ID"></asp:Label>
+                            </td>
                             <td ;="" style="width: 75%; background-color: #E2E9EF">
                                 &nbsp;<asp:Label ID="lblSiteLicID" runat="server" Text="N/A"></asp:Label>
                                 &nbsp;</td>
@@ -131,7 +163,10 @@
                     &nbsp;&nbsp;
                     <asp:Label ID="lblLicenseMessage" runat="server" Font-Bold="False" 
                         Text="Required fields *" Visible="False"></asp:Label>
-                    <br />
+                    &nbsp;
+                    <asp:Button ID="cmdPlaceFunder" runat="server" BackColor="White" 
+                        BorderColor="White" BorderStyle="None" ForeColor="White" Height="1px" 
+                        OnClick="cmdPlaceFunder_Click" style="font-weight: bold" Width="1px" /><br />
                 </asp:Panel>
 
             <asp:Panel ID="pnlPackages" runat="server" Visible="False">
@@ -328,7 +363,7 @@
                         <td style="background-color: #ffffff; width: 45%;" valign="top">
                             <asp:GridView ID="gvReviews" runat="server" 
                                 AutoGenerateColumns="False" 
-                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%">
+                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%" OnRowDataBound="gvReviews_RowDataBound">
                                 <Columns>
                                     <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                                     <HeaderStyle BackColor="#B6C6D6" />
@@ -336,6 +371,15 @@
                                     <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name">
                                     <HeaderStyle BackColor="#B6C6D6" />
                                     </asp:BoundField>
+                                    <asp:TemplateField HeaderText="Owner" Visible="False">
+                                        <EditItemTemplate>
+                                            <asp:TextBox ID="TextBox1" runat="server" Text='<%# Bind("CONTACT_NAME") %>'></asp:TextBox>
+                                        </EditItemTemplate>
+                                        <ItemTemplate>
+                                            <asp:LinkButton ID="lbReviewOwner" runat="server">Review owner</asp:LinkButton>
+                                        </ItemTemplate>
+                                        <HeaderStyle BackColor="#B6C6D6" />
+                                    </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
                         </td>
@@ -411,7 +455,7 @@
                             &nbsp;</td>
                         <td style="background-color: #ffffff; width: 45%;" valign="top">
                             <asp:GridView ID="gvReviewsPastLicense" runat="server" AutoGenerateColumns="False" 
-                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%">
+                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%" OnRowDataBound="gvReviewsPastLicense_RowDataBound">
                                 <Columns>
                                     <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                                     <HeaderStyle BackColor="#B6C6D6" />
@@ -419,6 +463,15 @@
                                     <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name">
                                     <HeaderStyle BackColor="#B6C6D6" />
                                     </asp:BoundField>
+                                    <asp:TemplateField HeaderText="Owner" Visible="False">
+                                        <EditItemTemplate>
+                                            <asp:TextBox ID="TextBox1" runat="server" Text='<%# Bind("CONTACT_NAME") %>'></asp:TextBox>
+                                        </EditItemTemplate>
+                                        <ItemTemplate>
+                                            <asp:LinkButton ID="lbReviewOwnerPast" runat="server">Review owner</asp:LinkButton>
+                                        </ItemTemplate>
+                                        <HeaderStyle BackColor="#B6C6D6" />
+                                    </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
                         </td>

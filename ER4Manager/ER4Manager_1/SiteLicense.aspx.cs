@@ -194,11 +194,23 @@ public partial class SiteLicense : System.Web.UI.Page
                                 lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                                 lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
                                 lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
+                                string test = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
+                                if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
+                                {
+                                    lblSiteLicenceID.Text = "Site license #";
+                                }
+                                else
+                                {
+                                    lblSiteLicenceID.Text = "Site license ID";
+                                }
+
                                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
                                 {
                                     lblExpiryDate.Text = "Expired";
                                     lblExpiryDate.BackColor = Color.Pink;
                                     lblExpiryDate.Font.Bold = true;
+                                    lblSiteLicenceID.Text = "Site license ID";
                                 }
                                 else
                                 {
@@ -209,6 +221,7 @@ public partial class SiteLicense : System.Web.UI.Page
                                     {
                                         lblExpiryDate.BackColor = Color.Pink;
                                         lblExpiryDate.Font.Bold = true;
+                                        lblSiteLicenceID.Text = "Site license ID";
                                     }
                                     else
                                     {
@@ -254,6 +267,8 @@ public partial class SiteLicense : System.Web.UI.Page
                                     lblIsActivated.Text = "No";
                                     lbPackageHistory.Enabled = true;
                                     lbExtensionHistory.Enabled = true;
+
+                                    lblSiteLicenceID.Text = "Site license ID";
                                 }
                             }
                             idr.Close();
@@ -334,9 +349,11 @@ public partial class SiteLicense : System.Web.UI.Page
 
         dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
+        //dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         dt1.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
         dt1.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
+        //dt1.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         dt2.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt2.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
@@ -354,6 +371,7 @@ public partial class SiteLicense : System.Web.UI.Page
             newrow = dt.NewRow();
             newrow["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
             newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+            //newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             dt.Rows.Add(newrow);
         }
         idr.NextResult();
@@ -361,7 +379,8 @@ public partial class SiteLicense : System.Web.UI.Page
         {
             newrow1 = dt1.NewRow();
             newrow1["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
-            newrow1["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString(); ;
+            newrow1["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+            //newrow1["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             dt1.Rows.Add(newrow1);
         }
         idr.NextResult();
@@ -395,6 +414,8 @@ public partial class SiteLicense : System.Web.UI.Page
 
         gvReviewsPastLicense.DataSource = dt;
         gvReviewsPastLicense.DataBind();
+
+        
     }
 
     protected void cmdAddAccount_Click(object sender, EventArgs e)
@@ -1040,11 +1061,22 @@ public partial class SiteLicense : System.Web.UI.Page
                 lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                 lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
                 lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
+                if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
+                {
+                    lblSiteLicenceID.Text = "Site license #";
+                }
+                else
+                {
+                    lblSiteLicenceID.Text = "Site license ID";
+                }
+
                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
                 {
                     lblExpiryDate.Text = "Expired";
                     lblExpiryDate.BackColor = Color.Pink;
                     lblExpiryDate.Font.Bold = true;
+                    lblSiteLicenceID.Text = "Site license ID";
                 }
                 else
                 {
@@ -1055,6 +1087,7 @@ public partial class SiteLicense : System.Web.UI.Page
                     {
                         lblExpiryDate.BackColor = Color.Pink;
                         lblExpiryDate.Font.Bold = true;
+                        lblSiteLicenceID.Text = "Site license ID";
                     }
                     else
                     {
@@ -1100,6 +1133,8 @@ public partial class SiteLicense : System.Web.UI.Page
                     lblIsActivated.Text = "No";
                     lbPackageHistory.Enabled = true;
                     lbExtensionHistory.Enabled = true;
+
+                    lblSiteLicenceID.Text = "Site license ID";
                 }
             }
             idr.Close();
@@ -1194,4 +1229,80 @@ public partial class SiteLicense : System.Web.UI.Page
         Utils.ExecuteSP(isAdmDB, Server, "st_BritishLibraryCCValuesSetOnLicense", lblSiteLicID.Text,
             tbBritLibCRClearedAccountCode.Text, tbBritLibCRClearedAuthCode.Text, tbBritLibCRClearedTxLine.Text);
     }
+
+    protected void gvReviews_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton reviewOwner = (LinkButton) e.Row.Cells[2].FindControl("lbReviewOwner");
+
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_GetReviewOwner", e.Row.Cells[0].Text);
+            if (idr.Read())
+            {
+                reviewOwner.Text = idr["CONTACT_NAME"].ToString();
+            }
+            idr.Close();
+            reviewOwner.Attributes.Add("onclick", "JavaScript:openContactList('" + e.Row.Cells[0].Text + " - Please select from site license members')");
+            Utils.SetSessionString("siteLicenseID", lblSiteLicID.Text);
+
+            if (lblSiteLicenceID.Text == "Site license #")
+            {
+                //e.Row.Cells[2].Visible = true;
+                this.gvReviews.Columns[2].Visible = true;
+            }
+            else
+            {
+                this.gvReviews.Columns[2].Visible = false;
+            }
+
+
+        }
+    }
+
+    protected void gvReviewsPastLicense_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton reviewOwner = (LinkButton)e.Row.Cells[2].FindControl("lbReviewOwnerPast");
+
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_GetReviewOwner", e.Row.Cells[0].Text);
+            if (idr.Read())
+            {
+                reviewOwner.Text = idr["CONTACT_NAME"].ToString();
+            }
+            idr.Close();
+            reviewOwner.Attributes.Add("onclick", "JavaScript:openContactList('" + e.Row.Cells[0].Text + " - Please select from site license members')");
+            Utils.SetSessionString("siteLicenseID", lblSiteLicID.Text);
+
+            if (lblSiteLicenceID.Text == "Site license #")
+            {
+                //e.Row.Cells[2].Visible = true;
+                this.gvReviewsPastLicense.Columns[2].Visible = true;
+            }
+            else
+            {
+                this.gvReviewsPastLicense.Columns[2].Visible = false;
+            }
+        }
+    }
+
+    protected void cmdPlaceFunder_Click(object sender, EventArgs e)
+    {
+        string contactID = Utils.GetSessionString("variableID");
+
+        // change the owner and make sure new owner is in review and has admin access
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_ChangeReviewOwner", contactID, Utils.GetSessionString("siteLicenseReviewID"));
+
+        // reset your session variables
+        Utils.SetSessionString("siteLicenseID", "0");
+        Utils.SetSessionString("siteLicenseReviewID", "0");
+
+        // reload grids so they show the updated information
+        buildGrids();
+    }
+
+
 }

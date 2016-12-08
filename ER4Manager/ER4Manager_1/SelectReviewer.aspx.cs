@@ -62,6 +62,7 @@ public partial class SelectReviewer : System.Web.UI.Page
 
     private void buildContactGrid(bool ER4AccountsOnly)
     {
+        string siteLicense = "0";
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -70,7 +71,7 @@ public partial class SelectReviewer : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_1", ER4AccountsOnly, tbFilter.Text);
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, siteLicense);
         while (idr.Read())
         {
             newrow = dt.NewRow();
@@ -121,6 +122,7 @@ public partial class SelectReviewer : System.Web.UI.Page
         bool ER4AccountsOnly = true;
         if (!cbValidER4Account.Checked)
             ER4AccountsOnly = false;
+        string siteLicense = "0";
 
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -130,7 +132,7 @@ public partial class SelectReviewer : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_1", ER4AccountsOnly, tbFilter.Text);
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, siteLicense);
         while (idr.Read())
         {
             newrow = dt.NewRow();
