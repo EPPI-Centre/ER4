@@ -553,6 +553,11 @@ namespace BusinessLibrary.BusinessClasses
             {
                 retval = "DARE";
             }
+            else
+                if (modId == -3)
+            {
+                retval = "NHSEED";
+            }
 
             return retval;
         }
@@ -567,6 +572,11 @@ namespace BusinessLibrary.BusinessClasses
             if (modId == -2)
             {
                 retval = "DAREModel";
+            }
+            else
+                if (modId == -3)
+            {
+                retval = "NHSEEDModel";
             }
             return retval;
         }
