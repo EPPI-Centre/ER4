@@ -15,14 +15,17 @@ using Csla.Silverlight;
 using Csla;
 using Telerik.Windows.Controls.ChartView;
 using System.IO;
+using Telerik.Windows.Controls;
 
 namespace EppiReviewer4.Windows
 {
     public partial class windowSearchVisualise : ChildWindow
     {
+        public event EventHandler<RoutedEventArgs> CodesCreated;
         public windowSearchVisualise()
         {
             InitializeComponent();
+            codesSelectControlAllocate.SetMode(true, true, true);
         }
 
         public void getSearchData(int searchId)
@@ -38,7 +41,7 @@ namespace EppiReviewer4.Windows
         }
         //private void Provider_DataChanged(object sender, EventArgs e)
         //{
-            
+
         //    CslaDataProvider provider = sender as CslaDataProvider;
         //    SearchVisualiseList svl = provider.Data as SearchVisualiseList;
         //    chart.Series.Clear();
@@ -57,8 +60,8 @@ namespace EppiReviewer4.Windows
             get { return _SearchName; }
             set
             {
-                _SearchName = value.Replace("Items classified according to model: ", "");
-                this.Title = "Distribution of classifier scores - Model: " + _SearchName;
+                _SearchName = value;
+                this.Title = "Distribution of classifier scores - Model: " + _SearchName.Replace("Items classified according to model: ", "");
             }
         }
 
@@ -81,9 +84,42 @@ namespace EppiReviewer4.Windows
             }
         }
 
-        private void ChartSelectionBehavior_SelectionChanged(object sender, ChartSelectionChangedEventArgs e)
+        private void GenerateButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AttributeSet Destination = codesSelectControlAllocate.TreeViewSelectCode.SelectedItem as AttributeSet;
+            ReviewSet DestRevSet = codesSelectControlAllocate.TreeViewSelectCode.SelectedItem as ReviewSet;
+            if (Destination == null && DestRevSet == null)
+            {
+                RadWindow.Alert("Please select where to create the codes.");
+                return;
+            }
+            DataPortal<ClassifierCreateCodesCommand> dp = new DataPortal<ClassifierCreateCodesCommand>();
+            ClassifierCreateCodesCommand command = new ClassifierCreateCodesCommand
+                                                        (SearchId,
+                                                        SearchName,
+                                                        Destination == null ? 0 : Destination.AttributeId,
+                                                        Destination == null ? DestRevSet.SetId : Destination.SetId);
+            dp.ExecuteCompleted += (o, e2) =>
+                                    {
+                                        BusyGeneratingCodes.IsRunning = false;
+                                        this.IsEnabled = true;
+                                        if (e2.Error != null)
+                                        {
+                                            RadWindow.Alert(e2.Error.Message);
+                                        }
+                                        else
+                                        {
+                                            if (CodesCreated != null) CodesCreated.Invoke(sender, e);
+                                            this.DialogResult = true;//somehow closes the window
+                                        }
+                                    };
+            BusyGeneratingCodes.IsRunning = true;
+            this.IsEnabled = false;
+            dp.BeginExecute(command);
+        }
+        public void UnhookMe()
+        {
+            codesSelectControlAllocate.UnhookMe();
         }
     }
 }

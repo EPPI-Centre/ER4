@@ -5,6 +5,7 @@
            xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
            xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
            xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+           xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"           
            Width="700" Height="500" 
                        
            Title="Distribution of classifier scores">
@@ -13,19 +14,27 @@
     <Grid x:Name="LayoutRoot" Margin="2">
             
         <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition  />
+            <RowDefinition  Height="30"/>
         </Grid.RowDefinitions>
-
-        <telerik:RadCartesianChart x:Name="chart" Grid.Row="0" Margin="15,15,15,15"
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Grid.Row="0">
+            <TextBlock Text="Create codes below this code / set" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <local:codesSelectControl x:Name="codesSelectControlAllocate" Margin="4" Height="26" MaxWidth="350" MinWidth="350" VerticalAlignment="Center"
+                                      ToolTipService.ToolTip="Double click to select"></local:codesSelectControl>
+            <Button x:Name="GenerateButton" Content="Create!" Click="GenerateButton_Click"  Width="75" Height="23" HorizontalAlignment="Right" Margin="4" 
+                    VerticalAlignment="Center" ToolTipService.ToolTip="Creates and populates one code per bar chart" />
+        </StackPanel>
+        <cslaXAML:BusyAnimation x:Name="BusyGeneratingCodes" Height="20" Margin="4" VerticalAlignment="Top" Grid.Row="0" HorizontalAlignment="Right" />
+        <telerik:RadCartesianChart x:Name="chart" Grid.Row="1" Margin="15,15,15,15"
                                    Background="White">
-            
+
             <telerik:RadCartesianChart.HorizontalAxis>
                 <telerik:CategoricalAxis Title="Range" />
             </telerik:RadCartesianChart.HorizontalAxis>
-                <telerik:RadCartesianChart.VerticalAxis>
-                    <telerik:LinearAxis Title="Number of items"/>
-                </telerik:RadCartesianChart.VerticalAxis>
+            <telerik:RadCartesianChart.VerticalAxis>
+                <telerik:LinearAxis Title="Number of items"/>
+            </telerik:RadCartesianChart.VerticalAxis>
 
             <telerik:BarSeries CategoryBinding="Range"
                        ValueBinding="Count"
@@ -35,12 +44,11 @@
             </telerik:BarSeries>
 
             <telerik:RadCartesianChart.Behaviors>
-                <telerik:ChartSelectionBehavior DataPointSelectionMode="Multiple" SelectionChanged="ChartSelectionBehavior_SelectionChanged"></telerik:ChartSelectionBehavior>
+                <telerik:ChartSelectionBehavior DataPointSelectionMode="Multiple" ></telerik:ChartSelectionBehavior>
             </telerik:RadCartesianChart.Behaviors>
 
         </telerik:RadCartesianChart>
-
-        <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,79,0" Grid.Row="1" />
-        <Button x:Name="OKButton" Content="Close" Click="OKButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,12,0,0" Grid.Row="1" />
+        <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,4,79,0" Grid.Row="2" />
+        <Button x:Name="OKButton" Content="Close" Click="OKButton_Click" Width="75" Height="23" HorizontalAlignment="Right" Margin="0,4,0,0" Grid.Row="2" />
     </Grid>
 </controls:ChildWindow>

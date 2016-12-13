@@ -1,4 +1,384 @@
-﻿
+﻿USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]    Script Date: 12/13/2016 14:16:31 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]    Script Date: 12/13/2016 14:16:31 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ItemAttributeBulkAssignCodesFromMLsearchResults]
+	-- Add the parameters for the stored procedure here
+	@SearchID int,
+	@revID int,
+	@ParentAttributeID bigint,
+	@SetID int,
+	@SearchName nvarchar(4000),
+	@ContactID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Phases: 1. create codes using st_AttributeSetInsert
+    -- 2. fetch IDs (comma separated) for each bucket
+    -- 3. assign items to new codes via st_ItemAttributeBulkInsert
+	-- repeat 2 and 3 for each bucket.
+	
+	--stuff we'll need:
+	declare @NEW_ATTRIBUTE_SET_ID bigint ,@NEW_ATTRIBUTE_ID_1 bigint
+			,@NEW_ATTRIBUTE_ID_2 bigint
+			,@NEW_ATTRIBUTE_ID_3 bigint
+			,@NEW_ATTRIBUTE_ID_4 bigint
+			,@NEW_ATTRIBUTE_ID_5 bigint
+			,@NEW_ATTRIBUTE_ID_6 bigint
+			,@NEW_ATTRIBUTE_ID_7 bigint
+			,@NEW_ATTRIBUTE_ID_8 bigint
+			,@NEW_ATTRIBUTE_ID_9 bigint
+			,@NEW_ATTRIBUTE_ID_10 bigint
+	declare @IDs varchar(MAX)		
+	
+	--1. create codes using st_AttributeSetInsert
+	
+	--first of all find the order...
+	declare @order int = (select MAX(ATTRIBUTE_ORDER) from TB_ATTRIBUTE_SET where SET_ID = @SetID and PARENT_ATTRIBUTE_ID = @ParentAttributeID)
+	IF @order = null set @order = 0
+	set @SearchName = 'FROM: ' + @SearchName --used as code description
+	
+	--create codes & take IDs
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'0-9% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_1 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'10-19% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_2 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'20-29% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_3 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'30-39% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_4 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'40-49% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_5 OUTPUT
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'50-59% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_6 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'60-69% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_7 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'70-79% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_8 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'80-89% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_9 OUTPUT
+	set @order  = @order + 1
+	EXECUTE [Reviewer].[dbo].[st_AttributeSetInsert] 
+	   @SetID
+	  ,@ParentAttributeID
+	  ,1
+	  ,@SearchName
+	  ,@order
+	  ,'90-99% range'
+	  ,NULL
+	  ,@ContactID
+	  ,NULL
+	  ,@NEW_ATTRIBUTE_SET_ID = @NEW_ATTRIBUTE_SET_ID OUTPUT
+	  ,@NEW_ATTRIBUTE_ID = @NEW_ATTRIBUTE_ID_10 OUTPUT
+	
+	
+	--2. fetch IDs (comma separated) for each bucket
+	Declare @Items table (ItemID bigint primary key)
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 0 AND [ITEM_RANK] < 10 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		--3. Bulk insert
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_1,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 10 AND [ITEM_RANK] < 20 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_2,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 20 AND [ITEM_RANK] < 30 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_3,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 30 AND [ITEM_RANK] < 40 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_4,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 40 AND [ITEM_RANK] < 50 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_5,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 50 AND [ITEM_RANK] < 60 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_6,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 60 AND [ITEM_RANK] < 70 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_7,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 70 AND [ITEM_RANK] < 80 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_8,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 80 AND [ITEM_RANK] < 90 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_9,
+			@IDs,
+			'',
+		@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--REPEAT until all 10 codes are populated
+	Insert into @Items select ITEM_ID FROM TB_SEARCH_ITEM WHERE 
+		[ITEM_RANK] >= 90 AND [ITEM_RANK] <= 100 AND SEARCH_ID = @SearchID
+	set @IDs  = ''
+	select @IDs = @IDs + ',' + CONVERT(nvarchar(100), ItemID) from @Items
+	IF LEN(@IDs) > 2
+	BEGIN
+		SET @IDs = RIGHT(@IDs, LEN(@IDs)-1)
+		exec st_ItemAttributeBulkInsert @SetID,
+			1,
+			@ContactID,
+			@NEW_ATTRIBUTE_ID_10,
+			@IDs,
+			'',
+			@revID
+	END
+	--cleanup
+	DELETE from @Items
+	--DONE
+END
+GO
+
+
 --USE [Reviewer]
 --GO
 

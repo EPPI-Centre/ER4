@@ -95,6 +95,7 @@ namespace EppiReviewer4
         private RadWAssignDocuments windowAssignDocuments = new RadWAssignDocuments();
         private RadWMetaAnalysisOptions windowMetaAnalysisOptions = new RadWMetaAnalysisOptions();
         private RadWTrainingResults windowTrainingResults = new RadWTrainingResults();
+        private Windows.windowSearchVisualise dlgWindowVisualiseSearch;
         #endregion
 
         //first bunch of lines to make the read-only UI work
@@ -5738,7 +5739,7 @@ on the right of the main screen");
                 CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
                 CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
             }
-            
+            if (dlgWindowVisualiseSearch != null) dlgWindowVisualiseSearch.UnhookMe();
         }
 
         private void cmdExportItemsGrid_Click(object sender, RoutedEventArgs e)
@@ -5849,7 +5850,11 @@ on the right of the main screen");
 
         private void cmdVisualiseSearch_Click(object sender, RoutedEventArgs e)
         {
-            Windows.windowSearchVisualise dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
+            if (dlgWindowVisualiseSearch == null)
+            {
+                dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
+                dlgWindowVisualiseSearch.CodesCreated += DlgWindowVisualiseSearch_CodesCreated;
+            }
             Search sch = (sender as Button).DataContext as Search;
             if (sch != null)
             {
@@ -5858,6 +5863,11 @@ on the right of the main screen");
                 dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
                 dlgWindowVisualiseSearch.Show();
             }
+        }
+
+        private void DlgWindowVisualiseSearch_CodesCreated(object sender, RoutedEventArgs e)
+        {
+            LoadCodeSets();
         }
     }
 }

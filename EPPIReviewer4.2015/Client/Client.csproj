@@ -209,6 +209,9 @@
     <Compile Include="..\Server\BusinessClasses\ClassifierCommand.cs">
       <Link>BusinessClasses\ClassifierCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierCreateCodesCommand.cs">
+      <Link>BusinessClasses\ClassifierCreateCodesCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ClassifierModel.cs">
       <Link>BusinessClasses\ClassifierModel.cs</Link>
     </Compile>
