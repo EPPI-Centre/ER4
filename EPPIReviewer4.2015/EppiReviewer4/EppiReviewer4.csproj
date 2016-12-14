@@ -1041,7 +1041,6 @@
     <Resource Include="Icons\TermNegativeAdd.png" />
     <Resource Include="Icons\TermPositiveAdd.png" />
     <Resource Include="Icons\TermRemove.png" />
-    <Resource Include="Icons\Classifier.png" />
     <Resource Include="Icons\EPPI-Centre_logo2.png" />
     <Resource Include="Icons\translate.png" />
     <Resource Include="Icons\FollowUs.png" />
