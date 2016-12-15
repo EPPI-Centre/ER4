@@ -14,7 +14,8 @@ namespace WcfHostPortal
             string pageURL = Request.Url.AbsoluteUri.ToLower();
             System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
             System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["DomainRoot4Redirect"];
-            string badURLStart = "https://"+ customSetting.Value +"/", goodURLstart = "http://"+ customSetting.Value +"/";
+            //string badURLStart = "https://"+ customSetting.Value +"/", goodURLstart = "http://"+ customSetting.Value +"/";
+            string badURLStart = "https://eppi.ioe.ac.uk/", goodURLstart = "http://eppi.ioe.ac.uk/";
 
             if (pageURL.IndexOf(badURLStart) == 0)
             {
