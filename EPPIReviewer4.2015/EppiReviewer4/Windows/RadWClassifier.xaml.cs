@@ -161,6 +161,16 @@ namespace EppiReviewer4
             ReviewInfo RevInfo = provider1.Data as ReviewInfo;
             string modelTitle = "RCT";
             Int32 ModelId = -1; // the RCT model as default
+            if (rbApplyDAREModel.IsChecked == true)
+            {
+                modelTitle = "Systematic review";
+                ModelId = -2;
+            }
+            if (rbApplyNHSEEDModel.IsChecked == true)
+            {
+                modelTitle = "Economic evaluation";
+                ModelId = -3;
+            }
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
             int SourceId = -2;//source_id == -1 means "sourceless items"
 
@@ -442,6 +452,19 @@ namespace EppiReviewer4
             {
                 provider2.Refresh();
             }
+            App theApp = (Application.Current as App);
+            theApp.ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
+
+            rbApplyDAREModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            rbApplyNHSEEDModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            if (theApp.ri.UserId == 1451 || theApp.ri.UserId == 1576 || theApp.ri.UserId == 4688 || theApp.ri.UserId == 1095) // Alison, Ian and Dylan, Claire
+            {
+                rbApplyDAREModel.Visibility = Visibility.Visible;
+                rbApplyDAREModel.Visibility = Visibility.Visible;
+                rbApplyNHSEEDModel.Visibility = Visibility.Visible;
+                rbApplyNHSEEDModel.Visibility = Visibility.Visible;
+            }
+
         }
     }
 }

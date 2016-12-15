@@ -299,7 +299,9 @@ namespace EppiReviewer4
         private RadMenuItem contextMenuReviewSetPrint;
         private RadMenuItem contextMenuReviewSetCopy;
         private RadMenuItem contextMenuReviewSetPaste;
-        
+
+        private RadMenuItem contextMenuExpand;
+
         private void MakeMenu()
         {
             if (ControlContext == "CodingOnly") return;
@@ -386,6 +388,7 @@ namespace EppiReviewer4
             contextMenuReviewSetPrint = new RadMenuItem(); contextMenuReviewSetPrint.Header = "Print..."; cm.Items.Add(contextMenuReviewSetPrint);
             contextMenuProperties = new RadMenuItem(); contextMenuProperties.Header = "Properties..."; cm.Items.Add(contextMenuProperties);
 
+            contextMenuExpand = new RadMenuItem(); contextMenuExpand.Header = "Expand from here"; cm.Items.Add(contextMenuExpand);
             RadMenuItem mi2 = new RadMenuItem(); mi2.IsSeparator = true; cm.Items.Add(mi2);
 
             contextMenuReviewSetCopy = new RadMenuItem(); contextMenuReviewSetCopy.Header = "Copy";
@@ -681,7 +684,7 @@ namespace EppiReviewer4
                         HightlightSelectedCode();
                     }
 
-                    if (item.Header.ToString() == "Report: all text coded with this code (all PDFs)")
+                    else if (item.Header.ToString() == "Report: all text coded with this code (all PDFs)")
                     {
                         AttributeSet attributeSet = TreeView.SelectedItem as AttributeSet;
                         if (attributeSet != null)
@@ -800,7 +803,7 @@ namespace EppiReviewer4
                         }
                     }
 
-                    if (item.Header.ToString() == "Uncode selected text")
+                    else if (item.Header.ToString() == "Uncode selected text")
                     {
                         AttributeSet attributeSet = TreeView.SelectedItem as AttributeSet;
                         if (attributeSet != null)
@@ -822,97 +825,97 @@ namespace EppiReviewer4
                         }
                     }
 
-                    if (item.Header.ToString() == "List items with this code")
+                    else if (item.Header.ToString() == "List items with this code")
                     {
                         this.ListItemsWithCode.Invoke("Included", EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "List items with this code (excluded)")
+                    else if (item.Header.ToString() == "List items with this code (excluded)")
                     {
                         this.ListItemsWithCodeExcluded.Invoke("Excluded", EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "List items without this code")
+                    else if (item.Header.ToString() == "List items without this code")
                     {
                         this.ListItemsWithoutCode.Invoke("Included", EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "List items without this code (excluded)")
+                    else if (item.Header.ToString() == "List items without this code (excluded)")
                     {
                         this.ListItemsWithoutCodeExcluded.Invoke("Excluded", EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Display included item frequencies (children)")
+                    else if (item.Header.ToString() == "Display included item frequencies (children)")
                     {
                         this.DisplayItemFrequencies.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Assign selected items to this code")
+                    else if (item.Header.ToString() == "Assign selected items to this code")
                     {
                         this.AssignSelected.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Remove selected items from this code")
+                    else if (item.Header.ToString() == "Remove selected items from this code")
                     {
                         this.RemoveSelected.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Assign items in selected searches to this code")
+                    else if (item.Header.ToString() == "Assign items in selected searches to this code")
                     {
                         this.AssignSearchSelected.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Remove items in selected searches from this code")
+                    else if (item.Header.ToString() == "Remove items in selected searches from this code")
                     {
                         this.RemoveSearchSelected.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Insert in diagram")
+                    else if (item.Header.ToString() == "Insert in diagram")
                     {
                         this.InsertInDiagram.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Insert child codes in diagram")
+                    else if (item.Header.ToString() == "Insert child codes in diagram")
                     {
                         this.InsertChildCodesInDiagram.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Add child code")
+                    else if (item.Header.ToString() == "Add child code")
                     {
                         DoNewAttribute();
                     }
 
-                    if (item.Header.ToString() == "Insert in report")
+                    else if (item.Header.ToString() == "Insert in report")
                     {
                         this.InsertInReport.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Code within code (axial coding)")
+                    else if (item.Header.ToString() == "Code within code (axial coding)")
                     {
                         this.CodeWithinCode.Invoke(this, EventArgs.Empty);
                     }
 
-                    if (item.Header.ToString() == "Add new code set")
+                    else if (item.Header.ToString() == "Add new code set")
                     {
                         DoNewCodeSet();
                     }
 
-                    if ((item.Header.ToString() == "Delete code") || (item.Header.ToString() == "Delete code set"))
+                    else if ((item.Header.ToString() == "Delete code") || (item.Header.ToString() == "Delete code set"))
                     {
                         CheckDeleteAttributeSet();
                     }
 
-                    if (item.Header.ToString() == "Print...")
+                    else if (item.Header.ToString() == "Print...")
                     {
                         PrintSelectedReviewSet();
                     }
 
-                    if (item.Header.ToString() == "Properties...")
+                    else if (item.Header.ToString() == "Properties...")
                     {
                         DoNodeProperties();
                     }
 
-                    if (item.Header.ToString() == "Copy")
+                    else if (item.Header.ToString() == "Copy")
                     {
                          AttributeSet attributeSet = TreeView.SelectedItem as AttributeSet;
                          if (attributeSet != null)
@@ -923,7 +926,7 @@ namespace EppiReviewer4
                          else contextMenuReviewSetPaste.IsEnabled = false;
                     }
 
-                    if (item.Header.ToString() == "Paste...")
+                    else if (item.Header.ToString() == "Paste...")
                     {
                         AttributeSet attributeSet = TreeView.SelectedItem as AttributeSet;
                         AttributeSet source;
@@ -1019,9 +1022,16 @@ namespace EppiReviewer4
                             newAset.BeginSave();
                         }
                     }
+                    else if (item.Header.ToString() == "Expand from here")
+                    {
+                        object reviewORAttributeSet = TreeView.SelectedItem as object;
+                        RadTreeViewItem tvi = TreeView.ContainerFromItemRecursive(reviewORAttributeSet);
+                        if (tvi != null) tvi.ExpandAll();
+                    }
                 }
             }
         }
+        
         private void buildToPasteFlatUnsortedList(AttributeSet aSet, int setID, int RelativeLevel)
         {//this is recursive!!
             AttributeSetToPaste astp = new AttributeSetToPaste(aSet, setID, RelativeLevel);
@@ -2834,6 +2844,7 @@ namespace EppiReviewer4
                 contextMenuUncodeSelected.Visibility = CurrentTextDocument != null && ShowCodeTxtOptions ? Visibility.Visible : Visibility.Collapsed;
                 contextMenuShowText.Visibility = CurrentTextDocument != null ? Visibility.Visible : Visibility.Collapsed;
                 contextMenuReport.Visibility = Visibility.Visible;
+                contextMenuExpand.Visibility = Visibility.Collapsed;//may be changed further down
                 if (contextMenuAddChild != null) contextMenuAddChild.Visibility = Visibility.Visible;
                 if (contextMenuNewCodeSet != null) contextMenuNewCodeSet.Visibility = Visibility.Collapsed;
                 if (contextMenuDeleteCode != null) contextMenuDeleteCode.Visibility = Visibility.Visible;
@@ -2883,6 +2894,8 @@ namespace EppiReviewer4
                     ReviewSet reviewSet = rsl.GetReviewSet(attributeSet.SetId);
                     if (reviewSet != null)
                     {
+                        contextMenuExpand.Visibility = (attributeSet.Attributes != null && attributeSet.Attributes.Count > 0) 
+                                                        ? Visibility.Visible : Visibility.Collapsed;
                         if (reviewSet.AllowCodingEdits == true && attributeSet.CanHaveChildren)
                         {
                             contextMenuAddChild.IsEnabled = true;
@@ -2962,6 +2975,8 @@ namespace EppiReviewer4
                 contextMenuDeleteCode.Visibility = Visibility.Collapsed;
                 contextMenuDeleteCodeSet.Visibility = Visibility.Visible;
                 contextMenuReviewSetPrint.Visibility = Visibility.Visible;
+                contextMenuExpand.Visibility = Visibility.Visible;
+                
                 //if (contextMenuAxialCoding != null)
                 //    contextMenuAxialCoding.Visibility = Visibility.Collapsed;
                 if (rs.AllowCodingEdits == true)
@@ -3928,6 +3943,13 @@ namespace EppiReviewer4
                 provider.DataChanged -= CodeSetsProvider_DataChanged;
                 provider.DataChanged -= CodeSetsProvider_DataChanged;
             }
+        }
+
+        private void cmdReloadAllSets_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
+            if (provider == null) return;
+            provider.Refresh();
         }
     } // END MAIN CodesTreeControl CLASS
     public class AttributeSetToPaste : IComparable

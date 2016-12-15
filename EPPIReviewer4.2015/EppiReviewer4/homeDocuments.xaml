@@ -154,7 +154,12 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Button x:Name="cmdListSearch" Content="Select" Click="cmdListSearch_Click"></Button>
+                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                            <Button x:Name="cmdListSearch" Content="Select" Click="cmdListSearch_Click"></Button>
+                            <Button x:Name="cmdVisualiseSearch" Content="Visualise" Click="cmdVisualiseSearch_Click" 
+                                    IsEnabled="{Binding IsClassifierResult}"
+                                    Visibility="{Binding IsClassifierResult, Converter={StaticResource EditTrueFalseVisibility}, Mode=OneWay}"></Button>
+                        </StackPanel>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -428,6 +433,7 @@
                                                                     IconColumnWidth="0" Opening="ctxMenuTranslate_Opening">
                                                 <telerik:RadMenuItem Tag="Harvard" Header="Harvard" />
                                                 <telerik:RadMenuItem Tag="Chicago" Header="Chicago" />
+                                                <telerik:RadMenuItem Tag="NICE" Header="NICE format" />
                                                 <telerik:RadMenuItem x:Name="BLdoc" Tag="BL" Header="BL document supply requests" />
                                                 <telerik:RadMenuItem x:Name="BLdocCC" Tag="BLCopyrightCleared" Header="BL document supply requests – copyright cleared" />
                                                 <telerik:RadMenuItem x:Name="JustTheGrid" Tag="JustTheGrid" Header="Export Current page/selection" ToolTipService.ToolTip="Exports current table/selection to html (for use in excel, word or web browser)" />
@@ -537,7 +543,7 @@
                                         <telerikGridView:GridViewDataColumn Header="Created by" DataMemberBinding="{Binding ContactName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Date" DataMemberBinding="{Binding SearchDate}" Width="75" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Hits" DataMemberBinding="{Binding HitsNo}" Width="65" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellSearchStyle}" Width="50" Header="Select" DataMemberBinding="{Binding SearchNo}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellSearchStyle}" Width="Auto" Header="List" DataMemberBinding="{Binding SearchNo}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
                                 <cslaXAML:BusyAnimation x:Name="loadingDataAnimationSearchesData" Margin="100,100,100,100" Grid.Row="1" IsRunning="{Binding Source={StaticResource SearchesData}, Path=IsBusy}" />

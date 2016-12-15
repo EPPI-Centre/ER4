@@ -95,6 +95,7 @@ namespace EppiReviewer4
         private RadWAssignDocuments windowAssignDocuments = new RadWAssignDocuments();
         private RadWMetaAnalysisOptions windowMetaAnalysisOptions = new RadWMetaAnalysisOptions();
         private RadWTrainingResults windowTrainingResults = new RadWTrainingResults();
+        private Windows.windowSearchVisualise dlgWindowVisualiseSearch;
         #endregion
 
         //first bunch of lines to make the read-only UI work
@@ -389,7 +390,7 @@ namespace EppiReviewer4
             ResetScreeningUI();
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
-            if (ri.UserId == 1451 || ri.UserId == 1576) // Alison and Ian
+            if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688) // Alison, Ian and Dylan
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
@@ -4367,6 +4368,9 @@ on the right of the main screen");
                                 case "Harvard":
                                     report += "<p>" + i.GetHarvardCitation() + "</p>";
                                     break;
+                                case "NICE":
+                                    report += "<p>" + i.GetNICECitation() + "</p>";
+                                    break;
                                 case "BL":
                                     report += review.BL_TX + Environment.NewLine +
                                         i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
@@ -5259,6 +5263,14 @@ on the right of the main screen");
                     }
                     ctxMenuTranslate.Opening -= ctxMenuTranslate_Opening;
                 }
+                if (BLdoc.IsEnabled == false)
+                {
+                    BLdoc.Header += " (no subscription details entered)";
+                }
+                if (BLdocCC.IsEnabled == false)
+                {
+                    BLdocCC.Header += " (no subscription details entered)";
+                }
             }
         }
 
@@ -5727,7 +5739,7 @@ on the right of the main screen");
                 CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
                 CodeSetsData.DataChanged -= CodeSetsData_DataChanged;
             }
-            
+            if (dlgWindowVisualiseSearch != null) dlgWindowVisualiseSearch.UnhookMe();
         }
 
         private void cmdExportItemsGrid_Click(object sender, RoutedEventArgs e)
@@ -5836,5 +5848,26 @@ on the right of the main screen");
             }
         }
 
+        private void cmdVisualiseSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if (dlgWindowVisualiseSearch == null)
+            {
+                dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
+                dlgWindowVisualiseSearch.CodesCreated += DlgWindowVisualiseSearch_CodesCreated;
+            }
+            Search sch = (sender as Button).DataContext as Search;
+            if (sch != null)
+            {
+                dlgWindowVisualiseSearch.SearchId = sch.SearchId;
+                dlgWindowVisualiseSearch.SearchName = sch.Title;
+                dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
+                dlgWindowVisualiseSearch.Show();
+            }
+        }
+
+        private void DlgWindowVisualiseSearch_CodesCreated(object sender, RoutedEventArgs e)
+        {
+            LoadCodeSets();
+        }
     }
 }

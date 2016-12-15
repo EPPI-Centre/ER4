@@ -228,6 +228,15 @@ namespace EppiReviewer4
                 return null;
             }
         }
+
+        private void CslaDataProvider_DataChanged_3(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["SearchVisualiseData"]);
+            if (provider.Error != null)
+            {
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+            }
+        }
     }
     public class JavaScriptBridge
     {
