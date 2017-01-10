@@ -22,14 +22,24 @@ public partial class SelectFunder : System.Web.UI.Page
         {
             if (Utils.GetSessionString("IsAdm") == "True")
             {
-                if (!IsPostBack)
+                if (!IsPostBack) 
                 {
                     if (Request.QueryString["funder"].ToString() == "Please select")
                     {
                         bool ER4AccountsOnly = true;
                         if (!cbValidER4Account.Checked)
                             ER4AccountsOnly = false;
-                        buildContactGrid(ER4AccountsOnly);
+                        string siteLicense = "0";
+                        buildContactGrid(ER4AccountsOnly, siteLicense);
+                    }
+                    else if (Request.QueryString["funder"].ToString().Contains("Please select from site license members"))
+                    {
+                        string reviewID = Request.QueryString["funder"].ToString().Remove(Request.QueryString["funder"].ToString().IndexOf(" - "));
+                        cbValidER4Account.Visible = false;
+                        lblActiveDate.Text = "Select a new review owner";
+                        Utils.SetSessionString("siteLicenseReviewID", reviewID);
+                        bool ER4AccountsOnly = true;
+                        buildContactGrid(ER4AccountsOnly, Utils.GetSessionString("siteLicenseID"));
                     }
                     else
                     {
@@ -60,7 +70,7 @@ public partial class SelectFunder : System.Web.UI.Page
     }
 
 
-    private void buildContactGrid(bool ER4AccountsOnly)
+    private void buildContactGrid(bool ER4AccountsOnly, string siteLicense)
     {
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -70,7 +80,7 @@ public partial class SelectFunder : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_1", ER4AccountsOnly, tbFilter.Text);
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, siteLicense);
         while (idr.Read())
         {
             newrow = dt.NewRow();
@@ -80,6 +90,7 @@ public partial class SelectFunder : System.Web.UI.Page
             dt.Rows.Add(newrow);
         }
         idr.Close();
+        
     }
 
 
@@ -115,7 +126,7 @@ public partial class SelectFunder : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
         bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_1", ER4AccountsOnly, tbFilter.Text);
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsGetAllFilter_2", ER4AccountsOnly, tbFilter.Text, Utils.GetSessionString("siteLicenseID"));
         while (idr.Read())
         {
             newrow = dt.NewRow();
@@ -139,7 +150,7 @@ public partial class SelectFunder : System.Web.UI.Page
         {
             if (!cbValidER4Account.Checked)
                 ER4AccountsOnly = false;
-            buildContactGrid(ER4AccountsOnly);
+            buildContactGrid(ER4AccountsOnly, Utils.GetSessionString("siteLicenseID"));
         }
         else
         {

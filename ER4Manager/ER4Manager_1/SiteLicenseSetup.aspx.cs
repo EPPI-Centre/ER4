@@ -26,6 +26,8 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
+                    Utils.SetSessionString("siteLicenseID", "0");
+
                     System.Web.UI.WebControls.Label lbl = (Label)Master.FindControl("lblPageTitle");
                     if (lbl != null)
                     {
@@ -246,6 +248,13 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
                         lblCreatedBy.Text = idr["CREATOR_ID"].ToString();
                         lblInitialAdministrator.Text = idr["ADMIN_NAME"].ToString();
                         lblAdminID.Text = adminID;
+
+                        string test22 = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
+
+                        if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
+                            cbAllowReviewOwnershipChange.Checked = true;
+                        else
+                            cbAllowReviewOwnershipChange.Checked = false;
 
                         lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                         tbNumberMonths.Text = idr["MONTHS"].ToString();
@@ -1789,5 +1798,15 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_BritishLibraryCCValuesSetOnLicense", lblSiteLicID.Text,
             tbBritLibCRClearedAccountCode.Text, tbBritLibCRClearedAuthCode.Text, tbBritLibCRClearedTxLine.Text);
+    }
+
+    protected void cbAllowReviewOwnershipChange_CheckedChanged(object sender, EventArgs e)
+    {
+        bool isChecked = false;
+        if (cbAllowReviewOwnershipChange.Checked == true)
+            isChecked = true;
+
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_AllowReviewOwnershipChangeInLicense", lblSiteLicID.Text, isChecked);
     }
 }

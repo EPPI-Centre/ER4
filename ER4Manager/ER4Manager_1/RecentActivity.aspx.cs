@@ -44,7 +44,10 @@ public partial class RecentActivity : System.Web.UI.Page
                         lbl1.Text = "Recent activity";
                     }
 
-                    buildGridNew();
+                    buildGridNew0();  // newer
+                    //pnlOldDisplay.Visible = false;
+                    pnlNewDisplay.Visible = true;
+
                 }
             }
             else
@@ -59,94 +62,112 @@ public partial class RecentActivity : System.Web.UI.Page
     }
 
 
-    private void buildGridNew()
+
+    private void buildGridNew0()
     {
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
-        
-        dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
-        dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
         dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
         dt.Columns.Add(new DataColumn("CREATED", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_RENEWED", typeof(string)));
-        string SQL = "SELECT c.CONTACT_NAME, c.EMAIL, c.[CONTACT_ID],[REVIEW_ID],[CREATED],[LAST_RENEWED]";
-        SQL += " FROM [ReviewerAdmin].[dbo].[TB_LOGON_TICKET] lt Inner Join Reviewer.dbo.TB_CONTACT c on lt.CONTACT_ID = c.CONTACT_ID";
-        SQL += " Where STATE = 1 AND LAST_RENEWED > DATEADD(HH, -3, GETDATE())";
-        bool isAdmDB = false;
-        SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
-        while (sdr.Read())
+        dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
+        dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("REVIEW_TYPE", typeof(string)));
+        dt.Columns.Add(new DataColumn("ACTIVE_HOURS", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_RecentActivityGetAllFilter", tbFilter0.Text);
+        while (idr.Read())
         {
             newrow = dt.NewRow();
-            newrow["CONTACT_NAME"] = sdr["CONTACT_NAME"].ToString();
-            newrow["EMAIL"] = sdr["EMAIL"].ToString();
-            newrow["CONTACT_ID"] = int.Parse(sdr["CONTACT_ID"].ToString());
-            newrow["REVIEW_ID"] = int.Parse(sdr["REVIEW_ID"].ToString());
-            newrow["CREATED"] = sdr["CREATED"].ToString();
-            newrow["LAST_RENEWED"] = sdr["LAST_RENEWED"].ToString();
+            newrow["CONTACT_ID"] = idr["C_ID"].ToString();
+            newrow["REVIEW_ID"] = idr["R_ID"].ToString();
+            newrow["CREATED"] = idr["CREATED"].ToString();
+            newrow["LAST_RENEWED"] = idr["LAST_RENEWED"].ToString();
+            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+            newrow["EMAIL"] = idr["EMAIL"].ToString();
+            newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+            newrow["REVIEW_TYPE"] = idr["rev type"].ToString();
+            newrow["ACTIVE_HOURS"] = idr["active hours"].ToString();
             dt.Rows.Add(newrow);
         }
-        sdr.Close();
+        idr.Close();
     }
-
 
     protected void RadAjaxManager1_AjaxRequest(object sender, Telerik.Web.UI.AjaxRequestEventArgs e)
     {
         if (e.Argument.IndexOf("FilterGrid") != -1)
         {
-            radGVContacts.Rebind();
+            radGVContacts0.Rebind();
         }
+
     }
-    protected void radGVContacts_NeedDataSource(object sender, Telerik.Web.UI.GridNeedDataSourceEventArgs e)
+
+
+    protected void radGVContacts0_NeedDataSource(object sender, Telerik.Web.UI.GridNeedDataSourceEventArgs e)
     {
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
-
-        dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
-        dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
         dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
         dt.Columns.Add(new DataColumn("CREATED", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_RENEWED", typeof(string)));
-        string SQL = "SELECT c.CONTACT_NAME, c.EMAIL, c.[CONTACT_ID],[REVIEW_ID],[CREATED],[LAST_RENEWED]";
-        SQL += " FROM [ReviewerAdmin].[dbo].[TB_LOGON_TICKET] lt Inner Join Reviewer.dbo.TB_CONTACT c on lt.CONTACT_ID = c.CONTACT_ID";
-        SQL += " Where STATE = 1 AND LAST_RENEWED > DATEADD(HH, -3, GETDATE())";
-        SQL += "and ((c.CONTACT_NAME like '%" + tbFilter.Text + "%') OR " +
-                "(c.EMAIL like '%" + tbFilter.Text + "%') OR " +
-                "([REVIEW_ID] like '%" + tbFilter.Text + "%') OR " +
-                "([CREATED] like '%" + tbFilter.Text + "%')" +
-                ") ";
-        bool isAdmDB = false;
-        SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
-        while (sdr.Read())
+        dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
+        dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("REVIEW_TYPE", typeof(string)));
+        dt.Columns.Add(new DataColumn("ACTIVE_HOURS", typeof(Int16)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_RecentActivityGetAllFilter", tbFilter0.Text);
+        while (idr.Read())
         {
             newrow = dt.NewRow();
-            newrow["CONTACT_NAME"] = sdr["CONTACT_NAME"].ToString();
-            newrow["EMAIL"] = sdr["EMAIL"].ToString();
-            newrow["CONTACT_ID"] = int.Parse(sdr["CONTACT_ID"].ToString());
-            newrow["REVIEW_ID"] = int.Parse(sdr["REVIEW_ID"].ToString());
-            newrow["CREATED"] = sdr["CREATED"].ToString();
-            newrow["LAST_RENEWED"] = sdr["LAST_RENEWED"].ToString();
+            newrow["CONTACT_ID"] = idr["C_ID"].ToString();
+            newrow["REVIEW_ID"] = idr["R_ID"].ToString();
+            newrow["CREATED"] = idr["CREATED"].ToString();
+            newrow["LAST_RENEWED"] = idr["LAST_RENEWED"].ToString();
+            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+            newrow["EMAIL"] = idr["EMAIL"].ToString();
+            newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+            newrow["REVIEW_TYPE"] = idr["rev type"].ToString();
+            newrow["ACTIVE_HOURS"] = idr["active hours"].ToString();
             dt.Rows.Add(newrow);
         }
-        sdr.Close();
-
+        idr.Close();
         int test = dt.Rows.Count;
-        radGVContacts.DataSource = dt;
+        radGVContacts0.DataSource = dt;
     }
-    protected void radGVContacts_PageIndexChanged(object sender, Telerik.Web.UI.GridPageChangedEventArgs e)
+
+    protected void radGVContacts0_PageIndexChanged(object sender, Telerik.Web.UI.GridPageChangedEventArgs e)
     {
-        if (tbFilter.Text == "")
+        if (tbFilter0.Text == "")
         {
-            buildGridNew();
+            buildGridNew0();
         }
         else
         {
-            radGVContacts.Rebind();
+            radGVContacts0.Rebind();
         }
     }
     protected void radGVContacts_ItemDataBound(object sender, Telerik.Web.UI.GridItemEventArgs e)
     {
 
     }
+
+    protected void radGVContacts0_ItemDataBound(object sender, Telerik.Web.UI.GridItemEventArgs e)
+    {
+
+    }
+
+
+    protected void rblWhichDisplay_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        buildGridNew0();  // newer
+        pnlNewDisplay.Visible = true;
+
+    }
+
 }

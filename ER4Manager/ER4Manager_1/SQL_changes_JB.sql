@@ -1,4 +1,401 @@
-﻿---- Feb 11 2016
+﻿-- Nov 16 2016 - Dec 07 2016
+-- edit TB_SITE_LIC - add ALLOW_REVIEW_OWNERSHIP_CHANGE field
+-- new st_GetReviewOwner - gets the review owner
+-- new st_ContactDetailsGetAllFilter_2 - has restriction for site license members only
+-- new st_ChangeReviewOwner - changes the owner and makes sure new owner is in review and has admin access
+-- new st_AllowReviewOwnershipChangeInLicense - sets the ALLOW_REVIEW_OWNERSHIP_CHANGE flag
+-- new st_RecentActivityGetAllFilter
+
+
+
+/*
+   16 November 201616:17:30
+   User: 
+   Server: SSRU30
+   Database: Reviewer
+   Application: 
+*/
+USE [Reviewer]
+GO
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.TB_SITE_LIC ADD
+	ALLOW_REVIEW_OWNERSHIP_CHANGE bit NULL
+GO
+ALTER TABLE dbo.TB_SITE_LIC ADD CONSTRAINT
+	DF_TB_SITE_LIC_ALLOW_REVIEW_OWNERSHIP_CHANGE DEFAULT 0 FOR ALLOW_REVIEW_OWNERSHIP_CHANGE
+GO
+ALTER TABLE dbo.TB_SITE_LIC SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+select Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'CONTROL') as Contr_Per 
+GO
+
+
+
+------------------------------------------------------------------------------------------
+
+
+
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_GetReviewOwner]    Script Date: 11/16/2016 10:34:18 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_GetReviewOwner] 
+(
+	@REVIEW_ID int
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    select c.CONTACT_ID, c.CONTACT_NAME from Reviewer.dbo.TB_CONTACT c
+    inner join Reviewer.dbo.TB_REVIEW r on r.FUNDER_ID = c.CONTACT_ID
+    where r.REVIEW_ID = @REVIEW_ID
+
+	RETURN
+
+END
+
+
+GO
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ContactDetailsGetAllFilter_2]    Script Date: 11/17/2016 14:09:14 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ContactDetailsGetAllFilter_2] 
+(
+	@ER4AccountsOnly bit,
+	@TEXT_BOX nvarchar(255),
+	@SiteLicence nvarchar(10)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+ 
+	if @ER4AccountsOnly = 1
+	begin        		
+		if @SiteLicence != '0'
+		begin			
+			select c.CONTACT_ID, c.CONTACT_NAME, c.EMAIL from Reviewer.dbo.TB_CONTACT c
+              inner join Reviewer.dbo.TB_SITE_LIC_CONTACT lc on c.CONTACT_ID = lc.CONTACT_ID and lc.SITE_LIC_ID = @SiteLicence
+              where ((c.CONTACT_ID like '%' + @TEXT_BOX + '%') OR
+				(c.CONTACT_NAME like '%' + @TEXT_BOX + '%') OR
+				(c.EMAIL like '%' + @TEXT_BOX + '%'))		
+			group by c.CONTACT_ID, c.CONTACT_NAME, c.EMAIL	
+		end
+		else
+		begin	
+			select c.CONTACT_ID, c.old_contact_id, c.CONTACT_NAME, c.USERNAME, c.[PASSWORD], c.EMAIL, 
+			max(lt.CREATED) as LAST_LOGIN, c.DATE_CREATED, 
+					CASE when l.[EXPIRY_DATE] is not null 
+					and l.[EXPIRY_DATE] > c.[EXPIRY_DATE]
+						then l.[EXPIRY_DATE]
+					else c.[EXPIRY_DATE]
+					end as 'EXPIRY_DATE', 
+			c.MONTHS_CREDIT, c.CREATOR_ID,
+			c.MONTHS_CREDIT, c.[TYPE], c.IS_SITE_ADMIN, c.[DESCRIPTION],
+			l.SITE_LIC_ID, l.SITE_LIC_NAME
+			,SUM(DATEDIFF(HOUR,lt.CREATED ,lt.LAST_RENEWED )) as [active_hours]
+			from Reviewer.dbo.TB_CONTACT c
+			left join ReviewerAdmin.dbo.TB_LOGON_TICKET lt
+			on c.CONTACT_ID = lt.CONTACT_ID
+			left join Reviewer.dbo.TB_SITE_LIC_CONTACT sc on c.CONTACT_ID = sc.CONTACT_ID
+			left join Reviewer.dbo.TB_SITE_LIC l on sc.SITE_LIC_ID = l.SITE_LIC_ID
+			
+			--where (c.EXPIRY_DATE > '2010-03-20 00:00:01' or
+			--(c.EXPIRY_DATE is null and MONTHS_CREDIT != 0))
+			
+			where (c.EXPIRY_DATE > '2010-03-20 00:00:01' or
+			(c.EXPIRY_DATE is null /*and MONTHS_CREDIT != 0*/))
+			
+			and ((c.CONTACT_ID like '%' + @TEXT_BOX + '%') OR
+				(c.CONTACT_NAME like '%' + @TEXT_BOX + '%') OR
+				(c.EMAIL like '%' + @TEXT_BOX + '%'))
+			
+			group by c.CONTACT_ID, c.old_contact_id, c.CONTACT_NAME, c.USERNAME, c.[PASSWORD], 
+			c.DATE_CREATED, c.[EXPIRY_DATE], c.EMAIL, c.MONTHS_CREDIT, c.CREATOR_ID,
+			c.MONTHS_CREDIT, c.[TYPE], c.IS_SITE_ADMIN, c.[DESCRIPTION], l.[EXPIRY_DATE], l.SITE_LIC_ID, l.SITE_LIC_NAME	
+		end
+	end
+	else
+	begin
+		select c.CONTACT_ID, c.old_contact_id, c.CONTACT_NAME, c.USERNAME, c.[PASSWORD], c.EMAIL, 
+		max(lt.CREATED) as LAST_LOGIN, c.DATE_CREATED, 
+				CASE when l.[EXPIRY_DATE] is not null 
+				and l.[EXPIRY_DATE] > c.[EXPIRY_DATE]
+					then l.[EXPIRY_DATE]
+				else c.[EXPIRY_DATE]
+				end as 'EXPIRY_DATE', 
+		c.MONTHS_CREDIT, c.CREATOR_ID,
+		c.MONTHS_CREDIT, c.[TYPE], c.IS_SITE_ADMIN, c.[DESCRIPTION],
+		l.SITE_LIC_ID, l.SITE_LIC_NAME
+		,SUM(DATEDIFF(HOUR,lt.CREATED ,lt.LAST_RENEWED )) as [active_hours]
+		from Reviewer.dbo.TB_CONTACT c
+		left join ReviewerAdmin.dbo.TB_LOGON_TICKET lt
+		on c.CONTACT_ID = lt.CONTACT_ID
+		left join Reviewer.dbo.TB_SITE_LIC_CONTACT sc on c.CONTACT_ID = sc.CONTACT_ID
+		left join Reviewer.dbo.TB_SITE_LIC l on sc.SITE_LIC_ID = l.SITE_LIC_ID
+		where ((c.CONTACT_ID like '%' + @TEXT_BOX + '%') OR
+				(c.CONTACT_NAME like '%' + @TEXT_BOX + '%') OR
+				(c.EMAIL like '%' + @TEXT_BOX + '%'))
+		
+		group by c.CONTACT_ID, c.old_contact_id, c.CONTACT_NAME, c.USERNAME, c.[PASSWORD], 
+		c.DATE_CREATED, c.[EXPIRY_DATE], c.EMAIL, c.MONTHS_CREDIT, c.CREATOR_ID,
+		c.MONTHS_CREDIT, c.[TYPE], c.IS_SITE_ADMIN, c.[DESCRIPTION], l.[EXPIRY_DATE], l.SITE_LIC_ID, l.SITE_LIC_NAME
+		
+	end
+       
+END
+
+
+
+GO
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ChangeReviewOwner]    Script Date: 11/17/2016 14:09:47 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE procedure [dbo].[st_ChangeReviewOwner]
+(
+	@CONTACT_ID int,
+	@REVIEW_ID int
+)
+
+As
+
+SET NOCOUNT ON
+
+	declare @review_contact_id int
+
+	-- change the review owner
+	update Reviewer.dbo.TB_REVIEW
+	set FUNDER_ID = @CONTACT_ID
+	where REVIEW_ID = @REVIEW_ID
+	
+	select * from Reviewer.dbo.TB_REVIEW_CONTACT where CONTACT_ID = @CONTACT_ID and REVIEW_ID = @REVIEW_ID
+	if @@ROWCOUNT = 0
+	begin
+		-- we know they weren't in the review so put them in and make them an admin
+		insert into Reviewer.dbo.TB_REVIEW_CONTACT (REVIEW_ID, CONTACT_ID)
+		values (@REVIEW_ID, @CONTACT_ID)		
+		
+		set @review_contact_id = (select REVIEW_CONTACT_ID from Reviewer.dbo.TB_REVIEW_CONTACT
+			where CONTACT_ID = @CONTACT_ID and REVIEW_ID = @REVIEW_ID)
+		insert into Reviewer.dbo.TB_CONTACT_REVIEW_ROLE (REVIEW_CONTACT_ID, ROLE_NAME)
+		values (@review_contact_id, 'AdminUser')	
+	end
+	else
+	begin
+		-- they are in the review so get their @review_contact_id
+		set @review_contact_id = (select REVIEW_CONTACT_ID from Reviewer.dbo.TB_REVIEW_CONTACT
+			where CONTACT_ID = @CONTACT_ID and REVIEW_ID = @REVIEW_ID)
+			
+		-- lots of users have more than one role in a review so first check if they already have the admin role
+		select * from Reviewer.dbo.TB_CONTACT_REVIEW_ROLE where REVIEW_CONTACT_ID = @review_contact_id and ROLE_NAME = 'AdminUser'
+		if @@ROWCOUNT = 0
+		begin
+			insert into Reviewer.dbo.TB_CONTACT_REVIEW_ROLE (REVIEW_CONTACT_ID, ROLE_NAME)
+			values (@review_contact_id, 'AdminUser')
+		end
+	
+	end	
+	
+
+	
+
+SET NOCOUNT OFF
+
+
+
+
+
+GO
+
+------------------------------------------------------------------------------------------------------------------
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_AllowReviewOwnershipChangeInLicense]    Script Date: 12/08/2016 12:09:58 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE procedure [dbo].[st_AllowReviewOwnershipChangeInLicense]
+(
+	@SITE_LIC_ID int,
+	@ALLOW_REVIEW_OWNERSHIP_CHANGE bit 
+)
+
+As
+
+SET NOCOUNT ON
+
+	update Reviewer.dbo.TB_SITE_LIC
+	set ALLOW_REVIEW_OWNERSHIP_CHANGE = @ALLOW_REVIEW_OWNERSHIP_CHANGE
+	where SITE_LIC_ID = @SITE_LIC_ID
+
+SET NOCOUNT OFF
+
+
+
+
+
+GO
+
+
+------------------------------------------------------------------------------------------------------------------
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_RecentActivityGetAllFilter]    Script Date: 12/08/2016 15:03:53 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RecentActivityGetAllFilter] 
+(
+	@TEXT_BOX nvarchar(255)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+ 
+	SELECT t.[CONTACT_ID] as C_ID        
+	,t.[REVIEW_ID] as R_ID        
+	,t.[CREATED]        
+	,t.[LAST_RENEWED]        
+	,CONTACT_NAME        
+	,EMAIL        
+	,REVIEW_NAME        
+	,case             
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID is null 
+			then 'Private'            
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID is not null AND r.ARCHIE_ID != 'prospective_______' 
+			then 'Archie'                  
+		when r.EXPIRY_DATE is null AND r.ARCHIE_ID = 'prospective_______' 
+			then 'P-Archie'                  
+		else 'Shared'                  
+		end 
+	as 'rev type'          
+	,SUM(DATEDIFF(HOUR, t1.CREATED, t1.LAST_RENEWED)) as [active hours]      
+	FROM[TB_LOGON_TICKET] t     
+	Inner JOIN Reviewer.dbo.TB_CONTACT c on t.CONTACT_ID = c.CONTACT_ID      
+	Inner Join Reviewer.dbo.TB_REVIEW r on r.REVIEW_ID = t.REVIEW_ID      
+	inner join TB_LOGON_TICKET t1 on t.CONTACT_ID = t1.CONTACT_ID      
+	where t.STATE = 1 and t.LAST_RENEWED > DATEADD(hh, -3, GETDATE())  
+	
+	and ((c.CONTACT_NAME like '%' + @TEXT_BOX + '%') OR 
+                (c.EMAIL like '%' + @TEXT_BOX + '%') OR
+                (t.REVIEW_ID like '%' + @TEXT_BOX + '%') OR
+                (c.CONTACT_ID like '%' + @TEXT_BOX + '%'))
+	    
+	group by t.[CONTACT_ID]          
+		,t.[REVIEW_ID]          
+		,t.[CREATED]         
+		,t.[LAST_RENEWED]          
+		,t.[STATE]          
+		,CONTACT_NAME          
+		,EMAIL          
+		,REVIEW_NAME         
+		, r.EXPIRY_DATE          
+		, r.ARCHIE_ID 
+		     
+	order by LAST_RENEWED desc
+       
+END
+
+
+
+
+GO
+
+
+------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+/*************************************************************************************************************************************************/
+
+-- Feb 11 2016
 ---- these are british library changes
 -- new st_BritishLibraryValuesGetAll
 -- new st_BritishLibraryValuesSet
@@ -11,132 +408,15 @@
 
 
 
-USE [ReviewerAdmin]
-GO
+--USE [ReviewerAdmin]
+--GO
 
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetAll]    Script Date: 02/11/2016 15:28:41 ******/
-SET ANSI_NULLS ON
-GO
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetAll]    Script Date: 02/11/2016 15:28:41 ******/
+--SET ANSI_NULLS ON
+--GO
 
-SET QUOTED_IDENTIFIER ON
-GO
-
-
--- =============================================
--- Author:		<Jeff>
--- ALTER date: <>
--- Description:	<gets contact table for a contactID>
--- =============================================
-CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetAll] 
-(
-	@REVIEW_ID int
-)
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-    -- Insert statements for procedure here
-    -- need to lose the milliseconds as the database is setting it to 000
-
-	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
-	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
-	from Reviewer.dbo.TB_REVIEW 
-	where REVIEW_ID = @REVIEW_ID
-    	
-	RETURN
-END
-
-
-GO
-
-
-USE [ReviewerAdmin]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSet]    Script Date: 02/11/2016 15:29:14 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-CREATE procedure [dbo].[st_BritishLibraryValuesSet]
-(
-	@REVIEW_ID int,
-	@BL_ACCOUNT_CODE nvarchar(50), 
-	@BL_AUTH_CODE nvarchar(50), 
-	@BL_TX nvarchar(50)
-)
-
-As
-
-SET NOCOUNT ON
-
-	update Reviewer.dbo.TB_REVIEW
-	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
-	BL_AUTH_CODE = @BL_AUTH_CODE,
-	BL_TX = @BL_TX 
-	where REVIEW_ID = @REVIEW_ID
-
-SET NOCOUNT OFF
-
-
-
-GO
-
-
-USE [ReviewerAdmin]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSet]    Script Date: 02/11/2016 15:29:30 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-
-CREATE procedure [dbo].[st_BritishLibraryCCValuesSet]
-(
-	@REVIEW_ID int,
-	@BL_CC_ACCOUNT_CODE nvarchar(50), 
-	@BL_CC_AUTH_CODE nvarchar(50), 
-	@BL_CC_TX nvarchar(50)
-)
-
-As
-
-SET NOCOUNT ON
-
-	update Reviewer.dbo.TB_REVIEW
-	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
-	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
-	BL_CC_TX = @BL_CC_TX 
-	where REVIEW_ID = @REVIEW_ID
-
-SET NOCOUNT OFF
-
-
-
-
-GO
-
-
-USE [ReviewerAdmin]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetFromLicense]    Script Date: 02/24/2016 14:16:02 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
 -- =============================================
@@ -144,115 +424,232 @@ GO
 -- ALTER date: <>
 -- Description:	<gets contact table for a contactID>
 -- =============================================
-CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetFromLicense] 
-(
-	@SITE_LIC_ID int
-)
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
+--CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetAll] 
+--(
+--	@REVIEW_ID int
+--)
+--AS
+--BEGIN
+--	 SET NOCOUNT ON added to prevent extra result sets from
+--	 interfering with SELECT statements.
+--	SET NOCOUNT ON;
 
-    -- Insert statements for procedure here
-    -- need to lose the milliseconds as the database is setting it to 000
+--     Insert statements for procedure here
+--     need to lose the milliseconds as the database is setting it to 000
 
-	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
-	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
-	from Reviewer.dbo.TB_SITE_LIC 
-	where SITE_LIC_ID = @SITE_LIC_ID
+--	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
+--	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
+--	from Reviewer.dbo.TB_REVIEW 
+--	where REVIEW_ID = @REVIEW_ID
     	
-	RETURN
-END
+--	RETURN
+--END
 
 
-GO
+--GO
 
 
-USE [ReviewerAdmin]
-GO
+--USE [ReviewerAdmin]
+--GO
 
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSetOnLicense]    Script Date: 02/24/2016 14:18:53 ******/
-SET ANSI_NULLS ON
-GO
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSet]    Script Date: 02/11/2016 15:29:14 ******/
+--SET ANSI_NULLS ON
+--GO
 
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
-CREATE procedure [dbo].[st_BritishLibraryValuesSetOnLicense]
-(
-	@SITE_LIC_ID int,
-	@BL_ACCOUNT_CODE nvarchar(50), 
-	@BL_AUTH_CODE nvarchar(50), 
-	@BL_TX nvarchar(50)
-)
-
-As
-
-SET NOCOUNT ON
-
-	update Reviewer.dbo.TB_SITE_LIC
-	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
-	BL_AUTH_CODE = @BL_AUTH_CODE,
-	BL_TX = @BL_TX 
-	where SITE_LIC_ID = @SITE_LIC_ID
-
-SET NOCOUNT OFF
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
 
-GO
+--CREATE procedure [dbo].[st_BritishLibraryValuesSet]
+--(
+--	@REVIEW_ID int,
+--	@BL_ACCOUNT_CODE nvarchar(50), 
+--	@BL_AUTH_CODE nvarchar(50), 
+--	@BL_TX nvarchar(50)
+--)
+
+--As
+
+--SET NOCOUNT ON
+
+--	update Reviewer.dbo.TB_REVIEW
+--	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
+--	BL_AUTH_CODE = @BL_AUTH_CODE,
+--	BL_TX = @BL_TX 
+--	where REVIEW_ID = @REVIEW_ID
+
+--SET NOCOUNT OFF
 
 
-USE [ReviewerAdmin]
-GO
 
-/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]    Script Date: 02/24/2016 14:20:16 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
+--GO
 
 
+--USE [ReviewerAdmin]
+--GO
 
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSet]    Script Date: 02/11/2016 15:29:30 ******/
+--SET ANSI_NULLS ON
+--GO
 
-CREATE procedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]
-(
-	@SITE_LIC_ID int,
-	@BL_CC_ACCOUNT_CODE nvarchar(50), 
-	@BL_CC_AUTH_CODE nvarchar(50), 
-	@BL_CC_TX nvarchar(50)
-)
-
-As
-
-SET NOCOUNT ON
-
-	update Reviewer.dbo.TB_SITE_LIC
-	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
-	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
-	BL_CC_TX = @BL_CC_TX 
-	where SITE_LIC_ID = @SITE_LIC_ID
-
-SET NOCOUNT OFF
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
 
 
-GO
+--CREATE procedure [dbo].[st_BritishLibraryCCValuesSet]
+--(
+--	@REVIEW_ID int,
+--	@BL_CC_ACCOUNT_CODE nvarchar(50), 
+--	@BL_CC_AUTH_CODE nvarchar(50), 
+--	@BL_CC_TX nvarchar(50)
+--)
+
+--As
+
+--SET NOCOUNT ON
+
+--	update Reviewer.dbo.TB_REVIEW
+--	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
+--	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
+--	BL_CC_TX = @BL_CC_TX 
+--	where REVIEW_ID = @REVIEW_ID
+
+--SET NOCOUNT OFF
 
 
 
-USE [ReviewerAdmin]
-GO
-/****** Object:  StoredProcedure [dbo].[st_Site_Lic_Add_Review]    Script Date: 02/24/2016 14:44:32 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+
+--GO
+
+
+--USE [ReviewerAdmin]
+--GO
+
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetFromLicense]    Script Date: 02/24/2016 14:16:02 ******/
+--SET ANSI_NULLS ON
+--GO
+
+--SET QUOTED_IDENTIFIER ON
+--GO
+
+
+-- =============================================
+-- Author:		<Jeff>
+-- ALTER date: <>
+-- Description:	<gets contact table for a contactID>
+-- =============================================
+--CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetFromLicense] 
+--(
+--	@SITE_LIC_ID int
+--)
+--AS
+--BEGIN
+--	 SET NOCOUNT ON added to prevent extra result sets from
+--	 interfering with SELECT statements.
+--	SET NOCOUNT ON;
+
+--     Insert statements for procedure here
+--     need to lose the milliseconds as the database is setting it to 000
+
+--	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
+--	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
+--	from Reviewer.dbo.TB_SITE_LIC 
+--	where SITE_LIC_ID = @SITE_LIC_ID
+    	
+--	RETURN
+--END
+
+
+--GO
+
+
+--USE [ReviewerAdmin]
+--GO
+
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSetOnLicense]    Script Date: 02/24/2016 14:18:53 ******/
+--SET ANSI_NULLS ON
+--GO
+
+--SET QUOTED_IDENTIFIER ON
+--GO
+
+
+
+--CREATE procedure [dbo].[st_BritishLibraryValuesSetOnLicense]
+--(
+--	@SITE_LIC_ID int,
+--	@BL_ACCOUNT_CODE nvarchar(50), 
+--	@BL_AUTH_CODE nvarchar(50), 
+--	@BL_TX nvarchar(50)
+--)
+
+--As
+
+--SET NOCOUNT ON
+
+--	update Reviewer.dbo.TB_SITE_LIC
+--	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
+--	BL_AUTH_CODE = @BL_AUTH_CODE,
+--	BL_TX = @BL_TX 
+--	where SITE_LIC_ID = @SITE_LIC_ID
+
+--SET NOCOUNT OFF
+
+
+
+--GO
+
+
+--USE [ReviewerAdmin]
+--GO
+
+--/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]    Script Date: 02/24/2016 14:20:16 ******/
+--SET ANSI_NULLS ON
+--GO
+
+--SET QUOTED_IDENTIFIER ON
+--GO
+
+
+
+
+--CREATE procedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]
+--(
+--	@SITE_LIC_ID int,
+--	@BL_CC_ACCOUNT_CODE nvarchar(50), 
+--	@BL_CC_AUTH_CODE nvarchar(50), 
+--	@BL_CC_TX nvarchar(50)
+--)
+
+--As
+
+--SET NOCOUNT ON
+
+--	update Reviewer.dbo.TB_SITE_LIC
+--	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
+--	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
+--	BL_CC_TX = @BL_CC_TX 
+--	where SITE_LIC_ID = @SITE_LIC_ID
+
+--SET NOCOUNT OFF
+
+
+
+
+--GO
+
+
+
+--USE [ReviewerAdmin]
+--GO
+--/****** Object:  StoredProcedure [dbo].[st_Site_Lic_Add_Review]    Script Date: 02/24/2016 14:44:32 ******/
+--SET ANSI_NULLS ON
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
 
 
 -- =============================================
@@ -260,153 +657,153 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-ALTER PROCEDURE [dbo].[st_Site_Lic_Add_Review]
-	-- Add the parameters for the stored procedure here
-	@lic_id int
-	, @admin_ID int
-	, @review_id int
-	, @res int output
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
+--ALTER PROCEDURE [dbo].[st_Site_Lic_Add_Review]
+--	 Add the parameters for the stored procedure here
+--	@lic_id int
+--	, @admin_ID int
+--	, @review_id int
+--	, @res int output
+--AS
+--BEGIN
+--	 SET NOCOUNT ON added to prevent extra result sets from
+--	 interfering with SELECT statements.
+--	SET NOCOUNT ON;
 
-	declare @review_name nvarchar(1000)
-	set @res = 0
+--	declare @review_name nvarchar(1000)
+--	set @res = 0
 
-    -- Insert statements for procedure here
+--     Insert statements for procedure here
     
-    -- initial check to see if review exists
-    select @review_name = REVIEW_NAME from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id
-	if @@ROWCOUNT = 1 
-	begin
-		declare @ck int, @ck2 int, @lic_det_id int
-		set @ck = (SELECT count(contact_id) from TB_SITE_LIC_ADMIN 
-		where (CONTACT_ID = @admin_ID or @admin_ID in (select CONTACT_ID from Reviewer.dbo.TB_CONTACT 
-		where CONTACT_ID = @admin_ID and IS_SITE_ADMIN = 1)
-			) and SITE_LIC_ID = @lic_id)
-		if @ck < 1 set @res = -1 --first check: see if supplied admin is actually and admin!
+--     initial check to see if review exists
+--    select @review_name = REVIEW_NAME from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id
+--	if @@ROWCOUNT = 1 
+--	begin
+--		declare @ck int, @ck2 int, @lic_det_id int
+--		set @ck = (SELECT count(contact_id) from TB_SITE_LIC_ADMIN 
+--		where (CONTACT_ID = @admin_ID or @admin_ID in (select CONTACT_ID from Reviewer.dbo.TB_CONTACT 
+--		where CONTACT_ID = @admin_ID and IS_SITE_ADMIN = 1)
+--			) and SITE_LIC_ID = @lic_id)
+--		if @ck < 1 set @res = -1 --first check: see if supplied admin is actually and admin!
 		
-		else -- initial checks went OK, let's see if we can do it
-		begin
-			set @ck = (select count(review_id) from Reviewer.dbo.TB_SITE_LIC_REVIEW where REVIEW_ID = @review_id)
-			set @lic_det_id = (SELECT TOP 1 ld.SITE_LIC_DETAILS_ID from Reviewer.dbo.TB_SITE_LIC sl 
-									inner join TB_SITE_LIC_DETAILS ld on sl.SITE_LIC_ID = ld.SITE_LIC_ID and ld.VALID_FROM is not null
-									inner join TB_FOR_SALE fs on ld.FOR_SALE_ID = fs.FOR_SALE_ID and fs.IS_ACTIVE = 0
-									and sl.SITE_LIC_ID = @lic_id
-								Order by ld.VALID_FROM desc
-								)
-			--@ck2 counts how many reviews can be added to current lic
-			set @ck2 = (select d.REVIEWS_ALLOWANCE - count(review_id) from TB_SITE_LIC_DETAILS d inner join
-							 Reviewer.dbo.TB_SITE_LIC_REVIEW lr on lr.SITE_LIC_DETAILS_ID = @lic_det_id
-								and lr.SITE_LIC_DETAILS_ID = d.SITE_LIC_DETAILS_ID
-							 group by d.REVIEWS_ALLOWANCE
-							 )--count how many reviews can still be added
-			if @ck != 0 -- review is already in a site lic
-			begin
-				set @ck = (select count(review_id) from Reviewer.dbo.TB_SITE_LIC_REVIEW where REVIEW_ID = @review_id and SITE_LIC_ID = @lic_id)
-				if @ck = 1 set @res = -3 --review already in this site_lic
-				else set @res = -4 --review is in some other site_lic
-			end
-			else if @ck2 < 1 --no allowance available, all review slots for current license have been used
-			begin
-				set @res = -5
-			end
-			else
-			begin --all is well, let's do something!
-				begin transaction --make sure we don't commit only half of the mission critical data! 
-				--(we assume the update below will work, only checking for the other statement)
-				update Reviewer.dbo.TB_REVIEW set [EXPIRY_DATE] = GETDATE()
-					where REVIEW_ID = @review_id and REVIEW_NAME = @review_name and [EXPIRY_DATE] is null
-				insert into Reviewer.dbo.TB_SITE_LIC_REVIEW (
-					[SITE_LIC_ID]
-					,[SITE_LIC_DETAILS_ID]
-					,[REVIEW_ID]
-					,[ADDED_BY]
-					) values (
-					@lic_id, @lic_det_id, @review_id, @admin_ID
-					)
-				if @@ROWCOUNT = 1
-				begin --write success log
-					commit transaction --all is well, commit
-					insert into TB_SITE_LIC_LOG (
-						[SITE_LIC_DETAILS_ID]
-						  ,[CONTACT_ID]
-						  ,[AFFECTED_ID]
-						  ,[CHANGE_TYPE]
-					) select top 1 SITE_LIC_DETAILS_ID, @admin_ID, @review_id, 'add review'
-						from TB_SITE_LIC_DETAILS where VALID_FROM IS NOT NULL and SITE_LIC_ID = @lic_id
-						order by DATE_CREATED desc
+--		else -- initial checks went OK, let's see if we can do it
+--		begin
+--			set @ck = (select count(review_id) from Reviewer.dbo.TB_SITE_LIC_REVIEW where REVIEW_ID = @review_id)
+--			set @lic_det_id = (SELECT TOP 1 ld.SITE_LIC_DETAILS_ID from Reviewer.dbo.TB_SITE_LIC sl 
+--									inner join TB_SITE_LIC_DETAILS ld on sl.SITE_LIC_ID = ld.SITE_LIC_ID and ld.VALID_FROM is not null
+--									inner join TB_FOR_SALE fs on ld.FOR_SALE_ID = fs.FOR_SALE_ID and fs.IS_ACTIVE = 0
+--									and sl.SITE_LIC_ID = @lic_id
+--								Order by ld.VALID_FROM desc
+--								)
+--			@ck2 counts how many reviews can be added to current lic
+--			set @ck2 = (select d.REVIEWS_ALLOWANCE - count(review_id) from TB_SITE_LIC_DETAILS d inner join
+--							 Reviewer.dbo.TB_SITE_LIC_REVIEW lr on lr.SITE_LIC_DETAILS_ID = @lic_det_id
+--								and lr.SITE_LIC_DETAILS_ID = d.SITE_LIC_DETAILS_ID
+--							 group by d.REVIEWS_ALLOWANCE
+--							 )--count how many reviews can still be added
+--			if @ck != 0 -- review is already in a site lic
+--			begin
+--				set @ck = (select count(review_id) from Reviewer.dbo.TB_SITE_LIC_REVIEW where REVIEW_ID = @review_id and SITE_LIC_ID = @lic_id)
+--				if @ck = 1 set @res = -3 --review already in this site_lic
+--				else set @res = -4 --review is in some other site_lic
+--			end
+--			else if @ck2 < 1 --no allowance available, all review slots for current license have been used
+--			begin
+--				set @res = -5
+--			end
+--			else
+--			begin --all is well, let's do something!
+--				begin transaction --make sure we don't commit only half of the mission critical data! 
+--				(we assume the update below will work, only checking for the other statement)
+--				update Reviewer.dbo.TB_REVIEW set [EXPIRY_DATE] = GETDATE()
+--					where REVIEW_ID = @review_id and REVIEW_NAME = @review_name and [EXPIRY_DATE] is null
+--				insert into Reviewer.dbo.TB_SITE_LIC_REVIEW (
+--					[SITE_LIC_ID]
+--					,[SITE_LIC_DETAILS_ID]
+--					,[REVIEW_ID]
+--					,[ADDED_BY]
+--					) values (
+--					@lic_id, @lic_det_id, @review_id, @admin_ID
+--					)
+--				if @@ROWCOUNT = 1
+--				begin --write success log
+--					commit transaction --all is well, commit
+--					insert into TB_SITE_LIC_LOG (
+--						[SITE_LIC_DETAILS_ID]
+--						  ,[CONTACT_ID]
+--						  ,[AFFECTED_ID]
+--						  ,[CHANGE_TYPE]
+--					) select top 1 SITE_LIC_DETAILS_ID, @admin_ID, @review_id, 'add review'
+--						from TB_SITE_LIC_DETAILS where VALID_FROM IS NOT NULL and SITE_LIC_ID = @lic_id
+--						order by DATE_CREATED desc
 						
-					/*********************************************/
-					-- if all of the brit lib fields are blank for this review
-					declare @tvsl_BL_ACCOUNT_CODE nvarchar(50) = (select BL_ACCOUNT_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
-					declare @tvsl_BL_AUTH_CODE nvarchar(50) = (select BL_AUTH_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
-					declare @tvsl_BL_TX nvarchar(50) = (select BL_TX from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
-					declare @tvsl_BL_CC_ACCOUNT_CODE nvarchar(50) = (select BL_CC_ACCOUNT_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
-					declare @tvsl_BL_CC_AUTH_CODE nvarchar(50) = (select BL_CC_AUTH_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
-					declare @tvsl_BL_CC_TX nvarchar(50) = (select BL_CC_TX from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					/*********************************************/
+--					 if all of the brit lib fields are blank for this review
+--					declare @tvsl_BL_ACCOUNT_CODE nvarchar(50) = (select BL_ACCOUNT_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					declare @tvsl_BL_AUTH_CODE nvarchar(50) = (select BL_AUTH_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					declare @tvsl_BL_TX nvarchar(50) = (select BL_TX from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					declare @tvsl_BL_CC_ACCOUNT_CODE nvarchar(50) = (select BL_CC_ACCOUNT_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					declare @tvsl_BL_CC_AUTH_CODE nvarchar(50) = (select BL_CC_AUTH_CODE from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
+--					declare @tvsl_BL_CC_TX nvarchar(50) = (select BL_CC_TX from Reviewer.dbo.TB_SITE_LIC where SITE_LIC_ID = @lic_id)
 					
-					declare @tvr_BL_ACCOUNT_CODE nvarchar(50) = (select BL_ACCOUNT_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
-					declare @tvr_BL_AUTH_CODE nvarchar(50) = (select BL_AUTH_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
-					declare @tvr_BL_TX nvarchar(50) = (select BL_TX from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
-					declare @tvr_BL_CC_ACCOUNT_CODE nvarchar(50) = (select BL_CC_ACCOUNT_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
-					declare @tvr_BL_CC_AUTH_CODE nvarchar(50) = (select BL_CC_AUTH_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
-					declare @tvr_BL_CC_TX nvarchar(50) = (select BL_CC_TX from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_ACCOUNT_CODE nvarchar(50) = (select BL_ACCOUNT_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_AUTH_CODE nvarchar(50) = (select BL_AUTH_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_TX nvarchar(50) = (select BL_TX from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_CC_ACCOUNT_CODE nvarchar(50) = (select BL_CC_ACCOUNT_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_CC_AUTH_CODE nvarchar(50) = (select BL_CC_AUTH_CODE from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
+--					declare @tvr_BL_CC_TX nvarchar(50) = (select BL_CC_TX from Reviewer.dbo.TB_REVIEW where REVIEW_ID = @review_id)
 					
-					if (((@tvr_BL_ACCOUNT_CODE = '') or (@tvr_BL_ACCOUNT_CODE is null))
-						and ((@tvr_BL_AUTH_CODE = '') or (@tvr_BL_AUTH_CODE is null)) 
-						and ((@tvr_BL_TX = '') or (@tvr_BL_TX is null)) 
-						and ((@tvr_BL_CC_ACCOUNT_CODE = '') or (@tvr_BL_CC_ACCOUNT_CODE is null)) 
-						and ((@tvr_BL_CC_AUTH_CODE = '') or (@tvr_BL_CC_AUTH_CODE is null)) 
-						and ((@tvr_BL_CC_TX = '') or (@tvr_BL_CC_TX is null)))
-					begin -- update TB_REVIEW - even if there aren't site license codes it will just put in blanks
-						update Reviewer.dbo.TB_REVIEW
-						set BL_ACCOUNT_CODE = @tvsl_BL_ACCOUNT_CODE,
-							BL_AUTH_CODE = @tvsl_BL_AUTH_CODE,
-							BL_TX = @tvsl_BL_TX,
-							BL_CC_ACCOUNT_CODE = @tvsl_BL_CC_ACCOUNT_CODE,
-							BL_CC_AUTH_CODE = @tvsl_BL_CC_AUTH_CODE,
-							BL_CC_TX = @tvsl_BL_CC_TX
-						where REVIEW_ID = @review_id
-					end	
-					/****************************************/	
+--					if (((@tvr_BL_ACCOUNT_CODE = '') or (@tvr_BL_ACCOUNT_CODE is null))
+--						and ((@tvr_BL_AUTH_CODE = '') or (@tvr_BL_AUTH_CODE is null)) 
+--						and ((@tvr_BL_TX = '') or (@tvr_BL_TX is null)) 
+--						and ((@tvr_BL_CC_ACCOUNT_CODE = '') or (@tvr_BL_CC_ACCOUNT_CODE is null)) 
+--						and ((@tvr_BL_CC_AUTH_CODE = '') or (@tvr_BL_CC_AUTH_CODE is null)) 
+--						and ((@tvr_BL_CC_TX = '') or (@tvr_BL_CC_TX is null)))
+--					begin -- update TB_REVIEW - even if there aren't site license codes it will just put in blanks
+--						update Reviewer.dbo.TB_REVIEW
+--						set BL_ACCOUNT_CODE = @tvsl_BL_ACCOUNT_CODE,
+--							BL_AUTH_CODE = @tvsl_BL_AUTH_CODE,
+--							BL_TX = @tvsl_BL_TX,
+--							BL_CC_ACCOUNT_CODE = @tvsl_BL_CC_ACCOUNT_CODE,
+--							BL_CC_AUTH_CODE = @tvsl_BL_CC_AUTH_CODE,
+--							BL_CC_TX = @tvsl_BL_CC_TX
+--						where REVIEW_ID = @review_id
+--					end	
+--					/****************************************/	
 					
-				end
-				else --write failure log, if this is fired, there is a bug somewhere
-				begin
-					rollback transaction --BAD! something went wrong!
-					insert into TB_SITE_LIC_LOG (
-						[SITE_LIC_DETAILS_ID]
-						  ,[CONTACT_ID]
-						  ,[AFFECTED_ID]
-						  ,[CHANGE_TYPE]
-					) select top 1 SITE_LIC_DETAILS_ID, @admin_ID, @review_id, 'add review: failed!'
-						from TB_SITE_LIC_DETAILS where VALID_FROM IS NOT NULL and SITE_LIC_ID = @lic_id
-						order by DATE_CREATED desc	
-					set @res = -6
-				end
-			end
-		end
-	end
-	else
-	begin
-		set @res = -2
-	end
+--				end
+--				else --write failure log, if this is fired, there is a bug somewhere
+--				begin
+--					rollback transaction --BAD! something went wrong!
+--					insert into TB_SITE_LIC_LOG (
+--						[SITE_LIC_DETAILS_ID]
+--						  ,[CONTACT_ID]
+--						  ,[AFFECTED_ID]
+--						  ,[CHANGE_TYPE]
+--					) select top 1 SITE_LIC_DETAILS_ID, @admin_ID, @review_id, 'add review: failed!'
+--						from TB_SITE_LIC_DETAILS where VALID_FROM IS NOT NULL and SITE_LIC_ID = @lic_id
+--						order by DATE_CREATED desc	
+--					set @res = -6
+--				end
+--			end
+--		end
+--	end
+--	else
+--	begin
+--		set @res = -2
+--	end
 	
-	--select r.review_id, review_name from reviewer.dbo.TB_SITE_LIC_REVIEW lr
-	--	inner join Reviewer.dbo.TB_REVIEW r on lr.REVIEW_ID = r.REVIEW_ID
-	--	where SITE_LIC_ID = @lic_id
+--	select r.review_id, review_name from reviewer.dbo.TB_SITE_LIC_REVIEW lr
+--		inner join Reviewer.dbo.TB_REVIEW r on lr.REVIEW_ID = r.REVIEW_ID
+--		where SITE_LIC_ID = @lic_id
 	 
-	return @res
-	-- error codes: -1 = supplied admin_id is not an admin of this site lice
-	--				-2 = review_id does not exist
-	--				-3 = review already in this site_lic
-	--				-4 = review is in some other site_lic
-	--				-5 = no allowance available, all review slots for current license have been used
-	--				-6 = all seemed well but couldn't write changes! BUG ALERT
-END
+--	return @res
+--	 error codes: -1 = supplied admin_id is not an admin of this site lice
+--					-2 = review_id does not exist
+--					-3 = review already in this site_lic
+--					-4 = review is in some other site_lic
+--					-5 = no allowance available, all review slots for current license have been used
+--					-6 = all seemed well but couldn't write changes! BUG ALERT
+--END
 
 
 
@@ -431,10 +828,10 @@ END
 
 
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- oAuth
 -- July 21
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 
 
 -- edit st_ContactReviewsArchieProspective
@@ -444,10 +841,10 @@ END
 
 
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- oAuth
 -- June 04
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 
 
 -- new st_ContactReviewsArchie
@@ -465,19 +862,19 @@ END
 
 
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- Fix problem with review copy error
 -- starting Apri 23
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 --These changes are on the live database so you can get the stored procedures from there
 --edit st_CopyReviewStep11
 --edit st_CopyReviewStep09
 
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- Further removal of componentArts controls
 -- starting Feb 23
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 
 --These changes are on the live database so you can get the stored procedures from there
 -- new st_NewsletterUpdate
@@ -488,10 +885,10 @@ END
 ------ Removed the componentArt bits but not sure how to check it without making payment.
 ------ I just want to confirm the correct tabs are selected
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- START of fresh start with Telerik controls
 -- starting Nov 17
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 
 
 -- new stored procedures
@@ -522,10 +919,10 @@ END
 
 
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 -- old stuff from here on!
 
-/*************************************************************************************************************************************************************/
+--/*************************************************************************************************************************************************************/
 
 ---- change to preserve the order of the sets when setting up data viewer
 

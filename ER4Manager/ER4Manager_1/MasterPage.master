@@ -30,12 +30,11 @@
         <telerik:RadScriptManager runat="server" ID="RadScriptManager1" />
         <telerik:RadFormDecorator ID="QsfFromDecorator" runat="server" DecoratedControls="All" EnableRoundedCorners="false" />
 
-
+     
 
         <div style="text-align: left">
 
-        <table style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px;
-            padding-top: 0px" width="100%">
+        <table style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px" width="100%">
             <tr>
                 <td style="width: 20%; color: #35587a; font-style: italic">
                     <strong>EPPI-Reviewer 4 manager</strong></td>
@@ -135,6 +134,8 @@
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Emails.aspx" Text="Emails" 
                                                     Owner="">
                                                 </Telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/FilterBuilder.aspx" Text="Import filters">
+                                                </telerik:RadTab>
                                                 <Telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
                                                 </Telerik:RadTab>
                                             </Tabs>
