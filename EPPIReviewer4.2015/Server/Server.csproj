@@ -243,6 +243,7 @@
     <Compile Include="BusinessClasses\ComparisonStatsCommand.cs" />
     <Compile Include="BusinessClasses\Contact.cs" />
     <Compile Include="BusinessClasses\GetLatestUpdateMsgCommand.cs" />
+    <Compile Include="BusinessClasses\ImportURLsCommand.cs" />
     <Compile Include="BusinessClasses\ItemAttributeCountsCommand.cs" />
     <Compile Include="BusinessClasses\ItemAttributeFullTextDetails.cs" />
     <Compile Include="BusinessClasses\ItemAttributeFullTextDetailsList .cs" />

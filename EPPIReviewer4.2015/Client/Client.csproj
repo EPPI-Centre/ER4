@@ -263,6 +263,9 @@
     <Compile Include="..\Server\BusinessClasses\ImportItems.cs">
       <Link>BusinessClasses\ImportItems.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ImportURLsCommand.cs">
+      <Link>BusinessClasses\ImportURLsCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Item.cs">
       <Link>BusinessClasses\Item.cs</Link>
     </Compile>

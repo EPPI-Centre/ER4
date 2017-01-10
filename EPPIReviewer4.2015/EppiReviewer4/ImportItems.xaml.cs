@@ -852,6 +852,44 @@ namespace EppiReviewer4
             DeleteSourceForeverDialogWindow.ShowDialog();
         }
 
+        private void UploadURLsButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = false;
+            bool? result = fileDialog.ShowDialog();
+
+            // Open the file if OK was clicked in the dialog
+            if (result == true)
+            {
+                ImportURLsCommand command = new ImportURLsCommand();
+                System.IO.FileStream fileStream = fileDialog.File.OpenRead();
+                System.IO.StreamReader myFile = new System.IO.StreamReader(fileStream);
+                string line;
+                while (!myFile.EndOfStream)
+                {
+                    line = myFile.ReadLine().Trim();
+                    if (line != "")
+                    {
+                        if (!command.AddLine(line))
+                        {
+                            RadWindow.Alert("ERROR:" +Environment.NewLine
+                                + "Could not digest the file correctly, please try" + Environment.NewLine
+                                + "to download the file again, if the problem persists," + Environment.NewLine
+                                + "please send the file to EPPISupport@ucl.ac.uk.");
+                            return;
+                        }
+                    }
+                }
+                DataPortal<ImportURLsCommand> dp = new DataPortal<ImportURLsCommand>();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    this.IsEnabled = true;
+                };
+                this.IsEnabled = false;
+                dp.BeginExecute(command);
+            }
+        }
+
         private void ConfirmDeleteSourceForeverButton_Click(object sender, RoutedEventArgs e)
         {
             DeleteSourceForeverDialogWindow.Close();

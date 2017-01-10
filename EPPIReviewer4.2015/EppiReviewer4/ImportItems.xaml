@@ -91,7 +91,7 @@
          </radDock:RadPaneGroup>
         </radDock:RadSplitContainer>
         <radDock:RadDocking.DocumentHost>
-                <radDock:RadSplitContainer>
+                <radDock:RadSplitContainer MinWidth="220">
                     <radDock:RadPaneGroup SelectedIndex="1" x:Name="SourcesMainPaneGroup">
                         <radDock:RadPane Header="Manage Sources"  CanFloat="False" CanDockInDocumentHost="False" CanUserClose="False" CanUserPin="False">
                             <Grid x:Name="SourceDetails" Background="#efefef">
@@ -186,7 +186,14 @@
                                     </Button>
 
                                 </Grid>
-
+                                <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="AntiqueWhite" Grid.Row="6" Grid.Column="2" >
+                                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto">
+                                        <TextBlock Margin="2" Text="For users of NICE Document Supply system:" FontWeight="SemiBold" />
+                                        <TextBlock Margin="2" Text="Click 'Upload URLs file' to import the URLs found via the document supply service."  />
+                                        <Button HorizontalAlignment="Center" x:Name="UploadURLsButton" Content="Upload URLs file" Margin="3" Click="UploadURLsButton_Click" />
+                                    </StackPanel>
+                                </Border>
+                                
                             </Grid>
                         </radDock:RadPane>
                         <radDock:RadPane IsSelected="True" Header="Import New"  CanFloat="False" CanDockInDocumentHost="False" CanUserClose="False" CanUserPin="False">
