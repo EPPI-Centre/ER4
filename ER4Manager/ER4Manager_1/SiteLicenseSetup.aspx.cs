@@ -26,6 +26,8 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
+                    Utils.SetSessionString("siteLicenseID", "0");
+
                     System.Web.UI.WebControls.Label lbl = (Label)Master.FindControl("lblPageTitle");
                     if (lbl != null)
                     {
