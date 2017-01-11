@@ -884,6 +884,35 @@ namespace EppiReviewer4
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     this.IsEnabled = true;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert("ERROR:" + Environment.NewLine
+                               + "The upload operation failed with an unexpected error." + Environment.NewLine
+                               + "It's possible that no information was saved correctly. Please try again." + Environment.NewLine
+                               + "Error details are:" + Environment.NewLine
+                               + e2.Error.Message + Environment.NewLine
+                               + "If the problem persists, please contact EPPISupport@ucl.ac.uk.");
+                        return;
+                    }
+                    ImportURLsCommand RetComm = (e2.Object as ImportURLsCommand);
+                    //if (RetComm == null) return;//could show an error, but if this happpens CSLA isn't working!
+                    if (RetComm.Count != 0 || RetComm.Result.IndexOf("Error for item(s): ") == 0)
+                    {//something is wrong, object content should only contain data associated with errors
+                        string ErrorMSG = "Your upload didn't complete without errors." + Environment.NewLine;
+                        ErrorMSG += "Please review the details below:" + Environment.NewLine;
+                        if (RetComm.Result.IndexOf("Error for item(s): ") == 0)
+                        {
+                            ErrorMSG += "When saving to the database, exceptions were recorded" + Environment.NewLine;
+                            ErrorMSG += RetComm.Result + Environment.NewLine;
+                        }
+                        if (RetComm.Count != 0)
+                        {
+                            ErrorMSG += "The following lines of your imput file did not match" + Environment.NewLine;
+                            ErrorMSG += "any item in the current review:" + Environment.NewLine;
+                            ErrorMSG += RetComm.ToString();
+                        }
+                        RadWindow.Alert(ErrorMSG);
+                    }
                 };
                 this.IsEnabled = false;
                 dp.BeginExecute(command);
