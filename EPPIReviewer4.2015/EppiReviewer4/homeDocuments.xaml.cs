@@ -5783,9 +5783,15 @@ on the right of the main screen");
                 }
                 if (cleanup)
                 {
-                    //ItemsGrid.ItemsSource = provider.Data;
                     //BindingExpression BindExp2 = ItemsGrid.GetBindingExpression(RadGridView.ItemsSourceProperty);
-                    ItemsGrid.SetBinding(RadGridView.ItemsSourceProperty, BindExp.ParentBinding);
+                    if (BindExp != null)
+                    {//there was some binding to start with
+                        ItemsGrid.SetBinding(RadGridView.ItemsSourceProperty, BindExp.ParentBinding);
+                    }
+                    else
+                    {//no binding, just put the original itmes in again.
+                        ItemsGrid.ItemsSource = provider.Data;
+                    }
                     ItemsGrid.Select(selectedL);
                 }
             }
