@@ -120,13 +120,13 @@ namespace BusinessLibrary.BusinessClasses
                         if (Result.IndexOf("Error") == -1) LoadProperty(ResultProperty, "Error for item(s): ");
                         if (Result != "Error for item(s): ") LoadProperty(ResultProperty, Result + ", " + el.Key.ToString());
                         else LoadProperty(ResultProperty, Result + el.Key.ToString());
-                        //if (!failed.ContainsKey(el.Key)) failed.Add(el.Key, el.Value);
+                        //SQL exceptions omit the local error message, but report what IDs produced the failure.
                     }
                 }
                 
             }
             if (failed.Count > 0)
-            {//update didn't work for all items
+            {//update didn't work for all items: some don't belong to current review!
                 URLsDic = failed;
             }
             else

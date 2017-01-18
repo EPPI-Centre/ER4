@@ -899,7 +899,7 @@ namespace EppiReviewer4
                     if (RetComm.Count != 0 || RetComm.Result.IndexOf("Error for item(s): ") == 0)
                     {//something is wrong, object content should only contain data associated with errors
                         string ErrorMSG = "Your upload didn't complete without errors." + Environment.NewLine;
-                        ErrorMSG += "Please review the details below:" + Environment.NewLine;
+                        ErrorMSG += "Please review the details below." + Environment.NewLine;
                         if (RetComm.Result.IndexOf("Error for item(s): ") == 0)
                         {
                             ErrorMSG += "When saving to the database, exceptions were recorded" + Environment.NewLine;
