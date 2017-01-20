@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -19,6 +20,7 @@ using BusinessLibrary.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ReadOnlyItemAttribute : ReadOnlyBase<ReadOnlyItemAttribute>
     {
 
@@ -73,6 +75,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        [JsonProperty]
         public Int64 AttributeId
         {
             get
@@ -147,6 +150,14 @@ namespace BusinessLibrary.BusinessClasses
                 result = ItemAttributeFullTextDetailsList.NewItemAttributeFullTextDetailsList();
                 this.LoadProperty(ItemAttributeFullTextListProperty, result);
                 return GetProperty(ItemAttributeFullTextListProperty);
+            }
+        }
+        [JsonProperty]
+        public List<ItemAttributeFullTextDetails> ItemAttributeFullTextDetails
+        {
+            get
+            {
+                return ItemAttributeFullTextList.ToList<ItemAttributeFullTextDetails>();
             }
         }
         //protected override void AddAuthorizationRules()

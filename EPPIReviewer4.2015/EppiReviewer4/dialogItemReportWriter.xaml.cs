@@ -14,6 +14,8 @@ using Csla.DataPortalClient;
 using BusinessLibrary.BusinessClasses;
 using Csla.Silverlight;
 using Csla.Xaml;
+using Telerik.Windows.Controls;
+using System.IO;
 
 namespace EppiReviewer4
 {
@@ -29,6 +31,7 @@ namespace EppiReviewer4
         private int itemCount;
         private string report;
         public event EventHandler<LaunchReportViewerEventArgs> LaunchReportViewer;
+        SaveFileDialog dialog = new SaveFileDialog();
 
         private void cmdRunItemReportWriter_Click(object sender, RoutedEventArgs e)
         {
@@ -41,6 +44,18 @@ namespace EppiReviewer4
             currentIndex = -1;
             report = "";
             itemCount = SelectedItems.Count;
+            if (chkbxExportJSON.IsChecked == true)
+            {
+                string extension = "json";
+                dialog = new SaveFileDialog();
+                dialog.DefaultExt = extension;
+                dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "json");
+                dialog.FilterIndex = 1;
+                if (dialog.ShowDialog() != true)
+                {//do nothing, user cancelled or didn't pick a filename
+                    return;
+                }
+            }
             GetNext();
             cmdRunItemReportWriter.IsEnabled = false;
         }
@@ -71,57 +86,100 @@ namespace EppiReviewer4
             }
             else
             {
-                if (LaunchReportViewer != null)
+                BusyLoadingItemReportWriter.IsRunning = false;
+                cmdRunItemReportWriter.IsEnabled = true;
+                if (LaunchReportViewer != null && (chkbxExportJSON.IsChecked == false))
                 {
-                    BusyLoadingItemReportWriter.IsRunning = false;
-                    cmdRunItemReportWriter.IsEnabled = true;
                     LaunchReportViewerEventArgs lrvea = new LaunchReportViewerEventArgs("<html><body>" + report + "</body></html>");
                     LaunchReportViewer.Invoke(this, lrvea);
+                }
+                else if (chkbxExportJSON.IsChecked == true)
+                {
+                    using (Stream stream = dialog.OpenFile())
+                    {
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            writer.Write(report);
+                        }
+                    }
                 }
             }
         }
 
         private void AddNewItem(ItemSetList dataList)
         {
-            if (report != "")
-            {
-                report += "<br /><br />";
-            }
             Item currentItem = SelectedItems[currentIndex] as Item;
-
-            report += "<h1>ID " + currentItem.ItemId.ToString() + ": " + currentItem.ShortTitle + "</h1><br />" +
-                currentItem.GetCitation() + "<br /><br />";
-            if (currentItem.OldItemId != "")
+            if (chkbxExportJSON.IsChecked == false)
             {
-                report += "<b>Your ID:</b> " + currentItem.OldItemId + "<br /><br />";
-            }
-            if (currentItem.Abstract != "")
-            {
-                report += "<b>Abstract:</b> " + currentItem.Abstract + "<br /><br />";
-            }
-
-            for (int i = 0; i < GridSelectCodeSets.SelectedItems.Count; i++)
-            {
-                foreach (ItemSet itemSet in dataList)
+                if (report != "")
                 {
-                    if (itemSet.SetId == (GridSelectCodeSets.SelectedItems[i] as ReviewSet).SetId && itemSet.IsCompleted == true)
-                    {
-                        report += "<br /><h2>Reviewer: " + itemSet.ContactName + "</h2>" + "<h3>Date: " + DateTime.Now.ToShortDateString() + "</h3>";
-                        ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+                    report += "<br /><br />";
+                }
+                
 
-                        ReviewSet reviewSet = rsl.GetReviewSet(itemSet.SetId);
-                        if (reviewSet != null)
+                report += "<h1>ID " + currentItem.ItemId.ToString() + ": " + currentItem.ShortTitle + "</h1><br />" +
+                    currentItem.GetCitation() + "<br /><br />";
+                if (currentItem.OldItemId != "")
+                {
+                    report += "<b>Your ID:</b> " + currentItem.OldItemId + "<br /><br />";
+                }
+                if (currentItem.Abstract != "")
+                {
+                    report += "<b>Abstract:</b> " + currentItem.Abstract + "<br /><br />";
+                }
+            }
+            else
+            {
+                if (report == "")
+                {
+                    for (int i = 0; i < GridSelectCodeSets.SelectedItems.Count; i++)
+                    {
+                        report += (GridSelectCodeSets.SelectedItems[i] as ReviewSet).ToJSON();
+                    }
+                }
+            }
+            if (chkbxExportJSON.IsChecked == false)
+            {
+                for (int i = 0; i < GridSelectCodeSets.SelectedItems.Count; i++)
+                {
+                    foreach (ItemSet itemSet in dataList)
+                    {
+                        if (itemSet.SetId == (GridSelectCodeSets.SelectedItems[i] as ReviewSet).SetId && itemSet.IsCompleted == true)
                         {
-                            report += "<p><h1>" + reviewSet.SetName + "</h1></p><p><ul>";
-                            foreach (AttributeSet attributeSet in reviewSet.Attributes)
+
+                            report += "<br /><h2>Reviewer: " + itemSet.ContactName + "</h2>" + "<h3>Date: " + DateTime.Now.ToShortDateString() + "</h3>";
+                            ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+
+                            ReviewSet reviewSet = rsl.GetReviewSet(itemSet.SetId);
+                            if (reviewSet != null)
                             {
-                                report += writeCodingReportAttributes(itemSet, attributeSet, "");
+                                report += "<p><h1>" + reviewSet.SetName + "</h1></p><p><ul>";
+                                foreach (AttributeSet attributeSet in reviewSet.Attributes)
+                                {
+                                    report += writeCodingReportAttributes(itemSet, attributeSet, "");
+                                }
+                                report += "</ul></p>";
+                                report += "<p>" + itemSet.OutcomeItemList.OutcomesTable() + "</p>";
                             }
-                            report += "</ul></p>";
-                            report += "<p>" + itemSet.OutcomeItemList.OutcomesTable() + "</p>";
+
                         }
                     }
                 }
+            }
+            else
+            {//we are producing JSON!
+                List<ItemSet> relevantCodes = new List<ItemSet>();
+                for (int i = 0; i < GridSelectCodeSets.SelectedItems.Count; i++)
+                {
+                    foreach (ItemSet itemSet in dataList)
+                    {
+                        if (itemSet.SetId == (GridSelectCodeSets.SelectedItems[i] as ReviewSet).SetId && itemSet.IsCompleted == true)
+                        {
+                            relevantCodes.Add(itemSet);
+                        }
+                    }
+                }
+                report += currentItem.ToJSON(relevantCodes);
             }
             GetNext();
         }
@@ -195,6 +253,6 @@ namespace EppiReviewer4
             return false;
         }
 
-
+        
     }
 }

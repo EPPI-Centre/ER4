@@ -11,8 +11,9 @@ using Csla.Rules;
 using Csla.Rules.CommonRules;
 //using Csla.Validation;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -23,6 +24,7 @@ using Csla.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ItemSet : BusinessBase<ItemSet>
     {
 
@@ -162,6 +164,14 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemAttributesProperty, value);
             }
         }
+        [JsonProperty]
+        public List<ReadOnlyItemAttribute> ItemAttributesList
+        {
+            get
+            {
+                return ItemAttributes.ToList<ReadOnlyItemAttribute>();
+            }
+        }
 
         public ReadOnlyItemAttribute GetItemAttributeFromIAID(Int64 ItemAttributeId)
         {
@@ -195,6 +205,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<OutcomeItemList> OutcomeItemListProperty = RegisterProperty<OutcomeItemList>(new PropertyInfo<OutcomeItemList>("OutcomeItemList", "OutcomeItemList"));
+        [JsonProperty]
         public OutcomeItemList OutcomeItemList
         {
             get

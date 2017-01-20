@@ -7,9 +7,10 @@ using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
+using Newtonsoft.Json;
 //using Csla.Validation;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -18,6 +19,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class OutcomeItemList : DynamicBindingListBase<Outcome>
     {
         public static void GetOutcomeItemList(Int64 itemSetId, EventHandler<DataPortalResult<OutcomeItemList>> handler)
@@ -55,6 +57,11 @@ namespace BusinessLibrary.BusinessClasses
 
         public bool HasSavedHandler = false;
 
+        [JsonProperty]
+        public List<Outcome> OutcomesList
+        {
+            get { return this.ToList<Outcome>(); }
+        }
 #if SILVERLIGHT
         public OutcomeItemList() { }
 

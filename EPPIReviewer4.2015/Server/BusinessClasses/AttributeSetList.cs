@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Csla;
+using Newtonsoft.Json;
 using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
@@ -18,6 +19,7 @@ using BusinessLibrary.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     //public class AttributeSetList : BusinessListBase<AttributeSetList, AttributeSet>
     public class AttributeSetList : DynamicBindingListBase<AttributeSet>
     {
@@ -131,7 +133,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         */
-        
+        [JsonProperty]
+        public List<AttributeSet> AttributesList
+        {
+            get
+            {
+                return this.ToList<AttributeSet>();
+            }
+        }
 
 #if SILVERLIGHT
         public AttributeSetList() { }
