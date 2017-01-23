@@ -85,6 +85,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
+        [JsonProperty]
         public string AdditionalText
         {
             get

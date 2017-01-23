@@ -33,6 +33,7 @@ namespace EppiReviewer4
         public event EventHandler<LaunchReportViewerEventArgs> LaunchReportViewer;
         SaveFileDialog dialog = new SaveFileDialog();
 
+
         private void cmdRunItemReportWriter_Click(object sender, RoutedEventArgs e)
         {
             if (GridSelectCodeSets.SelectedItems.Count == 0)
@@ -45,7 +46,7 @@ namespace EppiReviewer4
             report = "";
             itemCount = SelectedItems.Count;
             if (chkbxExportJSON.IsChecked == true)
-            {
+            {//need to put this one here because file dialog needs to be opened directly as a result of a user click, can't have async stuff between clicking and opening the dialog
                 string extension = "json";
                 dialog = new SaveFileDialog();
                 dialog.DefaultExt = extension;
@@ -56,8 +57,8 @@ namespace EppiReviewer4
                     return;
                 }
             }
-            GetNext();
             cmdRunItemReportWriter.IsEnabled = false;
+            GetNext();
         }
 
         public void SetupItemReportWriter(System.Collections.ObjectModel.ObservableCollection<object> items)
@@ -71,7 +72,11 @@ namespace EppiReviewer4
         {
             currentIndex++;
             if (currentIndex < SelectedItems.Count)
-            {
+            {//haven't finished!
+                if (chkbxExportJSON.IsChecked == true && currentIndex > 0 && currentIndex < SelectedItems.Count)
+                {//doing JSON and in the middle of the list of items, injecting separators in array of items
+                    report += "," + Environment.NewLine;
+                }
                 DataPortal<ItemSetList> dp = new DataPortal<ItemSetList>();
                 dp.FetchCompleted += (o, e2) =>
                 {
@@ -95,6 +100,8 @@ namespace EppiReviewer4
                 }
                 else if (chkbxExportJSON.IsChecked == true)
                 {
+                    //finish-off the manual parts of the JSON syntax (close array and file)
+                    report += Environment.NewLine + "]" + Environment.NewLine + "}";
                     using (Stream stream = dialog.OpenFile())
                     {
                         using (StreamWriter writer = new StreamWriter(stream))
@@ -129,13 +136,22 @@ namespace EppiReviewer4
                 }
             }
             else
-            {
+            {//JSON!
                 if (report == "")
                 {
+                    //we avoid importing JSON libraries in the SL project itself, so we do a little hand-editing to start with
+                    report += "{" + Environment.NewLine + "\"CodeSets\": [" + Environment.NewLine;
                     for (int i = 0; i < GridSelectCodeSets.SelectedItems.Count; i++)
                     {
                         report += (GridSelectCodeSets.SelectedItems[i] as ReviewSet).ToJSON();
+                        if (i < GridSelectCodeSets.SelectedItems.Count - 1)
+                        {//this is not the last codeset, add separator
+                            report += ", " + Environment.NewLine;
+                        }
                     }
+                    //close the array of codesets
+                    report += Environment.NewLine + "], " + Environment.NewLine;//we assume we have items to add!
+                    report += "\"References\": [" + Environment.NewLine;
                 }
             }
             if (chkbxExportJSON.IsChecked == false)
@@ -179,7 +195,7 @@ namespace EppiReviewer4
                         }
                     }
                 }
-                report += currentItem.ToJSON(relevantCodes);
+                report += currentItem.ToJSON(relevantCodes);//we add separators in GetNext
             }
             GetNext();
         }
