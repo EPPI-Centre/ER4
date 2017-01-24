@@ -556,7 +556,7 @@ public partial class Purchase : System.Web.UI.Page
             totalNewReviewFees += int.Parse(gvNewReviews.Rows[i].Cells[4].Text);
         }
         //canBuy = (totalAccountFees > 0 || totalNewAccountFees > 0 || totalNewReviewFees > 0 || totalReviewFees > 0);
-        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees >= 30);
+        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees >= 10);
         lblAccountFees.Text = "£" + (totalAccountFees + totalNewAccountFees).ToString();
         lblReviewFees.Text = "£" + (totalReviewFees + totalNewReviewFees).ToString();
         lblNominalFee.Text = "£" + (totalAccountFees + totalReviewFees +
