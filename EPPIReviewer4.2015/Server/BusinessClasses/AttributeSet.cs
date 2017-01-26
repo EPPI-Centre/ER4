@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.Rules.CommonRules;
 using Csla.Rules;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -23,6 +24,7 @@ using Csla.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class AttributeSet : BusinessBase<AttributeSet>
     {
 
@@ -241,6 +243,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "Set Id"));
+        [JsonProperty]
         public Int64 AttributeSetId
         {
             get
@@ -263,6 +266,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        [JsonProperty]
         public Int64 AttributeId
         {
             get
@@ -302,6 +306,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AttributeSetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "Set Description", string.Empty));
+        [JsonProperty]
         public string AttributeSetDescription
         {
             get
@@ -328,6 +333,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AttributeTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeType", "Attribute Type", string.Empty));
+        [JsonProperty]
         public string AttributeType
         {
             get
@@ -341,6 +347,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "Attribute Name", string.Empty));
+        [JsonProperty]
         public string AttributeName
         {
             get
@@ -354,6 +361,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AttributeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeDescription", "Attribute Description", string.Empty));
+        [JsonProperty]
         public string AttributeDescription
         {
             get
@@ -432,6 +440,7 @@ namespace BusinessLibrary.BusinessClasses
 
         [NotUndoable]
         private static PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
+        [JsonProperty(Order = 200)]
         public AttributeSetList Attributes
         {
             get

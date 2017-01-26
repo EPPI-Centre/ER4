@@ -852,6 +852,73 @@ namespace EppiReviewer4
             DeleteSourceForeverDialogWindow.ShowDialog();
         }
 
+        private void UploadURLsButton_Click(object sender, RoutedEventArgs e)
+        {
+            fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = false;
+            bool? result = fileDialog.ShowDialog();
+
+            // Open the file if OK was clicked in the dialog
+            if (result == true)
+            {
+                ImportURLsCommand command = new ImportURLsCommand();
+                System.IO.FileStream fileStream = fileDialog.File.OpenRead();
+                System.IO.StreamReader myFile = new System.IO.StreamReader(fileStream);
+                string line;
+                while (!myFile.EndOfStream)
+                {
+                    line = myFile.ReadLine().Trim();
+                    if (line != "")
+                    {
+                        if (!command.AddLine(line))
+                        {
+                            RadWindow.Alert("ERROR:" +Environment.NewLine
+                                + "Could not digest the file correctly, please try" + Environment.NewLine
+                                + "to download the file again, if the problem persists," + Environment.NewLine
+                                + "please send the file to EPPISupport@ucl.ac.uk.");
+                            return;
+                        }
+                    }
+                }
+                DataPortal<ImportURLsCommand> dp = new DataPortal<ImportURLsCommand>();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    this.IsEnabled = true;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert("ERROR:" + Environment.NewLine
+                               + "The upload operation failed with an unexpected error." + Environment.NewLine
+                               + "It's possible that no information was saved correctly. Please try again." + Environment.NewLine
+                               + "Error details are:" + Environment.NewLine
+                               + e2.Error.Message + Environment.NewLine
+                               + "If the problem persists, please contact EPPISupport@ucl.ac.uk.");
+                        return;
+                    }
+                    ImportURLsCommand RetComm = (e2.Object as ImportURLsCommand);
+                    //if (RetComm == null) return;//could show an error, but if this happpens CSLA isn't working!
+                    if (RetComm.Count != 0 || RetComm.Result.IndexOf("Error for item(s): ") == 0)
+                    {//something is wrong, object content should only contain data associated with errors
+                        string ErrorMSG = "Your upload didn't complete without errors." + Environment.NewLine;
+                        ErrorMSG += "Please review the details below." + Environment.NewLine;
+                        if (RetComm.Result.IndexOf("Error for item(s): ") == 0)
+                        {
+                            ErrorMSG += "When saving to the database, exceptions were recorded" + Environment.NewLine;
+                            ErrorMSG += RetComm.Result + Environment.NewLine;
+                        }
+                        if (RetComm.Count != 0)
+                        {
+                            ErrorMSG += "The following lines of your imput file did not match" + Environment.NewLine;
+                            ErrorMSG += "any item in the current review:" + Environment.NewLine;
+                            ErrorMSG += RetComm.ToString();
+                        }
+                        RadWindow.Alert(ErrorMSG);
+                    }
+                };
+                this.IsEnabled = false;
+                dp.BeginExecute(command);
+            }
+        }
+
         private void ConfirmDeleteSourceForeverButton_Click(object sender, RoutedEventArgs e)
         {
             DeleteSourceForeverDialogWindow.Close();

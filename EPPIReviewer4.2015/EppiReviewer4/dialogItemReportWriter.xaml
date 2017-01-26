@@ -9,19 +9,20 @@
     xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
     xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
     >
-   
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"/>
             <RowDefinition Height="35"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        
+
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Please select the code set(s) that you would like to use for this report. If you have many items selected, it may take a little white to retrieve all the data." Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Select code set" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
 
@@ -33,10 +34,10 @@
                 <telerikGridView:GridViewDataColumn Width="*" Header="Code set" DataMemberBinding="{Binding SetName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
             </telerikGridView:RadGridView.Columns>
         </telerikGridView:RadGridView>
-
         <cslaXAML:BusyAnimation x:Name="BusyLoadingItemReportWriter" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" />
         <TextBlock x:Name="TextBlockCurrentStatus" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Margin="6,6,6,6"></TextBlock>
-        <Button x:Name="cmdRunItemReportWriter" Grid.Row="3" Grid.Column="1" Content="Get report(s)" Width="90" Margin="6,6,6,6" HorizontalAlignment="Right" Click="cmdRunItemReportWriter_Click"></Button>
-        
+        <CheckBox x:Name="chkbxExportJSON" IsChecked="False" Content="Export Results as JSON text file?"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="8,1,1,1"/>
+        <Button x:Name="cmdRunItemReportWriter" Grid.Row="4" Grid.Column="1" Content="Get report(s)" Width="90" Margin="6,6,6,6" HorizontalAlignment="Right" Click="cmdRunItemReportWriter_Click"></Button>
+
     </Grid>
 </UserControl>

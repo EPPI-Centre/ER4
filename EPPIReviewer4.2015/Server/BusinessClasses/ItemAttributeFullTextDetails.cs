@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -19,6 +20,7 @@ using BusinessLibrary.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ItemAttributeFullTextDetails : BusinessBase<ItemAttributeFullTextDetails>, IComparable
     {
 
@@ -74,6 +76,7 @@ namespace BusinessLibrary.BusinessClasses
         
 
         private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        [JsonProperty]
         public Int64 ItemDocumentId
         {
             get
@@ -123,6 +126,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom", 0));
+        [JsonProperty]
         public int TextFrom
         {
             get
@@ -136,6 +140,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo", 0));
+        [JsonProperty]
         public int TextTo
         {
             get
@@ -147,7 +152,10 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(TextToProperty, value);
             }
         }
+       
+
         private static PropertyInfo<string> TextProperty = RegisterProperty<string>(new PropertyInfo<string>("Text", "Text", 0));
+        [JsonProperty]
         public string Text
         {
             get
@@ -161,6 +169,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<bool> IsFromPDFProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFromPDF", "IsFromPDF", 0));
+        [JsonProperty]
         public bool IsFromPDF
         {
             get
@@ -173,6 +182,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> DocTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("DocTitle", "DocTitle", 0));
+        [JsonProperty]
         public string DocTitle
         {
             get

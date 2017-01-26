@@ -5755,6 +5755,7 @@ on the right of the main screen");
             {
                 bool cleanup = false;
                 List<Item> selectedL = new List<Item>();
+                BindingExpression BindExp = ItemsGrid.GetBindingExpression(RadGridView.ItemsSourceProperty);
                 if (provider != null && provider.Data != null && provider.Data == ItemsGrid.ItemsSource &&
                         ItemsGrid.SelectedItems != null && ItemsGrid.SelectedItems.Count > 0)
                 {//export only the selected, we could apply and remove filter, but I can't make it work, so will use a more radical approach
@@ -5782,9 +5783,16 @@ on the right of the main screen");
                 }
                 if (cleanup)
                 {
-                    ItemsGrid.ItemsSource = provider.Data;
+                    //BindingExpression BindExp2 = ItemsGrid.GetBindingExpression(RadGridView.ItemsSourceProperty);
+                    if (BindExp != null)
+                    {//there was some binding to start with
+                        ItemsGrid.SetBinding(RadGridView.ItemsSourceProperty, BindExp.ParentBinding);
+                    }
+                    else
+                    {//no binding, just put the original itmes in again.
+                        ItemsGrid.ItemsSource = provider.Data;
+                    }
                     ItemsGrid.Select(selectedL);
-                    
                 }
             }
         }

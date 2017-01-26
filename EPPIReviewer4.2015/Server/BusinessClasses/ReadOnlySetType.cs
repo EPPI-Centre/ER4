@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -19,6 +20,7 @@ using BusinessLibrary.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ReadOnlySetType : ReadOnlyBase<ReadOnlySetType>
     {
 
@@ -41,6 +43,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> SetTypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeName", "SetTypeName", string.Empty));
+        [JsonProperty]
         public string SetTypeName
         {
             get
@@ -49,6 +52,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> SetTypeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeDescription", "SetTypeDescription", string.Empty));
+        [JsonProperty]
         public string SetTypeDescription
         {
             get

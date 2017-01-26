@@ -1,3 +1,58 @@
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemURLSet]    Script Date: 01/11/2017 15:42:11 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemURLSet]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemURLSet]
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemURLSet]    Script Date: 01/11/2017 15:42:11 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ItemURLSet]
+	-- Add the parameters for the stored procedure here
+	@Rid int,
+	@ItemID bigint,
+	@Contact nvarchar(255),
+	@URL varchar(max),
+	@Result int = -1 OUTPUT -- -1 if fail, 1 otherwise
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    declare @Check int 
+    set @Result = -1
+	set @Check = (SELECT count(ITEM_ID) from TB_ITEM_REVIEW where ITEM_ID = @ItemID and REVIEW_ID = @Rid)
+	
+	IF @Check = 1
+	BEGIN
+		UPDATE TB_ITEM set URL = @URL 
+			, EDITED_BY = @Contact
+			, DATE_EDITED = GETDATE()
+		where ITEM_ID = @ItemID
+		set @Result = 1
+	END
+	
+END
+
+
+GO
+
 
 --USE [Reviewer]
 --GO

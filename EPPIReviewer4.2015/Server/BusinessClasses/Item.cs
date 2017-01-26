@@ -9,8 +9,10 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -21,6 +23,7 @@ using AuthorsHandling;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class Item : BusinessBase<Item>
     {
 #if SILVERLIGHT
@@ -35,7 +38,63 @@ namespace BusinessLibrary.BusinessClasses
         {
             return Title;
         }
-
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+        }
+        public string ToJSON(List<ItemSet> itemSetList)
+        {
+            string ItemJSON = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+            if (itemSetList != null)
+            {
+                JObject interim = JObject.Parse(ItemJSON);
+                JArray codes = new JArray();
+                JArray Outcomes = new JArray();
+                foreach (ItemSet itemSet in itemSetList)
+                {
+                    if (itemSet.ItemId == this.ItemId)
+                    {//collect the coding info in JSON requires a bit of rejingling to produce a flat list (ignoring where codes come from).
+                        string AttributesJSON = JsonConvert.SerializeObject(itemSet, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+                        JObject jo = JObject.Parse(AttributesJSON);
+                        JArray internalVals = (JArray)jo["ItemAttributesList"];
+                        JArray internalOutcomes = new JArray();
+                        JToken tem = (JToken)jo["OutcomeItemList"];
+                        if (tem != null)
+                        {
+                            internalOutcomes = (JArray)jo["OutcomeItemList"]["OutcomesList"];
+                        }
+                        if (internalVals != null)
+                        {
+                            foreach (JToken tok in internalVals)
+                            {
+                                codes.Add(tok);
+                            }
+                        }
+                        if (internalOutcomes != null)
+                        {
+                            foreach (JToken tok in internalOutcomes)
+                            {
+                                Outcomes.Add(tok);
+                            }
+                        }
+                    }
+                }
+                if (codes.Count > 0)
+                {//add codes to object
+                    JProperty prop = new JProperty("Codes", codes);
+                    interim.Add(prop);
+                    ItemJSON = interim.ToString(Formatting.Indented);
+                }
+                if (Outcomes.Count > 0)
+                {//add codes to object
+                    JProperty prop = new JProperty("Outcomes", Outcomes);
+                    interim.Add(prop);
+                    ItemJSON = interim.ToString(Formatting.Indented);
+                }
+            }
+                    
+            return ItemJSON;
+        }
         internal static Item NewItem()
         {
             Item returnValue = new Item();
@@ -411,6 +470,7 @@ namespace BusinessLibrary.BusinessClasses
         */
 
         private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        [JsonProperty]
         public Int64 ItemId
         {
             get
@@ -455,6 +515,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        [JsonProperty]
         public string Title
         {
             get
@@ -468,6 +529,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> ParentTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentTitle", "ParentTitle", string.Empty));
+        [JsonProperty]
         public string ParentTitle
         {
             get
@@ -481,6 +543,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
+        [JsonProperty]
         public string ShortTitle
         {
             get
@@ -494,6 +557,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<SmartDate> DateCreatedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateCreated", "DateCreated"));
+        [JsonProperty]
         public SmartDate DateCreated
         {
             get
@@ -507,6 +571,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> CreatedByProperty = RegisterProperty<string>(new PropertyInfo<string>("CreatedBy", "CreatedBy", string.Empty));
+        [JsonProperty]
         public string CreatedBy
         {
             get
@@ -520,6 +585,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<SmartDate> DateEditedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateEdited", "DateEdited"));
+        [JsonProperty]
         public SmartDate DateEdited
         {
             get
@@ -533,6 +599,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> EditedByProperty = RegisterProperty<string>(new PropertyInfo<string>("EditedBy", "EditedBy", string.Empty));
+        [JsonProperty]
         public string EditedBy
         {
             get
@@ -546,6 +613,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year", string.Empty));
+        [JsonProperty]
         public string Year
         {
             get
@@ -559,6 +627,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> MonthProperty = RegisterProperty<string>(new PropertyInfo<string>("Month", "Month", string.Empty));
+        [JsonProperty]
         public string Month
         {
             get
@@ -572,6 +641,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> StandardNumberProperty = RegisterProperty<string>(new PropertyInfo<string>("StandardNumber", "StandardNumber", string.Empty));
+        [JsonProperty]
         public string StandardNumber
         {
             get
@@ -585,6 +655,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> CityProperty = RegisterProperty<string>(new PropertyInfo<string>("City", "City", string.Empty));
+        [JsonProperty]
         public string City
         {
             get
@@ -598,6 +669,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> CountryProperty = RegisterProperty<string>(new PropertyInfo<string>("Country", "Country", string.Empty));
+        [JsonProperty]
         public string Country
         {
             get
@@ -611,6 +683,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> PublisherProperty = RegisterProperty<string>(new PropertyInfo<string>("Publisher", "Publisher", string.Empty));
+        [JsonProperty]
         public string Publisher
         {
             get
@@ -624,6 +697,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> InstitutionProperty = RegisterProperty<string>(new PropertyInfo<string>("Institution", "Institution", string.Empty));
+        [JsonProperty]
         public string Institution
         {
             get
@@ -637,6 +711,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> VolumeProperty = RegisterProperty<string>(new PropertyInfo<string>("Volume", "Volume", string.Empty));
+        [JsonProperty]
         public string Volume
         {
             get
@@ -650,6 +725,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> PagesProperty = RegisterProperty<string>(new PropertyInfo<string>("Pages", "Pages", string.Empty));
+        [JsonProperty]
         public string Pages
         {
             get
@@ -663,6 +739,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> EditionProperty = RegisterProperty<string>(new PropertyInfo<string>("Edition", "Edition", string.Empty));
+        [JsonProperty]
         public string Edition
         {
             get
@@ -676,6 +753,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> IssueProperty = RegisterProperty<string>(new PropertyInfo<string>("Issue", "Issue", string.Empty));
+        [JsonProperty]
         public string Issue
         {
             get
@@ -702,6 +780,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("Availability", "Availability", string.Empty));
+        [JsonProperty]
         public string Availability
         {
             get
@@ -715,6 +794,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> URLProperty = RegisterProperty<string>(new PropertyInfo<string>("URL", "URL", string.Empty));
+        [JsonProperty]
         public string URL
         {
             get
@@ -728,6 +808,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> OldItemIdProperty = RegisterProperty<string>(new PropertyInfo<string>("OldItemId", "OldItemId", string.Empty));
+        [JsonProperty]
         public string OldItemId
         {
             get
@@ -739,6 +820,7 @@ namespace BusinessLibrary.BusinessClasses
         
 
         private static PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract", string.Empty));
+        [JsonProperty]
         public string Abstract
         {
             get
@@ -752,6 +834,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> CommentsProperty = RegisterProperty<string>(new PropertyInfo<string>("Comments", "Comments", string.Empty));
+        [JsonProperty]
         public string Comments
         {
             get
@@ -765,6 +848,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> TypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TypeName", "TypeName", string.Empty));
+        [JsonProperty]
         public string TypeName
         {
             get
@@ -778,6 +862,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> AuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("Authors", "Authors", string.Empty));
+        [JsonProperty]
         public string Authors
         {
             get
@@ -790,6 +875,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> ParentAuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentAuthors", "ParentAuthors", string.Empty));
+        [JsonProperty]
         public string ParentAuthors
         {
             get
@@ -802,6 +888,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> DOIProperty = RegisterProperty<string>(new PropertyInfo<string>("DOI", "DOI", string.Empty));
+        [JsonProperty]
         public string DOI
         {
             get
@@ -814,6 +901,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> KeywordsProperty = RegisterProperty<string>(new PropertyInfo<string>("Keywords", "Keywords", string.Empty));
+        [JsonProperty]
         public string Keywords
         {
             get
@@ -935,6 +1023,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> ItemStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemStatus", "ItemStatus"));
+        [JsonProperty]
         public string ItemStatus
         {
             get
@@ -952,6 +1041,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> ItemStatusTooltipProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemStatusTooltip", "ItemStatusTooltip"));
+        [JsonProperty]
         public string ItemStatusTooltip
         {
             get

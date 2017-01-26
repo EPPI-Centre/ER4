@@ -9,9 +9,12 @@ using Csla.Serialization;
 using Csla.Silverlight;
 using Csla.Rules.CommonRules;
 using Csla.Rules;
-//using Csla.Validation;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Reflection;
+using System.Collections;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -22,6 +25,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ReviewSet : BusinessBase<ReviewSet>
     {
         public static void GetReviewSet(int SetId, EventHandler<DataPortalResult<ReviewSet>> handler)
@@ -56,7 +60,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             return SetName;
         }
-
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+        }
         internal static ReviewSet NewReviewSet()
         {
             ReviewSet returnValue = new ReviewSet();
@@ -170,6 +177,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<int> ReviewSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewSetId", "Set Id", 0));
+        [JsonProperty]
         public int ReviewSetId
         {
             get
@@ -179,6 +187,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
+        [JsonProperty]
         public int SetId
         {
             get
@@ -221,6 +230,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<ReadOnlySetType> SetTypeProperty = RegisterProperty<ReadOnlySetType>(new PropertyInfo<ReadOnlySetType>("SetType", "set type"));
+        [JsonProperty]
         public ReadOnlySetType SetType
         {
             get
@@ -234,6 +244,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "Set Name", string.Empty));
+        [JsonProperty]
         public string SetName
         {
             get
@@ -246,6 +257,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static PropertyInfo<string> SetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "SetDescription", string.Empty));
+        [JsonProperty]
         public string SetDescription
         {
             get
@@ -299,7 +311,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
        [NotUndoable]
+        
         private static PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
+        [JsonProperty(Order = 200)]
         public AttributeSetList Attributes
         {
             get
@@ -696,5 +710,33 @@ namespace BusinessLibrary.BusinessClasses
 
         public int TempMaxDepth = 0;
 #endif
+    }
+    public class SkipEmptyContractResolver : DefaultContractResolver
+    {//this wierd object is used to avoid producing JSON elements for empty collections (i.e. the attributes field of an attribute/code that doesn't have codes)
+        //see https://blog.hompus.nl/2015/12/04/json-on-a-diet-how-to-shrink-your-dtos-part-2-skip-empty-collections/ (adapted from!)
+        public SkipEmptyContractResolver() : base() { }
+
+        protected override JsonProperty CreateProperty(MemberInfo member,
+                MemberSerialization memberSerialization)
+        {
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
+            bool isDefaultValueIgnored =
+                ((property.DefaultValueHandling ?? DefaultValueHandling.Ignore)
+                    & DefaultValueHandling.Ignore) != 0;
+            if (isDefaultValueIgnored
+                    && !typeof(string).IsAssignableFrom(property.PropertyType)
+                    && typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+            {
+                Predicate<object> newShouldSerialize = obj => {
+                    var collection = property.ValueProvider.GetValue(obj) as ICollection;
+                    return collection == null || collection.Count != 0;
+                };
+                Predicate<object> oldShouldSerialize = property.ShouldSerialize;
+                property.ShouldSerialize = oldShouldSerialize != null
+                    ? o => oldShouldSerialize(o) && newShouldSerialize(o)
+                    : newShouldSerialize;
+            }
+            return property;
+        }
     }
 }
