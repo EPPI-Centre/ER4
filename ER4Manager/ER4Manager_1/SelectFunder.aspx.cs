@@ -20,7 +20,7 @@ public partial class SelectFunder : System.Web.UI.Page
     {
         if (Utils.GetSessionString("Contact_ID") != null)
         {
-            if (Utils.GetSessionString("IsAdm") == "True")
+            if ((Utils.GetSessionString("IsSiteLicenseAdm") == "1") || (Utils.GetSessionString("IsAdm") == "True"))
             {
                 if (!IsPostBack) 
                 {
