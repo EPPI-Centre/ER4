@@ -20,8 +20,8 @@ public partial class SelectFunder : System.Web.UI.Page
     {
         if (Utils.GetSessionString("Contact_ID") != null)
         {
-            //if (Utils.GetSessionString("IsAdm") == "True")
-            //{
+            if ((Utils.GetSessionString("IsSiteLicenseAdm") == "1") || (Utils.GetSessionString("IsAdm") == "True"))
+            {
                 if (!IsPostBack) 
                 {
                     if (Request.QueryString["funder"].ToString() == "Please select")
@@ -57,11 +57,11 @@ public partial class SelectFunder : System.Web.UI.Page
                             cs.RegisterStartupScript(cstype, "Startup", scriptString);
                     }
                 }
-            //}
-            //else
-            //{
-            //    Server.Transfer("Error.aspx");
-            //}
+            }
+            else
+            {
+                Server.Transfer("Error.aspx");
+            }
         }
         else
         {
