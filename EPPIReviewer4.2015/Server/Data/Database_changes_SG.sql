@@ -1,3 +1,100 @@
+USE [Reviewer]
+GO
+IF (select count(IMPORT_FILTER_ID) from TB_IMPORT_FILTER where IMPORT_FILTER_NAME = 'OVID RIS') < 1
+BEGIN --add new OVID RIS filter
+INSERT INTO [TB_IMPORT_FILTER]
+           ([IMPORT_FILTER_NAME]
+           ,[IMPORT_FILTER_NOTES]
+           ,[STARTOFNEWREC]
+           ,[TYPEFIELD]
+           ,[STARTOFNEWFIELD]
+           ,[TITLE]
+           ,[PTITLE]
+           ,[SHORTTITLE]
+           ,[DATE]
+           ,[MONTH]
+           ,[AUTHOR]
+           ,[PARENTAUTHOR]
+           ,[STANDARDN]
+           ,[CITY]
+           ,[PUBLISHER]
+           ,[INSTITUTION]
+           ,[VOLUME]
+           ,[ISSUE]
+           ,[EDITION]
+           ,[STARTPAGE]
+           ,[ENDPAGE]
+           ,[PAGES]
+           ,[AVAILABILITY]
+           ,[URL]
+           ,[ABSTRACT]
+           ,[OLD_ITEM_ID]
+           ,[NOTES]
+           ,[DEFAULTTYPECODE]
+           ,[DOI]
+           ,[KEYWORDS])
+     select 'OVID RIS'
+           ,'Identical to RIS, but maps "ELEC" to journal'
+           ,[STARTOFNEWREC]
+           ,[TYPEFIELD]
+           ,[STARTOFNEWFIELD]
+           ,[TITLE]
+           ,[PTITLE]
+           ,[SHORTTITLE]
+           ,[DATE]
+           ,[MONTH]
+           ,[AUTHOR]
+           ,[PARENTAUTHOR]
+           ,[STANDARDN]
+           ,[CITY]
+           ,[PUBLISHER]
+           ,[INSTITUTION]
+           ,[VOLUME]
+           ,[ISSUE]
+           ,[EDITION]
+           ,[STARTPAGE]
+           ,[ENDPAGE]
+           ,[PAGES]
+           ,[AVAILABILITY]
+           ,[URL]
+           ,[ABSTRACT]
+           ,[OLD_ITEM_ID]
+           ,[NOTES]
+           ,[DEFAULTTYPECODE]
+           ,[DOI]
+           ,[KEYWORDS] from TB_IMPORT_FILTER where [IMPORT_FILTER_NAME] = 'RIS'
+Declare @N_ID int = (select IMPORT_FILTER_ID from TB_IMPORT_FILTER where IMPORT_FILTER_NAME = 'OVID RIS')
+Declare @O_ID int = (select IMPORT_FILTER_ID from TB_IMPORT_FILTER where IMPORT_FILTER_NAME = 'RIS')
+INSERT INTO [TB_IMPORT_FILTER_TYPE_MAP]
+           ([IMPORT_FILTER_ID]
+           ,[TYPE_CODE]
+           ,[TYPE_REGEX])
+     SELECT @N_ID
+           ,[TYPE_CODE]
+           ,[TYPE_REGEX] FROM TB_IMPORT_FILTER_TYPE_MAP where IMPORT_FILTER_ID = @O_ID
+
+INSERT INTO [Reviewer].[dbo].[TB_IMPORT_FILTER_TYPE_RULE]
+           ([IMPORT_FILTER_ID]
+           ,[RULE_NAME]
+           ,[RULE_REGEX]
+           ,[TYPE_CODE])
+     SELECT @N_ID
+           ,[RULE_NAME]
+           ,[RULE_REGEX]
+           ,[TYPE_CODE] from TB_IMPORT_FILTER_TYPE_RULE where IMPORT_FILTER_ID = @O_ID
+
+update TB_IMPORT_FILTER_TYPE_MAP set TYPE_REGEX = 'ICOMM' where IMPORT_FILTER_ID = @N_ID and TYPE_REGEX = 'ELEC|ICOMM'
+update TB_IMPORT_FILTER_TYPE_MAP set TYPE_REGEX = 'JOUR|JFULL|ELEC' where IMPORT_FILTER_ID = @N_ID and TYPE_REGEX = 'JOUR|JFULL'
+
+END
+GO
+--increase size of URL field
+IF COL_LENGTH('TB_ITEM','URL') < 4000 --each NVARCHAR counts for 2!
+BEGIN
+	ALTER TABLE TB_ITEM ALTER COLUMN URL NVARCHAR(2000) NULL
+END
+GO
+
 --USE [Reviewer]
 --GO
 
