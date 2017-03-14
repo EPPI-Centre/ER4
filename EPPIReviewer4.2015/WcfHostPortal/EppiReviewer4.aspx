@@ -67,15 +67,26 @@
                     If you have problems installing Silverlight…
                     </th>
                </tr>
-               <tr><td colspan="2">
-               <table  cellpadding="2" cellspacing="1" style="width:550px; border-width:0px; margin:1px;" align="center">
-                <tr><td style="background-color:#44A6dd; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
+               <tr>
+			   <td style="background-color:#dd8634; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
+                FireFox Support:
+                </td>
+			   <td style="background-color:#44A6dd; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
                 On Windows 10:
                 </td>
                </tr>
                <tr> 
-               <td valign="top" style="vertical-align:top;">
-               <div style="text-align:left;margin:2px;font-family: verdana; font-size:11px; vertical-align:top;">
+               <td valign="top" style="vertical-align:top; width:50%">
+               <div style="text-align:left;margin:2px;font-family: verdana; font-size:12px; vertical-align:top;">
+                Starting with version 52 (March 2017) <b>Firefox stopped supporting Silverlight</b>.<br />
+                To use EPPI-Reviewer in Firefox (both Mac and Windows), you can use the Firefox ESR <a href='https://www.mozilla.org/en-US/firefox/organizations/all/'>distribution</a>.
+                Firefox ESR is a release pathway optimised for stability and is therefore preferred in many business environments. Naturally, security isn't compromised, while stability is enhanced.<br />
+                We are in the process of writing the next version of EPPI-Reviewer, which will run in a normal browser (without needing any plug-in). </br>
+				In the mean time, <b>EPPI-Reviewer can still be used on Macs (Safari and Firefox ESR) and Windows (Internet Explorer and Firefox ESR)</b>.<br />
+                More information is <a href='https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2932&forumid=22&postid=1876&scope=posts#1876'>here</a>.<br />
+               </div></td>
+			   <td valign="top" style="vertical-align:top; width:50%">
+               <div style="text-align:left;margin:2px;font-family: verdana; font-size:12px; vertical-align:top;">
                 The new <b>Edge</b> browser does not support Silverlight. However, <b>Internet Explorer is present in all Windows 10 machines</b>:<br />
                 1. Type "Internet Explorer" in the Cortana/Search box. <br />
                 2. Right click on the "Internet Explorer" result.<br />
@@ -83,9 +94,6 @@
                 4. To keep it on your taskbar click "Pin to taskbar."<br />
                 If the above doesn't work, you may need to enable the "Internet Explorer" feature, this is done via <i>"Control panel\Programs\Programs and Features"</i> and "Turn Windows features on or off".
                </div></td>
-               </tr>
-               </table>
-               </td></tr>
                <tr>
                <td style="background-color:#44A6dd; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
                Windows users
@@ -101,7 +109,7 @@
                 <li>Go to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.</li>
                 <li>Install Silverlight following the on-screen instructions.</li>
                 <li>When you get an "Installation completed" message, shut down (quit) all browser windows. (If in doubt, restart your machine) </li>
-                <li>Go back to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.
+                <li>Go back to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.
                  <ul style="list-style-type:none; margin-left: 0; padding-left: 1em;">
                     <li>- You should now see a "You are ready to use Microsoft Silverlight" message.</li>
                     <li>- If the message is not there please try installing again and then restart your machine afterwards.</li>
@@ -117,15 +125,15 @@
                 <div style="text-align:left;margin-left:5%;font-family: verdana; font-size:12px; vertical-align:top;">
                 <b>N.B. Silverlight is not supported by Chrome on Mac platforms (though does work in Windows).</b><br />
                 <ol>
-                 <li>Go to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.</li>
-                <li>Install Silverlight following the on-screen instructions.</li>
+                 <li>Go to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.</li>
+                <li>Install Silverlight following the on-screen instructions.</li>
                 <li>When you get an "Installation completed" message, shut down (quit) all browser windows.
                 <br /> <b>N.B. closing the visible windows is not enough, you will need to "Quit" Safari and/or Firefox.</b> (If in doubt, restart your machine)
                 </li>
-                <li>Go back to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.
+                <li>Go back to the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page.
                 <ul style="list-style-type:none; margin-left: 0; padding-left: 1em;">
                     <li>- You should now see a "You are ready to use Microsoft Silverlight" message.</li>
-                    <li>- If the message is not there please try installing again and then restart your machine afterwards.</li>
+                    <li>- If the message is not there please try installing again and then restart your machine afterwards.</li>
                 </ul></li>
                 <li>When the <a href="http://www.microsoft.com/getsilverlight/" target="_blank">Get Silverlight</a> page shows the
                          "You are ready to use Microsoft Silverlight" message, EPPI-Reviewer 4 will work.</li>
@@ -134,7 +142,7 @@
                </td>
                </tr>
          
-                </table>
+        </table>
 		</object>
         </div>
     </form>
