@@ -265,7 +265,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
 
-                if (positiveClassCount * negativeClasscount < 6)
+                if (positiveClassCount < 2 || negativeClasscount < 2)
                 {
                     _returnMessage = "Insufficient data";
                     return 0;
