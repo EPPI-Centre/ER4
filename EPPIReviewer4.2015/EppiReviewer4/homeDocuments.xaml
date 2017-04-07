@@ -1062,8 +1062,9 @@
                                 <telerikNavigation:RadToolBar Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch"
 				                        VerticalAlignment="Stretch" OverflowButtonVisibility="Collapsed">
 
-                                    <Button x:Name="cmdTrainingBeginScreening" Click="cmdTrainingBeginScreening_Click" IsEnabled="{Binding Source={StaticResource ReviewInfoData}, Path=ScreeningIndexed, Mode=OneWay}">
-                                        <StackPanel Orientation="Horizontal">
+                                    <!--<Button x:Name="cmdTrainingBeginScreening" Click="cmdTrainingBeginScreening_Click" IsEnabled="{Binding Source={StaticResource ReviewInfoData}, Path=ScreeningIndexed, Mode=OneWay}">-->
+                                    <Button x:Name="cmdTrainingBeginScreening" Click="cmdTrainingBeginScreening_Click" IsEnabled="{Binding ScreeningListIsGood, Mode=OneWay}">
+                                            <StackPanel Orientation="Horizontal">
                                             <Image Width="22" Height="22" Source="Icons/ScreenItems.png"/>
                                             <TextBlock Text="Begin screening" Margin="5,4,4,4"></TextBlock>
                                         </StackPanel>
@@ -1121,8 +1122,11 @@
                                         <ComboBoxItem Content="Multiple: auto complete (include / exclude level)"></ComboBoxItem>
                                         <ComboBoxItem Content="Multiple: safety first"></ComboBoxItem>
                                     </ComboBox>
+                                    <CheckBox x:Name="cbScreeningListIsGood" Grid.Column="0" Grid.Row="8" Margin="4,8,4,2" IsChecked="{Binding ScreeningListIsGood, Mode=OneWay}" Content="Screening list is Present" ToolTipService.ToolTip="True when there currently is a screening list with items left to screen" 
+                                              HorizontalAlignment="Right" IsEnabled="False"
+                                              ></CheckBox>
                                     <CheckBox x:Name="cbScreeningAutoExclude" Grid.Column="1" Grid.Row="8" Margin="4,8,4,2" IsChecked="{Binding ScreeningAutoExclude, Mode=TwoWay}" Content="Auto-exclude" ToolTipService.ToolTip="Check this box to automatically exclude citations as you go" ></CheckBox>
-                                    <CheckBox x:Name="cbScreeningFullIndex" Grid.Column="1" Grid.Row="9" Margin="4,8,4,2" IsChecked="{Binding ScreeningIndexed, Converter={StaticResource ReverseBoolean}, Mode=TwoWay}" Content="Review needs indexing" ToolTipService.ToolTip="Untick this box if you want the review data to be re-indexed; e.g. you have uploaded new citations since creating your screening list"></CheckBox>
+                                    <CheckBox x:Name="cbScreeningFullIndex" Grid.Column="1" Grid.Row="9" Margin="4,8,4,2" IsChecked="{Binding ScreeningIndexed, Converter={StaticResource ReverseBoolean}, Mode=TwoWay}" Content="Review needs indexing" ToolTipService.ToolTip="Tick this box if you want the review data to be re-indexed; e.g. you have uploaded new citations since creating your screening list"></CheckBox>
                                     <CheckBox x:Name="cbScreeningTrainingRunning" Grid.Column="1" Grid.Row="10" Margin="4,8,4,2" IsChecked="{Binding ScreeningModelRunning}" Content="List creation in progress" IsEnabled="False" ToolTipService.ToolTip="If checked, the machine learning model is running. Refresh to get current status."></CheckBox>
                                     <Button x:Name="cmdScreeningRefreshReviewInfo" Grid.Column="1" Grid.Row="11" Width="24" HorizontalAlignment="Left" Margin="4,4,0,4" Click="cmdScreeningRefreshReviewInfo_Click">
                                             <Image Width="16" Height="16" Source="Icons/view-refresh-7.png" ToolTipService.ToolTip="Refresh screening options status" />
