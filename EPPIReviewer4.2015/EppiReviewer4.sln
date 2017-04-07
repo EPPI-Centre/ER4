@@ -46,14 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfHostPortal", "WcfHostPor
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2A381CBB-8291-435C-A8E3-BBF3B590B2B6} = {2A381CBB-8291-435C-A8E3-BBF3B590B2B6}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{CC3D9B09-6A73-4918-8167-15A391C84936}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2A381CBB-8291-435C-A8E3-BBF3B590B2B6} = {2A381CBB-8291-435C-A8E3-BBF3B590B2B6}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SVM", "SVM\SVM.csproj", "{2A381CBB-8291-435C-A8E3-BBF3B590B2B6}"
 EndProject
