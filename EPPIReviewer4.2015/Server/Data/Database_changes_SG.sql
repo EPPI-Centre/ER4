@@ -221,6 +221,142 @@ ELSE
 		
 GO
 
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]    Script Date: 05/02/2017 16:21:52 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemSetBulkCompleteOnAttributePreview]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@PotentiallyAffected int = 0 output,
+	@WouldBeAffected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+set @PotentiallyAffected = (select count(itemID) from @Items)
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+IF @COMPLETE = 1 --we need to exclude items that have a completed version from someone else
+BEGIN
+delete from @Items where itemID in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						--this is the bit that's doing the extra work along with "tis.IS_COMPLETED = 1"
+						tis.CONTACT_ID != @CONTACT_ID
+	)
+END
+set @WouldBeAffected = (select count(itemID) from @Items)
+SET NOCOUNT OFF
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttribute]    Script Date: 05/02/2017 14:30:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemSetBulkCompleteOnAttribute]
+(
+	@SET_ID INT,
+	@ATTRIBUTE_ID bigint,
+	@COMPLETE BIT,
+	@REVIEW_ID INT,
+	@CONTACT_ID INT,
+	@Affected INT = 0 output
+)
+
+As
+
+SET NOCOUNT ON
+declare @Items table (itemID bigint primary key)
+
+--get all items that have the selection ATTRIBUTE
+insert into @Items select distinct tis.ITEM_ID from TB_ITEM_SET tis
+	inner join TB_ITEM_ATTRIBUTE ia on tis.ITEM_SET_ID = ia.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @ATTRIBUTE_ID
+	inner join TB_ITEM_REVIEW ir on tis.ITEM_ID = ir.ITEM_ID and REVIEW_ID = @REVIEW_ID and ir.IS_DELETED = 0
+delete from @Items where itemID not in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED != @COMPLETE and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						(
+						 (--we are completing someone's coding
+							tis.CONTACT_ID = @CONTACT_ID
+							AND
+							@COMPLETE = 1
+						 )
+						OR
+						 (-- we are un-completing everything that has the chosen ATTRIBUTE
+							@COMPLETE = 0
+						 )
+						)
+			
+	)
+IF @COMPLETE = 1 --we need to exclude items that have a completed version from someone else
+BEGIN
+delete from @Items where itemID in 
+	(
+		select tis.ITEM_ID from TB_ITEM_SET tis
+			inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = tis.ITEM_ID and tis.IS_COMPLETED = 1 and ir.IS_DELETED = 0 and tis.SET_ID = @SET_ID
+						and 
+						--this is the bit that's doing the extra work along with "tis.IS_COMPLETED = 1"
+						tis.CONTACT_ID != @CONTACT_ID
+	)
+END
+	UPDATE TB_ITEM_SET
+			SET IS_COMPLETED = @COMPLETE
+			WHERE SET_ID = @SET_ID
+				AND ITEM_ID IN (SELECT itemID from @Items)
+				AND ( @COMPLETE = 0 --we are uncompleting all coding for the relevant items and the given set
+					OR
+						(--we are completing the personal version of @CONTACT_ID, not ALL versions of the relevant items and the given set!
+						CONTACT_ID = @CONTACT_ID AND @COMPLETE = 1
+						)
+					)
+					
+
+	set @Affected = @@ROWCOUNT
+
+SET NOCOUNT OFF
+
+GO
+
+
 
 --USE [Reviewer]
 --GO
