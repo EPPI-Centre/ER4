@@ -609,7 +609,8 @@ namespace EppiReviewer4
             //return paras;
             
             SolidColorBrush red = new SolidColorBrush(Colors.Red);
-            SolidColorBrush green = new SolidColorBrush(Colors.Green);
+            //SolidColorBrush green = new SolidColorBrush(Colors.Green);
+            SolidColorBrush blue = new SolidColorBrush(Color.FromArgb((byte)255, (byte)25, (byte)50, (byte)255)); 
             string input = value.ToString();
             string termSt;
             string[] specials = new string[] {"\\", ".", "$", "^", "{", "[", "(", "|", ")", "*", "+", "?"};
@@ -664,8 +665,11 @@ namespace EppiReviewer4
                             newRun = new Run() { Text = input.Substring(lastStart, match.Index - lastStart) };
                             paragraph.Inlines.Add(newRun);
                             newRun = new Run() { Text = match.Value };
-                            newRun.FontWeight = FontWeights.ExtraBold;
-                            newRun.Foreground = green;
+                            //newRun.FontWeight = FontWeights.ExtraBold;
+                            //newRun.Foreground = green;
+                            newRun.FontStyle = FontStyles.Italic;
+                            newRun.FontWeight = FontWeights.Bold;
+                            newRun.Foreground = blue;
                             paragraph.Inlines.Add(newRun);
                             lastStart = match.Index + match.Length;
                         }

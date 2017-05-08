@@ -390,7 +390,8 @@ namespace EppiReviewer4
             ResetScreeningUI();
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
-            if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688) // Alison, Ian and Dylan
+            if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
+                || ri.UserId == 6258) //Alison, Ian, Dylan and Hollie Melton from York CRD
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
