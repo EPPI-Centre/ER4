@@ -48,7 +48,9 @@
         <TextBlock Text="in" Grid.Row="4" Grid.Column="1" Margin="4,4,4,4" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"></TextBlock>
         
         <ComboBox x:Name="dialogSearchComboTextSearchType" Grid.Row="5" Grid.Column="1" Margin="4,4,4,4">
-            <ComboBoxItem Content="Title / abstract" Tag="TitleAbstract" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="Title and abstract" Tag="TitleAbstract" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="Title only" Tag="Title"></ComboBoxItem>
+            <ComboBoxItem Content="Abstract only" Tag="Abstract"></ComboBoxItem>
             <ComboBoxItem Content="Additional text" Tag="AdditionalText"></ComboBoxItem>
             <ComboBoxItem Content="Uploaded documents" Tag="UploadedDocs"></ComboBoxItem>
             <ComboBoxItem Content="Authors" Tag="Authors"></ComboBoxItem>

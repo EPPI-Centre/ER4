@@ -103,6 +103,12 @@ namespace BusinessLibrary.BusinessClasses
                     case "TitleAbstract":
                         Title += "Title and Abstract)";
                         break;
+                    case "Title":
+                        Title += "Title)";
+                        break;
+                    case "Abstract":
+                        Title += "Abstract)";
+                        break;
                     case "PubYear":
                         Title += "Year)";
                         query = _title;
