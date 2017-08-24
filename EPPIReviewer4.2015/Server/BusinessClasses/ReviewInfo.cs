@@ -30,9 +30,16 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if SILVERLIGHT
-    public ReviewInfo() { }
+        public ReviewInfo() { }
 
-        
+        public bool UserCanEditScreeningSetting
+        {
+            get
+            {
+                BusinessLibrary.Security.ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
+                return (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin) && ri.HasWriteRights();
+            }
+        }    
 #else
         private ReviewInfo() { }
 #endif
