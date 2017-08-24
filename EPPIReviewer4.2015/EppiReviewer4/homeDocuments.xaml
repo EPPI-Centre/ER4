@@ -1070,14 +1070,11 @@
                                         </StackPanel>
                                     </Button>
                                     <Button x:Name="cmdTrainingRunTraining" Click="cmdTrainingRunTraining_Click" 
-                                                HorizontalAlignment="Right" >
+                                                HorizontalAlignment="Right" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" >
                                         <StackPanel Orientation="Horizontal">
                                             <Image Width="22" Height="22" Source="Icons/RunTraining.png"/>
                                             <TextBlock Text="Create list of items to screen" Margin="5,4,4,4"></TextBlock>
                                         </StackPanel>
-                                    </Button>
-                                    <Button x:Name="cmdTrainingProcessText" Click="cmdTrainingProcessText_Click" Visibility="Collapsed" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
-                                                HorizontalAlignment="Right" Content="Process text">
                                     </Button>
                                 </telerikNavigation:RadToolBar>
 
@@ -1100,10 +1097,21 @@
                                         <RowDefinition Height="30"></RowDefinition>
                                         <RowDefinition Height="30"></RowDefinition>
                                     </Grid.RowDefinitions>
-
+                                    <Grid.Resources>
+                                        <Style TargetType="ComboBoxItem" x:Key="DisableAdminSets" >
+                                            <Setter Property="IsEnabled" Value="{Binding CanBeScreeningSet, Mode=OneWay}" >
+                                            </Setter>
+                                        </Style>
+                                    </Grid.Resources>
                                     <TextBlock Text="Screening options" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                                     <TextBlock Text="Screening codeset" Grid.Column="0" Grid.Row="1" Margin="5,5,10,5" HorizontalAlignment="Right"></TextBlock>
-                                    <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" SelectionChanged="ScreeningCodeSetComboSelectCodeSet_SelectionChanged"></ComboBox>
+                                    <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" 
+                                              ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}"
+                                              ItemContainerStyle="{StaticResource DisableAdminSets}"
+                                              IsEnabled="{Binding UserCanEditScreeningSetting, Mode=OneWay}" SelectionChanged="ScreeningCodeSetComboSelectCodeSet_SelectionChanged">
+                                        
+                                        
+                                    </ComboBox>
                                     <TextBlock Text="Screening mode" Grid.Column="0" Grid.Row="2" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ComboScreeningMode" Grid.Column="1" Grid.Row="2" Margin="4,4,4,2" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                                         <ComboBoxItem Content="Random"></ComboBoxItem>
@@ -1126,7 +1134,8 @@
                                               HorizontalAlignment="Right" IsEnabled="False"
                                               ></CheckBox>
                                     <CheckBox x:Name="cbScreeningAutoExclude" Grid.Column="1" Grid.Row="8" Margin="4,8,4,2" IsChecked="{Binding ScreeningAutoExclude, Mode=TwoWay}" Content="Auto-exclude" ToolTipService.ToolTip="Check this box to automatically exclude citations as you go" ></CheckBox>
-                                    <CheckBox x:Name="cbScreeningFullIndex" Grid.Column="1" Grid.Row="9" Margin="4,8,4,2" IsChecked="{Binding ScreeningIndexed, Converter={StaticResource ReverseBoolean}, Mode=TwoWay}" Content="Review needs indexing" ToolTipService.ToolTip="Tick this box if you want the review data to be re-indexed; e.g. you have uploaded new citations since creating your screening list"></CheckBox>
+                                    <CheckBox x:Name="cbScreeningFullIndex" Grid.Column="1" Grid.Row="9" Margin="4,8,4,2" IsChecked="{Binding ScreeningIndexed, Converter={StaticResource ReverseBoolean}, Mode=TwoWay}" Content="Review needs indexing"
+                                              IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" ToolTipService.ToolTip="Tick this box if you want the review data to be re-indexed; e.g. you have uploaded new citations since creating your screening list"></CheckBox>
                                     <CheckBox x:Name="cbScreeningTrainingRunning" Grid.Column="1" Grid.Row="10" Margin="4,8,4,2" IsChecked="{Binding ScreeningModelRunning}" Content="List creation in progress" IsEnabled="False" ToolTipService.ToolTip="If checked, the machine learning model is running. Refresh to get current status."></CheckBox>
                                     <Button x:Name="cmdScreeningRefreshReviewInfo" Grid.Column="1" Grid.Row="11" Width="24" HorizontalAlignment="Left" Margin="4,4,0,4" Click="cmdScreeningRefreshReviewInfo_Click">
                                             <Image Width="16" Height="16" Source="Icons/view-refresh-7.png" ToolTipService.ToolTip="Refresh screening options status" />
@@ -1136,7 +1145,7 @@
                                         <Button x:Name="cmdScreeningSimulationSave" Content="Download results" Margin="2,5,2,5" Width="100" Click="cmdScreeningSimulationSave_Click"></Button>
                                         <Button x:Name="cmdScreeningSimulationResults" Content="Save results" Margin="2,5,2,5" Visibility="Collapsed" Width="80" Click="cmdScreeningSimulationResults_Click"></Button>
                                     </StackPanel>
-                                    <Button x:Name="cmdScreeningSaveReviewOptions" Grid.Column="0" Grid.Row="11" Content="Save options" Margin="12,4,12,4" Click="cmdScreeningSaveReviewOptions_Click"></Button>
+                                    <Button x:Name="cmdScreeningSaveReviewOptions" Grid.Column="0" Grid.Row="11" Content="Save options" Margin="12,4,12,4" Click="cmdScreeningSaveReviewOptions_Click" IsEnabled="{Binding UserCanEditScreeningSetting, Mode=OneWay}"></Button>
 
                                 </Grid>
 
@@ -1160,7 +1169,8 @@
                                             <TextBlock Text="Add selected code" Margin="5,4,4,4"></TextBlock>
                                         </StackPanel>
                                     </Button>
-                                    <CheckBox x:Name="cbScreeningAddAttributesAutomatically" Margin="5,5,5,5" IsChecked="True" Content="Add codes automatically"></CheckBox>
+                                    <CheckBox x:Name="cbScreeningAddAttributesAutomatically" Margin="5,5,5,5" IsChecked="True" 
+                                              Content="Add codes automatically" IsEnabled="{Binding UserCanEditScreeningSetting, Mode=OneWay}" ></CheckBox>
                                 </telerikNavigation:RadToolBar>
 
                                 <telerikNavigation:RadToolBar Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" OverflowButtonVisibility="Collapsed"
