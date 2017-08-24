@@ -5002,30 +5002,6 @@ on the right of the main screen");
                 RadWindow.Alert("Please create the list of items to screen first");
             }
         }
-
-        private void cmdTrainingProcessText_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("Are you sure? This will delete all current indexed text (where saved) and generate the data needed for data mining.\n\r Machine learning will be unavailable until this has been completed.", "Process text?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                DataPortal<TrainingProcessText> dp = new DataPortal<TrainingProcessText>();
-                TrainingProcessText command = new TrainingProcessText();
-                dp.ExecuteCompleted += (o, e2) =>
-                {
-                    //BusyLoading.IsRunning = false;
-                    if (e2.Error != null)
-                    {
-                        RadWindow.Alert(e2.Error.Message);
-                    }
-                    else
-                    {
-                        //MessageBox.Show("Training complete");
-                    }
-                };
-                //BusyLoading.IsRunning = true;
-                dp.BeginExecute(command);
-            }
-        }
-
         private void cmdProcessReviewerterms_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to process the terms?", "Process terms?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
@@ -5539,10 +5515,11 @@ on the right of the main screen");
         {
             ResetScreeningUI();
             if (DocumentListPane.SelectedPane.Name != "PaneActiveScreening") return;
+            ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
+            if (rs == null) return;
             if (cbScreeningAddAttributesAutomatically.IsChecked == true)
             {
                 GridViewScreeningCodes.IsEnabled = false;
-                ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
                 CslaDataProvider TsclProvider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
                 if (TsclProvider == null)
                 {
@@ -5610,7 +5587,16 @@ on the right of the main screen");
                     }
                 }
             }
-           
+            //NEW (Aug 2017): complements what is done in ResetScreeningUI if selected set is in comparison mode, make sure #people screening is at least two.
+            if (!rs.CodingIsFinal) //set is in comparison mode
+            {
+                if (UpDownNScreening.Value < 2) UpDownNScreening.Value = 2;
+                ComboBoxItem SelectedMode = (ComboReconcilliationMode.SelectedItem) as ComboBoxItem;
+                if (SelectedMode != null && SelectedMode.Content.ToString() == "Single (auto-completes)")
+                {
+                    ComboReconcilliationMode.SelectedIndex = 1;
+                }
+            }
         }
         private void LastTsc_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
@@ -5622,8 +5608,6 @@ on the right of the main screen");
                 TsclProvider.Refresh();
             }
         }
-        
-
         private void Tsc_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
             if (e.Error != null)
@@ -5671,6 +5655,12 @@ on the right of the main screen");
             {//data isn't here, nothing to do!
                 return;
             }
+            ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+            if (rInfo == null)
+            {//data isn't here, nothing to do!
+                return;
+            }
+            bool UserCanEditSettings = rInfo.UserCanEditScreeningSetting;
             if (ScreeningCodeSetComboSelectCodeSet.SelectedIndex == -1) // No screening code set selected - all is disabled
             {
                 ComboScreeningMode.IsEnabled = false;
@@ -5688,25 +5678,25 @@ on the right of the main screen");
             {
                 if (rs.CodingIsFinal == true) // i.e. normal, not comparison coding
                 {
-                    ComboScreeningMode.IsEnabled = true;
-                    rbScreeningEverything.IsEnabled = true;
-                    rbScreeningSelected.IsEnabled = true;
+                    ComboScreeningMode.IsEnabled = UserCanEditSettings;
+                    rbScreeningEverything.IsEnabled = UserCanEditSettings;
+                    rbScreeningSelected.IsEnabled = UserCanEditSettings;
                     UpDownNScreening.Value = 1;
                     UpDownNScreening.IsEnabled = false;
                     ComboReconcilliationMode.SelectedIndex = 0;
                     ComboReconcilliationMode.IsEnabled = false;
-                    cbScreeningAutoExclude.IsEnabled = true;
-                    cbScreeningFullIndex.IsEnabled = true;
+                    cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
+                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
                 else // COMPARISON coding
                 {
-                    ComboScreeningMode.IsEnabled = true;
-                    rbScreeningEverything.IsEnabled = true;
-                    rbScreeningSelected.IsEnabled = true;
-                    UpDownNScreening.IsEnabled = true;
-                    ComboReconcilliationMode.IsEnabled = true;
-                    cbScreeningAutoExclude.IsEnabled = true;
-                    cbScreeningFullIndex.IsEnabled = true;
+                    ComboScreeningMode.IsEnabled = UserCanEditSettings;
+                    rbScreeningEverything.IsEnabled = UserCanEditSettings;
+                    rbScreeningSelected.IsEnabled = UserCanEditSettings;
+                    UpDownNScreening.IsEnabled = UserCanEditSettings;
+                    ComboReconcilliationMode.IsEnabled = UserCanEditSettings;
+                    cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
+                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
             }
 
