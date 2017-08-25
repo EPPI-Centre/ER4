@@ -3762,6 +3762,12 @@ namespace EppiReviewer4
             ReviewSet rs = windowEditCodeSet.GridEditCodeSet.DataContext as ReviewSet;
             DataPortal<ReviewSetCheckCodingStatusCommand> dp = new DataPortal<ReviewSetCheckCodingStatusCommand>();
             ReviewSetCheckCodingStatusCommand command = new ReviewSetCheckCodingStatusCommand(rs.SetId);
+            //we also want to check if this is the screening set...
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo reviewInfo = new ReviewInfo();
+            if (provider != null && provider.Data != null) reviewInfo = provider.Data as ReviewInfo;
+            bool changingScreeningSet = false;
+            if (rs.SetId == reviewInfo.ScreeningCodeSetId) changingScreeningSet = true;
             dp.ExecuteCompleted += (o, e2) =>
             {
                 windowChangeMethodToSingle.BusyChangeMethodToSingle.IsRunning = false;
@@ -3773,16 +3779,34 @@ namespace EppiReviewer4
                 {
                     if (e2.Object.ProblematicItemCount == 0)
                     {
-                        windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal'. \nThere are no potential data conflicts so it is safe to proceed.";
+                        if (changingScreeningSet)
+                        {
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal'. ";
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text += "\nThis is the SET your are using for screening!";
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text += "\nAfter changing these settings, please CHECK your Screening Settings.";
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text +="\nThere are no potential data conflicts so it is otherwise safe to proceed.";
+                        }
+                        else
+                        {
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal'. \nThere are no potential data conflicts so it is safe to proceed.";
+                        }
                         windowChangeMethodToSingle.HyperLinkCancelChangeMethodToSingle.Content = "Cancel this change";
                         windowChangeMethodToSingle.HyperLinkDoChangeMethodToSingle.Content = "Continue: change to Normal data entry";
                     }
                     else
                     {
-                        windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal', " + Environment.NewLine
-                        +"but there are ‘" +e2.Object.ProblematicItemCount.ToString() +
-                        "’ items that should be completed before you proceed." +Environment.NewLine
-                        + "You can view these incomplete items from the ‘Review statistics’ tab on the right." +Environment.NewLine;
+                        if (changingScreeningSet)
+                        {
+                        }
+                        else
+                        {
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal', " + Environment.NewLine
+                                + "but there are ‘" + e2.Object.ProblematicItemCount.ToString() +
+                                "’ items that should be completed before you proceed." + Environment.NewLine
+                                + "You can view these incomplete items from the ‘Review statistics’ tab on the right." + Environment.NewLine
+                                + "MOREOVER, this is the SET your are using for screening!" +Environment.NewLine
+                                + "After changing these settings, please CHECK your Screening Settings.";
+                        }
                         windowChangeMethodToSingle.HyperLinkCancelChangeMethodToSingle.Content = "Cancel: I'll complete the coding for these items first";
                         windowChangeMethodToSingle.HyperLinkDoChangeMethodToSingle.Content = "Carry on: Even if there are uncompleted unreconciled disagreements I know what I’m doing!";
                     }
@@ -3796,23 +3820,41 @@ namespace EppiReviewer4
 
         private void HyperLinkChangeMethodToMultiple_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to change to 'Comparison' data entry?" + Environment.NewLine
-                +"This implies that you will have multiple users coding the same item using this codeset and then reconciling the disagreements."+ Environment.NewLine
-                +"Please ensure you have read the manual to check the implications of this."+ Environment.NewLine
-                , "Change to 'Comparison' data entry?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            ReviewSet rs = windowEditCodeSet.GridEditCodeSet.DataContext as ReviewSet;
+            if (rs == null)
             {
-                ReviewSet rs = windowEditCodeSet.GridEditCodeSet.DataContext as ReviewSet;
-                if (rs != null)
+                MessageBox.Show("Error: could not find review set. Please reload your review from the 'My Info' tab.");
+                return;
+            }
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo reviewInfo = new ReviewInfo();
+            if (provider != null && provider.Data != null) reviewInfo = provider.Data as ReviewInfo;
+            
+            string MSG = "Are you sure you want to change to 'Comparison' data entry?" + Environment.NewLine
+                + "This implies that you will have multiple users coding the same item using this codeset and then reconciling the disagreements." + Environment.NewLine
+                + "Please ensure you have read the manual to check the implications of this." + Environment.NewLine;
+
+            if (rs.SetId == reviewInfo.ScreeningCodeSetId)
+            {
+                MSG = "Are you sure you want to change to 'Comparison' data entry?" + Environment.NewLine
+                + "This implies that you will have multiple users coding the same item using this codeset and then reconciling the disagreements." + Environment.NewLine
+                + "Please ensure you have read the manual to check the implications of this." + Environment.NewLine
+                + "MOREOVER, this is the SET your are using for screening!" + Environment.NewLine
+                + "After changing these settings, please CHECK your Screening Settings." + Environment.NewLine;
+            }
+
+            if (MessageBox.Show(MSG, "Change to 'Comparison' data entry?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                
+                rs.CodingIsFinal = false;
+                windowEditCodeSet.TextBlockEditCodeSetMethodSingle.Visibility = System.Windows.Visibility.Collapsed;
+                windowEditCodeSet.HyperLinkChangeMethodToMultiple.Visibility = System.Windows.Visibility.Collapsed;
+                windowEditCodeSet.TextBlockEditCodeSetMethodMultiple.Visibility = System.Windows.Visibility.Visible;
+                windowEditCodeSet.HyperLinkChangeMethodToSingle.Visibility = System.Windows.Visibility.Collapsed;
+                if (rs.SetId == reviewInfo.ScreeningCodeSetId)
                 {
-                    rs.CodingIsFinal = false;
-                    windowEditCodeSet.TextBlockEditCodeSetMethodSingle.Visibility = System.Windows.Visibility.Collapsed;
-                    windowEditCodeSet.HyperLinkChangeMethodToMultiple.Visibility = System.Windows.Visibility.Collapsed;
-                    windowEditCodeSet.TextBlockEditCodeSetMethodMultiple.Visibility = System.Windows.Visibility.Visible;
-                    windowEditCodeSet.HyperLinkChangeMethodToSingle.Visibility = System.Windows.Visibility.Collapsed;
-                }
-                else
-                {
-                    MessageBox.Show("Error: could not find review set. Please reload your review from the 'My Info' tab.");
+                    homeDocuments homedocs = this.ParentOfType<homeDocuments>();
+                    if (homedocs != null) homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
                 }
             }
         }
@@ -3826,18 +3868,27 @@ namespace EppiReviewer4
         {
             windowChangeMethodToSingle.Close();
             ReviewSet rs = windowEditCodeSet.GridEditCodeSet.DataContext as ReviewSet;
-            if (rs != null)
-            {
-                rs.CodingIsFinal = true;
-                windowEditCodeSet.TextBlockEditCodeSetMethodSingle.Visibility = System.Windows.Visibility.Visible;
-                windowEditCodeSet.HyperLinkChangeMethodToMultiple.Visibility = System.Windows.Visibility.Collapsed;
-                windowEditCodeSet.TextBlockEditCodeSetMethodMultiple.Visibility = System.Windows.Visibility.Collapsed;
-                windowEditCodeSet.HyperLinkChangeMethodToSingle.Visibility = System.Windows.Visibility.Collapsed;
-            }
-            else
+            if (rs == null)
             {
                 MessageBox.Show("Error: could not find review set. Please reload your review from the 'My Info' tab.");
+                return;
             }
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo reviewInfo = new ReviewInfo();
+            if (provider != null && provider.Data != null) reviewInfo = provider.Data as ReviewInfo;
+            if (rs.SetId == reviewInfo.ScreeningCodeSetId)
+            {
+                homeDocuments homedocs = this.ParentOfType<homeDocuments>();
+                if (homedocs != null) homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
+            }
+            
+            rs.CodingIsFinal = true;
+            windowEditCodeSet.TextBlockEditCodeSetMethodSingle.Visibility = System.Windows.Visibility.Visible;
+            windowEditCodeSet.HyperLinkChangeMethodToMultiple.Visibility = System.Windows.Visibility.Collapsed;
+            windowEditCodeSet.TextBlockEditCodeSetMethodMultiple.Visibility = System.Windows.Visibility.Collapsed;
+            windowEditCodeSet.HyperLinkChangeMethodToSingle.Visibility = System.Windows.Visibility.Collapsed;
+            
+            
         }
         public void ShowReminder(string AttrName)
         {

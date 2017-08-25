@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using Csla.Xaml;
+using BusinessLibrary.Security;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -75,9 +75,17 @@ namespace EppiReviewer4
         public RadWEditCodeSet()
         {
             InitializeComponent();
+            this.WindowStateChanged += RadWEditCodeSet_WindowStateChanged;
         }
 
-        
+        private void RadWEditCodeSet_WindowStateChanged(object sender, EventArgs e)
+        {
+            
+            
+
+        }
+
+
         #region HANDLERS
         //put each XAML-declared handler in here, make it fire the corresponding event
         //EXAMPLE:
@@ -122,19 +130,46 @@ namespace EppiReviewer4
         {
             cmdSaveEditCodeSet.IsEnabled = DoEnable;
             TextBoxEditSetOrder.IsEnabled = DoEnable;
-            
-            HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
-            HyperLinkChangeMethodToSingle.IsEnabled = DoEnable;
+            ToolTipService.SetToolTip(ChangeModeLinksStack, null);
+            ToolTipService.SetToolTip(TextBlockEditCodeSetMethodSingle, null);
+            ToolTipService.SetToolTip(TextBlockEditCodeSetMethodMultiple, null);
+            //complexity here disables changing of the data-entry mode for non-admins in case current set is the one set for screening.
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo reviewInfo =  new ReviewInfo();// = provider.Data as ReviewInfo;
+            if (provider != null) reviewInfo = provider.Data as ReviewInfo;
+            ReviewSet rs = GridEditCodeSet.DataContext as ReviewSet;
+            if (provider != null 
+                && reviewInfo.ScreeningCodeSetId != 0
+                && rs != null
+                && reviewInfo.ScreeningCodeSetId == rs.SetId
+                )
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin)
+                {
+                    HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
+                    HyperLinkChangeMethodToSingle.IsEnabled = DoEnable;
+                }
+                else
+                {
+                    ToolTipService.SetToolTip(ChangeModeLinksStack, "Only Review Administrators can change the data-entry mode of the screening set");
+                    ToolTipService.SetToolTip(HyperLinkChangeMethodToSingle, "Only Review Administrators can change the data-entry mode of the screening set");
+                    ToolTipService.SetToolTip(TextBlockEditCodeSetMethodMultiple, "Only Review Administrators can change the data-entry mode of the screening set");
+                    HyperLinkChangeMethodToMultiple.IsEnabled = false;
+                    HyperLinkChangeMethodToSingle.IsEnabled = false;
+                }
+            }
+            else
+            {
+                HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
+                HyperLinkChangeMethodToSingle.IsEnabled = DoEnable;
+            }
             TextBoxEditCodeSetName.IsEnabled = DoEnable;
         }
         private void PartialEnOrDisableEdit(bool DoEnable)
         {
+            EnOrDisableEdit(DoEnable);
             cmdSaveEditCodeSet.IsEnabled = true;
-            TextBoxEditSetOrder.IsEnabled = DoEnable;
-            
-            HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
-            HyperLinkChangeMethodToSingle.IsEnabled = DoEnable;
-            TextBoxEditCodeSetName.IsEnabled = DoEnable;
         }
     }
 }
