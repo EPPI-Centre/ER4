@@ -5667,6 +5667,7 @@ on the right of the main screen");
                 rbScreeningEverything.IsEnabled = false;
                 rbScreeningSelected.IsEnabled = false;
                 UpDownNScreening.IsEnabled = false;
+                codesSelectControlScreening.IsEnabled = false;
                 ComboReconcilliationMode.IsEnabled = false;
                 cbScreeningAutoExclude.IsEnabled = false;
                 cbScreeningFullIndex.IsEnabled = false;
@@ -5676,6 +5677,7 @@ on the right of the main screen");
             ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
+                codesSelectControlScreening.IsEnabled = UserCanEditSettings;
                 if (rs.CodingIsFinal == true) // i.e. normal, not comparison coding
                 {
                     ComboScreeningMode.IsEnabled = UserCanEditSettings;

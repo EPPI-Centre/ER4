@@ -39,7 +39,8 @@ namespace BusinessLibrary.BusinessClasses
                 BusinessLibrary.Security.ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
                 return (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin) && ri.HasWriteRights();
             }
-        }    
+        }
+        
 #else
         private ReviewInfo() { }
 #endif

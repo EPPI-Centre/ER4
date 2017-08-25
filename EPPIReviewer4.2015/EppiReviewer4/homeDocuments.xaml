@@ -1045,7 +1045,8 @@
 
                         <radDock:RadPane Header="Screening" DataContext="{Binding Source={StaticResource ReviewInfoData}, Path=Data}" 
                                          Visibility="{Binding ShowScreening, Converter={StaticResource EditTrueFalseVisibility}, Mode=TwoWay}"
-                                         CanUserClose="False" x:Name="PaneActiveScreening" CanFloat="False">
+                                         CanUserClose="False" x:Name="PaneActiveScreening" CanFloat="False"
+                                         >
                                          
                             <Grid DataContext="{Binding Source={StaticResource ReviewInfoData}, Path=Data, Mode=TwoWay}">
                                 <Grid.ColumnDefinitions>
@@ -1108,9 +1109,9 @@
                                     <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" 
                                               ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}"
                                               ItemContainerStyle="{StaticResource DisableAdminSets}"
-                                              IsEnabled="{Binding UserCanEditScreeningSetting, Mode=OneWay}" SelectionChanged="ScreeningCodeSetComboSelectCodeSet_SelectionChanged">
-                                        
-                                        
+                                              IsEnabled="{Binding UserCanEditScreeningSetting, Mode=OneWay}" 
+                                              
+                                              SelectionChanged="ScreeningCodeSetComboSelectCodeSet_SelectionChanged">
                                     </ComboBox>
                                     <TextBlock Text="Screening mode" Grid.Column="0" Grid.Row="2" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ComboScreeningMode" Grid.Column="1" Grid.Row="2" Margin="4,4,4,2" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
@@ -1124,7 +1125,7 @@
                                     <telerik:RadNumericUpDown x:Name="UpDownNScreening" Margin="5,4,5,4" Grid.Column="1" Grid.Row="6" Minimum="1" Maximum="10" IsInteger="True" NumberDecimalDigits="0" Value="{Binding ScreeningNPeople, Mode=TwoWay}" ValueFormat="Numeric"></telerik:RadNumericUpDown>
                                     <TextBlock Text="Reconcilliation mode" Grid.Column="0" Grid.Row="7" Margin="4,8,8,2" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ComboReconcilliationMode" Grid.Column="1" Grid.Row="7" Margin="4,4,4,2" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
-                                        <ComboBoxItem Content="Single (auto-completes)"></ComboBoxItem>
+                                        <ComboBoxItem Content="Single (auto-completes)" ></ComboBoxItem>
                                         <ComboBoxItem Content="Multiple (no auto-completion)"></ComboBoxItem>
                                         <ComboBoxItem Content="Multiple: auto complete (code level)"></ComboBoxItem>
                                         <ComboBoxItem Content="Multiple: auto complete (include / exclude level)"></ComboBoxItem>
