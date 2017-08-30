@@ -3797,6 +3797,12 @@ namespace EppiReviewer4
                     {
                         if (changingScreeningSet)
                         {
+                            windowChangeMethodToSingle.TextBlockChangeMethodToSingleComment.Text = "You are about to change your data entry method to 'Normal', " + Environment.NewLine
+                                + "but there are ‘" + e2.Object.ProblematicItemCount.ToString() +
+                                "’ items that should be completed before you proceed." + Environment.NewLine
+                                + "You can view these incomplete items from the ‘Review statistics’ tab on the right." + Environment.NewLine
+                                + "MOREOVER, this is the SET your are using for screening!" + Environment.NewLine
+                                + "After changing these settings, please CHECK your Screening Settings.";
                         }
                         else
                         {
@@ -3804,11 +3810,11 @@ namespace EppiReviewer4
                                 + "but there are ‘" + e2.Object.ProblematicItemCount.ToString() +
                                 "’ items that should be completed before you proceed." + Environment.NewLine
                                 + "You can view these incomplete items from the ‘Review statistics’ tab on the right." + Environment.NewLine
-                                + "MOREOVER, this is the SET your are using for screening!" +Environment.NewLine
-                                + "After changing these settings, please CHECK your Screening Settings.";
+                               ;
                         }
                         windowChangeMethodToSingle.HyperLinkCancelChangeMethodToSingle.Content = "Cancel: I'll complete the coding for these items first";
-                        windowChangeMethodToSingle.HyperLinkDoChangeMethodToSingle.Content = "Carry on: Even if there are uncompleted unreconciled disagreements I know what I’m doing!";
+                        windowChangeMethodToSingle.HyperLinkDoChangeMethodToSingle.Content = "Carry on: Even if there are uncompleted unreconciled disagreements."
+                        + Environment.NewLine + "I know what I’m doing!";
                     }
                     
                 }
