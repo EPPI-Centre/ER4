@@ -256,7 +256,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_TrainingNextItem]    Script Date: 08/24/2017 11:24:53 ******/
+/****** Object:  StoredProcedure [dbo].[st_TrainingNextItem]    Script Date: 08/29/2017 16:39:24 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -286,7 +286,7 @@ SET NOCOUNT ON
 	--got fed to new people even when enough have coded them...
 	--ALSO: get rid of stale LOCKS.
 	Update TB_TRAINING_ITEM SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
-				WHERE TRAINING_ID = @CURRENT_TRAINING_ID AND CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -25, GETDATE())
+				WHERE TRAINING_ID = @CURRENT_TRAINING_ID AND CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -13, GETDATE())
 	Declare @ListedItems TABLE(TRAINING_ITEM_ID int, ITEM_ID bigint, RANK int, CODED_COUNT int null)
 	
 	--insert into table var the items that current user might need to see (excluding the SCREENING_N_PEOPLE setting), that is:
@@ -351,7 +351,7 @@ SET NOCOUNT ON
 		WHERE TI.TRAINING_ITEM_ID = @sendingBackTID
 		--INNER JOIN @UPDATED_TRAINING_ITEM UTI ON UTI.TRAINING_ITEM_ID = TI.TRAINING_ITEM_ID
 SET NOCOUNT OFF
-GO
+
 USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ItemAttributeAutoReconcile]    Script Date: 08/24/2017 10:09:53 ******/
