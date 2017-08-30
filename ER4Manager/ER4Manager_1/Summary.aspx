@@ -307,87 +307,88 @@
                             </td>
                         </tr>
                     </table>
-                    <asp:Button ID="cmdSaveShareableReview" runat="server" 
-                        onclick="cmdSaveShareableReview_Click" Text="Save" />
-                        &nbsp;&nbsp;
-                        <asp:LinkButton ID="lbCancelReviewDetailsEdit" runat="server" 
-                            onclick="lbCancelReviewDetailsEdit_Click">Cancel</asp:LinkButton>
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                        <asp:LinkButton ID="lbBritLibCodesShared" runat="server" 
-                            onclick="lbBritLibCodesShared_Click">BL codes</asp:LinkButton>
-                        <br />
-                        <br />
-                        <asp:Panel ID="pnlBritLibCodesShared" runat="server" Visible="False" 
-                            Width="792px" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px">
-                            If you have document ordering codes from the <b>British Library</b> you can 
-                            enter them here.
-                            <asp:LinkButton ID="lbCancelBLShared" runat="server" 
-                                onclick="lbCancelBLShared_Click">(cancel)</asp:LinkButton>
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width: 40%">
+                                    <asp:Button ID="cmdSaveShareableReview" runat="server" onclick="cmdSaveShareableReview_Click" Text="Save" />
+                                    &nbsp;&nbsp;
+                                    <asp:LinkButton ID="lbCancelReviewDetailsEdit" runat="server" onclick="lbCancelReviewDetailsEdit_Click">Cancel</asp:LinkButton>
+                                </td>
+                                <td style="text-align: right; font-weight: bold;">
+                                    <asp:Label ID="lblPSShareableReview" runat="server" Text="Priority screening" Visible="False"></asp:Label>
+                                </td>
+                                <td style="text-align: left; width: 40%;">
+                                    <asp:RadioButtonList ID="rblPSShareableEnable" runat="server" AutoPostBack="True" onselectedindexchanged="rblPSShareableEnable_SelectedIndexChanged" RepeatDirection="Horizontal" Visible="False">
+                                        <asp:ListItem Value="True">On</asp:ListItem>
+                                        <asp:ListItem Selected="True" Value="False">Off</asp:ListItem>
+                                    </asp:RadioButtonList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:LinkButton ID="lbBritLibCodesShared" runat="server" onclick="lbBritLibCodesShared_Click">BL codes</asp:LinkButton>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                        <asp:Panel ID="pnlBritLibCodesShared" runat="server" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px" Visible="False" Width="792px">
+                            If you have document ordering codes from the <b>British Library</b> you can enter them here.
+                            <asp:LinkButton ID="lbCancelBLShared" runat="server" onclick="lbCancelBLShared_Click">(cancel)</asp:LinkButton>
                             <br />
                             <table style="width:100%;">
                                 <tr>
-                                    <td colspan="2">
-                                        Library privilege codes&nbsp;&nbsp;
-                                        <asp:LinkButton ID="lbSaveBritLibLPCodesShared" runat="server" 
-                                            onclick="lbSaveBritLibLPCodesShared_Click">Save</asp:LinkButton>
+                                    <td colspan="2">Library privilege codes&nbsp;&nbsp;
+                                        <asp:LinkButton ID="lbSaveBritLibLPCodesShared" runat="server" onclick="lbSaveBritLibLPCodesShared_Click">Save</asp:LinkButton>
                                     </td>
-                                    <td style="width: 25%">
-                                        Copyright cleared codes&nbsp;&nbsp;
-                                        <asp:LinkButton ID="lbSaveBritLibCCCodesShared" runat="server" 
-                                            onclick="lbSaveBritLibCCCodesShared_Click">Save</asp:LinkButton>
+                                    <td style="width: 25%">Copyright cleared codes&nbsp;&nbsp;
+                                        <asp:LinkButton ID="lbSaveBritLibCCCodesShared" runat="server" onclick="lbSaveBritLibCCCodesShared_Click">Save</asp:LinkButton>
                                     </td>
-                                    <td style="width: 25%">
-                                        &nbsp;</td>
+                                    <td style="width: 25%">&nbsp;</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 25%">
                                         <asp:TextBox ID="tbLPC_ACC_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td style="width: 25%">
-                                        Account code</td>
+                                    <td style="width: 25%">Account code</td>
                                     <td style="width: 25%">
                                         <asp:TextBox ID="tbCCC_ACC_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td style="width: 25%">
-                                        Account code</td>
+                                    <td style="width: 25%">Account code</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <asp:TextBox ID="tbLPC_AUT_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td>
-                                        Authorisation code</td>
+                                    <td>Authorisation code</td>
                                     <td>
                                         <asp:TextBox ID="tbCCC_AUT_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td>
-                                        Authorisation code</td>
+                                    <td>Authorisation code</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <asp:TextBox ID="tbLPC_TX_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td>
-                                        TX line to export</td>
+                                    <td>TX line to export</td>
                                     <td>
                                         <asp:TextBox ID="tbCCC_TX_Share" runat="server" Width="90%"></asp:TextBox>
                                     </td>
-                                    <td>
-                                        TX line to export</td>
+                                    <td>TX line to export</td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        &nbsp;</td>
-                                    <td>
-                                        &nbsp;</td>
-                                    <td>
-                                        &nbsp;</td>
-                                    <td>
-                                        &nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
                                 </tr>
                             </table>
                         </asp:Panel>
-                      
                         <b>Members of this review</b>&nbsp;&nbsp;&nbsp;
                     <asp:LinkButton ID="lbInviteReviewer" runat="server" 
                         onclick="lbInviteReviewer_Click">Send invitation</asp:LinkButton>
@@ -511,17 +512,39 @@
                             </td>
                         </tr>
                     </table>
-                    <asp:Button ID="cmdSaveNonShareableReview" runat="server" 
-                        onclick="cmdSaveNonShareableReview_Click" Text="Save" />
-                    &nbsp;&nbsp;&nbsp;<asp:LinkButton ID="lbCancelNSReviewDetailsEdit" runat="server" 
-                        onclick="lbCancelNSReviewDetailsEdit_Click">Cancel</asp:LinkButton>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<asp:LinkButton ID="lbBritLibCodesNonShared" 
-                        runat="server" onclick="lbBritLibCodesNonShared_Click">BL codes</asp:LinkButton>
-                    &nbsp; &nbsp;&nbsp;
-                    <asp:LinkButton ID="lbChangeToShareable" runat="server" 
-                        onclick="lbChangeToShareable_Click" Visible="False">Change to a shareable review</asp:LinkButton>
-                    <br />
-                    <br />
+                    <table style="width:100%;">
+                            <tr>
+                                <td style="width: 40%">
+                                    <asp:Button ID="cmdSaveNonShareableReview" runat="server" onclick="cmdSaveNonShareableReview_Click" Text="Save" />
+                                    &nbsp;&nbsp;
+                                    <asp:LinkButton ID="lbCancelNSReviewDetailsEdit" runat="server" onclick="lbCancelNSReviewDetailsEdit_Click">Cancel</asp:LinkButton>
+                                </td>
+                                <td style="text-align: right; font-weight: bold;">
+                                    <asp:Label ID="lblPSNonShareableEnable" runat="server" Text="Priority screening" Visible="False"></asp:Label>
+                                </td>
+                                <td style="text-align: left; width: 40%;">
+                                    <asp:RadioButtonList ID="rblPSNonShareableEnable" runat="server" AutoPostBack="True" onselectedindexchanged="rblPSNonShareableEnable_SelectedIndexChanged" RepeatDirection="Horizontal" Visible="False">
+                                        <asp:ListItem Value="True">On</asp:ListItem>
+                                        <asp:ListItem Selected="True" Value="False">Off</asp:ListItem>
+                                    </asp:RadioButtonList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <asp:LinkButton ID="lbBritLibCodesNonShared" runat="server" onclick="lbBritLibCodesNonShared_Click">BL codes</asp:LinkButton>
+                                    &nbsp;&nbsp;&nbsp;
+                                    <asp:LinkButton ID="lbChangeToShareable" runat="server" onclick="lbChangeToShareable_Click" Visible="False">Change to a shareable review</asp:LinkButton>
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                   
                     <asp:Panel ID="pnlBritLibCodesNonShared" runat="server" Visible="False" 
                         Width="792px" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px" 
                         ScrollBars="Horizontal">
@@ -695,83 +718,85 @@
                         </td>
                     </tr>
                 </table>
-                <asp:Button ID="cmdSaveShareableReviewCochrane" runat="server" 
-                    onclick="cmdSaveShareableReviewCochrane_Click" Text="Save" />
-                &nbsp;&nbsp;
-                <asp:LinkButton ID="lbCancelReviewDetailsEdit0" runat="server" 
-                    onclick="lbCancelReviewDetailsEdit0_Click">Cancel</asp:LinkButton>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <asp:LinkButton ID="lbBritLibCodesProCochrane" runat="server" 
-                    onclick="lbBritLibCodesProCochrane_Click">BL codes</asp:LinkButton>
-                <br />
-                <br />
-                <asp:Panel ID="pnlBritLibCodesProCochrane" runat="server" Visible="False" 
-                    Width="792px" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px">
-                    If you have document ordering codes from the <b>British Library</b> you can 
-                    enter them here.
-                    <asp:LinkButton ID="lbCancelBLProCochrane" runat="server" 
-                        onclick="lbCancelBLProCochrane_Click">(cancel)</asp:LinkButton>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 40%">
+                            <asp:Button ID="cmdSaveShareableReviewCochrane" runat="server" onclick="cmdSaveShareableReviewCochrane_Click" Text="Save" />
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="lbCancelReviewDetailsEdit0" runat="server" onclick="lbCancelReviewDetailsEdit0_Click">Cancel</asp:LinkButton>
+                        </td>
+                        <td style="text-align: right; font-weight: bold;">
+                            <asp:Label ID="lblPSProsCochraneReviewEnable" runat="server" Text="Priority screening" Visible="False"></asp:Label>
+                        </td>
+                        <td style="text-align: left; width: 40%;">
+                            <asp:RadioButtonList ID="rblPSProsCochraneReviewEnable" runat="server" AutoPostBack="True" OnSelectedIndexChanged="rblPSProsCochraneReviewEnable_SelectedIndexChanged" RepeatDirection="Horizontal" Visible="False">
+                                <asp:ListItem Value="True">On</asp:ListItem>
+                                <asp:ListItem Selected="True" Value="False">Off</asp:ListItem>
+                            </asp:RadioButtonList>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <asp:LinkButton ID="lbBritLibCodesProCochrane" runat="server" onclick="lbBritLibCodesProCochrane_Click">BL codes</asp:LinkButton>
+                            &nbsp;&nbsp;&nbsp; </td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </table>
+                <asp:Panel ID="pnlBritLibCodesProCochrane" runat="server" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px" Visible="False" Width="792px">
+                    If you have document ordering codes from the <b>British Library</b> you can enter them here.
+                    <asp:LinkButton ID="lbCancelBLProCochrane" runat="server" onclick="lbCancelBLProCochrane_Click">(cancel)</asp:LinkButton>
                     <br />
-                    <table style="width:100%;">
+                    <table style="width: 100%;">
                         <tr>
-                            <td colspan="2">
-                                Library privilege codes&nbsp;&nbsp;
-                                <asp:LinkButton ID="lbSaveBritLibLPCodesProCochrane" runat="server" 
-                                    onclick="lbSaveBritLibLPCodesProCochrane_Click">Save</asp:LinkButton>
+                            <td colspan="2">Library privilege codes&nbsp;&nbsp;
+                                <asp:LinkButton ID="lbSaveBritLibLPCodesProCochrane" runat="server" onclick="lbSaveBritLibLPCodesProCochrane_Click">Save</asp:LinkButton>
                             </td>
-                            <td style="width: 25%">
-                                Copyright cleared codes&nbsp;&nbsp;
-                                <asp:LinkButton ID="lbSaveBritLibCCCodesProCochrane" runat="server" 
-                                    onclick="lbSaveBritLibCCCodesProCochrane_Click">Save</asp:LinkButton>
+                            <td style="width: 25%">Copyright cleared codes&nbsp;&nbsp;
+                                <asp:LinkButton ID="lbSaveBritLibCCCodesProCochrane" runat="server" onclick="lbSaveBritLibCCCodesProCochrane_Click">Save</asp:LinkButton>
                             </td>
-                            <td style="width: 25%">
-                                &nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
                         </tr>
                         <tr>
                             <td style="width: 25%">
                                 <asp:TextBox ID="tbLPC_ACC_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td style="width: 25%">
-                                Account code</td>
+                            <td style="width: 25%">Account code</td>
                             <td style="width: 25%">
                                 <asp:TextBox ID="tbCCC_ACC_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td style="width: 25%">
-                                Account code</td>
+                            <td style="width: 25%">Account code</td>
                         </tr>
                         <tr>
                             <td>
                                 <asp:TextBox ID="tbLPC_AUT_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                Authorisation code</td>
+                            <td>Authorisation code</td>
                             <td>
                                 <asp:TextBox ID="tbCCC_AUT_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                Authorisation code</td>
+                            <td>Authorisation code</td>
                         </tr>
                         <tr>
                             <td>
                                 <asp:TextBox ID="tbLPC_TX_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                TX line to export</td>
+                            <td>TX line to export</td>
                             <td>
                                 <asp:TextBox ID="tbCCC_TX_ProCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                TX line to export</td>
+                            <td>TX line to export</td>
                         </tr>
                         <tr>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
                         </tr>
                     </table>
                 </asp:Panel>
@@ -902,88 +927,88 @@
                         </td>
                     </tr>
                 </table>
-                <asp:Button ID="cmdSaveShareableReviewCochraneFull" runat="server" 
-                    onclick="cmdSaveShareableReviewCochraneFull_Click" Text="Save" />
-                &nbsp;&nbsp;
-                <asp:LinkButton ID="lbCancelReviewDetailsEdit2" runat="server" 
-                    onclick="lbCancelReviewDetailsEdit2_Click">Cancel</asp:LinkButton>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <asp:LinkButton ID="lbBritLibCodesFullCochrane" runat="server" 
-                    onclick="lbBritLibCodesFullCochrane_Click">BL codes</asp:LinkButton>
-                <br />
-                <br />
-                <asp:Panel ID="pnlBritLibCodesFullCochrane" runat="server" Width="800px" 
-                    Visible="False" BorderColor="#999999" BorderStyle="Solid" 
-                    BorderWidth="2px">
-                    If you have document ordering codes from the <b>British Library</b> you can 
-                    enter them here.
-                    <asp:LinkButton ID="lbCancelBLFullCochrane" runat="server" 
-                        onclick="lbCancelBLFullCochrane_Click">(cancel)</asp:LinkButton>
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 40%">
+                            <asp:Button ID="cmdSaveShareableReviewCochraneFull" runat="server" onclick="cmdSaveShareableReviewCochraneFull_Click" Text="Save" />
+                            &nbsp;&nbsp;
+                            <asp:LinkButton ID="lbCancelReviewDetailsEdit2" runat="server" onclick="lbCancelReviewDetailsEdit2_Click">Cancel</asp:LinkButton>
+                        </td>
+                        <td style="text-align: right; font-weight: bold;">
+                            <asp:Label ID="lblPSFullCochraneReviewEnable" runat="server" Text="Priority screening" Visible="False"></asp:Label>
+                        </td>
+                        <td style="text-align: left; width: 40%;">
+                            <asp:RadioButtonList ID="rblPSFullCochraneReviewEnable" runat="server" AutoPostBack="True" OnSelectedIndexChanged="rblPSFullCochraneReviewEnable_SelectedIndexChanged" RepeatDirection="Horizontal" Visible="False">
+                                <asp:ListItem Value="True">On</asp:ListItem>
+                                <asp:ListItem Selected="True" Value="False">Off</asp:ListItem>
+                            </asp:RadioButtonList>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <asp:LinkButton ID="lbBritLibCodesFullCochrane" runat="server" onclick="lbBritLibCodesFullCochrane_Click">BL codes</asp:LinkButton>
+                            &nbsp;&nbsp;&nbsp; </td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </table>
+                <asp:Panel ID="pnlBritLibCodesFullCochrane" runat="server" BorderColor="#999999" BorderStyle="Solid" BorderWidth="2px" Visible="False" Width="800px">
+                    If you have document ordering codes from the <b>British Library</b> you can enter them here.
+                    <asp:LinkButton ID="lbCancelBLFullCochrane" runat="server" onclick="lbCancelBLFullCochrane_Click">(cancel)</asp:LinkButton>
                     <br />
-                    <table style="width:100%;">
+                    <table style="width: 100%;">
                         <tr>
-                            <td colspan="2">
-                                Library privilege codes&nbsp;&nbsp;
-                                <asp:LinkButton ID="lbSaveBritLibLPCodesFullCochrane" runat="server" 
-                                    onclick="lbSaveBritLibLPCodesFullCochrane_Click">Save</asp:LinkButton>
+                            <td colspan="2">Library privilege codes&nbsp;&nbsp;
+                                <asp:LinkButton ID="lbSaveBritLibLPCodesFullCochrane" runat="server" onclick="lbSaveBritLibLPCodesFullCochrane_Click">Save</asp:LinkButton>
                             </td>
-                            <td style="width: 25%">
-                                Copyright cleared codes&nbsp;&nbsp;
-                                <asp:LinkButton ID="lbSaveBritLibCCCodesFullCochrane" runat="server" 
-                                    onclick="lbSaveBritLibCCCodesFullCochrane_Click">Save</asp:LinkButton>
+                            <td style="width: 25%">Copyright cleared codes&nbsp;&nbsp;
+                                <asp:LinkButton ID="lbSaveBritLibCCCodesFullCochrane" runat="server" onclick="lbSaveBritLibCCCodesFullCochrane_Click">Save</asp:LinkButton>
                             </td>
-                            <td style="width: 25%">
-                                &nbsp;</td>
+                            <td style="width: 25%">&nbsp;</td>
                         </tr>
                         <tr>
                             <td style="width: 25%">
                                 <asp:TextBox ID="tbLPC_ACC_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td style="width: 25%">
-                                Account code</td>
+                            <td style="width: 25%">Account code</td>
                             <td style="width: 25%">
                                 <asp:TextBox ID="tbCCC_ACC_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td style="width: 25%">
-                                Account code</td>
+                            <td style="width: 25%">Account code</td>
                         </tr>
                         <tr>
                             <td>
                                 <asp:TextBox ID="tbLPC_AUT_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                Authorisation code</td>
+                            <td>Authorisation code</td>
                             <td>
                                 <asp:TextBox ID="tbCCC_AUT_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                Authorisation code</td>
+                            <td>Authorisation code</td>
                         </tr>
                         <tr>
                             <td>
                                 <asp:TextBox ID="tbLPC_TX_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                TX line to export</td>
+                            <td>TX line to export</td>
                             <td>
                                 <asp:TextBox ID="tbCCC_TX_FullCochrane" runat="server" Width="90%"></asp:TextBox>
                             </td>
-                            <td>
-                                TX line to export</td>
+                            <td>TX line to export</td>
                         </tr>
                         <tr>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
-                            <td>
-                                &nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
                         </tr>
                     </table>
                 </asp:Panel>
-                
                 <b>Members of this review</b>&nbsp;&nbsp;&nbsp;
                 <asp:LinkButton ID="lbInviteReviewerCochraneFull" runat="server" 
                     onclick="lbInviteReviewerCochraneFull_Click" Visible="False">Send invitation</asp:LinkButton>

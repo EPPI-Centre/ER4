@@ -12,7 +12,12 @@
                 <table align="center" cellpadding="18"
                     style="margin-top:15px; margin-bottom:15px; border: 2; border-style:solid; border-color: #527219; max-width:650px;">
                     <tr><td>You will now be transferred to the secured payment pages, this will open in a new window.<br />
-                    Please click "Continue" to proceed:</td>
+                        Please click &quot;Continue&quot; to proceed:&nbsp;
+                        <!--<br />
+                        <asp:Panel ID="pnlTestContinue" runat="server" Visible="False">
+                            <a  href="JumpToWPMUCL.aspx" target="_blank" id="ContinueToWPMUCL" ><font class="ContinueToWPMUCL">&nbsp;</font></a>
+                        </asp:Panel>-->
+                        </td>
                         <td>
                             <a  href="JumpToWPM.aspx" target="_blank" id="ContinueToWPM" ><font class="ContinueToWPM">&nbsp;</font></a>
                         </td>

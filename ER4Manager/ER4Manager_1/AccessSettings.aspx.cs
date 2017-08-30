@@ -74,6 +74,7 @@ public partial class AccessSettings : System.Web.UI.Page
             tbExampleReview.Text = sdr["EXAMPLE_NON_SHAREABLE_REVIEW_ID"].ToString();
             rblExampleReviewCopy.SelectedValue = sdr["ENABLE_EXAMPLE_REVIEW_COPY"].ToString();
             rblDataPresenter.SelectedValue = sdr["ENABLE_DATA_PRESENTER"].ToString();
+            rblPriorityScreeningEnableEnabler.SelectedValue = sdr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString(); 
         }
         sdr.Close();
     }
@@ -149,5 +150,14 @@ public partial class AccessSettings : System.Web.UI.Page
         }
         idr.Close();
         Server.Transfer("Summary.aspx");
+    }
+
+    protected void rblPriorityScreeningEnableEnabler_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        string SQL = "update TB_MANAGEMENT_SETTINGS set ENABLE_PRIORITY_SCREENING_ENABLER = '" +
+            rblPriorityScreeningEnableEnabler.SelectedValue + "'";
+        Utils.ExecuteQuery(SQL, isAdmDB);
+        Utils.SetSessionString("EnablePSEnabler", rblPriorityScreeningEnableEnabler.SelectedValue);
     }
 }

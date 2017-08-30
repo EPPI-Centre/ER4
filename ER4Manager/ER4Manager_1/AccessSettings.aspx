@@ -107,6 +107,20 @@
                                             </asp:RadioButtonList>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="style1" valign="top">
+                                            Enable the option to turn on
+                                            <br />
+                                            Priority Screening.</td>
+                                        <td class="style2">
+                                            <asp:RadioButtonList ID="rblPriorityScreeningEnableEnabler" runat="server" AutoPostBack="True" 
+                                                onselectedindexchanged="rblPriorityScreeningEnableEnabler_SelectedIndexChanged" 
+                                                RepeatDirection="Horizontal">
+                                                <asp:ListItem Value="True">True</asp:ListItem>
+                                                <asp:ListItem Selected="True">False</asp:ListItem>
+                                            </asp:RadioButtonList>
+                                        </td>
+                                    </tr>
                                 </table>
                                 <br />
                                 <asp:TextBox ID="tbContactID" runat="server"></asp:TextBox>
