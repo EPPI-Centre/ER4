@@ -1,4 +1,4 @@
-USE [Reviewer] 
+USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_TrainingNextItem]    Script Date: 08/29/2017 16:39:24 ******/
 SET ANSI_NULLS ON
