@@ -30,6 +30,7 @@
         <helper:SourceNameStyleConverter x:Key="SourceNameStyleConverter"/>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <!--<Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>-->
         
         <!--helper:EnableButtonConverter x:Key="enableHelper"/-->
@@ -1104,6 +1105,50 @@
                                             </Setter>
                                         </Style>
                                     </Grid.Resources>
+                                    <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="5" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                                            Margin="4" Width="144" BorderBrush="DarkGray" BorderThickness="1"
+                                            Canvas.ZIndex="-2">
+                                        <Grid>
+                                            
+                                            <StackPanel Orientation="Vertical" x:Name="ScreeningInfoAdmin" Margin="2" Background="Lavender"
+                                                        Visibility="{Binding UserCanEditScreeningSetting, Converter={StaticResource EditTrueFalseVisibility}, Mode=OneWay}"
+                                                        ToolTipService.ToolTip="Yes, really. Check the Manual!">
+                                                <TextBlock>
+                                                    These are advanced
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    features, we recommend  
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    checking the manual 
+                                                </TextBlock>
+                                                <TextBlock>
+                                                   before setting the
+                                                </TextBlock>
+                                                <TextBlock>
+                                                   Screening Preferences! 
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Vertical" x:Name="ScreeningInfoNotAdmin" Background="LightGray"
+                                                        Visibility="{Binding UserCanEditScreeningSetting, Converter={StaticResource ReverseEditTrueFalseVisibility}, Mode=OneWay}">
+                                                <TextBlock>
+                                                    These are advanced
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    features, only review
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    admins can edit the
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    Screening Preferences.
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <Image Width="18" Height="18" Source="Icons/CodeSetProperties.png" 
+                                                   VerticalAlignment="Top" HorizontalAlignment="Right" Margin="2"/>
+                                        </Grid>
+                                        
+                                    </Border>
                                     <TextBlock Text="Screening options" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                                     <TextBlock Text="Screening codeset" Grid.Column="0" Grid.Row="1" Margin="5,5,10,5" HorizontalAlignment="Right"></TextBlock>
                                     <ComboBox x:Name="ScreeningCodeSetComboSelectCodeSet" Grid.Column="1" Grid.Row="1" Margin="4,4,4,2" 
