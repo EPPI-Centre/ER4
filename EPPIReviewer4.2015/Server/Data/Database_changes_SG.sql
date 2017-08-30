@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 
 USE [Reviewer]
+=======
+USE [Reviewer] 
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
 GO
 /****** Object:  StoredProcedure [dbo].[st_TrainingNextItem]    Script Date: 08/29/2017 16:39:24 ******/
 SET ANSI_NULLS ON
@@ -101,6 +105,7 @@ USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ItemAttributeAutoReconcile]    Script Date: 08/24/2017 10:09:53 ******/
 SET ANSI_NULLS ON
+<<<<<<< HEAD
 GO
 SET QUOTED_IDENTIFIER ON
 GO
@@ -359,6 +364,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+=======
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
 ALTER procedure [dbo].[st_ItemAttributeAutoReconcile]
 (
 	@ITEM_ID BIGINT,
@@ -798,9 +808,15 @@ GO
 --GO
 --/****** Object:  StoredProcedure [dbo].[st_ItemSetBulkCompleteOnAttribute]    Script Date: 05/02/2017 14:30:46 ******/
 --SET ANSI_NULLS ON
+<<<<<<< HEAD
 --GO
 --SET QUOTED_IDENTIFIER ON
 --GO
+=======
+--GO
+--SET QUOTED_IDENTIFIER ON
+--GO
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
 --ALTER procedure [dbo].[st_ItemSetBulkCompleteOnAttribute]
 --(
 --	@SET_ID INT,
@@ -1358,8 +1374,13 @@ GO
 ------GO
 ------COMMIT
 ------go
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
 ------BEGIN TRANSACTION
 ------SET QUOTED_IDENTIFIER ON
 ------SET ARITHABORT ON
@@ -1614,12 +1635,22 @@ GO
 --------			SET IS_COMPLETED = @COMPLETE
 --------			WHERE SET_ID = @SET_ID
 --------				AND ITEM_ID IN (SELECT itemID from @Items)
+<<<<<<< HEAD
 
 --------	set @Affected = @@ROWCOUNT
 
 --------SET NOCOUNT OFF
 
+=======
 
+--------	set @Affected = @@ROWCOUNT
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
+
+--------SET NOCOUNT OFF
+
+
+--------GO
+--------USE [Reviewer]
 --------GO
 --------USE [Reviewer]
 --------GO
@@ -1730,6 +1761,7 @@ GO
 
 ----------SET NOCOUNT OFF
 ----------GO
+<<<<<<< HEAD
 
 ----------USE [Reviewer]
 ----------GO
@@ -1928,6 +1960,206 @@ GO
 
 ----------USE [Reviewer]
 ----------GO
+=======
+
+----------USE [Reviewer]
+----------GO
+----------/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateGroupCheckOngoing]    Script Date: 5/27/2016 2:39:05 PM ******/
+----------SET ANSI_NULLS ON
+----------GO
+----------SET QUOTED_IDENTIFIER ON
+----------GO
+------------ =============================================
+------------ Author:		Sergio
+------------ Create date: 09/08/2010
+------------ Description:	check for pending SISS, attempt to save results
+------------ =============================================
+----------ALTER PROCEDURE [dbo].[st_ItemDuplicateGroupCheckOngoing] 
+----------	-- Add the parameters for the stored procedure here
+----------	@revID int
+----------	WITH RECOMPILE
+----------AS
+----------BEGIN
+----------	-- SET NOCOUNT ON added to prevent extra result sets from
+----------	-- interfering with SELECT statements.
+----------	SET NOCOUNT ON;
+----------	Declare @guis_N int
+----------    -- Insert statements for procedure here
+----------	set @guis_N = (
+----------					SELECT COUNT(DISTINCT(EXTR_UI)) from TB_ITEM_DUPLICATES_TEMP where REVIEW_ID = @revID
+----------					AND EXTR_UI <> '10000000-0000-0000-0000-000000000000'
+----------					)
+----------	IF @guis_N = 1
+----------	BEGIN --send back a return code to signify that the SISS package is still running
+----------		return -2
+----------	END
+----------	ELSE
+----------	IF @guis_N > 1 --SISS package has saved data but results were never collected
+----------	BEGIN
+----------		declare @UI uniqueidentifier
+----------		UPDATE TB_ITEM_DUPLICATES_TEMP
+----------			SET EXTR_UI = '10000000-0000-0000-0000-000000000000'
+----------			WHERE EXTR_UI = '00000000-0000-0000-0000-000000000000' AND REVIEW_ID = @revID
+		
+----------		set @UI = (SELECT top 1 EXTR_UI from TB_ITEM_DUPLICATES_TEMP where EXTR_UI <> '10000000-0000-0000-0000-000000000000' AND REVIEW_ID = @revID)
+----------		SET @guis_N = (SELECT COUNT(ITEM_DUPLICATES_ID) from TB_ITEM_DUPLICATES_TEMP where EXTR_UI = @UI and DESTINATION is null)
+----------		if @guis_N > 0 --do the costly bits only if they weren't done already
+----------		BEGIN
+----------		--delete sigleton rows from SSIS results
+----------			DELETE from TB_ITEM_DUPLICATES_TEMP 
+----------			where EXTR_UI = @UI AND _key_out not in
+----------				(
+----------					Select t1._key_in from TB_ITEM_DUPLICATES_TEMP t1 
+----------					inner join TB_ITEM_DUPLICATES_TEMP t2 on t1._key_in = t2._key_out and t1._key_in <> t2._key_in
+----------					and t1.EXTR_UI = t2.EXTR_UI and t1.EXTR_UI = @UI
+----------						GROUP by t1._key_in
+----------				)
+			
+----------			--the difficult part: match the results in TB_ITEM_DUPLICATES_TEMP with existing groups
+----------			-- the system works indifferently for missing groups and missing groups members, and to make it relatively fast, 
+----------			-- we store the "destination" group ID in the temporary table, this is done in two parts,
+----------			--the following query matches the current SSIS results with existing groups and sets the DESTINATION field accordingly
+----------			--the remaining Null "destination" fields will signal that the group is new and has to be created
+----------			--after creating the new groups, the destination field will be populated for the remaining records and finally the new group
+----------			--members will be added to existing groups.
+
+----------			declare @i1i2 table (i1 int, i2 int) 
+----------					insert into @i1i2
+----------					select s.ITEM_ID, ss.ITEM_ID  from TB_ITEM_DUPLICATES_TEMP s 
+----------										inner join TB_ITEM_DUPLICATES_TEMP ss 
+----------										on s._key_out = ss._key_out and s._key_in = ss._key_out 
+----------										and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+----------										and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+
+----------			UPDATE dt set DESTINATION = a.ITEM_DUPLICATE_GROUP_ID
+----------			 FROM TB_ITEM_DUPLICATES_TEMP dt INNER JOIN   
+----------				(
+----------					SELECT m.ITEM_DUPLICATE_GROUP_ID, COUNT(m.GROUP_MEMBER_ID) cc, ins._key_out Results_Group 
+----------					From TB_ITEM_DUPLICATE_GROUP_MEMBERS m 
+----------						inner join TB_ITEM_REVIEW IR on m.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID and IR.REVIEW_ID = @revID
+----------						inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS m1 
+----------							on m.item_duplicate_group_ID = m1.item_duplicate_group_ID
+----------							AND m.ITEM_REVIEW_ID <> m1.ITEM_REVIEW_ID
+----------						Inner join TB_ITEM_REVIEW IR1 on m1.ITEM_REVIEW_ID = IR1.ITEM_REVIEW_ID and IR1.REVIEW_ID = @revID
+----------						inner Join TB_ITEM_DUPLICATE_GROUP g on  m.item_duplicate_group_ID = g.item_duplicate_group_ID
+----------						Inner join TB_ITEM_DUPLICATES_TEMP ins on ins.ITEM_ID = IR.ITEM_ID
+----------						Inner join @i1i2 i1i2 on i1i2.i1 = IR.ITEM_ID AND i1i2.i2 = IR1.ITEM_ID
+----------						where g.Review_ID = @revID and ins.REVIEW_ID = @revID and ins.EXTR_UI = @UI
+----------						--AND (CAST(IR.ITEM_ID as nvarchar(20)) + '#' + CAST(IR1.ITEM_ID as nvarchar(20))) in 
+----------						--		(
+----------						--			select * from @has
+----------						--			--select (CAST(s.ITEM_ID as nvarchar(1000)) + '#' + CAST(ss.ITEM_ID as nvarchar(1000))) from TB_ITEM_DUPLICATES_TEMP s 
+----------						--			--	inner join TB_ITEM_DUPLICATES_TEMP ss 
+----------						--			--	on s._key_out = ss._key_out and s._key_in = ss._key_out 
+----------						--			--	and s.ITEM_ID <> ss.ITEM_ID AND s.EXTR_UI = @UI and ss.EXTR_UI = @UI
+----------						--			--	and s.REVIEW_ID = @revID and ss.REVIEW_ID = @revID
+----------						--		)
+----------					group by m.ITEM_DUPLICATE_GROUP_ID, ins._key_out
+----------				) a 
+----------				on dt._key_out = a.Results_Group 
+----------				WHERE a.cc > 0 and dt.EXTR_UI = @UI
+
+----------			--for groups that are not already present: add group & master
+----------			insert into TB_ITEM_DUPLICATE_GROUP (REVIEW_ID, ORIGINAL_ITEM_ID)
+----------				SELECT REVIEW_ID, Item_ID from TB_ITEM_DUPLICATES_TEMP where 
+----------					EXTR_UI = @UI
+----------					AND DESTINATION is null
+----------					AND _key_in = _key_out --this is how you identify groups...
+----------			--add the master record in the members table
+----------			INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+----------			(
+----------				ITEM_DUPLICATE_GROUP_ID
+----------				,ITEM_REVIEW_ID
+----------				,SCORE
+----------				,IS_CHECKED
+----------				,IS_DUPLICATE
+----------			)
+----------			SELECT ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, 1, 1, 0
+----------			FROM TB_ITEM_DUPLICATE_GROUP DG inner join TB_ITEM_DUPLICATES_TEMP dt 
+----------				on DG.ORIGINAL_ITEM_ID = dt.ITEM_ID
+----------				AND EXTR_UI = @UI
+----------				AND DESTINATION is null
+----------				AND _key_in = _key_out
+----------				INNER JOIN TB_ITEM_REVIEW IR  on IR.ITEM_ID = DG.ORIGINAL_ITEM_ID and IR.REVIEW_ID = @revID
+
+----------			--update TB_ITEM_DUPLICATE_GROUP to set the MASTER_MEMBER_ID correctly (now that we have a line in TB_ITEM_DUPLICATE_GROUP_MEMBERS)
+----------			UPDATE TB_ITEM_DUPLICATE_GROUP set MASTER_MEMBER_ID = a.GMI
+----------			FROM (
+----------					SELECT GROUP_MEMBER_ID GMI, IR.ITEM_ID from TB_ITEM_DUPLICATE_GROUP idg
+----------						inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm on gm.ITEM_DUPLICATE_GROUP_ID = idg.ITEM_DUPLICATE_GROUP_ID and MASTER_MEMBER_ID is null
+----------						inner join TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID AND IR.REVIEW_ID = @revID
+----------						inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+----------						AND EXTR_UI = @UI AND dt._key_in = dt._key_out and dt.DESTINATION is null
+----------			) a  
+----------			WHERE ORIGINAL_ITEM_ID = a.ITEM_ID and MASTER_MEMBER_ID is null
+
+			
+----------			-- add the newly created group IDs to temporary table
+----------			UPDATE TB_ITEM_DUPLICATES_TEMP set DESTINATION = a.DGI
+----------			FROM (
+----------				SELECT ITEM_DUPLICATE_GROUP_ID DGI, dt.ITEM_ID MAST, dt1.ITEM_ID CURR_ID from TB_ITEM_DUPLICATE_GROUP_MEMBERS gm
+----------					inner JOIN TB_ITEM_REVIEW IR on gm.ITEM_REVIEW_ID = IR.ITEM_REVIEW_ID
+----------					inner JOIN TB_ITEM_DUPLICATES_TEMP dt on dt.ITEM_ID = IR.ITEM_ID
+----------					AND EXTR_UI = @UI AND dt._key_in = dt._key_out 
+----------					inner JOIN TB_ITEM_DUPLICATES_TEMP dt1 on dt._key_in = dt1._key_out and dt.DESTINATION is null
+----------					and dt1.EXTR_UI = @UI
+----------			) a
+----------			where a.CURR_ID = TB_ITEM_DUPLICATES_TEMP.ITEM_ID
+----------		END
+----------		-- add non master members that are not currently present
+----------		declare  @t table (goodIDs bigint)
+----------		insert into @t select distinct item_id from TB_ITEM_DUPLICATES_TEMP where EXTR_UI = @UI --and _key_in != _key_out 
+----------		--select COUNT (goodids) from @t
+----------		delete from @t where goodIDs in (
+----------			SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+----------			inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+----------			inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+----------			on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+----------			)
+----------		--select COUNT (goodids) from @t
+		
+----------		-- add non master members that are not currently present
+----------		INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+----------		(
+----------			ITEM_DUPLICATE_GROUP_ID
+----------			,ITEM_REVIEW_ID
+----------			,SCORE
+----------			,IS_CHECKED
+----------			,IS_DUPLICATE
+----------		)
+----------		SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+----------		from TB_ITEM_DUPLICATES_TEMP DT
+----------		inner join @t t on DT.ITEM_ID = t.goodIDs
+----------		inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+		
+----------		--INSERT into TB_ITEM_DUPLICATE_GROUP_MEMBERS
+----------		--(
+----------		--	ITEM_DUPLICATE_GROUP_ID
+----------		--	,ITEM_REVIEW_ID
+----------		--	,SCORE
+----------		--	,IS_CHECKED
+----------		--	,IS_DUPLICATE
+----------		--)
+----------		--SELECT DESTINATION, ITEM_REVIEW_ID, _SCORE, 0, 0
+----------		--from TB_ITEM_DUPLICATES_TEMP DT
+----------		--inner join TB_ITEM_REVIEW IR on DT.ITEM_ID = IR.ITEM_ID and IR.REVIEW_ID = @revID
+----------		--WHERE DT.ITEM_ID not in 
+----------		--(
+----------		--	SELECT dt1.ITEM_ID from TB_ITEM_DUPLICATES_TEMP dt1
+----------		--	inner join TB_ITEM_REVIEW ir1 on dt1.ITEM_ID = ir1.ITEM_ID and ir1.REVIEW_ID = @revID
+----------		--	inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS gm 
+----------		--	on dt1.DESTINATION = gm.ITEM_DUPLICATE_GROUP_ID and ir1.ITEM_REVIEW_ID = gm.ITEM_REVIEW_ID
+----------		--)
+		
+----------		--remove temporary results.
+----------		delete FROM TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @revID
+----------	END
+----------END
+----------GO
+
+----------USE [Reviewer]
+----------GO
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
 ----------/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateFindNew]    Script Date: 5/27/2016 4:30:26 PM ******/
 ----------SET ANSI_NULLS ON
 ----------GO
@@ -2127,8 +2359,242 @@ GO
 ----------	delete FROM TB_ITEM_DUPLICATES_TEMP WHERE REVIEW_ID = @revID
 ----------	END
 
+<<<<<<< HEAD
 ----------GO
 
+
+----------USE [Reviewer]
+----------GO
+----------/****** Object:  StoredProcedure [dbo].[st_OutcomeList]    Script Date: 5/24/2016 5:08:56 PM ******/
+----------SET ANSI_NULLS ON
+----------GO
+----------SET QUOTED_IDENTIFIER ON
+----------GO
+----------ALTER procedure [dbo].[st_OutcomeList]
+----------(
+----------	@REVIEW_ID INT,
+----------	@META_ANALYSIS_ID INT,
+----------	@QUESTIONS nvarchar(max) = '',
+----------	@ANSWERS nvarchar(max) = ''
+----------	/*@SET_ID BIGINT,
+----------	@ITEM_ATTRIBUTE_ID_INTERVENTION BIGINT = NULL,
+----------	@ITEM_ATTRIBUTE_ID_CONTROL BIGINT = NULL,
+----------	@ITEM_ATTRIBUTE_ID_OUTCOME BIGINT = NULL,
+----------	@ATTRIBUTE_ID BIGINT = NULL,
+	
+	
+----------	@VARIABLES NVARCHAR(MAX) = NULL,
+----------	@ANSWERS NVARCHAR(MAX) = '',
+----------	@QUESTIONS NVARCHAR(MAX) = ''*/
+----------)
+
+----------As
+
+----------SET NOCOUNT ON
+----------	declare @t table (OUTCOME_ID int, META_ANALYSIS_OUTCOME_ID int)
+----------	insert into @t select tio.OUTCOME_ID, META_ANALYSIS_OUTCOME_ID from 
+----------	TB_ITEM_OUTCOME tio
+----------	inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = tio.ITEM_SET_ID
+----------		AND tis.IS_COMPLETED = 1
+----------	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @REVIEW_ID and rs.SET_ID = tis.SET_ID
+----------	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tis.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+----------	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tis.ITEM_SET_ID
+----------	inner join TB_ITEM on TB_ITEM.ITEM_ID = tis.ITEM_ID
+----------	inner JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+----------		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+
+----------	SELECT distinct tio.OUTCOME_ID, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+----------	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, SHORT_TITLE, OUTCOME_DESCRIPTION,
+----------	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+----------	t.META_ANALYSIS_OUTCOME_ID, 
+----------	tis.ITEM_SET_ID, TB_ITEM_ATTRIBUTE.ITEM_ID,
+----------	A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT, A3.ATTRIBUTE_NAME OUTCOME_TEXT
+----------	FROM TB_ITEM_OUTCOME tio
+----------	inner join TB_ITEM_SET tis on tis.ITEM_SET_ID = tio.ITEM_SET_ID
+----------		AND tis.IS_COMPLETED = 1
+----------	inner join TB_REVIEW_SET rs on rs.REVIEW_ID = @REVIEW_ID and rs.SET_ID = tis.SET_ID
+----------	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tis.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+----------	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tis.ITEM_SET_ID
+----------	inner join TB_ITEM on TB_ITEM.ITEM_ID = tis.ITEM_ID
+----------	LEFT OUTER JOIN @t t ON t.OUTCOME_ID = tio.OUTCOME_ID
+----------		--AND t.META_ANALYSIS_ID = @META_ANALYSIS_ID
+----------	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+----------	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+----------	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME
+
+----------	--second sets of results, the answers
+----------	--we need to get these, even if empty, so that we always get a reader
+	
+----------	IF (@QUESTIONS is not null AND @QUESTIONS != '')
+----------	BEGIN
+----------		declare @QT table ( AttID bigint primary key)
+----------		insert into @QT select qss.value from dbo.fn_Split_int(@QUESTIONS, ',') as qss
+----------		select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID 
+----------			, ATTRIBUTE_NAME as Codename
+----------			, a.ATTRIBUTE_ID as ATTRIBUTE_ID
+----------			, tas.PARENT_ATTRIBUTE_ID
+----------		from TB_ITEM_OUTCOME tio 
+----------		inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+----------		inner join TB_ITEM_SET tis2 on tis.ITEM_ID = tis2.ITEM_ID
+----------		inner join TB_ITEM_ATTRIBUTE tia on tis2.ITEM_SET_ID = tia.ITEM_SET_ID
+----------		inner join TB_REVIEW_SET rs on tis2.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID
+----------		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+----------		inner join @QT Qs on Qs.AttID = tas.PARENT_ATTRIBUTE_ID
+----------		inner join TB_ATTRIBUTE a on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+----------		order by OUTCOME_ID, tas.PARENT_ATTRIBUTE_ID, tas.ATTRIBUTE_ORDER, a.ATTRIBUTE_ID
+----------	END
+----------	ELSE
+----------	BEGIN
+----------	select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+----------		tio.OUTCOME_TITLE as Codename
+----------		, tio.ITEM_ATTRIBUTE_ID_CONTROL as ATTRIBUTE_ID, tio.ITEM_ATTRIBUTE_ID_CONTROL as PARENT_ATTRIBUTE_ID
+----------		from TB_ITEM_OUTCOME tio
+----------		inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and 1=0
+----------	END
+
+
+----------	IF (@ANSWERS is not null AND @ANSWERS != '')
+----------	BEGIN
+----------	--third set of results, the questions
+----------	declare @AT table ( AttID bigint primary key)
+----------	insert into @AT select qss.value from dbo.fn_Split_int(@ANSWERS, ',') as qss
+----------	select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+----------		--(Select top(1) a.ATTRIBUTE_NAME from @AT 
+----------		--inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = AttID
+----------		--inner join TB_ATTRIBUTE a on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+----------		--inner join TB_ITEM_ATTRIBUTE tia on a.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+----------		--inner join TB_ITEM_SET tis1 on tia.ITEM_SET_ID = tis1.ITEM_SET_ID and tis1.IS_COMPLETED = 1 and tis.ITEM_ID = tis1.ITEM_ID
+----------		--inner join TB_REVIEW_SET rs1 on tis1.SET_ID = rs1.SET_ID and rs1.REVIEW_ID = @REVIEW_ID
+----------		--order by tas.ATTRIBUTE_ORDER ) as Codename
+----------		tia.ATTRIBUTE_ID, a.ATTRIBUTE_NAME
+----------	from TB_ITEM_OUTCOME tio 
+----------	inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1
+----------	inner join TB_REVIEW_SET rs on tis.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID
+----------	inner join TB_ITEM_SET tis2 on tis.ITEM_ID = tis2.ITEM_ID and tis2.IS_COMPLETED = 1
+----------	inner join TB_ATTRIBUTE_SET tas on tis2.SET_ID = tas.SET_ID
+----------	inner join TB_ITEM_ATTRIBUTE tia on tis2.ITEM_ID = tia.ITEM_ID and tas.ATTRIBUTE_ID = tia.ATTRIBUTE_ID
+----------	inner join @AT on AttID = tia.ATTRIBUTE_ID
+----------	inner join TB_ATTRIBUTE a on tia.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+----------	order by OUTCOME_ID
+----------	END
+----------	ELSE
+----------	BEGIN
+----------		select tio.OUTCOME_ID, tio.OUTCOME_TITLE, tis.ITEM_ID, 
+----------		tio.ITEM_ATTRIBUTE_ID_CONTROL as ATTRIBUTE_ID, tio.OUTCOME_TITLE as ATTRIBUTE_NAME
+----------	from TB_ITEM_OUTCOME tio inner join TB_ITEM_SET tis on tio.ITEM_SET_ID = tis.ITEM_SET_ID and 1=0
+	
+----------	END
+	
+------------DECLARE @START_TEXT NVARCHAR(MAX) = N' SELECT distinct tio.OUTCOME_ID, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+------------	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, SHORT_TITLE, OUTCOME_DESCRIPTION,
+------------	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+------------	TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_OUTCOME_ID, TB_ITEM_SET.ITEM_SET_ID, TB_ITEM_ATTRIBUTE.ITEM_ID,
+------------	A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT, A3.ATTRIBUTE_NAME OUTCOME_TEXT'
+	
+------------DECLARE @END_TEXT NVARCHAR(MAX) = N' FROM TB_ITEM_OUTCOME tio
+
+------------	inner join TB_ITEM_SET on tb_item_set.ITEM_SET_ID = tio.ITEM_SET_ID
+------------		AND TB_ITEM_SET.IS_COMPLETED = ''TRUE''
+------------	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tb_item_set.ITEM_ID AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+------------	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tb_item_set.ITEM_SET_ID
+------------	inner join TB_ITEM on TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+	
+------------	LEFT OUTER JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+------------		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+		
+------------	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+------------	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+------------	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME'
+	
+------------DECLARE @QUERY NVARCHAR(MAX) = @VARIABLES + @START_TEXT + @ANSWERS + @QUESTIONS + @END_TEXT
+	
+------------EXEC (@QUERY)
+
+------------/*
+------------SELECT distinct tio.OUTCOME_ID, SHORT_TITLE, tio.ITEM_SET_ID, OUTCOME_TYPE_ID, ITEM_ATTRIBUTE_ID_INTERVENTION,
+------------	ITEM_ATTRIBUTE_ID_CONTROL, ITEM_ATTRIBUTE_ID_OUTCOME, OUTCOME_TITLE, OUTCOME_DESCRIPTION,
+------------	DATA1, DATA2, DATA3, DATA4, DATA5, DATA6, DATA7, DATA8, DATA9, DATA10, DATA11, DATA12, DATA13, DATA14,
+------------	TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_OUTCOME_ID, TB_ITEM_SET.ITEM_SET_ID,
+------------	TB_ITEM_ATTRIBUTE.ITEM_ID, A1.ATTRIBUTE_NAME INTERVENTION_TEXT, A2.ATTRIBUTE_NAME CONTROL_TEXT,
+------------		A3.ATTRIBUTE_NAME OUTCOME_TEXT
+	
+------------	FROM TB_ITEM_OUTCOME tio
+
+------------	inner join TB_ITEM_SET on tb_item_set.ITEM_SET_ID = tio.ITEM_SET_ID
+------------		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+------------	inner join TB_ITEM_REVIEW on tb_item_review.ITEM_ID = tb_item_set.ITEM_ID
+------------	inner JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_SET_ID = tb_item_set.ITEM_SET_ID
+------------	inner join TB_ITEM on TB_ITEM.ITEM_ID = TB_ITEM_SET.ITEM_ID
+	
+------------	LEFT OUTER JOIN TB_META_ANALYSIS_OUTCOME ON TB_META_ANALYSIS_OUTCOME.OUTCOME_ID = tio.OUTCOME_ID
+------------		AND TB_META_ANALYSIS_OUTCOME.META_ANALYSIS_ID = @META_ANALYSIS_ID
+		
+------------	left outer JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_INTERVENTION 
+------------	left outer JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_CONTROL
+------------	left outer JOIN TB_ATTRIBUTE A3 ON A3.ATTRIBUTE_ID = tio.ITEM_ATTRIBUTE_ID_OUTCOME
+	
+------------	WHERE TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+------------	AND (@ITEM_ATTRIBUTE_ID_INTERVENTION = 0 OR (ITEM_ATTRIBUTE_ID_INTERVENTION = @ITEM_ATTRIBUTE_ID_INTERVENTION))
+------------	AND (@ITEM_ATTRIBUTE_ID_CONTROL = 0 OR (ITEM_ATTRIBUTE_ID_CONTROL = @ITEM_ATTRIBUTE_ID_CONTROL))
+------------	AND (@ITEM_ATTRIBUTE_ID_OUTCOME = 0 OR (ITEM_ATTRIBUTE_ID_OUTCOME = @ITEM_ATTRIBUTE_ID_OUTCOME))
+------------	--	AND (@ATTRIBUTE_ID IS NULL OR (TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID = @ATTRIBUTE_ID))
+------------	--AND (
+------------	--	@ATTRIBUTE_ID IS NULL OR 
+------------	--		(
+------------	--		TB_ITEM_SET.ITEM_ID IN
+------------	--			( 
+------------	--			SELECT IA2.ITEM_ID FROM TB_ITEM_ATTRIBUTE IA2 
+------------	--			INNER JOIN TB_ITEM_SET IS2 ON IS2.ITEM_SET_ID = IA2.ITEM_SET_ID AND IS2.IS_COMPLETED = 'TRUE'
+------------	--			WHERE IA2.ATTRIBUTE_ID = @ATTRIBUTE_ID
+------------	--			)
+------------	--		)
+------------	--	)
+------------	--AND (--temp correction for before publishing: @ATTRIBUTE_ID is (because of bug) actually the item_attribute_id
+------------	--	@ATTRIBUTE_ID = 0 OR 
+------------	--		(
+------------	--		tio.OUTCOME_ID IN
+------------	--			( 
+------------	--				select tio2.OUTCOME_ID from TB_ATTRIBUTE_SET tas
+------------	--				inner join TB_ITEM_OUTCOME_ATTRIBUTE ioa on tas.ATTRIBUTE_ID = ioa.ATTRIBUTE_ID and tas.ATTRIBUTE_SET_ID = @ATTRIBUTE_ID
+------------	--				inner join TB_ITEM_OUTCOME tio2 on ioa.OUTCOME_ID = tio2.OUTCOME_ID
+------------	--			)
+------------	--		)
+------------	--	)--end of temp correction
+------------	AND (--real correction to use when bug is corrected in line 174 of dialogMetaAnalysisSetup.xaml.cs
+------------		@ATTRIBUTE_ID = 0 OR 
+------------			(
+------------			tio.OUTCOME_ID IN 
+------------				( 
+------------					select tio2.OUTCOME_ID from TB_ITEM_OUTCOME_ATTRIBUTE ioa  
+------------					inner join TB_ITEM_OUTCOME tio2 on ioa.OUTCOME_ID = tio2.OUTCOME_ID and ioa.ATTRIBUTE_ID = @ATTRIBUTE_ID
+------------				)
+------------			)
+------------		)--end of real correction
+------------	AND (@SET_ID = 0 OR (TB_ITEM_SET.SET_ID = @SET_ID))
+	
+------------	--order by TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+------------*/
+----------SET NOCOUNT OFF
+----------GO
+
+----------USE [Reviewer]
+----------GO
+----------CREATE NONCLUSTERED INDEX [IX_REVIEW_ID]
+----------ON [dbo].[TB_REVIEW_SET] ([REVIEW_ID])
+
+=======
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
+----------GO
+
+----------CREATE NONCLUSTERED INDEX [IX_ITEM_DUPLICATE_GROUP_ID_ITEM_REVIEW_ID]
+----------ON [dbo].[TB_ITEM_DUPLICATE_GROUP_MEMBERS] ([ITEM_DUPLICATE_GROUP_ID])
+----------INCLUDE ([ITEM_REVIEW_ID])
+----------GO
+
+----------CREATE NONCLUSTERED INDEX [IX_REVIEW_ID_ITEM_DUPLICATE_GROUP_ID]
+----------ON [dbo].[TB_ITEM_DUPLICATE_GROUP] ([REVIEW_ID])
+----------INCLUDE ([ITEM_DUPLICATE_GROUP_ID])
+----------GO
 
 ----------USE [Reviewer]
 ----------GO
@@ -2702,7 +3168,40 @@ GO
 --------------	left outer join @T1c tia1a on tia1a.ITEM_ID = t1.ITEM_ID and t2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID
 --------------	left outer join @T2c tia2a on tia2a.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID
 --------------	where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+<<<<<<< HEAD
 
+=======
+>>>>>>> ac1d81ca84404c495726bf0893feb5fc8b7be12b
+
+----------------insert into @T1ca2
+----------------Select t1.item_id from @T1 t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
+----------------	inner join TB_ITEM_SET tis on t1.ITEM_ID = tis.ITEM_ID and tis.CONTACT_ID = @c1 and tis.SET_ID = @set
+----------------	inner join TB_ITEM_ATTRIBUTE tia on tis.ITEM_SET_ID = tia.ITEM_SET_ID --need to join all the way to TB_ITEM_ATTRIBUTE to be 100% that some codes are present
+----------------	inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+----------------	inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c2 and tis2.SET_ID = @set
+----------------	inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID	
+----------------	except
+--------------	--select * from @T1 t1 --this lists all actual disagreements, going through tb_item_set->tb_item_attribute to get the real situation,
+--------------	--										-- then the double outer joins as before
+--------------	--inner join TB_ITEM_SET tis1 on t1.ITEM_ID = tis1.ITEM_ID and tis1.CONTACT_ID = @c1 and tis1.SET_ID = @set
+--------------	--inner join TB_ITEM_ATTRIBUTE tia1 on tis1.ITEM_SET_ID = tia1.ITEM_SET_ID 
+--------------	--inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID 
+--------------	--inner join TB_ITEM_SET tis2 on t2.ITEM_ID = tis2.ITEM_ID and tis2.CONTACT_ID = @c2 and tis2.SET_ID = @set
+--------------	--inner join TB_ITEM_ATTRIBUTE tia2 on tis2.ITEM_SET_ID = tia2.ITEM_SET_ID 
+--------------	--			and tia1.ATTRIBUTE_ID != tia2.ATTRIBUTE_ID
+--------------	--left outer join TB_ITEM_ATTRIBUTE tia1a on tis1.ITEM_SET_ID = tia1a.ITEM_SET_ID and tia1a.ITEM_ID = tis1.ITEM_ID and tia2.ATTRIBUTE_ID = tia1a.ATTRIBUTE_ID
+--------------	--left outer join TB_ITEM_ATTRIBUTE tia2a on tis2.ITEM_SET_ID = tia2a.ITEM_SET_ID and tia2a.ITEM_ID = tis2.ITEM_ID and tia1.ATTRIBUTE_ID = tia2a.ATTRIBUTE_ID
+--------------	--where tia1a.ATTRIBUTE_ID is null or tia2a.ATTRIBUTE_ID is null
+
+----------------COMPARISON AGREEMENTS: 1 V 2, uses the same techniques as before to find the list of all agreed-items according to the comparison snapshot
+--------------insert into @T1a2
+--------------Select distinct t1.ITEM_ID from @T1 t1 
+--------------	inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID
+--------------	except
+--------------select distinct(t1.item_id) from @T1 t1 inner join @T2 t2 on t1.ITEM_ID = t2.ITEM_ID and t1.ATTRIBUTE_ID != t2.ATTRIBUTE_ID
+--------------	left outer join @T2 t2b on t1.ATTRIBUTE_ID = t2b.ATTRIBUTE_ID and t1.ITEM_ID = t2b.ITEM_ID
+--------------	left outer join @T1 t1b on  t1b.ATTRIBUTE_ID = t2.ATTRIBUTE_ID and t1b.ITEM_ID = t2.ITEM_ID
+--------------	where t1b.ATTRIBUTE_ID is null or t2b.ATTRIBUTE_ID is null
 
 ----------------insert into @T1ca2
 ----------------Select t1.item_id from @T1 t1 --this list all items that are present in the comparison R1 vs R2 and have some codes applied by both
