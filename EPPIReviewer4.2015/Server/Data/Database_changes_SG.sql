@@ -193,7 +193,7 @@ SET NOCOUNT ON
 		WHERE TI.TRAINING_ITEM_ID = @sendingBackTID
 		--INNER JOIN @UPDATED_TRAINING_ITEM UTI ON UTI.TRAINING_ITEM_ID = TI.TRAINING_ITEM_ID
 SET NOCOUNT OFF
-
+GO
 USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ItemAttributeAutoReconcile]    Script Date: 08/24/2017 10:09:53 ******/
