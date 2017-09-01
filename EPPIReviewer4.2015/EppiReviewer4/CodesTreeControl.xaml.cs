@@ -3860,7 +3860,21 @@ namespace EppiReviewer4
                 if (rs.SetId == reviewInfo.ScreeningCodeSetId)
                 {
                     homeDocuments homedocs = this.ParentOfType<homeDocuments>();
-                    if (homedocs != null) homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
+                    if (homedocs != null)
+                    {
+                        //if (provider != null)
+                        //{
+                        //    provider.Refresh();
+                        //}
+                        if (homedocs.DocumentListPane.SelectedItem != homedocs.PaneActiveScreening)
+                        {
+                            homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
+                        }
+                        
+                        homedocs.ResetScreeningUI();
+                        homedocs.SetScreeningToMultipleAnd2Users();
+                    }
+                    
                 }
             }
         }
@@ -3885,7 +3899,14 @@ namespace EppiReviewer4
             if (rs.SetId == reviewInfo.ScreeningCodeSetId)
             {
                 homeDocuments homedocs = this.ParentOfType<homeDocuments>();
-                if (homedocs != null) homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
+                if (homedocs != null)
+                {
+                    if (provider != null) provider.Refresh();
+                    if (homedocs.DocumentListPane.SelectedItem != homedocs.PaneActiveScreening)
+                    {
+                        homedocs.DocumentListPane.SelectedItem = homedocs.PaneActiveScreening;
+                    }
+                }
             }
             
             rs.CodingIsFinal = true;

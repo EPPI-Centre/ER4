@@ -40,7 +40,6 @@ namespace BusinessLibrary.BusinessClasses
                 return (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin) && ri.HasWriteRights();
             }
         }
-        
 #else
         private ReviewInfo() { }
 #endif
