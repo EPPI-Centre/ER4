@@ -883,7 +883,8 @@ namespace EppiReviewer4
                     RadWindow.Alert(e2.Error.Message);
                 }
                 refreshSources();
-                LoadData();
+                //LoadData();
+                GetItemListData();
             };
             BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
