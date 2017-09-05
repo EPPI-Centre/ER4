@@ -871,6 +871,7 @@ namespace EppiReviewer4
         }
         private void cmdDoDeleteSource_Click(object sender, RoutedEventArgs e)
         {
+
             windowConfirmDeleteSource.Close();
             int SourceID = (int)((System.Windows.Controls.Button)sender).Tag;
             DataPortal<SourceDeleteCommand> dp = new DataPortal<SourceDeleteCommand>();
@@ -884,7 +885,7 @@ namespace EppiReviewer4
                 }
                 refreshSources();
                 //LoadData();
-                GetItemListData();
+                GetItemListData();//we just want the items list, nothing more to refresh!
             };
             BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
