@@ -52,6 +52,13 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+        public bool CanBeScreeningSet
+        {
+            get
+            {
+                return SetTypeId != 6;
+            }
+        }
 #else
         private ReviewSet() { }
 #endif

@@ -202,6 +202,8 @@ namespace EppiReviewer4
                 this.grView1.Rebind();
                 this.b2.IsEnabled = false;
                 this.txtb0.Text = "";
+                //NEw Add Sept 2017: mark the review as in need of indexing, if required.
+                UpdateReviewInfo();
                 refreshSources();
             }
             IIL.IncomingItems.Clear();
@@ -251,7 +253,9 @@ namespace EppiReviewer4
                    this.b2.IsEnabled = false;
                    this.txtb0.Text = "";
                    SetResultMessage("");
-                   refreshSources();
+                    //NEw Add Sept 2017: mark the review as in need of indexing, if required.
+                    UpdateReviewInfo();
+                    refreshSources();
                    IIL.IncomingItems.Clear();
                    this.grView1.ItemsSource = null;
                    this.grView1.Rebind();
@@ -262,7 +266,25 @@ namespace EppiReviewer4
            //IIL.IncomingItems.Clear();
            //loadingInItemsAnimation.IsRunning = false;
        }
-       void SetResultMessage(string Msg)
+        private void UpdateReviewInfo()
+        {
+            //NEw Add Sept 2017: mark the review as in need of indexing, if required.
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (provider == null || provider.Data == null) return;
+            ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            if (RevInfo == null) return;
+            if (RevInfo.ShowScreening && RevInfo.ScreeningCodeSetId > 0)
+            {
+                RevInfo.Saved += (o, e2) =>
+                {
+                    provider.Refresh();
+                };
+                RevInfo.ScreeningIndexed = false;
+                RevInfo.ApplyEdit();
+                RevInfo.BeginSave(true);
+            }
+        }
+        void SetResultMessage(string Msg)
        {
            if (Msg == "" || Msg.Contains(" items found.") || Msg == null)
            {
@@ -504,6 +526,7 @@ namespace EppiReviewer4
             if (pms.ItemsList.IncomingItems == null)
             {
                 ResetSearch();
+                UpdateReviewInfo();
                 refreshSources();
             }
             else SourcesMainPaneGroup.IsEnabled = true;

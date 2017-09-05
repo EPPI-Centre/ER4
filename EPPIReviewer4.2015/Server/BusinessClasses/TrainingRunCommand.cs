@@ -190,17 +190,34 @@ namespace BusinessLibrary.BusinessClasses
                     ReportBack = "";
                 }
 
-                // Stage 3: post the TB_ITEM data for the review up to azure if this hasn't already been done
-                if (RevInfo.ScreeningIndexed == false)
-                {
-                    UploadDataToAzureBlob(ReviewID, true); // ScreeningIndexed == true, which sets the 'screening indexed' flag in reviewinfo (means data uploaded AND vectorised, so ready for active learning)
-                    await InvokeBatchExecutionService(RevInfo, "Vectorise"); 
-                    justIndexed = true;
+                //// (OLD) Stage 3: post the TB_ITEM data for the review up to azure if this hasn't already been done
+                //if (RevInfo.ScreeningIndexed == false)
+                //{
+                //    UploadDataToAzureBlob(ReviewID, true); // ScreeningIndexed == true, which sets the 'screening indexed' flag in reviewinfo (means data uploaded AND vectorised, so ready for active learning)
+                //    await InvokeBatchExecutionService(RevInfo, "Vectorise"); 
+                //    justIndexed = true;
+                //}
+
+                // (NEW change by Sergio) Stage 3: post the TB_ITEM data, this is forced if RevInfoScreeningIndexed == false.
+                justIndexed = UploadDataToAzureBlob(ReviewID, RevInfo.ScreeningIndexed); // when ScreeningIndexed == true data will be uploaded only if it isn't already there, returns FALSE when nothing is done
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobClient.GetContainerReference("uploads");
+                CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv");
+                if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobData.Exists())
+                {//vectorise if:
+                    //(currently user-set) flag forcing (re)indexing is set to FALSE ( = need to create index)
+                    //OR we just built the index anyway (make sure vectors are up to date)
+                    //OR there is no Vectors file...
+                    await InvokeBatchExecutionService(RevInfo, "Vectorise");
+                    //justIndexed = true;
                 }
 
+
+
                 // Stage 4: update Azure include / exclude data (this changes each iteration, unlike the review data)
-                if (justIndexed == false) // no need to update if we've only just written the data, as indexing also creates initial include/ exclude data file
-                {
+                if (justIndexed == false)
+                {// no need to update if we've only just written the data, as indexing also creates initial include/ exclude data file
                     UpdateAzureIncludeExcludeData(ReviewID);
                 }
 
@@ -209,10 +226,9 @@ namespace BusinessLibrary.BusinessClasses
                 await InvokeBatchExecutionService(RevInfo, "BuildAndScore");
 
                 // Stage 6: bring the data down from Azure BLOB and write to the tb_training item table
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference("results");
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + ".csv");
+                
+                container = blobClient.GetContainerReference("results");
+                CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + ".csv");
                 
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
                 MemoryStream ms = new MemoryStream(myFile);
@@ -221,7 +237,7 @@ namespace BusinessLibrary.BusinessClasses
                 dt.Columns.Add("SCORE");
                 dt.Columns.Add("ITEM_ID");
                 dt.Columns.Add("REVIEW_ID");
-
+                bool MLreturnedEmptyLines = false;
                 using (TextFieldParser csvReader = new TextFieldParser(ms))
                 {
                     csvReader.SetDelimiters(new string[] { "," });
@@ -229,7 +245,7 @@ namespace BusinessLibrary.BusinessClasses
                     while (!csvReader.EndOfData)
                     {
                         string[] data = csvReader.ReadFields();
-                        if (data.Length == 3)
+                        if (data.Length == 3 && data[1].Length > 0 && data[2].Length > 0)
                         {
                             if (data[0] == "1")
                             {
@@ -247,6 +263,9 @@ namespace BusinessLibrary.BusinessClasses
                                 data[0] = dbl.ToString("F10");
                             }
                             dt.Rows.Add(data);
+                        } else
+                        {
+                            MLreturnedEmptyLines = true;
                         }
                         //for (var i = 0; i < data.Length; i++)
                         //{
@@ -293,6 +312,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
+                //new Add (Sept 2017): if ML returned empty lines, update the reviewinfo object with ScreeningIndexed = false, that's because new items were added
+                //next time the training runs, it will re-index.
+                if (MLreturnedEmptyLines)
+                {
+                    RevInfo.ScreeningIndexed = false;
+                    RevInfo.ApplyEdit();
+                    RevInfo.BeginSave(true);
+                }
             }
         }
 
@@ -378,7 +405,7 @@ namespace BusinessLibrary.BusinessClasses
             //return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
         }
 
-        private void UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
+        private bool UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
@@ -386,58 +413,71 @@ namespace BusinessLibrary.BusinessClasses
             StringBuilder labels = new StringBuilder();
             //data.Append("\"REVIEW_ID\",\"ITEM_ID\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"" + Environment.NewLine);
             labels.Append("\"REVIEW_ID\",\"ITEM_ID\",\"LABEL\"" + Environment.NewLine);
-
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
-                using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("uploads");
+            CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + ".csv");
+            CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
+            if (!ScreeningIndexed
+                ||
+                !blockBlobData.Exists()
+                ||
+                !blockBlobLabels.Exists()
+                )
+            {//we only do something if: 
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
-                    command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ScreeningIndexed));
-                    command.CommandTimeout = 600;
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    connection.Open();
+                    string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                    using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
                     {
-                        List<Int64> ItemIds = new List<Int64>();
-                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
+                        //OLD version 
+                        //command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ScreeningIndexed));
+                        
+                        //NEW: we are setting DB flag to true as we are actually indexing right now! 
+                        //Flag can only be re-flipped by users, when they want to. In the future might be flipped when importing new items or editing existing ones...
+                        command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", true));
+                        command.CommandTimeout = 600;
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            file.WriteLine("\"REVIEW_ID\",\"ITEM_ID\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
-                            while (reader.Read())
+                            List<Int64> ItemIds = new List<Int64>();
+                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileName, false))
                             {
-                                if (ItemIds.IndexOf(reader.GetInt64("item_id")) == -1)
+                                file.WriteLine("\"REVIEW_ID\",\"ITEM_ID\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
+                                while (reader.Read())
                                 {
-                                    ItemIds.Add(reader.GetInt64("item_id"));
+                                    if (ItemIds.IndexOf(reader.GetInt64("item_id")) == -1)
+                                    {
+                                        ItemIds.Add(reader.GetInt64("item_id"));
 
-                                    file.WriteLine("\"" + reader["review_id"].ToString() + "\"," +
-                                        "\"" + reader["item_id"].ToString() + "\"," +
-                                        "\"" + CleanText(reader, "title") + "\"," +
-                                        "\"" + CleanText(reader, "abstract") + "\"," +
-                                        "\"" + CleanText(reader, "keywords") + "\"");
+                                        file.WriteLine("\"" + reader["review_id"].ToString() + "\"," +
+                                            "\"" + reader["item_id"].ToString() + "\"," +
+                                            "\"" + CleanText(reader, "title") + "\"," +
+                                            "\"" + CleanText(reader, "abstract") + "\"," +
+                                            "\"" + CleanText(reader, "keywords") + "\"");
 
-                                    labels.Append("\"" + reader["review_id"].ToString() + "\"," +
-                                        "\"" + reader["item_id"].ToString() + "\"," +
-                                        "\"" + CleanText(reader, "included") + "\"" + Environment.NewLine);
+                                        labels.Append("\"" + reader["review_id"].ToString() + "\"," +
+                                            "\"" + reader["item_id"].ToString() + "\"," +
+                                            "\"" + CleanText(reader, "included") + "\"" + Environment.NewLine);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                connection.Close();
+                    connection.Close();
 
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-                CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + ".csv");
-
-                CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "Labels.csv");
-                using (var fileStream = System.IO.File.OpenRead(fileName))
-                {
-                    blockBlobData.UploadFromStream(fileStream);
+                    using (var fileStream = System.IO.File.OpenRead(fileName))
+                    {
+                        blockBlobData.UploadFromStream(fileStream);
+                    }
+                    File.Delete(fileName);
+                    //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+                    blockBlobLabels.UploadText(labels.ToString());
                 }
-                File.Delete(fileName);
-                //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
-                blockBlobLabels.UploadText(labels.ToString());
+                return true;//we actually did re-index
             }
+            return false;//didn't re-index, wasn't necessary.
         }
 
         private void UpdateAzureIncludeExcludeData(int ReviewID)
@@ -473,7 +513,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("uploads");
-                CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "Labels.csv");
+                CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
                 blockBlobLabels.UploadText(labels.ToString());
             }
         }
@@ -505,7 +545,7 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("simulations");
-            CloudBlockBlob blockBlob = container.GetBlockBlobReference("ReviewId" + ReviewID.ToString() + ".csv");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
 
             try // if the simulation hasn't finished yet, there will be no file
             {
@@ -571,6 +611,16 @@ namespace BusinessLibrary.BusinessClasses
         const string apiKeySimulation5 = "SHEtFboe9xMDh2Q4YdpmVJXTho5GBcbBprJR2SrVxv0GT6QVC+RCVckz+xw4DrpCj0H2Qofy76pyy//ORzQd2A=="; // EPPI-R: active learning simulation (x10)
         const string TempPath = @"UserTempUploads/ReviewId";
 
+        public static string NameBase
+        {//used to generate different files on the cloud, based on where this is running, as it could be any dev/test machine as well as the live one (EPI3).
+            get
+            {
+                string name = Environment.MachineName;
+                if (name.ToLower() == "epi3") return "";
+                else return name;
+            }
+        }
+
         const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
 
         static async Task InvokeBatchExecutionService(ReviewInfo revInfo, string ApiCall)
@@ -592,9 +642,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
-                            { "LabelsFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
-                            { "VectorsFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + "Vectors.csv" },
+                            { "DataFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "LabelsFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
+                            { "VectorsFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "Vectors.csv" },
                         }
                     };
                 }
@@ -606,10 +656,10 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", @"uploads/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
-                            { "LabelsFile", @"uploads/ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
-                            { "ResultsFile", @"results/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
-                            { "VectorsFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + "Vectors.csv" },
+                            { "DataFile", @"uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "LabelsFile", @"uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
+                            { "ResultsFile", @"results/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "VectorsFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "Vectors.csv" },
                         }
                     };
                 }
@@ -621,9 +671,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
-                            { "LabelsFile", "uploads/ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
-                            { "ResultsFile", "simulations/ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "DataFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
+                            { "LabelsFile", "uploads/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "Labels.csv" },
+                            { "ResultsFile", "simulations/" + NameBase + "ReviewId" + revInfo.ReviewId.ToString() + ".csv" },
                         }
                     };
                 }

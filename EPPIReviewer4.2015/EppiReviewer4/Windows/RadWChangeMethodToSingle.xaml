@@ -5,7 +5,7 @@
         xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
 		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
 		           Header="Change data entry method"
-                   Width="410"
+                   Width="430"
                    CanClose="False"
                    CanMove="True" 
                    IsRestricted="True"
@@ -46,11 +46,11 @@
 
     <Grid x:Name="GridChangeMethodToSingle">
         <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="TextBlockChangeMethodToSingleComment" Grid.Row="0" Grid.RowSpan="3" TextWrapping="Wrap" Margin="6,6,6,6"></TextBlock>

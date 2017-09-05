@@ -66,7 +66,7 @@
         <TextBlock Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Text="Data entry method:" HorizontalAlignment="Right"></TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TextBlockEditCodeSetMethodSingle" Margin="6,6,6,6" Text="Normal" HorizontalAlignment="Left" FontStyle="Italic"></TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TextBlockEditCodeSetMethodMultiple" Margin="6,6,6,6" Text="Comparison" HorizontalAlignment="Left" FontStyle="Italic"></TextBlock>
-            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" x:Name="ChangeModeLinksStack"
                         Visibility="{Binding SetType.AllowComparison, Mode=OneTime, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <HyperlinkButton HorizontalAlignment="Center"
                                  x:Name="HyperLinkChangeMethodToSingle" Margin="6,0,6,6" Content="Change to Normal data entry" Click="HyperLinkChangeMethodToSingle_Click" />

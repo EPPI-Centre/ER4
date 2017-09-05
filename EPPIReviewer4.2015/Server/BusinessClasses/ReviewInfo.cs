@@ -30,9 +30,16 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if SILVERLIGHT
-    public ReviewInfo() { }
+        public ReviewInfo() { }
 
-        
+        public bool UserCanEditScreeningSetting
+        {
+            get
+            {
+                BusinessLibrary.Security.ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
+                return (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin) && ri.HasWriteRights();
+            }
+        }
 #else
         private ReviewInfo() { }
 #endif
@@ -171,18 +178,30 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningIndexedProperty, value);
             }
         }
-        private static PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
-        public string ScreeningDataFile
+        private static PropertyInfo<bool> ScreeningListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningListIsGood", "ScreeningListIsGood", false));
+        public bool ScreeningListIsGood
         {
             get
             {
-                return GetProperty(ScreeningDataFileProperty);
+                return GetProperty(ScreeningListIsGoodProperty);
             }
             set
             {
-                SetProperty(ScreeningDataFileProperty, value);
+                SetProperty(ScreeningListIsGoodProperty, value);
             }
         }
+        //private static PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
+        //public string ScreeningDataFile
+        //{
+        //    get
+        //    {
+        //        return GetProperty(ScreeningDataFileProperty);
+        //    }
+        //    set
+        //    {
+        //        SetProperty(ScreeningDataFileProperty, value);
+        //    }
+        //}
         private static PropertyInfo<string> BL_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_ACCOUNT_CODE", "BL_ACCOUNT_CODE", string.Empty));
         public string BL_ACCOUNT_CODE
         {
@@ -307,6 +326,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
+            
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -378,6 +398,26 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_ACCOUNT_CODEProperty, reader.GetString("BL_CC_ACCOUNT_CODE"));
                             LoadProperty<string>(BL_CC_AUTH_CODEProperty, reader.GetString("BL_CC_AUTH_CODE"));
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
+                        }
+                    }
+                }
+                //new bit (Apr 2017): see if there is a screening list that will actually work
+                using (SqlCommand command = new SqlCommand("st_TrainingNextItem", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", ScreeningCodeSetId));
+                    command.Parameters.Add(new SqlParameter("@SIMULATE", 1));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            LoadProperty<bool>(ScreeningListIsGoodProperty,  true);
+                        }
+                        else
+                        {
+                            LoadProperty<bool>(ScreeningListIsGoodProperty, false);
                         }
                     }
                 }

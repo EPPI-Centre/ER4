@@ -16,7 +16,7 @@ using System.Threading;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
-using SVM;
+//using SVM;
 using System.IO;
 using System.Xml;
 
@@ -273,7 +273,7 @@ namespace BusinessLibrary.BusinessClasses
                 // upload data to blob
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
-                CloudBlockBlob blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
+                CloudBlockBlob blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
                     + ".csv");
                 //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
 
@@ -289,7 +289,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 CloudBlobClient blobClientStats = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer containerStats = blobClient.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
+                CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
                     modelId.ToString() + "Stats.csv");
 
                 double accuracy = 0;
@@ -418,7 +418,7 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
                 CloudBlockBlob blockBlobData;
                 
-                blockBlobData = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
+                blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
                 //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
@@ -431,7 +431,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container2 = blobClient2.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = container2.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+                CloudBlockBlob blockBlob = container2.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
                 MemoryStream ms = new MemoryStream(myFile);
 
@@ -527,8 +527,8 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("attributemodels");
-            CloudBlockBlob blockBlobModel = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
-            CloudBlockBlob blockBlobStats = container.GetBlockBlobReference("ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
+            CloudBlockBlob blockBlobModel = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + ".csv");
+            CloudBlockBlob blockBlobStats = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + _classifierId.ToString() + "Stats.csv");
             try
             {
                 blockBlobModel.Delete();
@@ -652,9 +652,9 @@ public enum BatchScoreStatusCode
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", "attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-                            { "ModelFile", "attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-                            { "StatsFile", "attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Stats.csv" },
+                            { "DataFile", "attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
+                            { "ModelFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
+                            { "StatsFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Stats.csv" },
                         }
                     };
                 }
@@ -667,9 +667,9 @@ public enum BatchScoreStatusCode
                     {
                         GlobalParameters = new Dictionary<string, string>()
                         {
-                            { "DataFile", @"attributemodeldata/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/"  + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
-                            { "ResultsFile", @"attributemodels/ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
+                            { "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
+                            { "ModelFile", @"attributemodels/" + TrainingRunCommand.NameBase + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
+                            { "ResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
                         }
                     };
                 }

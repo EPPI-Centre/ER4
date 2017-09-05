@@ -782,6 +782,7 @@ namespace EppiReviewer4
 
         void dCoding_RunTrainingCommandRequest(object sender, EventArgs e)
         {
+
             TrainingList training = ((CslaDataProvider)App.Current.Resources["TrainingListData"]).Data as TrainingList;
             int maxIteration = Convert.ToInt32(training.Max(train => train.Iteration));
             Training t = training.Single(train => train.Iteration == maxIteration);
@@ -870,6 +871,7 @@ namespace EppiReviewer4
         }
         private void cmdDoDeleteSource_Click(object sender, RoutedEventArgs e)
         {
+
             windowConfirmDeleteSource.Close();
             int SourceID = (int)((System.Windows.Controls.Button)sender).Tag;
             DataPortal<SourceDeleteCommand> dp = new DataPortal<SourceDeleteCommand>();
@@ -882,7 +884,8 @@ namespace EppiReviewer4
                     RadWindow.Alert(e2.Error.Message);
                 }
                 refreshSources();
-                LoadData();
+                //LoadData();
+                GetItemListData();//we just want the items list, nothing more to refresh!
             };
             BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
@@ -2845,6 +2848,39 @@ namespace EppiReviewer4
 
         private void DocumentListPane_SelectionChanged(object sender, RoutedEventArgs e)
         {
+            if (DocumentListPane.SelectedPane.Name == "PaneActiveScreening")
+            {//this block needs to be on top, before setting menus
+                CslaDataProvider provider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
+                if (provider != null)
+                    provider.Refresh();
+
+                CslaDataProvider provider3 = App.Current.Resources["TrainingListData"] as CslaDataProvider;
+                if (provider3 != null)
+                    provider3.Refresh();
+                PaneActiveScreening_Activated(sender, e);
+            }
+            else
+            {
+                RadSelectionChangedEventArgs selChange = e as RadSelectionChangedEventArgs;
+                if (selChange != null)
+                {
+                    if (selChange.RemovedItems != null && selChange.RemovedItems.Count > 0 && selChange.RemovedItems.Contains(PaneActiveScreening))
+                    {
+                        CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+                        ReviewInfo rInfo = provider.Data as ReviewInfo;
+                        if (rInfo != null && rInfo.IsDirty)
+                        {
+                            RadWindow.Alert("It appears you have changed"
+                                 + Environment.NewLine + "Screening Settings."
+                                 + Environment.NewLine + "Please Save or Cancel your changes.");
+                            DocumentListPane.SelectionChanged -= DocumentListPane_SelectionChanged;
+                            DocumentListPane.SelectedItem = PaneActiveScreening;
+                            DocumentListPane.SelectionChanged += DocumentListPane_SelectionChanged;
+                        }
+                    }
+                }
+            }
+
             if (DocumentListPane.SelectedPane.Name == "PaneSearch")
             {
                 codesTreeControl.ShowSearchMenuOptions = true;
@@ -2908,18 +2944,6 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
                 if (DialogMyInfo != null) DialogMyInfo.RefreshVisibleList();
-            }
-
-            if (DocumentListPane.SelectedPane.Name == "PaneActiveScreening")
-            {
-                CslaDataProvider provider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
-                if (provider != null)
-                    provider.Refresh();
-                
-                CslaDataProvider provider3 = App.Current.Resources["TrainingListData"] as CslaDataProvider;
-                if (provider3 != null)
-                    provider3.Refresh();
-                PaneActiveScreening_Activated(sender, e);
             }
         }
 
@@ -4902,11 +4926,16 @@ on the right of the main screen");
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["TrainingScreeningCriteriaData"]);
             if (attribute != null && provider != null)
             {
+                TrainingScreeningCriteriaList thelist = provider.Data as TrainingScreeningCriteriaList;
                 TrainingScreeningCriteria tsc = new TrainingScreeningCriteria();
                 tsc.AttributeId = attribute.AttributeId;
                 tsc.Included = true;
                 tsc.AttributeName = attribute.AttributeName;
-                (provider.Data as TrainingScreeningCriteriaList).Add(tsc);
+                foreach (TrainingScreeningCriteria element in thelist)
+                {//we should not try adding an element that is already there!
+                    if (element.AttributeId == tsc.AttributeId) return;
+                }
+                thelist.Add(tsc);
                 tsc.BeginEdit();
                 tsc.ApplyEdit();
             }
@@ -4992,7 +5021,16 @@ on the right of the main screen");
         private void cmdTrainingBeginScreening_Click(object sender, RoutedEventArgs e)
         {
             CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (provider == null) return;
             ReviewInfo ri = provider.Data as ReviewInfo;
+            if (ri == null) return;
+            if (ri.IsDirty)
+            {
+                RadWindow.Alert("It appears you have changed"
+                                     + Environment.NewLine + "Screening Settings."
+                                     + Environment.NewLine + "Please Save or Cancel your changes.");
+                return;
+            }
             if (ri.ScreeningIndexed == true)
             {
                 dialogCodingControl.BindScreening();
@@ -5003,30 +5041,6 @@ on the right of the main screen");
                 RadWindow.Alert("Please create the list of items to screen first");
             }
         }
-
-        private void cmdTrainingProcessText_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("Are you sure? This will delete all current indexed text (where saved) and generate the data needed for data mining.\n\r Machine learning will be unavailable until this has been completed.", "Process text?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                DataPortal<TrainingProcessText> dp = new DataPortal<TrainingProcessText>();
-                TrainingProcessText command = new TrainingProcessText();
-                dp.ExecuteCompleted += (o, e2) =>
-                {
-                    //BusyLoading.IsRunning = false;
-                    if (e2.Error != null)
-                    {
-                        RadWindow.Alert(e2.Error.Message);
-                    }
-                    else
-                    {
-                        //MessageBox.Show("Training complete");
-                    }
-                };
-                //BusyLoading.IsRunning = true;
-                dp.BeginExecute(command);
-            }
-        }
-
         private void cmdProcessReviewerterms_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to process the terms?", "Process terms?", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
@@ -5326,8 +5340,99 @@ on the right of the main screen");
             {
                 codesSelectControlScreening.Visibility = System.Windows.Visibility.Visible;
             }
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {//data isn't here, nothing to do!
+                ReviewInfo RevInfo = RevInfoProvider.Data as ReviewInfo;
+                if (RevInfo != null)
+                {
+                    if (rbScreeningEverything.IsChecked == true)
+                    {
+                        RevInfo.ScreeningWhatAttributeId = 0;
+                    }
+                    else
+                    {
+                        if (codesSelectControlScreening.SelectedAttributeSet() != null)
+                        {
+                            RevInfo.ScreeningWhatAttributeId = codesSelectControlScreening.SelectedAttributeSet().AttributeId;
+                        }
+                    }
+                }
+            }
         }
-
+        void codesSelectControlScreening_SelectCode_SelectionChanged(object sender, Telerik.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {//data isn't here, nothing to do!
+                ReviewInfo RevInfo = RevInfoProvider.Data as ReviewInfo;
+                if (RevInfo != null)
+                {
+                    if (rbScreeningEverything.IsChecked == true)
+                    {
+                        RevInfo.ScreeningWhatAttributeId = 0;
+                    }
+                    else
+                    {
+                        if (codesSelectControlScreening.SelectedAttributeSet() != null)
+                        {
+                            RevInfo.ScreeningWhatAttributeId = codesSelectControlScreening.SelectedAttributeSet().AttributeId;
+                        }
+                    }
+                }
+            }
+        }
+        private void UpDownNScreening_ValueChanged(object sender, RadRangeBaseValueChangedEventArgs e)
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {//data isn't here, nothing to do!
+                ReviewInfo RevInfo = RevInfoProvider.Data as ReviewInfo;
+                if (RevInfo != null)
+                {
+                    if (rbScreeningEverything.IsChecked == true)
+                    {
+                        RevInfo.ScreeningWhatAttributeId = 0;
+                    }
+                    else
+                    {
+                        if (codesSelectControlScreening.SelectedAttributeSet() != null)
+                        {
+                            RevInfo.ScreeningWhatAttributeId = codesSelectControlScreening.SelectedAttributeSet().AttributeId;
+                        }
+                    }
+                }
+            }
+        }
+        private void ComboReconcilliationMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {//data isn't here, nothing to do!
+                ReviewInfo RevInfo = RevInfoProvider.Data as ReviewInfo;
+                if (RevInfo != null)
+                {
+                    switch (ComboReconcilliationMode.SelectedIndex)
+                    {
+                        case 0:
+                            RevInfo.ScreeningReconcilliation = "Single";
+                            break;
+                        case 1:
+                            RevInfo.ScreeningReconcilliation = "no compl";
+                            break;
+                        case 2:
+                            RevInfo.ScreeningReconcilliation = "auto code";
+                            break;
+                        case 3:
+                            RevInfo.ScreeningReconcilliation = "auto excl";
+                            break;
+                        case 4:
+                            RevInfo.ScreeningReconcilliation = "auto safet";
+                            break;
+                    }
+                }
+            }
+        }
         private void PaneActiveScreening_Activated(object sender, EventArgs e)
         {
             UpdateReviewInfoForScreening();
@@ -5409,18 +5514,17 @@ on the right of the main screen");
         private void cmdScreeningSaveReviewOptions_Click(object sender, RoutedEventArgs e)
         {
             CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (provider == null) return;
             ReviewInfo RevInfo = provider.Data as ReviewInfo;
-
-            if (MessageBox.Show("Are you sure you want to save these options?\n\r\n\r(It's important you're sure, as you're changing options for all users in the review)", "Confirm save", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+            if (RevInfo != null && RevInfo.IsDirty)
             {
-                RevInfo.CancelEdit(); // only seems to work for one 'cancel' in the UI (i.e the values are rolled back the first time, but remain in after that). a bug in CSLA?
-                provider.Refresh();
-                PaneActiveScreening_Activated(sender, e);
-                return;
-            }
-
-            if (RevInfo != null)
-            {
+                if (MessageBox.Show("Are you sure you want to save these options?\n\r\n\r(It's important you're sure, as you're changing options for all users in the review)", "Confirm save", MessageBoxButton.OKCancel) == MessageBoxResult.Cancel)
+                {
+                    RevInfo.CancelEdit(); // only seems to work for one 'cancel' in the UI (i.e the values are rolled back the first time, but remain in after that). a bug in CSLA?
+                    provider.Refresh();
+                    PaneActiveScreening_Activated(sender, e);
+                    return;
+                }
                 // set selected code set
                 if (ScreeningCodeSetComboSelectCodeSet.SelectedIndex != -1)
                 {
@@ -5498,7 +5602,17 @@ on the right of the main screen");
             CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
             provider.Refresh();
         }
-
+        private void cmdScreeningCancelReviewOptions_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (provider == null) return;
+            ReviewInfo RevInfo = provider.Data as ReviewInfo;
+            if (RevInfo == null) return;
+            RevInfo.CancelEdit(); // only seems to work for one 'cancel' in the UI (i.e the values are rolled back the first time, but remain in after that). a bug in CSLA?
+            provider.Refresh();
+            PaneActiveScreening_Activated(sender, e);
+            return;
+        }
         private void cmdSearchTabRefreshSearchList_Click(object sender, RoutedEventArgs e)
         {
             CslaDataProvider provider = App.Current.Resources["SearchesData"] as CslaDataProvider;
@@ -5540,10 +5654,11 @@ on the right of the main screen");
         {
             ResetScreeningUI();
             if (DocumentListPane.SelectedPane.Name != "PaneActiveScreening") return;
+            ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
+            if (rs == null) return;
             if (cbScreeningAddAttributesAutomatically.IsChecked == true)
             {
                 GridViewScreeningCodes.IsEnabled = false;
-                ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
                 CslaDataProvider TsclProvider = this.Resources["TrainingScreeningCriteriaData"] as CslaDataProvider;
                 if (TsclProvider == null)
                 {
@@ -5611,7 +5726,49 @@ on the right of the main screen");
                     }
                 }
             }
-           
+            //NEW (Aug 2017): complements what is done in ResetScreeningUI if selected set is in comparison mode, make sure #people screening is at least two.
+            if (!rs.CodingIsFinal) //set is in comparison mode
+            {
+                SetScreeningToMultipleAnd2Users();
+            }
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {
+                ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+                if (rInfo != null)
+                {
+                    if (ScreeningCodeSetComboSelectCodeSet.SelectedIndex != -1)
+                    {
+                        rInfo.ScreeningCodeSetId = (ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet).SetId;
+                    }
+                }
+            }
+            
+        }
+        private void ComboScreeningMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null || RevInfoProvider.Data != null)
+            {
+                ReviewInfo RevInfo = RevInfoProvider.Data as ReviewInfo;
+                if (ComboScreeningMode.SelectedIndex == 0)
+                {
+                    RevInfo.ScreeningMode = "Random";
+                }
+                else
+                {
+                    RevInfo.ScreeningMode = "Priority";
+                }
+            }
+        }
+        public void SetScreeningToMultipleAnd2Users()
+        {
+            if (UpDownNScreening.Value < 2) UpDownNScreening.Value = 2;
+            ComboBoxItem SelectedMode = (ComboReconcilliationMode.SelectedItem) as ComboBoxItem;
+            if (SelectedMode != null && SelectedMode.Content.ToString() == "Single (auto-completes)")
+            {
+                ComboReconcilliationMode.SelectedIndex = 1;
+            }
         }
         private void LastTsc_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
@@ -5623,8 +5780,6 @@ on the right of the main screen");
                 TsclProvider.Refresh();
             }
         }
-        
-
         private void Tsc_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
             if (e.Error != null)
@@ -5653,31 +5808,39 @@ on the right of the main screen");
                 }
                 else
                 {
-                    RadWindow.Alert("Please note: the list of screening codes has been automatically populated"
-                    + Environment.NewLine + "and saved."
-                    + Environment.NewLine
-                    + Environment.NewLine + "However, your other changes have not been saved."
-                    + Environment.NewLine + "Please review all your settings, including the list of codes on"
-                    + Environment.NewLine + "the lower left panel (used by the classifier)."
-                    + Environment.NewLine + "If all settings are correct, please click 'Save Options'.");
+                    RadWindow.Alert("PLEASE NOTE: the list of screening codes (the lower left panel ONLY)"
+                     + Environment.NewLine + "has been automatically populated and saved."
+                     + Environment.NewLine + "However, your other changes, including the Screening Set"
+                     + Environment.NewLine + "selection have not been saved!"
+                     + Environment.NewLine
+                     + Environment.NewLine + "Please review all your settings, including the list of codes on"
+                     + Environment.NewLine + "the lower left panel (used by the classifier)."
+                     + Environment.NewLine + "If all settings are correct, please click 'Save Options'.");
                 }
 
             }
         }
 
-        private void ResetScreeningUI()
+        public void ResetScreeningUI()
         {
             CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
             if (RevInfoProvider == null || RevInfoProvider.Data == null)
             {//data isn't here, nothing to do!
                 return;
             }
+            ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+            if (rInfo == null)
+            {//data isn't here, nothing to do!
+                return;
+            }
+            bool UserCanEditSettings = rInfo.UserCanEditScreeningSetting;
             if (ScreeningCodeSetComboSelectCodeSet.SelectedIndex == -1) // No screening code set selected - all is disabled
             {
                 ComboScreeningMode.IsEnabled = false;
                 rbScreeningEverything.IsEnabled = false;
                 rbScreeningSelected.IsEnabled = false;
                 UpDownNScreening.IsEnabled = false;
+                codesSelectControlScreening.IsEnabled = false;
                 ComboReconcilliationMode.IsEnabled = false;
                 cbScreeningAutoExclude.IsEnabled = false;
                 cbScreeningFullIndex.IsEnabled = false;
@@ -5687,27 +5850,28 @@ on the right of the main screen");
             ReviewSet rs = ScreeningCodeSetComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
+                codesSelectControlScreening.IsEnabled = UserCanEditSettings;
                 if (rs.CodingIsFinal == true) // i.e. normal, not comparison coding
                 {
-                    ComboScreeningMode.IsEnabled = true;
-                    rbScreeningEverything.IsEnabled = true;
-                    rbScreeningSelected.IsEnabled = true;
+                    ComboScreeningMode.IsEnabled = UserCanEditSettings;
+                    rbScreeningEverything.IsEnabled = UserCanEditSettings;
+                    rbScreeningSelected.IsEnabled = UserCanEditSettings;
                     UpDownNScreening.Value = 1;
                     UpDownNScreening.IsEnabled = false;
                     ComboReconcilliationMode.SelectedIndex = 0;
                     ComboReconcilliationMode.IsEnabled = false;
-                    cbScreeningAutoExclude.IsEnabled = true;
-                    cbScreeningFullIndex.IsEnabled = true;
+                    cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
+                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
                 else // COMPARISON coding
                 {
-                    ComboScreeningMode.IsEnabled = true;
-                    rbScreeningEverything.IsEnabled = true;
-                    rbScreeningSelected.IsEnabled = true;
-                    UpDownNScreening.IsEnabled = true;
-                    ComboReconcilliationMode.IsEnabled = true;
-                    cbScreeningAutoExclude.IsEnabled = true;
-                    cbScreeningFullIndex.IsEnabled = true;
+                    ComboScreeningMode.IsEnabled = UserCanEditSettings;
+                    rbScreeningEverything.IsEnabled = UserCanEditSettings;
+                    rbScreeningSelected.IsEnabled = UserCanEditSettings;
+                    UpDownNScreening.IsEnabled = UserCanEditSettings;
+                    ComboReconcilliationMode.IsEnabled = UserCanEditSettings;
+                    cbScreeningAutoExclude.IsEnabled = UserCanEditSettings;
+                    cbScreeningFullIndex.IsEnabled = HasWriteRights;
                 }
             }
 
@@ -5878,5 +6042,7 @@ on the right of the main screen");
         {
             LoadCodeSets();
         }
+
+        
     }
 }
