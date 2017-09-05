@@ -3767,7 +3767,7 @@ namespace EppiReviewer4
             ReviewInfo reviewInfo = new ReviewInfo();
             if (provider != null && provider.Data != null) reviewInfo = provider.Data as ReviewInfo;
             bool changingScreeningSet = false;
-            if (rs.SetId == reviewInfo.ScreeningCodeSetId) changingScreeningSet = true;
+            if (reviewInfo.ShowScreening && rs.SetId == reviewInfo.ScreeningCodeSetId) changingScreeningSet = true;
             dp.ExecuteCompleted += (o, e2) =>
             {
                 windowChangeMethodToSingle.BusyChangeMethodToSingle.IsRunning = false;
@@ -3857,7 +3857,7 @@ namespace EppiReviewer4
                 windowEditCodeSet.HyperLinkChangeMethodToMultiple.Visibility = System.Windows.Visibility.Collapsed;
                 windowEditCodeSet.TextBlockEditCodeSetMethodMultiple.Visibility = System.Windows.Visibility.Visible;
                 windowEditCodeSet.HyperLinkChangeMethodToSingle.Visibility = System.Windows.Visibility.Collapsed;
-                if (rs.SetId == reviewInfo.ScreeningCodeSetId)
+                if (reviewInfo.ShowScreening && rs.SetId == reviewInfo.ScreeningCodeSetId)
                 {
                     homeDocuments homedocs = this.ParentOfType<homeDocuments>();
                     if (homedocs != null)
@@ -3896,7 +3896,7 @@ namespace EppiReviewer4
             CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
             ReviewInfo reviewInfo = new ReviewInfo();
             if (provider != null && provider.Data != null) reviewInfo = provider.Data as ReviewInfo;
-            if (rs.SetId == reviewInfo.ScreeningCodeSetId)
+            if (reviewInfo.ShowScreening && rs.SetId == reviewInfo.ScreeningCodeSetId)
             {
                 homeDocuments homedocs = this.ParentOfType<homeDocuments>();
                 if (homedocs != null)

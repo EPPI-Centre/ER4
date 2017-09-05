@@ -237,7 +237,7 @@ namespace BusinessLibrary.BusinessClasses
                 dt.Columns.Add("SCORE");
                 dt.Columns.Add("ITEM_ID");
                 dt.Columns.Add("REVIEW_ID");
-
+                bool MLreturnedEmptyLines = false;
                 using (TextFieldParser csvReader = new TextFieldParser(ms))
                 {
                     csvReader.SetDelimiters(new string[] { "," });
@@ -263,6 +263,9 @@ namespace BusinessLibrary.BusinessClasses
                                 data[0] = dbl.ToString("F10");
                             }
                             dt.Rows.Add(data);
+                        } else
+                        {
+                            MLreturnedEmptyLines = true;
                         }
                         //for (var i = 0; i < data.Length; i++)
                         //{
@@ -309,6 +312,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
+                //new Add (Sept 2017): if ML returned empty lines, update the reviewinfo object with ScreeningIndexed = false, that's because new items were added
+                //next time the training runs, it will re-index.
+                if (MLreturnedEmptyLines)
+                {
+                    RevInfo.ScreeningIndexed = false;
+                    RevInfo.ApplyEdit();
+                    RevInfo.BeginSave(true);
+                }
             }
         }
 

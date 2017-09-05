@@ -163,7 +163,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
 
                     // auto reconcile / include/exclude for screening
-                    if (SetId == RevInfo.ScreeningCodeSetId) // i.e. we're screening using screening 'rules'
+                    if (RevInfo.ShowScreening && SetId == RevInfo.ScreeningCodeSetId) // i.e. we're screening using screening 'rules'
                     {
                         if (_saveType == "Insert")
                         {
