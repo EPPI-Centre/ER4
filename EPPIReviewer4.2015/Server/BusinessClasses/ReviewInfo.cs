@@ -326,6 +326,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
+            
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();

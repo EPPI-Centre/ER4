@@ -782,6 +782,7 @@ namespace EppiReviewer4
 
         void dCoding_RunTrainingCommandRequest(object sender, EventArgs e)
         {
+
             TrainingList training = ((CslaDataProvider)App.Current.Resources["TrainingListData"]).Data as TrainingList;
             int maxIteration = Convert.ToInt32(training.Max(train => train.Iteration));
             Training t = training.Single(train => train.Iteration == maxIteration);
