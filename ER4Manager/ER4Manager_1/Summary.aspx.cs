@@ -51,6 +51,8 @@ public partial class Summary : System.Web.UI.Page
                 buildReviewGridCochraneProspective();
                 buildReviewGridCochraneFull();
             }
+
+            rblPSShareableEnable.Attributes.Add("onclick", "if (confirm('If you are turning on Priority Screening please check the user manual for more details on how to use it.') == false) return false;");
         }
         else
         {
@@ -728,6 +730,10 @@ public partial class Summary : System.Web.UI.Page
             case "EDT":
                 pnlEditNonShareableReview.Visible = true;
                 pnlBritLibCodesNonShared.Visible = false;
+                lblPSNonShareableEnable.Visible = false;
+                rblPSNonShareableEnable.Visible = false;
+                lblPSNonShareableEnable.Visible = false;
+                rblPSNonShareableEnable.Visible = false;
                 lblNonShareableReviewNumber.Text = ReviewID;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
@@ -735,6 +741,13 @@ public partial class Summary : System.Web.UI.Page
                 if (idr.Read())
                 {
                     tbReviewName.Text = idr["REVIEW_NAME"].ToString();
+                    if (Utils.GetSessionString("EnablePSEnabler") == "True")
+                    {
+                        lblPSNonShareableEnable.Visible = true;
+                        rblPSNonShareableEnable.Visible = true;
+                        rblPSNonShareableEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                    }
+                    
                 }
                 idr.Close();
                 /*
@@ -760,6 +773,8 @@ public partial class Summary : System.Web.UI.Page
         switch (e.CommandName)
         {
             case "EDT":
+                rblPSShareableEnable.Visible = false;
+                lblPSShareableReview.Visible = false;
                 pnlBritLibCodesShared.Visible = false;
                 pnlEditShareableReview.Visible = true;
                 lblShareableReviewNumber.Text = ReviewID;
@@ -796,6 +811,14 @@ public partial class Summary : System.Web.UI.Page
                             lbInviteReviewer.Enabled = true;
                         }
                         tbShareableReviewName.Text = idr["REVIEW_NAME"].ToString();
+                        if (Utils.GetSessionString("EnablePSEnabler") == "True")
+                        {
+                            rblPSShareableEnable.Visible = true;
+                            lblPSShareableReview.Visible = true;
+                            string test1 = idr["SHOW_SCREENING"].ToString();
+                            rblPSShareableEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                        }
+                        
                     }
 
                     /*
@@ -1572,6 +1595,8 @@ public partial class Summary : System.Web.UI.Page
             case "EDITROW":
                 pnlBritLibCodesProCochrane.Visible = false;
                 lbInviteReviewerCochrane.Visible = false;
+                lblPSProsCochraneReviewEnable.Visible = false;
+                rblPSProsCochraneReviewEnable.Visible = false;
                 if (prospective == true)
                     lbInviteReviewerCochrane.Visible = true;
                 pnlEditShareableReviewCochrane.Visible = true;
@@ -1582,6 +1607,12 @@ public partial class Summary : System.Web.UI.Page
                 if (idr.Read())
                 {
                     tbShareableReviewNameCochrane.Text = idr["REVIEW_NAME"].ToString();
+                    if (Utils.GetSessionString("EnablePSEnabler") == "True")
+                    {
+                        lblPSProsCochraneReviewEnable.Visible = true;
+                        rblPSProsCochraneReviewEnable.Visible = true;
+                        rblPSProsCochraneReviewEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                    }
                     lblFID.Text = idr["FUNDER_ID"].ToString();
 
                     DataTable dt = new DataTable();
@@ -2123,6 +2154,8 @@ public partial class Summary : System.Web.UI.Page
             case "EDITROW":
                 pnlEditShareableReviewCochraneFull.Visible = true;
                 pnlBritLibCodesFullCochrane.Visible = false;
+                lblPSFullCochraneReviewEnable.Visible = false;
+                rblPSFullCochraneReviewEnable.Visible = false;
                 lblShareableReviewNumberCochraneFull.Text = ReviewID;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
@@ -2130,6 +2163,12 @@ public partial class Summary : System.Web.UI.Page
                 if (idr.Read())
                 {
                     tbShareableReviewNameCochraneFull.Text = idr["REVIEW_NAME"].ToString();
+                    if (Utils.GetSessionString("EnablePSEnabler") == "True")
+                    {
+                        lblPSFullCochraneReviewEnable.Visible = true;
+                        rblPSFullCochraneReviewEnable.Visible = true;
+                        rblPSFullCochraneReviewEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                    }
 
                     DataTable dt = new DataTable();
                     System.Data.DataRow newrow;
@@ -2580,7 +2619,33 @@ public partial class Summary : System.Web.UI.Page
             tbCCC_ACC_FullCochrane.Text, tbCCC_AUT_FullCochrane.Text, tbCCC_TX_FullCochrane.Text);
     }
 
+    protected void rblPSShareableEnable_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
+                lblShareableReviewNumber.Text, "ShowScreening", rblPSShareableEnable.SelectedValue);
+    }
 
+    protected void rblPSNonShareableEnable_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
+                lblNonShareableReviewNumber.Text, "ShowScreening", rblPSNonShareableEnable.SelectedValue);
+    }
+
+    protected void rblPSProsCochraneReviewEnable_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
+                lblShareableReviewNumberCochrane.Text, "ShowScreening", rblPSProsCochraneReviewEnable.SelectedValue);
+    }
+
+    protected void rblPSFullCochraneReviewEnable_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
+                lblShareableReviewNumberCochraneFull.Text, "ShowScreening", rblPSFullCochraneReviewEnable.SelectedValue);
+    }
 
 
 }

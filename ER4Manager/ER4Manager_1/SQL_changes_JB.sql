@@ -1,4 +1,29 @@
-﻿---- Nov 16 2016 - Dec 07 2016
+﻿USE [ReviewerAdmin]
+GO
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.TB_MANAGEMENT_SETTINGS ADD
+	ENABLE_PRIORITY_SCREENING_ENABLER bit NULL
+GO
+ALTER TABLE dbo.TB_MANAGEMENT_SETTINGS SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+GO
+
+UPDATE TB_MANAGEMENT_SETTINGS set ENABLE_PRIORITY_SCREENING_ENABLER = 0 where ENABLE_PRIORITY_SCREENING_ENABLER is null
+
+---- Nov 16 2016 - Dec 07 2016
 ---- edit TB_SITE_LIC - add ALLOW_REVIEW_OWNERSHIP_CHANGE field
 ---- new st_GetReviewOwner - gets the review owner
 ---- new st_ContactDetailsGetAllFilter_2 - has restriction for site license members only

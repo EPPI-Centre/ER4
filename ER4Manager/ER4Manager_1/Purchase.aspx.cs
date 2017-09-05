@@ -687,9 +687,19 @@ public partial class Purchase : System.Web.UI.Page
         pnlProceedToWPM.Visible = true;
         BTAddExistingReview.Enabled = false;
         BTAddExistingAccount.Enabled = false;
-        //Server.Transfer("JumpToWPM.aspx?ID=" ,true);
-        
-    }
+
+
+        /*
+        // added for New purchasing test
+        pnlTestContinue.Visible = false;
+        if (Utils.GetSessionString("IsAdm") == "True")
+        {
+            pnlTestContinue.Visible = true;
+        }*/
+
+            //Server.Transfer("JumpToWPM.aspx?ID=" ,true);
+
+        }
     //protected void WPMSuccess(object sender, EventArgs e)
     //{
     //    bool isAdmDB = true;

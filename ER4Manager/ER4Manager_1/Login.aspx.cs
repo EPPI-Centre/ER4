@@ -40,6 +40,7 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("DescriptionAdminEdit", "0");
             Utils.SetSessionString("siteLicenseID", "0");
             Utils.SetSessionString("siteLicenseReviewID", "0");
+            Utils.SetSessionString("EnablePSEnabler", "");
 
             try
             {
@@ -88,6 +89,7 @@ public partial class Login : System.Web.UI.Page
                 Utils.SetSessionString("EnableExampleReviewCopy", idr["ENABLE_EXAMPLE_REVIEW_COPY"].ToString());
                 //JB
                 Utils.SetSessionString("EnableDataPresenter", idr["ENABLE_DATA_PRESENTER"].ToString());
+                Utils.SetSessionString("EnablePSEnabler", idr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString());
             }
             idr.Close();
             string test = Utils.GetSessionString("AccountCreationEnabled");
