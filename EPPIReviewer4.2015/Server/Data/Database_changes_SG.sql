@@ -228,7 +228,7 @@ GO
 
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ReportData]    Script Date: 10/13/2017 10:30:59 AM ******/
+/****** Object:  StoredProcedure [dbo].[st_ReportData]    Script Date: 11/10/2017 5:27:09 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -260,7 +260,7 @@ BEGIN
 	)
 	DECLARE @AA TABLE
 	(
-	  A_ID BIGINT primary key
+	  A_ID BIGINT 
 	  , REPORT_COLUMN_CODE_ID int
 	  , ATTRIBUTE_ORDER int
 	)
@@ -398,6 +398,7 @@ BEGIN
 			inner join @TT t on t.ITEM_ID = i.ITEM_ID
 	END
 END
+
 GO
 
 
