@@ -192,7 +192,7 @@ namespace BusinessLibrary.Security
                 //create linkcheck record
                 string host = Environment.MachineName.ToLower();
                 string BaseUrl = "";
-                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                if (host == "epi3" || host == "eppi.ioe.ac.uk" || host == "epi2.ioe.ac.uk")
                 {//use live address: this is the real published ER4
                     BaseUrl = "https://eppi.ioe.ac.uk/ER4Manager/";
                 }
