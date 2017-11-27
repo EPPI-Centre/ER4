@@ -602,13 +602,13 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // these should all be stored in app.config really
-        const string blobConnection = "DefaultEndpointsProtocol=https;AccountName=er4ml;AccountKey=mUsX0aZrbizSQYdPS9VKqZSg7ZmZqq0TP7l82qxmBzMe0ppMDe9QjLdZrNYhk57gqshA9g1UyTAMnEwiuMuFrQ==";
+        const string blobConnection = "***REMOVED***";
         const string BaseUrlBuildAndScore = "***REMOVED***";
-        const string apiKeyBuildAndScore = "0GrP/egb80etojoJNV2n/lKC3g4/F17wgfJ4Jkmmo5YtlOaLyN4irJt1OwfHhzw2l/o+3arijj4l/odL+ib/8A=="; //EPPI-R - build + score (blob storage)
+        const string apiKeyBuildAndScore = "***REMOVED***"; //EPPI-R - build + score (blob storage)
         const string BaseUrlVectorise = "***REMOVED***";
-        const string apiKeyVectorise = "nPfCOZtNCjozV49mdy1qZlYpruzT22QlhhDrJjSF6eazT0cfNVYLVD1YU7ZvihCereuNBx5UmnQlT7dQhBKqbw=="; //EPPI-R AL: index review
+        const string apiKeyVectorise = "***REMOVED***"; //EPPI-R AL: index review
         const string BaseUrlSimulation5 = "***REMOVED***";
-        const string apiKeySimulation5 = "SHEtFboe9xMDh2Q4YdpmVJXTho5GBcbBprJR2SrVxv0GT6QVC+RCVckz+xw4DrpCj0H2Qofy76pyy//ORzQd2A=="; // EPPI-R: active learning simulation (x10)
+        const string apiKeySimulation5 = "***REMOVED***"; // EPPI-R: active learning simulation (x10)
         const string TempPath = @"UserTempUploads/ReviewId";
 
         public static string NameBase
