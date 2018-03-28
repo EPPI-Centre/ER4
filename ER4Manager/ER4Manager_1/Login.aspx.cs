@@ -34,6 +34,7 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("AdmEnableAll", "");
             Utils.SetSessionString("CountryID", "");
             Utils.SetSessionString("IsSiteLicenseAdm", "0");
+            Utils.SetSessionString("IsOrganisationAdm", "0");
             Utils.SetSessionString("EnableExampleReviewCopy", "");
             Utils.SetSessionString("EnableDataPresenter", "");
             Utils.SetSessionString("WebDatabaseID", "");

@@ -39,11 +39,11 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 6;
                         radTs.Tabs[6].Tabs[1].Selected = true;
-                        radTs.Tabs[6].Tabs[2].Width = 670;
+                        radTs.Tabs[6].Tabs[2].Width = 720;
                         if (Utils.GetSessionString("IsAdm") == "True")
                         {
                             radTs.Tabs[6].Tabs[1].Visible = true;
-                            radTs.Tabs[6].Tabs[2].Width = 570;
+                            radTs.Tabs[6].Tabs[2].Width = 640;
                         }
                     }
 
@@ -255,6 +255,8 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
                             cbAllowReviewOwnershipChange.Checked = true;
                         else
                             cbAllowReviewOwnershipChange.Checked = false;
+
+                        ddlLicenseModel.SelectedValue = idr["SITE_LIC_MODEL"].ToString();
 
                         lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                         tbNumberMonths.Text = idr["MONTHS"].ToString();
@@ -1808,5 +1810,10 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
 
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_AllowReviewOwnershipChangeInLicense", lblSiteLicID.Text, isChecked);
+    }
+
+    protected void ddlLicenseModel_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
     }
 }

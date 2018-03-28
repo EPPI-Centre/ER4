@@ -79,6 +79,20 @@ public class Utils
             return "";
         }
     }
+    public static string UCLWPMServerUrl
+    {
+        get
+        {
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
+            if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            {
+                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMServerUrl"];
+                if (customSetting != null)
+                    return customSetting.Value;
+            }
+            return "";
+        }
+    }
     public static string WPMCallBackURL
     {
         get
@@ -117,6 +131,20 @@ public class Utils
             if (rootWebConfig1.AppSettings.Settings.Count > 0)
             {
                 System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMclientID"];
+                if (customSetting != null)
+                    return customSetting.Value;
+            }
+            return "";
+        }
+    }
+    public static string UCLWPMclientID
+    {
+        get
+        {
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
+            if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            {
+                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMclientID"];
                 if (customSetting != null)
                     return customSetting.Value;
             }
@@ -180,6 +208,20 @@ public class Utils
             return "";
         }
     }
+    public static string UCLWPMpathwayid
+    {
+        get
+        {
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
+            if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            {
+                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMpathwayid"];
+                if (customSetting != null)
+                    return customSetting.Value;
+            }
+            return "";
+        }
+    }
     //departmentid
     public static string WPMdepartmentid
     {
@@ -195,6 +237,20 @@ public class Utils
             return "";
         }
     }
+    public static string UCLWPMdepartmentid
+    {
+        get
+        {
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
+            if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            {
+                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMdepartmentid"];
+                if (customSetting != null)
+                    return customSetting.Value;
+            }
+            return "";
+        }
+    }
     //live
     public static string WPMisLive
     {
@@ -204,6 +260,20 @@ public class Utils
             if (rootWebConfig1.AppSettings.Settings.Count > 0)
             {
                 System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMisLive"];
+                if (customSetting != null)
+                    return customSetting.Value;
+            }
+            return "";
+        }
+    }
+    public static string UCLWPMisLive
+    {
+        get
+        {
+            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
+            if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            {
+                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMisLive"];
                 if (customSetting != null)
                     return customSetting.Value;
             }
@@ -254,7 +324,17 @@ public class Utils
         return BitConverter.ToString(InputBytes).Replace("-", "").ToLower();
     }
 
+    public static string getMD5HashUCL(string input)
+    {
 
+        System.Security.Cryptography.MD5CryptoServiceProvider CryptoService;
+        CryptoService = new System.Security.Cryptography.MD5CryptoServiceProvider();
+        string sharedS = "***REMOVED***";
+        byte[] InputBytes = System.Text.Encoding.Default.GetBytes(input + sharedS);
+        InputBytes = CryptoService.ComputeHash(InputBytes);
+        string s1 = BitConverter.ToString(InputBytes).Replace("-", ""), s2 = BitConverter.ToString(InputBytes);
+        return BitConverter.ToString(InputBytes).Replace("-", "").ToLower();
+    }
 
 
 
@@ -303,7 +383,7 @@ public class Utils
     {
         //Utils.SetSessionString("DB", DB);
 
-        IDataReader reader = Utils.GetReader(isAdmDB, "st_ContactLogin",
+        IDataReader reader = Utils.GetReader(isAdmDB, "st_ContactLogin_1",
             userid, password, ip_address);
         // Now check to see if the login was passed
         string result = null;
@@ -316,6 +396,8 @@ public class Utils
             Utils.SetSessionString("ContactName", reader["CONTACT_NAME"].ToString());
             if (reader["IsSLA"].ToString() != "0")
                 Utils.SetSessionString("IsSiteLicenseAdm", "1");
+            if (reader["IsOA"].ToString() != "0")
+                Utils.SetSessionString("IsOrganisationAdm", "1");
         }
         else
         {

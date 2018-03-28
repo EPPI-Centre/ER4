@@ -108,7 +108,7 @@
                                             </Tabs>
                                         </Telerik:RadTab>
                                         <Telerik:RadTab runat="server" NavigateUrl="~/RecentActivity.aspx" 
-                                            Text="Admin tools" Visible="False">
+                                            Text="Admin" Visible="False">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/RecentActivity.aspx" 
                                                     Text="Recent Activity" Owner="">
@@ -175,6 +175,16 @@
                                                 </Telerik:RadTab>
                                             </Tabs>
                                         </Telerik:RadTab>
+                                        <telerik:RadTab runat="server" NavigateUrl="~/Organisation.aspx" Text="Organisations" Visible="False">
+                                            <Tabs>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/Organisation.aspx" Text="Organisations">
+                                                </telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/OrganisationSetup.aspx" Text="Setup" Visible="False">
+                                                </telerik:RadTab>
+                                                <telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
+                                                </telerik:RadTab>
+                                            </Tabs>
+                                        </telerik:RadTab>
                                         <Telerik:RadTab runat="server" NavigateUrl="~/Login.aspx" Text="Logout">
                                         </Telerik:RadTab>
                                         <Telerik:RadTab runat="server" NavigateUrl="~/Login.aspx" Text="Login" 

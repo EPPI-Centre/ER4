@@ -38,11 +38,11 @@ public partial class SiteLicense : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 6;
                         radTs.Tabs[6].Tabs[0].Selected = true;
-                        radTs.Tabs[6].Tabs[2].Width = 650;
+                        radTs.Tabs[6].Tabs[2].Width = 720;
                         if (Utils.GetSessionString("IsAdm") == "True")
                         {
                             radTs.Tabs[6].Tabs[1].Visible = true;
-                            radTs.Tabs[6].Tabs[2].Width = 570;
+                            radTs.Tabs[6].Tabs[2].Width = 640;
                         }
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");

@@ -61,6 +61,12 @@ public partial class Purchase : System.Web.UI.Page
             {
                 cmdPurchase.Enabled = true;
             }
+            /*
+            if (Utils.GetSessionString("IsAdm") == "True")
+            {
+                pnlWPMUCL.Visible = true;
+            }
+            */
         }
         else
         {
