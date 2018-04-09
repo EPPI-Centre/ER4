@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return SetTypeId != 6;
+                return SetTypeId == 5;
             }
         }
 #else

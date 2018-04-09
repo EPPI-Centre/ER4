@@ -1,0 +1,74 @@
+[
+	{
+		"SubjectId": "-1",
+		"Email": "alice@EPPIReviewer.org.uk",
+		"UserName": "alice",
+		"DisplayName": "Alice Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": true,
+		"IsCochrane": false
+	},
+	{
+		"SubjectId": "-2",
+		"Email": "bob@EPPIReviewer.org.uk",
+		"UserName": "bob",
+		"DisplayName": "Bob Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": false,
+		"IsCochrane": true
+	},
+	{
+		"SubjectId": "-3",
+		"Email": "steve@EPPIReviewer.org.uk",
+		"UserName": "steve",
+		"DisplayName": "Steve Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": false,
+		"IsCochrane": false
+	},
+	{
+		"SubjectId": "-4",
+		"Email": "Jane@EPPIReviewer.org.uk",
+		"UserName": "Jane",
+		"DisplayName": "Jane Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": false,
+		"IsCochrane": false
+	},
+	{
+		"SubjectId": "-5",
+		"Email": "john@EPPIReviewer.org.uk",
+		"UserName": "john",
+		"DisplayName": "John Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": false,
+		"IsCochrane": true
+	},
+	{
+		"SubjectId": "-6",
+		"Email": "tracy@EPPIReviewer.org.uk",
+		"UserName": "tracy",
+		"DisplayName": "Tracy Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": false,
+		"IsCochrane": true
+	},
+	{
+		"SubjectId": "-7",
+		"Email": "david@expired.org.uk",
+		"UserName": "david",
+		"DisplayName": "David Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": null,
+		"IsCochrane": true
+	},
+	{
+		"SubjectId": "-8",
+		"Email": "mary@expired.org.uk",
+		"UserName": "mary",
+		"DisplayName": "Mary Fake",
+		"ExpiresOn": null,
+		"IsSiteAdmin": null,
+		"IsCochrane": true
+	}
+]

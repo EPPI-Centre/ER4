@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ERIdentityProvider", "ERIdentityProvider\ERIdentityProvider.csproj", "{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BFF9400-FE9B-47B3-9FDA-BB40CD18E5EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", "{72D8A03E-A086-4C56-944C-3D84567226AA}"
+	ProjectSection(SolutionItems) = preProject
+		SQL Scripts\Changes.sql = SQL Scripts\Changes.sql
+		SQL Scripts\Generate ALPHA users.sql = SQL Scripts\Generate ALPHA users.sql
+		SQL Scripts\generateReviewer 2nd Passage - DATA.sql = SQL Scripts\generateReviewer 2nd Passage - DATA.sql
+		SQL Scripts\Placeholder.txt = SQL Scripts\Placeholder.txt
+		SQL Scripts\ReviewerAdminGenerateScript.sql = SQL Scripts\ReviewerAdminGenerateScript.sql
+		SQL Scripts\ReviewerGenerateScript.sql = SQL Scripts\ReviewerGenerateScript.sql
+		SQL Scripts\Setup NOTES.md = SQL Scripts\Setup NOTES.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{72D8A03E-A086-4C56-944C-3D84567226AA} = {2BFF9400-FE9B-47B3-9FDA-BB40CD18E5EB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1CEA4901-12F0-4729-B3CF-E3A96F803AFB}
+	EndGlobalSection
+EndGlobal

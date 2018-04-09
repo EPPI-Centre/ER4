@@ -455,15 +455,15 @@ namespace EppiReviewer4
             App theApp = (Application.Current as App);
             theApp.ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
 
-            rbApplyDAREModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
-            rbApplyNHSEEDModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
-            if (theApp.ri.UserId == 1451 || theApp.ri.UserId == 1576 || theApp.ri.UserId == 4688 || theApp.ri.UserId == 1095) // Alison, Ian and Dylan, Claire
-            {
-                rbApplyDAREModel.Visibility = Visibility.Visible;
-                rbApplyDAREModel.Visibility = Visibility.Visible;
-                rbApplyNHSEEDModel.Visibility = Visibility.Visible;
-                rbApplyNHSEEDModel.Visibility = Visibility.Visible;
-            }
+            //rbApplyDAREModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            //rbApplyNHSEEDModel.Visibility = theApp.ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            //if (theApp.ri.UserId == 1451 || theApp.ri.UserId == 1576 || theApp.ri.UserId == 4688 || theApp.ri.UserId == 1095) // Alison, Ian and Dylan, Claire
+            //{
+            //    rbApplyDAREModel.Visibility = Visibility.Visible;
+            //    rbApplyDAREModel.Visibility = Visibility.Visible;
+            //    rbApplyNHSEEDModel.Visibility = Visibility.Visible;
+            //    rbApplyNHSEEDModel.Visibility = Visibility.Visible;
+            //}
 
         }
     }

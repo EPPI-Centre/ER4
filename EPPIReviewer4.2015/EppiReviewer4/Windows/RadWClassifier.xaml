@@ -10,7 +10,7 @@
                    Height="510" 
                    Width="890"
                    CanClose="True"
-                   MinHeight="510"
+                   MinHeight="520"
                    MinWidth="831"
                    CanMove="True" 
                    IsRestricted="True"
@@ -64,7 +64,7 @@
     </telerik:RadWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="122"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
@@ -89,12 +89,15 @@
             <ColumnDefinition Width="240*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Border Background="LightBlue" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="9"></Border>
+        <Border Background="LightBlue" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="10"></Border>
         <Border Background="LightGray" Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="13"></Border>
-        <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Margin="5,10,5,5" TextWrapping="Wrap">
-            <Run Text="The machine learning classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which is saved for future use); and then the model is applied to new items. One 'pre-built' classifier is available: the 'RCT model', which will automatically identify RCTs for you; it has been trained on more than 280,000 records screened by the Cochrane Crowd."/>
-            <LineBreak/>
-            <Run Text="(This function enables you to build a linear classifier from a bag of words representation of your studies, using the scikit-learn python library.)" />
+        <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" Margin="5,5,5,3" TextWrapping="Wrap">
+        	<Run Text="The machine learning classifier built into EPPI-Reviewer enables you automatically to assign a code to new items based on those you have assigned to others. There are two stages to the process: first the classifier 'learns' to apply the code by building a model (which is saved for future use); and then the model is applied to new items."/>
+        	<LineBreak/>
+        	<Run Text="Three 'pre-built' classifiers are available, which can automatically identify RCT, systematic reviews, and economic evaluations. They have been built from: 280,000 records screened by Cochrane Crowd; 310,000 records in the CRD 'DARE' database; and 9,000 records in CRD's NHSEED. Our thanks to Cochrane and the Centre for Reviews and Dissemination (CRD) at the University of York, for making these data available"/>
+        	<Run Text="."/>
+        	<LineBreak/>
+        	<Run Text="(This function enables you to build a linear classifier from a bag of words representation of your studies, using the scikit-learn python library.)"/>
         </TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="1" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 1: build the model" VerticalAlignment="Center" FontWeight="Bold"></TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="4" Margin="3,3,3,3" Grid.ColumnSpan="2" Text="Stage 2: apply the model" VerticalAlignment="Center" FontWeight="SemiBold"></TextBlock>
@@ -111,7 +114,9 @@
                 <TextBlock Text="Build model" Margin="5,0,5,0"/>
             </StackPanel>
         </Button>
-        <TextBlock Grid.Row="9" Grid.Column="1" Margin="3,3,3,3" Text="(Go straight to stage 2 if you are applying the RCT model.)" Grid.ColumnSpan="2" VerticalAlignment="Center"></TextBlock>
+        <TextBlock Grid.Row="9" Grid.Column="1" Margin="3,3,3,3" 
+                   Text="(Go straight to stage 2 if you are applying one of the 'pre-built' models.)" TextWrapping="Wrap"
+                   Grid.ColumnSpan="2" Grid.RowSpan="2" VerticalAlignment="Center"></TextBlock>
 
         <telerik:RadGridView x:Name="GridViewClassifierModels" Grid.Row="2" Grid.Column="4" Grid.RowSpan="5" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,1,0"
@@ -130,8 +135,8 @@
         <local:codesSelectControl x:Name="codesSelectControlClassifyTo" Grid.Row="10" Grid.Column="5" Margin="3,1,5,7" ToolTipService.ToolTip="Select the code that you have used to define the items you want to be classified" IsEnabled="False"/>
         <RadioButton x:Name="rbApplySelectedModel" Grid.Column="4" Grid.Row="8" Content="Apply above selected model" GroupName="ApplyWhat" IsChecked="true"  Margin="5,5,5,5"></RadioButton>
         <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="9" Content="Apply RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
-        <RadioButton x:Name="rbApplyDAREModel" Grid.Column="4" Grid.Row="10" Content="Apply systematic review model" GroupName="ApplyWhat" Visibility="Collapsed" IsChecked="false" Margin="5,5,5,5" />
-        <RadioButton x:Name="rbApplyNHSEEDModel" Grid.Column="4" Grid.Row="11" Content="Apply economic evaluation model" GroupName="ApplyWhat" Visibility="Collapsed" IsChecked="false" Margin="5,5,5,5" />
+        <RadioButton x:Name="rbApplyDAREModel" Grid.Column="4" Grid.Row="10" Content="Apply systematic review model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" />
+        <RadioButton x:Name="rbApplyNHSEEDModel" Grid.Column="4" Grid.Row="11" Content="Apply economic evaluation model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" />
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
         <RadioButton x:Name="rbApplyToSource" Grid.Column="5" Grid.Row="11" Content="Apply to items from this source" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSource"/>

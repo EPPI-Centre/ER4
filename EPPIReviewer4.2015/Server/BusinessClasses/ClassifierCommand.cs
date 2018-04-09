@@ -624,11 +624,11 @@ public enum BatchScoreStatusCode
         }
 
         // these should all be stored in app.config really
-        const string blobConnection = "DefaultEndpointsProtocol=https;AccountName=er4ml;AccountKey=mUsX0aZrbizSQYdPS9VKqZSg7ZmZqq0TP7l82qxmBzMe0ppMDe9QjLdZrNYhk57gqshA9g1UyTAMnEwiuMuFrQ==";
+        const string blobConnection = "***REMOVED***";
         const string BaseUrlScoreModel = "***REMOVED***";
-        const string apiKeyScoreModel = "KJY5g+fBBmiucEzfP7VXs/nVd7QfL2V8SEFSS8KoPDzK74vgyuK++XlgZfcEwkK5GbVUTMTukgP2MKGFBmhlmw=="; //EPPI-R Models: Apply Attribute Model
+        const string apiKeyScoreModel = "***REMOVED***"; //EPPI-R Models: Apply Attribute Model
         const string BaseUrlBuildModel = "***REMOVED***";
-        const string apiKeyBuildModel = "Texw2PtXoKYKlCRxGbQGKBY9UL+N8xMHKQCS/FKR45Ol7wdwV17hTcqamZcoN01s8Ynd0442shvuIaQ+nlwNkA=="; //EPPI-R Models: Build Attribute Model
+        const string apiKeyBuildModel = "***REMOVED***"; //EPPI-R Models: Build Attribute Model
         const string TempPath = @"UserTempUploads/ContactId";
 
         const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
@@ -668,7 +668,7 @@ public enum BatchScoreStatusCode
                         GlobalParameters = new Dictionary<string, string>()
                         {
                             { "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/" + TrainingRunCommand.NameBase + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
+                            { "ModelFile", @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
                             { "ResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
                         }
                     };
