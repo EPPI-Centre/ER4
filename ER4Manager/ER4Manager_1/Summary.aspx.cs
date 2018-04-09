@@ -35,7 +35,7 @@ public partial class Summary : System.Web.UI.Page
                 {
                     radTs.SelectedIndex = 0;
                     radTs.Tabs[0].Tabs[0].Selected = true;
-                    radTs.Tabs[0].Tabs[1].Width = 660;
+                    radTs.Tabs[0].Tabs[1].Width = 680;
                 }
                 System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                 if (lbl1 != null)

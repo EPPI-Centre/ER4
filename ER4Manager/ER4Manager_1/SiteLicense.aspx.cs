@@ -38,7 +38,7 @@ public partial class SiteLicense : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 6;
                         radTs.Tabs[6].Tabs[0].Selected = true;
-                        radTs.Tabs[6].Tabs[2].Width = 720;
+                        radTs.Tabs[6].Tabs[2].Width = 710;
                         if (Utils.GetSessionString("IsAdm") == "True")
                         {
                             radTs.Tabs[6].Tabs[1].Visible = true;
