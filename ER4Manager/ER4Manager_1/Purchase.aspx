@@ -15,7 +15,12 @@
                         Please click &quot;Continue&quot; to proceed:&nbsp;
                         </td>
                         <td>
-                            <a  href="JumpToWPMUCL.aspx" target="_blank" id="ContinueToWPM" ><font class="ContinueToWPM">&nbsp;</font></a>
+                            <asp:Panel runat="server" ID="pnlContinueToWPMUCL" Visible="false">
+                                <a  href="JumpToWPMUCL.aspx" target="_blank" id="ContinueToWPMUCL"><font class="ContinueToWPM">&nbsp;</font></a>
+                            </asp:Panel>
+                            <asp:Panel runat="server" ID="pnlContinueToWPM" Visible="true">
+                                <a  href="JumpToWPM.aspx" target="_blank" id="ContinueToWPM"><font class="ContinueToWPM">&nbsp;</font></a>
+                            </asp:Panel>
                         </td>
                     </tr>
                     <tr>

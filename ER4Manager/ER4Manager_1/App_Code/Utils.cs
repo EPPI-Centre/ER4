@@ -383,7 +383,7 @@ public class Utils
     {
         //Utils.SetSessionString("DB", DB);
 
-        IDataReader reader = Utils.GetReader(isAdmDB, "st_ContactLogin_1",
+        IDataReader reader = Utils.GetReader(isAdmDB, "st_ContactLogin",
             userid, password, ip_address);
         // Now check to see if the login was passed
         string result = null;

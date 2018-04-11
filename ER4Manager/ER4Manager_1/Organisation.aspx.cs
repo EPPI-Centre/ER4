@@ -550,7 +550,7 @@ public partial class Organisation : System.Web.UI.Page
         }
         idr.Close();
 
-    
+        lblOrganisationID.Text = ddlYourOrganisations.SelectedValue;
 
         buildGrids();
         pnlAccountsAndReviews.Visible = true;

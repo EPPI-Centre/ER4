@@ -8,7 +8,7 @@
     function openCalendar1(date)
 	{
 		var iWidthOfWin = 270;
-		var iHeightOfWin = 290;
+		var iHeightOfWin = 300;
 		var iLocX = ( screen.width - iWidthOfWin ) / 2;
 		var iLocY = ( screen.height - iHeightOfWin ) / 2;
 		

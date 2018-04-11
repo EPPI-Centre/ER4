@@ -485,7 +485,7 @@ public partial class OrganisationSetup : System.Web.UI.Page
             case "REMOVE":
                 bool isAdmDB = true;
                 SqlParameter[] paramList = new SqlParameter[4];
-                paramList[1] = new SqlParameter("@lic_id", SqlDbType.Int, 8, ParameterDirection.Input,
+                paramList[1] = new SqlParameter("@org_id", SqlDbType.Int, 8, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, lblOrganisationID.Text);
                 paramList[0] = new SqlParameter("@admin_ID", SqlDbType.Int, 8, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
@@ -493,7 +493,7 @@ public partial class OrganisationSetup : System.Web.UI.Page
                     true, 0, 0, null, DataRowVersion.Default, email);
                 paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
                     true, 0, 0, null, DataRowVersion.Default, "");
-                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Contact", paramList);
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Organisation_Add_Remove_Contact", paramList);
 
                 if (paramList[3].Value.ToString() != "0")
                 {
@@ -933,7 +933,7 @@ public partial class OrganisationSetup : System.Web.UI.Page
         pnlOrganisation.Visible = true;
 
         tbOrganisationName.Text = "";
-        lblOrganisationID.Text = "";
+        lblOrganisationID.Text = "N/A";
         tbAddress.Text = "";
         tbTelephone.Text = "";
         tbNotes.Text = "";
@@ -941,6 +941,10 @@ public partial class OrganisationSetup : System.Web.UI.Page
         lblCreatedBy.Text = "";
         lblInitialAdministrator.Text = "";
         lblAdminID.Text = "";
+
+        // the select funder looks at site license ID so
+        // rather than rewriting this function it I will just set this value to 0
+        Utils.SetSessionString("siteLicenseID", "0");
     }
 
     protected void lbOrganisationHistory_Click(object sender, EventArgs e)
