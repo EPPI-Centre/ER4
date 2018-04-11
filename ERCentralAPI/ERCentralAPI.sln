@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", 
 		SQL Scripts\Setup NOTES.md = SQL Scripts\Setup NOTES.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQL Changes Manager", "SQL Changes Manager\SQL Changes Manager.csproj", "{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5DBFF6E-074D-4E98-AEC9-30DE29F46F5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
