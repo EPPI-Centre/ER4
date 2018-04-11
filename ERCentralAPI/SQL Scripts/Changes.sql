@@ -37,12 +37,26 @@ GO
 SET ANSI_PADDING OFF
 GO
 
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantAdd]    Script Date: 04/11/2018 10:55:35 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_PersistedGrantAdd]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_PersistedGrantAdd]
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantAdd]    Script Date: 04/11/2018 10:55:35 ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE st_PersistedGrantAdd
+
+CREATE PROCEDURE [dbo].[st_PersistedGrantAdd]
 	-- Add the parameters for the stored procedure here
 	@KEY nvarchar(200),
 	@TYPE nvarchar(50),
@@ -92,9 +106,29 @@ BEGIN
 			WHERE [KEY] = @KEY
 	END
 END
+
 GO
 
-CREATE PROCEDURE st_PersistedGrantGet
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantGet]    Script Date: 04/11/2018 10:55:49 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_PersistedGrantGet]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_PersistedGrantGet]
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantGet]    Script Date: 04/11/2018 10:55:49 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[st_PersistedGrantGet]
 	-- Add the parameters for the stored procedure here
 	@KEY nvarchar(200)
 AS
@@ -107,9 +141,29 @@ BEGIN
 	Select * from  TB_PERSISTED_GRANT
 	Where [KEY] = @KEY
 END
+
 GO
 
-CREATE PROCEDURE st_PersistedGrantGetAll
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantGetAll]    Script Date: 04/11/2018 10:56:16 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_PersistedGrantGetAll]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_PersistedGrantGetAll]
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantGetAll]    Script Date: 04/11/2018 10:56:16 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[st_PersistedGrantGetAll]
 	-- Add the parameters for the stored procedure here
 	@CONTACT_ID [int]
 AS
@@ -122,9 +176,63 @@ BEGIN
 	Select * from  TB_PERSISTED_GRANT
 	Where CONTACT_ID = @CONTACT_ID
 END
+
 GO
 
-CREATE PROCEDURE st_PersistedGrantRemoveAll
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantRemove]    Script Date: 04/11/2018 10:56:31 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_PersistedGrantRemove]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_PersistedGrantRemove]
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantRemove]    Script Date: 04/11/2018 10:56:31 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[st_PersistedGrantRemove]
+	-- Add the parameters for the stored procedure here
+	@KEY nvarchar(200)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	DELETE from TB_PERSISTED_GRANT where [KEY] = @KEY
+END
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantRemoveAll]    Script Date: 04/11/2018 10:56:44 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_PersistedGrantRemoveAll]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_PersistedGrantRemoveAll]
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PersistedGrantRemoveAll]    Script Date: 04/11/2018 10:56:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE PROCEDURE [dbo].[st_PersistedGrantRemoveAll]
 	-- Add the parameters for the stored procedure here
 	@CONTACT_ID [int],
 	@CLIENT_ID [nvarchar](200),
@@ -147,21 +255,10 @@ BEGIN
 	END
 	
 END
+
 GO
 
-CREATE PROCEDURE st_PersistedGrantRemove
-	-- Add the parameters for the stored procedure here
-	@KEY nvarchar(200)
-AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
 
-    -- Insert statements for procedure here
-	DELETE from TB_PERSISTED_GRANT where [KEY] = @KEY
-END
-GO
 
 /*--------------------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------------------*/
