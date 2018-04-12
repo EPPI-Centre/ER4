@@ -170,41 +170,44 @@ public partial class OrganisationSetup : System.Web.UI.Page
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Organisation_Get_Accounts",
             lblOrganisationID.Text);
-        while (idr.Read())
+        if (idr != null)
         {
-            newrow1 = dt1.NewRow();
-            newrow1["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
-            newrow1["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString(); ;
-            dt1.Rows.Add(newrow1);
-        }
-        idr.NextResult();
-        while (idr.Read())
-        {
-            newrow2 = dt2.NewRow();
-            newrow2["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow2["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
-            newrow2["EMAIL"] = idr["EMAIL"].ToString();
-            dt2.Rows.Add(newrow2);
-        }
-        idr.NextResult();
-        while (idr.Read())
-        {
-            newrow3 = dt3.NewRow();
-            newrow3["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow3["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
-            newrow3["EMAIL"] = idr["EMAIL"].ToString();
-            dt3.Rows.Add(newrow3);
-        }
-        idr.Close();
+            while (idr.Read())
+            {
+                newrow1 = dt1.NewRow();
+                newrow1["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
+                newrow1["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString(); ;
+                dt1.Rows.Add(newrow1);
+            }
+            idr.NextResult();
+            while (idr.Read())
+            {
+                newrow2 = dt2.NewRow();
+                newrow2["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
+                newrow2["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+                newrow2["EMAIL"] = idr["EMAIL"].ToString();
+                dt2.Rows.Add(newrow2);
+            }
+            idr.NextResult();
+            while (idr.Read())
+            {
+                newrow3 = dt3.NewRow();
+                newrow3["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
+                newrow3["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+                newrow3["EMAIL"] = idr["EMAIL"].ToString();
+                dt3.Rows.Add(newrow3);
+            }
+            idr.Close();
 
-        gvReviews.DataSource = dt1;
-        gvReviews.DataBind();
+            gvReviews.DataSource = dt1;
+            gvReviews.DataBind();
 
-        gvAccounts.DataSource = dt2;
-        gvAccounts.DataBind();
+            gvAccounts.DataSource = dt2;
+            gvAccounts.DataBind();
 
-        gvOrganisationAdms.DataSource = dt3;
-        gvOrganisationAdms.DataBind();
+            gvOrganisationAdms.DataSource = dt3;
+            gvOrganisationAdms.DataBind();
+        }
 
     }
 
