@@ -82,12 +82,12 @@ public partial class UserStatistics : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
-        dt.Columns.Add(new DataColumn("NUMBER_LOGINS", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("HOURS", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("DAYS_SINCE_CREATION", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("DAYS_REMAINING", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("NUMBER_LOGINS", typeof(int)));
+        dt.Columns.Add(new DataColumn("HOURS", typeof(int)));
+        dt.Columns.Add(new DataColumn("DAYS_SINCE_CREATION", typeof(int)));
+        dt.Columns.Add(new DataColumn("DAYS_REMAINING", typeof(int)));
         dt.Columns.Add(new DataColumn("LAST_ACCESS", typeof(string)));
         string SQL = "declare @tb_user_stats table " +
                     "(contact_id int,  contact_name nvarchar(255), number_logins int, " +
@@ -245,12 +245,12 @@ public partial class UserStatistics : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
-        dt.Columns.Add(new DataColumn("NUMBER_LOGINS", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("HOURS", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("DAYS_SINCE_CREATION", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("DAYS_REMAINING", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("NUMBER_LOGINS", typeof(int)));
+        dt.Columns.Add(new DataColumn("HOURS", typeof(int)));
+        dt.Columns.Add(new DataColumn("DAYS_SINCE_CREATION", typeof(int)));
+        dt.Columns.Add(new DataColumn("DAYS_REMAINING", typeof(int)));
         dt.Columns.Add(new DataColumn("LAST_ACCESS", typeof(string)));
         string SQL = "declare @tb_user_stats table " +
                     "(contact_id int,  contact_name nvarchar(255), number_logins int, " + 

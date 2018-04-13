@@ -66,7 +66,7 @@
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Address *</td>
                             <td ;="" style="width: 75%; background-color: #E2E9EF">
-                                <asp:TextBox ID="tbAddress" runat="server" Width="80%">N/A</asp:TextBox>
+                                <asp:TextBox ID="tbAddress" runat="server" TextMode="MultiLine" Width="80%">N/A</asp:TextBox>
                             </td>
                         </tr>
                         <tr>

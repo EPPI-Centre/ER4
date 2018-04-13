@@ -69,7 +69,7 @@ public partial class Reviews : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
-        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));
@@ -114,7 +114,7 @@ public partial class Reviews : System.Web.UI.Page
         bool shareable = true;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
-        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));

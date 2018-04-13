@@ -67,8 +67,8 @@ public partial class RecentActivity : System.Web.UI.Page
     {
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
+        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("CREATED", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_RENEWED", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
@@ -110,15 +110,15 @@ public partial class RecentActivity : System.Web.UI.Page
     {
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
-        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
+        dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("CREATED", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_RENEWED", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("REVIEW_TYPE", typeof(string)));
-        dt.Columns.Add(new DataColumn("ACTIVE_HOURS", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("ACTIVE_HOURS", typeof(int)));
 
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_RecentActivityGetAllFilter", tbFilter0.Text);
