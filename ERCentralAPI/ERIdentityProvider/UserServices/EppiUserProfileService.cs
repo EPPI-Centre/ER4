@@ -36,6 +36,13 @@ namespace ERIdentityProvider.UserServices
 			if (!user.Email.IsNullOrEmpty()) claims.Add(new Claim(ClaimTypes.Email, user.Email));
 			if (!user.DisplayName.IsNullOrEmpty()) claims.Add(new Claim(ClaimTypes.Name, user.DisplayName));
 			if (!user.ExpiresOn.IsNullOrEmpty()) claims.Add(new Claim("ExpiresOn", user.ExpiresOn));
+            if (!user.MemberOf.IsNullOrEmpty())
+            {
+                foreach (Organisation org in user.MemberOf)
+                {
+                    claims.Add(new Claim("Organisation", "ID:" + org.OrganisationId.ToString() + " OrgName: " + org.OrganisationName));
+                }
+            }
 			context.IssuedClaims = claims;
         }
 		
