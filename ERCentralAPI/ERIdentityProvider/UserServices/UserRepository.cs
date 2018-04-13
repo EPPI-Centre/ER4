@@ -136,6 +136,7 @@ namespace ERIdentityProvider.UserServices
                 }
 
             }
+            //string jsonic = Newtonsoft.Json.JsonConvert.SerializeObject(res);
             return res;
         }
 

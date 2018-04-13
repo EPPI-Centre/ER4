@@ -6,7 +6,13 @@
 		"DisplayName": "Alice Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": true,
-		"IsCochrane": false
+		"IsCochrane": false,
+		"MemberOf":[
+			{
+				"OrganisationName":"EPPI-Centre",
+				"OrganisationId":1
+			}
+		]
 	},
 	{
 		"SubjectId": "-2",
@@ -15,7 +21,17 @@
 		"DisplayName": "Bob Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": false,
-		"IsCochrane": true
+		"IsCochrane": true,
+		"MemberOf":[
+			{
+				"OrganisationName":"EPPI-Centre",
+				"OrganisationId":1
+			},
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-3",
@@ -24,7 +40,17 @@
 		"DisplayName": "Steve Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": false,
-		"IsCochrane": false
+		"IsCochrane": false,
+		"MemberOf":[
+			{
+				"OrganisationName":"EPPI-Centre",
+				"OrganisationId":1
+			},
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-4",
@@ -33,7 +59,13 @@
 		"DisplayName": "Jane Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": false,
-		"IsCochrane": false
+		"IsCochrane": false,
+		"MemberOf":[
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-5",
@@ -42,7 +74,13 @@
 		"DisplayName": "John Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": false,
-		"IsCochrane": true
+		"IsCochrane": true,
+		"MemberOf":[
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-6",
@@ -51,7 +89,13 @@
 		"DisplayName": "Tracy Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": false,
-		"IsCochrane": true
+		"IsCochrane": true,
+		"MemberOf":[
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-7",
@@ -60,7 +104,17 @@
 		"DisplayName": "David Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": null,
-		"IsCochrane": true
+		"IsCochrane": true,
+		"MemberOf":[
+			{
+				"OrganisationName":"EPPI-Centre",
+				"OrganisationId":1
+			},
+			{
+				"OrganisationName":"NICE",
+				"OrganisationId":2
+			}
+		]
 	},
 	{
 		"SubjectId": "-8",
@@ -69,6 +123,7 @@
 		"DisplayName": "Mary Fake",
 		"ExpiresOn": null,
 		"IsSiteAdmin": null,
-		"IsCochrane": true
+		"IsCochrane": true,
+		"MemberOf":[]
 	}
 ]
