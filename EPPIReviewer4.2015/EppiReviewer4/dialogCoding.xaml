@@ -32,6 +32,13 @@
                            FactoryMethod="GetItemAttributePDFList"
                            DataChanged="ItemAttributePDFList_DataChanged"
                            />
+        <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemArmList"
+                           DataChanged="CslaDataProvider_DataChanged_1"
+                           />
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
@@ -42,6 +49,26 @@
                     <ControlTemplate>
                         <Button x:Name="cmdViewText" 
                                 Content="Go!" Click="cmdViewText_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleEditArm">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdEditarm" 
+                                Content="Edit arm" Click="cmdEditarm_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteArm">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdDeletearm" 
+                                Content="Delete arm" Click="cmdDeletearm_Click"></Button>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -622,6 +649,44 @@
                                 <!--<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="showTxt" />-->
                                 <cslaXAML:BusyAnimation x:Name="pdfBusy" Visibility="Collapsed" Width="40" Height="40" IsRunning="False"
                                                           Grid.Column="0" Grid.Row="1" />
+                            </Grid>
+                        </radDock:RadDocumentPane>
+                        <radDock:RadDocumentPane Header="Study arms" x:Name="Arms" Title="Study arms" CanUserClose="False" CanFloat="False" IsEnabled="True" >
+                            <Grid >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="300" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="75"></ColumnDefinition>
+                                    <ColumnDefinition Width="170"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Study arms" HorizontalAlignment="Left" FontWeight="Bold" Margin="3,6,3,3"></TextBlock>
+
+                                <telerikGridView:RadGridView x:Name="GridArms" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemArmsData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Arm title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditArm}" Width="60" Header="Edit" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteArm}" Width="70" Header="Delete" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
+                                        
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Name="tbArmDescriptor" Text="New Arm" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="3,6,3,3"></TextBlock>
+                                <TextBox Grid.Row="2" Grid.Column="1" Name="tbNewArm" Margin="3,3,3,3"></TextBox>
+                                <Button HorizontalAlignment="Center" Name="NewArm" Click="NewArm_Click" Width="25" Height="25" Grid.Row="2" Grid.Column="2"  Margin="3" ToolTipService.ToolTip="Save arm" >
+                                    <Image Source="Icons/AddPDFCode.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
+                                <Button HorizontalAlignment="Center" Name="CancelArm" Click="CancelArm_Click" Width="25" Height="25" Grid.Row="2" Grid.Column="3"  Margin="3" ToolTipService.ToolTip="Cancel" >
+                                    <Image Source="Icons/RedX.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
                             </Grid>
                         </radDock:RadDocumentPane>
                     </radDock:RadPaneGroup>

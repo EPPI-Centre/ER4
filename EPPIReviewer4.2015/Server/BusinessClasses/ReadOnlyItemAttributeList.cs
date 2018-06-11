@@ -43,6 +43,20 @@ namespace BusinessLibrary.BusinessClasses
             return null;
         }
 
+        public void AddToReadOnlyItemAttributeList(ReadOnlyItemAttribute roia)
+        {
+            this.IsReadOnly = false;
+            this.Add(roia);
+            this.IsReadOnly = true;
+        }
+
+        public void RemoveFromReadOnlyItemAttributeList(ReadOnlyItemAttribute item)
+        {
+            this.IsReadOnly = false;
+            this.Remove(item);
+            this.IsReadOnly = true;
+        }
+
 #if !SILVERLIGHT
 
         private void DataPortal_Fetch(ItemAttributesSelectionCriteria criteria)

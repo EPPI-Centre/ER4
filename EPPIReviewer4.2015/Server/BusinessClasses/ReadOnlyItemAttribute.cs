@@ -112,6 +112,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<Int64> ArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ArmId", "ArmId"));
+        public Int64 ArmId
+        {
+            get
+            {
+                return GetProperty(ArmIdProperty);
+            }
+        }
+
         private static PropertyInfo<bool> IsCompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsComplete", "IsComplete"));
         public bool IsComplete
         {
@@ -161,6 +170,22 @@ namespace BusinessLibrary.BusinessClasses
                 return ItemAttributeFullTextList.ToList<ItemAttributeFullTextDetails>();
             }
         }
+
+        public static ReadOnlyItemAttribute ReadOnlyItemAttribute_From_ItemAttributeData(ItemAttributeData iad)
+        {
+            ReadOnlyItemAttribute newOb = new ReadOnlyItemAttribute();
+            newOb.LoadProperty(ItemAttributeIdProperty, iad.ItemAttributeId);
+            newOb.LoadProperty(ItemIdProperty, iad.ItemId);
+            newOb.LoadProperty(ItemSetIdProperty, iad.ItemSetId);
+            newOb.LoadProperty(AttributeIdProperty, iad.AttributeId);
+            newOb.LoadProperty(AdditionalTextProperty, iad.AdditionalText);
+            newOb.LoadProperty(IsLockedProperty, iad.IsLocked);
+            newOb.LoadProperty(ArmIdProperty, iad.ArmId);
+            newOb.LoadProperty(AttributeSetIdProperty, iad.AttributeSetId);
+            return newOb;
+        }
+    
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -192,6 +217,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public static ReadOnlyItemAttribute GetReadOnlyItemAttribute(SafeDataReader reader)
         {
+            Random rnd = new Random();
+
             ReadOnlyItemAttribute returnValue = new ReadOnlyItemAttribute();
             returnValue.LoadProperty<Int64>(ItemAttributeIdProperty, reader.GetInt64("ITEM_ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
@@ -200,9 +227,20 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AdditionalTextProperty, reader.GetString("ADDITIONAL_TEXT"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
+            returnValue.LoadProperty<Int64>(ArmIdProperty, reader.GetInt64("ITEM_ARM_ID"));
             //returnValue.LoadProperty<ItemAttributeTextList>(ItemAttributeTextListProperty,
             //  ItemAttributeTextList.GetReadOnlyItemAttributeTextList(returnValue.ItemAttributeId));
             return returnValue;
+        }
+
+        private static readonly Random random = new Random();
+
+        public static int RandomNumber(int min, int max)
+        {
+            // lock (syncLock)
+            { // synchronize
+                return random.Next(min, max);
+            }
         }
 
 #endif

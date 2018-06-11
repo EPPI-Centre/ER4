@@ -75,14 +75,17 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public void SetItemData(ItemSetList data)
-        {
-            //List<ItemSet> list = 
-               object o1 =  data.Cast<List<ItemSet>>();
-            object o2 = data.Cast<ItemSet>();//as List<ItemSet>;
+        // JT commented out 07/06/2018 - doesn't look like this is ever called??
+        //public void SetItemData(ItemSetList data)
+        //{
+        //    //List<ItemSet> list = 
+        //       object o1 =  data.Cast<List<ItemSet>>();
+        //    object o2 = data.Cast<ItemSet>();//as List<ItemSet>;
             
-        }
-        public void SetItemData(List<ItemSet> data)
+        //}
+        //
+
+        public void SetItemData(List<ItemSet> data, Int64 CurrentItemArmId)
         {
             ClearItemData();
             foreach (ItemSet itemSet in data)
@@ -100,21 +103,27 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         foreach (ReadOnlyItemAttribute itemAttribute in itemSet.ItemAttributes)
                         {
-                            AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
-                            if (attributeSet != null)
+                            if (itemAttribute.ArmId == CurrentItemArmId)
                             {
-                                ItemAttributeData itemData = new ItemAttributeData();
-                                itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                                itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
-                                itemData.ItemId = itemAttribute.ItemId;
-                                itemData.ItemSetId = itemAttribute.ItemSetId;
-                                itemData.SetId = attributeSet.SetId;
-                                itemData.AdditionalText = itemAttribute.AdditionalText;
-                                itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                                //itemData.ItemContactId = itemAttribute.ContactId;
-                                //itemData.IsSelected = true; Default is true.
-                                attributeSet.IsSelected = true;
-                                attributeSet.ItemData = itemData;
+                                AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
+                                if (attributeSet != null)
+                                {
+                                    ItemAttributeData itemData = new ItemAttributeData();
+                                    itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                                    itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
+                                    itemData.AttributeId = itemAttribute.AttributeId;
+                                    itemData.AttributeSetId = itemAttribute.AttributeSetId;
+                                    itemData.ItemId = itemAttribute.ItemId;
+                                    itemData.ItemSetId = itemAttribute.ItemSetId;
+                                    itemData.SetId = attributeSet.SetId;
+                                    itemData.ArmId = itemAttribute.ArmId;
+                                    itemData.AdditionalText = itemAttribute.AdditionalText;
+                                    itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                                    //itemData.ItemContactId = itemAttribute.ContactId;
+                                    //itemData.IsSelected = true; Default is true.
+                                    attributeSet.IsSelected = true;
+                                    attributeSet.ItemData = itemData;
+                                }
                             }
                         }
                     }
