@@ -61,7 +61,7 @@ namespace EppiReviewer4
         private int ToDoSetID = -1;
         private AttributeSet ToDoAtt = null;
         AttributeSetToPasteList toPlist;
-        private List<ItemSet> CurrentItemData = null;
+        public List<ItemSet> CurrentItemData = null;
 
         private RadWClassifier windowClassifier = new RadWClassifier();
 
@@ -1495,7 +1495,7 @@ namespace EppiReviewer4
                 BusyLoading.IsRunning = true;
                 dp.BeginExecute(command);
             }
-            else
+            else // the checkbox wasn't previously selected, so we need to select and save it
             {
                 ItemAttributeData itemData = new ItemAttributeData();
                 itemData.ItemAttributeId = 0;
@@ -1504,6 +1504,8 @@ namespace EppiReviewer4
                 itemData.SetId = currentAttributeSet.SetId;
                 itemData.AttributeId = currentAttributeSet.AttributeId;
                 itemData.AdditionalText = windowAdditionalText.TextBoxAdditionalText.Text;
+                itemData.AttributeSetId = currentAttributeSet.AttributeSetId;
+                itemData.ArmId = ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
 
                 DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
                 ItemAttributeSaveCommand command = new ItemAttributeSaveCommand("Insert",
@@ -1529,6 +1531,16 @@ namespace EppiReviewer4
                         itemData.ItemSetId = e2.Object.ItemSetId;
                         reviewSets.LoadingAttributes = true; // setting this so that the autosave insert doesn't kick in
                         currentAttributeSet.IsSelected = true;
+                        foreach (ItemSet iSet in CurrentItemData) // need to add it to the list as well as a pointer from the codestree for when people switch between arms / study
+                        {
+                            if (iSet.SetId == itemData.SetId)
+                            {
+                                // a bit painful - we need to create a readonly object and add to a read only list...
+                                ReadOnlyItemAttribute newIa = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(itemData);
+                                iSet.ItemAttributes.AddToReadOnlyItemAttributeList(newIa);
+                                break;
+                            }
+                        }
                         currentAttributeSet.ItemData = itemData;
                         reviewSets.LoadingAttributes = false;
                     }
@@ -1562,6 +1574,8 @@ namespace EppiReviewer4
                 itemData.SetId = iad.SetId;
                 itemData.AttributeId = iad.AttributeId;
                 itemData.AdditionalText = "";
+                itemData.AttributeSetId = iad.AttributeSetId;
+                itemData.ArmId = ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
                 itemData.IsCompleted = false;
                 itemData.IsLocked = true;
             }
@@ -4127,6 +4141,7 @@ namespace EppiReviewer4
             if (CurrentItemData != null && resettingArms == false)
             {
                 doLoadItemAttributes(CurrentItemData);
+                this.SelectedItemChanged.Invoke(sender, e);
             }
         }
     } // END MAIN CodesTreeControl CLASS

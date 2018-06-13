@@ -2370,7 +2370,10 @@ Proceed?";
                 itemData.ItemSetId = 0;
                 itemData.SetId = aset.SetId;
                 itemData.AttributeId = aset.AttributeId;
+                itemData.AttributeSetId = aset.AttributeSetId;
                 itemData.AdditionalText = "";
+                itemData.ArmId = codesTreeControl.ComboArms.Visibility ==
+                    Visibility.Visible ? Convert.ToInt64((codesTreeControl.ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
                 DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
                 ItemAttributeSaveCommand command = new ItemAttributeSaveCommand("Insert",
                     itemData.AttributeId,
@@ -2394,6 +2397,16 @@ Proceed?";
                     {
                         itemData.ItemAttributeId = e2.Object.ItemAttributeId;
                         itemData.ItemSetId = e2.Object.ItemSetId;
+                        foreach (ItemSet iSet in codesTreeControl.CurrentItemData) // need to add it to the list as well as a pointer from the codestree for when people switch between arms / study
+                        {
+                            if (iSet.SetId == itemData.SetId)
+                            {
+                                // a bit painful - we need to create a readonly object and add to a read only list...
+                                ReadOnlyItemAttribute newIa = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(itemData);
+                                iSet.ItemAttributes.AddToReadOnlyItemAttributeList(newIa);
+                                break;
+                            }
+                        }
                         aset.IsSelected = true;
                         aset.ItemData = itemData;
                         cmdApplyCodeClick(sender, e);
@@ -2907,6 +2920,8 @@ Proceed?";
                 GridArms.IsEnabled = true;
                 tbArmDescriptor.DataContext = null;
                 codesTreeControl.ResetArms(provider.Data as ItemArmList);
+                //btnReset_Click(sender, null); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! add here - need event fired when combobox changes arm to reset pdf highlights
+                
             }
         }
 
@@ -2943,12 +2958,18 @@ Proceed?";
                     ia = tbArmDescriptor.DataContext as ItemArm;
                 }
                 ia.Title = tbNewArm.Text;
+                ia.Saved += Ia_Saved;
                 ia.BeginEdit();
                 ia.ApplyEdit();
                 tbNewArm.Text = "";
                 tbArmDescriptor.DataContext = null;
                 tbArmDescriptor.Text = "New arm";
             }
+        }
+
+        private void Ia_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider_DataChanged_1(sender, e);
         }
 
         private void CancelArm_Click(object sender, RoutedEventArgs e)
