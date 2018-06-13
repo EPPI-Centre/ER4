@@ -92,6 +92,7 @@
     <Grid x:Name="CodingGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition x:Name="rowTree" Height="*"></RowDefinition>
             <RowDefinition Height="70"></RowDefinition>
@@ -118,11 +119,12 @@
                 <Image Width="22" Height="22" Source="Icons/ExpandAll.png"
 						                    ToolTipService.ToolTip="Expand all codes" />
             </Button>-->
+            
             <Button x:Name="cmdReloadAllSets" Click="cmdReloadAllSets_Click" >
                 <Image Width="19" Height="19" Source="Icons/view-refresh-7.png" Margin="3"
 						                    ToolTipService.ToolTip="Reload all codesets" />
             </Button>
-
+            
             <Button x:Name="cmdPrintCodeSet" Click="cmdPrintCodeSet_Click">
                 <Image Width="22" Height="22" Source="Icons/PrintCodeSet.png"
 						                    ToolTipService.ToolTip="Print code set" />
@@ -142,13 +144,20 @@
 
         </telerikNavigation:RadToolBar>
 
-        <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="2" HorizontalAlignment="Stretch" IsRunning="{Binding Source={StaticResource CodeSetsData}, Path=IsBusy}" />
-        <sdk:GridSplitter Grid.Row="3" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Opacity="00"
+        <telerikNavigation:RadToolBar Grid.Row="1" HorizontalAlignment="Stretch"
+				                        VerticalAlignment="Top" x:Name="ArmsToolBar" Visibility="Collapsed">
+            <TextBlock>Codes apply to:</TextBlock>
+            <ComboBox Name="ComboArms" DisplayMemberPath="ArmTitle" SelectedValuePath="ItemArmId" Height="30" SelectionChanged="ComboArms_SelectionChanged" Visibility="Collapsed" />
+            
+        </telerikNavigation:RadToolBar>
+
+        <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="3" HorizontalAlignment="Stretch" IsRunning="{Binding Source={StaticResource CodeSetsData}, Path=IsBusy}" />
+        <sdk:GridSplitter Grid.Row="4" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Opacity="00"
                                ShowsPreview="True"/>
-        <TextBox x:Name="TextBoxGuidance"  Margin="6,6,6,6" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="3"
+        <TextBox x:Name="TextBoxGuidance"  Margin="6,6,6,6" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="4"
                 VerticalScrollBarVisibility="Visible">
         </TextBox>
-        <Border x:Name="brPreviousCodeReminder" CornerRadius="3" BorderBrush="Black" BorderThickness="1" Background="#99aaaaff" Grid.Row="3" 
+        <Border x:Name="brPreviousCodeReminder" CornerRadius="3" BorderBrush="Black" BorderThickness="1" Background="#99aaaaff" Grid.Row="4" 
                 VerticalAlignment="Bottom" 
                 Margin="6,3,6,7" Visibility="Collapsed">
             <TextBlock x:Name="tBlockPreviousCodeReminder" TextWrapping="Wrap" 

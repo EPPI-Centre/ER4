@@ -738,6 +738,7 @@ namespace BusinessLibrary.BusinessClasses
         public int SetId { get; set; }
         public bool IsLocked { get; set; }
         public bool IsCompleted { get; set; }
+        public Int64 ArmId { get; set; }
 
         public Int64 AttributeSetId { get; set; }
         public ItemAttributeTextList ItemAttributeTextList { get; set; }

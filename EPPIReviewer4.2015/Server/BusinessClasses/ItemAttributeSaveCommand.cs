@@ -36,6 +36,7 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeId;
         private int _setId;
         private Int64 _itemId;
+        private Int64 _itemArmId;
 
         public Int64 ItemAttributeId
         {
@@ -67,6 +68,11 @@ namespace BusinessLibrary.BusinessClasses
             get { return _itemId; }
         }
 
+        public Int64 ItemArmId
+        {
+            get { return _itemArmId; }
+        }
+
         private static PropertyInfo<ReviewInfo> RevInfoProperty = RegisterProperty<ReviewInfo>(new PropertyInfo<ReviewInfo>("RevInfo", "RevInfo"));
         public ReviewInfo RevInfo
         {
@@ -75,7 +81,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public ItemAttributeSaveCommand(string saveType, Int64 itemAttributeId, Int64 itemSetId, string additionalText, Int64 attributeId,
-            int setId, Int64 itemId, ReviewInfo ri)
+            int setId, Int64 itemId, Int64 itemArmId, ReviewInfo ri)
         {
             _saveType = saveType;
             _ItemAttributeId = itemAttributeId;
@@ -84,6 +90,7 @@ namespace BusinessLibrary.BusinessClasses
             _attributeId = attributeId;
             _setId = setId;
             _itemId = itemId;
+            _itemArmId = itemArmId;
             RevInfo = ri;
         }
 
@@ -97,6 +104,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_attributeId", _attributeId);
             info.AddValue("_setId", _setId);
             info.AddValue("_itemId", _itemId);
+            info.AddValue("_itemArmId", _itemArmId);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -108,6 +116,7 @@ namespace BusinessLibrary.BusinessClasses
             _attributeId = info.GetValue<Int64>("_attributeId");
             _setId = info.GetValue<int>("_setId");
             _itemId = info.GetValue<Int64>("_itemId");
+            _itemArmId = info.GetValue<Int64>("_itemArmId");
         }
 
 
@@ -145,6 +154,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
                             command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId));
                             command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                             command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                             command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
