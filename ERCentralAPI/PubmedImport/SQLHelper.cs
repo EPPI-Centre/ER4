@@ -69,16 +69,16 @@ namespace PubmedImport
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connSt))
+                SqlConnection connection = new SqlConnection(connSt);
+                
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(SPname, connection))
                 {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand(SPname, connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.AddRange(parameters);
-                        return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
-                    }
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddRange(parameters);
+                    return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
                 }
+                
             }
             catch (Exception e)
             {

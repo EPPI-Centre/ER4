@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -402,16 +403,13 @@ namespace PubmedImport
 							}
 							if (saveUpdateFileImport)
 							{
-								//using (var session = DocumentStoreHolder.Store.OpenSession())
-								//{
-								//	updateFiles[i].ImportDate = DateTime.Now;
-								//	session.Store(updateFiles[i]);
-								//	if (Program.simulate == false)
-								//	{
-								//		session.SaveChanges();
-								//	}
-								//}
-							}
+                                using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+                                {
+                                    updateFiles[i].ImportDate = DateTime.Now;
+                                    if (Program.simulate == false) updateFiles[i].SaveSelf(conn);
+
+                                }
+                            }
 						}
 						result.ProcessedFilesResults.Add(currentJobResult);
 					}
@@ -618,7 +616,26 @@ namespace PubmedImport
 		public DateTime UploadDate { get; set; }
 		public string FileName { get; set; }
 		public DateTime ImportDate { get; set; }
-		public override bool Equals(object obj)
+
+        public void SaveSelf(SqlConnection conn)
+        {
+            List<SqlParameter> Parameters = new List<SqlParameter>();
+            Parameters.Add(new SqlParameter("@PUBMED_FILE_NAME", FileName));
+            Parameters.Add(new SqlParameter("@PUBMED_UPLOAD_DATE", UploadDate));
+            SQLHelper.ExecuteNonQuerySP(conn, "st_PubMedUpdateFileInsert", Parameters.ToArray());
+        }
+
+        public static PubMedUpdateFileImport GetPubMedUpdateFileImport(SqlDataReader reader)
+        {
+            PubMedUpdateFileImport res = new PubMedUpdateFileImport();
+           
+            res.UploadDate = (DateTime)reader["PUBMED_UPLOAD_DATE"];
+            res.ImportDate = (DateTime)reader["PUBMED_IMPORT_DATE"];
+            res.FileName = reader["PUBMED_FILE_NAME"].ToString();
+            return res;
+        }
+
+        public override bool Equals(object obj)
 		{//we use this to quickly find if already uploaded files contain ones we may want to download & process.
 		 //adapted from: http://codebetter.com/davidhayden/2005/02/22/object-identity-vs-object-equality-overriding-system-object-equalsobject-obj/
 			if (obj == null) return false;
@@ -852,61 +869,79 @@ namespace PubmedImport
 			tmpFileList.Sort();
 			Uri ftp = new Uri(updateFTPPath);
 			PubMedUpdateFileImport tmp = new PubMedUpdateFileImport();
-			foreach (var f in tmpFileList)
-			{
-				try
-				{
-					FtpWebRequest req = (FtpWebRequest)WebRequest.Create(new Uri(ftp, f));
-					req.Method = WebRequestMethods.Ftp.GetDateTimestamp;
-					req.UsePassive = true;
-					req.Credentials = new NetworkCredential(Username, Password);
+            //now get the list of files we have imported already...
+            List<PubMedUpdateFileImport> knownUpdateFiles = new List<PubMedUpdateFileImport>();
+            try
+            {
+                using (SqlDataReader reader = SQLHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll"))
+                {
+                    //if (!reader.IsClosed)
+                    //{
+                        while (reader.Read())
+                        {
+                            knownUpdateFiles.Add(PubMedUpdateFileImport.GetPubMedUpdateFileImport(reader));
+                        }
+                    //}
+                }
+            }
+            catch (Exception e)
+            {
+                Program.LogException(e, "FATAL ERROR fetching list of already processed UpdateFiles.");
+                Program.LogMessageLine("Aborting...");
+                Program.LogMessageLine("");
+                System.Environment.Exit(0);
+            }
 
-					using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
-					{
-						//the commented lines are renmant for an approach that wouldn't work.
-						//you can't get all records from Raven (either 128 or up to 1024, if you don't change defaults)
-						tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = resp.LastModified };
-						//if (!ProcessedfileList.Contains(tmp)) fileList.Add(tmp);
-						
+            foreach (var f in tmpFileList)
+            {
+                try
+                {
+                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create(new Uri(ftp, f));
+                    req.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+                    req.UsePassive = true;
+                    req.Credentials = new NetworkCredential(Username, Password);
 
-					}
-				}
-				catch(Exception e)
-				{
-					LogFTPexceptionSafely(e, messages, "fetching list of update files.");
-					break;
-				}
-				try
-				{
-					//using (var session = DocumentStoreHolder.Store.OpenSession())
-					//{
-					//	MatchingFilesList = session.Query<PubMedUpdateFileImport>().Where(x => x.FileName == f).ToList();// && x.UploadDate < tmp.UploadDate).ToList();
-					//	if (MatchingFilesList.Count == 0)//we haven't processed this file
-					//	{
-					//		fileList.Add(tmp);
-					//	}
-					//	else
-					//	{//we have processed this file already, does the one on FTP Pubmed folder have a timestamp that is newer?
-					//		bool WeNeedThis = true;
-					//		foreach (PubMedUpdateFileImport processed in MatchingFilesList)
-					//		{
-					//			if (processed.UploadDate >= tmp.UploadDate)// we imported this *after* the "last modified" timestamp of PubMed file (in FTP folder), so we don't need this file
-					//				WeNeedThis = false;
-					//		}
-					//		if (WeNeedThis) fileList.Add(tmp);
-					//	}
-					//}
-				}
-				catch (Exception e)
-				{
-					messages.Add("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
-					Program.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
-					messages.Add("Error Message: " + e.Message);
-					Program.LogMessageLine("Error Message: " + e.Message);
-					return (fileList, messages);
-				}
+                    using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
+                    {
+                        //the commented lines are renmant for an approach that wouldn't work.
+                        //you can't get all records from Raven (either 128 or up to 1024, if you don't change defaults)
+                        tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = resp.LastModified };
+                        //if (!ProcessedfileList.Contains(tmp)) fileList.Add(tmp);
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogFTPexceptionSafely(e, messages, "fetching list of update files.");
+                    break;
+                }
+                try
+                {
+                    MatchingFilesList = knownUpdateFiles.Where(x => x.FileName == f).ToList();
+                    if (MatchingFilesList.Count == 0)//we haven't processed this file
+                    {
+                        fileList.Add(tmp);
+                    }
+                    else
+                    {//we have processed this file already, does the one on FTP Pubmed folder have a timestamp that is newer?
+                        bool WeNeedThis = true;
+                        foreach (PubMedUpdateFileImport processed in MatchingFilesList)
+                        {
+                            if (processed.UploadDate >= tmp.UploadDate)// we imported this *after* the "last modified" timestamp of PubMed file (in FTP folder), so we don't need this file
+                                WeNeedThis = false;
+                        }
+                        if (WeNeedThis) fileList.Add(tmp);
+                    }
+                }
+                catch (Exception e)
+                {
+                    messages.Add("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
+                    Program.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
+                    messages.Add("Error Message: " + e.Message);
+                    Program.LogMessageLine("Error Message: " + e.Message);
+                    return (fileList, messages);
+                }
 
-			}
+            }
 
 			//fileList = fileList.Where(p => p.UploadDate >= DateTime.Today.AddDays(daysbehind)).ToList();
 
