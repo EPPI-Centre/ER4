@@ -1,0 +1,20 @@
+EPPI-Reviewer5 PubMed import utility.
+USAGE:
+- (Required) "DoWhat:[value]"
+	Accepted values:
+	"ftpbaselinefolder" process yearly baseline folder (might take days!)
+	"ftpupdatefolder" process daily updates
+	"singlefile", paired with "file:[fullFTPpath]" to process a single file
+	"ftpsamplefile" to process the PubMed Sample File.
+- (Optional) "MaxCount:N": limit the max number of citations(N).
+- (Optional) "whatif": TEST MODE (Does not save changes)
+- (Optional) "deleterecords": UNDO/use at your own risk! - delete records found processing what's indicated by DoWhat.
+- (Optional) "waitonexit": ask to press a key before quitting.
+- (Optional) "savelog": save (or append) a log to: [workingDir]\Logfiles\PubmedImportLog-DD-MM-YYYY.txt
+
+EXAMPLES:
+> dotnet PubmedImport.dll DoWhat:ftpbaselinefolder
+...
+> dotnet PubmedImport.dll DoWhat:singlefile file:ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/pubmed18n0929.xml.gz
+...
+> dotnet PubmedImport.dll DoWhat:ftpupdatefolder maxcount:1000

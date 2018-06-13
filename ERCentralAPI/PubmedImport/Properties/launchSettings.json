@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PubmedImport": {
+      "commandName": "Project",
+      "commandLineArgs": "dowhat:ftpsamplefile savelog "
+    }
+  }
+}
