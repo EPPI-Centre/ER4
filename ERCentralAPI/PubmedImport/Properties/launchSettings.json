@@ -2,7 +2,7 @@
   "profiles": {
     "PubmedImport": {
       "commandName": "Project",
-      "commandLineArgs": "dowhat:ftpupdatefolder savelog waitonexit maxcount:35000"
+      "commandLineArgs": "dowhat:ftpsamplefile savelog maxcount:3000"
     }
   }
 }

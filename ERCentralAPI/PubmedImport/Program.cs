@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
@@ -227,14 +228,17 @@ namespace PubmedImport
 				Program.LogMessageLine("Summary: " + result.Summary);
 				if (Program.simulate == false)
 				{
-					//using (var session = DocumentStoreHolder.Store.OpenSession())
-					//{
-					//	Program.LogMessageLine("Saving job summary to DB");
-					//	result.UpdateErrors();
-					//	session.Store(result);
-					//	session.SaveChanges();
-					//}
-				}
+                        Program.LogMessageLine("Saving job summary to DB");
+						result.UpdateErrors();
+                        using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+                        {
+
+                            conn.Open();
+                            SaveJobSummary(conn, result);
+
+                        }
+
+                    }
 
 				if (WaitOnExit)
 				{
@@ -251,7 +255,77 @@ namespace PubmedImport
 			
 		}
 
-		static void GetAppSettings()
+        private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
+        {
+            string argStr = "";
+            foreach (var item in result.Arguments)
+            {
+                argStr += "," +  item.ToString();
+            }
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            SqlParameter IdParam = new SqlParameter("@jobID", (Int64)(-1));
+            IdParam.Direction = System.Data.ParameterDirection.Output;
+            sqlParams.Add(IdParam);
+            sqlParams.Add(new SqlParameter("@IsDeleting", result.IsDeleting));
+            sqlParams.Add(new SqlParameter("@TotalErrorCount", result.TotalErrorCount));
+            sqlParams.Add(new SqlParameter("@Summary", result.Summary));
+            sqlParams.Add(new SqlParameter("@Arguments", argStr));
+            sqlParams.Add(new SqlParameter("@StartTime", result.StartTime));
+            sqlParams.Add(new SqlParameter("@EndTime", result.EndTime));
+            sqlParams.Add(new SqlParameter("@HasError", result.HasErrors));
+             
+            SqlParameter[] parameters = new SqlParameter[8];
+            parameters = sqlParams.ToArray();
+
+            try
+            {
+
+
+                    SQLHelper.ExecuteQuerySP(conn, "st_PubMedJOBLOG", parameters);
+                    var jobID = (Int64)IdParam.Value;
+                    conn.Close();
+
+                    // Can loop through the number of FileParserResults and insert into the relevant table
+                    foreach (var fileParser in result.ProcessedFilesResults)
+                    {
+                        if (fileParser.UpdatedPMIDs == null)
+                        {
+                            fileParser.UpdatedPMIDs = "";
+                        }
+                        string argStrF = "";
+                        foreach (var item in result.Arguments)
+                        {
+                            argStrF += "," + item.ToString();
+                        }
+                        conn.Open();
+                        SQLHelper.ExecuteNonQuerySP(conn, "st_FileParserResult"
+
+                                           , new SqlParameter("@Success", fileParser.Success)
+                                           , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
+                                           , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
+                                           , new SqlParameter("@FileName", fileParser.FileName)
+                                           , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
+                                           , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
+                                           , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
+                                           , new SqlParameter("@StartTime", fileParser.StartTime)
+                                           , new SqlParameter("@EndTime", fileParser.EndTime)
+                                           , new SqlParameter("@HasErrors", fileParser.HasErrors)
+                                           , new SqlParameter("@Messages", argStrF)
+                                           , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
+                                       );
+                    }
+
+                
+
+            }
+            catch (Exception e)
+            {
+                Program.LogException(e, "Error inserting joblog entry into sql.");
+            }
+        
+        }
+
+        static void GetAppSettings()
 		{
 			System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()

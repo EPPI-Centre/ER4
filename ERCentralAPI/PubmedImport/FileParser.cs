@@ -1,16 +1,456 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace PubmedImport
 {
     public static class FileParser
     {
-		static List<CitationRecord> Citations = new List<CitationRecord>();
+
+        public static void LoadCitationIdentities(List<SQLCitationObject> Citations, int bulkInsertSessionId,
+                SqlConnection conn, SqlTransaction tran)
+        {
+
+            SqlCommand cmd = new SqlCommand(
+                "SELECT [REFERENCE_ID] " +
+                "FROM [DataService].[dbo].[TB_REFERENCE] " +
+                "WHERE [BulkInsertSessionID]=@bulkInsertSessionId " 
+                 , conn, tran);
+            cmd.Parameters.Add(new SqlParameter("@bulkInsertSessionId", bulkInsertSessionId));
+
+            SQLCitationObject[] citations =
+                (from u in Citations
+                 orderby u.REFERENCE_ID
+                 select u).ToArray();
+
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                int index = 0;
+                while (reader.Read())
+                {
+                    Int64 id = (Int64)reader[0];
+
+                    //foreach (var ex in citations[index].ExternalIDs)
+                    //    ex.REFERENCE_ID = id;
+                    foreach (var au in citations[index].Authors)
+                        au.REFERENCE_ID = id;
+                    citations[index++].REFERENCE_ID = (int)id;
+                }
+            }
+
+        }
+
+        public static int InitializeBulkInsertSession(SqlConnection conn, SqlTransaction tran)
+        {
+            SqlCommand cmd = new SqlCommand(
+                "INSERT INTO [DataService].[dbo].[BulkInsertSession]([TsCreated]) VALUES (CURRENT_TIMESTAMP)", conn, tran);
+
+            cmd.ExecuteNonQuery();
+
+            cmd = new SqlCommand(
+                "SELECT [BulkInsertSessionID] FROM [DataService].[dbo].[BulkInsertSession] " +
+                "WHERE @@ROWCOUNT > 0 and [BulkInsertSessionID] = SCOPE_IDENTITY()", conn, tran);
+
+            int bulkInsertSessionId = (int)cmd.ExecuteScalar();
+
+            return bulkInsertSessionId;
+
+        }
+
+        public static void CompleteBulkInsertSession(int bulkInsertSessionId,
+                   SqlConnection conn, SqlTransaction tran)
+        {
+
+            SqlCommand cmd = new SqlCommand(
+                "UPDATE [DataService].[dbo].[TB_REFERENCE] " +
+                "SET [BulkInsertSessionID] = NULL " +
+                "WHERE [BulkInsertSessionID] = @bulkInsertSessionId", conn, tran);
+            cmd.Parameters.Add(new SqlParameter("@bulkInsertSessionId", bulkInsertSessionId));
+            cmd.ExecuteNonQuery();
+
+            cmd = new SqlCommand(
+                "DELETE FROM [DataService].[dbo].[BulkInsertSession] " +
+                "WHERE [BulkInsertSessionID] = @bulkInsertSessionId", conn, tran);
+            cmd.Parameters.Add(new SqlParameter("@bulkInsertSessionId", bulkInsertSessionId));
+            cmd.ExecuteNonQuery();
+
+        }
+
+        public static void BulkInsertExternalIDS(List<SQLCitationObject> lstCits, int bulkInsertSessionId, bool fetchIdentities, SqlConnection conn, SqlTransaction tran)
+        {
+            //List<Author> authors = new List<Author>();
+            List<SQLExternal> lstExternalIDS = new List<SQLExternal>();
+
+            foreach (var item in lstCits)
+            {
+                lstExternalIDS.AddRange(ConvertExternalToSQLObject(item.ExternalIDs, item.REFERENCE_ID));
+            }
+
+            DataTable table = ListToDataTable(lstExternalIDS);
+
+            using (SqlBulkCopy bulkCopy =
+                    new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran))
+            {
+
+                bulkCopy.DestinationTableName = "[DataService].[dbo].[TB_EXTERNALID]";
+
+                bulkCopy.ColumnMappings.Clear();
+                bulkCopy.ColumnMappings.Add("EXTERNALID_ID", "EXTERNALID_ID");
+                bulkCopy.ColumnMappings.Add("REFERENCE_ID", "REFERENCE_ID");
+                bulkCopy.ColumnMappings.Add("TYPE", "TYPE");
+                bulkCopy.ColumnMappings.Add("VALUE", "VALUE");
+
+                bulkCopy.BulkCopyTimeout = 1000;
+
+                bulkCopy.WriteToServer(table);
+
+            }
+           
+        }
+
+
+        public static void BulkInsertFlatAuthors(List<SQLCitationObject> Citations, int bulkInsertSessionId, bool fetchIdentities,
+                        SqlConnection conn, SqlTransaction tran)
+        {
+
+            //List<Author> authors = new List<Author>();
+            List<SQLAuthorObject> lstAuths = new List<SQLAuthorObject>();
+
+            foreach (var item in Citations)
+            {
+                lstAuths.AddRange(item.Authors);
+            }
+
+            var distinctAuth = (from c in lstAuths
+                                orderby c.REFERENCE_ID
+                                select c).Distinct();
+
+            lstAuths = distinctAuth.ToList();
+
+            DataTable table = ListToDataTable(lstAuths);
+
+            using (SqlBulkCopy bulkCopy =
+                    new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran))
+            {
+
+                bulkCopy.DestinationTableName = "[DataService].[dbo].[TB_REFERENCE_AUTHOR]";
+
+                bulkCopy.ColumnMappings.Clear();
+                bulkCopy.ColumnMappings.Add("REFERENCE_AUTHOR_ID", "REFERENCE_AUTHOR_ID");
+                bulkCopy.ColumnMappings.Add("REFERENCE_ID", "REFERENCE_ID");
+                bulkCopy.ColumnMappings.Add("LAST", "LAST");
+                bulkCopy.ColumnMappings.Add("FIRST", "FIRST");
+                bulkCopy.ColumnMappings.Add("ROLE", "ROLE");
+                bulkCopy.ColumnMappings.Add("RANK", "RANK");
+
+                bulkCopy.BulkCopyTimeout = 1000;
+
+                bulkCopy.WriteToServer(table);
+
+            }
+            //List<SQLCitationObject> lstObjs = new List<SQLCitationObject>();
+            //foreach (CitationRecord rec in Citations)
+            //{
+            //    lstObjs.Add(ConvertCitationToSQLObject(rec, bulkInsertSessionId));
+            //}
+
+            if (fetchIdentities)
+                LoadAuthorsIdentities(Citations, bulkInsertSessionId, conn, tran);
+
+        }
+
+        public static List<SQLCitationObject> BulkInsertFlatReferences(List<CitationRecord> Citations, int bulkInsertSessionId, bool fetchIdentities,
+               SqlConnection conn, SqlTransaction tran)
+        {
+
+            List<Author> authors = new List<Author>();
+            List<SQLCitationObject> lstObjs = new List<SQLCitationObject>();
+            // Convert Citation object into sqlObject
+            foreach (CitationRecord rec in Citations)
+            {
+                lstObjs.Add(ConvertCitationToSQLObject(rec, bulkInsertSessionId));
+            }
+
+            DataTable table = ListToDataTable(lstObjs);
+
+            using (SqlBulkCopy bulkCopy =
+                    new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran))
+            {
+                bulkCopy.DestinationTableName = "[DataService].[dbo].[TB_REFERENCE]";
+                bulkCopy.ColumnMappings.Clear();
+
+                bulkCopy.ColumnMappings.Add("REFERENCE_ID", "REFERENCE_ID");
+                bulkCopy.ColumnMappings.Add("TYPE_ID", "TYPE_ID");
+                bulkCopy.ColumnMappings.Add("TITLE", "TITLE");
+                bulkCopy.ColumnMappings.Add("PARENT_TITLE", "PARENT_TITLE");
+                bulkCopy.ColumnMappings.Add("SHORT_TITLE", "SHORT_TITLE");
+                bulkCopy.ColumnMappings.Add("DATE_CREATED", "DATE_CREATED");
+                bulkCopy.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
+                bulkCopy.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
+                bulkCopy.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
+                bulkCopy.ColumnMappings.Add("PUBMED_REVISED", "PUBMED_REVISED");
+                bulkCopy.ColumnMappings.Add("PUBMED_PMID_VERSION", "PUBMED_PMID_VERSION");
+                bulkCopy.ColumnMappings.Add("YEAR", "YEAR");
+                bulkCopy.ColumnMappings.Add("MONTH", "MONTH");
+                bulkCopy.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
+                bulkCopy.ColumnMappings.Add("CITY", "CITY");
+                bulkCopy.ColumnMappings.Add("COUNTRY", "COUNTRY");
+                bulkCopy.ColumnMappings.Add("PUBLISHER", "PUBLISHER");
+                bulkCopy.ColumnMappings.Add("INSTITUTION", "INSTITUTION");
+                bulkCopy.ColumnMappings.Add("VOLUME", "VOLUME");
+                bulkCopy.ColumnMappings.Add("PAGES", "PAGES");
+                bulkCopy.ColumnMappings.Add("EDITION", "EDITION");
+                bulkCopy.ColumnMappings.Add("ISSUE", "ISSUE");
+                bulkCopy.ColumnMappings.Add("URLS", "URLS");
+                bulkCopy.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
+                bulkCopy.ColumnMappings.Add("COMMENTS", "COMMENTS");
+                bulkCopy.ColumnMappings.Add("MESHTERMS", "MESHTERMS");
+                bulkCopy.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
+                bulkCopy.ColumnMappings.Add("BulkInsertSessionID", "BulkInsertSessionID");
+                bulkCopy.BulkCopyTimeout = 1000;
+
+                bulkCopy.WriteToServer(table);
+
+            }
+
+            if (fetchIdentities)
+                LoadCitationIdentities(lstObjs, bulkInsertSessionId, conn, tran);
+
+            return lstObjs;
+        }
+
+        public static void LoadAuthorsIdentities(List<SQLCitationObject> Citations, int bulkInsertSessionId,
+                SqlConnection conn, SqlTransaction tran)
+        {
+
+            SqlCommand cmd = new SqlCommand(
+                "SELECT [REFERENCE_AUTHOR_ID] " +
+                "FROM [DataService].[dbo].[TB_REFERENCE] INNER JOIN " +
+                " [DataService].[dbo].[TB_REFERENCE_AUTHOR] ON [DataService].[dbo].[TB_REFERENCE].[REFERENCE_ID] = [DataService].[dbo].[TB_REFERENCE_AUTHOR].[REFERENCE_ID]  " +
+                "WHERE [DataService].[dbo].[TB_REFERENCE].[BulkInsertSessionID]=@bulkInsertSessionId " +
+                "ORDER BY [REFERENCE_AUTHOR_ID] ASC", conn, tran);
+            cmd.Parameters.Add(new SqlParameter("@bulkInsertSessionId", bulkInsertSessionId));
+
+            SQLAuthorObject[] sortedAuthors =
+                (from u in Citations
+                 from e in u.Authors
+                 select e).ToArray();
+
+
+            //using (SqlDataReader reader = cmd.ExecuteReader())
+            //{
+            //    int index = 0;
+            //    while (reader.Read())
+            //        sortedAuthors[index++].REFERENCE_AUTHOR_ID = (int)reader[0];
+            //}
+
+        }
+
+        public class SQLAuthorObject
+        {
+            public Int64 REFERENCE_AUTHOR_ID { get; set; }
+            public Int64 REFERENCE_ID { get; set; }
+            public string LAST { get; set; }
+            public string FIRST { get; set; }
+            public int ROLE { get; set; }
+            public int RANK { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                SQLAuthorObject author = obj as SQLAuthorObject;
+                if (author == null) return false;
+                return author.FIRST == this.FIRST && author.LAST == this.LAST && author.REFERENCE_ID == this.REFERENCE_ID;
+            }
+
+            public override int GetHashCode()
+            {
+                return  this.FIRST.GetHashCode() + this.LAST.GetHashCode() + this.REFERENCE_ID.GetHashCode() ;
+            }
+        }
+
+        public class SQLExternal
+        {
+            public Int64 EXTERNALID_ID { get; set; }
+            public Int64 REFERENCE_ID { get; set; }
+            public string TYPE { get; set; }
+            public string VALUE { get; set; }
+        }
+
+        public class SQLCitationObject
+        {
+            public int REFERENCE_ID { get; set; }
+            public int TYPE_ID { get; set; }
+            public string TITLE { get; set; }
+            public string PARENT_TITLE { get; set; }
+            public string SHORT_TITLE { get; set; }
+            public DateTime DATE_CREATED { get; set; }
+            public string CREATED_BY { get; set; }
+            public DateTime DATE_EDITED { get; set; }
+            public string EDITED_BY { get; set; }
+            public DateTime PUBMED_REVISED { get; set; }
+            public int PUBMED_PMID_VERSION { get; set; }
+            public char[] YEAR { get; set; }
+            public char[] MONTH { get; set; }
+            public string STANDARD_NUMBER { get; set; }
+            public string CITY { get; set; }
+            public string COUNTRY { get; set; }
+            public string PUBLISHER { get; set; }
+            public string INSTITUTION { get; set; }
+            public string VOLUME { get; set; }
+            public string PAGES { get; set; }
+            public string EDITION { get; set; }
+            public string ISSUE { get; set; }
+            public string URLS { get; set; }
+            public string ABSTRACT { get; set; }
+            public string COMMENTS { get; set; }
+            public string MESHTERMS { get; set; }
+            public string KEYWORDS { get; set; }
+            public List<SQLAuthorObject> Authors { get; set; }
+            public List<ExternalID> ExternalIDs { get; set; }
+            public int BulkInsertSessionID { get; set; }
+
+        }
+
+        public static string GetKeywordsString(CitationRecord rec)
+        {
+            string res = "";
+            foreach (KeywordObject Keyw in rec.Keywords)
+            {
+                res += ((Keyw.Major) ? "*" : "") + Keyw.Name + Environment.NewLine;
+            }
+            return res;
+        }
+
+        public static List<SQLAuthorObject> ConvertAuthorToSQLObject(List<Author> auths, long REFERENCE_ID)
+        {
+      
+            List<SQLAuthorObject> authors = new List<SQLAuthorObject>();
+            foreach (var auth in auths)
+            {
+                SQLAuthorObject author = new SQLAuthorObject();
+                author.REFERENCE_AUTHOR_ID = 0;
+                author.REFERENCE_ID = REFERENCE_ID;
+                author.LAST = auth.FamilyName;
+                author.FIRST = auth.GivenName;
+                author.ROLE = auth.AuthorshipLevel;
+                author.RANK = auth.AuthorshipLevel;
+                authors.Add(author);
+            }
+           
+            return authors;
+        }
+
+        public static List<SQLExternal> ConvertExternalToSQLObject(List<ExternalID> externals, int REFERENCE_ID)
+        {
+            List<SQLExternal> exts = new List<SQLExternal>();
+            foreach (var ext in externals)
+            {
+                SQLExternal outExt = new SQLExternal();
+                outExt.EXTERNALID_ID = 0;
+                outExt.REFERENCE_ID = REFERENCE_ID;
+                outExt.TYPE = ext.Name;
+                outExt.VALUE = ext.Value;
+
+                exts.Add(outExt);
+            }
+
+            return exts;
+        }
+
+        public static SQLCitationObject ConvertCitationToSQLObject(CitationRecord rec, int bulkInsertSessionId)
+        {
+
+            SQLCitationObject convertedObject = new SQLCitationObject();
+            convertedObject.ABSTRACT = rec.Abstract.Trim();
+            convertedObject.CITY = rec.City.Trim();
+            convertedObject.COMMENTS = "";
+            convertedObject.COUNTRY = rec.Country.Trim();
+            convertedObject.CREATED_BY = "";
+            convertedObject.DATE_CREATED = DateTime.Now;
+            convertedObject.DATE_EDITED = DateTime.Now;
+            convertedObject.EDITED_BY = "";
+            convertedObject.EDITION = rec.Edition.Trim();
+            convertedObject.INSTITUTION = "";
+            convertedObject.ISSUE = rec.Issue.Trim();
+            convertedObject.KEYWORDS = GetKeywordsString(rec);
+            convertedObject.MESHTERMS = "";
+            convertedObject.MONTH = new char[1]; // rec.Month.ToCharArray();
+            convertedObject.PAGES = rec.Pages.Trim();
+            convertedObject.PARENT_TITLE = rec.ParentTitle.Trim();
+            convertedObject.PUBLISHER = rec.Publisher.Trim();
+            convertedObject.PUBMED_PMID_VERSION = rec.PubmedPmidVersion;
+            convertedObject.PUBMED_REVISED = DateTime.Now;
+            convertedObject.SHORT_TITLE = rec.ShortTitle.Trim();
+            convertedObject.STANDARD_NUMBER = rec.Issn.Trim();
+            convertedObject.TITLE = rec.Title.Trim();
+            convertedObject.TYPE_ID = rec.TypeID;
+            convertedObject.URLS = string.Join("¬", rec.Urls.ToArray());
+            convertedObject.VOLUME = rec.Volume.Trim();
+            convertedObject.YEAR = rec.PublicationYear.ToCharArray();
+            List<SQLAuthorObject> auths = new List<SQLAuthorObject>();
+            convertedObject.Authors = ConvertAuthorToSQLObject(rec.Authors, convertedObject.REFERENCE_ID);
+            convertedObject.ExternalIDs = rec.ExternalIDs;
+            convertedObject.BulkInsertSessionID = bulkInsertSessionId;
+
+            return convertedObject;
+        }
+      
+        public static DataTable ListToDataTable<T>(IList<T> data)
+            {
+            DataTable table = new DataTable();
+
+            //special handling for value types and string
+            if (typeof(T).IsValueType || typeof(T).Equals(typeof(string)))
+            {
+
+                DataColumn dc = new DataColumn("Value");
+                table.Columns.Add(dc);
+                foreach (T item in data)
+                {
+                    DataRow dr = table.NewRow();
+                    dr[0] = item;
+                    table.Rows.Add(dr);
+                }
+            }
+            else
+            {
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(T));
+                foreach (PropertyDescriptor prop in properties)
+                {
+                        table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                }
+               
+                foreach (T item in data)
+                {
+                    DataRow row = table.NewRow();
+                    foreach (PropertyDescriptor prop in properties)
+                    {
+
+                            try
+                            {
+                                row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                            }
+                            catch (Exception ex)
+                            {
+                                row[prop.Name] = DBNull.Value;
+                            }
+                    }
+                    table.Rows.Add(row);
+
+                }
+            }
+            return table;
+        }
+
+        static List<CitationRecord> Citations = new List<CitationRecord>();
         static List<CitationRecord> UpdateCitations = new List<CitationRecord>();
         static FileParserResult result;
 		public static FileParserResult ParseFile(string filepath)
@@ -180,12 +620,60 @@ namespace PubmedImport
                 Program.LogMessageLine("Done updating references, now saving " + Citations.Count.ToString() + " new citations.");
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                 {
-                    foreach (CitationRecord rec in Citations)
-                    {//!!!!!!!!!! we should prepare in-code tables and then update in bulk, for speed...
-                        rec.SaveSelf(conn);
-                        result.CitationsCommitted++;
+                    bool fetchIdentities = true;
+                    conn.Open();
+
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    {
+                        
+                        try
+                        {
+
+                            int bulkInsertSessionId = InitializeBulkInsertSession(conn, tran);
+
+                            List<SQLCitationObject> lstCits =  BulkInsertFlatReferences(Citations, bulkInsertSessionId, true,  conn, tran);
+                                     
+                            BulkInsertFlatAuthors(lstCits, bulkInsertSessionId, fetchIdentities, conn, tran);
+
+                            BulkInsertExternalIDS(lstCits, bulkInsertSessionId, fetchIdentities, conn, tran);
+
+                            CompleteBulkInsertSession(bulkInsertSessionId, conn, tran);
+
+                            tran.Commit();
+
+
+                        }
+                        catch (SqlException ex)
+                        {
+                            //if (ex.Message.Contains("Received an invalid column length from the bcp client for colid"))
+                            //{
+                            //    string pattern = @"\d+";
+                            //    Match match = Regex.Match(ex.Message.ToString(), pattern);
+                            //    var index = Convert.ToInt32(match.Value) - 1;
+
+                            //    FieldInfo fi = typeof(SqlBulkCopy).GetField("_sortedColumnMappings", BindingFlags.NonPublic | BindingFlags.Instance);
+                            //    var sortedColumns = fi.GetValue(sbc);
+                            //    var items = (Object[])sortedColumns.GetType().GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(sortedColumns);
+
+                            //    FieldInfo itemdata = items[index].GetType().GetField("_metadata", BindingFlags.NonPublic | BindingFlags.Instance);
+                            //    var metadata = itemdata.GetValue(items[index]);
+
+                            //    var column = metadata.GetType().GetField("column", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(metadata);
+                            //    var length = metadata.GetType().GetField("length", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(metadata);
+                            //    throw new Exception(String.Format("Column: {0} contains data with a length greater than: {1}", column, length));
+                            //}
+                        }
+
                     }
-                }
+
+                    //}
+                    //foreach (CitationRecord rec in Citations)
+                    //{//!!!!!!!!!! we should prepare in-code tables and then update in bulk, for speed...
+                    //    rec.SaveSelf(conn);
+                    //    result.CitationsCommitted++;
+                    //}
+
+                    }
                 savedin = Program.Duration(now);
                 Program.LogMessageLine("Saved new references in: " + savedin);
                 result.Messages.Add("Saved new references in: " + savedin);
@@ -277,6 +765,9 @@ namespace PubmedImport
 				return result;
 			}
 		}
+
+    
+
         private static CitationRecord GetCitationRecordByPMID(SqlConnection conn, string pubmedID)
         {
             CitationRecord res = null;
@@ -361,6 +852,7 @@ namespace PubmedImport
 			Program.currCount++;
 		}
 	}
+    
 	public class FileParserResult
 	{
 		public bool Success { get; set; }
