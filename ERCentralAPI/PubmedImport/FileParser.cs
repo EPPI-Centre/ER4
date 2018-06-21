@@ -169,7 +169,7 @@ namespace PubmedImport
 
             
                 using (SqlBulkCopy bulkCopy =
-                        new SqlBulkCopy(conn, SqlBulkCopyOptions.Default, tran))
+                        new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints, tran))
                 {
                     bulkCopy.DestinationTableName = table.TableName;
                     bulkCopy.ColumnMappings.Clear();
@@ -653,8 +653,9 @@ namespace PubmedImport
                             if (!Program.simulate) ExsistingCit.SaveSelf(conn);
                         }
                         else if (!updateExisting)
-                        {
-                            i++;
+                        {//we don't want this reference to be bulk inserted below! Parser ref is older than the one in DB so nothing should change.
+                            Citations.Remove(rec);
+                            //i++;
                         }
                     }
                     else
@@ -670,9 +671,9 @@ namespace PubmedImport
             result.Messages.Add("Done updating references in: " + savedin);
             now = DateTime.Now;
             //the new citations have not been saved, we'd like to do this in bulk, probably.
-            if (Program.simulate == false && Program.deleteRecords == false)
+            Program.LogMessageLine("Done updating references, now saving " + Citations.Count.ToString() + " new citations.");
+            if (Program.simulate == false && Program.deleteRecords == false && Citations.Count > 0)
             {//second pass, save all remaining Citations (those that were not updated)
-                Program.LogMessageLine("Done updating references, now saving " + Citations.Count.ToString() + " new citations.");
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                 {
                     //bool fetchIdentities = true;
@@ -686,40 +687,40 @@ namespace PubmedImport
                     try
                     {
                         
-                        // Authors count required
-                        foreach (var item in Citations)
-                        {
-                            AuthorsCount += item.Authors.Count();
-                            ExternalCount += item.ExternalIDs.Count();
-                        }
+                    // Authors count required
+                    foreach (var item in Citations)
+                    {
+                        AuthorsCount += item.Authors.Count();
+                        ExternalCount += item.ExternalIDs.Count();
+                    }
 
-                        using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
-                        {
-                            //prepare all tables
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
-                            cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
-                            cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
-                            cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                            cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                            cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
-                            cmd.ExecuteNonQuery();
+                    using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
+                    {
+                        //prepare all tables
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
+                        cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
+                        cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
+                        cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+                        cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+                        cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
+                        cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
+                        cmd.ExecuteNonQuery();
 
-                            //get seeds values
-                            Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                            Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                            External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
+                        //get seeds values
+                        Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                        Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+                        External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
 
-                        }
+                    }
 
-                        var tables = CitationRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
-                        foreach (DataTable dt in tables)
-                        {
-                            var testBool = BulkInsertDataTable(dt,conn, null );
-                        }
+                    var tables = CitationRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
+                    foreach (DataTable dt in tables)
+                    {
+                        var testBool = BulkInsertDataTable(dt,conn, null );
+                    }
 
 
                             //using (SqlTransaction tran = conn.BeginTransaction())
@@ -737,80 +738,79 @@ namespace PubmedImport
                             //            tran.Commit();
                             //}
 
-                        }
-                        catch (SqlException ex)
-                        {
-                                
-                        }
-
+                    }
+                    catch (SqlException ex)
+                    {
+                        Program.LogException(ex, "FATAL ERROR: failed to bulk insert new references.");
+                    }
                 }
                 //ReferenceTables.TB_REFERENCETable. ReferencesRow = new ReferencesTB
-                savedin = Program.Duration(now);
-                Program.LogMessageLine("Saved new references in: " + savedin);
-                result.Messages.Add("Saved new references in: " + savedin);
-                Program.LogMessageLine("Updated refs (PMIDs): " + result.UpdatedPMIDs);
             }
-            
-			//if (Program.simulate == false)
-			//{
-			//	try
-			//	{
-			//		session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 5, 1));
-			//		Program.LogMessageLine("Saving to DB...");
-			//		DateTime now = DateTime.Now;
-			//		session.SaveChanges();
-			//		string savedin = Program.Duration(now);
-			//		Program.LogMessageLine("Saved in: " + savedin);
-			//		result.Messages.Add("Saved in: " + savedin);
-			//	}
-			//	catch (Exception e)
-			//	{
-			//		result.ErrorCount++;
-			//		if (e.Message.Contains("A task was canceled."))
-			//		{//try one more time!
-			//			try
-			//			{
-								
-			//				session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 10, 0));
-			//				Program.LogMessageLine("Saving timed out, retrying...");
-			//				result.Messages.Add("Saving timed out, retrying...");
-			//				DateTime now = DateTime.Now;
-			//				session.SaveChanges();
-			//				string savedin = Program.Duration(now);
-			//				Program.LogMessageLine("Saved in: " + savedin);
-			//				result.Messages.Add("Saved in: " + savedin);
-			//			}
-			//			catch (Exception e2)
-			//			{
-			//				result.CitationsCommitted = 0;
-			//				result.ErrorCount++;
-			//				result.Messages.Add("Catastrophic failure: ERROR saving to DB on both attempts.");
-			//				result.Messages.Add("ERROR message: " + e.Message);
-			//				Program.LogMessageLine("Catastrophic failure: ERROR saving to DB on both attempts.");
-			//				Program.LogMessageLine("ERROR message: " + e.Message);
-			//				Program.LogMessageLine("");
-			//				DeleteParsedFile(filepath);
-			//				result.Success = false;
-			//				return result;
-			//			}
-			//		}
-			//		else
-			//		{
-			//			result.CitationsCommitted = 0;
-							
-			//			result.Messages.Add("Catastrophic failure: ERROR saving to DB.");
-			//			result.Messages.Add("ERROR message: " + e.Message + ".");
-			//			Program.LogMessageLine("Catastrophic failure: ERROR saving to DB.");
-			//			Program.LogMessageLine("ERROR message: " + e.Message + ".");
-			//			Program.LogMessageLine("");
-			//			DeleteParsedFile(filepath);
-			//			result.Success = false;
-			//			return result;
-			//		}
-			//	}
-			//}
-			
-			DeleteParsedFile(filepath);
+            savedin = Program.Duration(now);
+            Program.LogMessageLine("Saved new references in: " + savedin);
+            result.Messages.Add("Saved new references in: " + savedin);
+            Program.LogMessageLine("Updated refs (PMIDs): " + result.UpdatedPMIDs);
+
+            //if (Program.simulate == false)
+            //{
+            //	try
+            //	{
+            //		session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 5, 1));
+            //		Program.LogMessageLine("Saving to DB...");
+            //		DateTime now = DateTime.Now;
+            //		session.SaveChanges();
+            //		string savedin = Program.Duration(now);
+            //		Program.LogMessageLine("Saved in: " + savedin);
+            //		result.Messages.Add("Saved in: " + savedin);
+            //	}
+            //	catch (Exception e)
+            //	{
+            //		result.ErrorCount++;
+            //		if (e.Message.Contains("A task was canceled."))
+            //		{//try one more time!
+            //			try
+            //			{
+
+            //				session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 10, 0));
+            //				Program.LogMessageLine("Saving timed out, retrying...");
+            //				result.Messages.Add("Saving timed out, retrying...");
+            //				DateTime now = DateTime.Now;
+            //				session.SaveChanges();
+            //				string savedin = Program.Duration(now);
+            //				Program.LogMessageLine("Saved in: " + savedin);
+            //				result.Messages.Add("Saved in: " + savedin);
+            //			}
+            //			catch (Exception e2)
+            //			{
+            //				result.CitationsCommitted = 0;
+            //				result.ErrorCount++;
+            //				result.Messages.Add("Catastrophic failure: ERROR saving to DB on both attempts.");
+            //				result.Messages.Add("ERROR message: " + e.Message);
+            //				Program.LogMessageLine("Catastrophic failure: ERROR saving to DB on both attempts.");
+            //				Program.LogMessageLine("ERROR message: " + e.Message);
+            //				Program.LogMessageLine("");
+            //				DeleteParsedFile(filepath);
+            //				result.Success = false;
+            //				return result;
+            //			}
+            //		}
+            //		else
+            //		{
+            //			result.CitationsCommitted = 0;
+
+            //			result.Messages.Add("Catastrophic failure: ERROR saving to DB.");
+            //			result.Messages.Add("ERROR message: " + e.Message + ".");
+            //			Program.LogMessageLine("Catastrophic failure: ERROR saving to DB.");
+            //			Program.LogMessageLine("ERROR message: " + e.Message + ".");
+            //			Program.LogMessageLine("");
+            //			DeleteParsedFile(filepath);
+            //			result.Success = false;
+            //			return result;
+            //		}
+            //	}
+            //}
+
+            DeleteParsedFile(filepath);
             
 			string duration = Program.Duration(start);
 			Program.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);

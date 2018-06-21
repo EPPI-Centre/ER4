@@ -281,9 +281,9 @@ namespace PubmedImport
             {
 
 
-                    SQLHelper.ExecuteQuerySP(conn, "st_PubMedJOBLOG", parameters);
+                    SQLHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
                     var jobID = (Int64)IdParam.Value;
-                    conn.Close();
+                    //conn.Close();
 
                     // Can loop through the number of FileParserResults and insert into the relevant table
                     foreach (var fileParser in result.ProcessedFilesResults)
@@ -297,9 +297,8 @@ namespace PubmedImport
                         {
                             argStrF += "," + item.ToString();
                         }
-                        conn.Open();
-                        SQLHelper.ExecuteNonQuerySP(conn, "st_FileParserResult"
-
+                        //conn.Open();
+                        SQLHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
                                            , new SqlParameter("@Success", fileParser.Success)
                                            , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
                                            , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
