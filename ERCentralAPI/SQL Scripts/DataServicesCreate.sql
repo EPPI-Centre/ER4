@@ -413,12 +413,12 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[TB_REFERENCE_AUTHOR] CHECK CONSTRAINT [FK_tb_REFERENCE_AUTHORS_tb_REFERENCE]
 GO
-/****** Object:  StoredProcedure [dbo].[st_findCitationByExternalID]    Script Date: 13/06/2018 10:07:33 ******/
+/****** Object:  StoredProcedure [dbo].[st_FindCitationByExternalID]    Script Date: 13/06/2018 10:07:33 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE procedure [dbo].[st_findCitationByExternalID]
+CREATE procedure [dbo].[st_FindCitationByExternalID]
 (
 	@ExternalIDName nchar(15)
 	,@ExternalIDValue nvarchar(500)
