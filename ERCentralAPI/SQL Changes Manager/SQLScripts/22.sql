@@ -172,3 +172,406 @@ BEGIN
 END
 GO
 
+---Patrick's changes: saving job logs and seeds for bulk update
+USE [DataService]
+GO
+
+/****** Object:  Table [dbo].[TB_PUBMEDJOBLOG]    Script Date: 21/06/2018 09:42:49 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TB_PUBMEDJOBLOG](
+	[IsDeleting] [bit] NULL,
+	[TotalErrorCount] [int] NULL,
+	[Summary] [nvarchar](100) NULL,
+	[Arguments] [nvarchar](100) NULL,
+	[StartTime] [date] NULL,
+	[EndTime] [date] NULL,
+	[HasError] [bit] NULL,
+	[PubMedUpdateFileImportJobLogID] [int] IDENTITY(1,1) NOT NULL,
+ CONSTRAINT [PK_TB_PUBMEDJOBLOG] PRIMARY KEY CLUSTERED 
+(
+	[PubMedUpdateFileImportJobLogID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+USE [DataService]
+GO
+
+/****** Object:  Table [dbo].[TB_FILEPARSERRESULT]    Script Date: 21/06/2018 09:44:01 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TB_FILEPARSERRESULT](
+	[Success] [bit] NULL,
+	[FileParserID] [int] IDENTITY(1,1) NOT NULL,
+	[IsDeleting] [bit] NULL,
+	[ErrorCount] [int] NULL,
+	[FileName] [varchar](100) NULL,
+	[UpdatedPMIDs] [varchar](150) NULL,
+	[CitationsInFile] [int] NULL,
+	[CitationsCommitted] [int] NULL,
+	[StartTime] [date] NULL,
+	[EndTime] [date] NULL,
+	[HasErrors] [bit] NULL,
+	[Messages] [varchar](150) NULL,
+	[PubMedUpdateFileImportJobLogID] [int] NOT NULL,
+ CONSTRAINT [PK_TB_FILEPARSERRESULT] PRIMARY KEY CLUSTERED 
+(
+	[FileParserID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Success', N'Tmp_SUCCESS_1', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.FileParserID', N'Tmp_FILE_PARSER_ID_2', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.IsDeleting', N'Tmp_IS_DELETING_3', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.ErrorCount', N'Tmp_ERROR_COUNT_4', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.FileName', N'Tmp_FILE_NAME_5', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.UpdatedPMIDs', N'Tmp_UPDATED_PMIDS_6', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.CitationsInFile', N'Tmp_CITATIONS_IN_FILE_7', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.CitationsCommitted', N'Tmp_CITATIONS_COMMITTED_8', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.StartTime', N'Tmp_START_TIME_9', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.EndTime', N'Tmp_END_TIME_10', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.HasErrors', N'Tmp_HAS_ERRORS_11', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Messages', N'Tmp_MESSAGES_12', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.PubMedUpdateFileImportJobLogID', N'Tmp_PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID_13', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_SUCCESS_1', N'SUCCESS', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_FILE_PARSER_ID_2', N'FILE_PARSER_ID', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_IS_DELETING_3', N'IS_DELETING', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_ERROR_COUNT_4', N'ERROR_COUNT', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_FILE_NAME_5', N'FILE_NAME', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_UPDATED_PMIDS_6', N'UPDATED_PMIDS', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_CITATIONS_IN_FILE_7', N'CITATIONS_IN_FILE', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_CITATIONS_COMMITTED_8', N'CITATIONS_COMMITTED', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_START_TIME_9', N'START_TIME', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_END_TIME_10', N'END_TIME', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_HAS_ERRORS_11', N'HAS_ERRORS', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_MESSAGES_12', N'MESSAGES', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_FILEPARSERRESULT.Tmp_PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID_13', N'PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID', 'COLUMN' 
+GO
+ALTER TABLE dbo.TB_FILEPARSERRESULT SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.IsDeleting', N'Tmp_IS_DELETING_27', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.TotalErrorCount', N'Tmp_TOTAL_ERROR_COUNT_28', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Summary', N'Tmp_SUMMARY_29', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Arguments', N'Tmp_ARGUMENTS_30', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.StartTime', N'Tmp_START_TIME_31', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.EndTime', N'Tmp_END_TIME_32', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.HasError', N'Tmp_HAS_ERRORS_33', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.PubMedUpdateFileImportJobLogID', N'Tmp_PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID_34', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_IS_DELETING_27', N'IS_DELETING', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_TOTAL_ERROR_COUNT_28', N'TOTAL_ERROR_COUNT', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_SUMMARY_29', N'SUMMARY', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_ARGUMENTS_30', N'ARGUMENTS', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_START_TIME_31', N'START_TIME', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_END_TIME_32', N'END_TIME', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_HAS_ERRORS_33', N'HAS_ERRORS', 'COLUMN' 
+GO
+EXECUTE sp_rename N'dbo.TB_PUBMEDJOBLOG.Tmp_PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID_34', N'PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID', 'COLUMN' 
+GO
+ALTER TABLE dbo.TB_PUBMEDJOBLOG SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+GO
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_PubMedJOBLOG]    Script Date: 21/06/2018 09:59:20 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_PubMedJobLogInsert]
+	-- Add the parameters for the stored procedure here
+	(
+		@jobID int OUTPUT
+	,	@IsDeleting bit = NULL
+	,	@TotalErrorCount INT
+	,	@Summary VARCHAR(100)
+	,	@Arguments VARCHAR(100)
+	,	@StartTime date = NULL
+	,	@EndTime date = NULL
+	,	@HasError bit = NULL
+	)
+	
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	Insert into [dbo].[TB_PUBMEDJOBLOG] (IS_DELETING, TOTAL_ERROR_COUNT, SUMMARY, ARGUMENTS, START_TIME, END_TIME,
+	HAS_ERRORS)
+	VALUES (@IsDeleting, @TotalErrorCount, @Summary, @Arguments, @StartTime, @EndTime,
+		@HasError)
+
+	SELECT @jobID  = COUNT(*) FROM [dbo].[TB_PUBMEDJOBLOG] 
+
+	SET NOCOUNT OFF
+END
+
+
+GO
+
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_FileParserResult]    Script Date: 21/06/2018 09:59:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_FileParserResultInsert]
+	-- Add the parameters for the stored procedure here
+	(
+
+	@Success bit  NULL,
+    @IsDeleting bit  NULL,
+    @ErrorCount int  NULL,
+    @FileName varchar(100)  NULL,
+    @UpdatedPMIDs varchar(150)  NULL,
+    @CitationsInFile int  NULL,
+    @CitationsCommitted int  NULL,
+    @StartTime date  NULL,
+    @EndTime date  NULL,
+    @HasErrors bit  NULL,
+    @Messages varchar(150)  NULL,
+	@PubMedUpdateFileImportJobLogID int
+	
+	)
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	Insert into [dbo].[TB_FILEPARSERRESULT] (Success,
+		IS_DELETING ,
+		ERROR_COUNT,
+		[FILE_NAME],
+		UPDATED_PMIDS ,
+		CITATIONS_IN_FILE ,
+		CITATIONS_COMMITTED ,
+		START_TIME ,
+		END_TIME ,
+		HAS_ERRORS ,
+		[Messages],
+		PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID)
+
+	VALUES (@Success,
+			@IsDeleting ,
+			@ErrorCount,
+			@FileName,
+			@UpdatedPMIDs ,
+			@CitationsInFile ,
+			@CitationsCommitted ,
+			@StartTime ,
+			@EndTime ,
+			@HasErrors ,
+			@Messages,
+			@PubMedUpdateFileImportJobLogID)
+
+	SET NOCOUNT OFF
+END
+
+
+GO
+
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReferencesImportPrepare]    Script Date: 21/06/2018 10:01:07 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:              Sergio
+-- Create date: 23-06-09
+-- Description: Prepare Tables for Bulk Item import
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ReferencesImportPrepare]
+        @Items_Number int,
+        @Authors_Number int,
+		@Externals_Number int,
+        @Item_Seed bigint OUTPUT,
+        @Author_Seed bigint OUTPUT,
+		@External_Seed bigint OUTPUT
+AS
+BEGIN
+SET NOCOUNT ON;
+-- This procedure Reservs some Identinty values that will be inserted
+-- from C# via a Dataset bulkcopy
+-- Note the Table Lock Hints used to prevent insertions to happen while dealing with a particular table
+Declare @temp bigint
+BEGIN TRAN A
+        set @Item_Seed = (SELECT top 1 IDENT_CURRENT('TB_REFERENCE') FROM TB_REFERENCE WITH (HOLDLOCK, TABLOCKX))
+        set @Item_Seed = ISNULL(@Item_Seed, 0);
+		set @temp = @Item_Seed + @Items_Number
+        DBCC CHECKIDENT('TB_REFERENCE', RESEED, @temp)
+COMMIT TRAN A
+
+BEGIN TRAN B
+        set @Author_Seed = (SELECT top 1 IDENT_CURRENT('TB_REFERENCE_AUTHOR') FROM TB_REFERENCE_AUTHOR WITH (HOLDLOCK, TABLOCKX))
+        set @Author_Seed = ISNULL(@Author_Seed, 0);
+		set @temp = @Author_Seed + @Authors_Number
+        DBCC CHECKIDENT('TB_REFERENCE_AUTHOR', RESEED, @temp)
+COMMIT TRAN B
+
+BEGIN TRAN C
+        set @External_Seed = (SELECT top 1 IDENT_CURRENT('TB_EXTERNALID') FROM TB_EXTERNALID WITH (HOLDLOCK, TABLOCKX))
+        set @External_Seed = ISNULL(@External_Seed, 0);
+		set @temp = @External_Seed + @Authors_Number
+        DBCC CHECKIDENT('TB_EXTERNALID', RESEED, @temp)
+COMMIT TRAN C
+
+END
+
+GO
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+CREATE TABLE dbo.Tmp_TB_PUBMEDJOBLOG
+	(
+	PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID int NOT NULL IDENTITY (1, 1),
+	IS_DELETING bit NULL,
+	TOTAL_ERROR_COUNT int NULL,
+	SUMMARY nvarchar(100) NULL,
+	ARGUMENTS nvarchar(100) NULL,
+	START_TIME date NULL,
+	END_TIME date NULL,
+	HAS_ERRORS bit NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_TB_PUBMEDJOBLOG SET (LOCK_ESCALATION = TABLE)
+GO
+SET IDENTITY_INSERT dbo.Tmp_TB_PUBMEDJOBLOG ON
+GO
+IF EXISTS(SELECT * FROM dbo.TB_PUBMEDJOBLOG)
+	 EXEC('INSERT INTO dbo.Tmp_TB_PUBMEDJOBLOG (PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID, IS_DELETING, TOTAL_ERROR_COUNT, SUMMARY, ARGUMENTS, START_TIME, END_TIME, HAS_ERRORS)
+		SELECT PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID, IS_DELETING, TOTAL_ERROR_COUNT, SUMMARY, ARGUMENTS, START_TIME, END_TIME, HAS_ERRORS FROM dbo.TB_PUBMEDJOBLOG WITH (HOLDLOCK TABLOCKX)')
+GO
+SET IDENTITY_INSERT dbo.Tmp_TB_PUBMEDJOBLOG OFF
+GO
+DROP TABLE dbo.TB_PUBMEDJOBLOG
+GO
+EXECUTE sp_rename N'dbo.Tmp_TB_PUBMEDJOBLOG', N'TB_PUBMEDJOBLOG', 'OBJECT' 
+GO
+ALTER TABLE dbo.TB_PUBMEDJOBLOG ADD CONSTRAINT
+	PK_TB_PUBMEDJOBLOG PRIMARY KEY CLUSTERED 
+	(
+	PUBMED_UPDATE_FILE_IMPORT_JOB_LOG_ID
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+COMMIT
+GO

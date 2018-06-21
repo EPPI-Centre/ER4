@@ -325,7 +325,7 @@ CREATE TABLE [dbo].[TB_REFERENCE](
 	[EDITED_BY] [nvarchar](50) NULL,
 	[PUBMED_REVISED] [datetime] NULL,
 	[PUBMED_PMID_VERSION] [smallint] NULL,
-	[YEAR] [nchar](4) NULL CONSTRAINT [DF_tb_REFERENCE_YEAR]  DEFAULT ((0)),
+	[YEAR] [varchar](50) NULL CONSTRAINT [DF_tb_REFERENCE_YEAR]  DEFAULT ((0)),
 	[MONTH] [varchar](10) NULL CONSTRAINT [DF_tb_REFERENCE_MONTH]  DEFAULT ((0)),
 	[STANDARD_NUMBER] [nvarchar](255) NULL CONSTRAINT [DF_tb_REFERENCE_STANDARD_NUMBER]  DEFAULT (''),
 	[CITY] [nvarchar](100) NULL CONSTRAINT [DF_tb_REFERENCE_CITY]  DEFAULT (''),
@@ -413,12 +413,12 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[TB_REFERENCE_AUTHOR] CHECK CONSTRAINT [FK_tb_REFERENCE_AUTHORS_tb_REFERENCE]
 GO
-/****** Object:  StoredProcedure [dbo].[st_findCitationByExternalID]    Script Date: 13/06/2018 10:07:33 ******/
+/****** Object:  StoredProcedure [dbo].[st_FindCitationByExternalID]    Script Date: 13/06/2018 10:07:33 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE procedure [dbo].[st_findCitationByExternalID]
+CREATE procedure [dbo].[st_FindCitationByExternalID]
 (
 	@ExternalIDName nchar(15)
 	,@ExternalIDValue nvarchar(500)
@@ -520,7 +520,7 @@ CREATE PROCEDURE [dbo].[st_ReferenceInsert]
 	,	@PARENT_TITLE NVARCHAR(4000)
 	,	@SHORT_TITLE NVARCHAR(70)
 	,	@CREATED_BY NVARCHAR(50) = NULL
-	,	@YEAR NCHAR(4) = NULL
+	,	@YEAR varchar(50) = NULL
 	,	@MONTH NVARCHAR(10) = NULL
 	,	@STANDARD_NUMBER NVARCHAR(255) = NULL
 	,	@CITY NVARCHAR(100) = NULL
@@ -583,7 +583,7 @@ CREATE PROCEDURE [dbo].[st_ReferenceUpdate]
 	,	@PARENT_TITLE NVARCHAR(4000)
 	,	@SHORT_TITLE NVARCHAR(70)
 	,	@CREATED_BY NVARCHAR(50) = NULL
-	,	@YEAR NCHAR(4) = NULL
+	,	@YEAR varchar(50) = NULL
 	,	@MONTH NVARCHAR(10) = NULL
 	,	@STANDARD_NUMBER NVARCHAR(255) = NULL
 	,	@CITY NVARCHAR(100) = NULL
