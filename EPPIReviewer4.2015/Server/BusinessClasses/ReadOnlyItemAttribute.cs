@@ -113,11 +113,22 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         private static PropertyInfo<Int64> ArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ArmId", "ArmId"));
+        [JsonProperty]
         public Int64 ArmId
         {
             get
             {
                 return GetProperty(ArmIdProperty);
+            }
+        }
+
+        private static PropertyInfo<string> ArmTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmTitle", "ArmTitle", string.Empty));
+        [JsonProperty]
+        public string ArmTitle
+        {
+            get
+            {
+                return GetProperty(ArmTitleProperty);
             }
         }
 
@@ -228,6 +239,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
             returnValue.LoadProperty<Int64>(ArmIdProperty, reader.GetInt64("ITEM_ARM_ID"));
+            returnValue.LoadProperty<string>(ArmTitleProperty, reader.GetString("ARM_TITLE"));
             //returnValue.LoadProperty<ItemAttributeTextList>(ItemAttributeTextListProperty,
             //  ItemAttributeTextList.GetReadOnlyItemAttributeTextList(returnValue.ItemAttributeId));
             return returnValue;

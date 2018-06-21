@@ -39,6 +39,20 @@ namespace BusinessLibrary.BusinessClasses
             return new ItemArmList();
         }
 
+        public ItemArm GetItemArm(Int64 ItemArmId)
+        {
+            ItemArm retval = null;
+            foreach (ItemArm ia in this)
+            {
+                if (ItemArmId == ia.ItemArmId)
+                {
+                    retval = ia;
+                    break;
+                }
+            }
+            return retval;
+        }
+
 #if SILVERLIGHT
        
 #else

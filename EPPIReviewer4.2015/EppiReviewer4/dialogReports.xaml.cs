@@ -66,6 +66,14 @@ namespace EppiReviewer4
                 if (ComboBoxReports.SelectedItem != null)
                 {
                     cmdGo.IsEnabled = false;
+
+                    // if showoutcomes
+                    // if question -> get reportdata, showing outcomes summary
+                    // if answer -> use the old system to get the export table.
+                    // else use new sytem
+                    // all you need is if (CheckBoxShowOutcomes.IsChecked && (ComboBoxReports.SelectedItem as Report).ReportType == "Answer") -> use old code.
+
+
                     if (CheckBoxShowOutcomes.IsChecked == true && (ComboBoxReports.SelectedItem as Report).ReportType == "Answer")
                     {
                         cmdGo.DataContext = null;
@@ -114,7 +122,8 @@ namespace EppiReviewer4
                         };
                         BusyLoading.IsRunning = true;
                         dp.BeginExecute(command);
-                    }
+                    }       
+      // END ANSWER REPORT
                     else if (cmdGo.DataContext != null) 
                     {//this happens if the report data is already on client side and we're only changing options that can be addressed on client side
                         ReportData rd = cmdGo.DataContext as ReportData;
@@ -133,7 +142,7 @@ namespace EppiReviewer4
                         windowReports2.ShowDialog();
                         cmdGo.IsEnabled = true;
                     }
-                    else
+                    else  // BEGIN QUESTION / ANSWER REPORTS WITH NO OUTCOMES
                     {
                         DataPortal<ReportData> dp = new DataPortal<ReportData>();
                         dp.FetchCompleted += (o, e2) =>

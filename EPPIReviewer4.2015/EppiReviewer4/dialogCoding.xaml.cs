@@ -1230,6 +1230,7 @@ Proceed?";
         private string writeCodingRecord(ItemSet itemSet)
         {
             string report = "<h2>Reviewer: " + itemSet.ContactName + "</h2>" + "<h3>Date: " + DateTime.Now.ToShortDateString() + "</h3>";
+
             int SetId = itemSet.SetId;
             //ReviewSetsList rsl = App.Current.Resources["CodeSets"] as ReviewSetsList;
 
@@ -1239,7 +1240,7 @@ Proceed?";
                 report += "<p><h1>" + reviewSet.SetName + "</h1></p><p><ul>";
                 foreach (AttributeSet attributeSet in reviewSet.Attributes)
                 {
-                    report += dialogItemReportWriter.writeCodingReportAttributes(itemSet, attributeSet, "");
+                    report += dialogItemReportWriter.writeCodingReportAttributesWithArms(itemSet, attributeSet, "");
                 }
                 report += "</ul></p>";
                 report += itemSet.OutcomeItemList.OutcomesTable();
@@ -2920,8 +2921,6 @@ Proceed?";
                 GridArms.IsEnabled = true;
                 tbArmDescriptor.DataContext = null;
                 codesTreeControl.ResetArms(provider.Data as ItemArmList);
-                //btnReset_Click(sender, null); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! add here - need event fired when combobox changes arm to reset pdf highlights
-                
             }
         }
 
