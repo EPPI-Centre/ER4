@@ -660,8 +660,8 @@ namespace PubmedImport
                 row["EDITED_BY"] = "Pubmed Import Utility";
                 row["PUBMED_REVISED"] = cit.PubMedDate;
                 row["PUBMED_PMID_VERSION"] = cit.PubmedPmidVersion;
-                row["YEAR"] = "y"; // cit.PublicationYear;
-                row["MONTH"] = "m"; //cit.Month;
+                row["YEAR"] = cit.PublicationYear.Length > 4 ? cit.PublicationYear.Substring(0, 4) : cit.PublicationYear ;
+                row["MONTH"] = cit.Month.Length > 10 ? cit.Month.Substring(0, 10) : cit.Month;
                 row["STANDARD_NUMBER"] = cit.Issn;
                 row["CITY"] = cit.City;
                 row["COUNTRY"] = cit.Country;
@@ -686,7 +686,7 @@ namespace PubmedImport
                     aRow["LAST"] = au.FamilyName;
                     aRow["FIRST"] = au.GivenName;
                     aRow["ROLE"] = au.AuthorshipLevel;
-                    aRow["RANK"] = au.AuthorshipLevel;
+                    aRow["RANK"] = au.Rank;
                     TB_REFERENCE_AUTHOR.Rows.Add(aRow);
                 }
                 foreach (ExternalID exId in cit.ExternalIDs)
