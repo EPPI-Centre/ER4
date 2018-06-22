@@ -92,116 +92,120 @@ namespace PubmedImport
 				Program.LogMessageLine("");
 				System.Environment.Exit(0);
 			}
-			//Program.LogMessageLine("Parser testing!");
-			if (result.DoWhat == "ftpsamplefile")
-			{
-				Program.LogMessageLine("Importing PubMed Sample XML file.");
-				if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
-				//URLs below not included in appsettings.json as we expect to run this routine only for debugging purposes, hence it's OK to hardcode...
-				(string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles("ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline-2018-sample/", "pubmedsample18n0001.xml.gz");
-				if (messages != null && messages.Count > 0)
-				{//this only happens if an exception was raised!
-					FileParserResult spoof = new FileParserResult("Preliminary: get sample file.", deleteRecords);
-					spoof.ErrorCount++;
-					spoof.Messages.AddRange(messages);
-					spoof.Success = false;
-					result.ProcessedFilesResults.Add(spoof);
-				}
-				else result.ProcessedFilesResults.Add(FileParser.ParseFile(@"TmpFiles\" + Pathname));
-			}
-			else if (result.DoWhat == "singlefile")
-			{
-				if (SingleFile == "")
-				{//can't do this, we don't know what to download...
-					Program.LogMessageLine("Please provide URL of file to download via the \"file:\" option.");
-					Program.LogMessageLine("Nothing to do here, aborting...");
-				}
-				else
-				{//"Unable to connect to the remote server" "The operation has timed out."
-					Program.LogMessageLine("Importing single XML file (" + SingleFile + ").");
-					if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
-					bool canProceed = false;
-					(string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
-					if (messages != null && messages.Count > 0)
-					{//this only happens if an exception was raised!
-						FileParserResult spoof = new FileParserResult("Preliminary: get file to process.", deleteRecords);
-						spoof.ErrorCount++;
-						spoof.Success = false;
-						canProceed = false;
-						bool TryAgain = true;
-						spoof.Messages.AddRange(messages);
-						FTPretryCount = 1;
-						while (FTPretryCount <= 3 && TryAgain)
-						{
-							int seconds = 60;
-							if (FTPretryCount == 2)
-							{
-								seconds = 120;
-							}
-							else if (FTPretryCount >= 2)
-							{
-								seconds = 180;
-							}
-							spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-							LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-							System.Threading.Thread.Sleep(seconds * 1000);
-							messages = new List<string>();
-							(Pathname, messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
-							if (messages != null && messages.Count > 0)
-							{//still didn't work!
-								spoof.ErrorCount++;
-								spoof.Messages.AddRange(messages);
-								FTPretryCount++;
-							}
-							else
-							{
-								spoof.Success = true;
-								canProceed = true;
-								FTPretryCount = 0;
-								TryAgain = false;
-							}
-						}
-						result.ProcessedFilesResults.Add(spoof);
-					}
-					else
-					{
-						canProceed = true;
-					}
-					if (canProceed) result.ProcessedFilesResults.Add(FileParser.ParseFile(@"TmpFiles\" + Pathname));
-				}
-			}
-			
-			else if (result.DoWhat == "ftpbaselinefolder")
-			{
-				Program.LogMessageLine("Importing all XML files in FTP (baseline) folder.");
-				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
-				if (deleteRecords)
-				{
-					result.TotalErrorCount++;
-					Program.LogMessageLine("DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
-					//Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
-				}
-				else
-				{
-					DoFTPFolder(result);
-				}
-			}
-			else if (result.DoWhat == "ftpupdatefolder")
-			{
-				Program.LogMessageLine("Importing files from Updates folder (only those that were not imported already).");
-				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
-				if (deleteRecords)
-				{
-					result.TotalErrorCount++;
-					//Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
-					Program.LogMessageLine("DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
-				}
-				else
-				{
-					DoFTPUpdateFiles(result);
-				}
-			}
-			if (
+            //Program.LogMessageLine("Parser testing!");
+            if (result.DoWhat == "ftpsamplefile")
+            {
+                Program.LogMessageLine("Importing PubMed Sample XML file.");
+                if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+                //URLs below not included in appsettings.json as we expect to run this routine only for debugging purposes, hence it's OK to hardcode...
+                (string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles("ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline-2018-sample/", "pubmedsample18n0001.xml.gz");
+                if (messages != null && messages.Count > 0)
+                {//this only happens if an exception was raised!
+                    FileParserResult spoof = new FileParserResult("Preliminary: get sample file.", deleteRecords);
+                    spoof.ErrorCount++;
+                    spoof.Messages.AddRange(messages);
+                    spoof.Success = false;
+                    result.ProcessedFilesResults.Add(spoof);
+                }
+                else result.ProcessedFilesResults.Add(FileParser.ParseFile(@"TmpFiles\" + Pathname));
+            }
+            else if (result.DoWhat == "singlefile")
+            {
+                if (SingleFile == "")
+                {//can't do this, we don't know what to download...
+                    Program.LogMessageLine("Please provide URL of file to download via the \"file:\" option.");
+                    Program.LogMessageLine("Nothing to do here, aborting...");
+                }
+                else
+                {//"Unable to connect to the remote server" "The operation has timed out."
+                    Program.LogMessageLine("Importing single XML file (" + SingleFile + ").");
+                    if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+                    bool canProceed = false;
+                    (string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
+                    if (messages != null && messages.Count > 0)
+                    {//this only happens if an exception was raised!
+                        FileParserResult spoof = new FileParserResult("Preliminary: get file to process.", deleteRecords);
+                        spoof.ErrorCount++;
+                        spoof.Success = false;
+                        canProceed = false;
+                        bool TryAgain = true;
+                        spoof.Messages.AddRange(messages);
+                        FTPretryCount = 1;
+                        while (FTPretryCount <= 3 && TryAgain)
+                        {
+                            int seconds = 60;
+                            if (FTPretryCount == 2)
+                            {
+                                seconds = 120;
+                            }
+                            else if (FTPretryCount >= 2)
+                            {
+                                seconds = 180;
+                            }
+                            spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+                            LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+                            System.Threading.Thread.Sleep(seconds * 1000);
+                            messages = new List<string>();
+                            (Pathname, messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
+                            if (messages != null && messages.Count > 0)
+                            {//still didn't work!
+                                spoof.ErrorCount++;
+                                spoof.Messages.AddRange(messages);
+                                FTPretryCount++;
+                            }
+                            else
+                            {
+                                spoof.Success = true;
+                                canProceed = true;
+                                FTPretryCount = 0;
+                                TryAgain = false;
+                            }
+                        }
+                        result.ProcessedFilesResults.Add(spoof);
+                    }
+                    else
+                    {
+                        canProceed = true;
+                    }
+                    if (canProceed) result.ProcessedFilesResults.Add(FileParser.ParseFile(@"TmpFiles\" + Pathname));
+                }
+            }
+
+            else if (result.DoWhat == "ftpbaselinefolder")
+            {
+                Program.LogMessageLine("Importing all XML files in FTP (baseline) folder.");
+                //although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
+                if (deleteRecords)
+                {
+                    result.TotalErrorCount++;
+                    Program.LogMessageLine("DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
+                    //Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+                }
+                else
+                {
+                    DoFTPFolder(result);
+                }
+            }
+            else if (result.DoWhat == "ftpupdatefolder")
+            {
+                Program.LogMessageLine("Importing files from Updates folder (only those that were not imported already).");
+                //although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
+                if (deleteRecords)
+                {
+                    result.TotalErrorCount++;
+                    //Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+                    Program.LogMessageLine("DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
+                }
+                else
+                {
+                    DoFTPUpdateFiles(result);
+                }
+            }
+            else if (result.DoWhat == "dorctscores")
+            {
+                Console.WriteLine("doing rct scores");
+            }
+            if (
 					result.DoWhat == "Nothing"
 					|| args == null
 					|| args.Length == 0
@@ -210,7 +214,8 @@ namespace PubmedImport
 						|| result.DoWhat == "singlefile"
 						|| result.DoWhat == "ftpbaselinefolder"
 						|| result.DoWhat == "ftpupdatefolder"
-						)
+                        || result.DoWhat == "dorctscores"
+                        )
 					|| (result.DoWhat == "singlefile" && SingleFile == "")
 				)
 			{
