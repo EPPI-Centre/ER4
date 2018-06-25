@@ -642,7 +642,7 @@ namespace PubmedImport
                         {
                             result.UpdatedPMIDs += pmid + ", ";
                             result.CitationsCommitted++;
-                            if (!Program.simulate) ExsistingCit.DeleteSelf(conn);
+                            if (!Program.simulate) ExsistingCit.DeleteSelf(conn, Program.SqlHelper);
                         }
                         else if (updateExisting)
                         {
@@ -651,7 +651,7 @@ namespace PubmedImport
                             UpdateExsitingCitation(ExsistingCit, rec); //changes ExsistingCit therein...
                             Citations.Remove(rec);//we use this to create new citations...
                             UpdateCitations.Add(ExsistingCit);
-                            if (!Program.simulate) ExsistingCit.SaveSelf(conn);
+                            if (!Program.simulate) ExsistingCit.SaveSelf(conn, Program.SqlHelper);
                         }
                         else if (!updateExisting)
                         {//we don't want this reference to be bulk inserted below! Parser ref is older than the one in DB so nothing should change.

@@ -1,7 +1,0 @@
-﻿{
-  "AppSettings": {
-    "EPPIApiUrl": "http://localhost/eridentityprovider",
-    "EPPIApiClientSecret": "ClientSecret4Devs",
-    "EPPIApiClientName": "EPPIoAuthClientID4Devs"
-  }
-}

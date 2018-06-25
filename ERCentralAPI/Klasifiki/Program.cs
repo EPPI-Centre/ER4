@@ -22,7 +22,7 @@ namespace Klasifiki
         internal string EPPIApiUrl;
         internal string EPPIApiClientSecret;
         internal string EPPIApiClientName;
-        internal SQLHelper SqlHelper;
+        public SQLHelper SqlHelper;
         internal EPPILogger Logger;
         void GetAppSettings()
         {

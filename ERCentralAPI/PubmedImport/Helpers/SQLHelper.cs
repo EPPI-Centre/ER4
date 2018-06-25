@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace EPPIDataServices.Helpers
 {
-    class SQLHelper
+    public class SQLHelper
     {
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
