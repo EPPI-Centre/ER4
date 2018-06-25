@@ -194,6 +194,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(DocTitleProperty, value);
             }
         }
+        private static PropertyInfo<string> ItemArmProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemArm", "ItemArm", ""));
+        [JsonProperty]
+        public string ItemArm
+        {
+            get
+            {
+                return GetProperty(ItemArmProperty);
+            }
+            set
+            {
+                SetProperty(ItemArmProperty, value);
+            }
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -213,6 +226,7 @@ namespace BusinessLibrary.BusinessClasses
             result.LoadProperty<Int64>(ItemAttributeTextIdProperty, reader.GetInt64("ID"));
             result.LoadProperty(TextProperty, reader.GetString("TEXT"));
             result.LoadProperty(DocTitleProperty, reader.GetString("DOCUMENT_TITLE"));
+            //result.LoadProperty(ItemArmProperty, reader.GetString("ARM_NAME"));
             
             if (reader.GetInt32("IS_FROM_PDF") == 1)
             {

@@ -265,8 +265,9 @@ namespace PubmedImport
             string argStr = "";
             foreach (var item in result.Arguments)
             {
-                argStr += "," +  item.ToString();
+                argStr += item.ToString() + " ";
             }
+            argStr = argStr.Trim();
             List<SqlParameter> sqlParams = new List<SqlParameter>();
             SqlParameter IdParam = new SqlParameter("@jobID", (Int64)(-1));
             IdParam.Direction = System.Data.ParameterDirection.Output;
@@ -298,9 +299,9 @@ namespace PubmedImport
                             fileParser.UpdatedPMIDs = "";
                         }
                         string argStrF = "";
-                        foreach (var item in result.Arguments)
+                        foreach (var item in fileParser.Messages)
                         {
-                            argStrF += "," + item.ToString();
+                            argStrF += item.ToString() + Environment.NewLine;
                         }
                         //conn.Open();
                         SQLHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
@@ -401,7 +402,8 @@ namespace PubmedImport
 					}
 				}
 				result.ProcessedFilesResults.Add(spoof);
-			}                                                                                                                      //list above is sorted while fetching it...
+			}
+            //list above is sorted while fetching it...
 
 			for (int i = 0; i < updateFiles.Count(); i++)
 			{
@@ -972,52 +974,63 @@ namespace PubmedImport
 
             foreach (var f in tmpFileList)
             {
-                try
+                MatchingFilesList = knownUpdateFiles.Where(x => x.FileName == f).ToList();
+                if (MatchingFilesList.Count == 0)//we haven't processed this file
                 {
-                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create(new Uri(ftp, f));
-                    req.Method = WebRequestMethods.Ftp.GetDateTimestamp;
-                    req.UsePassive = true;
-                    req.Credentials = new NetworkCredential(Username, Password);
+                    tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = DateTime.MinValue };
+                    //NOTE: UploadDate was supposed to be the timestamp of the FTP file, we are setting it to DateTime.MinValue so to avoid changing the data structures
+                    //this is because if needed, we could re-activate the code commented below (just a precaution).
+                    fileList.Add(tmp);
+                }
 
-                    using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
-                    {
-                        //the commented lines are renmant for an approach that wouldn't work.
-                        //you can't get all records from Raven (either 128 or up to 1024, if you don't change defaults)
-                        tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = resp.LastModified };
-                        //if (!ProcessedfileList.Contains(tmp)) fileList.Add(tmp);
-                    }
-                }
-                catch (Exception e)
-                {
-                    LogFTPexceptionSafely(e, messages, "fetching list of update files.");
-                    break;
-                }
-                try
-                {
-                    MatchingFilesList = knownUpdateFiles.Where(x => x.FileName == f).ToList();
-                    if (MatchingFilesList.Count == 0)//we haven't processed this file
-                    {
-                        fileList.Add(tmp);
-                    }
-                    else
-                    {//we have processed this file already, does the one on FTP Pubmed folder have a timestamp that is newer?
-                        bool WeNeedThis = true;
-                        foreach (PubMedUpdateFileImport processed in MatchingFilesList)
-                        {
-                            if (processed.UploadDate >= tmp.UploadDate)// we imported this *after* the "last modified" timestamp of PubMed file (in FTP folder), so we don't need this file
-                                WeNeedThis = false;
-                        }
-                        if (WeNeedThis) fileList.Add(tmp);
-                    }
-                }
-                catch (Exception e)
-                {
-                    messages.Add("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
-                    Program.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
-                    messages.Add("Error Message: " + e.Message);
-                    Program.LogMessageLine("Error Message: " + e.Message);
-                    return (fileList, messages);
-                }
+                //OLD super safe (and slow!) system:
+                //was checking timestamps of the files on the FTP folder and processing known files if the recorded timestamp (in DB) was older than the one in the current FTP folder
+                //try
+                //{
+                //    FtpWebRequest req = (FtpWebRequest)WebRequest.Create(new Uri(ftp, f));
+                //    req.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+                //    req.UsePassive = true;
+                //    req.Credentials = new NetworkCredential(Username, Password);
+
+                //    using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
+                //    {
+                //        //the commented lines are renmant for an approach that wouldn't work.
+                //        //you can't get all records from Raven (either 128 or up to 1024, if you don't change defaults)
+                //        tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = resp.LastModified };
+                //        //if (!ProcessedfileList.Contains(tmp)) fileList.Add(tmp);
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    LogFTPexceptionSafely(e, messages, "fetching list of update files.");
+                //    break;
+                //}
+                //try
+                //{
+                //    MatchingFilesList = knownUpdateFiles.Where(x => x.FileName == f).ToList();
+                //    if (MatchingFilesList.Count == 0)//we haven't processed this file
+                //    {
+                //        fileList.Add(tmp);
+                //    }
+                //    else
+                //    {//we have processed this file already, does the one on FTP Pubmed folder have a timestamp that is newer?
+                //        bool WeNeedThis = true;
+                //        foreach (PubMedUpdateFileImport processed in MatchingFilesList)
+                //        {
+                //            if (processed.UploadDate >= tmp.UploadDate)// we imported this *after* the "last modified" timestamp of PubMed file (in FTP folder), so we don't need this file
+                //                WeNeedThis = false;
+                //        }
+                //        if (WeNeedThis) fileList.Add(tmp);
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    messages.Add("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
+                //    Program.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
+                //    messages.Add("Error Message: " + e.Message);
+                //    Program.LogMessageLine("Error Message: " + e.Message);
+                //    return (fileList, messages);
+                //}
 
             }
 

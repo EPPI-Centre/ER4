@@ -20,10 +20,12 @@ namespace PubmedImport
     }
 	public class Author : FOAFPerson
 	{
-		public int AuthorshipLevel { get; set; }
-		public Author() : base()
+        public int AuthorshipLevel { get; set; }
+        public int Rank { get; set; }
+        public Author() : base()
 		{
 			AuthorshipLevel = 0;//default, normal author; For book chapters, editors have AutorshipLevel = 1
+            Rank = 0;
 		}
 	}
 	 

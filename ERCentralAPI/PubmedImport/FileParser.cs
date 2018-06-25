@@ -509,72 +509,72 @@ namespace PubmedImport
         static List<CitationRecord> UpdateCitations = new List<CitationRecord>();
         static FileParserResult result;
 		public static FileParserResult ParseFile(string filepath)
-		{
+        {
 
-			Program.LogMessageLine("Parsing: " + filepath + ".");
-			DateTime start = DateTime.Now;
-			string fileContents;
-			string upDelMsg = Program.deleteRecords ? "deleted." : "updated.";//used to report what it is that we're doing!
-			result = new FileParserResult(filepath, Program.deleteRecords);//we are going to report success if at least one citation was parsed and saved
-			
-			List<XElement> values = new List<XElement>();
-			try
-			{
-				using (var sr = new StreamReader(filepath))
-				{
-					fileContents = sr.ReadToEnd();
-				}
-				XDocument xDoc = XDocument.Parse(fileContents);
+            Program.LogMessageLine("Parsing: " + filepath + ".");
+            DateTime start = DateTime.Now;
+            string fileContents;
+            string upDelMsg = Program.deleteRecords ? "deleted." : "updated.";//used to report what it is that we're doing!
+            result = new FileParserResult(filepath, Program.deleteRecords);//we are going to report success if at least one citation was parsed and saved
 
-				values = (from r in xDoc.Descendants("PubmedArticleSet")
-						  from a in r.Elements("PubmedArticle")
-						  select a
-							 ).ToList();
-				Program.LogMessageLine("File contains " + values.Count.ToString() + " records.");
-				result.CitationsInFile = values.Count;
-			}
-			catch
-			{
-				result.Success = false;
-				Program.LogMessageLine("Error parsing file: no citation processed.");
-				result.Messages.Add("Error parsing file: no citation processed.");
-				DeleteParsedFile(filepath);
-				return (result);
-			}
+            List<XElement> values = new List<XElement>();
+            try
+            {
+                using (var sr = new StreamReader(filepath))
+                {
+                    fileContents = sr.ReadToEnd();
+                }
+                XDocument xDoc = XDocument.Parse(fileContents);
 
-			if (Program.maxCount != int.MaxValue)
-			{
-				Program.LogMessageLine("Limiting import to: " + Program.maxCount.ToString() + " references.");
-				result.Messages.Add("Limiting import to: " + Program.maxCount.ToString() + " references.");
-			}
-			Citations = new List<CitationRecord>();
-			foreach (XElement xCit in values)
-			{
-				//Program.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
-				try
-				{
-					CitationRecord curr = PubMedXMLParser.ParseCitation(xCit);
-					if (curr != null && curr.Type != "Retraction")
-					{//for now, we simply avoid to add retractions, not clear what we should be doing...
-						AddToImportList(curr);//checks if the current PMID has been parsed already within this same file!
-					}
-				}
-				catch (Exception e)
-				{
-					result.Messages.Add(e.Message);
-					Program.LogMessageLine(e.Message);
-					result.ErrorCount++;
-				}
-				if (Program.currCount >= Program.maxCount)
-				{
-					result.Messages.Add("Maxcount reached, processing stopped after " + Citations.Count.ToString() + " out of " + values.Count.ToString() + " (in file).");
-					break;
-				}
-			}
-			string tmpMsg = "Parsing done: " + Citations.Count.ToString() + " citations will be "
-											   + (Program.deleteRecords ? "deleted (if present)" : "imported/updated.");
-			Program.LogMessageLine(tmpMsg);
-			result.Messages.Add(tmpMsg);
+                values = (from r in xDoc.Descendants("PubmedArticleSet")
+                          from a in r.Elements("PubmedArticle")
+                          select a
+                             ).ToList();
+                Program.LogMessageLine("File contains " + values.Count.ToString() + " records.");
+                result.CitationsInFile = values.Count;
+            }
+            catch
+            {
+                result.Success = false;
+                Program.LogMessageLine("Error parsing file: no citation processed.");
+                result.Messages.Add("Error parsing file: no citation processed.");
+                DeleteParsedFile(filepath);
+                return (result);
+            }
+
+            if (Program.maxCount != int.MaxValue)
+            {
+                Program.LogMessageLine("Limiting import to: " + Program.maxCount.ToString() + " references.");
+                result.Messages.Add("Limiting import to: " + Program.maxCount.ToString() + " references.");
+            }
+            Citations = new List<CitationRecord>();
+            foreach (XElement xCit in values)
+            {
+                //Program.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
+                try
+                {
+                    CitationRecord curr = PubMedXMLParser.ParseCitation(xCit);
+                    if (curr != null && curr.Type != "Retraction")
+                    {//for now, we simply avoid to add retractions, not clear what we should be doing...
+                        AddToImportList(curr);//checks if the current PMID has been parsed already within this same file!
+                    }
+                }
+                catch (Exception e)
+                {
+                    result.Messages.Add(e.Message);
+                    Program.LogMessageLine(e.Message);
+                    result.ErrorCount++;
+                }
+                if (Program.currCount >= Program.maxCount)
+                {
+                    result.Messages.Add("Maxcount reached, processing stopped after " + Citations.Count.ToString() + " out of " + values.Count.ToString() + " (in file).");
+                    break;
+                }
+            }
+            string tmpMsg = "Parsing done: " + Citations.Count.ToString() + " citations will be "
+                                               + (Program.deleteRecords ? "deleted (if present)" : "imported/updated.");
+            Program.LogMessageLine(tmpMsg);
+            result.Messages.Add(tmpMsg);
             DateTime now = DateTime.Now;
             Program.LogMessageLine("Finding references that need updating & updating them.");
             int i = 0;
@@ -686,57 +686,61 @@ namespace PubmedImport
 
                     try
                     {
-                        
-                    // Authors count required
-                    foreach (var item in Citations)
-                    {
-                        AuthorsCount += item.Authors.Count();
-                        ExternalCount += item.ExternalIDs.Count();
-                    }
 
-                    using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
-                    {
-                        //prepare all tables
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
-                        cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
-                        cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
-                        cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
-                        cmd.ExecuteNonQuery();
+                        // Authors count required
+                        foreach (var item in Citations)
+                        {
+                            AuthorsCount += item.Authors.Count();
+                            ExternalCount += item.ExternalIDs.Count();
+                        }
 
-                        //get seeds values
-                        Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                        Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                        External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
+                        using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
+                        {
+                            //prepare all tables
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
+                            cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
+                            cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
+                            cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+                            cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+                            cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
+                            cmd.ExecuteNonQuery();
 
-                    }
+                            //get seeds values
+                            Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                            Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+                            External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
 
-                    var tables = CitationRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
-                    foreach (DataTable dt in tables)
-                    {
-                        var testBool = BulkInsertDataTable(dt,conn, null );
-                    }
+                        }
 
-
-                            //using (SqlTransaction tran = conn.BeginTransaction())
-                            //{
-                                        
-                            //            List<SQLCitationObject> lstCits = BulkInsertFlatReferences(Citations, Items_S, conn, tran);
-                                        
-                                        
-
-                            //            BulkInsertFlatAuthors(lstCits, Author_S, conn, tran);
-
-                            //            BulkInsertExternalIDS(lstCits, External_S, conn, tran);
+                        var tables = CitationRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
+                        foreach (DataTable dt in tables)
+                        {
+                            if (dt.TableName == "TB_REFERENCE")
+                            {
+                                result.CitationsCommitted += dt.Rows.Count;
+                            }
+                            var testBool = BulkInsertDataTable(dt, conn, null);
+                        }
 
 
-                            //            tran.Commit();
-                            //}
+                        //using (SqlTransaction tran = conn.BeginTransaction())
+                        //{
+
+                        //            List<SQLCitationObject> lstCits = BulkInsertFlatReferences(Citations, Items_S, conn, tran);
+
+
+
+                        //            BulkInsertFlatAuthors(lstCits, Author_S, conn, tran);
+
+                        //            BulkInsertExternalIDS(lstCits, External_S, conn, tran);
+
+
+                        //            tran.Commit();
+                        //}
 
                     }
                     catch (SqlException ex)
@@ -811,33 +815,33 @@ namespace PubmedImport
             //}
 
             DeleteParsedFile(filepath);
-            
-			string duration = Program.Duration(start);
-			Program.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);
-			result.Messages.Add("Imported " + Citations.Count.ToString() + " records in " + duration);
-			result.EndTime = DateTime.Now;
-			if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount == 0)
-			{
-				return result;
-			}
-			else if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount > 0)
-			{
-				string tmp = "Non fatal errors count: " + result.ErrorCount.ToString() + ".";
-				result.Messages.Add(tmp);
-				Program.LogMessageLine(tmp);
-				return result;
-			}
-			else
-			{
-				string tmp = "No citation to import found in file";
-				result.Messages.Add(tmp);
-				result.Success = false;
-				Program.LogMessageLine(tmp);
-				return result;
-			}
-		}
 
-    
+            string duration = Program.Duration(start);
+            Program.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);
+            result.Messages.Add("Imported " + Citations.Count.ToString() + " records in " + duration);
+            result.EndTime = DateTime.Now;
+            if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount == 0)
+            {
+                return result;
+            }
+            else if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount > 0)
+            {
+                string tmp = "Non fatal errors count: " + result.ErrorCount.ToString() + ".";
+                result.Messages.Add(tmp);
+                Program.LogMessageLine(tmp);
+                return result;
+            }
+            else
+            {
+                string tmp = "No citation to import found in file";
+                result.Messages.Add(tmp);
+                result.Success = false;
+                Program.LogMessageLine(tmp);
+                return result;
+            }
+        }
+
+
 
         private static CitationRecord GetCitationRecordByPMID(SqlConnection conn, string pubmedID)
         {
@@ -953,6 +957,7 @@ namespace PubmedImport
 			}
 			IsDeleting = isDeleting;
 			StartTime = DateTime.Now;
+            EndTime = DateTime.Now;
 			Messages = new List<string>();
 			Success = true;
 			ErrorCount = 0;
