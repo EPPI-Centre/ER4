@@ -4,7 +4,8 @@ using System;
 using System.Text.RegularExpressions;
 using System.Data.SqlClient;
 using System.Data;
-
+using EPPIDataServices.Helpers;
+//do you see me?
 namespace PubmedImport
 {
 	//http://xmlns.com/foaf/spec/
@@ -353,12 +354,12 @@ namespace PubmedImport
 			}
 		}
         
-        public void SaveSelf(SqlConnection conn)
+        public void SaveSelf(SqlConnection conn, SQLHelper SqlHelper)
         {
-            if (CitationId == 0) InsertSelf(conn);
-            else UpdateSelf(conn);
+            if (CitationId == 0) InsertSelf(conn, SqlHelper);
+            else UpdateSelf(conn, SqlHelper);
         }
-        public void InsertSelf(SqlConnection conn)
+        public void InsertSelf(SqlConnection conn, SQLHelper SqlHelper)
         {
             List<SqlParameter> Parameters = new List<SqlParameter>();
             SqlParameter IdParam = new SqlParameter("@REFERENCE_ID", (Int64)(-1));
@@ -391,11 +392,11 @@ namespace PubmedImport
             Parameters.Add(new SqlParameter("@ABSTRACT", Abstract));
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             Parameters.Add(new SqlParameter("@KEYWORDS", GetKeywordsString()));
-            SQLHelper.ExecuteNonQuerySP(conn, "st_ReferenceInsert", Parameters.ToArray());
+            SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceInsert", Parameters.ToArray());
             CitationId = (Int64)IdParam.Value;
-            SaveAuthors(conn);
+            SaveAuthors(conn, SqlHelper);
         }
-        public void UpdateSelf(SqlConnection conn)
+        public void UpdateSelf(SqlConnection conn, SQLHelper SqlHelper)
         {
             List<SqlParameter> Parameters = new List<SqlParameter>();
             SqlParameter IdParam = new SqlParameter("@REFERENCE_ID", CitationId);
@@ -429,22 +430,22 @@ namespace PubmedImport
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             //Parameters.Add(new SqlParameter("@KEYWORDS", string.Join("¬", Keywords.ToArray())));
 
-            SQLHelper.ExecuteNonQuerySP(conn, "st_ReferenceUpdate", Parameters.ToArray());
-            SaveAuthors(conn);
+            SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceUpdate", Parameters.ToArray());
+            SaveAuthors(conn, SqlHelper);
         }
-        public void DeleteSelf(SqlConnection conn)
+        public void DeleteSelf(SqlConnection conn, SQLHelper SqlHelper)
         {
 
         }
-        protected void SaveAuthors(SqlConnection connection)
+        protected void SaveAuthors(SqlConnection connection, SQLHelper SqlHelper)
         {
             List<Author> AuthorLi = Authors.Where(c => c.AuthorshipLevel == 0).ToList();
             List<Author> ParentAuthors = Authors.Where(c => c.AuthorshipLevel == 1).ToList();
-            SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
+            SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
             int rank = 0;
             foreach (Author a in AuthorLi)
             {
-                SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 0)
@@ -456,7 +457,7 @@ namespace PubmedImport
             rank = 0;
             foreach (Author a in ParentAuthors)
             {
-                SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 1)
