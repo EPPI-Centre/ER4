@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
+﻿using CsvHelper;
+using Microsoft.AspNetCore.Hosting.Server;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -100,7 +101,28 @@ namespace RCT_Tagger_Import
         {
 
             // Look at how to import csv into SQL in the right way for our tables....
-
+            SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; ");
+            conn.Open();
+            SqlTransaction transaction = conn.BeginTransaction();
+            try
+            {
+                using (StreamReader file = new StreamReader(decompressedFile))
+                {
+                    CsvReader csv = new CsvReader(file);
+                    SqlBulkCopy copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, transaction);
+                    //copy.DestinationTableName = tablename;
+                    //copy.WriteToServer(csv);
+                    transaction.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+            }
+            finally
+            {
+                conn.Close();
+            }
 
             // Use a stored to insert the data from the relevant url file
             throw new NotImplementedException();
