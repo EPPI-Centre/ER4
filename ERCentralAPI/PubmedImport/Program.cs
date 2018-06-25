@@ -977,7 +977,7 @@ namespace PubmedImport
                 MatchingFilesList = knownUpdateFiles.Where(x => x.FileName == f).ToList();
                 if (MatchingFilesList.Count == 0)//we haven't processed this file
                 {
-                    tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = DateTime.MinValue };
+                    tmp = new PubMedUpdateFileImport() { FileName = f, UploadDate = DateTime.Parse("1/1/1800") };
                     //NOTE: UploadDate was supposed to be the timestamp of the FTP file, we are setting it to DateTime.MinValue so to avoid changing the data structures
                     //this is because if needed, we could re-activate the code commented below (just a precaution).
                     fileList.Add(tmp);
