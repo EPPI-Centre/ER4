@@ -1,10 +1,13 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Hosting.Server;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -12,6 +15,8 @@ namespace RCT_Tagger_Import
 {
     class Program
     {
+        private static readonly int maxRequestTries = 3;
+
         public static string GetYear(string str)
         {
             return Regex.Match(str, @"\d{4}").Value;
@@ -26,18 +31,27 @@ namespace RCT_Tagger_Import
                 // There is a new yearly file to be imported
                 Console.WriteLine("Decompressing the yearly gz file");
                 string decompressedYearlyFile = Decompress(yearlyFile);
+
                 Console.WriteLine("Importing the yearly gz file into SQL");
                 Import_Yearly_RCT_Tagger(decompressedYearlyFile);
+
                 Console.WriteLine("Finished with yearly import");
             }
-            else
+            else if(check == false && yearlyFile != "error")
             {
                 // Consider the update files
                 Console.WriteLine("Checking update files");
                 List<string> Update_Files = checkUpdateFiles();
+
                 Console.WriteLine("Importing update files");
                 Import_Update_Files(Update_Files);
+
                 Console.WriteLine("Finished with update imports");
+            }
+            else
+            {
+                Console.WriteLine("Request has timed out to arrowsmith server");
+                Console.ReadLine();
             }
         }
 
@@ -100,20 +114,57 @@ namespace RCT_Tagger_Import
         private static void Import_Yearly_RCT_Tagger( string decompressedFile)
         {
 
+            string tablename = "[DataService].[dbo].[TB_TMP_CSV]";
+
+            // Whilst testing mock fake file, 
+            // after server comes back, remove this part
+            decompressedFile = Directory.GetCurrentDirectory()  +  "\\testRCT.csv";
+            IEnumerable<RCT_Tag> recs;
+            var RCT_TABLE = new DataTable();
+
             // Look at how to import csv into SQL in the right way for our tables....
             SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; ");
             conn.Open();
             SqlTransaction transaction = conn.BeginTransaction();
             try
             {
-                using (StreamReader file = new StreamReader(decompressedFile))
+
+                using (var sr = new StreamReader(@"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\testRCT.csv"))
                 {
-                    CsvReader csv = new CsvReader(file);
-                    SqlBulkCopy copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, transaction);
-                    //copy.DestinationTableName = tablename;
-                    //copy.WriteToServer(csv);
-                    transaction.Commit();
+                    var reader = new CsvReader(sr);
+
+                    //CSVReader will now read the whole file into an enumerable
+                    recs = reader.GetRecords<RCT_Tag>();
+
+
+                    RCT_TABLE.Columns.Add("PMID", typeof(string));
+                    RCT_TABLE.Columns.Add("RCT_SCORE", typeof(int));
+
+                    foreach (var entity in recs)
+                    {
+                        var row = RCT_TABLE.NewRow();
+                        row["PMID"] = entity.PMID;
+                        row["RCT_SCORE"] = entity.RCT_SCORE;
+                        RCT_TABLE.Rows.Add(row);
+                    }
                 }
+
+                SqlBulkCopy copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, transaction);
+                copy.DestinationTableName = tablename;
+
+                // want the csv converted to datatable and then use a sp to update the REFs table
+
+                // WRITE TO OWN TABLE FOR NOW
+
+                // WHEN ARROWSMITH SERVER IS BACK UP INSTEAD UPDATE REFERENCE TABLE WITH AN SP
+
+                copy.ColumnMappings.Add("PMID", "PMID");
+                copy.ColumnMappings.Add("RCT_SCORE", "RCT_SCORE");
+
+                copy.WriteToServer(RCT_TABLE);
+
+                transaction.Commit();
+
             }
             catch (Exception ex)
             {
@@ -124,8 +175,6 @@ namespace RCT_Tagger_Import
                 conn.Close();
             }
 
-            // Use a stored to insert the data from the relevant url file
-            throw new NotImplementedException();
         }
 
         public static SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
@@ -148,7 +197,32 @@ namespace RCT_Tagger_Import
                 return null;
             }
         }
-        
+
+        public static (bool, string) Execute(Uri urlCheck, string fileName)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
+            request.Timeout = 15000;
+            request.Method = "HEAD";
+            HttpWebResponse response;
+            response = (HttpWebResponse)request.GetResponse();
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                // Download the new yealry file ready for decompressing.
+                WebClient _client = new WebClient();
+
+                // This destination path needs to be sorted out...
+                string _destinationPath = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + fileName + "";
+
+                _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
+
+                return (true, "");
+            }
+            else
+            {
+                return (false, "error");
+            }
+        }
+
         private static (bool, string) CheckYearlyFiles()
         {
             // logic for searching URL for relevant files
@@ -167,19 +241,19 @@ namespace RCT_Tagger_Import
                     }
                     // Call Close when done reading.
                     res.Close();
-
                 }
                 else
                 {
                     fileName = "0000";
                 }
             }
+
             // Compare fileName year with the current year...
             string latestSQLYear = Program.GetYear(fileName);
             if (Convert.ToInt64(latestSQLYear) >= Convert.ToInt64(currentYear))
             {
                 Console.WriteLine("Have the latest gz yearly file imported already!");
-                return (false, "");
+                return (false, "Yearly file imported already");
             }
             else
             {
@@ -188,38 +262,43 @@ namespace RCT_Tagger_Import
                 // build the url from the sql query result
                 string url = "http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/rct_predictions_" + currentYear + ".csv.gz";
                 Uri urlCheck = new Uri(url);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
-                request.Timeout = 15000;
-                request.Method = "HEAD";
-                HttpWebResponse response;
-                try
+                
+                // replace
+                var remainingTries = maxRequestTries;
+                var exceptions = new List<Exception>();
+                do
                 {
-                    response = (HttpWebResponse)request.GetResponse();
-                    if (response.StatusCode == HttpStatusCode.OK)
+                    --remainingTries;
+                    try
                     {
-                        // Download the new yealry file ready for decompressing.
-                        WebClient _client = new WebClient();
-
-                        // This destination path needs to be sorted out...
-                        string _destinationPath = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + fileName + "";
-
-                        _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
-
-                        return (true, _destinationPath);
-
+                        return Execute(urlCheck, fileName);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        return (false, "error");
+                        exceptions.Add(e);
                     }
                 }
-                catch (Exception ex)
-                {
-                    return (false, "error with web request for yearly rct tagger file"); //could not connect to the internet (maybe) 
-                }
+                while (remainingTries > 0);
+
+                return (false, "error");
             }
-
-           
         }
     }
+
+    public class RCT_Tag
+    {
+        public string PMID { get; set; }
+        public int RCT_SCORE { get; set; }
+    }
+
+    public sealed class MyClassMap : ClassMap<RCT_Tag>
+    {
+        public MyClassMap()
+        {
+            Map(m => m.PMID);
+            Map(m => m.RCT_SCORE);
+        }
+    }
+
+
 }
