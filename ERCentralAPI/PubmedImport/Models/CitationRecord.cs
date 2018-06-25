@@ -4,7 +4,8 @@ using System;
 using System.Text.RegularExpressions;
 using System.Data.SqlClient;
 using System.Data;
-
+using EPPIDataServices.Helpers;
+//do you see me?
 namespace PubmedImport
 {
 	//http://xmlns.com/foaf/spec/
@@ -391,7 +392,7 @@ namespace PubmedImport
             Parameters.Add(new SqlParameter("@ABSTRACT", Abstract));
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             Parameters.Add(new SqlParameter("@KEYWORDS", GetKeywordsString()));
-            SQLHelper.ExecuteNonQuerySP(conn, "st_ReferenceInsert", Parameters.ToArray());
+            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceInsert", Parameters.ToArray());
             CitationId = (Int64)IdParam.Value;
             SaveAuthors(conn);
         }
@@ -429,7 +430,7 @@ namespace PubmedImport
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             //Parameters.Add(new SqlParameter("@KEYWORDS", string.Join("¬", Keywords.ToArray())));
 
-            SQLHelper.ExecuteNonQuerySP(conn, "st_ReferenceUpdate", Parameters.ToArray());
+            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceUpdate", Parameters.ToArray());
             SaveAuthors(conn);
         }
         public void DeleteSelf(SqlConnection conn)
@@ -440,11 +441,11 @@ namespace PubmedImport
         {
             List<Author> AuthorLi = Authors.Where(c => c.AuthorshipLevel == 0).ToList();
             List<Author> ParentAuthors = Authors.Where(c => c.AuthorshipLevel == 1).ToList();
-            SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
+            Program.SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
             int rank = 0;
             foreach (Author a in AuthorLi)
             {
-                SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                Program.SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 0)
@@ -456,7 +457,7 @@ namespace PubmedImport
             rank = 0;
             foreach (Author a in ParentAuthors)
             {
-                SQLHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                Program.SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 1)

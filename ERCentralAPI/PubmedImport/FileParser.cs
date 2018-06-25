@@ -1,3 +1,4 @@
+using EPPIDataServices.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -511,7 +512,7 @@ namespace PubmedImport
 		public static FileParserResult ParseFile(string filepath)
         {
 
-            Program.LogMessageLine("Parsing: " + filepath + ".");
+            Program.Logger.LogMessageLine("Parsing: " + filepath + ".");
             DateTime start = DateTime.Now;
             string fileContents;
             string upDelMsg = Program.deleteRecords ? "deleted." : "updated.";//used to report what it is that we're doing!
@@ -530,13 +531,13 @@ namespace PubmedImport
                           from a in r.Elements("PubmedArticle")
                           select a
                              ).ToList();
-                Program.LogMessageLine("File contains " + values.Count.ToString() + " records.");
+                Program.Logger.LogMessageLine("File contains " + values.Count.ToString() + " records.");
                 result.CitationsInFile = values.Count;
             }
             catch
             {
                 result.Success = false;
-                Program.LogMessageLine("Error parsing file: no citation processed.");
+                Program.Logger.LogMessageLine("Error parsing file: no citation processed.");
                 result.Messages.Add("Error parsing file: no citation processed.");
                 DeleteParsedFile(filepath);
                 return (result);
@@ -544,13 +545,13 @@ namespace PubmedImport
 
             if (Program.maxCount != int.MaxValue)
             {
-                Program.LogMessageLine("Limiting import to: " + Program.maxCount.ToString() + " references.");
+                Program.Logger.LogMessageLine("Limiting import to: " + Program.maxCount.ToString() + " references.");
                 result.Messages.Add("Limiting import to: " + Program.maxCount.ToString() + " references.");
             }
             Citations = new List<CitationRecord>();
             foreach (XElement xCit in values)
             {
-                //Program.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
+                //Program.Logger.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
                 try
                 {
                     CitationRecord curr = PubMedXMLParser.ParseCitation(xCit);
@@ -562,7 +563,7 @@ namespace PubmedImport
                 catch (Exception e)
                 {
                     result.Messages.Add(e.Message);
-                    Program.LogMessageLine(e.Message);
+                    Program.Logger.LogMessageLine(e.Message);
                     result.ErrorCount++;
                 }
                 if (Program.currCount >= Program.maxCount)
@@ -573,10 +574,10 @@ namespace PubmedImport
             }
             string tmpMsg = "Parsing done: " + Citations.Count.ToString() + " citations will be "
                                                + (Program.deleteRecords ? "deleted (if present)" : "imported/updated.");
-            Program.LogMessageLine(tmpMsg);
+            Program.Logger.LogMessageLine(tmpMsg);
             result.Messages.Add(tmpMsg);
             DateTime now = DateTime.Now;
-            Program.LogMessageLine("Finding references that need updating & updating them.");
+            Program.Logger.LogMessageLine("Finding references that need updating & updating them.");
             int i = 0;
             while (i < Citations.Count)
             {//first pass, see which ones are updates, and save them on a one-by-one basis
@@ -620,7 +621,7 @@ namespace PubmedImport
                             }
                             else
                             {//newrecord is older, won't save parsed version
-                                Program.LogMessageLine("Match in DB: " + pmid + ". Citation will be not be updated (DB record is newer).");
+                                Program.Logger.LogMessageLine("Match in DB: " + pmid + ". Citation will be not be updated (DB record is newer).");
                             }
                         }
                         else
@@ -628,7 +629,7 @@ namespace PubmedImport
                          //this always happens when we're deleting (we don't check version date/number).
                             updateExisting = true;
                             result.Messages.Add("Match in DB (v. date missing): " + pmid + ". Citation will be " + upDelMsg);
-                            Program.LogMessageLine("Match in DB (v. date missing): " + pmid + ". Citation will be " + upDelMsg);
+                            Program.Logger.LogMessageLine("Match in DB (v. date missing): " + pmid + ". Citation will be " + upDelMsg);
                             //UpdateExsitingCitation(ExsistingCit, rec); //changes ExsistingCit therein...
                             //if (Program.simulate == false && Program.deleteRecords == false) session.Store(ExsistingCit);
                         }
@@ -666,12 +667,12 @@ namespace PubmedImport
 
                 }
             }
-            string savedin = Program.Duration(now);
-            Program.LogMessageLine("Done updating references in: " + savedin);
+            string savedin = EPPILogger.Duration(now);
+            Program.Logger.LogMessageLine("Done updating references in: " + savedin);
             result.Messages.Add("Done updating references in: " + savedin);
             now = DateTime.Now;
             //the new citations have not been saved, we'd like to do this in bulk, probably.
-            Program.LogMessageLine("Done updating references, now saving " + Citations.Count.ToString() + " new citations.");
+            Program.Logger.LogMessageLine("Done updating references, now saving " + Citations.Count.ToString() + " new citations.");
             if (Program.simulate == false && Program.deleteRecords == false && Citations.Count > 0)
             {//second pass, save all remaining Citations (those that were not updated)
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
@@ -745,26 +746,26 @@ namespace PubmedImport
                     }
                     catch (SqlException ex)
                     {
-                        Program.LogException(ex, "FATAL ERROR: failed to bulk insert new references.");
+                        Program.Logger.LogException(ex, "FATAL ERROR: failed to bulk insert new references.");
                     }
                 }
                 //ReferenceTables.TB_REFERENCETable. ReferencesRow = new ReferencesTB
             }
-            savedin = Program.Duration(now);
-            Program.LogMessageLine("Saved new references in: " + savedin);
+            savedin = EPPILogger.Duration(now);
+            Program.Logger.LogMessageLine("Saved new references in: " + savedin);
             result.Messages.Add("Saved new references in: " + savedin);
-            Program.LogMessageLine("Updated refs (PMIDs): " + result.UpdatedPMIDs);
+            Program.Logger.LogMessageLine("Updated refs (PMIDs): " + result.UpdatedPMIDs);
 
             //if (Program.simulate == false)
             //{
             //	try
             //	{
             //		session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 5, 1));
-            //		Program.LogMessageLine("Saving to DB...");
+            //		Program.Logger.LogMessageLine("Saving to DB...");
             //		DateTime now = DateTime.Now;
             //		session.SaveChanges();
             //		string savedin = Program.Duration(now);
-            //		Program.LogMessageLine("Saved in: " + savedin);
+            //		Program.Logger.LogMessageLine("Saved in: " + savedin);
             //		result.Messages.Add("Saved in: " + savedin);
             //	}
             //	catch (Exception e)
@@ -776,12 +777,12 @@ namespace PubmedImport
             //			{
 
             //				session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 10, 0));
-            //				Program.LogMessageLine("Saving timed out, retrying...");
+            //				Program.Logger.LogMessageLine("Saving timed out, retrying...");
             //				result.Messages.Add("Saving timed out, retrying...");
             //				DateTime now = DateTime.Now;
             //				session.SaveChanges();
             //				string savedin = Program.Duration(now);
-            //				Program.LogMessageLine("Saved in: " + savedin);
+            //				Program.Logger.LogMessageLine("Saved in: " + savedin);
             //				result.Messages.Add("Saved in: " + savedin);
             //			}
             //			catch (Exception e2)
@@ -790,9 +791,9 @@ namespace PubmedImport
             //				result.ErrorCount++;
             //				result.Messages.Add("Catastrophic failure: ERROR saving to DB on both attempts.");
             //				result.Messages.Add("ERROR message: " + e.Message);
-            //				Program.LogMessageLine("Catastrophic failure: ERROR saving to DB on both attempts.");
-            //				Program.LogMessageLine("ERROR message: " + e.Message);
-            //				Program.LogMessageLine("");
+            //				Program.Logger.LogMessageLine("Catastrophic failure: ERROR saving to DB on both attempts.");
+            //				Program.Logger.LogMessageLine("ERROR message: " + e.Message);
+            //				Program.Logger.LogMessageLine("");
             //				DeleteParsedFile(filepath);
             //				result.Success = false;
             //				return result;
@@ -804,9 +805,9 @@ namespace PubmedImport
 
             //			result.Messages.Add("Catastrophic failure: ERROR saving to DB.");
             //			result.Messages.Add("ERROR message: " + e.Message + ".");
-            //			Program.LogMessageLine("Catastrophic failure: ERROR saving to DB.");
-            //			Program.LogMessageLine("ERROR message: " + e.Message + ".");
-            //			Program.LogMessageLine("");
+            //			Program.Logger.LogMessageLine("Catastrophic failure: ERROR saving to DB.");
+            //			Program.Logger.LogMessageLine("ERROR message: " + e.Message + ".");
+            //			Program.Logger.LogMessageLine("");
             //			DeleteParsedFile(filepath);
             //			result.Success = false;
             //			return result;
@@ -816,8 +817,8 @@ namespace PubmedImport
 
             DeleteParsedFile(filepath);
 
-            string duration = Program.Duration(start);
-            Program.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);
+            string duration = EPPILogger.Duration(start);
+            Program.Logger.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);
             result.Messages.Add("Imported " + Citations.Count.ToString() + " records in " + duration);
             result.EndTime = DateTime.Now;
             if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount == 0)
@@ -828,7 +829,7 @@ namespace PubmedImport
             {
                 string tmp = "Non fatal errors count: " + result.ErrorCount.ToString() + ".";
                 result.Messages.Add(tmp);
-                Program.LogMessageLine(tmp);
+                Program.Logger.LogMessageLine(tmp);
                 return result;
             }
             else
@@ -836,7 +837,7 @@ namespace PubmedImport
                 string tmp = "No citation to import found in file";
                 result.Messages.Add(tmp);
                 result.Success = false;
-                Program.LogMessageLine(tmp);
+                Program.Logger.LogMessageLine(tmp);
                 return result;
             }
         }
@@ -850,14 +851,14 @@ namespace PubmedImport
             SqlParameter pmid = new SqlParameter("@ExternalIDValue", pubmedID);
             try
             {
-                using (SqlDataReader reader = SQLHelper.ExecuteQuerySP(conn, "st_FindCitationByExternalID", extName, pmid))
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_FindCitationByExternalID", extName, pmid))
                 {
                     if (reader.Read()) res = CitationRecord.GetCitationRecord(reader);
                 }
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error fetching existing ref and/or creating local object.");
+                Program.Logger.LogException(e, "Error fetching existing ref and/or creating local object.");
                 result.ErrorCount++;
             }
             return res;
@@ -874,7 +875,7 @@ namespace PubmedImport
 				}
 				catch (Exception)
 				{
-					Program.LogMessageLine("Warning: could not delete \"" + filepath + "\".");
+					Program.Logger.LogMessageLine("Warning: could not delete \"" + filepath + "\".");
 				}
 			}
 		}
@@ -908,7 +909,7 @@ namespace PubmedImport
 			{
 				result.ErrorCount++;
 				result.Messages.Add("!! Error: skipping current citation as it does not have a PMID!");
-				Program.LogMessageLine("!! Error: skipping current citation as it does not have a PMID!");
+				Program.Logger.LogMessageLine("!! Error: skipping current citation as it does not have a PMID!");
 				return;
 			}
 			foreach (CitationRecord cit in Citations)
@@ -917,7 +918,7 @@ namespace PubmedImport
 				//if (oldPmid == Pmid)
 				if (cit.ExternalIDs.Contains(Pmid))
 				{//we have already processed this citation(!), we'll update it
-				 //Program.LogMessageLine("Internal Match: " + Pmid.Value);
+				 //Program.Logger.LogMessageLine("Internal Match: " + Pmid.Value);
 					UpdateExsitingCitation(cit, curr);
 					return;
 				}

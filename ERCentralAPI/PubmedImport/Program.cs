@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using EPPIDataServices.Helpers;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -30,8 +31,9 @@ namespace PubmedImport
 		//public static string RavenHost = "";
 		public static SQLHelper SqlHelper = null;
 		private static bool WaitOnExit = false;
-		private static bool SaveLog = false;
-		private static string LogFileFullPath = "";
+        private static bool SaveLog = false;
+        internal static EPPILogger Logger;
+		
 		static void Main(string[] args)
 		{
 			//https://blog.bitscry.com/2017/05/30/appsettings-json-in-net-core-console-app/
@@ -85,18 +87,18 @@ namespace PubmedImport
 			GetAppSettings();
 			if (SqlHelper == null)
 			{
-				Program.LogMessageLine("");
-				Program.LogMessageLine("Error connecting to DBs!");
-				Program.LogMessageLine("Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
-				Program.LogMessageLine("Aborting...");
-				Program.LogMessageLine("");
+                Logger.LogMessageLine("");
+                Logger.LogMessageLine("Error connecting to DBs!");
+                Logger.LogMessageLine("Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
+                Logger.LogMessageLine("Aborting...");
+                Logger.LogMessageLine("");
 				System.Environment.Exit(0);
 			}
-			//Program.LogMessageLine("Parser testing!");
+			//Logger.LogMessageLine("Parser testing!");
 			if (result.DoWhat == "ftpsamplefile")
 			{
-				Program.LogMessageLine("Importing PubMed Sample XML file.");
-				if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+				Logger.LogMessageLine("Importing PubMed Sample XML file.");
+				if (deleteRecords) Logger.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
 				//URLs below not included in appsettings.json as we expect to run this routine only for debugging purposes, hence it's OK to hardcode...
 				(string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles("ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline-2018-sample/", "pubmedsample18n0001.xml.gz");
 				if (messages != null && messages.Count > 0)
@@ -113,13 +115,13 @@ namespace PubmedImport
 			{
 				if (SingleFile == "")
 				{//can't do this, we don't know what to download...
-					Program.LogMessageLine("Please provide URL of file to download via the \"file:\" option.");
-					Program.LogMessageLine("Nothing to do here, aborting...");
+					Logger.LogMessageLine("Please provide URL of file to download via the \"file:\" option.");
+					Logger.LogMessageLine("Nothing to do here, aborting...");
 				}
 				else
 				{//"Unable to connect to the remote server" "The operation has timed out."
-					Program.LogMessageLine("Importing single XML file (" + SingleFile + ").");
-					if (deleteRecords) Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+					Logger.LogMessageLine("Importing single XML file (" + SingleFile + ").");
+					if (deleteRecords) Logger.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
 					bool canProceed = false;
 					(string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
 					if (messages != null && messages.Count > 0)
@@ -143,7 +145,7 @@ namespace PubmedImport
 								seconds = 180;
 							}
 							spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-							LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+                            Logger.LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
 							System.Threading.Thread.Sleep(seconds * 1000);
 							messages = new List<string>();
 							(Pathname, messages) = WebRequestGet.getFTPBinaryFiles(SingleFile);
@@ -173,13 +175,13 @@ namespace PubmedImport
 			
 			else if (result.DoWhat == "ftpbaselinefolder")
 			{
-				Program.LogMessageLine("Importing all XML files in FTP (baseline) folder.");
+				Logger.LogMessageLine("Importing all XML files in FTP (baseline) folder.");
 				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
 				if (deleteRecords)
 				{
 					result.TotalErrorCount++;
-					Program.LogMessageLine("DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
-					//Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+					Logger.LogMessageLine("DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
+					//Logger.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
 				}
 				else
 				{
@@ -188,13 +190,13 @@ namespace PubmedImport
 			}
 			else if (result.DoWhat == "ftpupdatefolder")
 			{
-				Program.LogMessageLine("Importing files from Updates folder (only those that were not imported already).");
+				Logger.LogMessageLine("Importing files from Updates folder (only those that were not imported already).");
 				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
 				if (deleteRecords)
 				{
 					result.TotalErrorCount++;
-					//Program.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
-					Program.LogMessageLine("DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
+					//Logger.LogMessageLine("DeleteRecords option: will delete records that already exist and won't add new ones!");
+					Logger.LogMessageLine("DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
 				}
 				else
 				{
@@ -218,17 +220,17 @@ namespace PubmedImport
 				ShowHelp();
 				if (WaitOnExit)
 				{
-					Program.LogMessageLine("All done, press a key to quit.");
+					Logger.LogMessageLine("All done, press a key to quit.");
 					Console.ReadKey();
 				}
 			}
 			else
 			{
-				result.Summary = "Processed " + currCount.ToString() + " records in " + Duration(result.StartTime);
-				Program.LogMessageLine("Summary: " + result.Summary);
+				result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
+				Logger.LogMessageLine("Summary: " + result.Summary);
 				if (Program.simulate == false)
 				{
-                        Program.LogMessageLine("Saving job summary to DB");
+                        Logger.LogMessageLine("Saving job summary to DB");
 						result.UpdateErrors();
                         using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                         {
@@ -242,14 +244,14 @@ namespace PubmedImport
 
 				if (WaitOnExit)
 				{
-					Program.LogMessageLine("All done, press a key to quit.");
+					Logger.LogMessageLine("All done, press a key to quit.");
 					Console.ReadKey();
-					Program.LogMessageLine("");
+					Logger.LogMessageLine("");
 				}
 				else
 				{
-					Program.LogMessageLine("All done, exiting.");
-					Program.LogMessageLine("");
+					Logger.LogMessageLine("All done, exiting.");
+					Logger.LogMessageLine("");
 				}
 			}
 			
@@ -282,51 +284,49 @@ namespace PubmedImport
             {
 
 
-                    SQLHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
-                    var jobID = (Int64)IdParam.Value;
-                    //conn.Close();
+                SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
+                var jobID = (Int64)IdParam.Value;
+                //conn.Close();
 
-                    // Can loop through the number of FileParserResults and insert into the relevant table
-                    foreach (var fileParser in result.ProcessedFilesResults)
+                // Can loop through the number of FileParserResults and insert into the relevant table
+                foreach (var fileParser in result.ProcessedFilesResults)
+                {
+                    if (fileParser.UpdatedPMIDs == null)
                     {
-                        if (fileParser.UpdatedPMIDs == null)
-                        {
-                            fileParser.UpdatedPMIDs = "";
-                        }
-                        string argStrF = "";
-                        foreach (var item in fileParser.Messages)
-                        {
-                            argStrF += item.ToString() + Environment.NewLine;
-                        }
-                        //conn.Open();
-                        SQLHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
-                                           , new SqlParameter("@Success", fileParser.Success)
-                                           , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
-                                           , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
-                                           , new SqlParameter("@FileName", fileParser.FileName)
-                                           , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
-                                           , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
-                                           , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
-                                           , new SqlParameter("@StartTime", fileParser.StartTime)
-                                           , new SqlParameter("@EndTime", fileParser.EndTime)
-                                           , new SqlParameter("@HasErrors", fileParser.HasErrors)
-                                           , new SqlParameter("@Messages", argStrF)
-                                           , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
-                                       );
+                        fileParser.UpdatedPMIDs = "";
                     }
-
-                
-
+                    string argStrF = "";
+                    foreach (var item in fileParser.Messages)
+                    {
+                        argStrF += item.ToString() + Environment.NewLine;
+                    }
+                    //conn.Open();
+                    SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
+                                        , new SqlParameter("@Success", fileParser.Success)
+                                        , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
+                                        , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
+                                        , new SqlParameter("@FileName", fileParser.FileName)
+                                        , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
+                                        , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
+                                        , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
+                                        , new SqlParameter("@StartTime", fileParser.StartTime)
+                                        , new SqlParameter("@EndTime", fileParser.EndTime)
+                                        , new SqlParameter("@HasErrors", fileParser.HasErrors)
+                                        , new SqlParameter("@Messages", argStrF)
+                                        , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
+                                    );
+                }
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error inserting joblog entry into sql.");
+                Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
         
         }
 
         static void GetAppSettings()
 		{
+            Logger = new EPPILogger(SaveLog);
 			System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
@@ -341,17 +341,17 @@ namespace PubmedImport
 				if (FTPUpdatesFolder == null || FTPUpdatesFolder == "")
 					throw new Exception("ERROR: could not get value for FTPUpdatesFolder, please check appsettings.json file.");
                 
-                SqlHelper = new SQLHelper(configuration);
+                SqlHelper = new SQLHelper(configuration, Logger);
                 if (SqlHelper == null || SqlHelper.DataServiceDB == "")
 					throw new Exception("ERROR: could not get value for DatabaseName, please check appsettings.json file.");
 			}
 			catch (Exception e)
 			{
-				Program.LogMessageLine("");
-				Program.LogMessageLine("Error reading config file, details are:");
-				Program.LogMessageLine(e.Message);
-				Program.LogMessageLine("Aborting...");
-				Program.LogMessageLine("");
+				Program.Logger.LogMessageLine("");
+				Program.Logger.LogMessageLine("Error reading config file, details are:");
+				Program.Logger.LogMessageLine(e.Message);
+				Program.Logger.LogMessageLine("Aborting...");
+				Program.Logger.LogMessageLine("");
 				System.Environment.Exit(0);
 			}
 		}
@@ -379,7 +379,7 @@ namespace PubmedImport
 						seconds = 180;
 					}
 					spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-					LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+					Logger.LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
 					System.Threading.Thread.Sleep(seconds * 1000);
 					messages = new List<string>();
 					(updateFiles, messages) = WebRequestGet.getUpdateFTPFiles(FTPUpdatesFolder);// "ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/");
@@ -434,7 +434,7 @@ namespace PubmedImport
 								seconds = 180;
 							}
 							spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-							LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+							Logger.LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
 							System.Threading.Thread.Sleep(seconds * 1000);
 							messages = new List<string>();
 							(Pathname, messages) = WebRequestGet.getFTPBinaryFiles(FTPUpdatesFolder, updateFiles[i].FileName);
@@ -498,9 +498,9 @@ namespace PubmedImport
 					currentJobResult.Messages.Add("Error Message: " + e.Message);
 					currentJobResult.Messages.Add(e.StackTrace);
 					result.ProcessedFilesResults.Add(currentJobResult);
-					Program.LogMessageLine("Error processing file: " + updateFiles[i].FileName);
-					Program.LogMessageLine("Error Message: " + e.Message);
-					Program.LogMessageLine(e.StackTrace);
+					Logger.LogMessageLine("Error processing file: " + updateFiles[i].FileName);
+					Logger.LogMessageLine("Error Message: " + e.Message);
+					Logger.LogMessageLine(e.StackTrace);
 				}
 				if (currCount >= maxCount) break;
 			}
@@ -530,7 +530,7 @@ namespace PubmedImport
 						seconds = 180;
 					}
 					spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-					LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+					Logger.LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
 					System.Threading.Thread.Sleep(seconds * 1000);
 					messages = new List<string>();
 					(lstFiles, messages) = WebRequestGet.GetPubMedBaselineFilesList(FTPBaselineFolder);
@@ -580,7 +580,7 @@ namespace PubmedImport
 								seconds = 180;
 							}
 							spoof.Messages.Add("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
-							LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
+							Logger.LogMessageLine("FTP call failed, will sleep for " + seconds.ToString() + "s and try again. Retry count:" + FTPretryCount.ToString());
 							System.Threading.Thread.Sleep(seconds * 1000);
 							messages = new List<string>();
 							(Pathname, messages) = WebRequestGet.getFTPBinaryFiles(FTPBaselineFolder, pubMedFileName);
@@ -622,69 +622,6 @@ namespace PubmedImport
 				}
 			}
 		}
-        public static void LogException(Exception e, string Description)
-        {
-            LogMessageLine(Description);
-            if (e.Message != null && e.Message != "")
-                LogMessageLine("MSG: " + e.Message);
-            if (e.StackTrace != null && e.StackTrace != "")
-                LogMessageLine("STACK TRC:" + e.StackTrace);
-            if (e.InnerException != null)
-            {
-                LogMessageLine("Inner Exception(s): ");
-                Exception ie = e.InnerException;
-                int i = 0;
-                while (ie != null && i < 10)
-                {
-                    i++;
-                    if (ie.Message != null && ie.Message != "")
-                        LogMessageLine("MSG(" + i.ToString() + "): " + ie.Message);
-                    if (ie.StackTrace != null && ie.StackTrace != "")
-                        LogMessageLine("STACK TRC(" + i.ToString() + "):" + ie.StackTrace);
-                    ie = ie.InnerException;
-                }
-            }
-        }
-        public static void LogMessageLine(string line)
-		{//will also log multiple lines, TBH - this method ensures line ends with NewLine
-			if (!line.EndsWith(Environment.NewLine)) line += Environment.NewLine;
-			LogMessageString(line);
-		}
-		public static void LogMessageString(string MessageToLog)
-		{//can be used when we want to progressively append without adding a newline after each addition
-			if (MessageToLog == null || MessageToLog == "") return;
-			if (SaveLog)
-			{
-				if (LogFileFullPath == "")
-				{
-					LogFileFullPath = CreateLogFileName();
-				}
-				File.AppendAllText(LogFileFullPath, MessageToLog);
-			}
-			Console.Write(MessageToLog);
-		}
-		private static string CreateLogFileName()
-		{
-			DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
-			string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-			//if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
-			return LogFilename;
-		}
-		public static string Duration(DateTime starttime)
-		{
-			double ms = DateTime.Now.Subtract(starttime).TotalMilliseconds;
-			string duration = Math.Round(ms).ToString() + "ms.";
-			if (ms > 180000)
-			{
-				ms = DateTime.Now.Subtract(starttime).TotalMinutes;
-				duration = Math.Round(ms).ToString() + "m.";
-			}
-			else if (ms > 4000)
-			{
-				duration = Math.Round(ms / 1000).ToString() + "s.";
-			}
-			return duration;
-		}
 	}
 	public class PubMedUpdateFileImport
 	{
@@ -697,7 +634,7 @@ namespace PubmedImport
             List<SqlParameter> Parameters = new List<SqlParameter>();
             Parameters.Add(new SqlParameter("@PUBMED_FILE_NAME", FileName));
             Parameters.Add(new SqlParameter("@PUBMED_UPLOAD_DATE", UploadDate));
-            SQLHelper.ExecuteNonQuerySP(conn, "st_PubMedUpdateFileInsert", Parameters.ToArray());
+            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedUpdateFileInsert", Parameters.ToArray());
         }
 
         public static PubMedUpdateFileImport GetPubMedUpdateFileImport(SqlDataReader reader)
@@ -815,7 +752,7 @@ namespace PubmedImport
 			{
 				List<string> failing = new List<string>();
 				failing.Add("Failing: tried to process an unexpected file, not '.xml.gz' or malformed URL.");
-				Program.LogMessageLine(failing[0]);
+				Program.Logger.LogMessageLine(failing[0]);
 				return ("", failing);
 			}
 			string basepath = FullFtpFilePath.Substring(0, filenameIndex + 1);
@@ -833,7 +770,7 @@ namespace PubmedImport
 			string Username = "anonymous";
 			string Password = "";
 			bool UseBinary = true; // use true for .zip file or false for a text file
-			Program.LogMessageLine("Downloading " + RemoteFtpPath + ".");
+            Program.Logger.LogMessageLine("Downloading " + RemoteFtpPath + ".");
 			FtpWebRequest request = (FtpWebRequest)WebRequest.Create(RemoteFtpPath);
 			request.Method = WebRequestMethods.Ftp.DownloadFile;
 			request.KeepAlive = true;
@@ -865,7 +802,7 @@ namespace PubmedImport
 				}
 				FileInfo fileToBeGZipped = new FileInfo(LocalDestinationPath);
 				string decompressedFileName = Directory.GetCurrentDirectory() + @"\Tmpfiles\" + unZippedFileName;
-				Program.LogMessageLine("Decompressing " + RemoteFtpPath + ".");
+                Program.Logger.LogMessageLine("Decompressing " + RemoteFtpPath + ".");
 				using (FileStream fileToDecompressAsStream = fileToBeGZipped.OpenRead())
 				{
 					using (FileStream decompressedStream = File.Create(decompressedFileName))
@@ -948,7 +885,7 @@ namespace PubmedImport
             List<PubMedUpdateFileImport> knownUpdateFiles = new List<PubMedUpdateFileImport>();
             try
             {
-                using (SqlDataReader reader = SQLHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll"))
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll"))
                 {
                     //if (!reader.IsClosed)
                     //{
@@ -961,9 +898,9 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                Program.LogException(e, "FATAL ERROR fetching list of already processed UpdateFiles.");
-                Program.LogMessageLine("Aborting...");
-                Program.LogMessageLine("");
+                Program.Logger.LogException(e, "FATAL ERROR fetching list of already processed UpdateFiles.");
+                Program.Logger.LogMessageLine("Aborting...");
+                Program.Logger.LogMessageLine("");
                 System.Environment.Exit(0);
             }
 
@@ -1021,9 +958,9 @@ namespace PubmedImport
                 //catch (Exception e)
                 //{
                 //    messages.Add("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
-                //    Program.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
+                //    Logger.LogMessageLine("Catastrophic FAILURE: could not fetch list of already imported UpdateFiles.");
                 //    messages.Add("Error Message: " + e.Message);
-                //    Program.LogMessageLine("Error Message: " + e.Message);
+                //    Logger.LogMessageLine("Error Message: " + e.Message);
                 //    return (fileList, messages);
                 //}
 
@@ -1042,10 +979,10 @@ namespace PubmedImport
 			else
 			{
 				messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
-				Program.LogMessageLine("Error " + doingWhat);
+                Program.Logger.LogMessageLine("Error " + doingWhat);
 				messages.Add(e.Message);
-				Program.LogMessageLine(e.Message);
-				Program.LogMessageLine(e.StackTrace);
+                Program.Logger.LogMessageLine(e.Message);
+                Program.Logger.LogMessageLine(e.StackTrace);
 				messages.Add(e.StackTrace);
 			}
 		}

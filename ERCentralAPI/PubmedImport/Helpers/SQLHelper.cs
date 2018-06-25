@@ -4,16 +4,18 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 
 
-namespace PubmedImport
+namespace EPPIDataServices.Helpers
 {
     class SQLHelper
     {
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
         public readonly string ER4AdminDB = "";
-        public SQLHelper (IConfigurationRoot configuration)
+        EPPILogger Logger;
+        public SQLHelper (IConfigurationRoot configuration, EPPILogger logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
+            Logger = logger;
             DataServiceDB = configuration["AppSettings:DataServiceDB"];
             ER4DB = configuration["AppSettings:ER4DB"];
             ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
@@ -21,7 +23,7 @@ namespace PubmedImport
         /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
         /// </summary> 
-        public static int ExecuteNonQuerySP(string connSt, string SPname, params SqlParameter[] parameters)
+        public int ExecuteNonQuerySP(string connSt, string SPname, params SqlParameter[] parameters)
         {
             try
             {
@@ -33,14 +35,14 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
                 return -1;
             }
         }
         /// <summary> 
         /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
         /// </summary> 
-        public static int ExecuteNonQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        public int ExecuteNonQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
         {
             try
             {
@@ -54,7 +56,7 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
                 return -1;
             }
         }
@@ -65,7 +67,7 @@ namespace PubmedImport
         /// ALWAYS use the reader in a *using* clasue:
         /// using (SqlDataReader reader = SqlHelper.ExecuteQuerySP(...)) {...}
         /// </summary> 
-        public static SqlDataReader ExecuteQuerySP(string connSt, string SPname, params SqlParameter[] parameters)
+        public SqlDataReader ExecuteQuerySP(string connSt, string SPname, params SqlParameter[] parameters)
         {
             try
             {
@@ -82,7 +84,7 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
                 return null;
             }
         }
@@ -91,7 +93,7 @@ namespace PubmedImport
         /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
         /// You need to make sure you'll close the connection within whatever code calls this!
         /// </summary> 
-        public static SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        public SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
         {
             try
             {
@@ -105,11 +107,11 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                Program.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
                 return null;
             }
         }
-        private static void CheckConnection(SqlConnection connection)
+        private void CheckConnection(SqlConnection connection)
         {
             if (connection.State != System.Data.ConnectionState.Open)
             {
