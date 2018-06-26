@@ -31,12 +31,11 @@ namespace RCT_Tagger_Import
             (bool check, string yearlyFile) = CheckYearlyFiles();
             if (check)
             {
-                // There is a new yearly file to be imported
                 Logger.LogMessageLine("Decompressing the yearly gz file");
                 string decompressedYearlyFile = Decompress(yearlyFile);
 
                 Logger.LogMessageLine("Importing the yearly gz file into SQL");
-                Import_Yearly_RCT_Tagger(decompressedYearlyFile);
+                Import_RCT_Tagger_File(decompressedYearlyFile);
 
                 Logger.LogMessageLine("Finished with yearly import");
             }
@@ -44,10 +43,13 @@ namespace RCT_Tagger_Import
             {
                 // Consider the update files
                 Logger.LogMessageLine("Checking update files");
-                List<string> Update_Files = checkUpdateFiles();
+                List<string> Update_Files = CheckUpdateFiles();
 
                 Logger.LogMessageLine("Importing update files");
-                Import_Update_Files(Update_Files);
+                foreach (var item in Update_Files)
+                {
+                    Import_RCT_Tagger_File(item);
+                }
 
                 Logger.LogMessageLine("Finished with update imports");
             }
@@ -96,25 +98,43 @@ namespace RCT_Tagger_Import
                     Logger.LogException(ex, "deleting the compressed file.");
                 }
             }
-
             return unZippedFileName;
         }
 
-        private static void Import_Update_Files(List<string> update_Files)
+        private static List<string> CheckUpdateFiles()
         {
-            // Use the url to download the files and an sql sp
-            // to insert into the correct tables
-            throw new NotImplementedException();
+
+            List<string> fileNames = new List<string>();
+
+            long currentYear = Convert.ToInt32(DateTime.Now.Year);
+            string updateFileName = "http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/rct_predictions_";
+            string day = "";
+            string month = "";
+            string dateStr = "";
+            List<int> days = new List<int>();
+            for (int i = 1; i <= 31; i++)
+            {
+                days.Add(i);
+            }
+            List<int> months = new List<int>();
+            for (int i = 1; i <= 12; i++)
+            {
+                months.Add(i);
+            }
+            for (int i = 0; i < months.Count(); i++)
+            {
+                for (int j = 0; j < days.Count(); j++)
+                {
+                    month = string.Format("{0:D2}", months[i]);
+                    day = string.Format("{0:D2}", days[j]);
+                    dateStr = "" + currentYear + "-" + month + "-" + day + ".csv";
+                    fileNames.Add(updateFileName + dateStr);
+                }
+            }
+            return fileNames;
         }
 
-        private static List<string> checkUpdateFiles()
-        {
-            // check the url to obtain a list of new update files
-            // check the sql log table for which files are relevant
-            throw new NotImplementedException();
-        }
-
-        private static void Import_Yearly_RCT_Tagger( string decompressedFile)
+        private static void Import_RCT_Tagger_File(string decompressedFile)
         {
             List<RCT_Tag> recs = new List<RCT_Tag>();
             var RCT_TABLE = new DataTable();
@@ -122,7 +142,6 @@ namespace RCT_Tagger_Import
 
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
-
                 conn.Open();
                 try
                 {
@@ -142,12 +161,8 @@ namespace RCT_Tagger_Import
                             if (x > 0 )
                             {
                                 RCT_Tag record = new RCT_Tag();
-
                                 record.PMID = _values[0];
-                                //PMIDStr += "," + _values[0];
                                 record.RCT_SCORE = _values[1];
-                                //RCT_ScoreStr += "," + _values[1];
-
                                 recs.Add(record);
                             }
                             x++;
@@ -166,21 +181,32 @@ namespace RCT_Tagger_Import
                         //}
                     }
 
-                    int skip = 100;
                     // Change this now to run Sergio's SP ================================================
                     // This is first attempt; check needs to be made on arithmetic of files
                     // Also a check needs to be made on the results in the SQL DB
-                    for (int i = 1; i < Math.Floor((double)recs.Count()/1000); i++)
+                    double divisor = 0.0;
+                    int skip = 0;
+                    int page = 0;
+                    if (recs.Count() < 1000)
+                    {
+                        divisor = Math.Floor((double)recs.Count());
+                        page = recs.Count();
+                    }
+                    else
+                    {
+                        divisor = Math.Floor((double)recs.Count() / 1000);
+                        page = 1000;
+                        skip = 1000;
+                    }
+                    for (int i = 1; i < divisor; i++)
                     {
                         transaction = conn.BeginTransaction();
-
                         try
                         {
-                            
                             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip*i).Take(1000).ToList())));
-                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip*i).Take(1000).ToList())));
+                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip*i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip*i).Take(page).ToList())));
 
                             SqlParameter[] parameters = new SqlParameter[2];
                             parameters = sqlParams.ToArray();
@@ -198,7 +224,6 @@ namespace RCT_Tagger_Import
                             transaction.Rollback();
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -259,8 +284,7 @@ namespace RCT_Tagger_Import
 
         private static (bool, string) CheckYearlyFiles()
         {
-            // logic for searching URL for relevant files
-            // using sql log table for relevant info
+
             long currentYear = Convert.ToInt32(DateTime.Now.Year) - 1;
             string fileName = "";
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
@@ -273,7 +297,6 @@ namespace RCT_Tagger_Import
                     {
                         fileName = res["RCT_FILE_NAME"].ToString();
                     }
-                    // Call Close when done reading.
                     res.Close();
                 }
                 else
@@ -324,15 +347,4 @@ namespace RCT_Tagger_Import
         public string PMID { get; set; }
         public string RCT_SCORE { get; set; }
     }
-
-    //public class MyClassMap : ClassMap<RCT_Tag>
-    //{
-    //    public MyClassMap()
-    //    {
-    //        Map(m => m.PMID).Name("PMID");
-    //        Map(m => m.RCT_SCORE).Name("RCT Prediction");
-    //    }
-    //}
-
-
 }
