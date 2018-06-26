@@ -1,5 +1,4 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
+﻿using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Hosting.Server;
 using System;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 
+
 namespace RCT_Tagger_Import
 {
     class Program
@@ -21,36 +21,39 @@ namespace RCT_Tagger_Import
         {
             return Regex.Match(str, @"\d{4}").Value;
         }
-
+        static EPPILogger Logger;
+        static SQLHelper SqlHelper;
         static void Main(string[] args)
         {
-            Console.WriteLine("Checking for new yearly import files");
+            Logger = new EPPILogger(false);
+            SqlHelper = new SQLHelper(Logger);
+            Logger.LogMessageLine("Checking for new yearly import files");
             (bool check, string yearlyFile) = CheckYearlyFiles();
             if (check)
             {
                 // There is a new yearly file to be imported
-                Console.WriteLine("Decompressing the yearly gz file");
+                Logger.LogMessageLine("Decompressing the yearly gz file");
                 string decompressedYearlyFile = Decompress(yearlyFile);
 
-                Console.WriteLine("Importing the yearly gz file into SQL");
+                Logger.LogMessageLine("Importing the yearly gz file into SQL");
                 Import_Yearly_RCT_Tagger(decompressedYearlyFile);
 
-                Console.WriteLine("Finished with yearly import");
+                Logger.LogMessageLine("Finished with yearly import");
             }
             else if(check == false && yearlyFile != "error")
             {
                 // Consider the update files
-                Console.WriteLine("Checking update files");
+                Logger.LogMessageLine("Checking update files");
                 List<string> Update_Files = checkUpdateFiles();
 
-                Console.WriteLine("Importing update files");
+                Logger.LogMessageLine("Importing update files");
                 Import_Update_Files(Update_Files);
 
-                Console.WriteLine("Finished with update imports");
+                Logger.LogMessageLine("Finished with update imports");
             }
             else
             {
-                Console.WriteLine("Request has timed out to arrowsmith server");
+                Logger.LogMessageLine("Request has timed out to arrowsmith server");
                 Console.ReadLine();
             }
         }
@@ -63,7 +66,7 @@ namespace RCT_Tagger_Import
             FileInfo fileToBeUnGZipped = new FileInfo(yearlyFile);
             //string decompressedFileName = Directory.GetCurrentDirectory() + @"\Files\" + unZippedFileName;
             unZippedFileName = unZippedFileName.Replace("\\", "//");
-            Console.WriteLine("Decompressing " + yearlyFile + "....");
+            Logger.LogMessageLine("Decompressing " + yearlyFile + "....");
             using (FileStream fileToDecompressAsStream = fileToBeUnGZipped.OpenRead())
             {
                 using (FileStream decompressedStream = File.Create(unZippedFileName))
@@ -76,7 +79,7 @@ namespace RCT_Tagger_Import
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.InnerException.ToString(), "uncompressing file to parse.");
+                            Logger.LogException(ex, "uncompressing file to parse.");
                         }
                     }
                 }
@@ -90,7 +93,7 @@ namespace RCT_Tagger_Import
                 catch (Exception ex)
                 {
 
-                    Console.WriteLine(ex.InnerException.ToString(), "deleting the compressed file.");
+                    Logger.LogException(ex, "deleting the compressed file.");
                 }
             }
 
@@ -113,68 +116,99 @@ namespace RCT_Tagger_Import
 
         private static void Import_Yearly_RCT_Tagger( string decompressedFile)
         {
-
-            string tablename = "[DataService].[dbo].[TB_TMP_CSV]";
-
-            // Whilst testing mock fake file, 
-            // after server comes back, remove this part
-            decompressedFile = Directory.GetCurrentDirectory()  +  "\\testRCT.csv";
-            IEnumerable<RCT_Tag> recs;
+            List<RCT_Tag> recs = new List<RCT_Tag>();
             var RCT_TABLE = new DataTable();
+            SqlTransaction transaction;
 
-            // Look at how to import csv into SQL in the right way for our tables....
-            SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; ");
-            conn.Open();
-            SqlTransaction transaction = conn.BeginTransaction();
-            try
+            using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
 
-                using (var sr = new StreamReader(@"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\testRCT.csv"))
+                conn.Open();
+                try
                 {
-                    var reader = new CsvReader(sr);
+                    decompressedFile = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\rct_predictions_2017.csv";
 
-                    //CSVReader will now read the whole file into an enumerable
-                    recs = reader.GetRecords<RCT_Tag>();
-
-
-                    RCT_TABLE.Columns.Add("PMID", typeof(string));
-                    RCT_TABLE.Columns.Add("RCT_SCORE", typeof(int));
-
-                    foreach (var entity in recs)
+                    using (var sr = new StreamReader(decompressedFile))
                     {
-                        var row = RCT_TABLE.NewRow();
-                        row["PMID"] = entity.PMID;
-                        row["RCT_SCORE"] = entity.RCT_SCORE;
-                        RCT_TABLE.Rows.Add(row);
+                        string strline = "";
+                        string[] _values = null;
+
+                        int x = 0;
+                        while (!sr.EndOfStream)
+                        {
+                            strline = sr.ReadLine();
+                            _values = strline.Split('\t');
+
+                            if (x > 0 )
+                            {
+                                RCT_Tag record = new RCT_Tag();
+
+                                record.PMID = _values[0];
+                                //PMIDStr += "," + _values[0];
+                                record.RCT_SCORE = _values[1];
+                                //RCT_ScoreStr += "," + _values[1];
+
+                                recs.Add(record);
+                            }
+                            x++;
+                        }
+                        sr.Close();
+                    
+                        //RCT_TABLE.Columns.Add("PMID", typeof(string));
+                        //RCT_TABLE.Columns.Add("RCT_SCORE", typeof(string));
+
+                        //foreach (var entity in recs)
+                        //{
+                        //    var row = RCT_TABLE.NewRow();
+                        //    row["PMID"] = entity.PMID;
+                        //    row["RCT_SCORE"] = entity.RCT_SCORE;
+                        //    RCT_TABLE.Rows.Add(row);
+                        //}
                     }
+
+                    int skip = 100;
+                    // Change this now to run Sergio's SP ================================================
+                    // This is first attempt; check needs to be made on arithmetic of files
+                    // Also a check needs to be made on the results in the SQL DB
+                    for (int i = 1; i < Math.Floor((double)recs.Count()/1000); i++)
+                    {
+                        transaction = conn.BeginTransaction();
+
+                        try
+                        {
+                            
+                            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
+                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip*i).Take(1000).ToList())));
+                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip*i).Take(1000).ToList())));
+
+                            SqlParameter[] parameters = new SqlParameter[2];
+                            parameters = sqlParams.ToArray();
+
+                            int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", parameters);
+
+                            //===============================================
+                            Logger.LogMessageLine("Done " + i*skip + " records...");
+
+                            transaction.Commit();
+
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                        }
+                    }
+
                 }
-
-                SqlBulkCopy copy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, transaction);
-                copy.DestinationTableName = tablename;
-
-                // want the csv converted to datatable and then use a sp to update the REFs table
-
-                // WRITE TO OWN TABLE FOR NOW
-
-                // WHEN ARROWSMITH SERVER IS BACK UP INSTEAD UPDATE REFERENCE TABLE WITH AN SP
-
-                copy.ColumnMappings.Add("PMID", "PMID");
-                copy.ColumnMappings.Add("RCT_SCORE", "RCT_SCORE");
-
-                copy.WriteToServer(RCT_TABLE);
-
-                transaction.Commit();
-
+                catch (Exception ex)
+                {
+                    Logger.LogMessageLine(ex.InnerException.ToString());
+                }
+                finally
+                {
+                    conn.Close();
+                }
             }
-            catch (Exception ex)
-            {
-                transaction.Rollback();
-            }
-            finally
-            {
-                conn.Close();
-            }
-
         }
 
         public static SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
@@ -193,7 +227,7 @@ namespace RCT_Tagger_Import
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.InnerException.ToString(), "Error exectuing SP: " + SPname);
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
                 return null;
             }
         }
@@ -215,7 +249,7 @@ namespace RCT_Tagger_Import
 
                 _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
 
-                return (true, "");
+                return (true, _destinationPath);
             }
             else
             {
@@ -252,7 +286,7 @@ namespace RCT_Tagger_Import
             string latestSQLYear = Program.GetYear(fileName);
             if (Convert.ToInt64(latestSQLYear) >= Convert.ToInt64(currentYear))
             {
-                Console.WriteLine("Have the latest gz yearly file imported already!");
+                Logger.LogMessageLine("Have the latest gz yearly file imported already!");
                 return (false, "Yearly file imported already");
             }
             else
@@ -288,17 +322,17 @@ namespace RCT_Tagger_Import
     public class RCT_Tag
     {
         public string PMID { get; set; }
-        public int RCT_SCORE { get; set; }
+        public string RCT_SCORE { get; set; }
     }
 
-    public sealed class MyClassMap : ClassMap<RCT_Tag>
-    {
-        public MyClassMap()
-        {
-            Map(m => m.PMID);
-            Map(m => m.RCT_SCORE);
-        }
-    }
+    //public class MyClassMap : ClassMap<RCT_Tag>
+    //{
+    //    public MyClassMap()
+    //    {
+    //        Map(m => m.PMID).Name("PMID");
+    //        Map(m => m.RCT_SCORE).Name("RCT Prediction");
+    //    }
+    //}
 
 
 }

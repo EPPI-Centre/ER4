@@ -6,7 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
+    <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Files\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
   <ItemGroup>
