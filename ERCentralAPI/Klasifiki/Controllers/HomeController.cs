@@ -5,6 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Klasifiki.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using IdentityServer4.AccessTokenValidation;
 
 namespace Klasifiki.Controllers
 {
@@ -14,10 +18,11 @@ namespace Klasifiki.Controllers
         {
             return View();
         }
-
+        [Authorize]
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            var user = HttpContext.User;
+            ViewData["Message"] = "Hello " + user.Identities.First().Name + "!";
 
             return View();
         }
@@ -28,7 +33,6 @@ namespace Klasifiki.Controllers
 
             return View();
         }
-
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
