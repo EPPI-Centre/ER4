@@ -1,5 +1,4 @@
 ﻿using EPPIDataServices.Helpers;
-using Microsoft.AspNetCore.Hosting.Server;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,19 +14,37 @@ namespace RCT_Tagger_Import
 {
     class Program
     {
+        static EPPILogger Logger;
+
+        static SQLHelper SqlHelper;
+
+        private static int upMonth;
+
+        private static int loMonth;
+
         private static readonly int maxRequestTries = 3;
 
         public static string GetYear(string str)
         {
             return Regex.Match(str, @"\d{4}").Value;
         }
-        static EPPILogger Logger;
-        static SQLHelper SqlHelper;
+
+        public static string GetMonth(string str)
+        {
+            return Regex.Match(str, @"\d{2}").Value;
+        }
+
+        public static string GetDay(string str)
+        {
+            return Regex.Match(str, @"\d{2}").Value;
+        }
+
         static void Main(string[] args)
         {
             Logger = new EPPILogger(false);
             SqlHelper = new SQLHelper(Logger);
             Logger.LogMessageLine("Checking for new yearly import files");
+
             (bool check, string yearlyFile) = CheckYearlyFiles();
             if (check)
             {
@@ -48,25 +65,31 @@ namespace RCT_Tagger_Import
                 Logger.LogMessageLine("Importing update files");
                 foreach (var item in Update_Files)
                 {
-                    Import_RCT_Tagger_File(item);
+                    // Into the correct path
+                    if (DownloadCSVFiles(item).Item1)
+                    {// SQL Import procedure
+                        Import_RCT_Tagger_File(item);
+                    }
                 }
-
                 Logger.LogMessageLine("Finished with update imports");
             }
             else
             {
                 Logger.LogMessageLine("Request has timed out to arrowsmith server");
-                Console.ReadLine();
             }
+            Console.ReadLine();
         }
 
         private static string Decompress(string yearlyFile)
         {
             // Use gz decompression c# code already written in the
             // PubmedImport project
-            string unZippedFileName = yearlyFile.Substring(0, yearlyFile.Length - 3);
-            FileInfo fileToBeUnGZipped = new FileInfo(yearlyFile);
-            //string decompressedFileName = Directory.GetCurrentDirectory() + @"\Files\" + unZippedFileName;
+            string unZippedFileName = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + yearlyFile.Substring(0, yearlyFile.Length - 3);
+            FileInfo fileToBeUnGZipped = new FileInfo(@"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + yearlyFile);
+            if (!fileToBeUnGZipped.Exists)
+            {
+                return "null";
+            }
             unZippedFileName = unZippedFileName.Replace("\\", "//");
             Logger.LogMessageLine("Decompressing " + yearlyFile + "....");
             using (FileStream fileToDecompressAsStream = fileToBeUnGZipped.OpenRead())
@@ -105,37 +128,92 @@ namespace RCT_Tagger_Import
         {
 
             List<string> fileNames = new List<string>();
+            string currentFileName = "";
 
-            long currentYear = Convert.ToInt32(DateTime.Now.Year);
-            string updateFileName = "http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/rct_predictions_";
-            string day = "";
-            string month = "";
-            string dateStr = "";
-            List<int> days = new List<int>();
-            for (int i = 1; i <= 31; i++)
+            currentFileName = LastUPDATEFileUploaded();
+
+            if (DateTime.Compare(GetDate(currentFileName),DateTime.Now) > 0) 
             {
-                days.Add(i);
+                // Then when up to date download the following:
+                fileNames.Add("http://arrowsmith.psych.uic.edu/api/download_weekly_csv");
             }
-            List<int> months = new List<int>();
-            for (int i = 1; i <= 12; i++)
+            else
             {
-                months.Add(i);
-            }
-            for (int i = 0; i < months.Count(); i++)
-            {
-                for (int j = 0; j < days.Count(); j++)
+                // Go from most up to date file and forwards
+                long currentYear = Convert.ToInt32(DateTime.Now.Year);
+                string updateFileName = "rct_predictions_";
+                string day = "";
+                string month = "";
+                string dateStr = "";
+                List<int> days = new List<int>();
+                for (int i = 1; i <= 31; i++)
                 {
-                    month = string.Format("{0:D2}", months[i]);
-                    day = string.Format("{0:D2}", days[j]);
-                    dateStr = "" + currentYear + "-" + month + "-" + day + ".csv";
-                    fileNames.Add(updateFileName + dateStr);
+                    days.Add(i);
+                }
+                List<int> months = new List<int>();
+                for (int i = 1; i <= 12; i++)
+                {
+                    months.Add(i);
+                }
+                for (int i = loMonth; i <= upMonth; i++)
+                {
+                    for (int j = 1; j <= 31; j++)
+                    {
+                        month = string.Format("{0:D2}", months[i-1]);
+                        day = string.Format("{0:D2}", days[j-1]);
+                        dateStr = "" + currentYear + "-" + month + "-" + day + ".csv";
+                        fileNames.Add(updateFileName + dateStr);
+                    }
                 }
             }
             return fileNames;
         }
 
-        private static void Import_RCT_Tagger_File(string decompressedFile)
+        private static DateTime GetDate(string str)
         {
+           
+            DateTime curr = (DateTime.Parse(Regex.Match(str, @"\d{4}-\d{2}-\d{2}").Value));
+            loMonth = curr.Month;
+            upMonth = DateTime.Now.Month;
+
+            return curr;
+        }
+
+        private static (bool, string) DownloadCSVFiles(string filename)
+        {
+            string filePath = "";
+            bool success = false;
+            // build the url from the sql query result
+            string url = "http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/" + filename + "";
+            Uri urlCheck = new Uri(url);
+
+            // replace
+            var remainingTries = maxRequestTries;
+            var exceptions = new List<Exception>();
+            do
+            {
+                --remainingTries;
+                try
+                {
+                    (success, filePath) = Execute(urlCheck, filename);
+                    if (success)
+                    {
+                        Console.WriteLine("Downloaded the following file: " + filename);
+                        return (success, filename);
+                    }
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+            while (remainingTries > 0);
+            return (false, filename);
+        }
+
+        private static void Import_RCT_Tagger_File(string filename)
+        {
+            // After downloading the file import at that point
             List<RCT_Tag> recs = new List<RCT_Tag>();
             var RCT_TABLE = new DataTable();
             SqlTransaction transaction;
@@ -145,9 +223,9 @@ namespace RCT_Tagger_Import
                 conn.Open();
                 try
                 {
-                    decompressedFile = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\rct_predictions_2017.csv";
+                    string decompressedFile = filename;
 
-                    using (var sr = new StreamReader(decompressedFile))
+                    using (var sr = new StreamReader(@"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + decompressedFile))
                     {
                         string strline = "";
                         string[] _values = null;
@@ -231,36 +309,43 @@ namespace RCT_Tagger_Import
                 }
                 finally
                 {
-                    conn.Close();
-                }
-            }
-        }
-
-        public static SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
-        {
-            try
-            {
-                using (SqlCommand command = new SqlCommand(SPname, connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    if (parameters != null)
+                    Console.WriteLine("Scores and PMIDs have been imported into SQL for the follwing  file: " + filename);
+                    // If successful call a SP to insert the Import job into the relevant table
+                    // 3 fields: RCT_FILE_NAME, RCT_IMPORT_DATE and RCT_UPLOAD_DATE
+                    transaction = conn.BeginTransaction();
+                    try
                     {
-                        command.Parameters.AddRange(parameters);
+                        List<SqlParameter> sqlParams = new List<SqlParameter>();
+                        DateTime yearDate = Convert.ToDateTime(string.Concat(GetYear(filename), "-01-01"));
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename + ".gz"));
+                        sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
+                        sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", yearDate));
+
+                        SqlParameter[] parameters = new SqlParameter[3];
+                        parameters = sqlParams.ToArray();
+
+                        int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_RCT_IMPORT_UPDATE_INSERT]", parameters);
+
+                        //===============================================
+                        Logger.LogMessageLine("Job record inserted into DB");
+
+                        transaction.Commit();
+                        Console.WriteLine("Imported the follwing into SQL: " + filename);
                     }
-                    return command.ExecuteReader();
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                    }
+                    conn.Close();
+
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e, "Error exectuing SP: " + SPname);
-                return null;
             }
         }
 
         public static (bool, string) Execute(Uri urlCheck, string fileName)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
-            request.Timeout = 15000;
+            request.Timeout = 4000;
             request.Method = "HEAD";
             HttpWebResponse response;
             response = (HttpWebResponse)request.GetResponse();
@@ -282,15 +367,36 @@ namespace RCT_Tagger_Import
             }
         }
 
-        private static (bool, string) CheckYearlyFiles()
-        {
-
-            long currentYear = Convert.ToInt32(DateTime.Now.Year) - 1;
+        private static string LastUPDATEFileUploaded()
+        {           
             string fileName = "";
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
                 conn.Open();
-                var res = ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]", null);
+                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
+                if (res.HasRows)
+                {
+                    while (res.Read())
+                    {
+                        fileName = res["RCT_FILE_NAME"].ToString();
+                    }
+                    res.Close();
+                }
+                else
+                {
+                    fileName = "1981-01-01";
+                }
+            }
+            return fileName;
+        }
+
+        private static string LastYEARLYFileUploaded()
+        {
+            string fileName = "";
+            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            {
+                conn.Open();
+                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
                 if (res.HasRows)
                 {
                     while (res.Read())
@@ -304,42 +410,30 @@ namespace RCT_Tagger_Import
                     fileName = "0000";
                 }
             }
+            return fileName;
+        }
+
+        private static (bool, string) CheckYearlyFiles()
+        {
+            long currentYear = Convert.ToInt32(DateTime.Now.Year) - 1;
+            string fileName = LastYEARLYFileUploaded();
 
             // Compare fileName year with the current year...
-            string latestSQLYear = Program.GetYear(fileName);
-            if (Convert.ToInt64(latestSQLYear) >= Convert.ToInt64(currentYear))
+            string latestfileYear = Program.GetYear(fileName);
+            if (Convert.ToInt64(latestfileYear) >= Convert.ToInt64(currentYear))
             {
-                Logger.LogMessageLine("Have the latest gz yearly file imported already!");
+                Logger.LogMessageLine("Already have the latest gz yearly file imported!");
                 return (false, "Yearly file imported already");
             }
             else
             {
                 fileName  = "rct_predictions_" + currentYear + ".csv.gz";
 
-                // build the url from the sql query result
-                string url = "http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/rct_predictions_" + currentYear + ".csv.gz";
-                Uri urlCheck = new Uri(url);
-                
-                // replace
-                var remainingTries = maxRequestTries;
-                var exceptions = new List<Exception>();
-                do
-                {
-                    --remainingTries;
-                    try
-                    {
-                        return Execute(urlCheck, fileName);
-                    }
-                    catch (Exception e)
-                    {
-                        exceptions.Add(e);
-                    }
-                }
-                while (remainingTries > 0);
-
-                return (false, "error");
+                return DownloadCSVFiles(fileName);
+               
             }
         }
+
     }
 
     public class RCT_Tag
@@ -347,4 +441,5 @@ namespace RCT_Tagger_Import
         public string PMID { get; set; }
         public string RCT_SCORE { get; set; }
     }
+
 }
