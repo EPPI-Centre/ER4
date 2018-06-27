@@ -212,7 +212,8 @@ namespace PubmedImport
 						|| result.DoWhat == "singlefile"
 						|| result.DoWhat == "ftpbaselinefolder"
 						|| result.DoWhat == "ftpupdatefolder"
-						)
+                        || result.DoWhat == "dorctscores"
+                        )
 					|| (result.DoWhat == "singlefile" && SingleFile == "")
 				)
 			{
@@ -240,8 +241,7 @@ namespace PubmedImport
 
                         }
 
-                    }
-
+                }
 				if (WaitOnExit)
 				{
 					Logger.LogMessageLine("All done, press a key to quit.");
@@ -254,7 +254,6 @@ namespace PubmedImport
 					Logger.LogMessageLine("");
 				}
 			}
-			
 		}
 
         private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
@@ -282,7 +281,6 @@ namespace PubmedImport
 
             try
             {
-
 
                 SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
                 var jobID = (Int64)IdParam.Value;

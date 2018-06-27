@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-
 namespace EPPIDataServices.Helpers
-{
+{    
+
     public class SQLHelper
     {
         public readonly string DataServiceDB = "";
@@ -19,6 +19,11 @@ namespace EPPIDataServices.Helpers
             DataServiceDB = configuration["AppSettings:DataServiceDB"];
             ER4DB = configuration["AppSettings:ER4DB"];
             ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
+        }
+        public SQLHelper (EPPILogger logger)
+        {
+            Logger = logger;
+            DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";
         }
         /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
