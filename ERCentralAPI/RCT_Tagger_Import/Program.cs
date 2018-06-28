@@ -72,35 +72,15 @@ namespace RCT_Tagger_Import
 
             string strYear = LastYEARLYFileUploaded();
 
-            // Maybe logic to sort different yearly formats here
-            // one with four numbers one with eight
-
             int currYear = Convert.ToInt16(GetYear(strYear));
 
-            foreach (var item in yearlyLinks)
-            {
-                int linkYear = 0;
-                try
-                {
-                    linkYear = int.Parse(GetYear(item));
-                    if (currYear < linkYear)
-                    {
-                        Yearly_Compressed_Files(item);
-                    }
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
+            yearlyLinks.Where(y => int.Parse(GetYear(y)) > currYear).ToList().ForEach(x => Yearly_Compressed_Files(x));
 
             string strDate = LastUPDATEFileUploaded();
 
             DateTime currDate = GetDate(strDate);
 
-            //testing LINQ foreach
             weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
-
 
             Console.WriteLine("Finished Imports");
             Console.ReadLine();
