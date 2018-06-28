@@ -15,7 +15,9 @@ using System.Threading.Tasks;
 
 namespace RCT_Tagger_Import
 {
-    class Program
+   
+
+    class RCTTaggerImport
     {
         static EPPILogger Logger;
 
@@ -27,6 +29,8 @@ namespace RCT_Tagger_Import
 
         private static readonly int maxRequestTries = 3;
 
+        static string TmpFolderPath;
+
         private static DateTime GetDate(string str)
         {
 
@@ -37,54 +41,19 @@ namespace RCT_Tagger_Import
             return curr;
         }
 
-        public static string GetYear(string str)
+        private static string GetYear(string str)
         {
             return Regex.Match(str, @"\d{4}").Value;
         }
 
-        public static string GetMonth(string str)
+        private static string GetMonth(string str)
         {
             return Regex.Match(str, @"\d{2}").Value;
         }
 
-        public static string GetDay(string str)
+        private static string GetDay(string str)
         {
             return Regex.Match(str, @"\d{2}").Value;
-        }
-        static string TmpFolderPath;
-        static void Main(string[] args)
-        {
-            DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("TmpFiles");
-            TmpFolderPath = tempDir.FullName;
-            string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
-
-            Task<List<string>> task = GetHTMLLinksAsync(baseURL);
-            task.Wait();
-            List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
-
-            Logger = new EPPILogger(false);
-
-            SqlHelper = new SQLHelper(Logger);
-
-            Logger.LogMessageLine("Checking for new yearly import files");
-
-            List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
-
-            string strYear = LastYEARLYFileUploaded();
-
-            int currYear = Convert.ToInt16(GetYear(strYear));
-
-            yearlyLinks.Where(y => int.Parse(GetYear(y)) > currYear).ToList().ForEach(x => Yearly_Compressed_Files(x));
-
-            string strDate = LastUPDATEFileUploaded();
-
-            DateTime currDate = GetDate(strDate);
-
-            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
-
-            Console.WriteLine("Finished Imports");
-            Console.ReadLine();
         }
 
         private static void Yearly_Compressed_Files(string yearlyfile)
@@ -95,7 +64,7 @@ namespace RCT_Tagger_Import
             try
             {
                 // Get file from htmlLink
-                (res, fileName) =  DownloadCSVFiles(yearlyfile);
+                (res, fileName) = DownloadCSVFiles(yearlyfile);
                 if (res == false)
                 {
                     return;
@@ -106,7 +75,7 @@ namespace RCT_Tagger_Import
 
                 throw;
             }
-                
+
             Logger.LogMessageLine("Decompressing the yearly gz file");
             string decompressedYearlyFile = Decompress(yearlyfile);
 
@@ -114,10 +83,10 @@ namespace RCT_Tagger_Import
             Import_RCT_Tagger_File(decompressedYearlyFile);
 
             Logger.LogMessageLine("Finished with yearly import");
-         
+
         }
 
-        public static async Task<List<string>> GetHTMLLinksAsync(string baseURL)
+        private static async Task<List<string>> GetHTMLLinksAsync(string baseURL)
         {
             List<string> links = new List<string>();
             try
@@ -152,11 +121,11 @@ namespace RCT_Tagger_Import
             Logger.LogMessageLine("Importing update files");
             //foreach (var item in Update_Files)
             //{
-                (res, weeklyFile) = DownloadCSVFiles(weeklyFile);
-                if (res)
-                {
-                    Import_RCT_Tagger_File(weeklyFile);
-                }
+            (res, weeklyFile) = DownloadCSVFiles(weeklyFile);
+            if (res)
+            {
+                Import_RCT_Tagger_File(weeklyFile);
+            }
             //}
             Logger.LogMessageLine("Finished with update imports");
         }
@@ -176,7 +145,7 @@ namespace RCT_Tagger_Import
 
                     // the date field needs to change based on whether it is a yearky or weekly file
                     DateTime date = DateTime.Now;
-                    if (filename.Count(Char.IsDigit)  > 6)
+                    if (filename.Count(Char.IsDigit) > 6)
                     {
                         int tmpStart = filename.LastIndexOf("rct_predictions");
                         int fullLength = filename.Length;
@@ -191,8 +160,8 @@ namespace RCT_Tagger_Import
                         string tempStr = GetYear(tmpStr) + "-12-30";
                         date = Convert.ToDateTime(tempStr);
                     }
-                   
-                    sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename ));
+
+                    sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
                     sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
                     sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
 
@@ -316,8 +285,8 @@ namespace RCT_Tagger_Import
                     {
                         decompressedFile = filename;
                     }
-                    
-                    using (var sr = new StreamReader( decompressedFile))
+
+                    using (var sr = new StreamReader(decompressedFile))
                     {
                         string strline = "";
                         string[] _values = null;
@@ -328,7 +297,7 @@ namespace RCT_Tagger_Import
                             strline = sr.ReadLine();
                             _values = strline.Split('\t');
 
-                            if (x > 0 )
+                            if (x > 0)
                             {
                                 RCT_Tag record = new RCT_Tag();
                                 record.PMID = _values[0];
@@ -362,8 +331,8 @@ namespace RCT_Tagger_Import
                         {
                             List<SqlParameter> sqlParams = new List<SqlParameter>();
 
-                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip*i).Take(page).ToList())));
-                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip*i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
 
                             SqlParameter[] parameters = new SqlParameter[2];
                             parameters = sqlParams.ToArray();
@@ -371,7 +340,7 @@ namespace RCT_Tagger_Import
                             int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", parameters);
 
                             //===============================================
-                            Logger.LogMessageLine("Done " + i*skip + " records...");
+                            Logger.LogMessageLine("Done " + i * skip + " records...");
 
                             transaction.Commit();
 
@@ -404,7 +373,7 @@ namespace RCT_Tagger_Import
             }
         }
 
-        public static (bool, string) Execute(Uri urlCheck, string fileName)
+        private static (bool, string) Execute(Uri urlCheck, string fileName)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
             request.Timeout = 4000;
@@ -418,7 +387,7 @@ namespace RCT_Tagger_Import
 
                 int startStr = fileName.LastIndexOf("/");
                 int endStr = fileName.Length;
-                fileName = fileName.Substring(startStr+1, endStr-startStr-1);
+                fileName = fileName.Substring(startStr + 1, endStr - startStr - 1);
 
                 // This destination path needs to be sorted out...
                 string _destinationPath = TmpFolderPath + "\\" + fileName + "";
@@ -435,7 +404,7 @@ namespace RCT_Tagger_Import
         }
 
         private static string LastUPDATEFileUploaded()
-        {           
+        {
             string fileName = "";
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
@@ -478,29 +447,6 @@ namespace RCT_Tagger_Import
                 }
             }
             return fileName;
-        }
-
-        private static List<string> CheckYearlyFiles(List<string> AllLinks)
-        {
-            //long currentYear = Convert.ToInt32(DateTime.Now.Year) - 1;
-            //string fileName = LastYEARLYFileUploaded();
-
-            //// Compare fileName year with the current year...
-            //string latestfileYear = Program.GetYear(fileName);
-            //if (Convert.ToInt64(latestfileYear) >= Convert.ToInt64(currentYear))
-            //{
-            //    Logger.LogMessageLine("Already have the latest gz yearly file imported!");
-            //    return (false, "Yearly file imported already");
-            //}
-            //else
-            //{
-            //    fileName  = "rct_predictions_" + currentYear + ".csv.gz";
-            //    return DownloadCSVFiles(fileName);
-            //}
-
-            //Get the links that are compressed as these are the yearly ones
-            return AllLinks.Where(x => x.Contains(".gz")).ToList();
-
         }
 
         private static List<string> CheckUpdateFiles()
@@ -547,12 +493,44 @@ namespace RCT_Tagger_Import
             }
             return fileNames;
         }
-    }
 
-    public class RCT_Tag
-    {
-        public string PMID { get; set; }
-        public string RCT_SCORE { get; set; }
-    }
 
+        public static void RunRCTTAggerImport()
+        {
+            DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("TmpFiles");
+            TmpFolderPath = tempDir.FullName;
+            string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
+
+            Task<List<string>> task = GetHTMLLinksAsync(baseURL);
+            task.Wait();
+            List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
+
+            Logger = new EPPILogger(false);
+
+            SqlHelper = new SQLHelper(Logger);
+
+            Logger.LogMessageLine("Checking for new yearly import files");
+
+            List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
+            List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
+
+            string strYear = LastYEARLYFileUploaded();
+
+            int currYear = Convert.ToInt16(GetYear(strYear));
+
+            yearlyLinks.Where(y => int.Parse(GetYear(y)) > currYear).ToList().ForEach(x => Yearly_Compressed_Files(x));
+
+            string strDate = LastUPDATEFileUploaded();
+
+            DateTime currDate = GetDate(strDate);
+
+            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
+
+            Console.WriteLine("Finished Imports");
+            Console.ReadLine();
+
+
+        }
+
+    }
 }
