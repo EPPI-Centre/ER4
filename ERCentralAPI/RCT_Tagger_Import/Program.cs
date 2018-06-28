@@ -98,14 +98,10 @@ namespace RCT_Tagger_Import
 
             DateTime currDate = GetDate(strDate);
 
-            foreach (var item in weeklyLinks)
-            {
-                DateTime linkDate = GetDate(item);
-                if (currDate < linkDate)
-                {
-                    Weekly_Update_files(item);
-                }
-            }
+            //testing LINQ foreach
+            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
+
+
             Console.WriteLine("Finished Imports");
             Console.ReadLine();
         }
