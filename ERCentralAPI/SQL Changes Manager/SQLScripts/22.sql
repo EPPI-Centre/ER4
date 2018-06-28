@@ -1726,5 +1726,50 @@ BEGIN
 END
 
 GO
+--Sergio: SP to find multiple citations by external id
+USE [DataService]
+GO
 
+/****** Object:  StoredProcedure [dbo].[st_findCitationsByExternalIDs]    Script Date: 28/06/2018 14:54:31 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_findCitationsByExternalIDs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_findCitationsByExternalIDs]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_findCitationsByExternalIDs]    Script Date: 28/06/2018 14:54:31 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[st_findCitationsByExternalIDs]
+(
+	@ExternalIDName nchar(15)
+	,@ExternalIDs nvarchar(max)
+)
+
+As
+
+SET NOCOUNT ON
+declare @t table (ExValue nvarchar(450) primary key )
+declare @tt table (REF_ID bigint primary key)
+
+insert into @t (ExValue) select  distinct [value] from  dbo.fn_Split(@ExternalIDs, '¬')
+insert into @tt (REF_ID) select distinct REFERENCE_ID from @t t inner join TB_EXTERNALID Ex on Ex.TYPE = @ExternalIDName AND Ex.VALUE = T.ExValue
+
+if (@@ROWCOUNT > 0)
+BEGIN
+	select *
+	, rt.[TYPE_NAME]
+	, dbo.fn_REBUILD_AUTHORS(REFERENCE_ID, 0) as AUTHORS
+	, dbo.fn_REBUILD_AUTHORS(REFERENCE_ID, 1) as PARENT_AUTHORS
+	, dbo.fn_REBUILD_EXTERNAL_IDS(REFERENCE_ID) as EXTERNAL_IDS
+	 from TB_REFERENCE r
+	 inner join TB_REFERENCE_TYPE rt on r.TYPE_ID = rt.TYPE_ID
+	 inner join @tt t on r.REFERENCE_ID = t.REF_ID
+END
+
+SET NOCOUNT OFF
+
+GO
 

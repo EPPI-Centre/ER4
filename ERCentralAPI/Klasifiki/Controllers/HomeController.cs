@@ -16,9 +16,11 @@ namespace Klasifiki.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            if (HttpContext.User != null && HttpContext.User.Identity.IsAuthenticated)
+                return View();
+            else return Redirect("~/Login/Index");
         }
-        [Authorize]
+        [Authorize("Authenticated")]
         public IActionResult About()
         {
             var user = HttpContext.User;
