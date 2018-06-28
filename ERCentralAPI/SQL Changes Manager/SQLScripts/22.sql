@@ -1538,6 +1538,194 @@ COMMIT
 update  TB_EXTERNALID  set [type] = SUBSTRING([type], 1, len([type]))
 GO
 
+--Patrick SQL changes 1 Additional table for RCT_Tagger Arrowsmith
+USE [DataService]
+GO
+
+/****** Object:  Table [dbo].[TB_RCT_UPDATE_FILE]    Script Date: 28/06/2018 14:42:56 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TB_RCT_UPDATE_FILE](
+	[RCT_UPDATE_FILE_ID] [int] IDENTITY(1,1) NOT NULL,
+	[RCT_FILE_NAME] [varchar](max) NOT NULL,
+	[RCT_IMPORT_DATE] [datetime] NOT NULL,
+	[RCT_UPLOAD_DATE] [datetime] NOT NULL,
+ CONSTRAINT [PK_TB_RCT_UPDATE_FILE] PRIMARY KEY CLUSTERED 
+(
+	[RCT_UPDATE_FILE_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+
+--Patrick SQL changes 4 Additional Stored Procedures for RCT_Tagger Arrowsmith
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]    Script Date: 28/06/2018 14:44:42 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]
+	-- Add the parameters for the stored procedure here
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT TOP (1) [RCT_FILE_NAME], [TB_RCT_UPDATE_FILE].RCT_UPLOAD_DATE
+	FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+	WHERE [RCT_FILE_NAME] NOT LIKE '%Files%'
+	ORDER BY [RCT_UPLOAD_DATE] DESC
+
+ 
+	SET NOCOUNT OFF
+END
+
+
+GO
+
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]    Script Date: 28/06/2018 14:44:54 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]
+	-- Add the parameters for the stored procedure here
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT TOP (1) [RCT_FILE_NAME], [TB_RCT_UPDATE_FILE].RCT_UPLOAD_DATE
+	FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+	WHERE [RCT_FILE_NAME] LIKE '%Files%'
+	ORDER BY [RCT_UPLOAD_DATE] DESC
+ 
+	SET NOCOUNT OFF
+END
+
+GO
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_RCT_IMPORT_UPDATE_INSERT]    Script Date: 28/06/2018 14:45:08 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RCT_IMPORT_UPDATE_INSERT]
+	-- Add the parameters for the stored procedure here
+	(
+		@RCT_FILE_NAME varchar(max),
+		@RCT_IMPORT_DATE datetime,
+		@RCT_UPLOAD_DATE datetime
+	)
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+		INSERT INTO [dbo].[TB_RCT_UPDATE_FILE]
+		(RCT_FILE_NAME, RCT_IMPORT_DATE, RCT_UPLOAD_DATE)
+		VALUES (@RCT_FILE_NAME, @RCT_IMPORT_DATE, @RCT_UPLOAD_DATE )
+ 
+	SET NOCOUNT OFF
+END
+
+GO
+
+
+
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReferenceUpdate_Arrow_Scores]    Script Date: 28/06/2018 14:45:26 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ReferenceUpdate_Arrow_Scores]
+	-- Add the parameters for the stored procedure here
+	(
+		@IDS NVARCHAR(MAX) = NULL,
+		@SCORES NVARCHAR(MAX) = NULL
+	)
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+	declare @t table (tidx int, [value] nvarchar(100), score float null, ref_id bigint, primary key(value, ref_id))
+	insert into @t 
+	select t.*, null, -1 from dbo.fn_Split(@IDS, ',') t 
+				
+	update @t set score = s.value
+	from dbo.fn_Split(@SCORES, ',') s
+	where tidx = s.idx
+	update @t set ref_id = reference_id from
+	 TB_EXTERNALID e inner join @t t on e.TYPE = 'pubmed' and t.VALUE = e.[value]
+  
+	--select * from @t
+	--delete from @t
+	--select r.* from @t t inner join TB_EXTERNALID ext on ext.TYPE = 'pubmed' AND ext.VALUE = t.value
+	--inner join TB_REFERENCE r on ext.REFERENCE_ID = r.REFERENCE_ID
+	
+	-- FROM here need to update the references table in the appropriate place
+	UPDATE [dbo].[TB_REFERENCE]  
+	SET ARROW_SCORE = t.score
+	FROM @t t INNER JOIN [dbo].[TB_REFERENCE] R 
+	ON t.ref_id = R.REFERENCE_ID
+
+
+
+	SET NOCOUNT OFF
+END
+
+GO
 --Sergio: SP to find multiple citations by external id
 USE [DataService]
 GO
