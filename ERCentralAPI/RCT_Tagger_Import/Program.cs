@@ -51,10 +51,11 @@ namespace RCT_Tagger_Import
         {
             return Regex.Match(str, @"\d{2}").Value;
         }
-
+        static string TmpFolderPath;
         static void Main(string[] args)
         {
-
+            DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("TmpFiles");
+            TmpFolderPath = tempDir.FullName;
             string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
 
             Task<List<string>> task = GetHTMLLinksAsync(baseURL);
@@ -235,8 +236,8 @@ namespace RCT_Tagger_Import
             int startStr = yearlyFile.LastIndexOf("/");
             yearlyFile = yearlyFile.Substring(startStr + 1, endStr - startStr - 1);
 
-            string unZippedFileName = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + yearlyFile.Substring(0, yearlyFile.Length - 3);
-            FileInfo fileToBeUnGZipped = new FileInfo(@"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + yearlyFile);
+            string unZippedFileName = TmpFolderPath + yearlyFile.Substring(0, yearlyFile.Length - 3);
+            FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + yearlyFile);
             if (!fileToBeUnGZipped.Exists)
             {
                 return "null";
@@ -319,7 +320,7 @@ namespace RCT_Tagger_Import
                 conn.Open();
                 try
                 {
-                    string filePath = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\";
+                    string filePath = TmpFolderPath;
                     string decompressedFile = "";
                     if (!filename.Contains("Files"))
                     {
@@ -426,7 +427,7 @@ namespace RCT_Tagger_Import
                 fileName = fileName.Substring(startStr+1, endStr-startStr-1);
 
                 // This destination path needs to be sorted out...
-                string _destinationPath = @"D:\Github\eppi\ERCentralAPI\RCT_Tagger_Import\Files\" + fileName + "";
+                string _destinationPath = TmpFolderPath + fileName + "";
 
                 _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
 

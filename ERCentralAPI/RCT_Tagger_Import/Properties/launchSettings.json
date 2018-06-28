@@ -1,8 +1,7 @@
 {
   "profiles": {
-    "PubmedImport": {
-      "commandName": "Project",
-      "commandLineArgs": "dowhat:dorctscores savelog maxcount:45000"
+    "RCT_Tagger_Import": {
+      "commandName": "Project"
     }
   }
 }
