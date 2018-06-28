@@ -2,7 +2,7 @@
   "profiles": {
     "PubmedImport": {
       "commandName": "Project",
-      "commandLineArgs": "dowhat:dorctscores savelog maxcount:45000"
+      "commandLineArgs": "dowhat:singlefile file:ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/pubmed18n1168.xml.gz savelog maxcount:45000"
     }
   }
 }

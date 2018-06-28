@@ -124,7 +124,7 @@ namespace PubmedImport
                 if (ExternalIDs == null || ExternalIDs.Count == 0) return res;
                 foreach (ExternalID ExId in ExternalIDs)
                 {
-                    res = res + ExId.Name + "¬" + ExId.Value + "; ";
+                    res = res + ExId.Name + "¬" + ExId.Value.Replace(";","¦") + "; ";
                 }
                 res = res.TrimEnd();
                 return res.TrimEnd(';');
@@ -406,6 +406,7 @@ namespace PubmedImport
             Parameters.Add(new SqlParameter("@TYPE_ID", TypeID));
             Parameters.Add(new SqlParameter("@PARENT_TITLE", ParentTitle));
             Parameters.Add(new SqlParameter("@SHORT_TITLE", ShortTitle));
+            Parameters.Add(new SqlParameter("@CREATED_BY", "Pubmed Import Utility"));
             //command.Parameters.Add(new SqlParameter("@DATE_CREATED", ReadProperty(DateCreatedProperty).DBValue));
             //command.Parameters.Add(new SqlParameter("@CREATED_BY", ReadProperty(CreatedByProperty)));
             //command.Parameters.Add(new SqlParameter("@DATE_EDITED", ReadProperty(DateEditedProperty).DBValue));
