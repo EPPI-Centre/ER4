@@ -54,7 +54,10 @@ namespace RCT_Tagger_Import
 
         static void Main(string[] args)
         {
-            Task<List<string>> task = TestDotNetCoreAgilityPackAsync();
+
+            string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
+
+            Task<List<string>> task = GetHTMLLinksAsync(baseURL);
             task.Wait();
             List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
 
@@ -137,20 +140,29 @@ namespace RCT_Tagger_Import
          
         }
 
-        public static async Task<List<string>> TestDotNetCoreAgilityPackAsync()
+        public static async Task<List<string>> GetHTMLLinksAsync(string baseURL)
         {
-            HttpClient hc = new HttpClient();
-            HttpResponseMessage result = await hc.GetAsync($"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi");
-            Stream stream = await result.Content.ReadAsStreamAsync();
-            HtmlDocument doc = new HtmlDocument();
-            doc.Load(stream);
             List<string> links = new List<string>();
-            foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
+            try
             {
-                HtmlAttribute att = link.Attributes["href"];
-                links.Add(att.Value);
-            }
+                HttpClient hc = new HttpClient();
+                HttpResponseMessage result = await hc.GetAsync(baseURL);
+                Stream stream = await result.Content.ReadAsStreamAsync();
+                HtmlDocument doc = new HtmlDocument();
+                doc.Load(stream);
 
+                foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
+                {
+                    HtmlAttribute att = link.Attributes["href"];
+                    links.Add(att.Value);
+                }
+
+            }
+            catch (Exception)
+            {
+                links.Add("error getting links");
+
+            }
             return links;
         }
 
