@@ -98,6 +98,25 @@ namespace EPPIDataServices.Helpers
         /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
         /// You need to make sure you'll close the connection within whatever code calls this!
         /// </summary> 
+        public SqlDataReader ExecuteQuerySPNoParam(SqlConnection connection, string SPname)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(SPname, connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                 
+                    return command.ExecuteReader();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e, "Error exectuing SP: " + SPname);
+                return null;
+            }
+        }
+
         public SqlDataReader ExecuteQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
         {
             try
