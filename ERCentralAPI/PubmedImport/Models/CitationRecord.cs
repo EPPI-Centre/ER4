@@ -133,6 +133,7 @@ namespace PubmedImport
 
 		public DateTime PubMedDate { get; set; }
         public int PubmedPmidVersion { get; set; }
+        public double? Arrowsmith_RCT_Score { get; set; }
 
         public CitationRecord()
 		{
@@ -556,6 +557,8 @@ namespace PubmedImport
                     res.Keywords.Add(new KeywordObject(kw));
                 }
             }
+            if (reader["ARROW_SCORE"].GetType() != System.DBNull.Value.GetType()) res.Arrowsmith_RCT_Score = (double?)reader["ARROW_SCORE"];
+            else res.Arrowsmith_RCT_Score = -1;
             return res;
         }
         public static List<DataTable> ToDataTables(List<CitationRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)
