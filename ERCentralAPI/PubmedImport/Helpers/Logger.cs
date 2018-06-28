@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Text;
 
@@ -12,6 +13,15 @@ namespace EPPIDataServices.Helpers
         public EPPILogger(bool SaveLogTofile)
         {
             SaveLog = SaveLogTofile;
+        }
+        public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
+        {
+            LogException(e, Description);
+            LogMessageLine("SQL parameters:");
+            foreach (SqlParameter par in parameters)
+            {
+                LogMessageLine("Param NAME: " + par.ParameterName + "; Param Value: " + par.Value.ToString());
+            }
         }
         public void LogException(Exception e, string Description)
         {

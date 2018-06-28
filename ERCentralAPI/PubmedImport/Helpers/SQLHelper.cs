@@ -40,7 +40,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return -1;
             }
         }
@@ -61,7 +61,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return -1;
             }
         }
@@ -89,7 +89,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return null;
             }
         }
@@ -131,7 +131,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogException(e, "Error exectuing SP: " + SPname);
+                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return null;
             }
         }
