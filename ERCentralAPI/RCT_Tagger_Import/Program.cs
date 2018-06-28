@@ -67,17 +67,27 @@ namespace RCT_Tagger_Import
             List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
             List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
 
-           
             string strYear = LastYEARLYFileUploaded();
+
+            // Maybe logic to sort different yearly formats here
+            // one with four numbers one with eight
 
             int currYear = Convert.ToInt16(GetYear(strYear));
 
             foreach (var item in yearlyLinks)
             {
-                int linkYear = int.Parse(GetYear(item));
-                if (currYear < linkYear)
+                int linkYear = 0;
+                try
                 {
-                    Yearly_Compressed_Files(item);
+                    linkYear = int.Parse(GetYear(item));
+                    if (currYear < linkYear)
+                    {
+                        Yearly_Compressed_Files(item);
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
             }
 
@@ -93,7 +103,7 @@ namespace RCT_Tagger_Import
                     Weekly_Update_files(item);
                 }
             }
-            
+            Console.WriteLine("Finished Imports");
             Console.ReadLine();
         }
 
@@ -183,7 +193,7 @@ namespace RCT_Tagger_Import
                     }
                     else
                     {
-                        string tempStr = GetYear(filename) + "-01-01";
+                        string tempStr = GetYear(filename) + "-12-30";
                         date = Convert.ToDateTime(tempStr);
                     }
                    
@@ -438,7 +448,7 @@ namespace RCT_Tagger_Import
                 }
                 else
                 {
-                    fileName = "1981-01-01";
+                    fileName = "1900-01-01";
                 }
             }
             return fileName;
@@ -461,7 +471,7 @@ namespace RCT_Tagger_Import
                 }
                 else
                 {
-                    fileName = "1981-01-01";
+                    fileName = "1900-01-01";
                 }
             }
             return fileName;
