@@ -13,20 +13,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klasifiki.Controllers
 {
-    [Route("Login")]
+    //[Route("Login")]
+    //[Route("Login/Login")]
     public class LoginController : Controller
     {
         // GET: Login
         
-        public ActionResult Login()
+        public IActionResult Index()
         {
             return View();
         }
-
+        
+        public IActionResult Logout()
+        {
+            HttpContext.SignOutAsync();
+            return Redirect("~/Login/Index");
+        }
         // POST: Login/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public  ActionResult  Login([FromForm] string username, [FromForm] string password)
+        //[ValidateAntiForgeryToken]
+        public IActionResult DoLogin([FromForm] string username, [FromForm] string password)
         {
             try
             {
@@ -34,7 +40,7 @@ namespace Klasifiki.Controllers
                 
                 Task<(bool, TokenResponse)> task = Task.Run(() => IdentityServer4Client.LoginAsync(username, password, userIdentity));
                 bool CorrectCredentials = task.Result.Item1;
-                if (!CorrectCredentials) return Login(); //DoFail();
+                if (!CorrectCredentials) return Index(); //DoFail();
                 ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
                 HttpContext.SignInAsync(user);
                 return Redirect("~/Home/About");

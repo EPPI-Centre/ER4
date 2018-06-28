@@ -47,20 +47,7 @@ namespace Klasifiki
             string clientID = Configuration["AppSettings:EPPIApiClientName"];
             string clientSecret = Configuration["AppSettings:EPPIApiClientSecret"];
 
-            IdentityServerAuthenticationOptions identityServerValidationOptions = new IdentityServerAuthenticationOptions
-            {
-                Authority = authority,
-
-                ApiSecret = "dataEventRecordsSecret",
-                ApiName = "dataEventRecords",
-                //AutomaticAuthenticate = true,
-                SupportedTokens = SupportedTokens.Both,
-                SaveToken = true,
-                 
-                // TokenRetriever = _tokenRetriever,
-                // required if you want to return a 403 and not a 401 for forbidden responses
-                
-            };
+            
 
             
 
@@ -120,8 +107,10 @@ namespace Klasifiki
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    "Default",                                          // Route name
+                "{controller}/{action}/{id?}",                           // URL with parameters
+                new { controller = "Home", action = "Index", id = "" }  // Parameter defaults
+                );
             });
         }
     }
