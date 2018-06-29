@@ -30,6 +30,10 @@ namespace PubmedImport
 
         static string TmpFolderPath;
 
+        private static string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
+
+        private static string domainURL = $"http://arrowsmith.psych.uic.edu";
+
         private static DateTime GetDate(string str)
         {
 
@@ -42,16 +46,26 @@ namespace PubmedImport
 
         private static string GetYear(string str)
         {
-            int count  = str.Count(Char.IsDigit);
-            if (count > 7)
+            try
             {
-                int tmp = str.LastIndexOf("-");
-                string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
-                return Regex.Match(tmpStr, @"\d{4}").Value;
+
+                int count  = str.Count(Char.IsDigit);
+                if (count > 7)
+                {
+                    int tmp = str.LastIndexOf("-");
+                    string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
+                    return Regex.Match(tmpStr, @"\d{4}").Value;
+                }
+                else
+                {
+                    return Regex.Match(str, @"\d{4}").Value;
+                }
+
             }
-            else
+            catch (Exception ex)
             {
-                return Regex.Match(str, @"\d{4}").Value;
+                Logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                return "";
             }
 
         }
@@ -80,9 +94,9 @@ namespace PubmedImport
                     return;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                 throw;
             }
 
@@ -114,9 +128,11 @@ namespace PubmedImport
                 }
                 links.Reverse();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                links.Add("error getting links");
+                Logger.LogException(ex, "error scraping links");
+
+                links.Add("error scraping links");
 
             }
             return links;
@@ -125,26 +141,23 @@ namespace PubmedImport
         private static void Weekly_Update_files(string weeklyFile)
         {
             Logger.LogMessageLine("Checking update files");
-            //List<string> Update_Files = weeklyFiles;
-            //string weeklyFileName = "";
+
             bool res = false;
             Logger.LogMessageLine("Importing update files");
-            //foreach (var item in Update_Files)
-            //{
+
             (res, weeklyFile) = DownloadCSVFiles(weeklyFile);
             if (res)
             {
                 Import_RCT_Tagger_File(weeklyFile);
             }
-            //}
+
             Logger.LogMessageLine("Finished with update imports");
         }
 
         private static void Log_Import_Job(string filename)
         {
-            Console.WriteLine("Scores and PMIDs have been imported into SQL for the follwing  file: " + filename);
-            // If successful call a SP to insert the Import job into the relevant table
-            // 3 fields: RCT_FILE_NAME, RCT_IMPORT_DATE and RCT_UPLOAD_DATE
+            Logger.LogMessageLine("Scores and PMIDs have been imported into SQL for the follwing file: " + filename);
+
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
                 conn.Open();
@@ -184,10 +197,11 @@ namespace PubmedImport
                     Logger.LogMessageLine("Job record inserted into DB");
 
                     transaction.Commit();
-                    Console.WriteLine("Imported the follwing into SQL: " + filename);
+                   
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Logger.LogException(ex, "");
                     transaction.Rollback();
                 }
                 conn.Close();
@@ -243,13 +257,11 @@ namespace PubmedImport
 
         private static (bool, string) DownloadCSVFiles(string filename)
         {
-            string filePath = "";
             bool success = false;
-            // build the url from the sql query result
-            string url = "http://arrowsmith.psych.uic.edu" + filename + "";
+
+            string url = domainURL + filename + "";
             Uri urlCheck = new Uri(url);
 
-            // replace
             var remainingTries = maxRequestTries;
             var exceptions = new List<Exception>();
             do
@@ -260,12 +272,13 @@ namespace PubmedImport
                     (success, filename) = Execute(urlCheck, filename);
                     if (success)
                     {
-                        Console.WriteLine("Downloaded the following file: " + filename);
+                        Logger.LogMessageLine("Downloaded the following file: " + filename);
                         return (success, filename);
                     }
                 }
                 catch (Exception e)
                 {
+                    Logger.LogException(e, "");
                     exceptions.Add(e);
                 }
             }
@@ -355,8 +368,9 @@ namespace PubmedImport
                             transaction.Commit();
 
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            Logger.LogException(ex, "");
                             transaction.Rollback();
                         }
                     }
@@ -405,10 +419,10 @@ namespace PubmedImport
                 _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
 
                 return (true, fileName);
-                //return (true, _destinationPath);
             }
             else
             {
+                Logger.LogMessageLine("Error Contacting server");
                 return (false, "error");
             }
         }
@@ -435,26 +449,7 @@ namespace PubmedImport
             }
             return fileName;
         }
-
-        //private static List<string> GetYEARLYFilesUploaded()
-        //{
-        //    List<string> fileNames = new List<string>();
-        //    using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
-        //    {
-        //        conn.Open();
-        //        var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
-        //        if (res.HasRows)
-        //        {
-        //            while (res.Read())
-        //            {
-        //                fileNames.Add(res["RCT_FILE_NAME"].ToString());
-        //            }
-        //            res.Close();
-        //        }
-        //    }
-        //    return fileNames;
-        //}
-
+               
         private static string LastYEARLYFileUploaded()
         {
             string fileName = "";
@@ -474,79 +469,28 @@ namespace PubmedImport
             return fileName;
         }
 
-        private static List<string> CheckUpdateFiles()
-        {
-
-            List<string> fileNames = new List<string>();
-            string currentFileName = "";
-
-            currentFileName = LastUPDATEFileUploaded();
-
-            if (DateTime.Compare(GetDate(currentFileName), DateTime.Now) > 0)
-            {
-                // Then when up to date download the following:
-                fileNames.Add("http://arrowsmith.psych.uic.edu/api/download_weekly_csv");
-            }
-            else
-            {
-                // Go from most up to date file and forwards
-                long currentYear = Convert.ToInt32(DateTime.Now.Year);
-                string updateFileName = "rct_predictions_";
-                string day = "";
-                string month = "";
-                string dateStr = "";
-                List<int> days = new List<int>();
-                for (int i = 1; i <= 31; i++)
-                {
-                    days.Add(i);
-                }
-                List<int> months = new List<int>();
-                for (int i = 1; i <= 12; i++)
-                {
-                    months.Add(i);
-                }
-                for (int i = loMonth; i <= upMonth; i++)
-                {
-                    for (int j = 1; j <= 31; j++)
-                    {
-                        month = string.Format("{0:D2}", months[i - 1]);
-                        day = string.Format("{0:D2}", days[j - 1]);
-                        dateStr = "" + currentYear + "-" + month + "-" + day + ".csv";
-                        fileNames.Add(updateFileName + dateStr);
-                    }
-                }
-            }
-            return fileNames;
-        }
-
-
-        public static void RunRCTTAggerImport()
+        public static void RunRCTTaggerImport()
         {
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("TmpFiles");
             TmpFolderPath = tempDir.FullName;
-            string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
-
+           
             Task<List<string>> task = GetHTMLLinksAsync(baseURL);
             task.Wait();
             List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
 
-            Logger = new EPPILogger(false);
+            Logger = Program.Logger;
 
-            SqlHelper = new SQLHelper(Logger);
+            SqlHelper = Program.SqlHelper;
 
             Logger.LogMessageLine("Checking for new yearly import files");
 
             List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
             List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
 
-            //List<string> ExistingYearlyFiles = GetYEARLYFilesUploaded();
-
             string lastUploadedYearlyFile = LastYEARLYFileUploaded();
 
-            // Check if the yearly files are already downloaded...
             int latestYearDownloaded = int.Parse(GetYear(lastUploadedYearlyFile));
 
-            //only get latest four digit year of yearly files of which there should be two
             int linkYear = int.Parse(GetYear(yearlyLinks.First()));
 
             if (linkYear > latestYearDownloaded)
@@ -560,7 +504,8 @@ namespace PubmedImport
 
             weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
 
-            Console.WriteLine("Finished Imports");
+            Logger.LogMessageLine("Finished all RCT Score updates");
+
             Console.ReadLine();
 
         }
