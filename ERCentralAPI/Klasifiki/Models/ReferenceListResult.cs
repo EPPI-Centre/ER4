@@ -12,7 +12,7 @@ namespace Klasifiki.Models
         public List<ReferenceRecord> Results { get; set; } = new List<ReferenceRecord>();
         public string SearchMethod { get;  }
         public string SearchString { get;  }
-        ReferenceListResult(string searchString, string searchMethod)
+        public ReferenceListResult(string searchString, string searchMethod)
         {
             SearchMethod = searchMethod;
             SearchString = searchString;

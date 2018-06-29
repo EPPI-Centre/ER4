@@ -12,7 +12,7 @@
 <div class="row">
     You can search PubMeD directly (will yeild up to 10,000 results).
     <form method="post" action="~/FindCitations/Fetch">
-        <textarea method="post" name="IdsText" cols="80" rows="8"></textarea>
+        <textarea method="post" name="SearchString" cols="80" rows="8"></textarea>
         <input type="hidden" name="searchType" value="PubMedSearch" />
         <input type="submit" value="Fetch" />
     </form>
@@ -20,7 +20,7 @@
 <div class="row">
     You can insert a list of PubMeD IDs (comma separated) in the box below and click retrieve.
     <form method="post" action="~/FindCitations/Fetch">
-        <textarea method="post" name="IdsText" cols="80" rows="8"></textarea>
+        <textarea method="post" name="SearchString" cols="80" rows="8"></textarea>
         <input type="hidden" name="searchType" value="PubMedIDs" />
         <input type="submit" value="Fetch" />
     </form>

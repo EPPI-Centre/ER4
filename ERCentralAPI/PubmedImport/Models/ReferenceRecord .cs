@@ -564,6 +564,7 @@ namespace PubmedImport
         public static List<ReferenceRecord> GetReferenceRecordList(SqlDataReader reader)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
+            while (reader.Read()) res.Add(ReferenceRecord.GetReferenceRecord(reader));
             return res;
         }
         public static List<DataTable> ToDataTables(List<ReferenceRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)

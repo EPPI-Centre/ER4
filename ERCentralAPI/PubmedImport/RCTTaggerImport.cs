@@ -506,8 +506,6 @@ namespace PubmedImport
 
             Logger.LogMessageLine("Finished all RCT Score updates");
 
-            Console.ReadLine();
-
         }
 
     }
