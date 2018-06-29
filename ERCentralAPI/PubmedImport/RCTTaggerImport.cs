@@ -512,12 +512,10 @@ namespace PubmedImport
 
     }
 
-
     public class RCT_Tag
     {
         public string PMID { get; set; }
         public string RCT_SCORE { get; set; }
     }
-
 
 }
