@@ -201,6 +201,8 @@ namespace PubmedImport
 				else
 				{
 					DoFTPUpdateFiles(result);
+                    // need to call dorctscores here...
+                    RCTTaggerImport.RunRCTTAggerImport();
 				}
 			}
 			if (
