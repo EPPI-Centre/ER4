@@ -50,10 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="System">
       <HintPath>System</HintPath>
     </Reference>

@@ -223,14 +223,14 @@ namespace PubmedImport
         }
 
 
-        //public static List<SQLCitationObject> BulkInsertFlatReferences(List<CitationRecord> Citations, long Items_S,
+        //public static List<SQLCitationObject> BulkInsertFlatReferences(List<ReferenceRecord> Citations, long Items_S,
         //       SqlConnection conn, SqlTransaction tran)
         //{
 
         //    List<Author> authors = new List<Author>();
         //    List<SQLCitationObject> lstObjs = new List<SQLCitationObject>();
         //    // Convert Citation object into sqlObject
-        //    foreach (CitationRecord rec in Citations)
+        //    foreach (ReferenceRecord rec in Citations)
         //    {
         //        lstObjs.Add(ConvertCitationToSQLObject(rec));
         //    }
@@ -376,7 +376,7 @@ namespace PubmedImport
 
         //}
 
-        public static string GetKeywordsString(CitationRecord rec)
+        public static string GetKeywordsString(ReferenceRecord rec)
         {
             string res = "";
             foreach (KeywordObject Keyw in rec.Keywords)
@@ -422,7 +422,7 @@ namespace PubmedImport
         //    return exts;
         //}
 
-        //public static SQLCitationObject ConvertCitationToSQLObject(CitationRecord rec)
+        //public static SQLCitationObject ConvertCitationToSQLObject(ReferenceRecord rec)
         //{
 
         //    SQLCitationObject convertedObject = new SQLCitationObject();
@@ -506,8 +506,8 @@ namespace PubmedImport
         //    return table;
         //}
 
-        static List<CitationRecord> Citations = new List<CitationRecord>();
-        static List<CitationRecord> UpdateCitations = new List<CitationRecord>();
+        static List<ReferenceRecord> Citations = new List<ReferenceRecord>();
+        static List<ReferenceRecord> UpdateCitations = new List<ReferenceRecord>();
         static FileParserResult result;
 		public static FileParserResult ParseFile(string filepath)
         {
@@ -548,13 +548,13 @@ namespace PubmedImport
                 Program.Logger.LogMessageLine("Limiting import to: " + Program.maxCount.ToString() + " references.");
                 result.Messages.Add("Limiting import to: " + Program.maxCount.ToString() + " references.");
             }
-            Citations = new List<CitationRecord>();
+            Citations = new List<ReferenceRecord>();
             foreach (XElement xCit in values)
             {
                 //Program.Logger.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
                 try
                 {
-                    CitationRecord curr = PubMedXMLParser.ParseCitation(xCit);
+                    ReferenceRecord curr = PubMedXMLParser.ParseCitation(xCit);
                     if (curr != null && curr.Type != "Retraction")
                     {//for now, we simply avoid to add retractions, not clear what we should be doing...
                         AddToImportList(curr);//checks if the current PMID has been parsed already within this same file!
@@ -581,18 +581,18 @@ namespace PubmedImport
             int i = 0;
             while (i < Citations.Count)
             {//first pass, see which ones are updates, and save them on a one-by-one basis
-                CitationRecord rec = Citations[i];
+                ReferenceRecord rec = Citations[i];
 
 
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                 {
                     string pmid = "";
-                    CitationRecord ExsistingCit = null;
+                    ReferenceRecord ExsistingCit = null;
                     foreach (ExternalID exID in rec.ExternalIDs)
                     {
                         if (exID.Name == "pubmed")
                         {
-                            ExsistingCit = GetCitationRecordByPMID(conn, exID.Value);
+                            ExsistingCit = GetReferenceRecordByPMID(conn, exID.Value);
                             pmid = exID.Value;
                             break;
                         }
@@ -717,7 +717,7 @@ namespace PubmedImport
 
                         }
 
-                        var tables = CitationRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
+                        var tables = ReferenceRecord.ToDataTables(Citations, Items_S, External_S, Author_S);
                         foreach (DataTable dt in tables)
                         {
                             if (dt.TableName == "TB_REFERENCE")
@@ -844,16 +844,16 @@ namespace PubmedImport
 
 
 
-        private static CitationRecord GetCitationRecordByPMID(SqlConnection conn, string pubmedID)
+        private static ReferenceRecord GetReferenceRecordByPMID(SqlConnection conn, string pubmedID)
         {
-            CitationRecord res = null;
+            ReferenceRecord res = null;
             SqlParameter extName = new SqlParameter("@ExternalIDName", "pubmed");
             SqlParameter pmid = new SqlParameter("@ExternalIDValue", pubmedID);
             try
             {
                 using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_FindCitationByExternalID", extName, pmid))
                 {
-                    if (reader.Read()) res = CitationRecord.GetCitationRecord(reader);
+                    if (reader.Read()) res = ReferenceRecord.GetReferenceRecord(reader);
                 }
             }
             catch (Exception e)
@@ -879,7 +879,7 @@ namespace PubmedImport
 				}
 			}
 		}
-		private static CitationRecord UpdateExsitingCitation(CitationRecord oldRecord, CitationRecord newRecord)
+		private static ReferenceRecord UpdateExsitingCitation(ReferenceRecord oldRecord, ReferenceRecord newRecord)
 		{
 			oldRecord.Title = newRecord.Title;
 			oldRecord.ParentTitle = newRecord.ParentTitle;
@@ -902,7 +902,7 @@ namespace PubmedImport
 			return oldRecord;
 		}
 		
-		private static void AddToImportList(CitationRecord curr)
+		private static void AddToImportList(ReferenceRecord curr)
 		{
 			ExternalID Pmid = curr.ExternalIDByType("pubmed");
 			if (Pmid == null)
@@ -912,7 +912,7 @@ namespace PubmedImport
 				Program.Logger.LogMessageLine("!! Error: skipping current citation as it does not have a PMID!");
 				return;
 			}
-			foreach (CitationRecord cit in Citations)
+			foreach (ReferenceRecord cit in Citations)
 			{
 				//ExternalID oldPmid = cit.ExternalIDByType("pubmed");
 				//if (oldPmid == Pmid)

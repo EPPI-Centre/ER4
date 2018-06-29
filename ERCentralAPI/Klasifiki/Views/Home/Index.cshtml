@@ -6,9 +6,22 @@
 
 <div class="row">
     Hello, this is a "Proof of concept" demonstrative utility.
-    You can insert a list of PubMeD IDs (comma separated) in the box below and click retrieve, to start.
-    <form method="post" action="~/FindByPubMedIDs/Fetch">
-        <textarea  method="post" name="IdsText" cols="80" rows="8"></textarea>
+    You can retrieve references and see what various machine learning systems think about them.
+    
+</div>
+<div class="row">
+    You can search PubMeD directly (will yeild up to 10,000 results).
+    <form method="post" action="~/FindCitations/Fetch">
+        <textarea method="post" name="IdsText" cols="80" rows="8"></textarea>
+        <input type="hidden" name="searchType" value="PubMedSearch" />
+        <input type="submit" value="Fetch" />
+    </form>
+</div>
+<div class="row">
+    You can insert a list of PubMeD IDs (comma separated) in the box below and click retrieve.
+    <form method="post" action="~/FindCitations/Fetch">
+        <textarea method="post" name="IdsText" cols="80" rows="8"></textarea>
+        <input type="hidden" name="searchType" value="PubMedIDs" />
         <input type="submit" value="Fetch" />
     </form>
 </div>

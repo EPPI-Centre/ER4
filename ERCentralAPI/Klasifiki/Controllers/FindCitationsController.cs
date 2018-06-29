@@ -9,7 +9,7 @@ using PubmedImport;
 
 namespace Klasifiki.Controllers
 {
-    public class FindByPubMedIDsController : Controller
+    public class FindCitationsController : Controller
     {
         // GET: FindByPubMedIDs
         public ActionResult Index()
@@ -32,46 +32,57 @@ namespace Klasifiki.Controllers
         // POST: FindByPubMedIDs/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Fetch([FromForm] string IdsText)
+        public ActionResult Fetch([FromForm] string IdsText, string searchType)
         {
-            try
+            if (searchType == "PubMedSearch")
             {
-                //first, let's make sure what we have is comma delimited and change delimiter to '¬'
-                IdsText = IdsText.Trim();
-                //if (IdsText.Length > 10 && IdsText.Contains(' ') && IdsText.Contains(','))
-                //{
-                    IdsText = IdsText.Replace(',', '¬');
-                //}
-                //second, let's check our string makes some sense...
-                string[] splitted = IdsText.Split('¬');
-                double estMin = IdsText.Length / 9.5;
-                double estMax = IdsText.Length / 4;
-                if (splitted.Length < estMin || splitted.Length > estMax)
-                {//something is wrong, don't try...
-                    return View();
-                }
-                List<CitationRecord> results = new List<CitationRecord>();
-                using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-                {
-                    results = GetCitationRecordByPMID(conn, IdsText);
-                }
-                return View(results);
+                return Redirect("~/Home");
             }
-            catch
+            else if (searchType == "PubMedIDs")
             {
-                return View();
+                try
+                {
+                    //first, let's make sure what we have is comma delimited and change delimiter to '¬'
+                    IdsText = IdsText.Trim();
+                    //if (IdsText.Length > 10 && IdsText.Contains(' ') && IdsText.Contains(','))
+                    //{
+                    IdsText = IdsText.Replace(',', '¬');
+                    //}
+                    //second, let's check our string makes some sense...
+                    string[] splitted = IdsText.Split('¬');
+                    double estMin = IdsText.Length / 9.5;
+                    double estMax = IdsText.Length / 4;
+                    if (splitted.Length < estMin || splitted.Length > estMax)
+                    {//something is wrong, don't try...
+                        return View();
+                    }
+                    List<ReferenceRecord> results = new List<ReferenceRecord>();
+                    using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+                    {
+                        results = GetReferenceRecordByPMID(conn, IdsText);
+                    }
+                    return View(results);
+                }
+                catch
+                {
+                    return Redirect("~/Home"); //View();
+                }
+            }
+            else
+            {
+                return Redirect("~/Home");
             }
         }
-        private static List<CitationRecord> GetCitationRecordByPMID(SqlConnection conn, string pubmedIDs)
+        private static List<ReferenceRecord> GetReferenceRecordByPMID(SqlConnection conn, string pubmedIDs)
         {
-            List<CitationRecord> res = new List<CitationRecord>();
+            List<ReferenceRecord> res = new List<ReferenceRecord>();
             SqlParameter extName = new SqlParameter("@ExternalIDName", "pubmed");
             SqlParameter pmid = new SqlParameter("@ExternalIDs", pubmedIDs);
             try
             {
                 using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_findCitationsByExternalIDs", extName, pmid))
                 {
-                    while (reader.Read()) res.Add(CitationRecord.GetCitationRecord(reader));
+                    while (reader.Read()) res.Add(ReferenceRecord.GetReferenceRecord(reader));
                 }
             }
             catch (Exception e)

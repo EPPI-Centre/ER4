@@ -9,9 +9,9 @@
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helper\Logger.cs" />
     <Compile Include="..\PubmedImport\Helpers\PubMedXMLParser.cs" Link="Helper\PubMedXMLParser.cs" />
     <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helper\SQLHelper.cs" />
-    <Compile Include="..\PubmedImport\Models\CitationRecord.cs" Link="Models\CitationRecord.cs" />
     <Compile Include="..\PubmedImport\Models\FOAFPerson.cs" Link="Models\FOAFPerson.cs" />
     <Compile Include="..\PubmedImport\Models\KeywordObject.cs" Link="Models\KeywordObject.cs" />
+    <Compile Include="..\PubmedImport\Models\ReferenceRecord .cs" Link="Models\ReferenceRecord .cs" />
   </ItemGroup>
 
   <ItemGroup>

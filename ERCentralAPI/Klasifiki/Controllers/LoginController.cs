@@ -43,7 +43,7 @@ namespace Klasifiki.Controllers
                 if (!CorrectCredentials) return Index(); //DoFail();
                 ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
                 HttpContext.SignInAsync(user);
-                return Redirect("~/Home/About");
+                return Redirect("~/Home");
 
 
                 //var globalId = (from c in userIdentity.Claims

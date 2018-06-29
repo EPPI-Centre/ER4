@@ -10,7 +10,7 @@ namespace EPPIDataServices.Helpers
 {
     public static class PubMedXMLParser
     {
-		public static CitationRecord ParseCitation(XElement xCit)
+		public static ReferenceRecord ParseCitation(XElement xCit)
 		{
 			//Type = RisCode.GetType(doc).DisplayName();
 			//Title = doc.GetData(RisCode.Title);
@@ -35,7 +35,7 @@ namespace EPPIDataServices.Helpers
 
 			//SetSearchText();
 
-			CitationRecord res = new CitationRecord();
+			ReferenceRecord res = new ReferenceRecord();
             //hardcoded == not good!
             res.Type = "Journal Article";
             res.TypeID = 14;

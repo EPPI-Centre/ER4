@@ -11,8 +11,8 @@ namespace PubmedImport
 	//http://xmlns.com/foaf/spec/
 
 
-	public class CitationRecord 
-	{
+	public class ReferenceRecord
+    {
         public Int64 CitationId { get; set; }
 
 		//http://purl.org/dc/terms/title
@@ -135,7 +135,7 @@ namespace PubmedImport
         public int PubmedPmidVersion { get; set; }
         public double? Arrowsmith_RCT_Score { get; set; }
 
-        public CitationRecord()
+        public ReferenceRecord()
 		{
 			Title = "";
 			Abstract = "";
@@ -469,9 +469,9 @@ namespace PubmedImport
                 rank++;
             }
         }
-        public static CitationRecord GetCitationRecord(SqlDataReader reader)
+        public static ReferenceRecord GetReferenceRecord(SqlDataReader reader)
         {
-            CitationRecord res = new CitationRecord();
+            ReferenceRecord res = new ReferenceRecord();
             res.CitationId = (Int64)reader["REFERENCE_ID"];
             res.Type = reader["TYPE_NAME"].ToString();
             res.TypeID = (int)reader["TYPE_ID"];
@@ -561,7 +561,12 @@ namespace PubmedImport
             else res.Arrowsmith_RCT_Score = -1;
             return res;
         }
-        public static List<DataTable> ToDataTables(List<CitationRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)
+        public static List<ReferenceRecord> GetReferenceRecordList(SqlDataReader reader)
+        {
+            List<ReferenceRecord> res = new List<ReferenceRecord>();
+            return res;
+        }
+        public static List<DataTable> ToDataTables(List<ReferenceRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)
         {
             List<DataTable> Result = new List<DataTable>();
             if (citations == null || citations.Count == 0) return Result;
@@ -650,7 +655,7 @@ namespace PubmedImport
             tCol = new DataColumn("RANK", inttype);
             TB_REFERENCE_AUTHOR.Columns.Add(tCol);
 
-            foreach (CitationRecord cit in citations)
+            foreach (ReferenceRecord cit in citations)
             {
                 Ref_seed++;
                 DataRow row = TB_REFERENCE.NewRow();
