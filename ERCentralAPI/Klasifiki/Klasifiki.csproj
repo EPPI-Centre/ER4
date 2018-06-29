@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="..\PubmedImport\Extensions\StringExtensions.cs" Link="Extensions\StringExtensions.cs" />
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helper\Logger.cs" />
+    <Compile Include="..\PubmedImport\Helpers\PubMedXMLParser.cs" Link="Helper\PubMedXMLParser.cs" />
     <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helper\SQLHelper.cs" />
     <Compile Include="..\PubmedImport\Models\CitationRecord.cs" Link="Models\CitationRecord.cs" />
     <Compile Include="..\PubmedImport\Models\FOAFPerson.cs" Link="Models\FOAFPerson.cs" />

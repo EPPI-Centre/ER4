@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace PubmedImport
+namespace EPPIDataServices.Helpers
 {
     public static class PubMedXMLParser
     {
