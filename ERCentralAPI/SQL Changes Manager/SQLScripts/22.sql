@@ -1793,3 +1793,41 @@ END
 SET NOCOUNT OFF
 
 GO
+
+
+--Patrick stored procedure create for RCT Tagger additional
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]    Script Date: 29/06/2018 17:09:14 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]
+	-- Add the parameters for the stored procedure here
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	SELECT [RCT_FILE_NAME], [TB_RCT_UPDATE_FILE].RCT_UPLOAD_DATE
+	FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+	WHERE [RCT_FILE_NAME] LIKE '%TmpFiles%'
+	ORDER BY [RCT_UPLOAD_DATE] DESC
+ 
+	SET NOCOUNT OFF
+END
+
+GO
+
+
+
