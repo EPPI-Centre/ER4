@@ -436,23 +436,42 @@ namespace PubmedImport
             return fileName;
         }
 
-        private static List<string> GetYEARLYFilesUploaded()
+        //private static List<string> GetYEARLYFilesUploaded()
+        //{
+        //    List<string> fileNames = new List<string>();
+        //    using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+        //    {
+        //        conn.Open();
+        //        var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+        //        if (res.HasRows)
+        //        {
+        //            while (res.Read())
+        //            {
+        //                fileNames.Add(res["RCT_FILE_NAME"].ToString());
+        //            }
+        //            res.Close();
+        //        }
+        //    }
+        //    return fileNames;
+        //}
+
+        private static string LastYEARLYFileUploaded()
         {
-            List<string> fileNames = new List<string>();
+            string fileName = "";
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
                 conn.Open();
-                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
                 if (res.HasRows)
                 {
                     while (res.Read())
                     {
-                        fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                        fileName = res["RCT_FILE_NAME"].ToString();
                     }
                     res.Close();
                 }
             }
-            return fileNames;
+            return fileName;
         }
 
         private static List<string> CheckUpdateFiles()
@@ -520,7 +539,20 @@ namespace PubmedImport
             List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
             List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
 
-            // Fixing this code currently
+            //List<string> ExistingYearlyFiles = GetYEARLYFilesUploaded();
+
+            string lastUploadedYearlyFile = LastYEARLYFileUploaded();
+
+            // Check if the yearly files are already downloaded...
+            int latestYearDownloaded = int.Parse(GetYear(lastUploadedYearlyFile));
+
+            //only get latest four digit year of yearly files of which there should be two
+            int linkYear = int.Parse(GetYear(yearlyLinks.First()));
+
+            if (linkYear > latestYearDownloaded)
+            {
+                yearlyLinks.ForEach( x => Yearly_Compressed_Files(x));
+            }
 
             string strDate = LastUPDATEFileUploaded();
 
