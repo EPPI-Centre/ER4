@@ -32,6 +32,8 @@ namespace PubmedImport
 
         private static string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
 
+        private static string yearlyfileBaseURL = $"http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/";
+
         private static string domainURL = $"http://arrowsmith.psych.uic.edu";
 
         private static DateTime GetDate(string str)
@@ -184,6 +186,10 @@ namespace PubmedImport
                         date = Convert.ToDateTime(tempStr);
                     }
 
+                    int start = filename.LastIndexOf("/");
+                    int length = filename.Length;
+                    filename = filename.Substring(start + 1, length - start-1);
+
                     sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
                     sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
                     sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
@@ -215,8 +221,8 @@ namespace PubmedImport
             int startStr = yearlyFile.LastIndexOf("/");
             yearlyFile = yearlyFile.Substring(startStr + 1, endStr - startStr - 1);
 
-            string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length - 3);
-            FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile);
+            string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length-3);
+            FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile );
             if (!fileToBeUnGZipped.Exists)
             {
                 return "null";
@@ -259,7 +265,7 @@ namespace PubmedImport
         {
             bool success = false;
 
-            string url = domainURL + filename + "";
+            string url = yearlyfileBaseURL + filename + "";
             Uri urlCheck = new Uri(url);
 
             var remainingTries = maxRequestTries;
@@ -299,15 +305,7 @@ namespace PubmedImport
                 try
                 {
                     string filePath = TmpFolderPath + "\\";
-                    string decompressedFile = "";
-                    if (!filename.Contains("Files"))
-                    {
-                        decompressedFile = filePath + filename;
-                    }
-                    else
-                    {
-                        decompressedFile = filename;
-                    }
+                    string decompressedFile = filename;
 
                     using (var sr = new StreamReader(decompressedFile))
                     {
@@ -362,9 +360,6 @@ namespace PubmedImport
 
                             int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", parameters);
 
-                            //===============================================
-                            Logger.LogMessageLine("Done " + i * skip + " records...");
-
                             transaction.Commit();
 
                         }
@@ -374,6 +369,7 @@ namespace PubmedImport
                             transaction.Rollback();
                         }
                     }
+                    Logger.LogMessageLine("The total number of scores updated is: " + recs.Count());
 
                 }
                 catch (Exception ex)
@@ -471,7 +467,7 @@ namespace PubmedImport
 
         public static void RunRCTTaggerImport()
         {
-            DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("TmpFiles");
+            DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
            
             Task<List<string>> task = GetHTMLLinksAsync(baseURL);
@@ -487,15 +483,38 @@ namespace PubmedImport
             List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
             List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
 
-            string lastUploadedYearlyFile = LastYEARLYFileUploaded();
-
-            int latestYearDownloaded = int.Parse(GetYear(lastUploadedYearlyFile));
-
-            int linkYear = int.Parse(GetYear(yearlyLinks.First()));
-
-            if (linkYear > latestYearDownloaded)
+            List<string> yearlyFilesDownloadedFullPath = GetAllYearlyFiles();
+            List<string> yearlyFileNames = new List<string>();
+            List<string> yearlyLinksShort = new List<string>();
+            int cnt = 0;
+            foreach (var item in yearlyLinks)
             {
-                yearlyLinks.ForEach( x => Yearly_Compressed_Files(x));
+                int start = item.LastIndexOf("/");
+                int length = item.Length;
+                string tmpStr = item.Substring(start + 1, length - start - 4);
+                yearlyLinksShort.Add(tmpStr);
+                cnt++;
+            }
+            cnt = 0;
+            foreach (var item in yearlyFilesDownloadedFullPath)
+            {
+                int start = item.LastIndexOf("/");
+                int length = item.Length;
+                string tmpStr = item.Substring(start + 1, length - start - 1);
+                yearlyFileNames.Add(tmpStr);
+                cnt++;
+            }
+
+            string lastUploadedYearlyFile = LastYEARLYFileUploaded();
+            cnt = 0;
+            foreach (var item in yearlyLinksShort)
+            {
+                string present = yearlyFileNames.FirstOrDefault(s => s.Equals(item));
+                if (present == null)
+                {
+                    Yearly_Compressed_Files(item + ".gz");
+                }
+                cnt++;
             }
 
             string strDate = LastUPDATEFileUploaded();
@@ -510,6 +529,24 @@ namespace PubmedImport
 
         }
 
+        private static List<string> GetAllYearlyFiles()
+        {
+            List<string> fileNames = new List<string>();
+            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            {
+                conn.Open();
+                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+                if (res.HasRows)
+                {
+                    while (res.Read())
+                    {
+                        fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                    }
+                    res.Close();
+                }
+            }
+            return fileNames;
+        }
     }
 
     public class RCT_Tag
