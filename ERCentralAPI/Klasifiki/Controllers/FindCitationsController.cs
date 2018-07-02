@@ -59,27 +59,33 @@ namespace Klasifiki.Controllers
                 {
                     //first, let's make sure what we have is comma delimited and change delimiter to '¬'
                     SearchString = SearchString.Trim();
+                    ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
+                    if (results.SearchString.Length > 10 && !results.SearchString.Contains(','))
+                    {
+                        return Redirect("~/Home");
+                    }
                     //if (IdsText.Length > 10 && IdsText.Contains(' ') && IdsText.Contains(','))
                     //{
-                    SearchString = SearchString.Replace(',', '¬');
+                    //       SearchString = SearchString.Replace(',', '¬');
                     //}
                     //second, let's check our string makes some sense...
-                    string[] splitted = SearchString.Split('¬');
+                    SearchString = SearchString.Replace(',', '¬');
+                    string[] splitted = results.ListOfIDs.Split('¬');
                     double estMin = SearchString.Length / 9.5;
                     double estMax = SearchString.Length / 4;
                     if (splitted.Length < estMin || splitted.Length > estMax)
                     {//something is wrong, don't try...
                         return Redirect("~/Home");
                     }
-                    ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
                     using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                     {
-                        results.Results = GetReferenceRecordByPMID(conn, SearchString);
+                        results.Results = GetReferenceRecordsByPMIDs(conn, SearchString);
                     }
                     return View(results);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Program.Logger.LogException(e, "Error fetching list of type:" + searchType + ".");
                     return Redirect("~/Home"); //View();
                 }
             }
@@ -88,7 +94,7 @@ namespace Klasifiki.Controllers
                 return Redirect("~/Home");
             }
         }
-        private static List<ReferenceRecord> GetReferenceRecordByPMID(SqlConnection conn, string pubmedIDs)
+        private static List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
             SqlParameter extName = new SqlParameter("@ExternalIDName", "pubmed");
@@ -102,8 +108,7 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                Program.Logger.LogException(e, "Error fetching existing ref and/or creating local object.");
-                
+                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
             }
             return res;
         }
@@ -179,63 +184,89 @@ namespace Klasifiki.Controllers
             string ids = "";
             List<XElement> IdList = xResponse.Element("IdList").Elements("Id").ToList();
             if (IdList != null && IdList.Count > 0)
-            { foreach (var item in IdList)
+            {
+                foreach (var item in IdList)
                 {
                     ids += item.Value + "¬";
                 }
                 ids = ids.Trim('¬');
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                 {
-                    res = GetReferenceRecordByPMID(conn, ids);
+                    res = GetReferenceRecordsByPMIDs(conn, ids);
                 }
             }
             return res;
         }
 
-        // GET: FindByPubMedIDs/Edit/5
-        public ActionResult Edit(int id)
+        // POST: FindByPubMedIDs/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ReFetch([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
         {
-            return View();
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_RCT_Score).ToList();
+            }
+            return View("Fetch", results);
+        }
+        private static List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
+        {
+            List<ReferenceRecord> res = new List<ReferenceRecord>();
+            SqlParameter RefIDs = new SqlParameter("@RefIDs", refIDs);
+            try
+            {
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_findCitationsByReferenceIDs", RefIDs))
+                {
+                    res = ReferenceRecord.GetReferenceRecordList(reader);
+                }
+            }
+            catch (Exception e)
+            {
+                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
+            }
+            return res;
         }
 
         // POST: FindByPubMedIDs/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Edit(int id, IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add update logic here
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
 
-        // GET: FindByPubMedIDs/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+        //// GET: FindByPubMedIDs/Delete/5
+        //public ActionResult Delete(int id)
+        //{
+        //    return View();
+        //}
 
-        // POST: FindByPubMedIDs/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
+        //// POST: FindByPubMedIDs/Delete/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Delete(int id, IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add delete logic here
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
     }
 }
