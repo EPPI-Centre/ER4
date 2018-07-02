@@ -38,7 +38,7 @@ namespace PubmedImport
 
         private static DateTime GetDate(string str)
         {
-
+            // Make a check 
             DateTime curr = (DateTime.Parse(Regex.Match(str, @"\d{4}-\d{2}-\d{2}").Value));
             loMonth = curr.Month;
             upMonth = DateTime.Now.Month;
@@ -170,22 +170,19 @@ namespace PubmedImport
 
                     // the date field needs to change based on whether it is a yearky or weekly file
                     DateTime date = DateTime.Now;
-                    if (filename.Count(Char.IsDigit) > 6)
+                    int tmpStart = filename.LastIndexOf("rct_predictions");
+                    int fullLength = filename.Length;
+                    string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
+                    if (tmpStr.Count(Char.IsDigit) > 6)
                     {
-                        int tmpStart = filename.LastIndexOf("rct_predictions");
-                        int fullLength = filename.Length;
-                        string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
                         date = Convert.ToDateTime(GetDate(tmpStr));
                     }
                     else
                     {
-                        int tmpStart = filename.LastIndexOf("rct_predictions");
-                        int fullLength = filename.Length;
-                        string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
                         string tempStr = GetYear(tmpStr) + "-12-30";
                         date = Convert.ToDateTime(tempStr);
                     }
-
+                    
                     int start = filename.LastIndexOf("/");
                     int length = filename.Length;
                     filename = filename.Substring(start + 1, length - start-1);
