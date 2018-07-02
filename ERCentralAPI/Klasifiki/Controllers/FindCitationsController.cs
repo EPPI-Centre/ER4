@@ -41,9 +41,18 @@ namespace Klasifiki.Controllers
         // POST: FindByPubMedIDs/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Fetch([FromForm] string SearchString, string searchType)
+        public ActionResult Fetch([FromForm] string SearchString, string SearchMethod, string ListOfIDs)
         {
-            if (searchType == "PubMedSearch")
+            if (ListOfIDs != null && ListOfIDs.Length >0 && ListOfIDs.Contains("¬"))
+            {
+                ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
+                using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+                {
+                    results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                }
+                return View("Fetch", results);
+            }
+            else if (searchType == "PubMedSearch")
             {
                 if (SearchString.Trim().Length > 0)
                 {
@@ -94,6 +103,84 @@ namespace Klasifiki.Controllers
                 return Redirect("~/Home");
             }
         }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Fetch([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        //{
+        //    ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+        //    using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+        //    {
+        //        results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+        //        results.Results = results.Results.OrderBy(x => x.Title).ToList();
+        //    }
+        //    return View("Fetch", results);
+        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SortByTitle([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderBy(x => x.Title).ToList();
+            }
+            return View("Fetch", results);
+        }
+        public ActionResult SortByYear([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderByDescending(x => x.PublicationYear).ToList();
+            }
+            return View("Fetch", results);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SortByScore([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_RCT_Score).ToList();
+            }
+            return View("Fetch", results);
+        }
+        private static List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
+        {
+            List<ReferenceRecord> res = new List<ReferenceRecord>();
+            SqlParameter RefIDs = new SqlParameter("@RefIDs", refIDs);
+            try
+            {
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_findCitationsByReferenceIDs", RefIDs))
+                {
+                    res = ReferenceRecord.GetReferenceRecordList(reader);
+                }
+            }
+            catch (Exception e)
+            {
+                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
+            }
+            return res;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ViewGraph([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+            }
+            return View("FetchGraph", results);
+        }
+
+
+
+
         private static List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
@@ -197,37 +284,8 @@ namespace Klasifiki.Controllers
             }
             return res;
         }
-
-        // POST: FindByPubMedIDs/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ReFetch([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
-        {
-            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
-            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-            {
-                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
-                results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_RCT_Score).ToList();
-            }
-            return View("Fetch", results);
-        }
-        private static List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
-        {
-            List<ReferenceRecord> res = new List<ReferenceRecord>();
-            SqlParameter RefIDs = new SqlParameter("@RefIDs", refIDs);
-            try
-            {
-                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_findCitationsByReferenceIDs", RefIDs))
-                {
-                    res = ReferenceRecord.GetReferenceRecordList(reader);
-                }
-            }
-            catch (Exception e)
-            {
-                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
-            }
-            return res;
-        }
+        
+        
 
         // POST: FindByPubMedIDs/Edit/5
         //[HttpPost]

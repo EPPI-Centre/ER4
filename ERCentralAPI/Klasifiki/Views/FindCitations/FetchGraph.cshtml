@@ -1,0 +1,60 @@
+﻿@model ReferenceListResult
+
+@{
+    ViewData["Title"] = "Fetch";
+}
+<form method="post" action="~/FindCitations/Fetch">
+    <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
+    <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
+    <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
+
+    <h2>Scores Distribution</h2> <button class="btn-link" type="submit" value="Back to Table View">Back to List</button>
+
+    <div class="row">
+        Your search was
+        @{
+            if (Model.SearchMethod == "PubMedSearch")
+            {<span>a PubMed search.</span>}
+            else if (Model.SearchMethod == "PubMedIDs")
+            {<span>a search via PubMedIDs.</span>}
+        }
+    </div>
+    <div class="row">
+        Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
+    </div>
+    <div class="row">
+
+
+    </div>
+</form>
+<div class="row">
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript">
+
+        window.onload = function () {
+            var chart = new CanvasJS.Chart("chartContainer", {
+                theme: "theme2",
+                animationEnabled: true,
+                title: {
+                    text: "RCT Scores Distribution:"
+                },
+                data: [
+                    {
+                        type: "column",
+                        dataPoints: [
+                            @foreach(var lab in Model.DataPoints)
+                            {
+                                @:{ y: @lab.Value , label: '@lab.Key' },
+                            }
+                            ]
+
+                    }
+                ]
+            });
+            chart.render();
+        };
+    </script>
+    <div id="chartContainer" class="row" style="height:350px;"></div>
+
+</div>
+

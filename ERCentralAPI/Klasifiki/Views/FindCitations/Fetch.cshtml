@@ -3,84 +3,43 @@
 @{
     ViewData["Title"] = "Fetch";
 }
+<form method="post" action="~/FindCitations">
+    <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
+    <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
+    <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
+    
+    <h2>Fetch</h2><button class="btn-link " type="submit" value="View Graph" formaction="ViewGraph">View Graph</button>
 
-<h2>Fetch</h2>
-
-@*<p>
-        <a asp-action="Create">Create New</a>
-    </p>*@
-<div class="row">
-    Your search was
-    @{
-        if (Model.SearchMethod == "PubMedSearch")
-        {<span>a PubMed search.</span>}
-        else if (Model.SearchMethod == "PubMedIDs")
-        {<span>a search via PubMedIDs.</span>}
-     }
-</div>
-<div class="row">
-    Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
-</div>
-<div class="row">
-    <form method="post" action="~/FindCitations/ReFetch">
-        <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
-        <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
-        <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
-        <input type="submit" value="Sort By RCT score" />
-    </form>
-</div>
-<div class="row">
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script type="text/javascript">
-
-        window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainer", {
-                theme: "theme2",
-                animationEnabled: true,
-                title: {
-                    text: "RCT Scores Distribution:"
-                },
-                data: [
-                    {
-                        type: "column",
-                        dataPoints: [
-                            @foreach(var lab in Model.DataPoints)
-                            {
-                                @:{ y: @lab.Value , label: '@lab.Key' },
-                            }
-                            ]
-                        
-                    }
-                ]
-            });
-            chart.render();
-        };
-    </script>
-    <div id="chartContainer" class="row" style="height:350px;"></div>
-    @*@{
-            var myChart = new System.Web.Helpers(width: 600, height: 400)
-                .AddTitle("Arrowsmith Distribution Scores")
-                .AddSeries(
-                    name: "Distribution",
-                    xValue: Model.GraphLabels,
-                    yValues: Model.GraphValues)
-                .Write();
-        }*@
-</div>
- <table class="table">
+    <div class="row">
+        Your search was
+        @{
+            if (Model.SearchMethod == "PubMedSearch")
+            {<span>a PubMed search.</span>}
+            else if (Model.SearchMethod == "PubMedIDs")
+            {<span>a search via PubMedIDs.</span>}
+        }
+    </div>
+    <div class="row">
+        Your search was:
+    </div>
+    <div class="row" style="border:1px dotted black">@Model.SearchString</div>.
+    <table class="table">
         <thead>
             <tr>
                 <th>
                     EPPI-ID
                 </th>
                 <th>
-                    Title
+                    Title <button class="btn-link " type="submit" value="Sort" formaction="SortByTitle">↑↓</button>
                 </th>
                 @*<th>
                         @Html.DisplayNameFor(model => model.Abstract)
                     </th>*@
                 <th>
                     Short Title
+                </th>
+                <th>
+                    Year <button class="btn-link " type="submit" value="Sort" formaction="SortByYear">↑↓</button>
                 </th>
                 @*<th>
                         @Html.DisplayNameFor(model => model.CitationText)
@@ -93,9 +52,6 @@
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.AuthorsString)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.PublicationYear)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.StartPage)
@@ -158,7 +114,8 @@
                         @Html.DisplayNameFor(model => model.PubmedPmidVersion)
                     </th>*@
                 <th>
-                    Arrowsmith RCT Score
+                    Arrowsmith RCT Score <button class="btn-link " type="submit" value="Sort" formaction="SortByScore">↑↓</button>
+
                 </th>
                 <th>
                     PubMed ID
@@ -182,6 +139,9 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.ShortTitle)
                     </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PublicationYear)
+                    </td>
                     @*<td>
                             @Html.DisplayFor(modelItem => item.CitationText)
                         </td>
@@ -194,9 +154,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.AuthorsString)
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PublicationYear)
-                        </td>
+
                         <td>
                             @Html.DisplayFor(modelItem => item.StartPage)
                         </td>
@@ -281,3 +239,4 @@
         <br />
         <br />
     </table>
+</form>
