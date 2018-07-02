@@ -30,7 +30,6 @@ BEGIN
 END
 
 
-USE [DataService]
 GO
 /****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]    Script Date: 02/07/2018 12:35:17 ******/
 SET ANSI_NULLS ON
