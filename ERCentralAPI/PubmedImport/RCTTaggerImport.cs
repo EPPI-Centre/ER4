@@ -333,7 +333,7 @@ namespace PubmedImport
                 }
                 catch (Exception e)
                 {
-                    Logger.LogException(e, "");
+                    Logger.LogException(e, "HTTP request error");
                     exceptions.Add(e);
                 }
             }
@@ -487,7 +487,7 @@ namespace PubmedImport
             string fileName = "";
             try
             {
-                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+                using (SqlConnection conn = new SqlConnection("Server=localhost; Database = DataService; Integrated Security = True; "))
                 {
                     conn.Open();
                     var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
@@ -519,37 +519,6 @@ namespace PubmedImport
 
         }
                
-        private static string LastYEARLYFileUploaded()
-        {
-            string fileName = "";
-            try
-            {
-                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
-                {
-                    conn.Open();
-                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
-                    if (res.HasRows)
-                    {
-                        while (res.Read())
-                        {
-                            fileName = res["CntOccuranceChars"].ToString();
-                        }
-                        res.Close();
-                    }
-                }
-            }
-            catch (SqlException sqlex)
-            {
-                Logger.LogSQLException(sqlex, "");
-
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex, "");
-
-            }
-            return fileName;
-        }
 
         public static void RunRCTTaggerImport()
         {
