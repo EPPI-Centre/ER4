@@ -179,9 +179,10 @@ namespace PubmedImport
             {
                 conn.Open();
                 SqlTransaction transaction = conn.BeginTransaction();
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
                 try
                 {
-                    List<SqlParameter> sqlParams = new List<SqlParameter>();
+
                     int start = filename.LastIndexOf("/");
                     int length = filename.Length;
                     filename = filename.Substring(start + 1, length - start - 1);
@@ -230,7 +231,12 @@ namespace PubmedImport
                     transaction.Commit();
                    
                 }
-                catch (Exception ex)
+                catch (SqlException sqlex)
+                {
+                    Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
+                    transaction.Rollback();
+                }
+                catch(Exception ex)
                 {
                     Logger.LogException(ex, "");
                     transaction.Rollback();
@@ -377,10 +383,11 @@ namespace PubmedImport
                     }
                     for (int i = 1; i < divisor; i++)
                     {
+                        List<SqlParameter> sqlParams = new List<SqlParameter>();
                         transaction = conn.BeginTransaction();
                         try
                         {
-                            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
 
                             sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList())));
                             sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
@@ -392,6 +399,11 @@ namespace PubmedImport
 
                             transaction.Commit();
 
+                        }
+                        catch (SqlException sqlex)
+                        {
+                            Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
+                            transaction.Rollback();
                         }
                         catch (Exception ex)
                         {
@@ -456,47 +468,76 @@ namespace PubmedImport
         private static string LastUPDATEFileUploaded()
         {
             string fileName = "";
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
+                    if (res.HasRows)
                     {
-                        fileName = res["RCT_FILE_NAME"].ToString();
+                        while (res.Read())
+                        {
+                            fileName = res["RCT_FILE_NAME"].ToString();
+                        }
+                        res.Close();
                     }
-                    res.Close();
-                }
-                else
-                {
-                    fileName = "1900-01-01";
+                    else
+                    {
+                        fileName = "1900-01-01";
+                    }
                 }
             }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
+            }
             return fileName;
+
         }
                
         private static string LastYEARLYFileUploaded()
         {
             string fileName = "";
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
+                    if (res.HasRows)
                     {
-                        fileName = res["CntOccuranceChars"].ToString();
+                        while (res.Read())
+                        {
+                            fileName = res["CntOccuranceChars"].ToString();
+                        }
+                        res.Close();
                     }
-                    res.Close();
                 }
+            }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
             }
             return fileName;
         }
 
         public static void RunRCTTaggerImport()
         {
+            // Warning this a terrible way to do this; if Arrowsmith change the format
+            // of their links all of this will break.
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
            
@@ -562,19 +603,33 @@ namespace PubmedImport
 
         private static List<string> GetAllYearlyFiles()
         {
+            
             List<string> fileNames = new List<string>();
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+                    if (res.HasRows)
                     {
-                        fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                        while (res.Read())
+                        {
+                            fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                        }
+                        res.Close();
                     }
-                    res.Close();
                 }
+            }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
             }
             return fileNames;
         }
