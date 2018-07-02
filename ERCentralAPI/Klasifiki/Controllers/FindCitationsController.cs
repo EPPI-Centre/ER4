@@ -45,30 +45,30 @@ namespace Klasifiki.Controllers
         {
             if (ListOfIDs != null && ListOfIDs.Length >0 && ListOfIDs.Contains("¬"))
             {
-                ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
+                ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
                 using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                 {
                     results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
                 }
                 return View("Fetch", results);
             }
-            else if (searchType == "PubMedSearch")
+            else if (SearchMethod == "PubMedSearch")
             {
                 if (SearchString.Trim().Length > 0)
                 {
-                    ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
+                    ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
                     results.Results = GetReferenceRecordByPubMedSearch(SearchString);
                     return View(results);
                 }
                 else return Redirect("~/Home");
             }
-            else if (searchType == "PubMedIDs")
+            else if (SearchMethod == "PubMedIDs")
             {
                 try
                 {
                     //first, let's make sure what we have is comma delimited and change delimiter to '¬'
                     SearchString = SearchString.Trim();
-                    ReferenceListResult results = new ReferenceListResult(SearchString, searchType);
+                    ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
                     if (results.SearchString.Length > 10 && !results.SearchString.Contains(','))
                     {
                         return Redirect("~/Home");
@@ -94,7 +94,7 @@ namespace Klasifiki.Controllers
                 }
                 catch (Exception e)
                 {
-                    Program.Logger.LogException(e, "Error fetching list of type:" + searchType + ".");
+                    Program.Logger.LogException(e, "Error fetching list of type:" + SearchMethod + ".");
                     return Redirect("~/Home"); //View();
                 }
             }
