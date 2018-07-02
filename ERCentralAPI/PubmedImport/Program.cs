@@ -28,8 +28,11 @@ namespace PubmedImport
 		private static string SingleFile = "";
 		private static string FTPUpdatesFolder = "";
 		private static string FTPBaselineFolder = "";
-		//public static string RavenHost = "";
-		public static SQLHelper SqlHelper = null;
+        internal static string ArrowsmithRCTbaseURL = "";
+        internal static string ArrowsmithRCTyearlyfileBaseURL = "";
+        internal static string ArrowsmithRCTBaselineFile = "";
+        //public static string RavenHost = "";
+        public static SQLHelper SqlHelper = null;
 		private static bool WaitOnExit = false;
         private static bool SaveLog = false;
         internal static EPPILogger Logger;
@@ -344,7 +347,10 @@ namespace PubmedImport
                 SqlHelper = new SQLHelper(configuration, Logger);
                 if (SqlHelper == null || SqlHelper.DataServiceDB == "")
 					throw new Exception("ERROR: could not get value for DatabaseName, please check appsettings.json file.");
-			}
+                ArrowsmithRCTbaseURL = configuration["AppSettings:ArrowsmithRCTbaseURL"];
+                ArrowsmithRCTyearlyfileBaseURL = configuration["AppSettings:ArrowsmithRCTyearlyfileBaseURL"];
+                ArrowsmithRCTBaselineFile = configuration["AppSettings:ArrowsmithRCTBaselineFile"];
+            }
 			catch (Exception e)
 			{
 				Program.Logger.LogMessageLine("");
