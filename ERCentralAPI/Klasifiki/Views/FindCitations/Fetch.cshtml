@@ -28,7 +28,45 @@
         <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
         <input type="submit" value="Sort By RCT score" />
     </form>
-    </div>
+</div>
+<div class="row">
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript">
+
+        window.onload = function () {
+            var chart = new CanvasJS.Chart("chartContainer", {
+                theme: "theme2",
+                animationEnabled: true,
+                title: {
+                    text: "Column Chart in ASP.Net MVC using CanvasJS"
+                },
+                data: [
+                    {
+                        type: "column",
+                        dataPoints: [
+                            @foreach(var lab in Model.DataPoints)
+                            {
+                                @:{ y: @lab.Value , label: '@lab.Key' },
+                            }
+                            ]
+                        
+                    }
+                ]
+            });
+            chart.render();
+        };
+    </script>
+    <div id="chartContainer" class="row" style="height:350px;"></div>
+    @*@{
+            var myChart = new System.Web.Helpers(width: 600, height: 400)
+                .AddTitle("Arrowsmith Distribution Scores")
+                .AddSeries(
+                    name: "Distribution",
+                    xValue: Model.GraphLabels,
+                    yValues: Model.GraphValues)
+                .Write();
+        }*@
+</div>
  <table class="table">
         <thead>
             <tr>
