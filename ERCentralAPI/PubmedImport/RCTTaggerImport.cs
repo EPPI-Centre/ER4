@@ -89,12 +89,28 @@ namespace PubmedImport
 
         private static string GetMonth(string str)
         {
-            return Regex.Match(str, @"\d{2}").Value;
+            try
+            {
+                return Regex.Match(str, @"\d{2}").Value;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                return "";
+            }
         }
 
         private static string GetDay(string str)
         {
-            return Regex.Match(str, @"\d{2}").Value;
+            try
+            { 
+                return Regex.Match(str, @"\d{2}").Value;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                return "";
+            }
         }
 
         private static void Yearly_Compressed_Files(string yearlyfile)
@@ -104,12 +120,8 @@ namespace PubmedImport
             string fileName = "";
             try
             {
-                // Get file from htmlLink
                 (res, fileName) = DownloadCSVFiles(yearlyfile);
-                if (res == false)
-                {
-                    return;
-                }
+                if (res == false){  return; }
             }
             catch (Exception ex)
             {
@@ -119,6 +131,12 @@ namespace PubmedImport
 
             Logger.LogMessageLine("Decompressing the yearly gz file");
             string decompressedYearlyFile = Decompress(yearlyfile);
+
+            if (decompressedYearlyFile is null)
+            {
+                Logger.LogMessageLine("Error with decompressing file");
+                return;
+            }
 
             Logger.LogMessageLine("Importing the yearly gz file into SQL");
             Import_RCT_Tagger_File(decompressedYearlyFile);
@@ -256,7 +274,7 @@ namespace PubmedImport
             FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile );
             if (!fileToBeUnGZipped.Exists)
             {
-                return "null";
+                return null;
             }
             unZippedFileName = unZippedFileName.Replace("\\", "//");
             Logger.LogMessageLine("Decompressing " + yearlyFile + "....");
@@ -315,7 +333,7 @@ namespace PubmedImport
                 }
                 catch (Exception e)
                 {
-                    Logger.LogException(e, "");
+                    Logger.LogException(e, "HTTP request error");
                     exceptions.Add(e);
                 }
             }
@@ -469,7 +487,7 @@ namespace PubmedImport
             string fileName = "";
             try
             {
-                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+                using (SqlConnection conn = new SqlConnection("Server=localhost; Database = DataService; Integrated Security = True; "))
                 {
                     conn.Open();
                     var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
@@ -501,37 +519,6 @@ namespace PubmedImport
 
         }
                
-        private static string LastYEARLYFileUploaded()
-        {
-            string fileName = "";
-            try
-            {
-                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
-                {
-                    conn.Open();
-                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
-                    if (res.HasRows)
-                    {
-                        while (res.Read())
-                        {
-                            fileName = res["CntOccuranceChars"].ToString();
-                        }
-                        res.Close();
-                    }
-                }
-            }
-            catch (SqlException sqlex)
-            {
-                Logger.LogSQLException(sqlex, "");
-
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex, "");
-
-            }
-            return fileName;
-        }
 
         public static void RunRCTTaggerImport()
         {
