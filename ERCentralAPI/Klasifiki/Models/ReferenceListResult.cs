@@ -12,14 +12,19 @@ namespace Klasifiki.Models
         public List<ReferenceRecord> Results { get; set; } = new List<ReferenceRecord>();
         public string SearchMethod { get;  }
         public string SearchString { get;  }
+        public string ListOfIDs
+        {
+            get
+            {
+                if (Results == null || Results.Count == 0) return "";
+                return string.Join('¬', Results.Select(x => x.CitationId));
+            }
+                
+        }//used to quickly re-fetch results when needed.
         public ReferenceListResult(string searchString, string searchMethod)
         {
             SearchMethod = searchMethod;
             SearchString = searchString;
-        }
-        public void BuildResultsList(SqlDataReader reader)
-        {
-
         }
     }
 }

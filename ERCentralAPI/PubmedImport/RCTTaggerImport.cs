@@ -427,7 +427,7 @@ namespace PubmedImport
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
                 conn.Open();
-                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
+                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
                 if (res.HasRows)
                 {
                     while (res.Read())
@@ -450,7 +450,7 @@ namespace PubmedImport
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
                 conn.Open();
-                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
+                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
                 if (res.HasRows)
                 {
                     while (res.Read())
@@ -531,7 +531,7 @@ namespace PubmedImport
             using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
             {
                 conn.Open();
-                var res = SqlHelper.ExecuteQuerySPNoParam(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
                 if (res.HasRows)
                 {
                     while (res.Read())
