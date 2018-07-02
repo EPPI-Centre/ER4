@@ -191,7 +191,7 @@ namespace PubmedImport
 
         private static void Log_Import_Job(string filename)
         {
-            Logger.LogMessageLine("Scores and PMIDs have been imported into SQL for the follwing file: " + filename);
+            Logger.LogMessageLine("Scores have been imported into SQL for the following file: " + filename);
 
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
@@ -388,9 +388,10 @@ namespace PubmedImport
                     double divisor = 0.0;
                     int skip = 0;
                     int page = 0;
+                    int done = 0;
                     if (recs.Count() < 1000)
                     {
-                        divisor = Math.Floor((double)recs.Count());
+                        divisor = 0;
                         page = recs.Count();
                     }
                     else
@@ -399,24 +400,21 @@ namespace PubmedImport
                         page = 1000;
                         skip = 1000;
                     }
-                    for (int i = 1; i < divisor; i++)
+                    for (int i = 0; i <= divisor; i++)
                     {
                         List<SqlParameter> sqlParams = new List<SqlParameter>();
                         transaction = conn.BeginTransaction();
                         try
                         {
 
-
-                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList())));
+                            List<string> tmpL = recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList();
+                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", tmpL)));
                             sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
 
-                            SqlParameter[] parameters = new SqlParameter[2];
-                            parameters = sqlParams.ToArray();
-
-                            int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", parameters);
+                            int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", sqlParams.ToArray());
 
                             transaction.Commit();
-
+                            done += tmpL.Count();
                         }
                         catch (SqlException sqlex)
                         {
@@ -429,7 +427,8 @@ namespace PubmedImport
                             transaction.Rollback();
                         }
                     }
-                    Logger.LogMessageLine("The total number of scores updated is: " + recs.Count());
+                    int todo = recs.Count();
+                    Logger.LogMessageLine("The total number of scores updated is: " + done);
 
                 }
                 catch (Exception ex)
