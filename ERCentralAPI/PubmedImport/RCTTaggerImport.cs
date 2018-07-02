@@ -30,11 +30,9 @@ namespace PubmedImport
 
         static string TmpFolderPath;
 
-        private static string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
+        //private static string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
 
-        private static string yearlyfileBaseURL = $"http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/";
-
-        private static string domainURL = $"http://arrowsmith.psych.uic.edu";
+        //private static string yearlyfileBaseURL = $"http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/";
 
         private static DateTime GetDate(string str)
         {
@@ -170,12 +168,12 @@ namespace PubmedImport
 
                     // the date field needs to change based on whether it is a yearky or weekly file
                     DateTime date = DateTime.Now;
-                    if (filename.Count(Char.IsDigit) > 6)
+                    if (filename == Program.ArrowsmithRCTBaselineFile)
                     {
                         int tmpStart = filename.LastIndexOf("rct_predictions");
                         int fullLength = filename.Length;
                         string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
-                        date = Convert.ToDateTime(GetDate(tmpStr));
+                        date = DateTime.Parse("31-12-2016");
                     }
                     else
                     {
@@ -265,7 +263,7 @@ namespace PubmedImport
         {
             bool success = false;
 
-            string url = yearlyfileBaseURL + filename + "";
+            string url = Program.ArrowsmithRCTyearlyfileBaseURL + filename + "";
             Uri urlCheck = new Uri(url);
 
             var remainingTries = maxRequestTries;
@@ -470,7 +468,7 @@ namespace PubmedImport
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
            
-            Task<List<string>> task = GetHTMLLinksAsync(baseURL);
+            Task<List<string>> task = GetHTMLLinksAsync(Program.ArrowsmithRCTbaseURL);
             task.Wait();
             List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
 
