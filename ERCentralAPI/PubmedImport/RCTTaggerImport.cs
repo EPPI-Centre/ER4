@@ -30,18 +30,35 @@ namespace PubmedImport
 
         static string TmpFolderPath;
 
-        //private static string baseURL = $"http://arrowsmith.psych.uic.edu/cgi-bin/arrowsmith_uic/rct_download.cgi";
-
-        //private static string yearlyfileBaseURL = $"http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/RCT_Tagger/";
+        static bool yearly = false;
 
         private static DateTime GetDate(string str)
         {
+            try
+            {
 
-            DateTime curr = (DateTime.Parse(Regex.Match(str, @"\d{4}-\d{2}-\d{2}").Value));
-            loMonth = curr.Month;
-            upMonth = DateTime.Now.Month;
+                int count = str.Count(Char.IsDigit);
+                if (count > 7)
+                {
+                    DateTime curr = (DateTime.Parse(Regex.Match(str, @"\d{4}-\d{2}-\d{2}").Value));
+                    loMonth = curr.Month;
+                    upMonth = DateTime.Now.Month;
 
-            return curr;
+                    return curr;
+                }
+                else
+                {
+                    string tmpStr =  Regex.Match(str, @"\d{4}").Value;
+                    DateTime tmpDate = DateTime.Parse("31-12-" + tmpStr);
+                    return tmpDate;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                return DateTime.Now;
+            }
         }
 
         private static string GetYear(string str)
@@ -162,35 +179,46 @@ namespace PubmedImport
             {
                 conn.Open();
                 SqlTransaction transaction = conn.BeginTransaction();
+                List<SqlParameter> sqlParams = new List<SqlParameter>();
                 try
                 {
-                    List<SqlParameter> sqlParams = new List<SqlParameter>();
-
-                    // the date field needs to change based on whether it is a yearky or weekly file
-                    DateTime date = DateTime.Now;
-                    if (filename == Program.ArrowsmithRCTBaselineFile)
-                    {
-                        int tmpStart = filename.LastIndexOf("rct_predictions");
-                        int fullLength = filename.Length;
-                        string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
-                        date = DateTime.Parse("31-12-2016");
-                    }
-                    else
-                    {
-                        int tmpStart = filename.LastIndexOf("rct_predictions");
-                        int fullLength = filename.Length;
-                        string tmpStr = filename.Substring(tmpStart + 1, fullLength - tmpStart - 1);
-                        string tempStr = GetYear(tmpStr) + "-12-30";
-                        date = Convert.ToDateTime(tempStr);
-                    }
 
                     int start = filename.LastIndexOf("/");
                     int length = filename.Length;
-                    filename = filename.Substring(start + 1, length - start-1);
+                    filename = filename.Substring(start + 1, length - start - 1);
+                    int count = filename.Count(Char.IsDigit);
+                   
+                    DateTime date = DateTime.Now;
+                    if (filename == Program.ArrowsmithRCTBaselineFile)
+                    {
+                        // long yearly file
+                        date = DateTime.Parse("31-12-2016");
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME",  filename + ".gz"));
+                        sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
+                        sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
+                    }
+                    else if (yearly == true)
+                    {
+                        //short yearly file
+                        string tempStr = GetYear(filename) + "-12-30";
+                        date = Convert.ToDateTime(tempStr);
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME",  filename + ".gz"));
+                        sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
+                        sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
 
-                    sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
-                    sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
-                    sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
+                    }
+                    else
+                    {
+                        start = filename.LastIndexOf("\\");
+                        length = filename.Length;
+                        filename = filename.Substring(start + 1, length - start - 1);
+                        //weekly file
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
+                        sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
+                        sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
+
+                    }
+
 
                     SqlParameter[] parameters = new SqlParameter[3];
                     parameters = sqlParams.ToArray();
@@ -203,7 +231,12 @@ namespace PubmedImport
                     transaction.Commit();
                    
                 }
-                catch (Exception ex)
+                catch (SqlException sqlex)
+                {
+                    Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
+                    transaction.Rollback();
+                }
+                catch(Exception ex)
                 {
                     Logger.LogException(ex, "");
                     transaction.Rollback();
@@ -263,7 +296,7 @@ namespace PubmedImport
         {
             bool success = false;
 
-            string url = Program.ArrowsmithRCTyearlyfileBaseURL + filename + "";
+            string url = Program.ArrowsmithRCTyearlyfileBaseURL + filename;
             Uri urlCheck = new Uri(url);
 
             var remainingTries = maxRequestTries;
@@ -302,7 +335,12 @@ namespace PubmedImport
                 conn.Open();
                 try
                 {
-                    string filePath = TmpFolderPath + "\\";
+
+                    if (!filename.Contains("\\") && !filename.Contains("//"))
+                    {
+                        filename = TmpFolderPath + "\\" + filename;
+                    }
+                    
                     string decompressedFile = filename;
 
                     using (var sr = new StreamReader(decompressedFile))
@@ -345,10 +383,11 @@ namespace PubmedImport
                     }
                     for (int i = 1; i < divisor; i++)
                     {
+                        List<SqlParameter> sqlParams = new List<SqlParameter>();
                         transaction = conn.BeginTransaction();
                         try
                         {
-                            List<SqlParameter> sqlParams = new List<SqlParameter>();
+
 
                             sqlParams.Add(new SqlParameter("@ids", string.Join(",", recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList())));
                             sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
@@ -360,6 +399,11 @@ namespace PubmedImport
 
                             transaction.Commit();
 
+                        }
+                        catch (SqlException sqlex)
+                        {
+                            Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
+                            transaction.Rollback();
                         }
                         catch (Exception ex)
                         {
@@ -377,7 +421,7 @@ namespace PubmedImport
                 finally
                 {
                     Log_Import_Job(filename);
-                    if (!filename.Contains("TmpFiles"))
+                    if (!filename.Contains("Tmpfiles"))
                     {
                         filename = TmpFolderPath + "\\" + filename;
                     }
@@ -424,47 +468,76 @@ namespace PubmedImport
         private static string LastUPDATEFileUploaded()
         {
             string fileName = "";
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
+                    if (res.HasRows)
                     {
-                        fileName = res["RCT_FILE_NAME"].ToString();
+                        while (res.Read())
+                        {
+                            fileName = res["RCT_FILE_NAME"].ToString();
+                        }
+                        res.Close();
                     }
-                    res.Close();
-                }
-                else
-                {
-                    fileName = "1900-01-01";
+                    else
+                    {
+                        fileName = "1900-01-01";
+                    }
                 }
             }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
+            }
             return fileName;
+
         }
                
         private static string LastYEARLYFileUploaded()
         {
             string fileName = "";
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAME]");
+                    if (res.HasRows)
                     {
-                        fileName = res["RCT_FILE_NAME"].ToString();
+                        while (res.Read())
+                        {
+                            fileName = res["CntOccuranceChars"].ToString();
+                        }
+                        res.Close();
                     }
-                    res.Close();
                 }
+            }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
             }
             return fileName;
         }
 
         public static void RunRCTTaggerImport()
         {
+            // Warning this a terrible way to do this; if Arrowsmith change the format
+            // of their links all of this will break.
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
            
@@ -480,7 +553,10 @@ namespace PubmedImport
 
             List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
             List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
-
+            if (yearlyLinks.Count() > 0)
+            {
+                yearlyLinks.Reverse();
+            }
             List<string> yearlyFilesDownloadedFullPath = GetAllYearlyFiles();
             List<string> yearlyFileNames = new List<string>();
             List<string> yearlyLinksShort = new List<string>();
@@ -489,28 +565,28 @@ namespace PubmedImport
             {
                 int start = item.LastIndexOf("/");
                 int length = item.Length;
-                string tmpStr = item.Substring(start + 1, length - start - 4);
+                string tmpStr = item.Substring(start + 1, length - start -1);
                 yearlyLinksShort.Add(tmpStr);
                 cnt++;
             }
             cnt = 0;
             foreach (var item in yearlyFilesDownloadedFullPath)
             {
-                int start = item.LastIndexOf("/");
-                int length = item.Length;
-                string tmpStr = item.Substring(start + 1, length - start - 1);
-                yearlyFileNames.Add(tmpStr);
+                string tmpStr = item.Substring(9, item.Length - 9);
+                yearlyFileNames.Add(item);
                 cnt++;
             }
 
-            string lastUploadedYearlyFile = LastYEARLYFileUploaded();
             cnt = 0;
             foreach (var item in yearlyLinksShort)
             {
+
                 string present = yearlyFileNames.FirstOrDefault(s => s.Equals(item));
                 if (present == null)
                 {
-                    Yearly_Compressed_Files(item + ".gz");
+                    yearly = true;
+                    Yearly_Compressed_Files(item );
+                    yearly = false;
                 }
                 cnt++;
             }
@@ -518,8 +594,8 @@ namespace PubmedImport
             string strDate = LastUPDATEFileUploaded();
 
             DateTime currDate = GetDate(strDate);
-
-            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x));
+            int startInd = weeklyLinks.FirstOrDefault().LastIndexOf("/");
+            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x.Substring(startInd + 1, x.Length - startInd-1)));
 
             Logger.LogMessageLine("Finished all RCT Score updates");
 
@@ -527,19 +603,33 @@ namespace PubmedImport
 
         private static List<string> GetAllYearlyFiles()
         {
+            
             List<string> fileNames = new List<string>();
-            using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+            try
             {
-                conn.Open();
-                var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
-                if (res.HasRows)
+                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
                 {
-                    while (res.Read())
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
+                    if (res.HasRows)
                     {
-                        fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                        while (res.Read())
+                        {
+                            fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                        }
+                        res.Close();
                     }
-                    res.Close();
                 }
+            }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
             }
             return fileNames;
         }
