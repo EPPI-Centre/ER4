@@ -209,8 +209,9 @@ namespace PubmedImport
                     DateTime date = DateTime.Now;
                     if (filename == Program.ArrowsmithRCTBaselineFile)
                     {
-                        // long yearly file
-                        date = DateTime.Parse("31-12-2016");
+                        // long yearly file en-GB
+                        System.Globalization.CultureInfo UK = System.Globalization.CultureInfo.CreateSpecificCulture("en-GB");
+                        date = DateTime.Parse("31-12-2016", UK);
                         sqlParams.Add(new SqlParameter("@RCT_FILE_NAME",  filename + ".gz"));
                         sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
                         sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
