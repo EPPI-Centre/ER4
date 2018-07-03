@@ -32,6 +32,13 @@ namespace PubmedImport
 
         static bool yearly = false;
 
+        public static string StringTrimmer(string inputStr, string Ex)
+        {
+            int tmp = inputStr.LastIndexOf(Ex);
+            string tmpStr = inputStr.Substring(tmp + 1, inputStr.Length - tmp - 1);
+            return tmpStr;
+        }
+
         private static DateTime GetDate(string str)
         {
             try
@@ -65,13 +72,12 @@ namespace PubmedImport
         {
             try
             {
-
                 int count  = str.Count(Char.IsDigit);
                 if (count > 7)
                 {
-                    int tmp = str.LastIndexOf("-");
-                    string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
-                    return Regex.Match(tmpStr, @"\d{4}").Value;
+                    //int tmp = str.LastIndexOf("-");
+                    //string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
+                       return Regex.Match(StringTrimmer(str, "-"), @"\d{4}").Value;
                 }
                 else
                 {
@@ -201,9 +207,10 @@ namespace PubmedImport
                 try
                 {
 
-                    int start = filename.LastIndexOf("/");
-                    int length = filename.Length;
-                    filename = filename.Substring(start + 1, length - start - 1);
+                    //int start = filename.LastIndexOf("/");
+                    //int length = filename.Length;
+                    //filename = filename.Substring(start + 1, length - start - 1);
+                    filename = StringTrimmer(filename, "/");
                     int count = filename.Count(Char.IsDigit);
                    
                     DateTime date = DateTime.Now;
@@ -227,9 +234,11 @@ namespace PubmedImport
                     }
                     else
                     {
-                        start = filename.LastIndexOf("\\");
-                        length = filename.Length;
-                        filename = filename.Substring(start + 1, length - start - 1);
+                        //start = filename.LastIndexOf("\\");
+                        //length = filename.Length;
+                        //filename = filename.Substring(start + 1, length - start - 1);
+                        filename = StringTrimmer(filename, "\\");
+
                         //weekly file
                         sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
                         sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
@@ -266,9 +275,11 @@ namespace PubmedImport
         private static string Decompress(string yearlyFile)
         {
             // String manip
-            int endStr = yearlyFile.Length;
-            int startStr = yearlyFile.LastIndexOf("/");
-            yearlyFile = yearlyFile.Substring(startStr + 1, endStr - startStr - 1);
+            //int endStr = yearlyFile.Length;
+            //int startStr = yearlyFile.LastIndexOf("/");
+            //yearlyFile = yearlyFile.Substring(startStr + 1, endStr - startStr - 1);
+
+            yearlyFile = StringTrimmer(yearlyFile, "/");
 
             string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length-3);
             FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile );
@@ -468,6 +479,8 @@ namespace PubmedImport
                 int endStr = fileName.Length;
                 fileName = fileName.Substring(startStr + 1, endStr - startStr - 1);
 
+                fileName = StringTrimmer(fileName, "/");
+
                 // This destination path needs to be sorted out...
                 string _destinationPath = TmpFolderPath + "\\" + fileName + "";
 
@@ -549,10 +562,7 @@ namespace PubmedImport
             int cnt = 0;
             foreach (var item in yearlyLinks)
             {
-                int start = item.LastIndexOf("/");
-                int length = item.Length;
-                string tmpStr = item.Substring(start + 1, length - start -1);
-                yearlyLinksShort.Add(tmpStr);
+                yearlyLinksShort.Add(StringTrimmer(item, "/"));
                 cnt++;
             }
             cnt = 0;
@@ -562,7 +572,6 @@ namespace PubmedImport
                 yearlyFileNames.Add(item);
                 cnt++;
             }
-
             cnt = 0;
             foreach (var item in yearlyLinksShort)
             {
@@ -576,7 +585,6 @@ namespace PubmedImport
                 }
                 cnt++;
             }
-
             string strDate = LastUPDATEFileUploaded();
 
             DateTime currDate = GetDate(strDate);
@@ -586,7 +594,6 @@ namespace PubmedImport
             Logger.LogMessageLine("Finished all RCT Score updates");
 
         }
-
         private static List<string> GetAllYearlyFiles()
         {
             
