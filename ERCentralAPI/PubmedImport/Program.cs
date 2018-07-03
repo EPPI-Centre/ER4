@@ -29,8 +29,11 @@ namespace PubmedImport
 		private static string FTPUpdatesFolder = "";
 		private static string FTPBaselineFolder = "";
         internal static string ArrowsmithRCTbaseURL = "";
-        internal static string ArrowsmithRCTyearlyfileBaseURL = "";
+        internal static string ArrowsmithHumanbaseURL = "";
+        internal static string ArrowsmithRCTfileBaseURL = "";
+        internal static string ArrowsmithHumanyearlyfileBaseURL = "";
         internal static string ArrowsmithRCTBaselineFile = "";
+        internal static string ArrowsmithHumanURL = "";
         //public static string RavenHost = "";
         public static SQLHelper SqlHelper = null;
 		private static bool WaitOnExit = false;
@@ -348,8 +351,11 @@ namespace PubmedImport
                 if (SqlHelper == null || SqlHelper.DataServiceDB == "")
 					throw new Exception("ERROR: could not get value for DatabaseName, please check appsettings.json file.");
                 ArrowsmithRCTbaseURL = configuration["AppSettings:ArrowsmithRCTbaseURL"];
-                ArrowsmithRCTyearlyfileBaseURL = configuration["AppSettings:ArrowsmithRCTyearlyfileBaseURL"];
+                ArrowsmithHumanbaseURL = configuration["AppSettings:ArrowsmithHumanbaseURL"];
+                ArrowsmithHumanURL = configuration["AppSettings:ArrowsmithHumanURL"];
+                ArrowsmithRCTfileBaseURL = configuration["AppSettings:ArrowsmithRCTfileBaseURL"];
                 ArrowsmithRCTBaselineFile = configuration["AppSettings:ArrowsmithRCTBaselineFile"];
+               
             }
 			catch (Exception e)
 			{
