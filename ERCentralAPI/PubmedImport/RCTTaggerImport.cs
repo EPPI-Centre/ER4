@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using System.Security.Cryptography;
 
 namespace PubmedImport
 {
@@ -31,6 +31,13 @@ namespace PubmedImport
         static string TmpFolderPath;
 
         static bool yearly = false;
+
+        public static string StringTrimmer(string inputStr, string Ex)
+        {
+            int tmp = inputStr.LastIndexOf(Ex);
+            string tmpStr = inputStr.Substring(tmp + 1, inputStr.Length - tmp - 1);
+            return tmpStr;
+        }
 
         private static DateTime GetDate(string str)
         {
@@ -65,13 +72,12 @@ namespace PubmedImport
         {
             try
             {
-
                 int count  = str.Count(Char.IsDigit);
                 if (count > 7)
                 {
-                    int tmp = str.LastIndexOf("-");
-                    string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
-                    return Regex.Match(tmpStr, @"\d{4}").Value;
+                    //int tmp = str.LastIndexOf("-");
+                    //string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
+                       return Regex.Match(StringTrimmer(str, "-"), @"\d{4}").Value;
                 }
                 else
                 {
@@ -139,7 +145,14 @@ namespace PubmedImport
             }
 
             Logger.LogMessageLine("Importing the yearly gz file into SQL");
-            Import_RCT_Tagger_File(decompressedYearlyFile);
+            if (yearlyfile.Contains("rct"))
+            {
+                Import_RCT_Tagger_File(decompressedYearlyFile);
+            }
+            else
+            {
+                Import_Human_Tagger_File(decompressedYearlyFile);
+            }
 
             Logger.LogMessageLine("Finished with yearly import");
 
@@ -183,7 +196,14 @@ namespace PubmedImport
             (res, weeklyFile) = DownloadCSVFiles(weeklyFile);
             if (res)
             {
-                Import_RCT_Tagger_File(weeklyFile);
+                if (weeklyFile.Contains("rct"))
+                {
+                    Import_RCT_Tagger_File(weeklyFile);
+                }
+                else
+                {
+                    Import_Human_Tagger_File(weeklyFile);
+                }
             }
 
             Logger.LogMessageLine("Finished with update imports");
@@ -201,9 +221,8 @@ namespace PubmedImport
                 try
                 {
 
-                    int start = filename.LastIndexOf("/");
-                    int length = filename.Length;
-                    filename = filename.Substring(start + 1, length - start - 1);
+                    filename = StringTrimmer(filename, "/");
+                    filename = StringTrimmer(filename, @"\");
                     int count = filename.Count(Char.IsDigit);
                    
                     DateTime date = DateTime.Now;
@@ -228,9 +247,6 @@ namespace PubmedImport
                     }
                     else
                     {
-                        start = filename.LastIndexOf("\\");
-                        length = filename.Length;
-                        filename = filename.Substring(start + 1, length - start - 1);
                         //weekly file
                         sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename));
                         sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
@@ -264,24 +280,70 @@ namespace PubmedImport
             }
         }
 
+        public static string UnZip(string value)
+        {
+            //Transform string into byte[]
+            byte[] byteArray = new byte[value.Length];
+            int indexBA = 0;
+            foreach (char item in value.ToCharArray())
+            {
+                byteArray[indexBA++] = (byte)item;
+            }
+
+            //Prepare for decompress
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(byteArray);
+            System.IO.Compression.GZipStream sr = new System.IO.Compression.GZipStream(ms,
+                System.IO.Compression.CompressionMode.Decompress);
+
+            //Reset variable to collect uncompressed result
+            byteArray = new byte[byteArray.Length];
+
+            //Decompress
+            int rByte = sr.Read(byteArray, 0, byteArray.Length);
+
+            //Transform byte[] unzip data to string
+            System.Text.StringBuilder sB = new System.Text.StringBuilder(rByte);
+            //Read the number of bytes GZipStream red and do not a for each bytes in
+            //resultByteArray;
+            for (int i = 0; i < rByte; i++)
+            {
+                sB.Append((char)byteArray[i]);
+            }
+            sr.Close();
+            ms.Close();
+            sr.Dispose();
+            ms.Dispose();
+            return sB.ToString();
+        }
+
         private static string Decompress(string yearlyFile)
         {
-            // String manip
-            int endStr = yearlyFile.Length;
-            int startStr = yearlyFile.LastIndexOf("/");
-            yearlyFile = yearlyFile.Substring(startStr + 1, endStr - startStr - 1);
 
-            string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length-3);
-            FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile );
+            //using (var rijAlg = Rijndael.Create())
+            //{
+            //    rijAlg.Padding = PaddingMode.PKCS7;
+            //    rijAlg.BlockSize = 128;
+
+            //    // Create a decrytor to perform the stream transform.
+            //    var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+
+            yearlyFile = StringTrimmer(yearlyFile, "/");
+
+            string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length - 3);
+            FileInfo fileToBeUnGZipped = new FileInfo(TmpFolderPath + "\\" + yearlyFile);
             if (!fileToBeUnGZipped.Exists)
             {
                 return null;
             }
+
             unZippedFileName = unZippedFileName.Replace("\\", "//");
             Logger.LogMessageLine("Decompressing " + yearlyFile + "....");
+
             using (FileStream fileToDecompressAsStream = fileToBeUnGZipped.OpenRead())
             {
-                using (FileStream decompressedStream = File.Create(unZippedFileName))
+                string decompressedFileName = unZippedFileName;
+
+                using (FileStream decompressedStream = File.Create(decompressedFileName))
                 {
                     using (GZipStream decompressionStream = new GZipStream(fileToDecompressAsStream, CompressionMode.Decompress))
                     {
@@ -291,10 +353,11 @@ namespace PubmedImport
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogException(ex, "uncompressing file to parse.");
+                            Console.WriteLine(ex.Message);
                         }
                     }
                 }
+
             }
             if (File.Exists(fileToBeUnGZipped.FullName))
             {
@@ -315,7 +378,7 @@ namespace PubmedImport
         {
             bool success = false;
 
-            string url = Program.ArrowsmithRCTyearlyfileBaseURL + filename;
+            string url = filename;
             Uri urlCheck = new Uri(url);
 
             var remainingTries = maxRequestTries;
@@ -354,12 +417,16 @@ namespace PubmedImport
                 conn.Open();
                 try
                 {
+                    if (filename.Contains("\\"))
+                    {
+                        filename = filename.Replace("\\", "//");
+                    }
 
-                    if (!filename.Contains("\\") && !filename.Contains("//"))
+                    if (!filename.Contains("//"))
                     {
                         filename = TmpFolderPath + "\\" + filename;
                     }
-                    
+
                     string decompressedFile = filename;
 
                     using (var sr = new StreamReader(decompressedFile))
@@ -411,6 +478,7 @@ namespace PubmedImport
                             List<string> tmpL = recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList();
                             sqlParams.Add(new SqlParameter("@ids", string.Join(",", tmpL)));
                             sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@ID", "RCT"));
 
                             int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", sqlParams.ToArray());
 
@@ -453,6 +521,124 @@ namespace PubmedImport
             }
         }
 
+        private static void Import_Human_Tagger_File(string filename)
+        {
+            // After downloading the file import at that point
+            List<Human_Tag> recs = new List<Human_Tag>();
+            var RCT_TABLE = new DataTable();
+            SqlTransaction transaction;
+
+            using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
+            {
+                conn.Open();
+                try
+                {
+                    if (filename.Contains("\\"))
+                    {
+                        filename = filename.Replace("\\", "//");
+                    }
+
+                    if (!filename.Contains("//"))
+                    {
+                        filename = TmpFolderPath + "\\" + filename;
+                    }
+
+                    string decompressedFile = filename;
+
+                    using (var sr = new StreamReader(decompressedFile))
+                    {
+                        string strline = "";
+                        string[] _values = null;
+
+                        int x = 0;
+                        while (!sr.EndOfStream)
+                        {
+                            strline = sr.ReadLine();
+                            _values = strline.Split('\t');
+
+                            if (x > 0)
+                            {
+                                Human_Tag record = new Human_Tag();
+                                record.PMID = _values[0];
+                                record.HUMAN_PRECICTION = _values[1];
+                                recs.Add(record);
+                            }
+                            x++;
+                        }
+                        sr.Close();
+
+                    }
+
+                    double divisor = 0.0;
+                    int skip = 0;
+                    int page = 0;
+                    int done = 0;
+                    if (recs.Count() < 1000)
+                    {
+                        divisor = 0;
+                        page = recs.Count();
+                    }
+                    else
+                    {
+                        divisor = Math.Floor((double)recs.Count() / 1000);
+                        page = 1000;
+                        skip = 1000;
+                    }
+                    for (int i = 0; i <= divisor; i++)
+                    {
+                        List<SqlParameter> sqlParams = new List<SqlParameter>();
+                        transaction = conn.BeginTransaction();
+                        try
+                        {
+
+                            List<string> tmpL = recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList();
+                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", tmpL)));
+                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.HUMAN_PRECICTION).Skip(skip * i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@ID", "HUMAN"));
+
+                            int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", sqlParams.ToArray());
+
+                            transaction.Commit();
+                            done += tmpL.Count();
+                        }
+                        catch (SqlException sqlex)
+                        {
+                            Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
+                            transaction.Rollback();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogException(ex, "");
+                            transaction.Rollback();
+                        }
+                    }
+                    int todo = recs.Count();
+                    Logger.LogMessageLine("The total number of scores updated is: " + done);
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Catch all try block");
+                    conn.Close();
+                    return;
+                }
+                finally
+                {
+                    Log_Import_Job(filename);
+                    if (!filename.Contains("Tmpfiles"))
+                    {
+                        filename = TmpFolderPath + "\\" + filename;
+                    }
+                    if (File.Exists(filename))
+                    {
+                        File.Delete(filename);
+                    }
+                    conn.Close();
+
+                }
+            }
+        }
+
         private static (bool, string) Execute(Uri urlCheck, string fileName)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
@@ -469,6 +655,8 @@ namespace PubmedImport
                 int endStr = fileName.Length;
                 fileName = fileName.Substring(startStr + 1, endStr - startStr - 1);
 
+                fileName = StringTrimmer(fileName, "/");
+
                 // This destination path needs to be sorted out...
                 string _destinationPath = TmpFolderPath + "\\" + fileName + "";
 
@@ -483,7 +671,7 @@ namespace PubmedImport
             }
         }
 
-        private static string LastUPDATEFileUploaded()
+        private static string LatestRctUPDATEFile()
         {
             string fileName = "";
             try
@@ -496,7 +684,7 @@ namespace PubmedImport
                     {
                         while (res.Read())
                         {
-                            fileName = res["RCT_FILE_NAME"].ToString();
+                            fileName = res["FILE_NAME"].ToString();
                         }
                         res.Close();
                     }
@@ -519,7 +707,43 @@ namespace PubmedImport
             return fileName;
 
         }
-               
+
+        private static string LatestHumanUPDATEFile()
+        {
+            string fileName = "";
+            try
+            {
+                using (SqlConnection conn = new SqlConnection("Server=localhost; Database = DataService; Integrated Security = True; "))
+                {
+                    conn.Open();
+                    var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_HUMAN_GET_LATEST_UPLOAD_FILE_NAME]");
+                    if (res.HasRows)
+                    {
+                        while (res.Read())
+                        {
+                            fileName = res["FILE_NAME"].ToString();
+                        }
+                        res.Close();
+                    }
+                    else
+                    {
+                        fileName = "1900-01-01";
+                    }
+                }
+            }
+            catch (SqlException sqlex)
+            {
+                Logger.LogSQLException(sqlex, "");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex, "");
+
+            }
+            return fileName;
+
+        }
 
         public static void RunRCTTaggerImport()
         {
@@ -528,42 +752,50 @@ namespace PubmedImport
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
            
-            Task<List<string>> task = GetHTMLLinksAsync(Program.ArrowsmithRCTbaseURL);
-            task.Wait();
-            List<string> htmlLinks = task.Result.Where(x => x.Contains("arrowsmith")).ToList();
+            Task<List<string>> taskRCT = GetHTMLLinksAsync(Program.ArrowsmithRCTbaseURL);
+            taskRCT.Wait();
+            List<string> htmlRCTLinks = taskRCT.Result.Where(x => x.Contains("arrowsmith")).ToList();
 
+            Task<List<string>> taskHuman = GetHTMLLinksAsync(Program.ArrowsmithHumanbaseURL);
+            taskHuman.Wait();
+            List<string> htmlHumanLinks = taskHuman.Result.Where(x => x.Contains("arrowsmith")).ToList();
+            
             Logger = Program.Logger;
 
             SqlHelper = Program.SqlHelper;
 
             Logger.LogMessageLine("Checking for new yearly import files");
 
-            List<string> yearlyLinks = htmlLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyLinks = htmlLinks.Where(x => !x.Contains(".gz")).ToList();
-            if (yearlyLinks.Count() > 0)
+            List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
+            List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
+
+            List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
+            List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
+
+
+            if (yearlyRCTLinks.Count() > 0)
             {
-                yearlyLinks.Reverse();
+                yearlyRCTLinks.Reverse();
             }
             List<string> yearlyFilesDownloadedFullPath = GetAllYearlyFiles();
             List<string> yearlyFileNames = new List<string>();
             List<string> yearlyLinksShort = new List<string>();
             int cnt = 0;
-            foreach (var item in yearlyLinks)
+            foreach (var item in yearlyRCTLinks)
             {
-                int start = item.LastIndexOf("/");
-                int length = item.Length;
-                string tmpStr = item.Substring(start + 1, length - start -1);
-                yearlyLinksShort.Add(tmpStr);
+                yearlyLinksShort.Add(StringTrimmer(item, "/"));
                 cnt++;
             }
             cnt = 0;
-            foreach (var item in yearlyFilesDownloadedFullPath)
+            if (yearlyFilesDownloadedFullPath.Count > 0)
             {
-                string tmpStr = item.Substring(9, item.Length - 9);
-                yearlyFileNames.Add(item);
-                cnt++;
+                foreach (var item in yearlyFilesDownloadedFullPath)
+                {
+                    string tmpStr = item.Substring(9, item.Length - 9);
+                    yearlyFileNames.Add(item);
+                    cnt++;
+                }
             }
-
             cnt = 0;
             foreach (var item in yearlyLinksShort)
             {
@@ -572,19 +804,65 @@ namespace PubmedImport
                 if (present == null)
                 {
                     yearly = true;
-                    Yearly_Compressed_Files(item );
+                    string tmpItem = Program.ArrowsmithRCTfileBaseURL + "/" + item;
+                    Yearly_Compressed_Files(tmpItem);
+                    yearly = false;
+                }
+                cnt++;
+            }
+            string strDate = LatestRctUPDATEFile();
+
+            DateTime currDate = GetDate(strDate);
+            int startInd = weeklyRCTLinks.FirstOrDefault().LastIndexOf("/");
+            weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd-1)));
+
+            Logger.LogMessageLine("Finished all RCT Score updates");
+
+            Logger.LogMessageLine("Starting Human score imports");
+
+            List<string> yearlyFilesHumanDownloadedFullPath = GetAllYearlyFiles().Where(x => x.Contains("human") || x.Contains("tagger")).ToList();
+            List<string> yearlyHumanFileNames = new List<string>();
+            List<string> yearlyHumanLinksShort = new List<string>();
+            cnt = 0;
+            foreach (var item in yearlyHumanLinks)
+            {
+                yearlyHumanLinksShort.Add(StringTrimmer(item, "/"));
+                cnt++;
+            }
+            cnt = 0;
+            if (yearlyFilesHumanDownloadedFullPath.Count() > 0 )
+            {
+                foreach (var item in yearlyFilesHumanDownloadedFullPath)
+                {
+                    string tmpStr = item.Substring(9, item.Length - 9);
+                    yearlyHumanFileNames.Add(item);
+                    cnt++;
+                }
+
+            }
+
+            cnt = 0;
+            foreach (var item in yearlyHumanLinksShort)
+            {
+                string present = yearlyHumanFileNames.FirstOrDefault(s => s.Equals(item));
+                if (present == null)
+                {
+                    yearly = true;
+                    string tmpItem = Program.ArrowsmithHumanbaseURL + "/" + item;
+                    Yearly_Compressed_Files(tmpItem);
                     yearly = false;
                 }
                 cnt++;
             }
 
-            string strDate = LastUPDATEFileUploaded();
+            strDate = LatestHumanUPDATEFile();
 
-            DateTime currDate = GetDate(strDate);
-            int startInd = weeklyLinks.FirstOrDefault().LastIndexOf("/");
-            weeklyLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(x.Substring(startInd + 1, x.Length - startInd-1)));
+            currDate = GetDate(strDate);
+            startInd = weeklyHumanLinks.FirstOrDefault().LastIndexOf("/");
+            weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithHumanURL +  x.Substring(startInd + 1, x.Length - startInd - 1)));
 
-            Logger.LogMessageLine("Finished all RCT Score updates");
+            Logger.LogMessageLine("Finished all HUMAN Score updates");
+
 
         }
 
@@ -602,7 +880,7 @@ namespace PubmedImport
                     {
                         while (res.Read())
                         {
-                            fileNames.Add(res["RCT_FILE_NAME"].ToString());
+                            fileNames.Add(res["FILE_NAME"].ToString());
                         }
                         res.Close();
                     }
@@ -620,6 +898,12 @@ namespace PubmedImport
             }
             return fileNames;
         }
+    }
+
+    internal class Human_Tag
+    {
+        public string PMID { get; set; }
+        public string HUMAN_PRECICTION { get; set; }
     }
 
     public class RCT_Tag
