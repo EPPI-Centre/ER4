@@ -134,7 +134,7 @@ namespace PubmedImport
 		public DateTime PubMedDate { get; set; }
         public int PubmedPmidVersion { get; set; }
         public double? Arrowsmith_RCT_Score { get; set; }
-
+        public double? Arrowsmith_Human_Score { get; set; }
         public ReferenceRecord()
 		{
 			Title = "";
@@ -559,6 +559,8 @@ namespace PubmedImport
             }
             if (reader["ARROW_SCORE"].GetType() != System.DBNull.Value.GetType()) res.Arrowsmith_RCT_Score = (double?)reader["ARROW_SCORE"];
             else res.Arrowsmith_RCT_Score = -1;
+            if (reader["HUMAN_SCORE"].GetType() != System.DBNull.Value.GetType()) res.Arrowsmith_Human_Score = (double?)reader["HUMAN_SCORE"];
+            else res.Arrowsmith_Human_Score = -1;
             return res;
         }
         public static List<ReferenceRecord> GetReferenceRecordList(SqlDataReader reader)

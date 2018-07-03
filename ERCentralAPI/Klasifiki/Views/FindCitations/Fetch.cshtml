@@ -7,7 +7,7 @@
     <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
     <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
     <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
-    
+
     <h2>Fetch</h2><button class="btn-link " type="submit" value="View Graph" formaction="ViewGraph">View Graph</button>
 
     <div class="row">
@@ -22,7 +22,8 @@
     <div class="row">
         Your search was:
     </div>
-    <div class="row" style="border:1px dotted black">@Model.SearchString</div>.
+    <div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
+    <div class="row" >Your search returned: @Model.Results.Count.ToString() results.</div>
     <table class="table">
         <thead>
             <tr>
@@ -33,8 +34,8 @@
                     Title <button class="btn-link " type="submit" value="Sort" formaction="SortByTitle">↑↓</button>
                 </th>
                 @*<th>
-                        @Html.DisplayNameFor(model => model.Abstract)
-                    </th>*@
+            @Html.DisplayNameFor(model => model.Abstract)
+        </th>*@
                 <th>
                     Short Title
                 </th>
@@ -42,80 +43,82 @@
                     Year <button class="btn-link " type="submit" value="Sort" formaction="SortByYear">↑↓</button>
                 </th>
                 @*<th>
-                        @Html.DisplayNameFor(model => model.CitationText)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Issn)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Volume)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.AuthorsString)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.StartPage)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.EndPage)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Issue)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Publisher)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ParentTitle)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Month)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.City)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Country)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.SearchIssn)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Place)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Pages)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Type)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.TypeID)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.SearchText)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.SearchStartPage)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Edition)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.SearchIVIS)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ManuallyAdded)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.PubMedDate)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.PubmedPmidVersion)
-                    </th>*@
+            @Html.DisplayNameFor(model => model.CitationText)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Issn)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Volume)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AuthorsString)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.StartPage)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EndPage)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Issue)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Publisher)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ParentTitle)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Month)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SearchIssn)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Place)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Pages)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Type)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TypeID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SearchText)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SearchStartPage)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Edition)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SearchIVIS)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ManuallyAdded)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PubMedDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PubmedPmidVersion)
+        </th>*@
                 <th>
                     Arrowsmith RCT Score <button class="btn-link " type="submit" value="Sort" formaction="SortByScore">↑↓</button>
-
+                </th>
+                <th>
+                    Arrowsmith Human-study Score <button class="btn-link " type="submit" value="Sort" formaction="SortByHumanScore">↑↓</button>
                 </th>
                 <th>
                     PubMed ID
@@ -217,6 +220,9 @@
                         </td>*@
                     <td>
                         @Html.DisplayFor(modelItem => item.Arrowsmith_RCT_Score)
+                    </td>
+                     <td>
+                        @Html.DisplayFor(modelItem => item.Arrowsmith_Human_Score)
                     </td>
                     <td>
                         @foreach (ExternalID extId in item.ExternalIDs)

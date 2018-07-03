@@ -149,6 +149,18 @@ namespace Klasifiki.Controllers
             }
             return View("Fetch", results);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SortByHumanScore([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_Human_Score).ToList();
+            }
+            return View("Fetch", results);
+        }
         private static List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
