@@ -79,7 +79,7 @@ namespace Klasifiki.Controllers
                     //}
                     //second, let's check our string makes some sense...
                     SearchString = SearchString.Replace(',', '¬');
-                    string[] splitted = results.ListOfIDs.Split('¬');
+                    string[] splitted = SearchString.Split('¬');
                     double estMin = SearchString.Length / 9.5;
                     double estMax = SearchString.Length / 4;
                     if (splitted.Length < estMin || splitted.Length > estMax)

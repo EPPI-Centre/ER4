@@ -79,7 +79,7 @@ namespace Klasifiki.Controllers
             catch (Exception e)
             {
                 Program.Logger.LogException(e, "logging on");
-                return View();
+                return Redirect("~/Login/Index");
             }
         }
         ActionResult DoFail()
