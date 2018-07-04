@@ -16,29 +16,29 @@
             @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='True' />");
         }
     }
-    <button class="btn" type="submit" formaction="Fetch" value="Back to Table View">Back to List</button>
-    <button class="btn" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column">
+    <button class="btn btn-secondary pull-right" type="submit" formaction="Fetch" value="Back to Table View" style="margin:1px;">Back to List</button>
+    <button class="btn btn-warning pull-right" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column" style="margin:1px;">
         @if (!Model.HideNAinGraph)
         {<span>Hide NA column</span> }
         else
         { <span>Show NA column</span>}
     </button>
     <h2>Scores Distribution</h2>
+    @Html.Partial("_SearchData.cshtml", Model)
 
-    
 
     @*<div class="row">
-        Your search was
-        @{
-            if (Model.SearchMethod == "PubMedSearch")
-            {<span>a PubMed search.</span>}
-            else if (Model.SearchMethod == "PubMedIDs")
-            {<span>a search via PubMedIDs.</span>}
-        }
-    </div>
-    <div class="row">
-        Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
-    </div>*@
+            Your search was
+            @{
+                if (Model.SearchMethod == "PubMedSearch")
+                {<span>a PubMed search.</span>}
+                else if (Model.SearchMethod == "PubMedIDs")
+                {<span>a search via PubMedIDs.</span>}
+            }
+        </div>
+        <div class="row">
+            Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
+        </div>*@
     <div class="row">
 
 

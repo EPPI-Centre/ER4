@@ -3,24 +3,24 @@
 <table class="table table-bordered table-striped">
     <tr>
         <th>Your search was: </th>
-        <td>
+        <td style="min-width:75%;">
             @{
                 if (Model.SearchMethod == "PubMedSearch")
-                {<span>a PubMed search.</span>}
+                {<span>a PubMed search</span>}
                 else if (Model.SearchMethod == "PubMedIDs")
-                {<span>a search via PubMedIDs.</span>}
+                {<span>a search via PubMedIDs</span>}
             }
         </td>
     </tr>
     <tr>
-        <th>Your search string was:</th>
+        <th >Your search string was:</th>
         <td>
             @Model.SearchString
         </td>
     </tr>
     <tr>
         <th>Your search returned:</th>
-        <td> @Model.Results.Count.ToString() results.</td>
+        <td> <b>@Model.Results.Count.ToString()</b> results.</td>
     </tr>
 </table>
 
