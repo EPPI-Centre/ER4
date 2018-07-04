@@ -11,22 +11,25 @@
 
     <h2>Fetch</h2><button class="btn-link " type="submit" value="View Graph" formaction="ViewGraph">View Graph</button>
 
-@*<div class="row">
-        Your search was
-        @{
-            if (Model.SearchMethod == "PubMedSearch")
-            {<span>a PubMed search.</span>}
-            else if (Model.SearchMethod == "PubMedIDs")
-            {<span>a search via PubMedIDs.</span>}
-        }
-    </div>
-    <div class="row">
-        Your search was:
-    </div>
-    <div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
-    <div class="row">Your search returned: @Model.Results.Count.ToString() results.</div>*@
+    @*<div class="row">
+            Your search was
+            @{
+                if (Model.SearchMethod == "PubMedSearch")
+                {<span>a PubMed search.</span>}
+                else if (Model.SearchMethod == "PubMedIDs")
+                {<span>a search via PubMedIDs.</span>}
+            }
+        </div>
+        <div class="row">
+            Your search was:
+        </div>
+        <div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
+        <div class="row">Your search returned: @Model.Results.Count.ToString() results.</div>*@
 
-@Html.Partial("_SearchData.cshtml", Model)
+    @Html.Partial("_SearchData.cshtml", Model)
+
+
+
 
     <table class="table">
         <thead>

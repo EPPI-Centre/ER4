@@ -1,15 +1,26 @@
 ﻿
-<div class="row">
-    Your search was
-    @{
-        if (Model.SearchMethod == "PubMedSearch")
-        {<span>a PubMed search.</span>}
-        else if (Model.SearchMethod == "PubMedIDs")
-        {<span>a search via PubMedIDs.</span>}
-    }
-</div>
-<div class="row">
-    Your search was:
-</div>
-<div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
-<div class="row">Your search returned: @Model.Results.Count.ToString() results.</div>
+<br>
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>Your search was: </th>
+        <td>
+            @{
+                if (Model.SearchMethod == "PubMedSearch")
+                {<span>a PubMed search.</span>}
+                else if (Model.SearchMethod == "PubMedIDs")
+                {<span>a search via PubMedIDs.</span>}
+            }
+        </td>
+    </tr>
+    <tr>
+        <th>Your search string was:</th>
+        <td>
+            @Model.SearchString
+        </td>
+    </tr>
+    <tr>
+        <th>Your search returned:</th>
+        <td> @Model.Results.Count.ToString() results.</td>
+    </tr>
+</table>
+
