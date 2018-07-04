@@ -15,7 +15,7 @@ using System.Security.Cryptography;
 
 namespace PubmedImport
 {
-   
+
     class RCTTaggerImport
     {
         static EPPILogger Logger;
@@ -55,7 +55,7 @@ namespace PubmedImport
                 }
                 else
                 {
-                    string tmpStr =  Regex.Match(str, @"\d{4}").Value;
+                    string tmpStr = Regex.Match(str, @"\d{4}").Value;
                     DateTime tmpDate = DateTime.Parse("31-12-" + tmpStr);
                     return tmpDate;
                 }
@@ -72,12 +72,12 @@ namespace PubmedImport
         {
             try
             {
-                int count  = str.Count(Char.IsDigit);
+                int count = str.Count(Char.IsDigit);
                 if (count > 7)
                 {
                     //int tmp = str.LastIndexOf("-");
                     //string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
-                       return Regex.Match(StringTrimmer(str, "-"), @"\d{4}").Value;
+                    return Regex.Match(StringTrimmer(str, "-"), @"\d{4}").Value;
                 }
                 else
                 {
@@ -109,7 +109,7 @@ namespace PubmedImport
         private static string GetDay(string str)
         {
             try
-            { 
+            {
                 return Regex.Match(str, @"\d{2}").Value;
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace PubmedImport
             try
             {
                 (res, fileName) = DownloadCSVFiles(yearlyfile);
-                if (res == false){  return; }
+                if (res == false) { return; }
             }
             catch (Exception ex)
             {
@@ -224,14 +224,14 @@ namespace PubmedImport
                     filename = StringTrimmer(filename, "/");
                     filename = StringTrimmer(filename, @"\");
                     int count = filename.Count(Char.IsDigit);
-                   
+
                     DateTime date = DateTime.Now;
                     if (filename == Program.ArrowsmithRCTBaselineFile)
                     {
                         // long yearly file en-GB
                         System.Globalization.CultureInfo UK = System.Globalization.CultureInfo.CreateSpecificCulture("en-GB");
                         date = DateTime.Parse("31-12-2016", UK);
-                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME",  filename + ".gz"));
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename + ".gz"));
                         sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
                         sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
                     }
@@ -240,7 +240,7 @@ namespace PubmedImport
                         //short yearly file
                         string tempStr = GetYear(filename) + "-12-30";
                         date = Convert.ToDateTime(tempStr);
-                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME",  filename + ".gz"));
+                        sqlParams.Add(new SqlParameter("@RCT_FILE_NAME", filename + ".gz"));
                         sqlParams.Add(new SqlParameter("@RCT_IMPORT_DATE", DateTime.Now));
                         sqlParams.Add(new SqlParameter("@RCT_UPLOAD_DATE", date));
 
@@ -264,14 +264,14 @@ namespace PubmedImport
                     Logger.LogMessageLine("Job record inserted into DB");
 
                     transaction.Commit();
-                   
+
                 }
                 catch (SqlException sqlex)
                 {
                     Logger.LogSQLException(sqlex, "", sqlParams.ToArray());
                     transaction.Rollback();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.LogException(ex, "");
                     transaction.Rollback();
@@ -751,7 +751,7 @@ namespace PubmedImport
             // of their links all of this will break.
             DirectoryInfo tempDir = System.IO.Directory.CreateDirectory("Tmpfiles");
             TmpFolderPath = tempDir.FullName;
-           
+
             Task<List<string>> taskRCT = GetHTMLLinksAsync(Program.ArrowsmithRCTbaseURL);
             taskRCT.Wait();
             List<string> htmlRCTLinks = taskRCT.Result.Where(x => x.Contains("arrowsmith")).ToList();
@@ -759,7 +759,7 @@ namespace PubmedImport
             Task<List<string>> taskHuman = GetHTMLLinksAsync(Program.ArrowsmithHumanbaseURL);
             taskHuman.Wait();
             List<string> htmlHumanLinks = taskHuman.Result.Where(x => x.Contains("arrowsmith")).ToList();
-            
+
             Logger = Program.Logger;
 
             SqlHelper = Program.SqlHelper;
@@ -814,7 +814,7 @@ namespace PubmedImport
 
             DateTime currDate = GetDate(strDate);
             int startInd = weeklyRCTLinks.FirstOrDefault().LastIndexOf("/");
-            weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd-1)));
+            weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             Logger.LogMessageLine("Finished all RCT Score updates");
 
@@ -830,7 +830,7 @@ namespace PubmedImport
                 cnt++;
             }
             cnt = 0;
-            if (yearlyFilesHumanDownloadedFullPath.Count() > 0 )
+            if (yearlyFilesHumanDownloadedFullPath.Count() > 0)
             {
                 foreach (var item in yearlyFilesHumanDownloadedFullPath)
                 {
@@ -859,7 +859,7 @@ namespace PubmedImport
 
             currDate = GetDate(strDate);
             startInd = weeklyHumanLinks.FirstOrDefault().LastIndexOf("/");
-            weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithHumanURL +  x.Substring(startInd + 1, x.Length - startInd - 1)));
+            weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             Logger.LogMessageLine("Finished all HUMAN Score updates");
 
@@ -868,7 +868,7 @@ namespace PubmedImport
 
         private static List<string> GetAllYearlyFiles()
         {
-            
+
             List<string> fileNames = new List<string>();
             try
             {
