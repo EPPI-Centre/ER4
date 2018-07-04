@@ -79,7 +79,7 @@ namespace Klasifiki.Controllers
                     //}
                     //second, let's check our string makes some sense...
                     SearchString = SearchString.Replace(',', '¬');
-                    string[] splitted = results.ListOfIDs.Split('¬');
+                    string[] splitted = SearchString.Split('¬');
                     double estMin = SearchString.Length / 9.5;
                     double estMax = SearchString.Length / 4;
                     if (splitted.Length < estMin || splitted.Length > estMax)
@@ -146,6 +146,18 @@ namespace Klasifiki.Controllers
             {
                 results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
                 results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_RCT_Score).ToList();
+            }
+            return View("Fetch", results);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SortByHumanScore([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        {
+            ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
+                results.Results = results.Results.OrderByDescending(x => x.Arrowsmith_Human_Score).ToList();
             }
             return View("Fetch", results);
         }

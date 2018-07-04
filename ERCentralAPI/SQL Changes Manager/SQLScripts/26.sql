@@ -93,10 +93,13 @@ BEGIN
  
 	SET NOCOUNT OFF
 END
-
+GO
 
 -- PATRICK SQL Changes 03/07/2018
 /* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+USE [DataService]
+GO
+
 BEGIN TRANSACTION
 SET QUOTED_IDENTIFIER ON
 SET ARITHABORT ON
@@ -363,13 +366,152 @@ BEGIN
  
 	SET NOCOUNT OFF
 END
+GO
+
+USE [DataService]
+GO
+/****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]    Script Date: 03/07/2018 15:26:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:        <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:    <Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]
+    -- Add the parameters for the stored procedure here
+AS
+BEGIN
+    -- SET NOCOUNT ON added to prevent extra result sets from
+    -- interfering with SELECT statements.
+    SET NOCOUNT ON;
+
+    SELECT [FILE_NAME], [TB_RCT_UPDATE_FILE].UPLOAD_DATE
+    FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+    WHERE [FILE_NAME] LIKE '%gz%'
+    ORDER BY [UPLOAD_DATE] DESC
+
+    SET NOCOUNT OFF
+END
+GO
+
+USE [DataService]
+GO
+/****** Object:  StoredProcedure [dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]    Script Date: 03/07/2018 15:28:44 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:        <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:    <Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]
+    -- Add the parameters for the stored procedure here
+AS
+BEGIN
+    -- SET NOCOUNT ON added to prevent extra result sets from
+    -- interfering with SELECT statements.
+    SET NOCOUNT ON;
+
+    SELECT TOP (1) [FILE_NAME], [TB_RCT_UPDATE_FILE].UPLOAD_DATE
+    FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+    WHERE [FILE_NAME] NOT LIKE '%gz%' AND [FILE_NAME] LIKE '%rct%'
+    ORDER BY [UPLOAD_DATE] DESC
 
 
+    SET NOCOUNT OFF
+END
+GO
+
+USE [DataService]
+GO
+/****** Object:  StoredProcedure [dbo].[st_HUMAN_GET_LATEST_UPLOAD_FILE_NAME]    Script Date: 03/07/2018 15:28:58 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:        <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:    <Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[st_HUMAN_GET_LATEST_UPLOAD_FILE_NAME]
+    -- Add the parameters for the stored procedure here
+AS
+BEGIN
+    -- SET NOCOUNT ON added to prevent extra result sets from
+    -- interfering with SELECT statements.
+    SET NOCOUNT ON;
+
+    SELECT TOP (1) [FILE_NAME], [TB_RCT_UPDATE_FILE].UPLOAD_DATE
+    FROM [DataService].[dbo].[TB_RCT_UPDATE_FILE]
+    WHERE [FILE_NAME] NOT LIKE '%gz%' AND [FILE_NAME] LIKE '%tagger%'
+    ORDER BY [UPLOAD_DATE] DESC
 
 
+    SET NOCOUNT OFF
+END
+GO
 
+USE [DataService]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReferenceUpdate_Arrow_Scores]    Script Date: 03/07/2018 15:32:13 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:        <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:    <Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[st_ReferenceUpdate_Arrow_Scores]
+    -- Add the parameters for the stored procedure here
+    (
+        @IDS NVARCHAR(MAX) = NULL,
+        @SCORES NVARCHAR(MAX) = NULL,
+        @ID VARCHAR = NULL
+    )
+AS
+BEGIN
 
+    SET NOCOUNT ON;
 
+    declare @t table (tidx int, [value] nvarchar(100), score float null, ref_id bigint, primary key(value, ref_id))
+    insert into @t 
+    select t.*, null, -1 from dbo.fn_Split(@IDS, ',') t 
+                
+    update @t set score = s.value
+    from dbo.fn_Split(@SCORES, ',') s
+    where tidx = s.idx
+    update @t set ref_id = reference_id from
+     TB_EXTERNALID e inner join @t t on e.TYPE = 'pubmed' and t.VALUE = e.[value]
+ 
+    --select * from @t
+    --delete from @t
+    --select r.* from @t t inner join TB_EXTERNALID ext on ext.TYPE = 'pubmed' AND ext.VALUE = t.value
+    --inner join TB_REFERENCE r on ext.REFERENCE_ID = r.REFERENCE_ID
+    
+
+    -- FROM here need to update the references table in the appropriate place
+    IF @ID = 'RCT'
+            UPDATE [dbo].[TB_REFERENCE]  
+            SET ARROW_SCORE = t.score
+            FROM @t t INNER JOIN [dbo].[TB_REFERENCE] R 
+            ON t.ref_id = R.REFERENCE_ID
+    ELSE
+            UPDATE [dbo].[TB_REFERENCE]  
+            SET HUMAN_SCORE = t.score
+            FROM @t t INNER JOIN [dbo].[TB_REFERENCE] R 
+            ON t.ref_id = R.REFERENCE_ID
+
+    SET NOCOUNT OFF
+END
+GO
 
 
 

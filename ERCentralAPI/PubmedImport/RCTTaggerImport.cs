@@ -659,10 +659,13 @@ namespace PubmedImport
 
                 // This destination path needs to be sorted out...
                 string _destinationPath = TmpFolderPath + "\\" + fileName + "";
+                if (File.Exists(_destinationPath)) return (true, fileName);
+                else
+                {
+                    _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
 
-                _client.DownloadFile(urlCheck, _destinationPath); //Download the file. 
-
-                return (true, fileName);
+                    return (true, fileName);
+                }
             }
             else
             {

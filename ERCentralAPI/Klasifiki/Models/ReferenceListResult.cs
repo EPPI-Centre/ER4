@@ -57,17 +57,17 @@ namespace Klasifiki.Models
             {
                 int[] vals = GraphValues;
                 Dictionary<string, string> res = new Dictionary<string, string>();
-                res.Add(_GraphLabels[0], vals[0].ToString());
-                res.Add(_GraphLabels[1], vals[1].ToString() );
-                res.Add(_GraphLabels[2], vals[2].ToString() );
-                res.Add(_GraphLabels[3], vals[3].ToString() );
-                res.Add(_GraphLabels[4], vals[4].ToString() );
-                res.Add(_GraphLabels[5], vals[5].ToString());
+                res.Add(_GraphLabels[9], vals[9].ToString());
+                res.Add(_GraphLabels[8], vals[8].ToString());
+                res.Add(_GraphLabels[7], vals[7].ToString());
                 res.Add(_GraphLabels[6], vals[6].ToString());
-                res.Add(_GraphLabels[7], vals[7].ToString() );
-                res.Add(_GraphLabels[8], vals[8].ToString() );
-                res.Add(_GraphLabels[9], vals[9].ToString() );
-                res.Add(_GraphLabels[10], vals[10].ToString() );
+                res.Add(_GraphLabels[5], vals[5].ToString());
+                res.Add(_GraphLabels[4], vals[4].ToString());
+                res.Add(_GraphLabels[3], vals[3].ToString());
+                res.Add(_GraphLabels[2], vals[2].ToString());
+                res.Add(_GraphLabels[1], vals[1].ToString());
+                res.Add(_GraphLabels[0], vals[0].ToString());
+                //res.Add(_GraphLabels[10], vals[10].ToString() );
                 return res;
             }
         }
