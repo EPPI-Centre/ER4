@@ -190,9 +190,6 @@ namespace Klasifiki.Controllers
             return View("FetchGraph", results);
         }
 
-
-
-
         private static List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
@@ -339,4 +336,5 @@ namespace Klasifiki.Controllers
         //    }
         //}
     }
+
 }

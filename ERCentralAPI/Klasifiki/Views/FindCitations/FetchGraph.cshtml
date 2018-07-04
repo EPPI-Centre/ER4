@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Fetch";
 }
+
+
+
+
 <form method="post" action="~/FindCitations/Fetch">
     <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
     <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
@@ -10,7 +14,7 @@
 
     <h2>Scores Distribution</h2> <button class="btn-link" type="submit" value="Back to Table View">Back to List</button>
 
-    <div class="row">
+    @*<div class="row">
         Your search was
         @{
             if (Model.SearchMethod == "PubMedSearch")
@@ -21,7 +25,7 @@
     </div>
     <div class="row">
         Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
-    </div>
+    </div>*@
     <div class="row">
 
 

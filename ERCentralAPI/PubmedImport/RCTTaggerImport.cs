@@ -75,15 +75,12 @@ namespace PubmedImport
                 int count = str.Count(Char.IsDigit);
                 if (count > 7)
                 {
-                    //int tmp = str.LastIndexOf("-");
-                    //string tmpStr = str.Substring(tmp + 1, str.Length - tmp - 1);
                     return Regex.Match(StringTrimmer(str, "-"), @"\d{4}").Value;
                 }
                 else
                 {
                     return Regex.Match(str, @"\d{4}").Value;
                 }
-
             }
             catch (Exception ex)
             {
