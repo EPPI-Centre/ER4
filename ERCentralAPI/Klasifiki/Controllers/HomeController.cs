@@ -14,13 +14,14 @@ namespace Klasifiki.Controllers
 {
     public class HomeController : Controller
     {
+
         public IActionResult Index()
         {
             if (HttpContext.User != null && HttpContext.User.Identity.IsAuthenticated)
                 return View();
             else return Redirect("~/Login/Index");
         }
-        [Authorize("Authenticated")]
+
         public IActionResult About()
         {
             var user = HttpContext.User;

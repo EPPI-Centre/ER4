@@ -3,6 +3,26 @@
 @{
     ViewData["Title"] = "Fetch";
 }
+<script type="text/javascript">
+    function ShowHideAbstract(id) {
+        var row = $('#itemDetailRow-' + id);
+        var bt1 = $('#ShowAbstractBt-' + id);
+        
+        var displrow = row.css('display');
+        if (displrow == 'none') {
+            //row.css('display', 'table-row');
+            row.show(900);
+            bt1.text('[Hide Abstract]');
+            
+        }
+        else {
+            row.hide(600);
+            bt1.text = '[Show Abstract]';
+        }
+
+    
+    }
+    </script>
 <form method="post" action="~/FindCitations">
     <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
     <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
@@ -24,7 +44,7 @@
     </div>
     <div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
     <div class="row" >Your search returned: @Model.Results.Count.ToString() results.</div>
-    <table class="table">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>
@@ -42,78 +62,7 @@
                 <th>
                     Year <button class="btn-link " type="submit" value="Sort" formaction="SortByYear">↑↓</button>
                 </th>
-                @*<th>
-            @Html.DisplayNameFor(model => model.CitationText)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Issn)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Volume)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.AuthorsString)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.StartPage)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.EndPage)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Issue)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Publisher)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ParentTitle)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Month)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.City)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Country)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SearchIssn)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Place)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Pages)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Type)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TypeID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SearchText)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SearchStartPage)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Edition)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.SearchIVIS)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ManuallyAdded)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PubMedDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.PubmedPmidVersion)
-        </th>*@
+
                 <th>
                     Arrowsmith RCT Score <button class="btn-link " type="submit" value="Sort" formaction="SortByScore">↑↓</button>
                 </th>
@@ -134,7 +83,8 @@
                         @Html.DisplayFor(modelItem => item.CitationId)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Title)
+                        @Html.DisplayFor(modelItem => item.Title) <span style="font-size:0.5em;">
+                        <a onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" id="@Html.Raw("ShowAbstractBt-"+ item.CitationId)" >[Show Abstract]</a></span>
                     </td>
                     @*<td>
                             @Html.DisplayFor(modelItem => item.Abstract)
@@ -145,79 +95,6 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.PublicationYear)
                     </td>
-                    @*<td>
-                            @Html.DisplayFor(modelItem => item.CitationText)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Issn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Volume)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.AuthorsString)
-                        </td>
-
-                        <td>
-                            @Html.DisplayFor(modelItem => item.StartPage)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.EndPage)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Issue)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Publisher)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ParentTitle)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Month)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.City)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Country)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SearchIssn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Place)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Pages)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Type)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.TypeID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SearchText)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SearchStartPage)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Edition)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SearchIVIS)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ManuallyAdded)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PubMedDate)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PubmedPmidVersion)
-                        </td>*@
                     <td>
                         @Html.DisplayFor(modelItem => item.Arrowsmith_RCT_Score)
                     </td>
@@ -239,6 +116,16 @@
                             @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                             @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
                         </td>*@
+                </tr>
+
+                <tr id="@Html.Raw("itemDetailRow-"+ item.CitationId)" style="display:none;">
+                    <td colspan="1">Abstract:</td>
+                    <td colspan="6" class="info">
+                        @item.Abstract 
+                        <span style="font-size:0.5em;">
+                            <a onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" >[Hide Abstract]</a>
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>
