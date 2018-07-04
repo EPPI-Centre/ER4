@@ -40,7 +40,7 @@ namespace Klasifiki.Controllers
                 
                 Task<(bool, TokenResponse)> task = Task.Run(() => IdentityServer4Client.LoginAsync(username, password, userIdentity));
                 bool CorrectCredentials = task.Result.Item1;
-                if (!CorrectCredentials) return Index(); //DoFail();
+                if (!CorrectCredentials) return Redirect("~/Login"); //DoFail();
                 ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
                 HttpContext.SignInAsync(user);
                 return Redirect("~/Home");

@@ -3,16 +3,29 @@
 @{
     ViewData["Title"] = "Fetch";
 }
-
-
-
-
-<form method="post" action="~/FindCitations/Fetch">
+<form method="post" action="~/FindCitations">
     <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
     <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
     <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
+    @{if (Model.HideNAinGraph)
+        {
+            @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='False' />") ;
+        }
+        else
+        {
+            @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='True' />");
+        }
+    }
+    <button class="btn" type="submit" formaction="Fetch" value="Back to Table View">Back to List</button>
+    <button class="btn" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column">
+        @if (!Model.HideNAinGraph)
+        {<span>Hide NA column</span> }
+        else
+        { <span>Show NA column</span>}
+    </button>
+    <h2>Scores Distribution</h2>
 
-    <h2>Scores Distribution</h2> <button class="btn-link" type="submit" value="Back to Table View">Back to List</button>
+    
 
     @*<div class="row">
         Your search was
@@ -34,9 +47,9 @@
 <div class="row">
     <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script type="text/javascript">
-
+       
         window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainer", {
+            var chart = new CanvasJS.Chart("RCTchartContainer", {
                 theme: "theme2",
                 animationEnabled: true,
                 title: {
@@ -46,7 +59,7 @@
                     {
                         type: "column",
                         dataPoints: [
-                            @foreach(var lab in Model.DataPoints)
+                            @foreach(var lab in Model.RCTDataPoints)
                             {
                                 @:{ y: @lab.Value , label: '@lab.Key' },
                             }
@@ -56,9 +69,29 @@
                 ]
             });
             chart.render();
+            var chart2 = new CanvasJS.Chart("HumanchartContainer", {
+                theme: "theme2",
+                animationEnabled: true,
+                title: {
+                    text: "Human Study Scores Distribution:"
+                },
+                data: [
+                    {
+                        type: "column",
+                        dataPoints: [
+                            @foreach(var lab in Model.HumanDataPoints)
+                            {
+                                @:{ y: @lab.Value , label: '@lab.Key' },
+                            }
+                            ]
+
+                    }
+                ]
+            });
+            chart2.render();
         };
     </script>
-    <div id="chartContainer" class="row" style="height:350px;"></div>
-
+    <div id="RCTchartContainer" class="row; table-bordered" style="height:350px;"></div>
+    <div id="HumanchartContainer" class="row; table-bordered" style="height:350px;"></div>
 </div>
 

@@ -23,7 +23,7 @@ namespace Klasifiki.Controllers
         // GET: FindByPubMedIDs
         public ActionResult Index()
         {
-            return View();
+            return Redirect("~/Home");
         }
 
         // GET: FindByPubMedIDs/Details/5
@@ -180,16 +180,20 @@ namespace Klasifiki.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ViewGraph([FromForm] string ListOfIDs, string SearchString, string SearchMethod)
+        public ActionResult ViewGraph([FromForm] string ListOfIDs, string SearchString, string SearchMethod, string HideNAcolumnVal)
         {
             ReferenceListResult results = new ReferenceListResult(SearchString, SearchMethod);
+            if (HideNAcolumnVal == "False")
+            {
+                results.HideNAinGraph = false;
+            }
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
             {
                 results.Results = GetReferenceRecordsByRefIDs(conn, ListOfIDs);
             }
             return View("FetchGraph", results);
         }
-
+        
         private static List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
@@ -211,9 +215,16 @@ namespace Klasifiki.Controllers
         private static List<ReferenceRecord> GetReferenceRecordByPubMedSearch(string searchString)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
-            string searchRawResult = DoPubMedSearchAsync(searchString, 0, 10000);
-            XElement xResponse = XElement.Parse(searchRawResult);
-            res = GetCitationsFromResponse(xResponse);
+            try
+            {
+                string searchRawResult = DoPubMedSearchAsync(searchString, 0, 10000);
+                XElement xResponse = XElement.Parse(searchRawResult);
+                res = GetCitationsFromResponse(xResponse);
+            }
+            catch (Exception e)
+            {
+                Program.Logger.LogException(e, "Running a PubMed Search.");
+            }
             return res;
         }
         private static string DoPubMedSearchAsync(string query, int start, int end)
@@ -336,5 +347,4 @@ namespace Klasifiki.Controllers
         //    }
         //}
     }
-
 }
