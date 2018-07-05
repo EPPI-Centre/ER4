@@ -1,3 +1,5 @@
+using System;
+
 namespace PubmedImport
 {
     public class FOAFPerson

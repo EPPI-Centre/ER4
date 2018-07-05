@@ -599,159 +599,316 @@ namespace PubmedImport
             while (reader.Read()) res.Add(ReferenceRecord.GetReferenceRecord(reader));
             return res;
         }
+        public static List<DataTable> ToDataTablesUpdate(List<ReferenceRecord> citations, List<Author> authors, List<ExternalID> externals, Int64 AuthSeed, Int64 ExSeed)
+        {
+                List<DataTable> Result = new List<DataTable>();
+                if (citations == null || citations.Count == 0) return Result;
+                DataTable TB_REFERENCE = new DataTable("TB_REFERENCE");
+                DataTable TB_EXTERNALID = new DataTable("TB_EXTERNALID");
+                DataTable TB_REFERENCE_AUTHOR = new DataTable("TB_REFERENCE_AUTHOR");
+                Type int64type = System.Type.GetType("System.Int64");
+                Type inttype = System.Type.GetType("System.Int16");
+                Type stringtype = System.Type.GetType("System.String");
+                Type datetimetype = System.Type.GetType("System.DateTime");
+
+                DataColumn tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("TYPE_ID", typeof(int));
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PARENT_TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("SHORT_TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("DATE_CREATED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("CREATED_BY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("DATE_EDITED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("EDITED_BY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBMED_REVISED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBMED_PMID_VERSION", inttype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("YEAR", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("MONTH", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("STANDARD_NUMBER", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("CITY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("COUNTRY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBLISHER", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("INSTITUTION", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("VOLUME", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PAGES", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("EDITION", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("ISSUE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("URLS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("ABSTRACT", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("COMMENTS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("MESHTERMS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("KEYWORDS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+
+                tCol = new DataColumn("EXTERNALID_ID", int64type);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("TYPE", stringtype);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("VALUE", stringtype);
+                TB_EXTERNALID.Columns.Add(tCol);
+
+                tCol = new DataColumn("REFERENCE_AUTHOR_ID", int64type);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("LAST", stringtype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("FIRST", stringtype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("ROLE", inttype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("RANK", inttype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+
+                foreach (ReferenceRecord cit in citations)
+                {
+
+                    DataRow row = TB_REFERENCE.NewRow();
+                    // no need for a new seed
+                    row["REFERENCE_ID"] = cit.CitationId;
+                    row["TYPE_ID"] = cit.TypeID;
+                    row["TITLE"] = cit.Title;
+                    row["PARENT_TITLE"] = cit.ParentTitle;
+                    row["SHORT_TITLE"] = cit.ShortTitle;
+                    row["DATE_CREATED"] = DateTime.Now;
+                    row["CREATED_BY"] = "Pubmed Import Utility";
+                    row["DATE_EDITED"] = DateTime.Now;
+                    row["EDITED_BY"] = "Pubmed Import Utility";
+                    row["PUBMED_REVISED"] = cit.PubMedDate;
+                    row["PUBMED_PMID_VERSION"] = cit.PubmedPmidVersion;
+                    row["YEAR"] = cit.PublicationYear.Length > 4 ? cit.PublicationYear.Substring(0, 4) : cit.PublicationYear;
+                    row["MONTH"] = cit.Month.Length > 10 ? cit.Month.Substring(0, 10) : cit.Month;
+                    row["STANDARD_NUMBER"] = cit.Issn;
+                    row["CITY"] = cit.City;
+                    row["COUNTRY"] = cit.Country;
+                    row["PUBLISHER"] = cit.Publisher;
+                    row["INSTITUTION"] = "";
+                    row["VOLUME"] = cit.Volume;
+                    row["PAGES"] = cit.Pages;
+                    row["EDITION"] = cit.Edition;
+                    row["ISSUE"] = cit.Issue;
+                    row["URLS"] = string.Join("¬", cit.Urls.ToArray());
+                    row["ABSTRACT"] = cit.Abstract;
+                    row["COMMENTS"] = "";
+                    row["MESHTERMS"] = "";
+                    row["KEYWORDS"] = cit.GetKeywordsString();
+                    TB_REFERENCE.Rows.Add(row);
+                    foreach (Author au in cit.Authors)
+                    {
+                        AuthSeed++;
+                        DataRow aRow = TB_REFERENCE_AUTHOR.NewRow();
+                        // no need for a new seed unless author is additional
+                        // try without this case to begin with
+                        aRow["REFERENCE_AUTHOR_ID"] = AuthSeed ;
+                        aRow["REFERENCE_ID"] = cit.CitationId;
+                        aRow["LAST"] = au.FamilyName;
+                        aRow["FIRST"] = au.GivenName;
+                        aRow["ROLE"] = au.AuthorshipLevel;
+                        aRow["RANK"] = au.Rank;
+                        TB_REFERENCE_AUTHOR.Rows.Add(aRow);
+                    }
+                    foreach (ExternalID exId in cit.ExternalIDs)
+                    {
+                        ExSeed++;
+                        DataRow exRow = TB_EXTERNALID.NewRow();
+                        exRow["EXTERNALID_ID"] =  ExSeed;
+                        exRow["REFERENCE_ID"] = cit.CitationId;
+                        exRow["TYPE"] = exId.Name;
+                        exRow["VALUE"] = exId.Value;
+                        TB_EXTERNALID.Rows.Add(exRow);
+                    }
+                }
+                Result.Add(TB_REFERENCE);
+                Result.Add(TB_EXTERNALID);
+                Result.Add(TB_REFERENCE_AUTHOR);
+                return Result;
+
+        }
+
         public static List<DataTable> ToDataTables(List<ReferenceRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)
         {
-            List<DataTable> Result = new List<DataTable>();
-            if (citations == null || citations.Count == 0) return Result;
-            DataTable TB_REFERENCE = new DataTable("TB_REFERENCE");
-            DataTable TB_EXTERNALID = new DataTable("TB_EXTERNALID");
-            DataTable TB_REFERENCE_AUTHOR = new DataTable("TB_REFERENCE_AUTHOR");
-            Type int64type = System.Type.GetType("System.Int64");
-            Type inttype = System.Type.GetType("System.Int16");
-            Type stringtype = System.Type.GetType("System.String");
-            Type datetimetype = System.Type.GetType("System.DateTime");
 
-            DataColumn tCol = new DataColumn("REFERENCE_ID", int64type);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("TYPE_ID", typeof(int));
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("TITLE", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("PARENT_TITLE", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("SHORT_TITLE", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("DATE_CREATED", datetimetype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("CREATED_BY", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("DATE_EDITED", datetimetype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("EDITED_BY", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("PUBMED_REVISED", datetimetype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("PUBMED_PMID_VERSION", inttype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("YEAR", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("MONTH", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("STANDARD_NUMBER", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("CITY", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("COUNTRY", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("PUBLISHER", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("INSTITUTION", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("VOLUME", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("PAGES", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("EDITION", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("ISSUE", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("URLS", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("ABSTRACT", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("COMMENTS", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("MESHTERMS", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
-            tCol = new DataColumn("KEYWORDS", stringtype);
-            TB_REFERENCE.Columns.Add(tCol);
 
-            tCol = new DataColumn("EXTERNALID_ID", int64type);
-            TB_EXTERNALID.Columns.Add(tCol);
-            tCol = new DataColumn("REFERENCE_ID", int64type);
-            TB_EXTERNALID.Columns.Add(tCol);
-            tCol = new DataColumn("TYPE", stringtype);
-            TB_EXTERNALID.Columns.Add(tCol);
-            tCol = new DataColumn("VALUE", stringtype);
-            TB_EXTERNALID.Columns.Add(tCol);
+                List<DataTable> Result = new List<DataTable>();
+                if (citations == null || citations.Count == 0) return Result;
+                DataTable TB_REFERENCE = new DataTable("TB_REFERENCE");
+                DataTable TB_EXTERNALID = new DataTable("TB_EXTERNALID");
+                DataTable TB_REFERENCE_AUTHOR = new DataTable("TB_REFERENCE_AUTHOR");
+                Type int64type = System.Type.GetType("System.Int64");
+                Type inttype = System.Type.GetType("System.Int16");
+                Type stringtype = System.Type.GetType("System.String");
+                Type datetimetype = System.Type.GetType("System.DateTime");
 
-            tCol = new DataColumn("REFERENCE_AUTHOR_ID", int64type);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
-            tCol = new DataColumn("REFERENCE_ID", int64type);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
-            tCol = new DataColumn("LAST", stringtype);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
-            tCol = new DataColumn("FIRST", stringtype);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
-            tCol = new DataColumn("ROLE", inttype);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
-            tCol = new DataColumn("RANK", inttype);
-            TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                DataColumn tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("TYPE_ID", typeof(int));
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PARENT_TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("SHORT_TITLE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("DATE_CREATED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("CREATED_BY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("DATE_EDITED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("EDITED_BY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBMED_REVISED", datetimetype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBMED_PMID_VERSION", inttype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("YEAR", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("MONTH", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("STANDARD_NUMBER", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("CITY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("COUNTRY", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PUBLISHER", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("INSTITUTION", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("VOLUME", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("PAGES", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("EDITION", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("ISSUE", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("URLS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("ABSTRACT", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("COMMENTS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("MESHTERMS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
+                tCol = new DataColumn("KEYWORDS", stringtype);
+                TB_REFERENCE.Columns.Add(tCol);
 
-            foreach (ReferenceRecord cit in citations)
-            {
-                Ref_seed++;
-                DataRow row = TB_REFERENCE.NewRow();
-                row["REFERENCE_ID"] = Ref_seed;
-                row["TYPE_ID"] = cit.TypeID;
-                row["TITLE"] = cit.Title;
-                row["PARENT_TITLE"] = cit.ParentTitle;
-                row["SHORT_TITLE"] = cit.ShortTitle;
-                row["DATE_CREATED"] = DateTime.Now;
-                row["CREATED_BY"] = "Pubmed Import Utility";
-                row["DATE_EDITED"] = DateTime.Now;
-                row["EDITED_BY"] = "Pubmed Import Utility";
-                row["PUBMED_REVISED"] = cit.PubMedDate;
-                row["PUBMED_PMID_VERSION"] = cit.PubmedPmidVersion;
-                row["YEAR"] = cit.PublicationYear.Length > 4 ? cit.PublicationYear.Substring(0, 4) : cit.PublicationYear ;
-                row["MONTH"] = cit.Month.Length > 10 ? cit.Month.Substring(0, 10) : cit.Month;
-                row["STANDARD_NUMBER"] = cit.Issn;
-                row["CITY"] = cit.City;
-                row["COUNTRY"] = cit.Country;
-                row["PUBLISHER"] = cit.Publisher;
-                row["INSTITUTION"] = "";
-                row["VOLUME"] = cit.Volume;
-                row["PAGES"] = cit.Pages;
-                row["EDITION"] = cit.Edition;
-                row["ISSUE"] = cit.Issue;
-                row["URLS"] = string.Join("¬", cit.Urls.ToArray());
-                row["ABSTRACT"] = cit.Abstract;
-                row["COMMENTS"] = "";
-                row["MESHTERMS"] = "";
-                row["KEYWORDS"] = cit.GetKeywordsString();
-                TB_REFERENCE.Rows.Add(row);
-                foreach (Author au in cit.Authors)
+                tCol = new DataColumn("EXTERNALID_ID", int64type);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("TYPE", stringtype);
+                TB_EXTERNALID.Columns.Add(tCol);
+                tCol = new DataColumn("VALUE", stringtype);
+                TB_EXTERNALID.Columns.Add(tCol);
+
+                tCol = new DataColumn("REFERENCE_AUTHOR_ID", int64type);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("REFERENCE_ID", int64type);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("LAST", stringtype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("FIRST", stringtype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("ROLE", inttype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+                tCol = new DataColumn("RANK", inttype);
+                TB_REFERENCE_AUTHOR.Columns.Add(tCol);
+
+                foreach (ReferenceRecord cit in citations)
                 {
-                    Auth_seed++;
-                    DataRow aRow = TB_REFERENCE_AUTHOR.NewRow();
-                    aRow["REFERENCE_AUTHOR_ID"] = Auth_seed;
-                    aRow["REFERENCE_ID"] = Ref_seed;
-                    aRow["LAST"] = au.FamilyName;
-                    aRow["FIRST"] = au.GivenName;
-                    aRow["ROLE"] = au.AuthorshipLevel;
-                    aRow["RANK"] = au.Rank;
-                    TB_REFERENCE_AUTHOR.Rows.Add(aRow);
+                    Ref_seed++;
+                    DataRow row = TB_REFERENCE.NewRow();
+                    row["REFERENCE_ID"] = Ref_seed;
+                    row["TYPE_ID"] = cit.TypeID;
+                    row["TITLE"] = cit.Title;
+                    row["PARENT_TITLE"] = cit.ParentTitle;
+                    row["SHORT_TITLE"] = cit.ShortTitle;
+                    row["DATE_CREATED"] = DateTime.Now;
+                    row["CREATED_BY"] = "Pubmed Import Utility";
+                    row["DATE_EDITED"] = DateTime.Now;
+                    row["EDITED_BY"] = "Pubmed Import Utility";
+                    row["PUBMED_REVISED"] = cit.PubMedDate;
+                    row["PUBMED_PMID_VERSION"] = cit.PubmedPmidVersion;
+                    row["YEAR"] = cit.PublicationYear.Length > 4 ? cit.PublicationYear.Substring(0, 4) : cit.PublicationYear ;
+                    row["MONTH"] = cit.Month.Length > 10 ? cit.Month.Substring(0, 10) : cit.Month;
+                    row["STANDARD_NUMBER"] = cit.Issn;
+                    row["CITY"] = cit.City;
+                    row["COUNTRY"] = cit.Country;
+                    row["PUBLISHER"] = cit.Publisher;
+                    row["INSTITUTION"] = "";
+                    row["VOLUME"] = cit.Volume;
+                    row["PAGES"] = cit.Pages;
+                    row["EDITION"] = cit.Edition;
+                    row["ISSUE"] = cit.Issue;
+                    row["URLS"] = string.Join("¬", cit.Urls.ToArray());
+                    row["ABSTRACT"] = cit.Abstract;
+                    row["COMMENTS"] = "";
+                    row["MESHTERMS"] = "";
+                    row["KEYWORDS"] = cit.GetKeywordsString();
+                    TB_REFERENCE.Rows.Add(row);
+                    foreach (Author au in cit.Authors)
+                    {
+                        Auth_seed++;
+                        DataRow aRow = TB_REFERENCE_AUTHOR.NewRow();
+                        aRow["REFERENCE_AUTHOR_ID"] = Auth_seed;
+                        aRow["REFERENCE_ID"] = Ref_seed;
+                        aRow["LAST"] = au.FamilyName;
+                        aRow["FIRST"] = au.GivenName;
+                        aRow["ROLE"] = au.AuthorshipLevel;
+                        aRow["RANK"] = au.Rank;
+                        TB_REFERENCE_AUTHOR.Rows.Add(aRow);
+                    }
+                    foreach (ExternalID exId in cit.ExternalIDs)
+                    {
+                        ExtID_seed++;
+                        DataRow exRow = TB_EXTERNALID.NewRow();
+                        exRow["EXTERNALID_ID"] = ExtID_seed;
+                        exRow["REFERENCE_ID"] = Ref_seed;
+                        exRow["TYPE"] = exId.Name;
+                        exRow["VALUE"] = exId.Value;
+                        TB_EXTERNALID.Rows.Add(exRow);
+                    }
                 }
-                foreach (ExternalID exId in cit.ExternalIDs)
-                {
-                    ExtID_seed++;
-                    DataRow exRow = TB_EXTERNALID.NewRow();
-                    exRow["EXTERNALID_ID"] = ExtID_seed;
-                    exRow["REFERENCE_ID"] = Ref_seed;
-                    exRow["TYPE"] = exId.Name;
-                    exRow["VALUE"] = exId.Value;
-                    TB_EXTERNALID.Rows.Add(exRow);
-                }
-            }
-            Result.Add(TB_REFERENCE);
-            Result.Add(TB_EXTERNALID);
-            Result.Add(TB_REFERENCE_AUTHOR);
-            return Result;
+                Result.Add(TB_REFERENCE);
+                Result.Add(TB_EXTERNALID);
+                Result.Add(TB_REFERENCE_AUTHOR);
+                return Result;
+
         }
     }
 }
 
-public class ExternalID
+    public class ExternalID
 	{
 		public string Name { get; set; }
 		public string Value { get; set; }
