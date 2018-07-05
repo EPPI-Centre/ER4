@@ -135,6 +135,36 @@ namespace PubmedImport
         public int PubmedPmidVersion { get; set; }
         public double? Arrowsmith_RCT_Score { get; set; }
         public double? Arrowsmith_Human_Score { get; set; }
+        public string AuthorTitleAndJournal {
+            get
+            {
+                string res = "";
+                if (Authors != null)
+                {
+                    switch (Authors.Count)
+                    {
+                        case 0:
+                            res += "[No Authors.] ";
+                            break;
+                        case 1:
+                            res += System.Net.WebUtility.HtmlEncode(Authors[0].FamilyName + ". ");
+                            break;
+                        case 2:
+                            res += System.Net.WebUtility.HtmlEncode(Authors[0].FamilyName + " and " + Authors[1].FamilyName + ". ");
+                            break;
+                        default:
+                            res += System.Net.WebUtility.HtmlEncode(Authors[0].FamilyName + " et al. ");
+                            break;
+                    }
+                }
+                if (Title != null && Title.Length > 0) res += "<b>" + System.Net.WebUtility.HtmlEncode(Title.Trim().TrimEnd('.')) + ".</b> ";
+                else res += "<b>[No Title.]</b> ";
+                if (ParentTitle != null && ParentTitle.Length > 0) res += "<em>" + System.Net.WebUtility.HtmlEncode(ParentTitle.Trim().TrimEnd('.')) + "</em>.";
+                else res += "<em>[No Journal.]</em> ";
+                return res;
+            }
+        }
+
         public ReferenceRecord()
 		{
 			Title = "";
@@ -475,7 +505,7 @@ namespace PubmedImport
             res.CitationId = (Int64)reader["REFERENCE_ID"];
             res.Type = reader["TYPE_NAME"].ToString();
             res.TypeID = (int)reader["TYPE_ID"];
-            string tmp = reader["AUTHORS"].ToString();
+            string tmp = reader["AUTHORS"].ToString().Trim();
             if (tmp != null && tmp.Length > 0)
             {
                 string[] tmp1 = tmp.Split(";", StringSplitOptions.RemoveEmptyEntries);

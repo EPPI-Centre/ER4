@@ -28,7 +28,17 @@ body {
 #qrCode {
     margin: 15px;
 }
-
+.bg-light-blue {
+    background-color: #bDe8Eb;
+}
+.btn-sort-link {
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom-width: 0;
+    border-right:0;
+    border-left:0;
+}
 /* Hide/rearrange for smaller screens */
 @media screen and (max-width: 767px) {
     /* Hide captions */

@@ -16,14 +16,15 @@
             @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='True' />");
         }
     }
-    <button class="btn btn-secondary pull-right" type="submit" formaction="Fetch" value="Back to Table View" style="margin:1px;">Back to List</button>
-    <button class="btn btn-warning pull-right" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column" style="margin:1px;">
-        @if (!Model.HideNAinGraph)
-        {<span>Hide NA column</span> }
-        else
-        { <span>Show NA column</span>}
-    </button>
-    <h2>Scores Distribution</h2>
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-secondary" type="submit" formaction="Fetch" value="Back to Table View" style="margin:1px;">Back to List</button>
+        <button class="btn btn-light" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column" style="margin:1px;">
+            @if (!Model.HideNAinGraph)
+            {<span>Hide NA column</span> }
+            else
+            { <span>Show NA column</span>}
+        </button>
+    </div>
     @Html.Partial("_SearchData.cshtml", Model)
 
 
@@ -44,16 +45,16 @@
 
     </div>
 </form>
-<div class="row">
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-    <script type="text/javascript">
-       
+
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+
         window.onload = function () {
             var chart = new CanvasJS.Chart("RCTchartContainer", {
                 theme: "theme2",
                 animationEnabled: true,
                 title: {
-                    text: "RCT Scores Distribution:"
+                    text: "RCT Scores Distribution"
                 },
                 data: [
                     {
@@ -73,7 +74,7 @@
                 theme: "theme2",
                 animationEnabled: true,
                 title: {
-                    text: "Human Study Scores Distribution:"
+                    text: "Human Study Scores Distribution"
                 },
                 data: [
                     {
@@ -90,8 +91,13 @@
             });
             chart2.render();
         };
-    </script>
-    <div id="RCTchartContainer" class="row; table-bordered" style="height:350px;"></div>
-    <div id="HumanchartContainer" class="row; table-bordered" style="height:350px;"></div>
+</script>
+
+<div class="border border-dark p-1 mb-3">
+    <div id="RCTchartContainer" class="" style="height:350px;"></div>
 </div>
+<div class="border border-dark p-1 mb-3">
+    <div id="HumanchartContainer" style="height:350px;"></div>
+</div>
+
 

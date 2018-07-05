@@ -23,15 +23,17 @@
     
     }
     </script>
-<form method="post" action="~/FindCitations">
-    <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
-    <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
-    <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
+<div class="container">
+    <form method="post" action="~/FindCitations">
+        <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
+        <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
+        <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
 
-    <button class="btn pull-right p-1" type="submit" value="View Graphs" formaction="ViewGraph">View Graphs</button>
-    <h2>Fetch</h2>
-
-    @*<div class="row">
+        <div class="d-flex justify-content-end">
+            <button class="btn m-1 align-self-centre" type="submit" value="View Graphs" formaction="ViewGraph">View Graphs</button>
+        </div>
+        
+        @*<div class="row">
             Your search was
             @{
                 if (Model.SearchMethod == "PubMedSearch")
@@ -46,94 +48,96 @@
         <div class="row" style="border:1px dotted black; width:100%;">@Model.SearchString.</div>
         <div class="row">Your search returned: @Model.Results.Count.ToString() results.</div>*@
 
-    @Html.Partial("_SearchData.cshtml", Model)
+        @Html.Partial("_SearchData.cshtml", Model)
 
 
 
 
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>
-                    EPPI-ID
-                </th>
-                <th>
-                    Title <button class="btn-link " type="submit" value="Sort" formaction="SortByTitle">↑↓</button>
-                </th>
-                @*<th>
-                        @Html.DisplayNameFor(model => model.Abstract)
-                    </th>*@
-                <th>
-                    Short Title
-                </th>
-                <th>
-                    Year <button class="btn-link " type="submit" value="Sort" formaction="SortByYear">↑↓</button>
-                </th>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        PubMed ID
+                    </th>
+                    <th style="width:55%">
+                        Reference
+                    </th>
+                    <th class="justify-content-end" style="width:16px;">
+                        <button class="btn btn-link btn-sort-link align-self-end" type="submit" value="Sort" style="max-width:16px;" formaction="SortByTitle">↑↓</button>
+                    </th>
 
-                <th>
-                    Arrowsmith RCT Score <button class="btn-link " type="submit" value="Sort" formaction="SortByScore">↑↓</button>
-                </th>
-                <th>
-                    Arrowsmith Human-study Score <button class="btn-link " type="submit" value="Sort" formaction="SortByHumanScore">↑↓</button>
-                </th>
-                <th>
-                    PubMed ID
-                </th>
-                @*<th></th>*@
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Results)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CitationId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title) 
-                    <a class="btn" onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" id="@Html.Raw("ShowAbstractBt-"+ item.CitationId)" style="font-size:0.7em; padding:1px;">[Show Abstract]</a>
-            </td>
-            @*<td>
-            @Html.DisplayFor(modelItem => item.Abstract)
-        </td>*@
-            <td>
-                @Html.DisplayFor(modelItem => item.ShortTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PublicationYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Arrowsmith_RCT_Score)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Arrowsmith_Human_Score)
-            </td>
-            <td>
-            @foreach (ExternalID extId in item.ExternalIDs)
+                    <th>
+                        Year
+                    </th>
+                    <th style="width:10px;">
+                        <button class="btn btn-link btn-sort-link" type="submit" value="Sort" formaction="SortByYear">↑↓</button>
+                    </th>
+
+                    <th>
+                        RCT Score
+                    </th>
+                    <th>
+                        <button class="btn btn-link btn-sort-link" type="submit" value="Sort" formaction="SortByScore">↑↓</button>
+                    </th>
+                    <th>
+                        Human-study Score
+                    </th>
+                    <th>
+                        <button class="btn btn-link btn-sort-link" type="submit" value="Sort" formaction="SortByHumanScore">↑↓</button>
+                    </th>
+
+                    @*<th></th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Results)
             {
+                <tr>
+                    <td>
+                        @foreach (ExternalID extId in item.ExternalIDs)
+                        {
 
-                if (extId.Name == "pubmed")
-                {@extId.Value;
-                }
+                            if (extId.Name == "pubmed")
+                            {
+                                 @extId.Value;
+                            }
 
-            }
-            </td>
-            @*<td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-        </td>*@
-        </tr>
+                        }
+                    </td>
+                    <td colspan="2">
+                        @Html.Raw(item.AuthorTitleAndJournal)
+                        <a onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" id="@Html.Raw("ShowAbstractBt-"+ item.CitationId)" style="font-size:0.72em; padding:1px; cursor: pointer;color: #007bff;">[Show Abstract]</a>
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Abstract)
+                    </td>*@
+                    
+                    <td colspan="2">
+                        @Html.DisplayFor(modelItem => item.PublicationYear)
+                    </td>
+                    <td colspan="2">
+                        @Html.DisplayFor(modelItem => item.Arrowsmith_RCT_Score)
+                    </td>
+                    <td colspan="2">
+                        @Html.DisplayFor(modelItem => item.Arrowsmith_Human_Score)
+                    </td>
+                    @*<td>
+                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>*@
+                </tr>
 
-        @*<tr id="demo" class="collapse">*@
-        <tr id="@Html.Raw("itemDetailRow-"+ item.CitationId)" style="display:none;">
-            <td colspan="1">Abstract:</td>
-            <td colspan="6" class="info">
-                @item.Abstract
-                    <a class="btn" onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" style="font-size:0.7em; padding:1px;">[Hide Abstract]</a>
-            </td>
-        </tr>
+                @*<tr id="demo" class="collapse">*@
+                <tr id="@Html.Raw("itemDetailRow-"+ item.CitationId)" style="display:none;">
+                    <td >Abstract:</td>
+                    <td colspan="9" class="bg-light-blue">
+                        @item.Abstract
+                        <a class="btn" onclick="ShowHideAbstract('@Html.Raw(item.CitationId)')" style="font-size:0.72em; padding:1px; cursor: pointer;color: #007bff;">[Hide Abstract]</a>
+                    </td>
+                </tr>
         }
-        </tbody>
-    </table>
-</form>
+            </tbody>
+        </table>
+    </form>
+</div>

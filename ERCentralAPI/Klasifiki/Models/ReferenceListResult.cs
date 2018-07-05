@@ -22,7 +22,7 @@ namespace Klasifiki.Models
                 
         }
         public bool HideNAinGraph { get; set; } = true;
-        private string[] _GraphLabels = new string[] { "100-90%", "89-80%", "79-70%", "69-60%", "59-50%", "49-40%", "39-30%", "29-20%", "19-80%", "9-0%", "N/A" };
+        private string[] _GraphLabels = new string[] { "90-100%", "80-89%", "70-79%", "60-69%", "50-59%", "40-49%", "30-39%", "20-29%", "10-19%", "0-9%", "N/A" };
         public string[] GraphLabels
         {
             get
@@ -80,7 +80,7 @@ namespace Klasifiki.Models
                 int v90 = 0, v80 = 0, v70 = 0, v60 = 0, v50 = 0, v40 = 0, v30 = 0, v20 = 0, v10 = 0, v0 = 0, vNA = 0;
                 foreach (ReferenceRecord refr in Results)
                 {
-                    if (refr.Arrowsmith_RCT_Score >= 0.9) v90++;
+                    if (refr.Arrowsmith_Human_Score >= 0.9) v90++;
                     else if (refr.Arrowsmith_Human_Score >= 0.8) v80++;
                     else if (refr.Arrowsmith_Human_Score >= 0.7) v70++;
                     else if (refr.Arrowsmith_Human_Score >= 0.6) v60++;
