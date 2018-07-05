@@ -513,5 +513,41 @@ BEGIN
 END
 GO
 
+--PATRICK CHANGES FOR SQL TO BUL DELETE AND INSERT FOR FTPUPDATEFOLDER OPTION
+USE [DataService]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_DeleteReferencesByREFID]    Script Date: 05/07/2018 16:21:25 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[st_DeleteReferencesByREFID]
+(
+	@RefIDs nvarchar(max)
+)
+
+As
+
+SET NOCOUNT ON
+-- 
+
+
+BEGIN
+
+declare @sql nvarchar(max)
+set @sql = 'DELETE from [DataService].[dbo].[TB_REFERENCE] where REFERENCE_ID in (' + @RefIDs + ')'
+Execute(@sql)
+
+END
+
+SET NOCOUNT OFF
+GO
+
+
+
+
 
 
