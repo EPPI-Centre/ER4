@@ -2,28 +2,47 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div class="container">
+    <div class="d-flex flex-row justify-content-center m-3">
+        <span class="h3 align-text-bottom" style="line-height:44px; margin-bottom:0px;">Welcome to </span>
+        <img src="~/images/Klasifiki Small.png" class="ml-1" />
+    </div>
+    <div class="d-flex flex-row justify-content-center m-1">
+        This is a&nbsp;<em>Proof of Concept</em>&nbsp;demonstrative utility.<br />
+    </div>
+    <div class="d-flex flex-row justify-content-center m-1 mt-2">
+        <div>
+            Here you can search pubmed and view machine learning classifications:
+            RCT classifier; human studies classifier; systematic reviews classifier (coming soon); economic evaluations classifier (coming soon).
+            We will also link in the classifications from Cochrane Crowd in the near future.
+        </div>
+    </div>
+
+    <div class="d-flex flex-row m-1">
+        You can search PubMeD directly (will yeild up to 10,000 results).
+    </div>
+    <div class="d-flex flex-row m-1">
+        <form method="post" action="~/FindCitations/Fetch">
+            <textarea method="post" name="SearchString" cols="70" rows="6"></textarea>
+            <input type="hidden" name="SearchMethod" value="PubMedSearch" />
+            <button type="submit" class="btn align-top" value="Fetch">Search PubMed</button>
+        </form>
+    </div>
+
+    <div class="d-flex flex-row justify-content-center m-1">
+        You can insert a list of PubMeD IDs (comma separated) in the box below and click retrieve.
+    </div>
+    <div class="d-flex flex-row m-1">
+        <form method="post" action="~/FindCitations/Fetch">
+            <textarea method="post" name="SearchString" cols="70" rows="3"></textarea>
+            <input type="hidden" name="SearchMethod" value="PubMedIDs" />
+            <button type="submit" class="btn align-top" value="Fetch">Search for these PubMed IDs</button>
+        </form>
+    </div>
+</div>
 
 
-<div class="row">
-    Hello, this is a "Proof of concept" demonstrative utility.
-    You can retrieve references and see what various machine learning systems think about them.
-    
-</div>
-<div class="row">
-    You can search PubMeD directly (will yeild up to 10,000 results).
-    <form method="post" action="~/FindCitations/Fetch">
-        <textarea method="post" name="SearchString" cols="80" rows="8"></textarea>
-        <input type="hidden" name="SearchMethod" value="PubMedSearch" />
-        <br />
-        <button type="submit" class="btn" value="Fetch">Search PubMed</button>
-    </form>
-</div>
-<div class="row">
-    You can insert a list of PubMeD IDs (comma separated) in the box below and click retrieve.
-    <form method="post" action="~/FindCitations/Fetch">
-        <textarea method="post" name="SearchString" cols="80" rows="8"></textarea>
-        <input type="hidden" name="SearchMethod" value="PubMedIDs" />
-        <br />
-        <button type="submit" class="btn" value="Fetch">Search for these PubMed IDs</button>
-    </form>
-</div>
+
+
+
+
