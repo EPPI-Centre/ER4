@@ -15,15 +15,12 @@ namespace PubmedImport
 {
     public static class FileParser
     {
-
         public static bool BulkInsertDataTable(DataTable table,
            SqlConnection conn, SqlTransaction tran)
         {
-
             try
             {
 
-            
                 using (SqlBulkCopy bulkCopy =
                         new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints, tran))
                 {
@@ -34,9 +31,7 @@ namespace PubmedImport
                     {
                         bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
                     }
-
                     bulkCopy.BulkCopyTimeout = 1000;
-
                     bulkCopy.WriteToServer(table);
 
                 }
@@ -204,7 +199,11 @@ namespace PubmedImport
                             UpdateExsitingCitation(ExsistingCit, rec); //changes ExsistingCit therein...
                             Citations.Remove(rec);//we use this to create new citations...
                             UpdateCitations.Add(ExsistingCit);
-                            if (!Program.simulate) ExsistingCit.SaveSelf(conn, Program.SqlHelper);
+                            // need to replace what the line below is doing to a bulk update of some sort
+                            // rather than one by one....remove the ;ine below and bulk update a list
+                            // of existin citations....
+                            
+                           // if (!Program.simulate) ExsistingCit.SaveSelf(conn, Program.SqlHelper);
                         }
                         else if (!updateExisting)
                         {//we don't want this reference to be bulk inserted below! Parser ref is older than the one in DB so nothing should change.
@@ -221,6 +220,24 @@ namespace PubmedImport
                 }
             }
             string savedin = EPPILogger.Duration(now);
+
+            //================================================================
+
+            // delete all records in our db from the updatecitations list of IDS : UpdateCitations
+            // which is a ->  static List<ReferenceRecord>...
+            // then insert all the new versions of these within the list
+            //List<ReferenceRecord> existingCitationsNeedingUpdating
+
+            int bulkDeleteResult = BulkDeleteExistingCitations(UpdateCitations);
+
+            //List <ReferenceRecord> existingCitationsNeedingInserting
+            if (bulkDeleteResult == -1)
+            {
+                BulkInsertTheUpdates(UpdateCitations);
+            }
+
+            //================================================================
+
             Program.Logger.LogMessageLine("Done updating references in: " + savedin);
             result.Messages.Add("Done updating references in: " + savedin);
             now = DateTime.Now;
@@ -395,7 +412,95 @@ namespace PubmedImport
             }
         }
 
+        private static void BulkInsertTheUpdates(List<ReferenceRecord> updateCitations)
+        {
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                conn.Open();
+                List<Author> authors = new List<Author>();
+                List<ExternalID> externals = new List<ExternalID>();
 
+                foreach (var item in updateCitations)
+                {
+                    authors.AddRange(item.Authors);
+                    externals.AddRange(item.ExternalIDs);
+                }
+
+                int AuthorsCount = 0;
+                int ExternalCount = 0;
+                Int64 Items_S;
+                Int64 Author_S;
+                Int64 External_S;
+
+                    try
+                    {
+
+                        // Authors count required
+                        foreach (var item in Citations)
+                        {
+                            AuthorsCount += item.Authors.Count();
+                            ExternalCount += item.ExternalIDs.Count();
+                        }
+
+                        using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
+                        {
+                            //prepare all tables
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
+                            cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
+                            cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
+                            cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+                            cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+                            cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
+                            cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
+                            cmd.ExecuteNonQuery();
+
+                            //get seeds values
+                            Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                            Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+                            External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
+
+                        }
+
+
+                        var tables = ReferenceRecord.ToDataTablesUpdate(updateCitations, authors, externals, Items_S, External_S);
+                        foreach (DataTable dt in tables)
+                        {
+                            var resBulkInsert = BulkInsertDataTable(dt, conn, null);
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        Program.Logger.LogException(ex, "FATAL ERROR: failed to bulk insert updated references.");
+                    }
+            }
+        }
+
+        // This method is next
+        private static int BulkDeleteExistingCitations(List<ReferenceRecord> updateCitations)
+        {
+            int success = 0;
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+
+                SqlParameter RefIDs = new SqlParameter("@RefIDs", String.Join(",", updateCitations.Select(x => x.CitationId).ToList()));
+                try
+                {
+                    if (RefIDs.Size != 0)
+                    {
+                        success = Program.SqlHelper.ExecuteNonQuerySP(conn, "st_DeleteReferencesByREFID", RefIDs);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Program.Logger.LogSQLException(e, "Error");
+                }
+  
+            }
+            return success;
+        }
 
         private static ReferenceRecord GetReferenceRecordByPMID(SqlConnection conn, string pubmedID)
         {
