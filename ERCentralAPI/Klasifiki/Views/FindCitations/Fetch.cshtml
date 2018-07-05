@@ -109,14 +109,14 @@
                 @Html.DisplayFor(modelItem => item.Arrowsmith_Human_Score)
             </td>
             <td>
-                @foreach (ExternalID extId in item.ExternalIDs)
-        {
+            @foreach (ExternalID extId in item.ExternalIDs)
+            {
 
-            if (extId.Name == "pubmed")
-            {@extId.Value;
-}
+                if (extId.Name == "pubmed")
+                {@extId.Value;
+                }
 
-}
+            }
             </td>
             @*<td>
             @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
@@ -135,7 +135,5 @@
         </tr>
         }
         </tbody>
-        <br />
-        <br />
     </table>
 </form>
