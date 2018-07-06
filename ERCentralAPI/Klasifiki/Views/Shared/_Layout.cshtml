@@ -17,29 +17,36 @@
         </environment>
 </head>
 <body>
-    <nav class="navbar navbar-expand flex-column flex-md-row bd-navbar bg-dark">
-        <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand text-light nav-item pull-left pl-4">Klasifiki</a>
-        <a asp-area="" asp-controller="Home" asp-action="Index" class="text-light pull-left nav-item pl-4">Home</a>
-        <a asp-area="" asp-controller="Home" asp-action="About" class="text-light pull-left nav-item pl-4">About</a>
-        <a asp-area="" asp-controller="Home" asp-action="Contact" class="text-light pull-left nav-item pl-4">Contact</a>
-               
-                @if (Context.User != null && Context.User.Identity.IsAuthenticated)
-                {
-                    <div class="text-light pull-right nav-item small ml-md-auto">
-                        Hello @Context.User.Identity.Name.
-                        <a href="~/Login/Logout">Log Out.</a>
-                    </div>
-                }
-    </nav>
+    <div style="min-height:95%;">
+        <nav class="navbar navbar-expand flex-column flex-md-row bd-navbar bg-dark">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand text-light nav-item pull-left pl-4">Klasifiki</a>
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-light pull-left nav-item pl-4">Home</a>
+            <a asp-area="" asp-controller="Home" asp-action="About" class="text-light pull-left nav-item pl-4">About</a>
+            <a asp-area="" asp-controller="Home" asp-action="Contact" class="text-light pull-left nav-item pl-4">Contact</a>
+
+            @if (Context.User != null && Context.User.Identity.IsAuthenticated)
+            {
+                <div class="text-light pull-right nav-item small ml-md-auto">
+                    Hello @Context.User.Identity.Name.
+                    <a href="~/Login/Logout">Log Out.</a>
+                </div>
+            }
+        </nav>
 
 
-    
-    <div class="container body-content" style="height:100%;">
-        @RenderBody()
-        <hr />
-        <footer style="vertical-align:bottom; position:relative; padding-top:55px; bottom:+50px;">
-            <p>&copy; @DateTime.Now.Year.ToString()- <a href="https://eppi.ioe.ac.uk">EPPI-Centre</a> - UCL Institute of Education.</p>
-        </footer>
+
+        <div class="container body-content">
+            @RenderBody()
+        </div>
+
+    </div>
+    <div class="align-bottom ml-3 mr-3 mt-0">
+        <hr class="mb-0" />
+        <small>
+            <footer class="align-top ml-3 mt-0">
+                <p>&copy; @DateTime.Now.Year.ToString() - <a href="https://eppi.ioe.ac.uk" target="_blank">EPPI-Centre</a> - UCL Institute of Education.</p>
+            </footer>
+        </small>
     </div>
 
     <environment include="Development">

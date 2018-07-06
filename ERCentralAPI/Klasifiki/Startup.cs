@@ -33,6 +33,10 @@ namespace Klasifiki
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+            });
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //.AddJwtBearer(options =>
             //{
@@ -103,7 +107,7 @@ namespace Klasifiki
             }
 
             app.UseStaticFiles();
-            
+            app.UseResponseCompression();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
