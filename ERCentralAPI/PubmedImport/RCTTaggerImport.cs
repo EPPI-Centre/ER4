@@ -760,7 +760,7 @@ namespace PubmedImport
             taskHuman.Wait();
             List<string> htmlHumanLinks = taskHuman.Result.Where(x => x.Contains("arrowsmith")).ToList();
 
-            Logger = Program.Logger;
+            //Logger = Program.Logger;
 
             SqlHelper = Program.SqlHelper;
 

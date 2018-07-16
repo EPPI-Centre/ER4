@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,18 +12,21 @@ namespace EPPIDataServices.Helpers
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
         public readonly string ER4AdminDB = "";
-        EPPILogger Logger;
-        public SQLHelper (IConfigurationRoot configuration, EPPILogger logger)
+        // EPPILogger Logger;
+        private readonly ILogger _logger;
+
+        public SQLHelper (IConfigurationRoot configuration, ILogger<EPPILogger> logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
-            Logger = logger;
+            //Logger = logger;
+            _logger = logger;
             DataServiceDB = configuration["AppSettings:DataServiceDB"];
             ER4DB = configuration["AppSettings:ER4DB"];
             ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
         }
-        public SQLHelper (EPPILogger logger)
+        public SQLHelper (ILogger<EPPILogger> logger)
         {
-            Logger = logger;
+            _logger = logger;
             DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";
         }
         /// <summary> 
@@ -40,7 +44,8 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return -1;
             }
         }
@@ -61,7 +66,8 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return -1;
             }
         }
@@ -89,7 +95,8 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return null;
             }
         }
@@ -112,7 +119,8 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
                 return null;
             }
         }
@@ -145,6 +153,8 @@ namespace EPPIDataServices.Helpers
                 else connection.Open();
             }
         }
+
+
     }
 }
 

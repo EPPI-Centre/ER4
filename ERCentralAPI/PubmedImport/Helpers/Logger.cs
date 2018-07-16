@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -6,14 +7,43 @@ using System.Text;
 
 namespace EPPIDataServices.Helpers
 {
-    public class EPPILogger
+    public class EPPILogger : ILogger
     {
         private bool SaveLog = false;
         private string LogFileFullPath = "";
-        public EPPILogger(bool SaveLogTofile)
+        private string name;
+        readonly CustomLoggerProviderConfiguration loggerConfigK;
+        readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
+
+        public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
         {
-            SaveLog = SaveLogTofile;
+            this.loggerConfigK = loggerConfigK;
         }
+
+        public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
+        {
+            SaveLog = true; // SaveLogTofile;
+
+            loggerConfig = config;
+        }
+        private static void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
+        {
+            if (e == null || e.Message == null || e.Message == "")
+            {
+                messages.Add("Unknown error " + doingWhat);
+            }
+            else
+            {
+                messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
+                //_logger.LogInformation("Error " + doingWhat);
+                messages.Add(e.Message);
+                //_logger.LogInformation(e.Message);
+                //_logger.LogInformation(e.StackTrace);
+                messages.Add(e.StackTrace);
+            }
+        }
+
+
         public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
         {
             LogException(e, Description);
@@ -86,5 +116,46 @@ namespace EPPIDataServices.Helpers
             }
             return duration;
         }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            // need a switch for various log messges we want
+
+            // Implement the SQL exceptions in here.
+            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+            WriteTextToFile(message);
+        }
+        private void WriteTextToFile(string message)
+        {
+            string filePath = CreateLogFileName(); //"D:\\IDGLog.txt";
+            using (StreamWriter streamWriter = new StreamWriter(filePath, true))
+            {
+                streamWriter.WriteLine(message);
+                streamWriter.Close();
+            }
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return null;
+        }
     }
+
+    public class CustomLoggerProviderConfiguration
+    {
+        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public int EventId { get; set; } = 0;
+    }
+
+    public class CustomLoggerProviderConfigurationPubMed
+    {
+        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public int EventId { get; set; } = 0;
+    }
+
 }

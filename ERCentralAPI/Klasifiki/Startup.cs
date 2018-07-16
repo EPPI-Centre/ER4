@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IdentityModel.Tokens.Jwt;
 using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.IdentityModel.Tokens;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace Klasifiki
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+
+        public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
-            Program.Logger = new EPPILogger(true);
-            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, Program.Logger);
+            //Program.Logger = new EPPILogger(true);
+            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
             Program.IdentityServerClient = new IdentityServer4Client(configuration);
         }
         
@@ -32,6 +28,9 @@ namespace Klasifiki
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+
             services.AddMvc();
             services.AddResponseCompression(options =>
             {
@@ -92,8 +91,10 @@ namespace Klasifiki
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+
+           
             app.UseAuthentication();
             
             if (env.IsDevelopment())
@@ -108,6 +109,10 @@ namespace Klasifiki
 
             app.UseStaticFiles();
             app.UseResponseCompression();
+            loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
+            {
+                LogLevel = LogLevel.Information
+            }));
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -116,6 +121,33 @@ namespace Klasifiki
                 new { controller = "Home", action = "Index", id = "" }  // Parameter defaults
                 );
             });
+        }
+
+        public class CustomLoggerProvider : ILoggerProvider
+        {
+
+            readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
+            readonly ConcurrentDictionary<string, EPPILogger> loggers =
+             new ConcurrentDictionary<string, EPPILogger>();
+            public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
+            {
+                loggerConfigK = config;
+            }
+            public ILogger CreateLogger(string category)
+            {
+                return loggers.GetOrAdd(category,
+                 name => new EPPILogger(null, loggerConfigK));
+            }
+            public void Dispose()
+            {
+                //Write code here to dispose the resources
+            }
+        }
+
+        public class CustomLoggerProviderConfiguration
+        {
+            public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+            public int EventId { get; set; } = 0;
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Klasifiki.Controllers
 {
@@ -18,7 +19,15 @@ namespace Klasifiki.Controllers
     public class LoginController : Controller
     {
         // GET: Login
-        
+
+        private readonly ILogger _logger;
+
+        public LoginController(ILogger<LoginController> logger)
+        {
+            _logger = logger;
+        }
+
+
         public IActionResult Index()
         {
             return View();
@@ -78,7 +87,8 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                Program.Logger.LogException(e, "logging on");
+                _logger.LogError(null, e, "", null);
+                //Program.Logger.LogException(e, "logging on");
                 return Redirect("~/Login/Index");
             }
         }
