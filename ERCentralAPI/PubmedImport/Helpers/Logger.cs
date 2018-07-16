@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -6,14 +7,26 @@ using System.Text;
 
 namespace EPPIDataServices.Helpers
 {
-    public class EPPILogger
+    public class EPPILogger : ILogger
     {
         private bool SaveLog = false;
         private string LogFileFullPath = "";
-        public EPPILogger(bool SaveLogTofile)
+        private string name;
+        readonly CustomLoggerProviderConfiguration loggerConfigK;
+        readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
+
+        public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
         {
-            SaveLog = SaveLogTofile;
+            SaveLog = true; // SaveLogTofile;
+
+            loggerConfig = config;
         }
+
+        public EPPILogger( CustomLoggerProviderConfiguration loggerConfigK)
+        {
+            this.loggerConfigK = loggerConfigK;
+        }
+
         public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
         {
             LogException(e, Description);
@@ -86,5 +99,43 @@ namespace EPPIDataServices.Helpers
             }
             return duration;
         }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+            WriteTextToFile(message);
+        }
+        private void WriteTextToFile(string message)
+        {
+            string filePath = CreateLogFileName(); //"D:\\IDGLog.txt";
+            using (StreamWriter streamWriter = new StreamWriter(filePath, true))
+            {
+                streamWriter.WriteLine(message);
+                streamWriter.Close();
+            }
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
     }
+
+    public class CustomLoggerProviderConfiguration
+    {
+        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public int EventId { get; set; } = 0;
+    }
+
+    public class CustomLoggerProviderConfigurationPubMed
+    {
+        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public int EventId { get; set; } = 0;
+    }
+
 }

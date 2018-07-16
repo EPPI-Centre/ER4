@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IdentityModel.Tokens.Jwt;
 using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.IdentityModel.Tokens;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace Klasifiki
 {
@@ -21,7 +16,7 @@ namespace Klasifiki
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Program.Logger = new EPPILogger(true);
+            //Program.Logger = new EPPILogger(true);
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, Program.Logger);
             Program.IdentityServerClient = new IdentityServer4Client(configuration);
         }
@@ -92,7 +87,7 @@ namespace Klasifiki
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseAuthentication();
             
@@ -108,6 +103,10 @@ namespace Klasifiki
 
             app.UseStaticFiles();
             app.UseResponseCompression();
+            loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
+            {
+                LogLevel = LogLevel.Information
+            }));
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -116,6 +115,33 @@ namespace Klasifiki
                 new { controller = "Home", action = "Index", id = "" }  // Parameter defaults
                 );
             });
+        }
+
+        public class CustomLoggerProvider : ILoggerProvider
+        {
+
+            readonly CustomLoggerProviderConfiguration loggerConfigK;
+            readonly ConcurrentDictionary<string, EPPILogger> loggers =
+             new ConcurrentDictionary<string, EPPILogger>();
+            public CustomLoggerProvider(CustomLoggerProviderConfiguration config)
+            {
+                loggerConfigK = config;
+            }
+            public ILogger CreateLogger(string category)
+            {
+                return loggers.GetOrAdd(category,
+                 name => new EPPILogger(loggerConfigK));
+            }
+            public void Dispose()
+            {
+                //Write code here to dispose the resources
+            }
+        }
+
+        public class CustomLoggerProviderConfiguration
+        {
+            public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+            public int EventId { get; set; } = 0;
         }
     }
 }

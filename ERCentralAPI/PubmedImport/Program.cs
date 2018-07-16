@@ -10,12 +10,13 @@ using System.Net;
 using EPPIDataServices.Helpers;
 using System.Xml;
 using System.Xml.Linq;
-
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace PubmedImport
 {
-	
-	class Program
+
+    class Program
 	{
 		//private static string DoWhat = "SampleFile";
 		private static bool success = false;
@@ -38,12 +39,24 @@ namespace PubmedImport
         public static SQLHelper SqlHelper = null;
 		private static bool WaitOnExit = false;
         private static bool SaveLog = false;
-        internal static EPPILogger Logger;
-		
-		static void Main(string[] args)
+        //internal static EPPILogger Logger;
+        private readonly ILogger _logger;
+
+        static void Main(string[] args)
 		{
-			//https://blog.bitscry.com/2017/05/30/appsettings-json-in-net-core-console-app/
-			PubMedUpdateFileImportJobLog result = new PubMedUpdateFileImportJobLog(args);
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var logger = serviceProvider.GetService<ILogger<Program>>();
+
+            //IConfiguration configuration = new ConfigurationBuilder()
+            //                              .AddEnvironmentVariables()
+            //                              .Build();
+
+            //https://blog.bitscry.com/2017/05/30/appsettings-json-in-net-core-console-app/
+            PubMedUpdateFileImportJobLog result = new PubMedUpdateFileImportJobLog(args);
 
 			//DateTime globalStart = DateTime.Now;
 			foreach (string s in args)
@@ -264,6 +277,13 @@ namespace PubmedImport
 			}
 		}
 
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddLogging(configure => configure.AddConsole())
+               .AddTransient<Program>();
+
+        }
+
         private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
         {
             string argStr = "";
@@ -332,7 +352,8 @@ namespace PubmedImport
 
         static void GetAppSettings()
 		{
-            Logger = new EPPILogger(SaveLog);
+            //Logger = new EPPILogger(SaveLog);
+ 
 			System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())

@@ -22,7 +22,7 @@ namespace Klasifiki
         
         internal static IdentityServer4Client IdentityServerClient;
         public static SQLHelper SqlHelper;
-        internal static EPPILogger Logger;
+        //internal static EPPILogger Logger;
 
         //void GetAppSettings()
         //{

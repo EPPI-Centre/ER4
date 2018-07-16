@@ -11,6 +11,7 @@ using Klasifiki.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using PubmedImport;
 
 namespace Klasifiki.Controllers
@@ -18,6 +19,12 @@ namespace Klasifiki.Controllers
     [Authorize("Authenticated")]
     public class FindCitationsController : Controller
     {
+        readonly ILogger<FindCitationsController> logger;
+        public FindCitationsController(ILogger<FindCitationsController> log)
+        {
+            logger = log;
+        }
+
         private static string FetchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
         private static string SearchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
         // GET: FindByPubMedIDs
@@ -94,7 +101,8 @@ namespace Klasifiki.Controllers
                 }
                 catch (Exception e)
                 {
-                    Program.Logger.LogException(e, "Error fetching list of type:" + SearchMethod + ".");
+                    logger.LogError(null, e, "Error fetching list of type:" + SearchMethod + ".", null);
+                    //Program.Logger.LogException(e, "Error fetching list of type:" + SearchMethod + ".");
                     return Redirect("~/Home"); //View();
                 }
             }
