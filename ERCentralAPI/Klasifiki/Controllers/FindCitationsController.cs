@@ -19,10 +19,11 @@ namespace Klasifiki.Controllers
     [Authorize("Authenticated")]
     public class FindCitationsController : Controller
     {
-        readonly ILogger<FindCitationsController> logger;
-        public FindCitationsController(ILogger<FindCitationsController> log)
+        private readonly ILogger _logger;
+
+        public FindCitationsController(ILogger<FindCitationsController> logger)
         {
-            logger = log;
+            _logger = logger;
         }
 
         private static string FetchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
@@ -101,7 +102,7 @@ namespace Klasifiki.Controllers
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(null, e, "Error fetching list of type:" + SearchMethod + ".", null);
+                    _logger.LogError(null, e, "Error fetching list of type:" + SearchMethod + ".", null);
                     //Program.Logger.LogException(e, "Error fetching list of type:" + SearchMethod + ".");
                     return Redirect("~/Home"); //View();
                 }
@@ -169,7 +170,7 @@ namespace Klasifiki.Controllers
             }
             return View("Fetch", results);
         }
-        private static List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
+        public List<ReferenceRecord> GetReferenceRecordsByRefIDs(SqlConnection conn, string refIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
             SqlParameter RefIDs = new SqlParameter("@RefIDs", refIDs);
@@ -182,7 +183,8 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
             }
             return res;
         }
@@ -202,7 +204,7 @@ namespace Klasifiki.Controllers
             return View("FetchGraph", results);
         }
         
-        private static List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
+        private List<ReferenceRecord> GetReferenceRecordsByPMIDs(SqlConnection conn, string pubmedIDs)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
             SqlParameter extName = new SqlParameter("@ExternalIDName", "pubmed");
@@ -216,11 +218,12 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
+                _logger.LogError(null, e, "", null);
+                //Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
             }
             return res;
         }
-        private static List<ReferenceRecord> GetReferenceRecordByPubMedSearch(string searchString)
+        private List<ReferenceRecord> GetReferenceRecordByPubMedSearch(string searchString)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
             try
@@ -231,7 +234,8 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                Program.Logger.LogException(e, "Running a PubMed Search.");
+                _logger.LogError(null, e, "", null);
+                //Program.Logger.LogException(e, "Running a PubMed Search.");
             }
             return res;
         }
@@ -292,7 +296,7 @@ namespace Klasifiki.Controllers
                 return response;
             }
         }
-        private static List<ReferenceRecord> GetCitationsFromResponse(XElement xResponse)
+        private List<ReferenceRecord> GetCitationsFromResponse(XElement xResponse)
         {
             List<ReferenceRecord> res = new List<ReferenceRecord>();
             

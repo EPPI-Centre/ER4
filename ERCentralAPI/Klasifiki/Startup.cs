@@ -13,11 +13,12 @@ namespace Klasifiki
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+
+        public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
             //Program.Logger = new EPPILogger(true);
-            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, Program.Logger);
+            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
             Program.IdentityServerClient = new IdentityServer4Client(configuration);
         }
         
@@ -27,6 +28,9 @@ namespace Klasifiki
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+
             services.AddMvc();
             services.AddResponseCompression(options =>
             {
@@ -89,6 +93,8 @@ namespace Klasifiki
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+
+           
             app.UseAuthentication();
             
             if (env.IsDevelopment())
@@ -103,7 +109,7 @@ namespace Klasifiki
 
             app.UseStaticFiles();
             app.UseResponseCompression();
-            loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
+            loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
             {
                 LogLevel = LogLevel.Information
             }));
@@ -120,17 +126,17 @@ namespace Klasifiki
         public class CustomLoggerProvider : ILoggerProvider
         {
 
-            readonly CustomLoggerProviderConfiguration loggerConfigK;
+            readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
             readonly ConcurrentDictionary<string, EPPILogger> loggers =
              new ConcurrentDictionary<string, EPPILogger>();
-            public CustomLoggerProvider(CustomLoggerProviderConfiguration config)
+            public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
             {
                 loggerConfigK = config;
             }
             public ILogger CreateLogger(string category)
             {
                 return loggers.GetOrAdd(category,
-                 name => new EPPILogger(loggerConfigK));
+                 name => new EPPILogger(null, loggerConfigK));
             }
             public void Dispose()
             {

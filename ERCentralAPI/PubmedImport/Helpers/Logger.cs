@@ -15,17 +15,34 @@ namespace EPPIDataServices.Helpers
         readonly CustomLoggerProviderConfiguration loggerConfigK;
         readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
 
+        public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
+        {
+            this.loggerConfigK = loggerConfigK;
+        }
+
         public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
         {
             SaveLog = true; // SaveLogTofile;
 
             loggerConfig = config;
         }
-
-        public EPPILogger( CustomLoggerProviderConfiguration loggerConfigK)
+        private static void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
         {
-            this.loggerConfigK = loggerConfigK;
+            if (e == null || e.Message == null || e.Message == "")
+            {
+                messages.Add("Unknown error " + doingWhat);
+            }
+            else
+            {
+                messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
+                //_logger.LogInformation("Error " + doingWhat);
+                messages.Add(e.Message);
+                //_logger.LogInformation(e.Message);
+                //_logger.LogInformation(e.StackTrace);
+                messages.Add(e.StackTrace);
+            }
         }
+
 
         public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
         {
@@ -102,6 +119,9 @@ namespace EPPIDataServices.Helpers
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            // need a switch for various log messges we want
+
+            // Implement the SQL exceptions in here.
             string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
             WriteTextToFile(message);
         }
@@ -122,7 +142,7 @@ namespace EPPIDataServices.Helpers
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 
