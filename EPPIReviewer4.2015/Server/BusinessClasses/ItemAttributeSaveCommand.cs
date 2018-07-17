@@ -154,7 +154,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
                             command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId == 0 ? (object)DBNull.Value : _itemArmId));
                             command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                             command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                             command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
