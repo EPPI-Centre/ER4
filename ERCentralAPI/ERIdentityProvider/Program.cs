@@ -14,11 +14,18 @@ namespace ERIdentityProvider
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            BuildWebHost(args)
+                .Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    //logging.AddEventLog();
+                    logging.AddConsole();
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

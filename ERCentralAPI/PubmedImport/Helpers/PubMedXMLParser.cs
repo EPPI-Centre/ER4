@@ -6,11 +6,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace PubmedImport
+namespace EPPIDataServices.Helpers
 {
     public static class PubMedXMLParser
     {
-		public static CitationRecord ParseCitation(XElement xCit)
+		public static ReferenceRecord ParseCitation(XElement xCit)
 		{
 			//Type = RisCode.GetType(doc).DisplayName();
 			//Title = doc.GetData(RisCode.Title);
@@ -35,7 +35,7 @@ namespace PubmedImport
 
 			//SetSearchText();
 
-			CitationRecord res = new CitationRecord();
+			ReferenceRecord res = new ReferenceRecord();
             //hardcoded == not good!
             res.Type = "Journal Article";
             res.TypeID = 14;
@@ -112,7 +112,7 @@ namespace PubmedImport
 			{
 				foreach (XElement xAuthor in xAuthorList.Elements("Author"))
 				{
-					Author au = new Author() { AuthorshipLevel = 0 };
+					Author au = new Author() { AuthorshipLevel = 0, Rank = res.Authors.Count };
 					au.FamilyName = SafeGetValue(xAuthor, "LastName");
 					au.GivenName = SafeGetValue(xAuthor, "ForeName");
 					au.Name = au.FamilyName + (au.GivenName.IsEmpty() ? "" : ", " + au.GivenName);

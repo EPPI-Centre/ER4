@@ -1,0 +1,13 @@
+﻿Information: 1 - Request starting HTTP/1.1 GET http://localhost:55136/Home  
+Information: 8 - AuthenticationScheme: Cookies was successfully authenticated.
+Information: 1 - Executing action method Klasifiki.Controllers.HomeController.Index (Klasifiki) with arguments ((null)) - ModelState is Valid
+Information: 1 - Executing ViewResult, running view at path /Views/Home/Index.cshtml.
+Information: 2 - Executed action Klasifiki.Controllers.HomeController.Index (Klasifiki) in 9.8261ms
+Information: 2 - Request finished in 35.6449ms 200 text/html; charset=utf-8
+Information: 1 - Request starting HTTP/1.1 POST http://localhost:55136/FindCitations/Fetch application/x-www-form-urlencoded 271
+Information: 8 - AuthenticationScheme: Cookies was successfully authenticated.
+Information: 1 - Authorization was successful for user: Patrick.
+Information: 1 - Executing action method Klasifiki.Controllers.FindCitationsController.Fetch (Klasifiki) with arguments (trains, PubMedSearch, ) - ModelState is Valid
+Information: 1 - Executing ViewResult, running view at path /Views/FindCitations/Fetch.cshtml.
+Information: 2 - Executed action Klasifiki.Controllers.FindCitationsController.Fetch (Klasifiki) in 2610.826ms
+Information: 2 - Request finished in 2636.1568ms 200 text/html; charset=utf-8

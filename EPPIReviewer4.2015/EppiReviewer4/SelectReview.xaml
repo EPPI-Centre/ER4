@@ -11,6 +11,8 @@
     xmlns:EppiReviewer4="clr-namespace:EppiReviewer4"
     xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
     xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation" 
+    MinHeight="200"
+    MinWidth="200"
     >
     <UserControl.Resources>
         <helper:LoginToReviewIsEn x:Key="LoginToReviewIsEnK"/>
