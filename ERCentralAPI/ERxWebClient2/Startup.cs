@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using EPPIDataServices.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace ERxWebClient2
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
-            Program.Logger = new EPPILogger(true);
-            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, Program.Logger);
+            //Program.Logger = new EPPILogger(true);
+            Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
         }
 
         public IConfiguration Configuration { get; }

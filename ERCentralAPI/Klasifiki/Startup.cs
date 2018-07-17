@@ -123,31 +123,6 @@ namespace Klasifiki
             });
         }
 
-        public class CustomLoggerProvider : ILoggerProvider
-        {
-
-            readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
-            readonly ConcurrentDictionary<string, EPPILogger> loggers =
-             new ConcurrentDictionary<string, EPPILogger>();
-            public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
-            {
-                loggerConfigK = config;
-            }
-            public ILogger CreateLogger(string category)
-            {
-                return loggers.GetOrAdd(category,
-                 name => new EPPILogger(null, loggerConfigK));
-            }
-            public void Dispose()
-            {
-                //Write code here to dispose the resources
-            }
-        }
-
-        public class CustomLoggerProviderConfiguration
-        {
-            public LogLevel LogLevel { get; set; } = LogLevel.Warning;
-            public int EventId { get; set; } = 0;
-        }
+        
     }
 }
