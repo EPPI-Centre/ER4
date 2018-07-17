@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -162,4 +163,24 @@ namespace EPPIDataServices.Helpers
         public int EventId { get; set; } = 0;
     }
 
+    public class CustomLoggerProvider : ILoggerProvider
+    {
+
+        readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
+        readonly ConcurrentDictionary<string, EPPILogger> loggers =
+         new ConcurrentDictionary<string, EPPILogger>();
+        public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
+        {
+            loggerConfigK = config;
+        }
+        public ILogger CreateLogger(string category)
+        {
+            return loggers.GetOrAdd(category,
+             name => new EPPILogger(null, loggerConfigK));
+        }
+        public void Dispose()
+        {
+            //Write code here to dispose the resources
+        }
+    }
 }
