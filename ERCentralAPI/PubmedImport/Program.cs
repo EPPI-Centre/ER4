@@ -325,7 +325,7 @@ namespace PubmedImport
         static void GetAppSettings(ServiceProvider serviceProvider)
         {
             
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
 
             System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()
@@ -341,7 +341,7 @@ namespace PubmedImport
 				if (FTPUpdatesFolder == null || FTPUpdatesFolder == "")
 					throw new Exception("ERROR: could not get value for FTPUpdatesFolder, please check appsettings.json file.");
                 
-                SqlHelper = new SQLHelper(configuration, null );
+                SqlHelper = new SQLHelper(configuration, _logger );
                 if (SqlHelper == null || SqlHelper.DataServiceDB == "")
 					throw new Exception("ERROR: could not get value for DatabaseName, please check appsettings.json file.");
                 ArrowsmithRCTbaseURL = configuration["AppSettings:ArrowsmithRCTbaseURL"];

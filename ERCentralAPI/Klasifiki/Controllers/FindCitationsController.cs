@@ -22,7 +22,7 @@ namespace Klasifiki.Controllers
     {
         private readonly ILogger _logger;
 
-        public FindCitationsController(ILogger<EPPILogger> logger)
+          public FindCitationsController(ILogger<EPPILogger> logger)
         {
             _logger = logger;
         }
@@ -103,7 +103,7 @@ namespace Klasifiki.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError("Error fetching list of type:" + SearchMethod + ".");
+                    _logger.LogError(e, "Error fetching list of type:" + SearchMethod + ".", SearchString);
 
                     //Program.Logger.LogException(e, "Error fetching list of type:" + SearchMethod + ".");
                     return Redirect("~/Home"); //View();
@@ -185,7 +185,7 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error fetching list of type:");
+                _logger.LogError(e, "Error fetching list of type:", RefIDs);
                 //Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
             }
             return res;
@@ -220,7 +220,11 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error fetching existing ref and/or creating local object.");
+                SqlParameter[] lst = new SqlParameter[2];
+                lst[0] = extName;
+                lst[1] = pmid; 
+                
+                _logger.SQLActionFailed("Error fetching list", lst, e);
                 //Program.Logger.LogSQLException(e, "Error fetching existing ref and/or creating local object.");
             }
             return res;
@@ -236,7 +240,7 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "", null);
+                _logger.LogError(null, e, searchString);
                 //Program.Logger.LogException(e, "Running a PubMed Search.");
             }
             return res;

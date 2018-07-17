@@ -16,7 +16,7 @@ namespace EPPIDataServices.Helpers
         private string name;
         readonly CustomLoggerProviderConfiguration loggerConfigK;
         readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
-
+        
         public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
         {
             this.loggerConfigK = loggerConfigK;
@@ -124,9 +124,10 @@ namespace EPPIDataServices.Helpers
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             // Switch statement to enable existing logging features
-            // Still a couple of config changes to come...
-            if (logLevel == LogLevel.Error && exception.StackTrace.Contains("Sql"))
+            // Still a couple of config changes to come...exception.GetType() == SqlException ||
+            if (logLevel == LogLevel.Error && exception is SqlException)
             {
+                
                 LogSQLException(exception, exception.Message, null);
             }
             else if (logLevel == LogLevel.Error && exception.StackTrace.Contains("ftp"))
