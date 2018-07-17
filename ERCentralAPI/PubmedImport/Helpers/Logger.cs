@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace EPPIDataServices.Helpers
 {
@@ -29,7 +30,7 @@ namespace EPPIDataServices.Helpers
 
             loggerConfig = config;
         }
-        private static void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
+        public void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
         {
             if (e == null || e.Message == null || e.Message == "")
             {
@@ -38,10 +39,10 @@ namespace EPPIDataServices.Helpers
             else
             {
                 messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
-                //_logger.LogInformation("Error " + doingWhat);
+                this.LogInformation("Error " + doingWhat);
                 messages.Add(e.Message);
-                //_logger.LogInformation(e.Message);
-                //_logger.LogInformation(e.StackTrace);
+                this.LogInformation(e.Message);
+                this.LogInformation(e.StackTrace);
                 messages.Add(e.StackTrace);
             }
         }
@@ -122,13 +123,25 @@ namespace EPPIDataServices.Helpers
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            // need a switch for various log messges we want
-            // talk to sergio about this so we use the 
-            // relevant methods above...
+            // Switch statement to enable existing logging features
+            // Still a couple of config changes to come...
+            if (logLevel == LogLevel.Error && exception.StackTrace.Contains("Sql"))
+            {
+                LogSQLException(exception, exception.Message, null);
+            }
+            else if (logLevel == LogLevel.Error && exception.StackTrace.Contains("ftp"))
+            {
+                List<string> msgLst = new List<string>();
+                msgLst.Add(exception.Message);
+                LogFTPexceptionSafely(exception, msgLst, null);
+            }
+            else
+            {
+                // Implement the SQL exceptions in here.
+                string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+                WriteTextToFile(message);
+            }
 
-            // Implement the SQL exceptions in here.
-            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
-            WriteTextToFile(message);
         }
         private void WriteTextToFile(string message)
         {

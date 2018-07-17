@@ -22,7 +22,7 @@ namespace Klasifiki.Controllers
 
         private readonly ILogger _logger;
 
-        public LoginController(ILogger<LoginController> logger)
+        public LoginController(ILogger<EPPILogger> logger)
         {
             _logger = logger;
         }
@@ -87,7 +87,7 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "", null);
+                _logger.LogError(e, "logging on");
                 //Program.Logger.LogException(e, "logging on");
                 return Redirect("~/Login/Index");
             }
