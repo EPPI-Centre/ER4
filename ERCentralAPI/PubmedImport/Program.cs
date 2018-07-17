@@ -314,7 +314,8 @@ namespace PubmedImport
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(configure => configure.AddSerilog())
+            services.AddLogging(configure => configure.AddSerilog()
+            )
               .AddTransient<FileParser>();
 
         }

@@ -15,6 +15,7 @@ namespace Klasifiki
     {
         public static void Main(string[] args)
         {
+             
             BuildWebHost(args).Run();
 
         }
@@ -60,6 +61,12 @@ namespace Klasifiki
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

@@ -22,6 +22,8 @@ namespace EPPIDataServices.Helpers
 
         public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
         {
+            // Need to change this so that the file is used for logging
+            // or not dependent on the setting...
             SaveLog = true; // SaveLogTofile;
 
             loggerConfig = config;
@@ -120,6 +122,8 @@ namespace EPPIDataServices.Helpers
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             // need a switch for various log messges we want
+            // talk to sergio about this so we use the 
+            // relevant methods above...
 
             // Implement the SQL exceptions in here.
             string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
