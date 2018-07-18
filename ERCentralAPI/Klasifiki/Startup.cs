@@ -104,7 +104,7 @@ namespace Klasifiki
             app.UseResponseCompression();
             loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
             {
-                LogLevel = LogLevel.Information
+                LogLevel = LogLevel.Error
             }));
             app.UseMvc(routes =>
             {

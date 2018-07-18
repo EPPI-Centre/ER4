@@ -167,13 +167,13 @@ namespace EPPIDataServices.Helpers
 
     public class CustomLoggerProviderConfiguration
     {
-        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public LogLevel LogLevel { get; set; } = LogLevel.Error;
         public int EventId { get; set; } = 0;
     }
 
     public class CustomLoggerProviderConfigurationPubMed
     {
-        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public LogLevel LogLevel { get; set; } = LogLevel.Error;
         public int EventId { get; set; } = 0;
     }
 
