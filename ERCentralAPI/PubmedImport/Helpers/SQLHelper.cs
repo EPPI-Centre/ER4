@@ -1,3 +1,6 @@
+#if CSLA_NETCORE
+using Csla.Data;
+#endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -124,6 +127,31 @@ namespace EPPIDataServices.Helpers
                 return null;
             }
         }
+#if CSLA_NETCORE
+        /// <summary> 
+        /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
+        /// You need to make sure you'll close the connection within whatever code calls this!
+        /// </summary> 
+        public SafeDataReader ExecuteCSLAQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(SPname, connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    if (parameters != null && parameters.Length > 0) command.Parameters.AddRange(parameters);
+                    return new Csla.Data.SafeDataReader(command.ExecuteReader());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(null, e, "Error fetching list of type:", null);
+                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                return null;
+            }
+        }
+#endif
         private void CheckConnection(SqlConnection connection)
         {
             if (connection.State != System.Data.ConnectionState.Open)

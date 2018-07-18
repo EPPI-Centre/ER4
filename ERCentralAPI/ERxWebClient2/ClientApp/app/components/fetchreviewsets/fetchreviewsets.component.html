@@ -5,23 +5,19 @@
 
 <p *ngIf="!ReviewSets"><em>Loading...</em></p>
 
-<div *ngIf="ReviewSets">We have something
+<!--<div *ngIf="ReviewSets">We have something
     <div *ngFor="let ReviewSet of ReviewSets">
         <div>{{ ReviewSet.name }} aa</div><br/>
     </div>
 </div>
 <br />
 <p>!!!!!!!</p>
-'
+'-->
 <tree-root [nodes]="nodes" [options]="options">
     <ng-template #treeNodeTemplate let-node let-index="index">
         <input type="checkbox" id="attributeID-{{node.data.id}}" *ngIf=node.data.showCheckBox />
         <span>{{ node.data.name }}</span>
     </ng-template>
 </tree-root>
-'
-<div id="tree">nnnn</div>
-<p>
-    66666
-</p>
+
 

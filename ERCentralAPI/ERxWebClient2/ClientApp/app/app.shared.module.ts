@@ -11,6 +11,7 @@ import { HomeComponent } from './components/home/home.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
 import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
+import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchrevi
         CounterComponent,
         FetchDataComponent,
         FetchReviewSetsComponent,
+        FetchReadOnlyReviewsComponent,
         HomeComponent
     ],
     imports: [
@@ -33,6 +35,7 @@ import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchrevi
             { path: 'counter', component: CounterComponent },
             { path: 'fetch-data', component: FetchDataComponent },
             { path: 'fetch-reviewsets', component: FetchReviewSetsComponent },
+            { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

@@ -16,10 +16,10 @@ namespace ERxWebClient2.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        [HttpGet("[action]")]
-        public IEnumerable<ReviewSet> CodesetsByReview()//should receive a reviewID!
+        [HttpPost("[action]"), HttpGet("[action]")]
+        public IEnumerable<ReviewSet> CodesetsByReview(int RevId)//should receive a reviewID!
         {
-            int RevId = 7;
+            //int RevId = 7;
             if (RevId == null || RevId == 0) RevId = 7;
             List<ReviewSet> res = new List<ReviewSet>();
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
