@@ -122,28 +122,11 @@ namespace EPPIDataServices.Helpers
             }
             return duration;
         }
-
+        // Main log method, for different types write extensions
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            // Switch statement to enable existing logging features
-            // Still a couple of config changes to come...exception.GetType() == SqlException ||
-            //if (logLevel == LogLevel.Error && exception is SqlException)
-            //{
-                
-            //    LogSQLException(exception, exception.Message, null);
-            //}
-            //if (logLevel == LogLevel.Error && exception.StackTrace.Contains("ftp"))
-            //{
-            //    List<string> msgLst = new List<string>();
-            //    msgLst.Add(exception.Message);
-            //    LogFTPexceptionSafely(exception, msgLst, null);
-            //}
-            //else
-            //{
-                // Implement the SQL exceptions in here.
                 string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
                 WriteTextToFile(message);
-            //}
 
         }
         private void WriteTextToFile(string message)
