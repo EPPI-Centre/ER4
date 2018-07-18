@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using Serilog;
+using Microsoft.AspNetCore.Builder;
 
 namespace Klasifiki
 {
@@ -23,18 +24,39 @@ namespace Klasifiki
 
         public static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-           .ReadFrom.Configuration(Configuration)
-           .CreateLogger();
+            if (Convert.ToBoolean(Configuration["AppSettings:UseDatabaseLogging"]))
+            {
+                // This is a serilog configuration
+                Log.Logger = new LoggerConfiguration()
+               .ReadFrom.Configuration(Configuration)
+               .CreateLogger();
 
-            BuildWebHost(args).Run();
+                WebHost.CreateDefaultBuilder(args)
+                  .UseStartup<Startup>()
+                  .UseConfiguration(Configuration)
+                  .UseSerilog()
+                  .Build().Run();
+            }
+            else
+            {
+                BuildWebHost(args).Run();
+            }
 
         }
 
+        public static IWebHost BuildWebHost(string[] args) =>
+           WebHost.CreateDefaultBuilder(args)
+                  .UseStartup<Startup>()
+                  .UseConfiguration(Configuration)
+                    //.UseSerilog()
+                    .Build();
+
+
         //internal IConfigurationRoot configuration;
-        
+
         internal static IdentityServer4Client IdentityServerClient;
         public static SQLHelper SqlHelper;
+
         //internal static EPPILogger Logger;
 
         //void GetAppSettings()
@@ -71,25 +93,6 @@ namespace Klasifiki
         //    }
         //}
 
-        //public static IWebHost BuildWebHost(string[] args)
-        //{
-        //    return WebHost.CreateDefaultBuilder(args)
-        //    .ConfigureLogging((hostingContext, logging) =>
-        //    {
-        //        logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-        //        logging.AddConsole();
-        //        logging.AddDebug();
-        //    })
-        //    .UseStartup<Startup>()
-        //    .UseSerilog()
-        //    .Build();
-        //}
 
-        public static IWebHost BuildWebHost(string[] args) =>
-           WebHost.CreateDefaultBuilder(args)
-                  .UseStartup<Startup>()
-                  .UseConfiguration(Configuration)
-                  .UseSerilog()
-                  .Build();
     }
 }

@@ -27,10 +27,7 @@ namespace Klasifiki
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-
-
-
+        {   
             services.AddMvc();
             services.AddResponseCompression(options =>
             {
@@ -51,10 +48,6 @@ namespace Klasifiki
             string clientSecret = Configuration["AppSettings:EPPIApiClientSecret"];
 
             
-
-            
-
-
             services
                 .AddAuthorization(options =>
                 {
@@ -111,7 +104,7 @@ namespace Klasifiki
             app.UseResponseCompression();
             loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
             {
-                LogLevel = LogLevel.Error
+                LogLevel = LogLevel.Information
             }));
             app.UseMvc(routes =>
             {
