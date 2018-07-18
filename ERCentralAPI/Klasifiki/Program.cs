@@ -24,6 +24,7 @@ namespace Klasifiki
 
         public static void Main(string[] args)
         {
+            // Check the setting to setup for SQL logging entries or not
             if (Convert.ToBoolean(Configuration["AppSettings:UseDatabaseLogging"]))
             {
                 // This is a serilog configuration
@@ -39,6 +40,7 @@ namespace Klasifiki
             }
             else
             {
+                //Without logging to the Datbase
                 BuildWebHost(args).Run();
             }
 
@@ -48,7 +50,6 @@ namespace Klasifiki
            WebHost.CreateDefaultBuilder(args)
                   .UseStartup<Startup>()
                   .UseConfiguration(Configuration)
-                    //.UseSerilog()
                     .Build();
 
 

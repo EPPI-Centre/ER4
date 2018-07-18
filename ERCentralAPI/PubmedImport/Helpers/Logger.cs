@@ -9,11 +9,12 @@ using System.Linq;
 
 namespace EPPIDataServices.Helpers
 {
+    // Specific implementation of dotnetcore ILogger
     public class EPPILogger : ILogger
     {
+
         private bool SaveLog = false;
         private string LogFileFullPath = "";
-        private string name;
         readonly CustomLoggerProviderConfiguration loggerConfigK;
         readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
         
@@ -30,6 +31,9 @@ namespace EPPIDataServices.Helpers
 
             loggerConfig = config;
         }
+
+        // If requried the next step would be to convert each of these into extension
+        // methods -- not required until decision on detail is made.
         public void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
         {
             if (e == null || e.Message == null || e.Message == "")
@@ -46,8 +50,6 @@ namespace EPPIDataServices.Helpers
                 messages.Add(e.StackTrace);
             }
         }
-
-
         public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
         {
             LogException(e, Description);
@@ -125,28 +127,28 @@ namespace EPPIDataServices.Helpers
         {
             // Switch statement to enable existing logging features
             // Still a couple of config changes to come...exception.GetType() == SqlException ||
-            if (logLevel == LogLevel.Error && exception is SqlException)
-            {
+            //if (logLevel == LogLevel.Error && exception is SqlException)
+            //{
                 
-                LogSQLException(exception, exception.Message, null);
-            }
-            else if (logLevel == LogLevel.Error && exception.StackTrace.Contains("ftp"))
-            {
-                List<string> msgLst = new List<string>();
-                msgLst.Add(exception.Message);
-                LogFTPexceptionSafely(exception, msgLst, null);
-            }
-            else
-            {
+            //    LogSQLException(exception, exception.Message, null);
+            //}
+            //if (logLevel == LogLevel.Error && exception.StackTrace.Contains("ftp"))
+            //{
+            //    List<string> msgLst = new List<string>();
+            //    msgLst.Add(exception.Message);
+            //    LogFTPexceptionSafely(exception, msgLst, null);
+            //}
+            //else
+            //{
                 // Implement the SQL exceptions in here.
                 string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
                 WriteTextToFile(message);
-            }
+            //}
 
         }
         private void WriteTextToFile(string message)
         {
-            string filePath = CreateLogFileName(); //"D:\\IDGLog.txt";
+            string filePath = CreateLogFileName(); 
             using (StreamWriter streamWriter = new StreamWriter(filePath, true))
             {
                 streamWriter.WriteLine(message);
@@ -177,6 +179,9 @@ namespace EPPIDataServices.Helpers
         public int EventId { get; set; } = 0;
     }
 
+    // The ILogger provider is described below
+    // see microsoft MSDN for different options here
+    // EPPILogger class is used as the method and properties...
     public class CustomLoggerProvider : ILoggerProvider
     {
 
@@ -195,6 +200,27 @@ namespace EPPIDataServices.Helpers
         public void Dispose()
         {
             //Write code here to dispose the resources
+        }
+    }
+
+    public static class LoggerExtensions
+    {
+        private static readonly Action<ILogger, string, string, Exception> _SQLActionFailed;
+        public static string SQLParams;
+
+        static LoggerExtensions()
+        {
+            _SQLActionFailed = LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+               new EventId(4, nameof(SQLActionFailed)),
+               "SQL Error detected (message = '{message}' SQLParams= {SQLParams})");
+        }
+
+        public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
+        {
+            SQLParams = String.Format("{0}, {1}",
+                                   parameters[0].ParameterName, parameters[1].ParameterName);
+            _SQLActionFailed(logger, message, SQLParams, ex);
         }
     }
 }

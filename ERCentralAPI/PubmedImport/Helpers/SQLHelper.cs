@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 namespace EPPIDataServices.Helpers
 {    
 
-    public class SQLHelper
+    public class SQLHelper 
     {
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
@@ -44,8 +44,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "Error fetching list of type:", null);
-                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e) ;
                 return -1;
             }
         }
@@ -66,8 +65,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "Error fetching list of type:", null);
-                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
                 return -1;
             }
         }
@@ -95,8 +93,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "Error fetching list of type:", null);
-                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
                 return null;
             }
         }
@@ -119,8 +116,7 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                _logger.LogError(null, e, "Error fetching list of type:", null);
-                //Logger.LogSQLException(e, "Error exectuing SP: " + SPname, parameters);
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
                 return null;
             }
         }
@@ -145,6 +141,7 @@ namespace EPPIDataServices.Helpers
                         }
                         catch (Exception e)
                         {
+                            _logger.LogError("Could not open SQL connection to " + connection.ConnectionString + ".", e);
                             Exception ee = new Exception("Could not open SQL connection to " + connection.ConnectionString + ".", e);
                             throw ee;
                         }

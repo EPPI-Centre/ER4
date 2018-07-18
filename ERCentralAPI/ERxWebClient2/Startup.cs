@@ -17,7 +17,6 @@ namespace ERxWebClient2
         public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
-            //Program.Logger = new EPPILogger(true);
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
         }
 

@@ -17,7 +17,6 @@ namespace Klasifiki
         public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
-            //Program.Logger = new EPPILogger(true);
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
             Program.IdentityServerClient = new IdentityServer4Client(configuration);
         }
@@ -87,7 +86,6 @@ namespace Klasifiki
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
 
-           
             app.UseAuthentication();
             
             if (env.IsDevelopment())
