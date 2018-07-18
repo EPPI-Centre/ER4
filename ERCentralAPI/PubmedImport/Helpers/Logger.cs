@@ -201,8 +201,11 @@ namespace EPPIDataServices.Helpers
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
         {
-            SQLParams = String.Format("{0}, {1}",
-                                   parameters[0].ParameterName, parameters[1].ParameterName);
+            SQLParams = "";
+            foreach (var item in parameters)
+            {
+                SQLParams += item.ParameterName + ",";
+            }         
             _SQLActionFailed(logger, message, SQLParams, ex);
         }
     }
