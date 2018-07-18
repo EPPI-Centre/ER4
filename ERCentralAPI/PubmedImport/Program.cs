@@ -253,7 +253,11 @@ namespace PubmedImport
                     RCTTaggerImport.RunRCTTaggerImport();
 				}
 			}
-			if (
+            else if (result.DoWhat == "dorctscores")
+            {
+                    RCTTaggerImport.RunRCTTaggerImport();
+            }
+            if (
 					result.DoWhat == "Nothing"
 					|| args == null
 					|| args.Length == 0
@@ -314,17 +318,15 @@ namespace PubmedImport
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(configure => configure.AddSerilog())
-              .AddTransient<FileParser>();
+            services.AddLogging(configure => configure.AddSerilog()
+            ).AddTransient<FileParser>();
 
         }
-
-    
 
         static void GetAppSettings(ServiceProvider serviceProvider)
         {
             
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
 
             System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()
@@ -340,7 +342,7 @@ namespace PubmedImport
 				if (FTPUpdatesFolder == null || FTPUpdatesFolder == "")
 					throw new Exception("ERROR: could not get value for FTPUpdatesFolder, please check appsettings.json file.");
                 
-                SqlHelper = new SQLHelper(configuration, null );
+                SqlHelper = new SQLHelper(configuration, _logger );
                 if (SqlHelper == null || SqlHelper.DataServiceDB == "")
 					throw new Exception("ERROR: could not get value for DatabaseName, please check appsettings.json file.");
                 ArrowsmithRCTbaseURL = configuration["AppSettings:ArrowsmithRCTbaseURL"];
@@ -421,8 +423,8 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                //_logger.Log(LogLevel.Error,"", null);
-                //                Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
+                //_logger.Log(LogLevel.Error,"", e);
+                //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
 
         }
@@ -821,7 +823,8 @@ namespace PubmedImport
 			}
 			catch (Exception e)
 			{
-                _logger.Log(LogLevel.Error,null, e, messages, "fetching list of Baseline files");
+                _logger.FTPActionFailed(messages, "fetching list of Baseline files", e);
+                //_logger.Log(LogLevel.Error,null, e, messages, "fetching list of Baseline files");
 				//_logger.LogFTPexceptionSafely(e, messages, "fetching list of Baseline files");
 			}
 			return (filesList, messages);
@@ -900,9 +903,8 @@ namespace PubmedImport
 							}
 							catch (Exception ex)
 							{
-                                _logger.Log(LogLevel.Error,null, ex, messages, "uncompressing file to parse.");
-								//LogFTPexceptionSafely(ex, messages, "uncompressing file to parse.");
-							}
+                                _logger.FTPActionFailed(messages, "uncompressing file to parse.", ex);
+                            }
 						}
 					}
 				}
@@ -914,18 +916,15 @@ namespace PubmedImport
 					}
 					catch (Exception ex)
 					{
-                        _logger.Log(LogLevel.Error,null, ex, messages, "deleting the compressed file");
-                        //LogFTPexceptionSafely(ex, messages, "deleting the compressed file.");
-					}
+                        _logger.FTPActionFailed(messages, "deleting the compressed file.", ex);
+                    }
 				}
 			}
 			catch (Exception ex)
 			{
-                //"Unable to connect to the remote server" "The operation has timed out."
-                _logger.Log(LogLevel.Error,null, ex, messages, "fetching the file to parse");
-                //LogFTPexceptionSafely(e, messages, "fetching the file to parse.");
+                _logger.FTPActionFailed(messages, "fetching the file to parse.", ex);
 
-			}
+            }
 			return (unZippedFileName, messages);
 		}
 		public static (List<PubMedUpdateFileImport> fileList, List<string> messages) getUpdateFTPFiles(string updateFTPPath, ServiceProvider serviceProvider)
@@ -960,9 +959,8 @@ namespace PubmedImport
 			}
 			catch (Exception ex)
 			{
-                _logger.Log(LogLevel.Error,null, ex, messages, "fetching list of update files.");
-               // LogFTPexceptionSafely(e, messages, "fetching list of update files.");
-			}
+                _logger.FTPActionFailed(messages, "fetching list of update files", ex);
+            }
 			if (tmpFileList == null)
 			{
 				tmpFileList = new List<string>();
@@ -988,9 +986,8 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                //Program.Logger.LogException(e, "FATAL ERROR fetching list of already processed UpdateFiles.");
-                _logger.Log(LogLevel.Error,"Aborting...");
-                _logger.Log(LogLevel.Error,"");
+                _logger.Log(LogLevel.Error,"Aborting...", e);
+                _logger.Log(LogLevel.Error, "FATAL ERROR fetching list of already processed UpdateFiles.");
                 System.Environment.Exit(0);
             }
 

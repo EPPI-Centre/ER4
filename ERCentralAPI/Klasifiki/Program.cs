@@ -8,20 +8,56 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
+using Serilog;
+using Microsoft.AspNetCore.Builder;
 
 namespace Klasifiki
 {
     public class Program
     {
+
+        public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+           .Build();
+
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            // Check the setting to setup for SQL logging entries or not
+            if (Convert.ToBoolean(Configuration["AppSettings:UseDatabaseLogging"]))
+            {
+                // This is a serilog configuration
+                Log.Logger = new LoggerConfiguration()
+               .ReadFrom.Configuration(Configuration)
+               .CreateLogger();
+
+                WebHost.CreateDefaultBuilder(args)
+                  .UseStartup<Startup>()
+                  .UseConfiguration(Configuration)
+                  .UseSerilog()
+                  .Build().Run();
+            }
+            else
+            {
+                //Without logging to the Datbase
+                BuildWebHost(args).Run();
+            }
 
         }
-        internal IConfigurationRoot configuration;
-        
+
+        public static IWebHost BuildWebHost(string[] args) =>
+           WebHost.CreateDefaultBuilder(args)
+                  .UseStartup<Startup>()
+                  .UseConfiguration(Configuration)
+                    .Build();
+
+
+        //internal IConfigurationRoot configuration;
+
         internal static IdentityServer4Client IdentityServerClient;
         public static SQLHelper SqlHelper;
+
         //internal static EPPILogger Logger;
 
         //void GetAppSettings()
@@ -58,9 +94,6 @@ namespace Klasifiki
         //    }
         //}
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+
     }
 }

@@ -17,7 +17,6 @@ namespace Klasifiki
         public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             Configuration = configuration;
-            //Program.Logger = new EPPILogger(true);
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
             Program.IdentityServerClient = new IdentityServer4Client(configuration);
         }
@@ -27,10 +26,7 @@ namespace Klasifiki
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-
-
-
+        {   
             services.AddMvc();
             services.AddResponseCompression(options =>
             {
@@ -51,10 +47,6 @@ namespace Klasifiki
             string clientSecret = Configuration["AppSettings:EPPIApiClientSecret"];
 
             
-
-            
-
-
             services
                 .AddAuthorization(options =>
                 {
@@ -94,7 +86,6 @@ namespace Klasifiki
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
 
-           
             app.UseAuthentication();
             
             if (env.IsDevelopment())
@@ -111,7 +102,7 @@ namespace Klasifiki
             app.UseResponseCompression();
             loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
             {
-                LogLevel = LogLevel.Information
+                LogLevel = LogLevel.Error
             }));
             app.UseMvc(routes =>
             {

@@ -4,18 +4,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
-using System.Text;
 
 namespace EPPIDataServices.Helpers
 {
+    // Specific implementation of dotnetcore ILogger
     public class EPPILogger : ILogger
     {
+
         private bool SaveLog = false;
         private string LogFileFullPath = "";
-        private string name;
         readonly CustomLoggerProviderConfiguration loggerConfigK;
         readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
-
+        
         public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
         {
             this.loggerConfigK = loggerConfigK;
@@ -23,11 +23,16 @@ namespace EPPIDataServices.Helpers
 
         public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
         {
+            // Need to change this so that the file is used for logging
+            // or not dependent on the setting...
             SaveLog = true; // SaveLogTofile;
 
             loggerConfig = config;
         }
-        private static void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
+
+        // If requried the next step would be to convert each of these into extension
+        // methods -- not required until decision on detail is made.
+        public void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
         {
             if (e == null || e.Message == null || e.Message == "")
             {
@@ -36,15 +41,13 @@ namespace EPPIDataServices.Helpers
             else
             {
                 messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
-                //_logger.LogInformation("Error " + doingWhat);
+                this.LogInformation("Error " + doingWhat);
                 messages.Add(e.Message);
-                //_logger.LogInformation(e.Message);
-                //_logger.LogInformation(e.StackTrace);
+                this.LogInformation(e.Message);
+                this.LogInformation(e.StackTrace);
                 messages.Add(e.StackTrace);
             }
         }
-
-
         public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
         {
             LogException(e, Description);
@@ -117,18 +120,16 @@ namespace EPPIDataServices.Helpers
             }
             return duration;
         }
-
+        // Main log method, for different types write extensions
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            // need a switch for various log messges we want
+                string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+                WriteTextToFile(message);
 
-            // Implement the SQL exceptions in here.
-            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
-            WriteTextToFile(message);
         }
         private void WriteTextToFile(string message)
         {
-            string filePath = CreateLogFileName(); //"D:\\IDGLog.txt";
+            string filePath = CreateLogFileName(); 
             using (StreamWriter streamWriter = new StreamWriter(filePath, true))
             {
                 streamWriter.WriteLine(message);
@@ -149,16 +150,19 @@ namespace EPPIDataServices.Helpers
 
     public class CustomLoggerProviderConfiguration
     {
-        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public LogLevel LogLevel { get; set; } = LogLevel.Error;
         public int EventId { get; set; } = 0;
     }
 
     public class CustomLoggerProviderConfigurationPubMed
     {
-        public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+        public LogLevel LogLevel { get; set; } = LogLevel.Error;
         public int EventId { get; set; } = 0;
     }
 
+    // The ILogger provider is described below
+    // see microsoft MSDN for different options here
+    // EPPILogger class is used as the method and properties...
     public class CustomLoggerProvider : ILoggerProvider
     {
 
@@ -177,6 +181,57 @@ namespace EPPIDataServices.Helpers
         public void Dispose()
         {
             //Write code here to dispose the resources
+        }
+    }
+
+    public static class LoggerExtensions
+    {
+        private static readonly Action<ILogger, string, string, Exception> _SQLActionFailed;
+        private static readonly Action<ILogger, string, string, Exception> _FTPActionFailed;
+        public static string SQLParams;
+        public static string strFTP;
+
+        static LoggerExtensions()
+        {
+            _SQLActionFailed = LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+               new EventId(4, nameof(SQLActionFailed)),
+               "SQL Error detected (message = '{message}' SQLParams= {SQLParams})");
+
+            _FTPActionFailed = LoggerMessage.Define<string, string>(
+               LogLevel.Error,
+              new EventId(4, nameof(FTPActionFailed)),
+              "FTP Error detected (message = '{strFTP}')");
+        }
+
+        public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
+        {
+            SQLParams = "";
+            foreach (var item in parameters)
+            {
+                SQLParams += item.ParameterName + ",";
+            }         
+            _SQLActionFailed(logger, message, SQLParams, ex);
+        }
+
+        public static void FTPActionFailed(this ILogger logger, List<string> messages, string doingWhat, Exception ex)
+        {
+            if (ex == null || ex.Message == null || ex.Message == "")
+            {
+                messages.Add("Unknown error " + doingWhat);
+            }
+            else
+            {
+                messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
+                messages.Add(ex.Message);
+                messages.Add(ex.StackTrace);
+            }
+            strFTP = "";
+            foreach (var item in messages)
+            {
+                strFTP += item + ",";
+            }
+            _FTPActionFailed(logger, strFTP, doingWhat, ex);
         }
     }
 }
