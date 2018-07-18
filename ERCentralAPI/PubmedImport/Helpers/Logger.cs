@@ -4,8 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
-using System.Text;
-using System.Linq;
 
 namespace EPPIDataServices.Helpers
 {
@@ -189,7 +187,9 @@ namespace EPPIDataServices.Helpers
     public static class LoggerExtensions
     {
         private static readonly Action<ILogger, string, string, Exception> _SQLActionFailed;
+        private static readonly Action<ILogger, string, string, Exception> _FTPActionFailed;
         public static string SQLParams;
+        public static string strFTP;
 
         static LoggerExtensions()
         {
@@ -197,6 +197,11 @@ namespace EPPIDataServices.Helpers
                 LogLevel.Error,
                new EventId(4, nameof(SQLActionFailed)),
                "SQL Error detected (message = '{message}' SQLParams= {SQLParams})");
+
+            _FTPActionFailed = LoggerMessage.Define<string, string>(
+               LogLevel.Error,
+              new EventId(4, nameof(FTPActionFailed)),
+              "FTP Error detected (message = '{strFTP}')");
         }
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
@@ -207,6 +212,26 @@ namespace EPPIDataServices.Helpers
                 SQLParams += item.ParameterName + ",";
             }         
             _SQLActionFailed(logger, message, SQLParams, ex);
+        }
+
+        public static void FTPActionFailed(this ILogger logger, List<string> messages, string doingWhat, Exception ex)
+        {
+            if (ex == null || ex.Message == null || ex.Message == "")
+            {
+                messages.Add("Unknown error " + doingWhat);
+            }
+            else
+            {
+                messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
+                messages.Add(ex.Message);
+                messages.Add(ex.StackTrace);
+            }
+            strFTP = "";
+            foreach (var item in messages)
+            {
+                strFTP += item + ",";
+            }
+            _FTPActionFailed(logger, strFTP, doingWhat, ex);
         }
     }
 }
