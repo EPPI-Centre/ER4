@@ -1522,10 +1522,20 @@ namespace EppiReviewer4
                     BusyLoading.IsRunning = false;
                     if (e2.Error != null)
                     {
-                        MessageBox.Show(e2.Error.Message);
+                        //MessageBox.Show(e2.Error.Message);
+                        RadWindow.Alert("Warning: there was a problem saving your data." + Environment.NewLine + "Please close this window and try again.");
                     }
                     else
                     {
+                        // JT added this check in 19/07/2018, as otherwise the UI doesn't keep up with changing arms
+                        if (itemData.ItemSetId == 0)
+                        {
+                            LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
+                            if (itemData.ItemId == (DataContext as Item).ItemId)
+                            {//if this isn't true, it's because the UI has already moved to another item
+                                LoadItemAttributeSet(itemData.SetId, itemData.ItemId);
+                            }
+                        }
                         ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
                         itemData.ItemAttributeId = e2.Object.ItemAttributeId;
                         itemData.ItemSetId = e2.Object.ItemSetId;
