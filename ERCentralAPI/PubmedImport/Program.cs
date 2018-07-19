@@ -23,6 +23,7 @@ namespace PubmedImport
 		//private static string DoWhat = "SampleFile";
 		private static bool success = false;
 		public static bool simulate = false;
+        private static bool dontDoScores = false;
 		private static string errorMsg = "";
 		public static int maxCount = int.MaxValue;
 		public static int currCount = 0;
@@ -53,17 +54,16 @@ namespace PubmedImport
 
         static void Main(string[] args)
 		{
-
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(CreateLogFileName())
-                .CreateLogger();
+            //Log.Logger = new LoggerConfiguration()
+            //    .WriteTo.File(CreateLogFileName())
+            //    .CreateLogger();
 
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             //https://blog.bitscry.com/2017/05/30/appsettings-json-in-net-core-console-app/
             PubMedUpdateFileImportJobLog result = new PubMedUpdateFileImportJobLog(args);
@@ -88,8 +88,13 @@ namespace PubmedImport
 				else if (s.Length == 6 && s.Substring(0, 6).ToLower() == "whatif")
 				{
 					simulate = true;//does not save!
-				}
-				else if (s.Length == 13 && s.Substring(0, 13).ToLower() == "deleterecords")
+                }//dontDoScores
+                else if (s.Length == 12 && s.Substring(0, 12).ToLower() == "dontdoscores")
+                {
+                    dontDoScores = true;//does not do the scores when using ftpupdatefolder dowhat option;
+                    //in all other cases, this option is ignored.
+                }
+                else if (s.Length == 13 && s.Substring(0, 13).ToLower() == "deleterecords")
 				{
 					deleteRecords = true;//deletes records that already exist and does not add new ones!
 				}
@@ -124,7 +129,7 @@ namespace PubmedImport
                 _logger.Log(LogLevel.Error,"");
 				System.Environment.Exit(0);
 			}
-			_logger.Log(LogLevel.Error,"Parser testing!");
+			_logger.LogInformation("Parser testing!");
 			if (result.DoWhat == "ftpsamplefile")
 			{
                 _logger.Log(LogLevel.Error,"", null);
@@ -249,13 +254,15 @@ namespace PubmedImport
 				else
 				{
 					DoFTPUpdateFiles(result, serviceProvider);
-                    
-                    RCTTaggerImport.RunRCTTaggerImport();
+                    var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
+                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport(result, serviceProvider);
 				}
 			}
             else if (result.DoWhat == "dorctscores")
             {
-                    RCTTaggerImport.RunRCTTaggerImport();
+                var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
+                rCTTaggerImport.RunRCTTaggerImport(result, serviceProvider);
+
             }
             if (
 					result.DoWhat == "Nothing"
@@ -275,7 +282,6 @@ namespace PubmedImport
 				ShowHelp();
 				if (WaitOnExit)
 				{
-   
                     _logger.Log(LogLevel.Error,"All done, press a key to quit.");
 					Console.ReadKey();
 				}
@@ -288,28 +294,22 @@ namespace PubmedImport
 				if (Program.simulate == false)
 				{
                      _logger.Log(LogLevel.Error, "Saving job summary to DB");
-                    _logger.Log(LogLevel.Error,"Saving job summary to DB");
 						result.UpdateErrors();
                         using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                         {
-
                             conn.Open();
                             SaveJobSummary(conn, result);
-
                         }
-
                 }
 				if (WaitOnExit)
 				{
    
                     _logger.Log(LogLevel.Error,"All done, press a key to quit.");
 					Console.ReadKey();
-   
                     _logger.Log(LogLevel.Error,"");
 				}
 				else
 				{
-   
                     _logger.Log(LogLevel.Error,"All done, exiting.");
 					_logger.Log(LogLevel.Error,"");
 				}
@@ -318,8 +318,10 @@ namespace PubmedImport
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(configure => configure.AddSerilog()
-            ).AddTransient<FileParser>();
+            services.AddLogging(configure => configure.AddConsole()
+            )
+                .AddTransient<FileParser>()
+                .AddTransient<RCTTaggerImport>();
 
         }
 
@@ -558,7 +560,6 @@ namespace PubmedImport
                                 {
                                     updateFiles[i].ImportDate = DateTime.Now;
                                     if (Program.simulate == false) updateFiles[i].SaveSelf(conn);
-
                                 }
                             }
 						}
@@ -580,7 +581,6 @@ namespace PubmedImport
                 }
 				if (currCount >= maxCount) break;
 			}
-
 		}
 
 		static void DoFTPFolder(PubMedUpdateFileImportJobLog result, ServiceProvider serviceProvider)

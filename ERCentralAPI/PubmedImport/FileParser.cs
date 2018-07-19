@@ -69,8 +69,7 @@ namespace PubmedImport
         static FileParserResult result;
 		public FileParserResult ParseFile(string filepath)
         {
-            ////_logger.LogError( "Error fetching list of type:", null);
-            //Program.Logger.LogMessageLine("Parsing: " + filepath + ".");
+            _logger.LogError("Parsing: " + filepath + ".");
             DateTime start = DateTime.Now;
             string fileContents;
             string upDelMsg = Program.deleteRecords ? "deleted." : "updated.";//used to report what it is that we're doing!
