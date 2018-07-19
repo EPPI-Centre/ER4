@@ -3375,7 +3375,7 @@ namespace EppiReviewer4
                             else if (itemData.ItemSetId == 0)
                             {//item didn't belong to this set, reload all sets, as this will make sure the current set gets the latest item_set_id
                                  //will become: get the new reviewSet and load just that
-                                 //LoadItemAttributes(itemData.ItemId);
+                                 LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
                                 if (itemData.ItemId == (DataContext as Item).ItemId)
                                 {//if this isn't true, it's because the UI has already moved to another item
                                     LoadItemAttributeSet(iad.ItemData.SetId, iad.ItemData.ItemId);
