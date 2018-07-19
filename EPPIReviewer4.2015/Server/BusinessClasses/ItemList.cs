@@ -266,757 +266,36 @@ namespace BusinessLibrary.BusinessClasses
                 PageSize = criteria.PageSize;
                 try
                 {
-                    switch (criteria.ListType)
+                    using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
                     {
-                        case "StandardItemList":
-                            using (SqlCommand command = new SqlCommand("st_ItemList", connection))
+                        command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
+                        command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
+                        command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
+                        command.Parameters.Add(new SqlParameter("@TotalPages", 0));
+                        command.Parameters.Add(new SqlParameter("@TotalRows", 0));
+                        command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
+                        //command.CommandTimeout = 1;//used to test timeouts
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            List<long> tIds = new List<long>();
+                            while (reader.Read())
                             {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
-                                command.Parameters.Add(new SqlParameter("@SHOW_DELETED", criteria.ShowDeleted));
-                                command.Parameters.Add(new SqlParameter("@SOURCE_ID", criteria.SourceId));
-                                command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                //command.CommandTimeout = 1;//used to test timeouts
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                                Item tmp = Item.GetItem(reader);
+                                if (!tIds.Contains(tmp.ItemId))
                                 {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
+                                    tIds.Add(tmp.ItemId);
+                                    Add(tmp);
                                 }
                             }
-                            break;
-
-                        case "ItemListWithoutAttributes":
-                            using (SqlCommand command = new SqlCommand("st_ItemListWithoutAttributes", connection))
+                            reader.NextResult();
+                            if (reader.Read())
                             {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
-                                command.Parameters.Add(new SqlParameter("@SHOW_DELETED", criteria.ShowDeleted));
-                                command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
+                                _pageIndex = reader.GetInt32("@CurrentPage") - 1;
+                                _totalItemCount = reader.GetInt32("@TotalRows");
                             }
-                            break;
-
-                        case "GetItemSearchList":
-                            using (SqlCommand command = new SqlCommand("st_ItemSearchList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@SEARCH_ID", criteria.SearchId));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "GetItemWorkAllocationList":
-                            using (SqlCommand command = new SqlCommand("st_ItemWorkAllocationList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
-                                command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "ALL"));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "GetItemWorkAllocationListStarted":
-                            using (SqlCommand command = new SqlCommand("st_ItemWorkAllocationList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
-                                command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "STARTED"));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "GetItemWorkAllocationListRemaining":
-                            using (SqlCommand command = new SqlCommand("st_ItemWorkAllocationList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                                command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
-                                command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "REMAINING"));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "ComparisonAgree1vs2":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonAgree1vs3":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonAgree2vs3":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree1vs2":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree1vs3":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree2vs3":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        //start screening comparison lists
-                        case "ComparisonAgree1vs2Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonAgree1vs3Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonAgree2vs3Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree1vs2Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree1vs3Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "ComparisonDisagree2vs3Sc":
-                            using (SqlCommand command = new SqlCommand("st_ItemComparisonScreeningList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
-                                command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        //en screening comparison lists
-                        case "ReviewerCodingCompleted":
-                            using (SqlCommand command = new SqlCommand("st_ItemReviewerCodingList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@CONTACT_ID", criteria.ContactId));
-                                command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId));
-                                command.Parameters.Add(new SqlParameter("@COMPLETED", true));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "ReviewerCodingIncomplete":
-                            using (SqlCommand command = new SqlCommand("st_ItemReviewerCodingListUncomplete", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@CONTACT_ID", criteria.ContactId));
-                                command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId));
-                                //command.Parameters.Add(new SqlParameter("@COMPLETED", false));
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-
-                        case "CrosstabsList":
-                            using (SqlCommand command = new SqlCommand("st_ItemCrosstabsList", connection))
-                            {
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@XSET_ID", criteria.XAxisSetId)); // x axis set id
-                                command.Parameters.Add(new SqlParameter("@YSET_ID", criteria.YAxisSetId)); // y axis set id
-                                command.Parameters.Add(new SqlParameter("@FILTER_SET_ID", criteria.FilterSetId)); // filter attribute id
-                                command.Parameters.Add(new SqlParameter("@XATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
-                                command.Parameters.Add(new SqlParameter("@YATTRIBUTE_ID", criteria.YAxisAttributeId)); // y axis attribute id
-                                command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "FrequencyNoneOfTheAbove":
-                            using (SqlCommand command = new SqlCommand("st_ItemListFrequencyNoneOfTheAbove", connection))
-                            {
-                                //@ATTRIBUTE_ID BIGINT = null,
-                                //@SET_ID BIGINT,
-                                //@IS_INCLUDED BIT,
-                                //@FILTER_ATTRIBUTE_ID BIGINT,
-                                //@REVIEW_ID INT,
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId)); // x axis set id
-                                command.Parameters.Add(new SqlParameter("@IS_INCLUDED", criteria.OnlyIncluded)); // filter attribute id
-                                command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
-                                command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        case "FrequencyWithFilter":
-                            using (SqlCommand command = new SqlCommand("st_ItemListFrequencyWithFilter", connection))
-                            {
-                                //@ATTRIBUTE_ID BIGINT = null,
-                                //@SET_ID BIGINT,
-                                //@IS_INCLUDED BIT,
-                                //@FILTER_ATTRIBUTE_ID BIGINT,
-                                //@REVIEW_ID INT,
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                                command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId)); // x axis set id
-                                command.Parameters.Add(new SqlParameter("@IS_INCLUDED", criteria.OnlyIncluded)); // filter attribute id
-                                command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
-                                command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
-
-                                command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                                command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                                command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                                command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                                command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                                command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        Add(Item.GetItem(reader));
-                                    }
-                                    reader.NextResult();
-                                    if (reader.Read())
-                                    {
-                                        _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                        _totalItemCount = reader.GetInt32("@TotalRows");
-                                    }
-                                }
-                            }
-                            break;
-                        default:
-                            break;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1043,6 +322,153 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = true;
         }
         
+        private SqlCommand SpecifyListCommand(SqlConnection connection, SelectionCriteria criteria, ReviewerIdentity ri)
+        {
+            SqlCommand command = null;
+            switch (criteria.ListType)
+            {
+                case "StandardItemList":
+                    command = new SqlCommand("st_ItemList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@SHOW_DELETED", criteria.ShowDeleted));
+                    command.Parameters.Add(new SqlParameter("@SOURCE_ID", criteria.SourceId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
+                    break;
+
+                case "ItemListWithoutAttributes":
+                    command = new SqlCommand("st_ItemListWithoutAttributes", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@SHOW_DELETED", criteria.ShowDeleted));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
+                    break;
+
+                case "GetItemSearchList":
+                    command = new SqlCommand("st_ItemSearchList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SEARCH_ID", criteria.SearchId));
+                    break;
+
+                case "GetItemWorkAllocationList":
+                    command = new SqlCommand("st_ItemWorkAllocationList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
+                    command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "ALL"));
+                    break;
+
+                case "GetItemWorkAllocationListStarted":
+                    command = new SqlCommand("st_ItemWorkAllocationList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
+                    command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "STARTED"));
+                    break;
+
+                case "GetItemWorkAllocationListRemaining":
+                    command = new SqlCommand("st_ItemWorkAllocationList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.WorkAllocationId)); // actually, work allocation id
+                    command.Parameters.Add(new SqlParameter("@WHICH_FILTER", "REMAINING"));
+                    break;
+
+                //start comparison lists
+                case "ComparisonAgree1vs2":
+                case "ComparisonAgree1vs3":
+                case "ComparisonAgree2vs3":
+                case "ComparisonDisagree1vs2":
+                case "ComparisonDisagree1vs3":
+                case "ComparisonDisagree2vs3":
+                    command = new SqlCommand("st_ItemComparisonList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
+                    command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
+                    break;
+                //end comparison lists
+
+                //start screening comparison lists
+                case "ComparisonAgree1vs2Sc":
+                case "ComparisonAgree1vs3Sc":
+                case "ComparisonAgree2vs3Sc":
+                case "ComparisonDisagree1vs2Sc":
+                case "ComparisonDisagree1vs3Sc":
+                case "ComparisonDisagree2vs3Sc":
+                    command = new SqlCommand("st_ItemComparisonScreeningList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@COMPARISON_ID", criteria.ComparisonId)); // actually, comparison id
+                    command.Parameters.Add(new SqlParameter("@LIST_WHAT", criteria.ListType));
+                    break;
+                //end screening comparison lists
+
+                case "ReviewerCodingCompleted":
+                    command = new SqlCommand("st_ItemReviewerCodingList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", criteria.ContactId));
+                    command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId));
+                    command.Parameters.Add(new SqlParameter("@COMPLETED", true));
+                    break;
+
+                case "ReviewerCodingIncomplete":
+                    command = new SqlCommand("st_ItemReviewerCodingListUncomplete", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", criteria.ContactId));
+                    command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId));
+                    //command.Parameters.Add(new SqlParameter("@COMPLETED", false));
+                    break;
+
+                case "CrosstabsList":
+                    command = new SqlCommand("st_ItemCrosstabsList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@XSET_ID", criteria.XAxisSetId)); // x axis set id
+                    command.Parameters.Add(new SqlParameter("@YSET_ID", criteria.YAxisSetId)); // y axis set id
+                    command.Parameters.Add(new SqlParameter("@FILTER_SET_ID", criteria.FilterSetId)); // filter attribute id
+                    command.Parameters.Add(new SqlParameter("@XATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
+                    command.Parameters.Add(new SqlParameter("@YATTRIBUTE_ID", criteria.YAxisAttributeId)); // y axis attribute id
+                    command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+                case "FrequencyNoneOfTheAbove":
+                    command = new SqlCommand("st_ItemListFrequencyNoneOfTheAbove", connection);
+                    //@ATTRIBUTE_ID BIGINT = null,
+                    //@SET_ID BIGINT,
+                    //@IS_INCLUDED BIT,
+                    //@FILTER_ATTRIBUTE_ID BIGINT,
+                    //@REVIEW_ID INT,
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId)); // x axis set id
+                    command.Parameters.Add(new SqlParameter("@IS_INCLUDED", criteria.OnlyIncluded)); // filter attribute id
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
+                    command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+                case "FrequencyWithFilter":
+                    command = new SqlCommand("st_ItemListFrequencyWithFilter", connection);
+                    //@ATTRIBUTE_ID BIGINT = null,
+                    //@SET_ID BIGINT,
+                    //@IS_INCLUDED BIT,
+                    //@FILTER_ATTRIBUTE_ID BIGINT,
+                    //@REVIEW_ID INT,
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@SET_ID", criteria.SetId)); // x axis set id
+                    command.Parameters.Add(new SqlParameter("@IS_INCLUDED", criteria.OnlyIncluded)); // filter attribute id
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
+                    command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+                default:
+                    break;
+            }
+            return command;
+        }
 #endif
 
     }
