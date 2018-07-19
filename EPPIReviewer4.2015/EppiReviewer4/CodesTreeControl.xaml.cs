@@ -3478,7 +3478,7 @@ namespace EppiReviewer4
                     ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
                     //ReviewSet rs = reviewSets.GetReviewSet(SetID);
                     reviewSets.LoadingAttributes = true;
-                    reviewSets.SetItemSetData(e2.Object);
+                    reviewSets.SetItemSetData(e2.Object, ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0);
                     reviewSets.LoadingAttributes = false;
                     BusyLoading.IsRunning = false;
                     //BusyLoadingAllAttributes.IsRunning = false;

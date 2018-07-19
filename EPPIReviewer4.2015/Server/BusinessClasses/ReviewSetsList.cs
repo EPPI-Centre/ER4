@@ -93,40 +93,8 @@ namespace BusinessLibrary.BusinessClasses
                 ReviewSet rs = this.GetReviewSet(itemSet.SetId);
                 if (rs != null)
                 {
-                    rs.ItemSetContactId = itemSet.ContactId;
-                    rs.ItemSetContactName = itemSet.ContactName;
-                    rs.ItemSetId = itemSet.ItemSetId;
-                    rs.ItemSetIsCompleted = itemSet.IsCompleted;
-                    rs.ItemSetIsLocked = itemSet.IsLocked;
-                    rs.ItemSetSetId = itemSet.SetId;
-                    if (itemSet.ItemAttributes != null)
-                    {
-                        foreach (ReadOnlyItemAttribute itemAttribute in itemSet.ItemAttributes)
-                        {
-                            if (itemAttribute.ArmId == CurrentItemArmId)
-                            {
-                                AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
-                                if (attributeSet != null)
-                                {
-                                    ItemAttributeData itemData = new ItemAttributeData();
-                                    itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                                    itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
-                                    itemData.AttributeId = itemAttribute.AttributeId;
-                                    itemData.AttributeSetId = itemAttribute.AttributeSetId;
-                                    itemData.ItemId = itemAttribute.ItemId;
-                                    itemData.ItemSetId = itemAttribute.ItemSetId;
-                                    itemData.SetId = attributeSet.SetId;
-                                    itemData.ArmId = itemAttribute.ArmId;
-                                    itemData.AdditionalText = itemAttribute.AdditionalText;
-                                    itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                                    //itemData.ItemContactId = itemAttribute.ContactId;
-                                    //itemData.IsSelected = true; Default is true.
-                                    attributeSet.IsSelected = true;
-                                    attributeSet.ItemData = itemData;
-                                }
-                            }
-                        }
-                    }
+                    // JT deleted all the code that was here and moved to SetItemSetData below
+                    SetItemSetData(itemSet, CurrentItemArmId);
                 }
             }
         }
@@ -138,12 +106,11 @@ namespace BusinessLibrary.BusinessClasses
                 rs.ClearItemData();
             }
         }
-        public void SetItemSetData(ItemSet itemSet)
+        public void SetItemSetData(ItemSet itemSet, Int64 CurrentItemArmId)
         {
             ReviewSet rs = this.GetReviewSet(itemSet.SetId);
             if (rs != null)
             {
-                rs.ClearItemData();
                 rs.ItemSetContactId = itemSet.ContactId;
                 rs.ItemSetContactName = itemSet.ContactName;
                 rs.ItemSetId = itemSet.ItemSetId;
@@ -154,24 +121,64 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (ReadOnlyItemAttribute itemAttribute in itemSet.ItemAttributes)
                     {
-                        AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
-                        if (attributeSet != null)
+                        if (itemAttribute.ArmId == CurrentItemArmId)
                         {
-                            ItemAttributeData itemData = new ItemAttributeData();
-                            itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                            itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
-                            itemData.ItemId = itemAttribute.ItemId;
-                            itemData.ItemSetId = itemAttribute.ItemSetId;
-                            itemData.SetId = attributeSet.SetId;
-                            itemData.AdditionalText = itemAttribute.AdditionalText;
-                            itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
-                            //itemData.ItemContactId = itemAttribute.ContactId;
-                            //itemData.IsSelected = true; Default is true.
-                            attributeSet.IsSelected = true;
-                            attributeSet.ItemData = itemData;
+                            AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
+                            if (attributeSet != null)
+                            {
+                                ItemAttributeData itemData = new ItemAttributeData();
+                                itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                                itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
+                                itemData.AttributeId = itemAttribute.AttributeId;
+                                itemData.AttributeSetId = itemAttribute.AttributeSetId;
+                                itemData.ItemId = itemAttribute.ItemId;
+                                itemData.ItemSetId = itemAttribute.ItemSetId;
+                                itemData.SetId = attributeSet.SetId;
+                                itemData.ArmId = itemAttribute.ArmId;
+                                itemData.AdditionalText = itemAttribute.AdditionalText;
+                                itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                                //itemData.ItemContactId = itemAttribute.ContactId;
+                                //itemData.IsSelected = true; Default is true.
+                                attributeSet.IsSelected = true;
+                                attributeSet.ItemData = itemData;
+                            }
                         }
                     }
                 }
+
+
+                // JT rationalising - this function does exactly the same as the one above! Just with an individual reviewset. So we should
+                // use the same code! Delete below once it's working
+
+                //rs.ClearItemData();
+                //rs.ItemSetContactId = itemSet.ContactId;
+                //rs.ItemSetContactName = itemSet.ContactName;
+                //rs.ItemSetId = itemSet.ItemSetId;
+                //rs.ItemSetIsCompleted = itemSet.IsCompleted;
+                //rs.ItemSetIsLocked = itemSet.IsLocked;
+                //rs.ItemSetSetId = itemSet.SetId;
+                //if (itemSet.ItemAttributes != null)
+                //{
+                //    foreach (ReadOnlyItemAttribute itemAttribute in itemSet.ItemAttributes)
+                //    {
+                //        AttributeSet attributeSet = rs.GetAttributeSet(itemAttribute.AttributeSetId);
+                //        if (attributeSet != null)
+                //        {
+                //            ItemAttributeData itemData = new ItemAttributeData();
+                //            itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                //            itemData.ItemAttributeId = itemAttribute.ItemAttributeId;
+                //            itemData.ItemId = itemAttribute.ItemId;
+                //            itemData.ItemSetId = itemAttribute.ItemSetId;
+                //            itemData.SetId = attributeSet.SetId;
+                //            itemData.AdditionalText = itemAttribute.AdditionalText;
+                //            itemData.ItemAttributeTextList = itemAttribute.ItemAttributeTextList;
+                //            //itemData.ItemContactId = itemAttribute.ContactId;
+                //            //itemData.IsSelected = true; Default is true.
+                //            attributeSet.IsSelected = true;
+                //            attributeSet.ItemData = itemData;
+                //        }
+                //    }
+                //}
             }
         }
         
