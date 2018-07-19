@@ -21,6 +21,7 @@ namespace PubmedImport
     public class RCTTaggerImport
     {
         private readonly ILogger _logger;
+        public PubMedUpdateFileImportJobLog _jobLogResult;
 
         public RCTTaggerImport(ILogger<EPPILogger> logger)
         {
@@ -854,8 +855,9 @@ namespace PubmedImport
 
         }
 
-        public void RunRCTTaggerImport(PubMedUpdateFileImportJobLog jobLogResult, ServiceProvider serviceProvider)
+        public void RunRCTTaggerImport( ServiceProvider serviceProvider, PubMedUpdateFileImportJobLog jobLogResult)
         {
+            _jobLogResult = jobLogResult;
             // Setup the logger
             var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
             
@@ -917,7 +919,7 @@ namespace PubmedImport
                 {
                     yearly = true;
                     string tmpItem = Program.ArrowsmithRCTfileBaseURL + "/" + item;
-                    Yearly_Compressed_Files(jobLogResult, tmpItem);
+                    Yearly_Compressed_Files(_jobLogResult, tmpItem);
                     yearly = false;
                 }
                 cnt++;
@@ -926,7 +928,7 @@ namespace PubmedImport
 
             DateTime currDate = GetDate(strDate);
             int startInd = weeklyRCTLinks.FirstOrDefault().LastIndexOf("/");
-            weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(jobLogResult, Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
+            weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             _logger.LogInformation("Finished all RCT Score updates");
             _logger.LogInformation("Starting Human score imports");
@@ -960,7 +962,7 @@ namespace PubmedImport
                 {
                     yearly = true;
                     string tmpItem = Program.ArrowsmithHumanbaseURL + "/" + item;
-                    Yearly_Compressed_Files(jobLogResult, tmpItem);
+                    Yearly_Compressed_Files(_jobLogResult, tmpItem);
                     yearly = false;
                 }
                 cnt++;
@@ -970,13 +972,13 @@ namespace PubmedImport
 
             currDate = GetDate(strDate);
             startInd = weeklyHumanLinks.FirstOrDefault().LastIndexOf("/");
-            weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
+            weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             _logger.LogInformation("Finished all HUMAN Score updates");
 
             _logger.LogInformation("Logging all file results into SQL");
 
-            jobLogResult.EndTime = DateTime.Now;
+            _jobLogResult.EndTime = DateTime.Now;
         }
 
         private  List<string> GetAllYearlyFiles()

@@ -254,14 +254,15 @@ namespace PubmedImport
 				else
 				{
 					DoFTPUpdateFiles(result, serviceProvider);
+
                     var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
-                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport(result, serviceProvider);
+                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
 				}
 			}
             else if (result.DoWhat == "dorctscores")
             {
                 var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
-                rCTTaggerImport.RunRCTTaggerImport(result, serviceProvider);
+                rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
 
             }
             if (
