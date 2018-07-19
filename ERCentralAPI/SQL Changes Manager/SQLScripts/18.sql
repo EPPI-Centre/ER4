@@ -918,3 +918,111 @@ SET NOCOUNT ON
 SET NOCOUNT OFF
 
 GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemSetDataList]    Script Date: 19/07/2018 18:58:56 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER procedure [dbo].[st_ItemSetDataList] (
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	--this was changed on Aug 2013, previous version is commented below.
+	--the new version gets: all completed sets for the item, plus all coded text
+	--the old version was called by ItemSetList and was grabbing what was needed by the current user in DialogCoding:
+	--that's the completed sets, plus the incomplete ones that belong to the user when a completed version isn't present.
+	
+	--first, grab the completed item set (if any)
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	--second, get all data from TB_ITEM_ATTRIBUTE_PDF and TB_ITEM_ATTRIBUTE_TEXT using union and only from completed sets
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	--old version starts here
+	/* Collects just the item sets that are needed by a given reviewer - not all of them for every item
+	   Critically, this query NOTs out the set_ids already identified.
+	 */
+
+	-- first, grab the completed item set (if any)
+	--SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+	--	CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	--FROM TB_ITEM_SET
+	--	INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+	--	INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--	--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
+	--	AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	
+	--UNION
+	----second get incomplete item_sets for the current Reviewer if no complete set is present
+	--	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+	--		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+	--	FROM TB_ITEM_SET
+	--		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+	--		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--		and tb_ITEM_SET.IS_COMPLETED = 'false'
+	--		and TB_ITEM_SET.CONTACT_ID = @CONTACT_ID
+	--	AND NOT TB_ITEM_SET.SET_ID IN
+	--	(
+	--		SELECT TB_ITEM_SET.SET_ID FROM TB_ITEM_SET
+	--			INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+	--			WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+	--			AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+	--	)
+	--end of old version
+SET NOCOUNT OFF
+
+GO
