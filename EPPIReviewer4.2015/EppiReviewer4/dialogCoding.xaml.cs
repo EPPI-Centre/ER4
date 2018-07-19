@@ -1410,7 +1410,10 @@ Proceed?";
                 ReadOnlyItemAttribute roia = comparison1.GetItemAttribute(attributeSet.AttributeId);
                 if (roia != null)
                 {
-                    report += "<li><FONT COLOR='BLUE'>[" + comparison1.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                    report += "<li><FONT COLOR='BLUE'>[" + comparison1.ContactName + "] " +
+                        attributeSet.AttributeName +
+                        (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                        "<br /><i>" + roia.AdditionalText + "</i></font></li>";
                     oneReviewerHasSelected = true;
                     if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                     {
@@ -1422,7 +1425,10 @@ Proceed?";
                 roia = comparison2.GetItemAttribute(attributeSet.AttributeId);
                 if (roia != null)
                 {
-                    report += "<li><FONT COLOR='RED'>[" + comparison2.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                    report += "<li><FONT COLOR='RED'>[" + comparison2.ContactName + "] " +
+                        attributeSet.AttributeName + 
+                        (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                        "<br /><i>" +  roia.AdditionalText + "</i></font></li>";
                     oneReviewerHasSelected = true;
                     if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                     {
@@ -1436,7 +1442,10 @@ Proceed?";
                     roia = comparison3.GetItemAttribute(attributeSet.AttributeId);
                     if (roia != null)
                     {
-                        report += "<li><FONT COLOR='GREEN'>[" + comparison3.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                        report += "<li><FONT COLOR='GREEN'>[" + comparison3.ContactName + "] " +
+                            attributeSet.AttributeName + 
+                            (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                            "<br /><i>" +  roia.AdditionalText + "</i></font></li>";
                         oneReviewerHasSelected = true;
                         if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                         {
