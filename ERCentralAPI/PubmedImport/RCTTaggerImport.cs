@@ -800,7 +800,7 @@ namespace PubmedImport
             _jobLogResult.EndTime = DateTime.Now;
         }
 
-        private  List<string> GetAllYearlyFiles()
+        private List<string> GetAllYearlyFiles()
         {
 
             List<string> fileNames = new List<string>();
