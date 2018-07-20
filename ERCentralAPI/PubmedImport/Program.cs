@@ -55,6 +55,7 @@ namespace PubmedImport
 
         static void Main(string[] args)
 		{
+            // Required for SERILOG
             //Log.Logger = new LoggerConfiguration()
             //    .WriteTo.File(CreateLogFileName())
             //    .CreateLogger();
@@ -122,7 +123,6 @@ namespace PubmedImport
             GetAppSettings(serviceProvider);
             if (SqlHelper == null)
 			{
-
                 _logger.LogCritical("Critical");
                 _logger.Log(LogLevel.Error,"Error connecting to DBs!");
                 _logger.Log(LogLevel.Error,"Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
@@ -311,7 +311,7 @@ namespace PubmedImport
                         using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                         {
                             conn.Open();
-                            SaveJobSummary(conn, result);
+                            SaveJobSummary(_logger, conn, result);
                         }
                 }
 				if (WaitOnExit)
@@ -375,8 +375,11 @@ namespace PubmedImport
                 System.Environment.Exit(0);
 			}
 		}
-        private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
+        private static void SaveJobSummary(ILogger<Program> logger, SqlConnection conn, PubMedUpdateFileImportJobLog result)
         {
+
+            SqlTransaction transaction = conn.BeginTransaction();
+
             string argStr = "";
             foreach (var item in result.Arguments)
             {
@@ -433,10 +436,13 @@ namespace PubmedImport
                                         , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
                                     );
                 }
+                transaction.Commit();
+
             }
             catch (Exception e)
             {
-                //_logger.Log(LogLevel.Error,"", e);
+                logger.SQLActionFailed("", parameters, e);
+                transaction.Rollback();
                 //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
 
