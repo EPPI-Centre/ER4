@@ -40,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
             ItemAttributesAllFullTextDetailsList result = new ItemAttributesAllFullTextDetailsList();
             while (reader.Read())
             {//build list 
-                result.Add(ItemAttributeFullTextDetails.GetItemAttributeText(reader));
+                result.Add(ItemAttributeFullTextDetails.GetItemAttributeFullTextDetails(reader));
             }
             return result;
         }
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            Add(ItemAttributeFullTextDetails.GetItemAttributeText(reader));
+                            Add(ItemAttributeFullTextDetails.GetItemAttributeFullTextDetails(reader));
                         }
                     }
                 }
