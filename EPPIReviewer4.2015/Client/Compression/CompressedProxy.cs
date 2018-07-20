@@ -63,20 +63,21 @@ namespace BusinessLibrary.Compression
                   this.EndPoint = "TestingBasicHttpBinding_IWcfPortal";
               }
           }
-          else if (host == "ssru38" | host == "ssru38.ioe.ac.uk")
+          else if (host == "cs00032214" || host == "cs00032214.ucl.ac.uk" || host == "cs00032214.ad.ucl.ac.uk")
           {
-              if (ri == null || ri.Ticket == null || ri.Ticket == "") //(ri != null && ri.Ticket != "")
-              {//not authenticated, use https
-                  this.EndPoint = "LocalHttpsBinding_IWcfPortal";
-              }
-              else if (until != null && until > DateTime.Now)
-              {//current config tells us to use https (for archie, or from another option)
-                  this.EndPoint = "LocalHttpsBinding_IWcfPortal";
-              }
-              else
-              {//all normal use http
-                  this.EndPoint = "LocalBasicHttpBinding_IWcfPortal";
-              }
+                //if (ri == null || ri.Ticket == null || ri.Ticket == "") //(ri != null && ri.Ticket != "")
+                //{//not authenticated, use https
+                //    this.EndPoint = "LocalHttpsBinding_IWcfPortal";
+                //}
+                //else if (until != null && until > DateTime.Now)
+                //{//current config tells us to use https (for archie, or from another option)
+                //    this.EndPoint = "LocalHttpsBinding_IWcfPortal";
+                //}
+                //else
+                //{//all normal use http
+                //    this.EndPoint = "LocalBasicHttpBinding_IWcfPortal";
+                //}
+                this.EndPoint = "cs00032214HttpBinding_IWcfPortal";
           }
             else if (host == "eppi-management" )
             {
