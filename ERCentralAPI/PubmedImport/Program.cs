@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Globalization;
 
 namespace PubmedImport
 {
@@ -289,12 +290,23 @@ namespace PubmedImport
 			}
 			else
 			{
-				result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
-                _logger.Log(LogLevel.Error,"", null);
-                _logger.Log(LogLevel.Error,"Summary: " + result.Summary);
+                if (result.DoWhat == "dorctscores")
+                {
+                    TimeSpan diff = result.EndTime - result.StartTime;
+                    string formattedDiff = string.Format(
+                                           CultureInfo.CurrentCulture,
+                                           "{0} seconds",
+                                           diff.Seconds);
+                    result.Summary = "Processed " + result.ProcessedFilesResults.Count() + " records in " + formattedDiff;
+                }
+                else
+                {
+                    result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
+                }
+
 				if (Program.simulate == false)
 				{
-                     _logger.Log(LogLevel.Error, "Saving job summary to DB");
+                        _logger.LogInformation("Saving job summary to DB");
 						result.UpdateErrors();
                         using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                         {
@@ -305,14 +317,12 @@ namespace PubmedImport
 				if (WaitOnExit)
 				{
    
-                    _logger.Log(LogLevel.Error,"All done, press a key to quit.");
+                    _logger.LogInformation("All done, press a key to quit.");
 					Console.ReadKey();
-                    _logger.Log(LogLevel.Error,"");
 				}
 				else
 				{
-                    _logger.Log(LogLevel.Error,"All done, exiting.");
-					_logger.Log(LogLevel.Error,"");
+                    _logger.LogInformation("All done, exiting.");
 				}
 			}
 		}

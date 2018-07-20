@@ -47,73 +47,73 @@ namespace PubmedImport
             return tmpStr;
         }
 
-        private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
-        {
+        //private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
+        //{
            
-            string argStr = "";
-            foreach (var item in result.Arguments)
-            {
-                argStr += item.ToString() + " ";
-            }
-            argStr = argStr.Trim();
-            List<SqlParameter> sqlParams = new List<SqlParameter>();
-            SqlParameter IdParam = new SqlParameter("@jobID", (Int64)(-1));
-            IdParam.Direction = System.Data.ParameterDirection.Output;
-            sqlParams.Add(IdParam);
-            sqlParams.Add(new SqlParameter("@IsDeleting", result.IsDeleting));
-            sqlParams.Add(new SqlParameter("@TotalErrorCount", result.TotalErrorCount));
-            sqlParams.Add(new SqlParameter("@Summary", result.Summary));
-            sqlParams.Add(new SqlParameter("@Arguments", argStr));
-            sqlParams.Add(new SqlParameter("@StartTime", result.StartTime));
-            sqlParams.Add(new SqlParameter("@EndTime", result.EndTime));
-            sqlParams.Add(new SqlParameter("@HasError", result.HasErrors));
+        //    string argStr = "";
+        //    foreach (var item in result.Arguments)
+        //    {
+        //        argStr += item.ToString() + " ";
+        //    }
+        //    argStr = argStr.Trim();
+        //    List<SqlParameter> sqlParams = new List<SqlParameter>();
+        //    SqlParameter IdParam = new SqlParameter("@jobID", (Int64)(-1));
+        //    IdParam.Direction = System.Data.ParameterDirection.Output;
+        //    sqlParams.Add(IdParam);
+        //    sqlParams.Add(new SqlParameter("@IsDeleting", result.IsDeleting));
+        //    sqlParams.Add(new SqlParameter("@TotalErrorCount", result.TotalErrorCount));
+        //    sqlParams.Add(new SqlParameter("@Summary", result.Summary));
+        //    sqlParams.Add(new SqlParameter("@Arguments", argStr));
+        //    sqlParams.Add(new SqlParameter("@StartTime", result.StartTime));
+        //    sqlParams.Add(new SqlParameter("@EndTime", result.EndTime));
+        //    sqlParams.Add(new SqlParameter("@HasError", result.HasErrors));
 
-            SqlParameter[] parameters = new SqlParameter[8];
-            parameters = sqlParams.ToArray();
+        //    SqlParameter[] parameters = new SqlParameter[8];
+        //    parameters = sqlParams.ToArray();
 
-            try
-            {
+        //    try
+        //    {
 
-                Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
-                var jobID = (Int64)IdParam.Value;
-                //conn.Close();
+        //        Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
+        //        var jobID = (Int64)IdParam.Value;
+        //        //conn.Close();
 
-                // Can loop through the number of FileParserResults and insert into the relevant table
-                foreach (var fileParser in result.ProcessedFilesResults)
-                {
-                    if (fileParser.UpdatedPMIDs == null)
-                    {
-                        fileParser.UpdatedPMIDs = "";
-                    }
-                    string argStrF = "";
-                    foreach (var item in fileParser.Messages)
-                    {
-                        argStrF += item.ToString() + Environment.NewLine;
-                    }
-                    //conn.Open();
-                    Program.SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
-                                        , new SqlParameter("@Success", fileParser.Success)
-                                        , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
-                                        , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
-                                        , new SqlParameter("@FileName", fileParser.FileName)
-                                        , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
-                                        , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
-                                        , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
-                                        , new SqlParameter("@StartTime", fileParser.StartTime)
-                                        , new SqlParameter("@EndTime", fileParser.EndTime)
-                                        , new SqlParameter("@HasErrors", fileParser.HasErrors)
-                                        , new SqlParameter("@Messages", argStrF)
-                                        , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
-                                    );
-                }
-            }
-            catch (Exception e)
-            {
-                //_logger.Log(LogLevel.Error,"", e);
-                //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
-            }
+        //        // Can loop through the number of FileParserResults and insert into the relevant table
+        //        foreach (var fileParser in result.ProcessedFilesResults)
+        //        {
+        //            if (fileParser.UpdatedPMIDs == null)
+        //            {
+        //                fileParser.UpdatedPMIDs = "";
+        //            }
+        //            string argStrF = "";
+        //            foreach (var item in fileParser.Messages)
+        //            {
+        //                argStrF += item.ToString() + Environment.NewLine;
+        //            }
+        //            //conn.Open();
+        //            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
+        //                                , new SqlParameter("@Success", fileParser.Success)
+        //                                , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
+        //                                , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
+        //                                , new SqlParameter("@FileName", fileParser.FileName)
+        //                                , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
+        //                                , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
+        //                                , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
+        //                                , new SqlParameter("@StartTime", fileParser.StartTime)
+        //                                , new SqlParameter("@EndTime", fileParser.EndTime)
+        //                                , new SqlParameter("@HasErrors", fileParser.HasErrors)
+        //                                , new SqlParameter("@Messages", argStrF)
+        //                                , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
+        //                            );
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //_logger.Log(LogLevel.Error,"", e);
+        //        //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
+        //    }
 
-        }
+        //}
 
         public DateTime GetDate(string str)
         {
@@ -228,10 +228,9 @@ namespace PubmedImport
             {
                 Import_Human_Tagger_File(jobLogResult, decompressedYearlyFile);
             }
-            _logger.LogInformation("Finished with yearly import");
+            _logger.LogInformation("Finished with this yearly import file");
 
         }
-        
 
         private async Task<List<string>> GetHTMLLinksAsync(string baseURL)
         {
@@ -263,10 +262,10 @@ namespace PubmedImport
 
         private void Weekly_Update_files(PubMedUpdateFileImportJobLog jobLogResult, string weeklyFile)
         {
-            _logger.LogInformation("Checking update files");
+            _logger.LogInformation("Checking weekly update files");
 
             bool res = false;
-            _logger.LogInformation("Importing update files");
+            _logger.LogInformation("Importing weekly update files");
 
             (res, weeklyFile) = DownloadCSVFiles(weeklyFile);
             if (res)
@@ -280,7 +279,7 @@ namespace PubmedImport
                     Import_Human_Tagger_File(jobLogResult, weeklyFile);
                 }
             }
-            _logger.LogInformation("Finished with update imports");
+            _logger.LogInformation("Finished with this weekly update file");
         }
 
         private void Log_Import_Job( string filename)
@@ -490,6 +489,7 @@ namespace PubmedImport
             var RCT_TABLE = new DataTable();
             SqlTransaction transaction;
             FileParserResult fileParser = new FileParserResult(filename, false);
+            fileParser.StartTime = DateTime.Now;
 
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
@@ -587,12 +587,14 @@ namespace PubmedImport
 
                     _logger.LogInformation("The total number of scores updated is: " + done);
 
-                    _logger.LogInformation("Successfully imported an RCT Yearly file");
+                    _logger.LogInformation("Successfully imported an RCT file");
 
+                    fileParser.Messages = messages;
                     fileParser.EndTime = DateTime.Now;
                     fileParser.CitationsInFile = todo;
                     fileParser.CitationsCommitted = todo;
-                  
+                    
+
                     jobLogResult.ProcessedFilesResults.Add(fileParser);
 
                 }
@@ -628,9 +630,12 @@ namespace PubmedImport
             var RCT_TABLE = new DataTable();
             SqlTransaction transaction;
             FileParserResult fileParser = new FileParserResult(filename, false);
+            fileParser.StartTime = DateTime.Now;
 
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
             {
+                List<string> messages = new List<string>();
+                messages.Add("Imported RCT scores for the following file: " + filename);
                 conn.Open();
                 try
                 {
@@ -715,7 +720,8 @@ namespace PubmedImport
                     }
                     int todo = recs.Count();
                     _logger.LogInformation("The total number of scores updated is: " + done);
-
+                    _logger.LogInformation("Successfully imported a Human tagger file");
+                    fileParser.Messages = messages;
                     fileParser.EndTime = DateTime.Now;
                     fileParser.CitationsInFile = todo;
                     fileParser.CitationsCommitted = todo;
@@ -852,7 +858,6 @@ namespace PubmedImport
 
             }
             return fileName;
-
         }
 
         public void RunRCTTaggerImport( ServiceProvider serviceProvider, PubMedUpdateFileImportJobLog jobLogResult)
@@ -913,10 +918,11 @@ namespace PubmedImport
             cnt = 0;
             foreach (var item in yearlyLinksShort)
             {
-
+                
                 string present = yearlyFileNames.FirstOrDefault(s => s.Equals(item));
                 if (present == null)
                 {
+                    _logger.LogInformation("Downloading, decompressing and importing into SQL this yearly RCT import file: " + item);
                     yearly = true;
                     string tmpItem = Program.ArrowsmithRCTfileBaseURL + "/" + item;
                     Yearly_Compressed_Files(_jobLogResult, tmpItem);
@@ -947,6 +953,7 @@ namespace PubmedImport
             {
                 foreach (var item in yearlyFilesHumanDownloadedFullPath)
                 {
+                   
                     string tmpStr = item.Substring(9, item.Length - 9);
                     yearlyHumanFileNames.Add(item);
                     cnt++;
@@ -960,6 +967,7 @@ namespace PubmedImport
                 string present = yearlyHumanFileNames.FirstOrDefault(s => s.Equals(item));
                 if (present == null)
                 {
+                    _logger.LogInformation("Downloading, decompressing and importing into SQL this HUMAN tagger yearly import file: " + item);
                     yearly = true;
                     string tmpItem = Program.ArrowsmithHumanbaseURL + "/" + item;
                     Yearly_Compressed_Files(_jobLogResult, tmpItem);
