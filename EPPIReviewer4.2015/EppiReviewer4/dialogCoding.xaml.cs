@@ -182,9 +182,16 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-
-
-            
+            if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+            {
+                Arms.Visibility = Visibility.Visible;
+                Arms.IsEnabled = true;
+            }
+            else
+            {
+                Arms.Visibility = Visibility.Collapsed;
+                Arms.IsEnabled = false;
+            }
         }
 
         
