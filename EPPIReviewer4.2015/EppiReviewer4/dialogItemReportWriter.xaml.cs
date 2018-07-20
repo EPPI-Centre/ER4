@@ -259,9 +259,9 @@ namespace EppiReviewer4
         public static string writeCodingReportAttributesWithArms(ItemSet itemSet, AttributeSet attributeSet, string report)
         {
             List<ReadOnlyItemAttribute> roias = itemSet.GetItemAttributes(attributeSet.AttributeId);
-            foreach (ReadOnlyItemAttribute roia in roias)
+            if (roias != null && roias.Count > 0)
             {
-                if (roia != null)
+                foreach (ReadOnlyItemAttribute roia in roias)
                 {
                     string AttributeName = attributeSet.AttributeName;
                     if (roia.ArmId != 0)
@@ -277,6 +277,9 @@ namespace EppiReviewer4
                         report += dialogCoding.addFullTextToComparisonReport(ll);
                     }
                     report += "</li>";
+                }
+                if (CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                {
                     report += "<ul>";
                     foreach (AttributeSet child in attributeSet.Attributes)
                     {
@@ -284,18 +287,18 @@ namespace EppiReviewer4
                     }
                     report += "</ul>";
                 }
-                else
+            }
+            else
+            {
+                if (CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
                 {
-                    if (CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                    report += "<li style='color:DarkGray;'>" + attributeSet.AttributeName + "</li>";
+                    report += "<ul>";
+                    foreach (AttributeSet child in attributeSet.Attributes)
                     {
-                        report += "<li style='color:DarkGray;'>" + attributeSet.AttributeName + "</li>";
-                        report += "<ul>";
-                        foreach (AttributeSet child in attributeSet.Attributes)
-                        {
-                            report = writeCodingReportAttributesWithArms(itemSet, child, report);
-                        }
-                        report += "</ul>";
+                        report = writeCodingReportAttributesWithArms(itemSet, child, report);
                     }
+                    report += "</ul>";
                 }
             }
             return report;
