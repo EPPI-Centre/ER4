@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Globalization;
 
 namespace PubmedImport
 {
@@ -23,6 +24,7 @@ namespace PubmedImport
 		//private static string DoWhat = "SampleFile";
 		private static bool success = false;
 		public static bool simulate = false;
+        private static bool dontDoScores = false;
 		private static string errorMsg = "";
 		public static int maxCount = int.MaxValue;
 		public static int currCount = 0;
@@ -53,17 +55,17 @@ namespace PubmedImport
 
         static void Main(string[] args)
 		{
-
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(CreateLogFileName())
-                .CreateLogger();
+            // Required for SERILOG
+            //Log.Logger = new LoggerConfiguration()
+            //    .WriteTo.File(CreateLogFileName())
+            //    .CreateLogger();
 
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             //https://blog.bitscry.com/2017/05/30/appsettings-json-in-net-core-console-app/
             PubMedUpdateFileImportJobLog result = new PubMedUpdateFileImportJobLog(args);
@@ -88,8 +90,13 @@ namespace PubmedImport
 				else if (s.Length == 6 && s.Substring(0, 6).ToLower() == "whatif")
 				{
 					simulate = true;//does not save!
-				}
-				else if (s.Length == 13 && s.Substring(0, 13).ToLower() == "deleterecords")
+                }//dontDoScores
+                else if (s.Length == 12 && s.Substring(0, 12).ToLower() == "dontdoscores")
+                {
+                    dontDoScores = true;//does not do the scores when using ftpupdatefolder dowhat option;
+                    //in all other cases, this option is ignored.
+                }
+                else if (s.Length == 13 && s.Substring(0, 13).ToLower() == "deleterecords")
 				{
 					deleteRecords = true;//deletes records that already exist and does not add new ones!
 				}
@@ -116,7 +123,6 @@ namespace PubmedImport
             GetAppSettings(serviceProvider);
             if (SqlHelper == null)
 			{
-
                 _logger.LogCritical("Critical");
                 _logger.Log(LogLevel.Error,"Error connecting to DBs!");
                 _logger.Log(LogLevel.Error,"Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
@@ -124,7 +130,7 @@ namespace PubmedImport
                 _logger.Log(LogLevel.Error,"");
 				System.Environment.Exit(0);
 			}
-			_logger.Log(LogLevel.Error,"Parser testing!");
+			_logger.LogInformation("Parser testing!");
 			if (result.DoWhat == "ftpsamplefile")
 			{
                 _logger.Log(LogLevel.Error,"", null);
@@ -249,13 +255,16 @@ namespace PubmedImport
 				else
 				{
 					DoFTPUpdateFiles(result, serviceProvider);
-                    
-                    RCTTaggerImport.RunRCTTaggerImport();
+
+                    var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
+                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
 				}
 			}
             else if (result.DoWhat == "dorctscores")
             {
-                    RCTTaggerImport.RunRCTTaggerImport();
+                var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
+                rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
+
             }
             if (
 					result.DoWhat == "Nothing"
@@ -275,51 +284,55 @@ namespace PubmedImport
 				ShowHelp();
 				if (WaitOnExit)
 				{
-   
                     _logger.Log(LogLevel.Error,"All done, press a key to quit.");
 					Console.ReadKey();
 				}
 			}
 			else
 			{
-				result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
-                _logger.Log(LogLevel.Error,"", null);
-                _logger.Log(LogLevel.Error,"Summary: " + result.Summary);
+                if (result.DoWhat == "dorctscores")
+                {
+                    TimeSpan diff = result.EndTime - result.StartTime;
+                    string formattedDiff = string.Format(
+                                           CultureInfo.CurrentCulture,
+                                           "{0} seconds",
+                                           diff.Seconds);
+                    result.Summary = "Processed " + result.ProcessedFilesResults.Count() + " records in " + formattedDiff;
+                }
+                else
+                {
+                    result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
+                }
+
 				if (Program.simulate == false)
 				{
-                     _logger.Log(LogLevel.Error, "Saving job summary to DB");
-                    _logger.Log(LogLevel.Error,"Saving job summary to DB");
+                        _logger.LogInformation("Saving job summary to DB");
 						result.UpdateErrors();
                         using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                         {
-
                             conn.Open();
-                            SaveJobSummary(conn, result);
-
+                            SaveJobSummary(_logger, conn, result);
                         }
-
                 }
 				if (WaitOnExit)
 				{
    
-                    _logger.Log(LogLevel.Error,"All done, press a key to quit.");
+                    _logger.LogInformation("All done, press a key to quit.");
 					Console.ReadKey();
-   
-                    _logger.Log(LogLevel.Error,"");
 				}
 				else
 				{
-   
-                    _logger.Log(LogLevel.Error,"All done, exiting.");
-					_logger.Log(LogLevel.Error,"");
+                    _logger.LogInformation("All done, exiting.");
 				}
 			}
 		}
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(configure => configure.AddSerilog()
-            ).AddTransient<FileParser>();
+            services.AddLogging(configure => configure.AddConsole()
+            )
+                .AddTransient<FileParser>()
+                .AddTransient<RCTTaggerImport>();
 
         }
 
@@ -362,8 +375,11 @@ namespace PubmedImport
                 System.Environment.Exit(0);
 			}
 		}
-        private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
+        private static void SaveJobSummary(ILogger<Program> logger, SqlConnection conn, PubMedUpdateFileImportJobLog result)
         {
+
+            SqlTransaction transaction = conn.BeginTransaction();
+
             string argStr = "";
             foreach (var item in result.Arguments)
             {
@@ -388,7 +404,7 @@ namespace PubmedImport
             try
             {
 
-                SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
+                SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_PubMedJobLogInsert", parameters);
                 var jobID = (Int64)IdParam.Value;
                 //conn.Close();
 
@@ -405,7 +421,7 @@ namespace PubmedImport
                         argStrF += item.ToString() + Environment.NewLine;
                     }
                     //conn.Open();
-                    SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
+                    SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_FileParserResultInsert"
                                         , new SqlParameter("@Success", fileParser.Success)
                                         , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
                                         , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
@@ -420,10 +436,13 @@ namespace PubmedImport
                                         , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
                                     );
                 }
+                transaction.Commit();
+
             }
             catch (Exception e)
             {
-                //_logger.Log(LogLevel.Error,"", e);
+                logger.SQLActionFailed("", parameters, e);
+                transaction.Rollback();
                 //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
 
@@ -558,7 +577,6 @@ namespace PubmedImport
                                 {
                                     updateFiles[i].ImportDate = DateTime.Now;
                                     if (Program.simulate == false) updateFiles[i].SaveSelf(conn);
-
                                 }
                             }
 						}
@@ -580,7 +598,6 @@ namespace PubmedImport
                 }
 				if (currCount >= maxCount) break;
 			}
-
 		}
 
 		static void DoFTPFolder(PubMedUpdateFileImportJobLog result, ServiceProvider serviceProvider)
@@ -715,7 +732,7 @@ namespace PubmedImport
             List<SqlParameter> Parameters = new List<SqlParameter>();
             Parameters.Add(new SqlParameter("@PUBMED_FILE_NAME", FileName));
             Parameters.Add(new SqlParameter("@PUBMED_UPLOAD_DATE", UploadDate));
-            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedUpdateFileInsert", Parameters.ToArray());
+            Program.SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_PubMedUpdateFileInsert", Parameters.ToArray());
         }
 
         public static PubMedUpdateFileImport GetPubMedUpdateFileImport(SqlDataReader reader)

@@ -201,16 +201,19 @@ namespace EPPIDataServices.Helpers
             _FTPActionFailed = LoggerMessage.Define<string, string>(
                LogLevel.Error,
               new EventId(4, nameof(FTPActionFailed)),
-              "FTP Error detected (message = '{strFTP}')");
+              "FTP Error detected (message = '{strFTP}' doing={doingWhat})");
         }
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
         {
             SQLParams = "";
-            foreach (var item in parameters)
+            if (parameters != null)
             {
-                SQLParams += item.ParameterName + ",";
-            }         
+                foreach (var item in parameters)
+                {
+                    SQLParams += item.ParameterName + ",";
+                }
+            }
             _SQLActionFailed(logger, message, SQLParams, ex);
         }
 

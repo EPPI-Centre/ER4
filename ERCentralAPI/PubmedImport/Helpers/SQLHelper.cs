@@ -42,7 +42,7 @@ namespace EPPIDataServices.Helpers
                 using (SqlConnection connection = new SqlConnection(connSt))
                 {
                     connection.Open();
-                    return ExecuteNonQuerySP(connection, SPname, parameters);
+                    return ExecuteNonQuerySP(connSt, SPname, parameters);
                 }
             }
             catch (Exception e)
@@ -54,7 +54,7 @@ namespace EPPIDataServices.Helpers
         /// <summary> 
         /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
         /// </summary> 
-        public int ExecuteNonQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        public int ExecuteNonQuerySP( SqlConnection connection, string SPname, params SqlParameter[] parameters)
         {
             try
             {
