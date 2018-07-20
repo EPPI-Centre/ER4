@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections;
 
 namespace PubmedImport
 {
@@ -46,74 +47,6 @@ namespace PubmedImport
             string tmpStr = inputStr.Substring(tmp + 1, inputStr.Length - tmp - 1);
             return tmpStr;
         }
-
-        //private static void SaveJobSummary(SqlConnection conn, PubMedUpdateFileImportJobLog result)
-        //{
-           
-        //    string argStr = "";
-        //    foreach (var item in result.Arguments)
-        //    {
-        //        argStr += item.ToString() + " ";
-        //    }
-        //    argStr = argStr.Trim();
-        //    List<SqlParameter> sqlParams = new List<SqlParameter>();
-        //    SqlParameter IdParam = new SqlParameter("@jobID", (Int64)(-1));
-        //    IdParam.Direction = System.Data.ParameterDirection.Output;
-        //    sqlParams.Add(IdParam);
-        //    sqlParams.Add(new SqlParameter("@IsDeleting", result.IsDeleting));
-        //    sqlParams.Add(new SqlParameter("@TotalErrorCount", result.TotalErrorCount));
-        //    sqlParams.Add(new SqlParameter("@Summary", result.Summary));
-        //    sqlParams.Add(new SqlParameter("@Arguments", argStr));
-        //    sqlParams.Add(new SqlParameter("@StartTime", result.StartTime));
-        //    sqlParams.Add(new SqlParameter("@EndTime", result.EndTime));
-        //    sqlParams.Add(new SqlParameter("@HasError", result.HasErrors));
-
-        //    SqlParameter[] parameters = new SqlParameter[8];
-        //    parameters = sqlParams.ToArray();
-
-        //    try
-        //    {
-
-        //        Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
-        //        var jobID = (Int64)IdParam.Value;
-        //        //conn.Close();
-
-        //        // Can loop through the number of FileParserResults and insert into the relevant table
-        //        foreach (var fileParser in result.ProcessedFilesResults)
-        //        {
-        //            if (fileParser.UpdatedPMIDs == null)
-        //            {
-        //                fileParser.UpdatedPMIDs = "";
-        //            }
-        //            string argStrF = "";
-        //            foreach (var item in fileParser.Messages)
-        //            {
-        //                argStrF += item.ToString() + Environment.NewLine;
-        //            }
-        //            //conn.Open();
-        //            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
-        //                                , new SqlParameter("@Success", fileParser.Success)
-        //                                , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
-        //                                , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
-        //                                , new SqlParameter("@FileName", fileParser.FileName)
-        //                                , new SqlParameter("@UpdatedPMIDs", fileParser.UpdatedPMIDs)
-        //                                , new SqlParameter("@CitationsInFile", fileParser.CitationsInFile)
-        //                                , new SqlParameter("@CitationsCommitted", fileParser.CitationsCommitted)
-        //                                , new SqlParameter("@StartTime", fileParser.StartTime)
-        //                                , new SqlParameter("@EndTime", fileParser.EndTime)
-        //                                , new SqlParameter("@HasErrors", fileParser.HasErrors)
-        //                                , new SqlParameter("@Messages", argStrF)
-        //                                , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
-        //                            );
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        //_logger.Log(LogLevel.Error,"", e);
-        //        //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
-        //    }
-
-        //}
 
         public DateTime GetDate(string str)
         {
@@ -222,11 +155,11 @@ namespace PubmedImport
 
             if (yearlyfile.Contains("rct"))
             {
-                Import_RCT_Tagger_File(jobLogResult, decompressedYearlyFile);
+                Import_Tag_File< RCT_Tag>(jobLogResult, decompressedYearlyFile, typeof(RCT_Tag));
             }
             else
             {
-                Import_Human_Tagger_File(jobLogResult, decompressedYearlyFile);
+                Import_Tag_File<Human_Tag>(jobLogResult, decompressedYearlyFile, typeof(Human_Tag));
             }
             _logger.LogInformation("Finished with this yearly import file");
 
@@ -272,11 +205,13 @@ namespace PubmedImport
             {
                 if (weeklyFile.Contains("rct"))
                 {
-                    Import_RCT_Tagger_File(jobLogResult, weeklyFile);
+                    Import_Tag_File<RCT_Tag>(jobLogResult, weeklyFile, typeof(RCT_Tag));
+                    
                 }
                 else
                 {
-                    Import_Human_Tagger_File(jobLogResult, weeklyFile);
+                    Import_Tag_File<Human_Tag>(jobLogResult, weeklyFile, typeof(Human_Tag));
+                   
                 }
             }
             _logger.LogInformation("Finished with this weekly update file");
@@ -480,13 +415,14 @@ namespace PubmedImport
             while (remainingTries > 0);
             return (false, filename);
         }
-
-        private  void Import_RCT_Tagger_File(PubMedUpdateFileImportJobLog jobLogResult, string filename)
+        
+        private void Import_Tag_File<T>(PubMedUpdateFileImportJobLog jobLogResult, string filename, Type value)
         {
-           
+            DataTable dt = new DataTable();
+
+            List<Tag> recs = new List<Tag>();
+
             // After downloading the file import at that point
-            List<RCT_Tag> recs = new List<RCT_Tag>();
-            var RCT_TABLE = new DataTable();
             SqlTransaction transaction;
             FileParserResult fileParser = new FileParserResult(filename, false);
             fileParser.StartTime = DateTime.Now;
@@ -496,7 +432,7 @@ namespace PubmedImport
                 conn.Open();
                 int todo = 0;
                 List<string> messages = new List<string>();
-                messages.Add("Imported RCT scores for the following file: " + filename);
+                messages.Add("Imported scores for the following file: " + filename);
                 try
                 {
                     if (filename.Contains("\\"))
@@ -524,10 +460,23 @@ namespace PubmedImport
 
                             if (x > 0)
                             {
-                                RCT_Tag record = new RCT_Tag();
-                                record.PMID = _values[0];
-                                record.RCT_SCORE = _values[1];
-                                recs.Add(record);
+                                if (value ==  typeof(RCT_Tag))
+                                {
+                                   
+                                    RCT_Tag record = new RCT_Tag();
+                                    record.PMID = _values[0];
+                                    record.RCT_SCORE = _values[1];
+                                    recs.Add(record);
+                                }
+                                else
+                                {
+                                    
+                                    Human_Tag record = new Human_Tag();
+                                    record.PMID = _values[0];
+                                    record.HUMAN_PRECICTION = _values[1];
+                                    recs.Add(record);
+                                }
+
                             }
                             x++;
                         }
@@ -535,19 +484,20 @@ namespace PubmedImport
 
                     }
 
+
                     double divisor = 0.0;
                     int skip = 0;
                     int page = 0;
                     int done = 0;
 
-                    if (recs.Count() < 1000)
+                    if (recs.Count < 1000)
                     {
                         divisor = 0;
-                        page = recs.Count();
+                        page = recs.Count;
                     }
                     else
                     {
-                        divisor = Math.Floor((double)recs.Count() / 1000);
+                        divisor = Math.Floor((double)recs.Count / 1000);
                         page = 1000;
                         skip = 1000;
                     }
@@ -558,9 +508,9 @@ namespace PubmedImport
                         try
                         {
 
-                            List<string> tmpL = recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList();
+                            List<string> tmpL = recs.Select(x => x.ID).Skip(skip * i).Take(page).ToList();
                             sqlParams.Add(new SqlParameter("@ids", string.Join(",", tmpL)));
-                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.RCT_SCORE).Skip(skip * i).Take(page).ToList())));
+                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.Score).Skip(skip * i).Take(page).ToList())));
                             sqlParams.Add(new SqlParameter("@ID", "RCT"));
 
                             int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", sqlParams.ToArray());
@@ -568,7 +518,7 @@ namespace PubmedImport
                             transaction.Commit();
                             done += tmpL.Count();
                             messages.Add(" " + done);
-                            
+
 
                         }
                         catch (SqlException sqlex)
@@ -583,7 +533,7 @@ namespace PubmedImport
                         }
                     }
 
-                    todo = recs.Count();
+                    todo = recs.Count;
 
                     _logger.LogInformation("The total number of scores updated is: " + done);
 
@@ -593,7 +543,7 @@ namespace PubmedImport
                     fileParser.EndTime = DateTime.Now;
                     fileParser.CitationsInFile = todo;
                     fileParser.CitationsCommitted = todo;
-                    
+
 
                     jobLogResult.ProcessedFilesResults.Add(fileParser);
 
@@ -605,139 +555,9 @@ namespace PubmedImport
                 finally
                 {
                     // Log job
-                    Log_Import_Job( filename);
-                   
-
-                    if (!filename.Contains("Tmpfiles"))
-                    {
-                        filename = TmpFolderPath + "\\" + filename;
-                    }
-                    if (File.Exists(filename))
-                    {
-                        File.Delete(filename);
-                    }
-                    conn.Close();
-                }
-            }
-        }
-
-
-        private  void Import_Human_Tagger_File(PubMedUpdateFileImportJobLog jobLogResult, string filename)
-        {
-
-            // After downloading the file import at that point
-            List<Human_Tag> recs = new List<Human_Tag>();
-            var RCT_TABLE = new DataTable();
-            SqlTransaction transaction;
-            FileParserResult fileParser = new FileParserResult(filename, false);
-            fileParser.StartTime = DateTime.Now;
-
-            using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
-            {
-                List<string> messages = new List<string>();
-                messages.Add("Imported RCT scores for the following file: " + filename);
-                conn.Open();
-                try
-                {
-                    if (filename.Contains("\\"))
-                    {
-                        filename = filename.Replace("\\", "//");
-                    }
-
-                    if (!filename.Contains("//"))
-                    {
-                        filename = TmpFolderPath + "\\" + filename;
-                    }
-
-                    string decompressedFile = filename;
-
-                    using (var sr = new StreamReader(decompressedFile))
-                    {
-                        string strline = "";
-                        string[] _values = null;
-
-                        int x = 0;
-                        while (!sr.EndOfStream)
-                        {
-                            strline = sr.ReadLine();
-                            _values = strline.Split('\t');
-
-                            if (x > 0)
-                            {
-                                Human_Tag record = new Human_Tag();
-                                record.PMID = _values[0];
-                                record.HUMAN_PRECICTION = _values[1];
-                                recs.Add(record);
-                            }
-                            x++;
-                        }
-                        sr.Close();
-
-                    }
-
-                    double divisor = 0.0;
-                    int skip = 0;
-                    int page = 0;
-                    int done = 0;
-                    if (recs.Count() < 1000)
-                    {
-                        divisor = 0;
-                        page = recs.Count();
-                    }
-                    else
-                    {
-                        divisor = Math.Floor((double)recs.Count() / 1000);
-                        page = 1000;
-                        skip = 1000;
-                    }
-                    for (int i = 0; i <= divisor; i++)
-                    {
-                        List<SqlParameter> sqlParams = new List<SqlParameter>();
-                        transaction = conn.BeginTransaction();
-                        try
-                        {
-
-                            List<string> tmpL = recs.Select(x => x.PMID).Skip(skip * i).Take(page).ToList();
-                            sqlParams.Add(new SqlParameter("@ids", string.Join(",", tmpL)));
-                            sqlParams.Add(new SqlParameter("@scores", string.Join(",", recs.Select(x => x.HUMAN_PRECICTION).Skip(skip * i).Take(page).ToList())));
-                            sqlParams.Add(new SqlParameter("@ID", "HUMAN"));
-
-                            int res = SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "[dbo].[st_ReferenceUpdate_Arrow_Scores]", sqlParams.ToArray());
-
-                            transaction.Commit();
-                            done += tmpL.Count();
-                        }
-                        catch (SqlException sqlex)
-                        {
-                            _logger.SQLActionFailed("SQL Human score error: ", sqlParams.ToArray(), sqlex);
-                            transaction.Rollback();
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "");
-                            transaction.Rollback();
-                        }
-                    }
-                    int todo = recs.Count();
-                    _logger.LogInformation("The total number of scores updated is: " + done);
-                    _logger.LogInformation("Successfully imported a Human tagger file");
-                    fileParser.Messages = messages;
-                    fileParser.EndTime = DateTime.Now;
-                    fileParser.CitationsInFile = todo;
-                    fileParser.CitationsCommitted = todo;
-
-                    jobLogResult.ProcessedFilesResults.Add(fileParser);
-
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Catch all try block");
-                    conn.Close();
-                    return;
-                }
-                finally
-                {
                     Log_Import_Job(filename);
+
+
                     if (!filename.Contains("Tmpfiles"))
                     {
                         filename = TmpFolderPath + "\\" + filename;
@@ -747,11 +567,12 @@ namespace PubmedImport
                         File.Delete(filename);
                     }
                     conn.Close();
-
                 }
             }
-        }
 
+        }
+        
+     
         private  (bool, string) Execute(Uri urlCheck, string fileName)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlCheck);
@@ -953,7 +774,6 @@ namespace PubmedImport
             {
                 foreach (var item in yearlyFilesHumanDownloadedFullPath)
                 {
-                   
                     string tmpStr = item.Substring(9, item.Length - 9);
                     yearlyHumanFileNames.Add(item);
                     cnt++;
@@ -1023,16 +843,40 @@ namespace PubmedImport
         }
     }
 
-    internal class Human_Tag
+    class Tag
     {
-        public string PMID { get; set; }
-        public string HUMAN_PRECICTION { get; set; }
+        public string ID { get; set; }
+        public string Score { get; set; }
     }
 
-    public class RCT_Tag
+    class RCT_Tag : Tag
     {
-        public string PMID { get; set; }
-        public string RCT_SCORE { get; set; }
+        public string RCT_SCORE
+        {
+            get { return Score; }
+            set { Score = value; }
+        }
+
+        public string PMID
+        {
+            get { return ID; }
+            set { ID = value; }
+        }
+    }
+
+    class Human_Tag : Tag
+    {
+        public string HUMAN_PRECICTION
+        {
+            get { return Score; }
+            set { Score = value; }
+        }
+
+        public string PMID
+        {
+            get { return ID; }
+            set { ID = value; }
+        }
     }
 
 }
