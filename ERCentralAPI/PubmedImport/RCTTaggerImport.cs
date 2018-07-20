@@ -672,6 +672,8 @@ namespace PubmedImport
             return fileName;
         }
 
+        // Main method to run entire import for both file types yearly and weekly and also
+        // RCT and human tagger files
         public void RunRCTTaggerImport( ServiceProvider serviceProvider, PubMedUpdateFileImportJobLog jobLogResult)
         {
             _jobLogResult = jobLogResult;
@@ -728,6 +730,10 @@ namespace PubmedImport
                 }
             }
             cnt = 0;
+            // Imports for yearly files begin below
+            // This does RCT type only
+            // download and decompression happen with the method:
+            // Yearly_Compressed_Files(_jobLogResult, tmpItem);
             foreach (var item in yearlyLinksShort)
             {
                 
@@ -746,6 +752,8 @@ namespace PubmedImport
 
             DateTime currDate = GetDate(strDate);
             int startInd = weeklyRCTLinks.FirstOrDefault().LastIndexOf("/");
+            // The weekly RCT file type happens below in: Weekly_Update_files()
+            // there is no decompression required as the files are not gzipped.
             weeklyRCTLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithRCTfileBaseURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             _logger.LogInformation("Finished all RCT Score updates");
@@ -771,7 +779,10 @@ namespace PubmedImport
                 }
 
             }
-
+            // Imports for yearly files begin below
+            // This does HUMAN TAGGER type only
+            // download and decompression happen with the method:
+            // Yearly_Compressed_Files(_jobLogResult, tmpItem);
             cnt = 0;
             foreach (var item in yearlyHumanLinksShort)
             {
@@ -791,12 +802,16 @@ namespace PubmedImport
 
             currDate = GetDate(strDate);
             startInd = weeklyHumanLinks.FirstOrDefault().LastIndexOf("/");
+            // The weekly HUMAN Tagger file type happens below in: Weekly_Update_files()
+            // there is no decompression required as the files are not gzipped.
             weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             _logger.LogInformation("Finished all HUMAN Score updates");
 
             _logger.LogInformation("Logging all file results into SQL");
 
+            // The jobLogResult object is accessed again outside this method for reporting purposes.
+    
             _jobLogResult.EndTime = DateTime.Now;
         }
 
