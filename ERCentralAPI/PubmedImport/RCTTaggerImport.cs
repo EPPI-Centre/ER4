@@ -220,9 +220,6 @@ namespace PubmedImport
         private void Log_Import_Job( string filename)
         {
 
-            // Add functionality to insert the pubmedjoblog here and the details from the files 
-            // also, into the fileparserresult table...
-
             _logger.LogInformation("Scores have been imported into SQL for the following file: " + filename);
 
             using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
@@ -330,15 +327,6 @@ namespace PubmedImport
 
         private  string Decompress(string yearlyFile)
         {
-
-            //using (var rijAlg = Rijndael.Create())
-            //{
-            //    rijAlg.Padding = PaddingMode.PKCS7;
-            //    rijAlg.BlockSize = 128;
-
-            //    // Create a decrytor to perform the stream transform.
-            //    var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
-
             yearlyFile = StringTrimmer(yearlyFile, "/");
 
             string unZippedFileName = TmpFolderPath + "\\" + yearlyFile.Substring(0, yearlyFile.Length - 3);
