@@ -238,22 +238,28 @@ namespace PubmedImport
                 }
             }
             string savedin = EPPILogger.Duration(now);
-
-            //================================================================
-
-            // delete all records in our db from the updatecitations list of IDS : UpdateCitations
-            // which is a ->  static List<ReferenceRecord>...
-            // then insert all the new versions of these within the list
-            //List<ReferenceRecord> existingCitationsNeedingUpdating
-
-            int bulkDeleteResult = BulkDeleteExistingCitations(UpdateCitations);
-
-            //List <ReferenceRecord> existingCitationsNeedingInserting
-            if (bulkDeleteResult == -1)
+            SqlTransaction sqlTransaction;
+            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
             {
-                BulkInsertTheUpdates(UpdateCitations);
-            }
+                    sqlTransaction = conn.BeginTransaction();
+                    try
+                    {
+                        int bulkDeleteResult = BulkDeleteExistingCitations(conn.ConnectionString, UpdateCitations);
 
+                        if (bulkDeleteResult == -1)
+                        {
+                            BulkInsertTheUpdates(UpdateCitations);
+                            sqlTransaction.Commit();
+                        }
+
+                    }
+                    catch (Exception)
+                    {
+                        sqlTransaction.Rollback();
+                        throw;
+                    }
+            }
+   
             //================================================================
             _logger.Log(LogLevel.Information, "Done updating references in: " + savedin);
             //Program.Logger.LogMessageLine("Done updating references in: " + savedin);
@@ -315,23 +321,7 @@ namespace PubmedImport
                             }
                             var testBool = BulkInsertDataTable(dt, conn, null);
                         }
-
-
-                        //using (SqlTransaction tran = conn.BeginTransaction())
-                        //{
-
-                        //            List<SQLCitationObject> lstCits = BulkInsertFlatReferences(Citations, Items_S, conn, tran);
-
-
-
-                        //            BulkInsertFlatAuthors(lstCits, Author_S, conn, tran);
-
-                        //            BulkInsertExternalIDS(lstCits, External_S, conn, tran);
-
-
-                        //            tran.Commit();
-                        //}
-
+                        
                     }
                     catch (SqlException ex)
                     {
@@ -343,70 +333,10 @@ namespace PubmedImport
             }
             savedin = EPPILogger.Duration(now);
             _logger.Log(LogLevel.Information, "Saved new references in: " + savedin);
-            //            Program.Logger.LogMessageLine("Saved new references in: " + savedin);
+          
             result.Messages.Add("Saved new references in: " + savedin);
             _logger.Log(LogLevel.Information, "Updated refs (PMIDs): " + result.UpdatedPMIDs);
-            //            Program.Logger.LogMessageLine("Updated refs (PMIDs): " + result.UpdatedPMIDs);
-
-            //if (Program.simulate == false)
-            //{
-            //	try
-            //	{
-            //		session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 5, 1));
-            //		Program.Logger.LogMessageLine("Saving to DB...");
-            //		DateTime now = DateTime.Now;
-            //		session.SaveChanges();
-            //		string savedin = Program.Duration(now);
-            //		Program.Logger.LogMessageLine("Saved in: " + savedin);
-            //		result.Messages.Add("Saved in: " + savedin);
-            //	}
-            //	catch (Exception e)
-            //	{
-            //		result.ErrorCount++;
-            //		if (e.Message.Contains("A task was canceled."))
-            //		{//try one more time!
-            //			try
-            //			{
-
-            //				session.Advanced.DocumentStore.SetRequestsTimeoutFor(new TimeSpan(0, 10, 0));
-            //				Program.Logger.LogMessageLine("Saving timed out, retrying...");
-            //				result.Messages.Add("Saving timed out, retrying...");
-            //				DateTime now = DateTime.Now;
-            //				session.SaveChanges();
-            //				string savedin = Program.Duration(now);
-            //				Program.Logger.LogMessageLine("Saved in: " + savedin);
-            //				result.Messages.Add("Saved in: " + savedin);
-            //			}
-            //			catch (Exception e2)
-            //			{
-            //				result.CitationsCommitted = 0;
-            //				result.ErrorCount++;
-            //				result.Messages.Add("Catastrophic failure: ERROR saving to DB on both attempts.");
-            //				result.Messages.Add("ERROR message: " + e.Message);
-            //				Program.Logger.LogMessageLine("Catastrophic failure: ERROR saving to DB on both attempts.");
-            //				Program.Logger.LogMessageLine("ERROR message: " + e.Message);
-            //				Program.Logger.LogMessageLine("");
-            //				DeleteParsedFile(filepath);
-            //				result.Success = false;
-            //				return result;
-            //			}
-            //		}
-            //		else
-            //		{
-            //			result.CitationsCommitted = 0;
-
-            //			result.Messages.Add("Catastrophic failure: ERROR saving to DB.");
-            //			result.Messages.Add("ERROR message: " + e.Message + ".");
-            //			Program.Logger.LogMessageLine("Catastrophic failure: ERROR saving to DB.");
-            //			Program.Logger.LogMessageLine("ERROR message: " + e.Message + ".");
-            //			Program.Logger.LogMessageLine("");
-            //			DeleteParsedFile(filepath);
-            //			result.Success = false;
-            //			return result;
-            //		}
-            //	}
-            //}
-
+          
             DeleteParsedFile(filepath);
 
             string duration = EPPILogger.Duration(start);
@@ -459,7 +389,6 @@ namespace PubmedImport
 
                     try
                     {
-
                         // Authors count required
                         foreach (var item in Citations)
                         {
@@ -498,35 +427,31 @@ namespace PubmedImport
                     }
                     catch (SqlException ex)
                     {
-
-                    _logger.Log(LogLevel.Error,ex, "FATAL ERROR: failed to bulk insert updated references.");
-                    //                    Program.Logger.LogException(ex, "FATAL ERROR: failed to bulk insert updated references.");
+                        _logger.Log(LogLevel.Error,ex, "FATAL ERROR: failed to bulk insert updated references.");
+                   
                 }
             }
         }
 
         // This method is next
-        private int BulkDeleteExistingCitations(List<ReferenceRecord> updateCitations)
+        private int BulkDeleteExistingCitations(string connStr, List<ReferenceRecord> updateCitations)
         {
-            int success = 0;
-            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-            {
-
+                int success = 0;
+           
                 SqlParameter RefIDs = new SqlParameter("@RefIDs", String.Join(",", updateCitations.Select(x => x.CitationId).ToList()));
                 try
                 {
                     if (RefIDs.Size != 0)
                     {
-                        success = Program.SqlHelper.ExecuteNonQuerySP(conn, "st_DeleteReferencesByREFID", RefIDs);
+                        success = Program.SqlHelper.ExecuteNonQuerySP(connStr, "st_DeleteReferencesByREFID", RefIDs);
                     }
                 }
                 catch (Exception e)
                 {
                     _logger.Log(LogLevel.Error, e, "SQL Error");
-                    //                    Program.Logger.LogSQLException(e, "Error");
                 }
   
-            }
+  
             return success;
         }
 

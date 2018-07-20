@@ -401,7 +401,7 @@ namespace PubmedImport
             try
             {
 
-                SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
+                SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_PubMedJobLogInsert", parameters);
                 var jobID = (Int64)IdParam.Value;
                 //conn.Close();
 
@@ -418,7 +418,7 @@ namespace PubmedImport
                         argStrF += item.ToString() + Environment.NewLine;
                     }
                     //conn.Open();
-                    SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
+                    SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_FileParserResultInsert"
                                         , new SqlParameter("@Success", fileParser.Success)
                                         , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
                                         , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
@@ -726,7 +726,7 @@ namespace PubmedImport
             List<SqlParameter> Parameters = new List<SqlParameter>();
             Parameters.Add(new SqlParameter("@PUBMED_FILE_NAME", FileName));
             Parameters.Add(new SqlParameter("@PUBMED_UPLOAD_DATE", UploadDate));
-            Program.SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedUpdateFileInsert", Parameters.ToArray());
+            Program.SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_PubMedUpdateFileInsert", Parameters.ToArray());
         }
 
         public static PubMedUpdateFileImport GetPubMedUpdateFileImport(SqlDataReader reader)

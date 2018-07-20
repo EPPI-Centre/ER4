@@ -505,22 +505,26 @@ namespace PubmedImport
 
                             transaction.Commit();
                             done += tmpL.Count();
-                            messages.Add(" " + done);
+                            //messages.Add(" " + done);
 
 
                         }
                         catch (SqlException sqlex)
                         {
+                            fileParser.ErrorCount++;
+                            fileParser.Messages.Add("");
                             _logger.LogError(sqlex, "", sqlParams.ToArray());
                             transaction.Rollback();
                         }
                         catch (Exception ex)
                         {
+                            fileParser.ErrorCount++;
+                            fileParser.Messages.Add("");
                             _logger.LogError(ex, "");
                             transaction.Rollback();
                         }
                     }
-
+                    messages.Add(" " + done);
                     todo = recs.Count;
 
                     _logger.LogInformation("The total number of scores updated is: " + done);
@@ -530,7 +534,7 @@ namespace PubmedImport
                     fileParser.Messages = messages;
                     fileParser.EndTime = DateTime.Now;
                     fileParser.CitationsInFile = todo;
-                    fileParser.CitationsCommitted = todo;
+                    fileParser.CitationsCommitted = done;
 
 
                     jobLogResult.ProcessedFilesResults.Add(fileParser);
@@ -544,8 +548,7 @@ namespace PubmedImport
                 {
                     // Log job
                     Log_Import_Job(filename);
-
-
+                    
                     if (!filename.Contains("Tmpfiles"))
                     {
                         filename = TmpFolderPath + "\\" + filename;

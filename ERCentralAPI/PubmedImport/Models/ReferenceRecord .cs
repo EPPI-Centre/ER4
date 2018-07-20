@@ -392,6 +392,8 @@ namespace PubmedImport
         }
         public void InsertSelf(SqlConnection conn, SQLHelper SqlHelper)
         {
+            SqlTransaction transaction;
+
             List<SqlParameter> Parameters = new List<SqlParameter>();
             SqlParameter IdParam = new SqlParameter("@REFERENCE_ID", (Int64)(-1));
             IdParam.Direction = System.Data.ParameterDirection.Output;
@@ -423,7 +425,7 @@ namespace PubmedImport
             Parameters.Add(new SqlParameter("@ABSTRACT", Abstract));
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             Parameters.Add(new SqlParameter("@KEYWORDS", GetKeywordsString()));
-            SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceInsert", Parameters.ToArray());
+            SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_ReferenceInsert", Parameters.ToArray());
             CitationId = (Int64)IdParam.Value;
             SaveAuthors(conn, SqlHelper);
         }
@@ -462,7 +464,7 @@ namespace PubmedImport
             //command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
             //Parameters.Add(new SqlParameter("@KEYWORDS", string.Join("¬", Keywords.ToArray())));
 
-            SqlHelper.ExecuteNonQuerySP(conn, "st_ReferenceUpdate", Parameters.ToArray());
+            SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_ReferenceUpdate", Parameters.ToArray());
             SaveAuthors(conn, SqlHelper);
         }
         public void DeleteSelf(SqlConnection conn, SQLHelper SqlHelper)
@@ -473,11 +475,11 @@ namespace PubmedImport
         {
             List<Author> AuthorLi = Authors.Where(c => c.AuthorshipLevel == 0).ToList();
             List<Author> ParentAuthors = Authors.Where(c => c.AuthorshipLevel == 1).ToList();
-            SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
+            SqlHelper.ExecuteNonQuerySP(connection.ConnectionString, "st_ReferenceAuthorDelete", new SqlParameter("@REFERENCE_ID", CitationId));
             int rank = 0;
             foreach (Author a in AuthorLi)
             {
-                SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                SqlHelper.ExecuteNonQuerySP(connection.ConnectionString, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 0)
@@ -489,7 +491,7 @@ namespace PubmedImport
             rank = 0;
             foreach (Author a in ParentAuthors)
             {
-                SqlHelper.ExecuteNonQuerySP(connection, "st_ReferenceAuthorUpdate"
+                SqlHelper.ExecuteNonQuerySP(connection.ConnectionString, "st_ReferenceAuthorUpdate"
                                             , new SqlParameter("@REFERENCE_ID", CitationId)
                                             , new SqlParameter("@RANK", rank)
                                             , new SqlParameter("@ROLE", 1)
