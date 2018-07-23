@@ -349,9 +349,11 @@ namespace PubmedImport
                 }
             }
             string savedin = EPPILogger.Duration(now);
-            
-            // Rewriting this part
-            ExecuteSqlTransactionBulkActions(_logger, UpdateCitations);
+
+            if (UpdateCitations.Count > 0)
+            {
+                ExecuteSqlTransactionBulkActions(_logger, UpdateCitations);
+            }
             
             //================================================================
             _logger.Log(LogLevel.Information, "Done updating references in: " + savedin);
