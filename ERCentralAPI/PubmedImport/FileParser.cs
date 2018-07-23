@@ -31,20 +31,20 @@ namespace PubmedImport
             try
             {
 
-                using (SqlBulkCopy bulkCopy =
-                        new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints, tran))
-                {
-                    bulkCopy.DestinationTableName = table.TableName;
-                    bulkCopy.ColumnMappings.Clear();
-
-                    foreach (DataColumn col in table.Columns)
+                    using (SqlBulkCopy bulkCopy =
+                            new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints, tran))
                     {
-                        bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
-                    }
-                    bulkCopy.BulkCopyTimeout = 1000;
-                    bulkCopy.WriteToServer(table);
+                        bulkCopy.DestinationTableName = table.TableName;
+                        bulkCopy.ColumnMappings.Clear();
 
-                }
+                        foreach (DataColumn col in table.Columns)
+                        {
+                            bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+                        }
+                        bulkCopy.BulkCopyTimeout = 1000;
+                        bulkCopy.WriteToServer(table);
+
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -69,7 +69,7 @@ namespace PubmedImport
         static FileParserResult result;
 		public FileParserResult ParseFile(string filepath)
         {
-            _logger.LogError("Parsing: " + filepath + ".");
+            _logger.LogInformation("Parsing: " + filepath + ".");
             DateTime start = DateTime.Now;
             string fileContents;
             string upDelMsg = Program.deleteRecords ? "deleted." : "updated.";//used to report what it is that we're doing!
@@ -239,26 +239,32 @@ namespace PubmedImport
             }
             string savedin = EPPILogger.Duration(now);
             SqlTransaction sqlTransaction;
-            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            //{
+            //conn.Open();
+            SqlConnection connection = new SqlConnection(Program.SqlHelper.DataServiceDB);
+
+            connection.Open();
+            sqlTransaction = connection.BeginTransaction();
+
+            try
             {
-                    sqlTransaction = conn.BeginTransaction();
-                    try
-                    {
-                        int bulkDeleteResult = BulkDeleteExistingCitations(conn.ConnectionString, UpdateCitations);
+                
+                int bulkDeleteResult = BulkDeleteExistingCitations(connection, UpdateCitations, sqlTransaction);
 
-                        if (bulkDeleteResult == -1)
-                        {
-                            BulkInsertTheUpdates(UpdateCitations);
-                            sqlTransaction.Commit();
-                        }
+                if (bulkDeleteResult == -1)
+                {
+                    BulkInsertTheUpdates(UpdateCitations, sqlTransaction, connection);
+                    sqlTransaction.Commit();
+                }
 
-                    }
-                    catch (Exception)
-                    {
-                        sqlTransaction.Rollback();
-                        throw;
-                    }
             }
+            catch (Exception)
+            {
+                sqlTransaction.Rollback();
+                throw;
+            }
+            //}
    
             //================================================================
             _logger.Log(LogLevel.Information, "Done updating references in: " + savedin);
@@ -367,11 +373,11 @@ namespace PubmedImport
             }
         }
 
-        private void BulkInsertTheUpdates(List<ReferenceRecord> updateCitations)
+        private void BulkInsertTheUpdates(List<ReferenceRecord> updateCitations, SqlTransaction transaction, SqlConnection conn)
         {
-            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-            {
-                conn.Open();
+            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            //{
+                //conn.Open();
                 List<Author> authors = new List<Author>();
                 List<ExternalID> externals = new List<ExternalID>();
 
@@ -399,6 +405,7 @@ namespace PubmedImport
                         using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
                         {
                             //prepare all tables
+                            cmd.Transaction = transaction;
                             cmd.CommandType = CommandType.StoredProcedure;
                             cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
                             cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
@@ -422,19 +429,19 @@ namespace PubmedImport
                         var tables = ReferenceRecord.ToDataTablesUpdate(updateCitations, authors, externals, Items_S, External_S);
                         foreach (DataTable dt in tables)
                         {
-                            var resBulkInsert = BulkInsertDataTable(dt, conn, null);
+                            var resBulkInsert = BulkInsertDataTable(dt, conn, transaction);
                         }
                     }
                     catch (SqlException ex)
                     {
                         _logger.Log(LogLevel.Error,ex, "FATAL ERROR: failed to bulk insert updated references.");
                    
-                }
-            }
+                    }
+            //}
         }
 
         // This method is next
-        private int BulkDeleteExistingCitations(string connStr, List<ReferenceRecord> updateCitations)
+        private int BulkDeleteExistingCitations(SqlConnection conn, List<ReferenceRecord> updateCitations, SqlTransaction transaction)
         {
                 int success = 0;
            
@@ -443,7 +450,7 @@ namespace PubmedImport
                 {
                     if (RefIDs.Size != 0)
                     {
-                        success = Program.SqlHelper.ExecuteNonQuerySP(connStr, "st_DeleteReferencesByREFID", RefIDs);
+                        success = Program.SqlHelper.ExecuteNonQuerySPWtrans(conn, "st_DeleteReferencesByREFID", transaction, RefIDs);
                     }
                 }
                 catch (Exception e)
@@ -475,8 +482,7 @@ namespace PubmedImport
             }
             return res;
         }
-        
-
+      
         private void DeleteParsedFile(string filepath)
 		{
 			if (File.Exists(filepath))

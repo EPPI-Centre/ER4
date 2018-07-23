@@ -797,7 +797,6 @@ namespace PubmedImport
                 }
                 cnt++;
             }
-
             strDate = LatestHumanUPDATEFile();
 
             currDate = GetDate(strDate);
@@ -807,11 +806,9 @@ namespace PubmedImport
             weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
             _logger.LogInformation("Finished all HUMAN Score updates");
-
             _logger.LogInformation("Logging all file results into SQL");
 
             // The jobLogResult object is accessed again outside this method for reporting purposes.
-    
             _jobLogResult.EndTime = DateTime.Now;
         }
 

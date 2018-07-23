@@ -133,11 +133,10 @@ namespace PubmedImport
 			_logger.LogInformation("Parser testing!");
 			if (result.DoWhat == "ftpsamplefile")
 			{
-                _logger.Log(LogLevel.Error,"", null);
-                _logger.Log(LogLevel.Error,"Importing PubMed Sample XML file.");
+                _logger.LogInformation("Importing PubMed Sample XML file.");
 				if (deleteRecords)
    
-                _logger.Log(LogLevel.Error,"DeleteRecords option: will delete records that already exist and won't add new ones!");
+                _logger.LogInformation("DeleteRecords option: will delete records that already exist and won't add new ones!");
                 //URLs below not included in appsettings.json as we expect to run this routine only for debugging purposes, hence it's OK to hardcode...
                 (string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles("ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline-2018-sample/", "pubmedsample18n0001.xml.gz", serviceProvider);
                 if (messages != null && messages.Count > 0)
@@ -225,8 +224,8 @@ namespace PubmedImport
 			}
 			else if (result.DoWhat == "ftpbaselinefolder")
 			{
-                _logger.Log(LogLevel.Error,"", null);
-                _logger.Log(LogLevel.Error,"Importing all XML files in FTP (baseline) folder.");
+                _logger.LogInformation("");
+                _logger.LogInformation("Importing all XML files in FTP (baseline) folder.");
 				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
 				if (deleteRecords)
 				{
@@ -242,9 +241,8 @@ namespace PubmedImport
 			}
 			else if (result.DoWhat == "ftpupdatefolder")
 			{
-                _logger.Log(LogLevel.Error,"", null);
-                _logger.Log(LogLevel.Error,"Importing files from Updates folder (only those that were not imported already).");
-				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
+                _logger.LogInformation("Importing files from Updates folder (only those that were not imported already).");
+				
 				if (deleteRecords)
 				{
 					result.TotalErrorCount++;
@@ -308,11 +306,12 @@ namespace PubmedImport
 				{
                         _logger.LogInformation("Saving job summary to DB");
 						result.UpdateErrors();
-                        using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-                        {
-                            conn.Open();
+                    //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
+                    //{
+                    SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB);
+                            //conn.Open();
                             SaveJobSummary(_logger, conn, result);
-                        }
+                       // }
                 }
 				if (WaitOnExit)
 				{
@@ -378,7 +377,7 @@ namespace PubmedImport
         private static void SaveJobSummary(ILogger<Program> logger, SqlConnection conn, PubMedUpdateFileImportJobLog result)
         {
 
-            SqlTransaction transaction = conn.BeginTransaction();
+            //SqlTransaction transaction = conn.BeginTransaction();
 
             string argStr = "";
             foreach (var item in result.Arguments)
@@ -404,7 +403,7 @@ namespace PubmedImport
             try
             {
 
-                SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_PubMedJobLogInsert", parameters);
+                SqlHelper.ExecuteNonQuerySP(conn, "st_PubMedJobLogInsert", parameters);
                 var jobID = (Int64)IdParam.Value;
                 //conn.Close();
 
@@ -421,7 +420,7 @@ namespace PubmedImport
                         argStrF += item.ToString() + Environment.NewLine;
                     }
                     //conn.Open();
-                    SqlHelper.ExecuteNonQuerySP(conn.ConnectionString, "st_FileParserResultInsert"
+                    SqlHelper.ExecuteNonQuerySP(conn, "st_FileParserResultInsert"
                                         , new SqlParameter("@Success", fileParser.Success)
                                         , new SqlParameter("@IsDeleting", fileParser.IsDeleting)
                                         , new SqlParameter("@ErrorCount", fileParser.ErrorCount)
@@ -436,16 +435,15 @@ namespace PubmedImport
                                         , new SqlParameter("@PubMedUpdateFileImportJobLogID", jobID)
                                     );
                 }
-                transaction.Commit();
+                //transaction.Commit();
 
             }
             catch (Exception e)
             {
                 logger.SQLActionFailed("", parameters, e);
-                transaction.Rollback();
+                //transaction.Rollback();
                 //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
-
         }
         static void DoFTPUpdateFiles(PubMedUpdateFileImportJobLog result, ServiceProvider serviceProvider)
 		{
@@ -875,7 +873,7 @@ namespace PubmedImport
 			string Username = "anonymous";
 			string Password = "";
 			bool UseBinary = true; // use true for .zip file or false for a text file
-            _logger.Log(LogLevel.Error,"Downloading " + RemoteFtpPath + ".");
+            _logger.LogInformation("Downloading " + RemoteFtpPath + ".");
 			FtpWebRequest request = (FtpWebRequest)WebRequest.Create(RemoteFtpPath);
 			request.Method = WebRequestMethods.Ftp.DownloadFile;
 			request.KeepAlive = true;
@@ -907,7 +905,7 @@ namespace PubmedImport
 				}
 				FileInfo fileToBeGZipped = new FileInfo(LocalDestinationPath);
 				string decompressedFileName = Directory.GetCurrentDirectory() + @"\Tmpfiles\" + unZippedFileName;
-                _logger.Log(LogLevel.Error,"Decompressing " + RemoteFtpPath + ".");
+                _logger.LogInformation("Decompressing " + RemoteFtpPath + ".");
 				using (FileStream fileToDecompressAsStream = fileToBeGZipped.OpenRead())
 				{
 					using (FileStream decompressedStream = File.Create(decompressedFileName))

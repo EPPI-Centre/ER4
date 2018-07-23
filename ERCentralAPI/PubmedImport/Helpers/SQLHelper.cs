@@ -73,6 +73,27 @@ namespace EPPIDataServices.Helpers
             }
         }
 
+
+        public int ExecuteNonQuerySPWtrans(SqlConnection connection, string SPname, SqlTransaction transaction, params SqlParameter[] parameters)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(SPname, connection))
+                {
+                    command.Transaction = transaction;
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddRange(parameters);
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
+                return -1;
+            }
+        }
+
         /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
         /// Connection will close when you close the reader, hence

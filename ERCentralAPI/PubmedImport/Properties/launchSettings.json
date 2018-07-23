@@ -2,7 +2,7 @@
   "profiles": {
     "PubmedImport": {
       "commandName": "Project",
-      "commandLineArgs": "dowhat:dorctscores savelog maxcount:2000"
+      "commandLineArgs": "dowhat:ftpsamplefile savelog maxcount:1000000"
     }
   }
 }
