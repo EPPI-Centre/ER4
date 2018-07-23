@@ -78,14 +78,16 @@ namespace EPPIDataServices.Helpers
         {
             try
             {
-                CheckConnection(connection);
+                //CheckConnection(connection);
                 using (SqlCommand command = new SqlCommand(SPname, connection))
                 {
+
                     command.Transaction = transaction;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.AddRange(parameters);
                     return command.ExecuteNonQuery();
                 }
+               
             }
             catch (Exception e)
             {

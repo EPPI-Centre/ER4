@@ -18,6 +18,118 @@ namespace PubmedImport
     public class FileParser
     {
 
+        private static void ExecuteSqlTransactionBulkActions(ILogger _logger,List<ReferenceRecord> updateCitations)
+        {
+            using (SqlConnection connection = new SqlConnection(Program.SqlHelper.DataServiceDB))
+            {
+                connection.Open();
+
+                // Start a local transaction.
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                int success = 0;
+                
+                SqlParameter RefIDs = new SqlParameter("@RefIDs", String.Join(",", updateCitations.Select(x => x.CitationId).ToList()));
+
+                if (RefIDs.Size != 0)
+                {
+                    if (updateCitations.Count() > 1000)
+                    {
+                        for (int i = 0; i <= Math.Floor((double) updateCitations.Count() / 1000); i+=1000)
+                        {
+                            string tmpStrIDs = String.Join(",", updateCitations.Select(x => x.CitationId).ToList().Skip(i*1000).Take(1000));
+                            SqlParameter tmpRefIDs = new SqlParameter("@RefIDs", tmpStrIDs);
+                           success = Program.SqlHelper.ExecuteNonQuerySPWtrans(connection, "st_DeleteReferencesByREFID", transaction, tmpRefIDs);
+                        }
+                    }
+                    else
+                    {
+                        success = Program.SqlHelper.ExecuteNonQuerySPWtrans(connection, "st_DeleteReferencesByREFID", transaction, RefIDs);
+                    }
+                }
+               
+                try
+                {
+
+                    if (success == -1)
+                    {
+                        List<Author> authors = new List<Author>();
+                        List<ExternalID> externals = new List<ExternalID>();
+
+                        int AuthorsCount = 0;
+                        int ExternalCount = 0;
+                        Int64 Items_S;
+                        Int64 Author_S;
+                        Int64 External_S;
+
+                        try
+                        {
+                            // Authors count required
+                            // SHould this be UpdateCitations or Citations
+                            foreach (var item in updateCitations)
+                            {
+                                AuthorsCount += item.Authors.Count();
+                                ExternalCount += item.ExternalIDs.Count();
+                            }
+
+                            using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", connection))
+                            {
+                                //prepare all tables
+                                cmd.Transaction = transaction;
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.Add(new SqlParameter("@Items_Number", updateCitations.Count));
+                                cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
+                                cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
+                                cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+                                cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+                                cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+                                cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+                                cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
+                                cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
+                                cmd.ExecuteNonQuery();
+
+                                //get seeds values
+                                Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                                Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+                                External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
+
+                            }
+
+                            var tables = ReferenceRecord.ToDataTablesUpdate(updateCitations, authors, externals, Author_S, External_S);
+                            foreach (DataTable dt in tables)
+                            {
+                                var resBulkInsert = BulkInsertDataTable(dt, connection, transaction);
+                            }
+                        }
+                        catch (SqlException ex)
+                        {
+                            _logger.Log(LogLevel.Error, ex, "FATAL ERROR: failed to bulk insert updated references.");
+
+                        }
+                        transaction.Commit();
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+
+                    _logger.LogInformation("Commit Exception Type: {0}", ex.GetType());
+                    _logger.LogInformation("  Message: {0}", ex.Message);
+
+                    // roll back the transaction.
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex2)
+                    {
+                        _logger.LogInformation("Rollback Exception Type: {0}", ex2.GetType());
+                        _logger.LogInformation("  Message: {0}", ex2.Message);
+                    }
+                }
+            }
+        }
+        
         private readonly ILogger _logger;
 
         public FileParser(ILogger<EPPILogger> logger)
@@ -30,7 +142,6 @@ namespace PubmedImport
         {
             try
             {
-
                     using (SqlBulkCopy bulkCopy =
                             new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints, tran))
                     {
@@ -50,7 +161,7 @@ namespace PubmedImport
                 {
                     return false;
                 }
-            // LoadCitationIdentities(lstObjs, Items_S, conn, tran);
+
             return true;
         }
 
@@ -238,34 +349,10 @@ namespace PubmedImport
                 }
             }
             string savedin = EPPILogger.Duration(now);
-            SqlTransaction sqlTransaction;
-            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-            //{
-            //conn.Open();
-            SqlConnection connection = new SqlConnection(Program.SqlHelper.DataServiceDB);
-
-            connection.Open();
-            sqlTransaction = connection.BeginTransaction();
-
-            try
-            {
-                
-                int bulkDeleteResult = BulkDeleteExistingCitations(connection, UpdateCitations, sqlTransaction);
-
-                if (bulkDeleteResult == -1)
-                {
-                    BulkInsertTheUpdates(UpdateCitations, sqlTransaction, connection);
-                    sqlTransaction.Commit();
-                }
-
-            }
-            catch (Exception)
-            {
-                sqlTransaction.Rollback();
-                throw;
-            }
-            //}
-   
+            
+            // Rewriting this part
+            ExecuteSqlTransactionBulkActions(_logger, UpdateCitations);
+            
             //================================================================
             _logger.Log(LogLevel.Information, "Done updating references in: " + savedin);
             //Program.Logger.LogMessageLine("Done updating references in: " + savedin);
@@ -332,10 +419,8 @@ namespace PubmedImport
                     catch (SqlException ex)
                     {
                         _logger.Log(LogLevel.Error, ex, "FATAL ERROR: failed to bulk insert new references.");
-                        //                        Program.Logger.LogException(ex, "FATAL ERROR: failed to bulk insert new references.");
                     }
                 }
-                //ReferenceTables.TB_REFERENCETable. ReferencesRow = new ReferencesTB
             }
             savedin = EPPILogger.Duration(now);
             _logger.Log(LogLevel.Information, "Saved new references in: " + savedin);
@@ -347,7 +432,7 @@ namespace PubmedImport
 
             string duration = EPPILogger.Duration(start);
             _logger.Log(LogLevel.Information, "Imported " + Citations.Count.ToString() + " records in " + duration);
-            //            Program.Logger.LogMessageLine("Imported " + Citations.Count.ToString() + " records in " + duration);
+
             result.Messages.Add("Imported " + Citations.Count.ToString() + " records in " + duration);
             result.EndTime = DateTime.Now;
             if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount == 0)
@@ -359,7 +444,6 @@ namespace PubmedImport
                 string tmp = "Non fatal errors count: " + result.ErrorCount.ToString() + ".";
                 result.Messages.Add(tmp);
                 _logger.Log(LogLevel.Information, tmp);
-                //                Program.Logger.LogMessageLine(tmp);
                 return result;
             }
             else
@@ -368,99 +452,92 @@ namespace PubmedImport
                 result.Messages.Add(tmp);
                 result.Success = false;
                 _logger.Log(LogLevel.Information, tmp);
-                //                Program.Logger.LogMessageLine(tmp);
                 return result;
             }
         }
 
-        private void BulkInsertTheUpdates(List<ReferenceRecord> updateCitations, SqlTransaction transaction, SqlConnection conn)
-        {
-            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
-            //{
-                //conn.Open();
-                List<Author> authors = new List<Author>();
-                List<ExternalID> externals = new List<ExternalID>();
+        //private void BulkInsertTheUpdates(List<ReferenceRecord> updateCitations, SqlTransaction transaction, SqlConnection conn)
+        //{
 
-                foreach (var item in updateCitations)
-                {
-                    authors.AddRange(item.Authors);
-                    externals.AddRange(item.ExternalIDs);
-                }
+        //        List<Author> authors = new List<Author>();
+        //        List<ExternalID> externals = new List<ExternalID>();
 
-                int AuthorsCount = 0;
-                int ExternalCount = 0;
-                Int64 Items_S;
-                Int64 Author_S;
-                Int64 External_S;
+        //        foreach (var item in updateCitations)
+        //        {
+        //            authors.AddRange(item.Authors);
+        //            externals.AddRange(item.ExternalIDs);
+        //        }
 
-                    try
-                    {
-                        // Authors count required
-                        foreach (var item in Citations)
-                        {
-                            AuthorsCount += item.Authors.Count();
-                            ExternalCount += item.ExternalIDs.Count();
-                        }
+        //        int AuthorsCount = 0;
+        //        int ExternalCount = 0;
+        //        Int64 Items_S;
+        //        Int64 Author_S;
+        //        Int64 External_S;
 
-                        using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
-                        {
-                            //prepare all tables
-                            cmd.Transaction = transaction;
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
-                            cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
-                            cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
-                            cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                            cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                            cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
-                            cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
-                            cmd.ExecuteNonQuery();
+        //        try
+        //        {
+        //            // Authors count required
+        //            foreach (var item in Citations)
+        //            {
+        //                AuthorsCount += item.Authors.Count();
+        //                ExternalCount += item.ExternalIDs.Count();
+        //            }
 
-                            //get seeds values
-                            Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                            Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                            External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
+        //            using (SqlCommand cmd = new SqlCommand("st_ReferencesImportPrepare", conn))
+        //            {
+        //                //prepare all tables
+        //                cmd.Transaction = transaction;
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.Add(new SqlParameter("@Items_Number", Citations.Count));
+        //                cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
+        //                cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
+        //                cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+        //                cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+        //                cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+        //                cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+        //                cmd.Parameters.Add("@External_Seed", SqlDbType.BigInt);
+        //                cmd.Parameters["@External_Seed"].Direction = ParameterDirection.Output;
+        //                cmd.ExecuteNonQuery();
 
-                        }
+        //                //get seeds values
+        //                Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+        //                Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+        //                External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
 
+        //            }
 
-                        var tables = ReferenceRecord.ToDataTablesUpdate(updateCitations, authors, externals, Items_S, External_S);
-                        foreach (DataTable dt in tables)
-                        {
-                            var resBulkInsert = BulkInsertDataTable(dt, conn, transaction);
-                        }
-                    }
-                    catch (SqlException ex)
-                    {
-                        _logger.Log(LogLevel.Error,ex, "FATAL ERROR: failed to bulk insert updated references.");
-                   
-                    }
-            //}
-        }
+        //            var tables = ReferenceRecord.ToDataTablesUpdate(updateCitations, authors, externals, Items_S, External_S);
+        //            foreach (DataTable dt in tables)
+        //            {
+        //                var resBulkInsert = BulkInsertDataTable(dt, conn, transaction);
+        //            }
+        //        }
+        //        catch (SqlException ex)
+        //        {
+        //            _logger.Log(LogLevel.Error,ex, "FATAL ERROR: failed to bulk insert updated references.");
+        //        }
+        //}
 
-        // This method is next
-        private int BulkDeleteExistingCitations(SqlConnection conn, List<ReferenceRecord> updateCitations, SqlTransaction transaction)
-        {
-                int success = 0;
+        //// This method is next
+        //private int BulkDeleteExistingCitations(SqlConnection conn, List<ReferenceRecord> updateCitations, SqlTransaction transaction)
+        //{
+        //        int success = 0;
            
-                SqlParameter RefIDs = new SqlParameter("@RefIDs", String.Join(",", updateCitations.Select(x => x.CitationId).ToList()));
-                try
-                {
-                    if (RefIDs.Size != 0)
-                    {
-                        success = Program.SqlHelper.ExecuteNonQuerySPWtrans(conn, "st_DeleteReferencesByREFID", transaction, RefIDs);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Log(LogLevel.Error, e, "SQL Error");
-                }
+        //        SqlParameter RefIDs = new SqlParameter("@RefIDs", String.Join(",", updateCitations.Select(x => x.CitationId).ToList()));
+        //        try
+        //        {
+        //                if (RefIDs.Size != 0)
+        //                {
+        //                    success = Program.SqlHelper.ExecuteNonQuerySPWtrans(conn, "st_DeleteReferencesByREFID", transaction, RefIDs);
+        //                }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            _logger.Log(LogLevel.Error, e, "SQL Error");
+        //        }
   
-  
-            return success;
-        }
+        //    return success;
+        //}
 
         private ReferenceRecord GetReferenceRecordByPMID(SqlConnection conn, string pubmedID)
         {

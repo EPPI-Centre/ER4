@@ -758,7 +758,6 @@ namespace PubmedImport
         public static List<DataTable> ToDataTables(List<ReferenceRecord> citations, Int64 Ref_seed, Int64 ExtID_seed, Int64 Auth_seed)
         {
 
-
                 List<DataTable> Result = new List<DataTable>();
                 if (citations == null || citations.Count == 0) return Result;
                 DataTable TB_REFERENCE = new DataTable("TB_REFERENCE");
