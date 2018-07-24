@@ -48,7 +48,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e) ;
-                return -1;
+                return -2;
             }
         }
         /// <summary> 
@@ -69,7 +69,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
-                return -1;
+                return -2;
             }
         }
 
@@ -92,7 +92,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
-                return -1;
+                return -2;
             }
         }
 
