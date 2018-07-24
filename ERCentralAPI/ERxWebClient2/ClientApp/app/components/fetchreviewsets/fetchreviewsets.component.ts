@@ -15,7 +15,7 @@ export class FetchReviewSetsComponent {
         private http: Http,
         @Inject('BASE_URL') private baseUrl: string,
         private ReviewerIdentity: ReviewerIdentityService) {
-        if (ReviewerIdentity.ContactId == 0 || ReviewerIdentity.ReviewId == 0) {
+        if (ReviewerIdentity.userId == 0 || ReviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
         else {
@@ -26,7 +26,7 @@ export class FetchReviewSetsComponent {
     nodes: singleNode[] = [];
     options = {};
     GetReviewSets() {
-        let body = "RevId=" + this.ReviewerIdentity.ReviewId;
+        let body = "RevId=" + this.ReviewerIdentity.reviewId;
         //let body = JSON.stringify({ 'contactId': 1 });
         let requestoptions = new RequestOptions({
             method: RequestMethod.Post,
