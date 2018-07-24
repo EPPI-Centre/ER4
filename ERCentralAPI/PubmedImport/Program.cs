@@ -45,20 +45,20 @@ namespace PubmedImport
         private static bool SaveLog = false;
         //internal static EPPILogger Logger;
         //private readonly ILogger _logger;
-        //private static string CreateLogFileName()
-        //{
-        //    DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
-        //    string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-        //    //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
-        //    return LogFilename;
-        //}
+        private static string CreateLogFileName()
+        {
+            DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
+            string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            return LogFilename;
+        }
 
         static void Main(string[] args)
 		{
             // Required for SERILOG
-            //Log.Logger = new LoggerConfiguration()
-            //    .WriteTo.File(CreateLogFileName())
-            //    .CreateLogger();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(CreateLogFileName())
+                .CreateLogger();
 
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
