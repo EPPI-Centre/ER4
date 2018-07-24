@@ -102,28 +102,22 @@ function openAdminList(ID)
                                                     </td>
                                                     <td style="background-color: #c; width: 20%;">
                                                         Licence ID</td>
-                                                    <td ;="" style="width: 6%; background-color: #FFFFCC">
+                                                    <td ;="" style="background-color: #FFFFCC">
                                                         &nbsp;
                                                         <asp:Label ID="lblSiteLicID" runat="server" Text="N/A"></asp:Label>
-                                                    </td>
-                                                    <td ;="" style="width: 12%; background-color: #B6C6D6">Change
-                                                        <br />
-                                                        review owner</td>
-                                                    <td ;="" style="width: 7%; background-color: #FFFFCC">
-                                                        <asp:CheckBox ID="cbAllowReviewOwnershipChange" runat="server" AutoPostBack="True" OnCheckedChanged="cbAllowReviewOwnershipChange_CheckedChanged" Text="Allow" ToolTip="If you check this box the admins in this license can change the ownership of the reviews in the license" />
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="background-color: #B6C6D6; width: 25%;">
                                                         Organisation *</td>
-                                                    <td ;="" colspan="5" style="width: 75%; background-color: #FFFFCC">
+                                                    <td ;="" colspan="3" style="width: 75%; background-color: #FFFFCC">
                                                         <asp:TextBox ID="tbOrganisation" runat="server" Width="90%"></asp:TextBox>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="background-color: #B6C6D6; width: 25%;">
                                                         Address *</td>
-                                                    <td ;="" colspan="5" style="width: 75%; background-color: #FFFFCC">
+                                                    <td ;="" colspan="3" style="width: 75%; background-color: #FFFFCC">
                                                         <asp:TextBox ID="tbAddress" runat="server" TextMode="MultiLine" Width="90%"></asp:TextBox>
                                                     </td>
                                                 </tr>
@@ -135,29 +129,37 @@ function openAdminList(ID)
                                                     </td>
                                                     <td style="background-color: #B6C6D6; width: 20%;">
                                                         Notes</td>
-                                                    <td ;="" style="width: 25%; background-color: #FFFFCC" colspan="3">
+                                                    <td ;="" style="width: 25%; background-color: #FFFFCC">
                                                         <asp:TextBox ID="tbNotes" runat="server" TextMode="MultiLine" Width="90%"></asp:TextBox>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="background-color: #B6C6D6; width: 25%; " 
                                                         valign="middle">
-                                                        Date created *&nbsp;&nbsp; 
-                                                        <asp:Button ID="cmdPlaceDate" runat="server" BackColor="#B6C6D6" 
-                                                        BorderColor="#B6C6D6" BorderStyle="None" ForeColor="#B6C6D6" Height="1px" 
-                                                        OnClick="cmdPlaceDate_Click" style="font-weight: bold" Width="1px" />
-                                                        
-                                                        </td>
+                                                        License model</td>
                                                     <td style="width: 25%; background-color: #FFFFCC;" valign="bottom" >
-                                                        <asp:TextBox ID="tbDateLicenseCreated" runat="server" Width="100px"></asp:TextBox>
-                                                        &nbsp;&nbsp;<asp:ImageButton ID="IBCalendar1" runat="server" 
-                                                            ImageUrl="~/images/calbtn.gif" />
+                                                        <asp:DropDownList ID="ddlLicenseModel" runat="server" AutoPostBack="True" DataTextField="DATE_CREATED" DataValueField="SITE_LIC_DETAILS_ID" onselectedindexchanged="ddlLicenseModel_SelectedIndexChanged" Width="90%" Enabled="False">
+                                                            <asp:ListItem Value="1" Selected="True">Fixed reviews</asp:ListItem>
+                                                            <asp:ListItem Value="2">Removable reviews</asp:ListItem>
+                                                        </asp:DropDownList>
                                                     </td>
                                                     <td style="background-color: #B6C6D6; width: 20%;" valign="middle">
-                                                        Created by</td>
+                                                        Change review owner</td>
                                                     <td style="width: 25%; background-color: #FFFFCC; " 
-                                                        valign="middle" colspan="3">
-                                                        &nbsp;&nbsp;
+                                                        valign="middle">
+                                                        <asp:CheckBox ID="cbAllowReviewOwnershipChange" runat="server" AutoPostBack="True" OnCheckedChanged="cbAllowReviewOwnershipChange_CheckedChanged" Text="Allow" ToolTip="If you check this box the admins in this license can change the ownership of the reviews in the license" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color: #B6C6D6; width: 25%; " valign="middle">Date created *&nbsp;&nbsp;
+                                                        <asp:Button ID="cmdPlaceDate" runat="server" BackColor="#B6C6D6" BorderColor="#B6C6D6" BorderStyle="None" ForeColor="#B6C6D6" Height="1px" OnClick="cmdPlaceDate_Click" style="font-weight: bold" Width="1px" />
+                                                    </td>
+                                                    <td style="width: 25%; background-color: #FFFFCC;" valign="bottom">
+                                                        <asp:TextBox ID="tbDateLicenseCreated" runat="server" Width="100px"></asp:TextBox>
+                                                        &nbsp;&nbsp;<asp:ImageButton ID="IBCalendar1" runat="server" ImageUrl="~/images/calbtn.gif" />
+                                                    </td>
+                                                    <td style="background-color: #B6C6D6; width: 20%;" valign="middle">Created by</td>
+                                                    <td style="width: 25%; background-color: #FFFFCC; " valign="middle">&nbsp;&nbsp;
                                                         <asp:Label ID="lblCreatedBy" runat="server" Text="N/A"></asp:Label>
                                                     </td>
                                                 </tr>
@@ -180,7 +182,7 @@ function openAdminList(ID)
                                                         &nbsp;</td>
                                                     <td style="background-color: #B6C6D6; width: 20%;">
                                                         Packages: past, present &amp; offers<br /> (based on date created)</td>
-                                                    <td ;="" style="width: 25%; background-color: #99FF99; height: 27px;" colspan="3">
+                                                    <td ;="" style="width: 25%; background-color: #99FF99; height: 27px;">
                                                         <asp:DropDownList ID="ddlPackages" runat="server" AutoPostBack="True" 
                                                             DataTextField="DATE_CREATED" DataValueField="SITE_LIC_DETAILS_ID" 
                                                             onselectedindexchanged="ddlPackages_SelectedIndexChanged" Width="90%">
@@ -188,7 +190,7 @@ function openAdminList(ID)
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="6" style="background-color: #B6C6D6; height: 27px;">
+                                                    <td colspan="4" style="background-color: #B6C6D6; height: 27px;">
                                                     British library codes (optional)&nbsp;&nbsp;
                                                             <asp:LinkButton ID="lbShowBLCodes" runat="server" 
                                                             onclick="lbShowBLCodes_Click">Show/Edit</asp:LinkButton>

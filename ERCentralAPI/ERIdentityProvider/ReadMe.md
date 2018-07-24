@@ -39,7 +39,7 @@ The ER5 instance consuming this instance will be configured to:
 1. Query the correct url, i.e. "http://localhost/eridentityprovider"
 5. Doesn't bypass ERIP.
 
-To achieve the above, the appsettings.json file relevant session will look something like the below:
+To achieve the above, the relevant sectionion of ERIP's appsettings.json file will look something like the below:
 ```
 "AppSettings": {
 		"AdmConnStr": "irrelevant",
@@ -51,7 +51,7 @@ To achieve the above, the appsettings.json file relevant session will look somet
 		"CertificateSecret": "irrelevant"
 	}
 ```
-Environment Variables: ser the "ASPNETCORE_ENVIRONMENT" variable to "Development". This is done via Right-click on "ERIdentityProvider" project, properties. In the "Debug" tab, you can set the environment variable.
+Environment Variables: set the "ASPNETCORE_ENVIRONMENT" variable to "Development". This is done via Right-click on "ERIdentityProvider" project, properties. In the "Debug" tab, you can set the environment variable.
 The list of available users is provided by "\UserServices\InMemoryDevUserRepositoryData.json" editing it allows to customise the list as required (developers should not push their local changes!). This file contains no passwords: ERIP will just check that the username is valid (ER5 requires a password in the login page, but any value will do).
 
 The appsettings.json file of ER5 should contain the following:

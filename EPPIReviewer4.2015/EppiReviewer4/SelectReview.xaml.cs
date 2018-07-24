@@ -121,15 +121,22 @@ namespace EppiReviewer4
             CslaDataProvider provider = App.Current.Resources["ReviewsData"] as CslaDataProvider;
             if (provider != null)
             {
+                Telerik.Windows.Controls.RadWindow w = ((Grid)Parent).Parent as Telerik.Windows.Controls.RadWindow;
+                //w.SizeToContent = true;
+                w.WindowState = WindowState.Maximized;
+                w.UpdateLayout();
+                w.WindowState = WindowState.Normal;
+                w.UpdateLayout();
                 if ((provider.Data as ReadOnlyReviewList).Count == 0)
                 {
+                    
                     //ExpRow.Height = new GridLength(30);
                     //MainRow.Height = new GridLength(0);
                     //MainRow.MaxHeight = 0;
                     GridViewReviewList.Visibility = System.Windows.Visibility.Collapsed;
                     createRevStack.Visibility = System.Windows.Visibility.Visible;
 
-                    Telerik.Windows.Controls.RadWindow w = ((Grid)Parent).Parent as Telerik.Windows.Controls.RadWindow;
+                    
                     if (w != null)
                         w.Header = "Create New Review";
                 }

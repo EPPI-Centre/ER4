@@ -1,0 +1,39 @@
+SQL Changes Manager LOG.
+Reading Configuration.
+Retrieving V. Number of DataBase.
+Retrieving Script Files.
+Found 4 files to porcess.
+Processing File: "5.sql"
+Processing File: "6.sql"
+Processing File: "7.sql"
+Processing File: "8.sql"
+Error in "Processing File: '8.sql'" phase. Error message(s):
+MSG: An exception occurred while executing a Transact-SQL statement or batch.
+STACK TRC:   at Microsoft.SqlServer.Management.Common.ServerConnection.ExecuteNonQuery(String sqlCommand, ExecutionTypes executionType, Boolean retry)
+   at SQL_Changes_Manager.Program.ProcessFile(Int32 vNumber) in D:\Github\eppi\ERCentralAPI\SQL Changes Manager\Program.cs:line 114
+Inner Exception(s): 
+MSG(1): Cannot drop the procedure 'dbo.st_fakeSproc', because it does not exist or you do not have permission.
+STACK TRC(1):   at Microsoft.SqlServer.Management.Common.ConnectionManager.ExecuteTSql(ExecuteTSqlAction action, Object execObject, DataSet fillDataSet, Boolean catchException)
+   at Microsoft.SqlServer.Management.Common.ServerConnection.ExecuteNonQuery(String sqlCommand, ExecutionTypes executionType, Boolean retry)
+Error encountered, terminating.
+END.
+
+
+SQL Changes Manager LOG.
+Reading Configuration.
+Retrieving V. Number of DataBase.
+Retrieving Script Files.
+Found 1 files to porcess.
+Processing File: "8.sql"
+Error in "Processing File: '8.sql'" phase. Error message(s):
+MSG: An exception occurred while executing a Transact-SQL statement or batch.
+STACK TRC:   at Microsoft.SqlServer.Management.Common.ServerConnection.ExecuteNonQuery(String sqlCommand, ExecutionTypes executionType, Boolean retry)
+   at SQL_Changes_Manager.Program.ProcessFile(Int32 vNumber) in D:\Github\eppi\ERCentralAPI\SQL Changes Manager\Program.cs:line 114
+Inner Exception(s): 
+MSG(1): Cannot drop the procedure 'dbo.st_fakeSproc', because it does not exist or you do not have permission.
+STACK TRC(1):   at Microsoft.SqlServer.Management.Common.ConnectionManager.ExecuteTSql(ExecuteTSqlAction action, Object execObject, DataSet fillDataSet, Boolean catchException)
+   at Microsoft.SqlServer.Management.Common.ServerConnection.ExecuteNonQuery(String sqlCommand, ExecutionTypes executionType, Boolean retry)
+Error encountered, terminating.
+END.
+
+

@@ -593,10 +593,10 @@ public partial class ContactDetails : System.Web.UI.Page
             DataTable dt = new DataTable();
             System.Data.DataRow newrow;
 
-            dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(Int16)));
+            dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(int)));
             dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
             dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(DateTime)));
-            dt.Columns.Add(new DataColumn("HOURS", typeof(Int16)));
+            dt.Columns.Add(new DataColumn("HOURS", typeof(int)));
 
             bool isAdmDB = true;
             IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactReviewsFilter", Request.QueryString["ID"].ToString(), tbFilter.Text);

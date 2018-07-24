@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ERIdentityProvider.UserServices
 {
     public class CustomUser
@@ -9,6 +11,15 @@ namespace ERIdentityProvider.UserServices
         public string ExpiresOn { get; set; }
         public string IsSiteAdmin { get; set; }
         public string IsCochrane { get; set; }
-        //public string Password { get; set; }
+        public List<Organisation> MemberOf { get; set; }
+        public CustomUser()
+        {
+            MemberOf = new List<Organisation>();
+        }
+    }
+    public class Organisation
+    {
+        public string OrganisationName { get; set; }
+        public int OrganisationId { get; set; }
     }
 }

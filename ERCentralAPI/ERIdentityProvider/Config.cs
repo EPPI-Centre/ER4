@@ -26,23 +26,7 @@ namespace ERIdentityProvider
         {
             return new List<ApiResource>
             {
-                new ApiResource("dataEventRecords")
-                {
-                    ApiSecrets =
-                    {
-                        new Secret("dataEventRecordsSecret".Sha256())
-                    },
-                    Scopes =
-                    {
-                        new Scope
-                        {
-                            Name = "userAuth",
-                            DisplayName = "Scope for the dataEventRecords ApiResource"
-                        }
-                    },
-                    UserClaims = { "role", "admin", "user", "dataEventRecords", "dataEventRecords.admin", "dataEventRecords.user" }
-                },
-                //new ApiResource("SecuredAPI")
+                //new ApiResource("dataEventRecords")
                 //{
                 //    ApiSecrets =
                 //    {
@@ -53,20 +37,38 @@ namespace ERIdentityProvider
                 //        new Scope
                 //        {
                 //            Name = "userAuth",
-                //            DisplayName = "Scope for the userAuth ApiResource"
+                //            DisplayName = "Scope for the dataEventRecords ApiResource"
                 //        }
                 //    },
-                //    UserClaims = { "role", "admin", "user", "dataEventRecords", "dataEventRecords.admin", "dataEventRecords.user", "userAuth" }
-                //}
-                new ApiResource("SecuredAPI", "My API")
+                //    UserClaims = { "role", "admin", "user", "dataEventRecords", "dataEventRecords.admin", "dataEventRecords.user" }
+                //},
+                new ApiResource("KlasifikiAPI")
+                {
+                    ApiSecrets =
+                    {
+                        new Secret("dataEventRecordsSecret".Sha256())
+                    },
+                    Scopes =
+                    {
+                        new Scope
+                        {
+                            Name = "userAuth",
+                            DisplayName = "Scope for the userAuth ApiResource"
+                        }
+                    },
+                    UserClaims = { "role", "admin", "user", "dataEventRecords", "dataEventRecords.admin", "dataEventRecords.user", "userAuth" }
+                }
+                , new ApiResource("SecuredAPI", "My API")
             };
         }
 
         // clients want to access resources (aka scopes)
         public static IEnumerable<Client> GetClients(Microsoft.Extensions.Configuration.IConfiguration conf)
         {//we're getting client settings from config file, which is OK-ish for now, but should be in SQL, MORE work to do!
-			string EPPIApiClientSecret = conf["AppSettings:EPPIApiClientSecret"];
-			string EPPIApiClientName = conf["AppSettings:EPPIApiClientName"];
+            string EPPIApiClientSecret = conf["AppSettings:EPPIApiClientSecret"];
+            string EPPIApiClientName = conf["AppSettings:EPPIApiClientName"];
+            string KlasifikiApiClientSecret = conf["AppSettings:KlasifikiApiClientSecret"];
+            string KlasifikiApiClientName = conf["AppSettings:KlasifikiApiClientName"];
 			return new List<Client>
             {
                 new Client
@@ -83,13 +85,42 @@ namespace ERIdentityProvider
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     AlwaysSendClientClaims = true,
                     Enabled = true,
+                    //the below is used to authenticate the client without interactive user, it's server to server direct comm...
+                    //it is also used when server side uses ResourceOwnerPassword flow to talk to server on behalf of user!
                     ClientSecrets=  new List<Secret> { new Secret(EPPIApiClientSecret.Sha256()) },
                     AllowedScopes = {
                         IdentityServerConstants.StandardScopes.OpenId, 
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                       // IdentityServerConstants.StandardScopes.OfflineAccess,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
                         "SecuredAPI"
+                    }
+                },
+                new Client
+                {//this defines the client application, including what scopes a given App can access
+                    ClientId = KlasifikiApiClientName,
+                    AllowedGrantTypes = {
+                                            //GrantType.Hybrid,
+                                            GrantType.ClientCredentials,
+                                            GrantType.ResourceOwnerPassword
+                                        },
+                    AccessTokenType = AccessTokenType.Jwt,
+                    AccessTokenLifetime = 3 * 3600,//3 hours
+                    IdentityTokenLifetime = 3 * 3600,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    SlidingRefreshTokenLifetime = 30,
+                    AllowOfflineAccess = true,
+                    RefreshTokenExpiration = TokenExpiration.Absolute,
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    AlwaysSendClientClaims = true,
+                    Enabled = true,
+                    ClientSecrets=  new List<Secret> { new Secret(KlasifikiApiClientSecret.Sha256()) },
+                    AllowedScopes = {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        IdentityServerConstants.StandardScopes.OfflineAccess,
+                        "KlasifikiAPI"
                     }
                 }
             };

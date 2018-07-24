@@ -4,160 +4,183 @@
     <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
         <telerik:RadWindowManager ID="RadWindowManager1" runat="server" EnableShadow="true">
         </telerik:RadWindowManager>
-    
 
-    
-            
-                <b>Your account summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>
-                Please note that all dates are dd/mm/yyyy<asp:GridView 
-                    ID="gvReviewer" runat="server" 
-    AutoGenerateColumns="False" Width="800px" onrowcommand="gvReviewer_RowCommand" CssClass="grviewFixedWidth"
-                    DataKeyNames="CONTACT_ID" onrowediting="gvReviewer_RowEditing" 
-                    EnableModelValidation="True">
-                    <Columns>
-                        <asp:BoundField DataField="CONTACT_ID" 
-                        HeaderText="ContactID">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Name" DataField="CONTACT_NAME">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Email address" 
-                        DataField="EMAIL">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="LAST_LOGIN" 
-                        HeaderText="Last login">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="HOURS" HeaderText="Logged in (hrs)">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField HeaderText="Account created" 
-                        DataField="DATE_CREATED">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="EXPIRY_DATE" 
-                        HeaderText="Expiry date">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:ButtonField CommandName="EDT" HeaderText="Edit" Text="Edit">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:ButtonField>
-                    </Columns>
-                </asp:GridView>
-                <br /><asp:Panel ID="pnlContactDetails" runat="server" Visible="False" 
-                    BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px">
-                    
-                    
-                    ContactID:
-                    <asp:Label ID="lblContactID" runat="server" Text="N/A"></asp:Label>
-                    
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <asp:CheckBox ID="cbSendNewsletter" runat="server" AutoPostBack="True" 
-                        oncheckedchanged="cbSendNewsletter_CheckedChanged" Text="Receive newsletter" />
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    
-                    <table ID="Table3" border="1" cellpadding="1" cellspacing="1" width="600">
-                        <tr>
-                            <td style="background-color: #B6C6D6; width: 140px; height: 27px;">
-                                Name</td>
-                            <td style="width: 170px; height: 27px;">
-                                <asp:TextBox ID="tbName" runat="server" CssClass="textbox" MaxLength="100" 
-                                    Width="90%"></asp:TextBox>
-                            </td>
-                            <td style="background-color: #B6C6D6; width: 130px; height: 27px;">
-                                Username</td>
-                            <td style="width: 170px; height: 27px;">
-                                <asp:TextBox ID="tbUserName" runat="server" CssClass="textbox" MaxLength="50" 
-                                    Width="90%"></asp:TextBox>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="background-color: #B6C6D6; width: 130px">
-                                Email</td>
-                            <td style="width: 170px">
-                                <asp:TextBox ID="tbEmail" runat="server" CssClass="textbox" Width="90%"></asp:TextBox>
-                            </td>
-                            <td style="background-color: #B6C6D6; width: 160px">
-                                Confirm email</td>
-                            <td style="width: 170px">
-                                <asp:TextBox ID="tbEmailConfirm" runat="server" CssClass="textbox" Width="90%"></asp:TextBox>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="background-color: #B6C6D6; width: 130px">
-                                New password</td>
-                            <td style="width: 170px">
-                                <asp:TextBox ID="tbPassword" runat="server" CssClass="textbox" MaxLength="50" 
-                                    Width="90%"></asp:TextBox>
-                            </td>
-                            <td style="background-color: #B6C6D6; width: 160px">
-                                Confirm new password</td>
-                            <td style="width: 170px">
-                                <asp:TextBox ID="tbPasswordConfirm" runat="server" CssClass="textbox" 
-                                    MaxLength="50" Width="90%"></asp:TextBox>
-                            </td>
-                        </tr>
-                    </table>
-                    <asp:Button ID="cmdSave" runat="server" CssClass="button" 
-                        OnClick="cmdSave_Click" Text="Save" />
-                    &nbsp;&nbsp;
-                    <asp:LinkButton ID="lbCancelAccountEdit" runat="server" 
-                        onclick="lbCancelAccountEdit_Click">Cancel</asp:LinkButton>
-                    &nbsp;&nbsp;&nbsp;
-                    <asp:Label ID="lblPasswordMsg" runat="server" 
-                        Text="To keep your existing password leave the password fields blank."></asp:Label>
-                    <br />
-                    <asp:Panel ID="pnlAccountMessages" runat="server" Visible="False" 
-                        style="margin-top: 0px">
-                        <asp:Label ID="lblMissingFields" runat="server" Font-Bold="True" 
-                            
-                            Text="Please fill in all of the fields. Apostrophes (') are not allowed in User names, Passwords and Emails." 
-                            Visible="False" ForeColor="Red"></asp:Label>
-                        <br />
-                        <asp:Label ID="lblUsername" runat="server" Font-Bold="True" 
-                            Text="User name is already in use. Please select another." Visible="False" 
-                            ForeColor="Red"></asp:Label>
-                        <br />
-                        <asp:Label ID="lblEmailAddress0" runat="server" Font-Bold="True" 
-                            Text="Email address is already in use. Please select another." 
-                            Visible="False" ForeColor="Red"></asp:Label>
-                    </asp:Panel>
-                    <asp:Label ID="lblNewPassword" runat="server" Font-Bold="True" 
-                        Text="Passwords must be at least 8 characters and contain at least one lower case letter, &lt;br/&gt;one upper case letter, one digit and no spaces." 
-                        Visible="False" ForeColor="Red"></asp:Label>
-                    <br />
-                </asp:Panel>
-                <b>Accounts you have purchased</b>
-                <asp:GridView ID="gvAccountPurchases" runat="server" CssClass="grviewFixedWidth" 
-                    AutoGenerateColumns="False" DataKeyNames="CONTACT_ID" 
-                    onrowcommand="gvAccountPurchases_RowCommand"  OnRowEditing="gvReviewer_RowEditing"
-                    Width="800px" EnableModelValidation="True" >
-                    <Columns>
-                        <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="CONTACT_NAME" HeaderText="Name">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="EMAIL" HeaderText="Email address">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="LAST_LOGIN" HeaderText="Last login">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="DATE_CREATED" HeaderText="Account created">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:BoundField DataField="EXPIRY_DATE" HeaderText="Expiry date">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:BoundField>
-                        <asp:ButtonField CommandName="EDIT" HeaderText="Edit" Text="Activate">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                        </asp:ButtonField>
-                    </Columns>
-                </asp:GridView>
+
+
+
+    <b>Your account summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>
+    Please note that all dates are dd/mm/yyyy
+        <asp:GridView
+        ID="gvReviewer" runat="server"
+        AutoGenerateColumns="False" Width="800px" OnRowCommand="gvReviewer_RowCommand" CssClass="grviewFixedWidth"
+        DataKeyNames="CONTACT_ID" OnRowEditing="gvReviewer_RowEditing"
+        EnableModelValidation="True">
+        <Columns>
+            <asp:BoundField DataField="CONTACT_ID"
+                HeaderText="ContactID">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField HeaderText="Name" DataField="CONTACT_NAME">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField HeaderText="Email address"
+                DataField="EMAIL">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="LAST_LOGIN"
+                HeaderText="Last login">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="HOURS" HeaderText="Logged in (hrs)">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField HeaderText="Account created"
+                DataField="DATE_CREATED">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="EXPIRY_DATE"
+                HeaderText="Expiry date">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:ButtonField CommandName="EDT" HeaderText="Edit" Text="Edit">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:ButtonField>
+        </Columns>
+    </asp:GridView>
+                <br />
+
+    <asp:Panel ID="pnlContactDetails" runat="server" Visible="False"
+        BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px">
+        ContactID:
+                   
+        <asp:Label ID="lblContactID" runat="server" Text="N/A"></asp:Label>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                   
+        <asp:CheckBox ID="cbSendNewsletter" runat="server" AutoPostBack="True"
+            OnCheckedChanged="cbSendNewsletter_CheckedChanged" Text="Receive newsletter" />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                      
+        <table id="Table3" border="1" cellpadding="1" cellspacing="1" width="600">
+            <tr>
+                <td style="background-color: #B6C6D6; width: 140px; height: 27px;">Name</td>
+                <td style="width: 170px; height: 27px;">
+                    <asp:TextBox ID="tbName" runat="server" CssClass="textbox" MaxLength="100"
+                        Width="90%"></asp:TextBox>
+                </td>
+                <td style="background-color: #B6C6D6; width: 130px; height: 27px;">Username</td>
+                <td style="width: 170px; height: 27px;">
+                    <asp:TextBox ID="tbUserName" runat="server" CssClass="textbox" MaxLength="50"
+                        Width="90%"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #B6C6D6; width: 130px">Email</td>
+                <td style="width: 170px">
+                    <asp:TextBox ID="tbEmail" runat="server" CssClass="textbox" Width="90%"></asp:TextBox>
+                </td>
+                <td style="background-color: #B6C6D6; width: 160px">Confirm email</td>
+                <td style="width: 170px">
+                    <asp:TextBox ID="tbEmailConfirm" runat="server" CssClass="textbox" Width="90%"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #B6C6D6; width: 130px">New password</td>
+                <td style="width: 170px">
+                    <asp:TextBox ID="tbPassword" runat="server" CssClass="textbox" MaxLength="50"
+                        Width="90%"></asp:TextBox>
+                </td>
+                <td style="background-color: #B6C6D6; width: 160px">Confirm new password</td>
+                <td style="width: 170px">
+                    <asp:TextBox ID="tbPasswordConfirm" runat="server" CssClass="textbox"
+                        MaxLength="50" Width="90%"></asp:TextBox>
+                </td>
+            </tr>
+        </table>
+        <asp:Button ID="cmdSave" runat="server" CssClass="button"
+            OnClick="cmdSave_Click" Text="Save" />
+        &nbsp;&nbsp;
+                   
+        <asp:LinkButton ID="lbCancelAccountEdit" runat="server"
+            OnClick="lbCancelAccountEdit_Click">Cancel</asp:LinkButton>
+        &nbsp;&nbsp;&nbsp;
+                   
+        <asp:Label ID="lblPasswordMsg" runat="server"
+            Text="To keep your existing password leave the password fields blank."></asp:Label>
+        <br />
+        <asp:Panel ID="pnlAccountMessages" runat="server" Visible="False"
+            Style="margin-top: 0px">
+            <asp:Label ID="lblMissingFields" runat="server" Font-Bold="True"
+                Text="Please fill in all of the fields. Apostrophes (') are not allowed in User names, Passwords and Emails."
+                Visible="False" ForeColor="Red"></asp:Label>
+            <br />
+            <asp:Label ID="lblUsername" runat="server" Font-Bold="True"
+                Text="User name is already in use. Please select another." Visible="False"
+                ForeColor="Red"></asp:Label>
+            <br />
+            <asp:Label ID="lblEmailAddress0" runat="server" Font-Bold="True"
+                Text="Email address is already in use. Please select another."
+                Visible="False" ForeColor="Red"></asp:Label>
+        </asp:Panel>
+        <asp:Label ID="lblNewPassword" runat="server" Font-Bold="True"
+            Text="Passwords must be at least 8 characters and contain at least one lower case letter, &lt;br/&gt;one upper case letter, one digit and no spaces."
+            Visible="False" ForeColor="Red"></asp:Label>
+        <br />
+    </asp:Panel>
+
+    <asp:Panel ID="pnlOrganisations" runat="server" Visible="False">
+        <b>Your organisations</b>
+        <asp:GridView ID="gvOrganisations" runat="server" CssClass="grviewFixedWidth"
+            AutoGenerateColumns="False" DataKeyNames="ORGANISATION_ID"
+            OnRowCommand="gvOrganisations_RowCommand" OnRowEditing="gvOrganisations_RowEditing"
+            Width="800px" EnableModelValidation="True" OnRowDataBound="gvOrganisations_RowDataBound">
+            <Columns>
+                <asp:BoundField DataField="ORGANISATION_ID" HeaderText="OrganisationID">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                </asp:BoundField>
+                <asp:BoundField DataField="ORGANISATION_NAME" HeaderText="Organisation">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                </asp:BoundField>
+                <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" Text="Remove">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                </asp:ButtonField>
+            </Columns>
+        </asp:GridView>
+        <br />
+
+
+
+    </asp:Panel>
+
+    <b>Accounts you have purchased</b>
+    <asp:GridView ID="gvAccountPurchases" runat="server" CssClass="grviewFixedWidth"
+        AutoGenerateColumns="False" DataKeyNames="CONTACT_ID"
+        OnRowCommand="gvAccountPurchases_RowCommand" OnRowEditing="gvReviewer_RowEditing"
+        Width="800px" EnableModelValidation="True">
+        <Columns>
+            <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="CONTACT_NAME" HeaderText="Name">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="EMAIL" HeaderText="Email address">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="LAST_LOGIN" HeaderText="Last login">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="DATE_CREATED" HeaderText="Account created">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:BoundField DataField="EXPIRY_DATE" HeaderText="Expiry date">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:BoundField>
+            <asp:ButtonField CommandName="EDIT" HeaderText="Edit" Text="Activate">
+                <HeaderStyle BackColor="#B6C6D6" />
+            </asp:ButtonField>
+        </Columns>
+    </asp:GridView>
                 
                 <asp:Label ID="lblOtherPurchasedAccounts" runat="server" 
                     Text="You have not purchased any other accounts" Visible="False"></asp:Label>

@@ -273,6 +273,12 @@
     <Compile Include="..\Server\BusinessClasses\Item.cs">
       <Link>BusinessClasses\Item.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemArm.cs">
+      <Link>BusinessClasses\ItemArm.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemArmList.cs">
+      <Link>BusinessClasses\ItemArmList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ItemAttributeBulkDeleteCommand.cs">
       <Link>BusinessClasses\ItemAttributeBulkDeleteCommand.cs</Link>
     </Compile>

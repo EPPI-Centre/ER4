@@ -922,19 +922,8 @@ public partial class ReviewDetails : System.Web.UI.Page
     }
     protected void cbIsCheckedOutHere_CheckedChanged(object sender, EventArgs e)
     {
-        if (cbIsCheckedOutHere.Checked == true)
-        {
-            tbArchieID.Text = "prospective_______";
-            tbArchieID.Enabled = false;
-        }
-        else
-        {
-            tbArchieID.Enabled = true;
-            tbArchieID.Text = "";
-        }
-        
         bool isAdmDB = true;
-        Utils.ExecuteSP(isAdmDB, Server, "st_ArchieIsCheckedOutHere", lblReviewID.Text, tbArchieID.Text);
+        Utils.ExecuteSP(isAdmDB, Server, "st_ArchieIsCheckedOutHere", lblReviewID.Text, cbIsCheckedOutHere.Checked);
     }
     protected void lbSave1_Click(object sender, EventArgs e)
     {

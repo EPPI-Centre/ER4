@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+<div class="d-flex justify-content-center">
+    <form method="post" action="DoLogin">
+        <div class="d-flex flex-row">
+            <img src="~/images/Klasifiki.png" class="center-block" style="margin:8px;" />
+        </div>
+
+
+
+        <div class="d-flex">
+            <div class="col-2 align-self-center">
+                Username:
+            </div>
+            <input class="p-2 align-self-center m-1" id="username" name="username" type="text" />
+        </div>
+        
+        <div class="d-flex">
+            <div class="col-2 align-self-center">
+                Password:
+            </div>
+            <input class="p-2 align-self-center m-1" id="password" name="password" type="password" />
+            <input class="btn align-self-center m-1" type="submit" value="Login" />
+        </div>
+
+    </form>
+
+
+</div>

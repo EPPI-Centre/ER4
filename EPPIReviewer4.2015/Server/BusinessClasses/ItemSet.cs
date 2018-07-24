@@ -191,6 +191,18 @@ namespace BusinessLibrary.BusinessClasses
             }
             return null;
         }
+        public List<ReadOnlyItemAttribute> GetItemAttributes(Int64 AttributeId)
+        {
+            List<ReadOnlyItemAttribute> retVal = new List<ReadOnlyItemAttribute>();
+            foreach (ReadOnlyItemAttribute roia in ItemAttributes)
+            {
+                if (roia.AttributeId == AttributeId)
+                {
+                    retVal.Add(roia);
+                }
+            }
+            return retVal;
+        }
         private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
         public bool IsSelected
         {

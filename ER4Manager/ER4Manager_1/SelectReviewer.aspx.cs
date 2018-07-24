@@ -66,7 +66,7 @@ public partial class SelectReviewer : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 
@@ -127,7 +127,7 @@ public partial class SelectReviewer : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(Int16)));
+        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(int)));
         dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
 

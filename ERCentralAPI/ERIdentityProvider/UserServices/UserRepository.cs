@@ -108,8 +108,35 @@ namespace ERIdentityProvider.UserServices
 						}
 					}
                 }
+                using (SqlCommand command = new SqlCommand("st_Organisation_Get_By_ContactID", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", subjectId));
+                    try
+                    {
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (reader.Read())
+                            {
+                                res.MemberOf.Add(
+                                    new Organisation
+                                    {
+                                        OrganisationId = (int)reader["ORGANISATION_ID"]
+                                        ,
+                                        OrganisationName = reader["ORGANISATION_NAME"].ToString()
+                                    }
+                                    );
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
 
             }
+            //string jsonic = Newtonsoft.Json.JsonConvert.SerializeObject(res);
             return res;
         }
 

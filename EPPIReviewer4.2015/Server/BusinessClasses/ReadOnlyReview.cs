@@ -10,11 +10,13 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
 
-#if!SILVERLIGHT
+#if(!SILVERLIGHT && !CSLA_NETCORE)
 using Csla.Data;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
+#elif(CSLA_NETCORE)
+using Csla.Data;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -26,9 +28,9 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyReview() { }
 #else
-        private ReadOnlyReview() { }
+        public ReadOnlyReview() { }
 #endif
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "Review Id", 0));
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "Review Id", 0));
         public int ReviewId
         {
             get
@@ -37,7 +39,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "Review Name", string.Empty));
+        public static readonly PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "Review Name", string.Empty));
         public string ReviewName
         {
             get
@@ -45,7 +47,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewNameProperty);
             }
         }
-        private static PropertyInfo<string> ContactReviewRolesProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactReviewRoles", "ContactReviewRoles", string.Empty));
+        public static readonly PropertyInfo<string> ContactReviewRolesProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactReviewRoles", "ContactReviewRoles", string.Empty));
         public string ContactReviewRoles
         {
             get
@@ -53,7 +55,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ContactReviewRolesProperty);
             }
         }
-        private static PropertyInfo<string> ReviewOwnerProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewOwner", "ReviewOwner", string.Empty));
+        public static readonly PropertyInfo<string> ReviewOwnerProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewOwner", "ReviewOwner", string.Empty));
         public string ReviewOwner
         {
             get
@@ -61,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewOwnerProperty);
             }
         }
-        private static PropertyInfo<DateTime> LastAccessProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LastAccess", "LastAccess"));
+        public static readonly PropertyInfo<DateTime> LastAccessProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LastAccess", "LastAccess"));
         public DateTime LastAccess
         {
             get

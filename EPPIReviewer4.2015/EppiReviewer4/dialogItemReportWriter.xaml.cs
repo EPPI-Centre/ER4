@@ -90,7 +90,8 @@ namespace EppiReviewer4
                 dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(-(SelectedItems[currentIndex] as Item).ItemId));
             }
             else
-            {
+                        // From here down - finish the report off by closing relevant tags etc
+            {   
                 BusyLoadingItemReportWriter.IsRunning = false;
                 cmdRunItemReportWriter.IsEnabled = true;
                 if (LaunchReportViewer != null && (chkbxExportJSON.IsChecked == false))
@@ -162,7 +163,6 @@ namespace EppiReviewer4
                     {
                         if (itemSet.SetId == (GridSelectCodeSets.SelectedItems[i] as ReviewSet).SetId && itemSet.IsCompleted == true)
                         {
-
                             report += "<br /><h2>Reviewer: " + itemSet.ContactName + "</h2>" + "<h3>Date: " + DateTime.Now.ToShortDateString() + "</h3>";
                             ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
 
@@ -172,7 +172,7 @@ namespace EppiReviewer4
                                 report += "<p><h1>" + reviewSet.SetName + "</h1></p><p><ul>";
                                 foreach (AttributeSet attributeSet in reviewSet.Attributes)
                                 {
-                                    report += writeCodingReportAttributes(itemSet, attributeSet, "");
+                                    report += writeCodingReportAttributesWithArms(itemSet, attributeSet, "");
                                 }
                                 report += "</ul></p>";
                                 report += "<p>" + itemSet.OutcomeItemList.OutcomesTable() + "</p>";
@@ -205,10 +205,16 @@ namespace EppiReviewer4
         {
             //if (attributeSet.AttributeTypeId > 1)
             //{
-                ReadOnlyItemAttribute roia = itemSet.GetItemAttribute(attributeSet.AttributeId);
-                if (roia != null)
+            ReadOnlyItemAttribute roia = itemSet.GetItemAttribute(attributeSet.AttributeId);
+            if (roia != null)
                 {
-                    report += "<li>" + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText.Replace("\n", "<br />") + "</i>";
+                    string AttributeName = attributeSet.AttributeName;
+                    if (roia.ArmId != 0)
+                    {
+                        AttributeName += " [" + roia.ArmTitle + "]";
+                    }
+
+                    report += "<li>" + AttributeName + "<br /><i>" + roia.AdditionalText.Replace("\n", "<br />") + "</i>";
                     if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                     {
                         List<ItemAttributeFullTextDetails> ll = roia.ItemAttributeFullTextList.ToList();
@@ -247,6 +253,54 @@ namespace EppiReviewer4
             //    }
             //    report += "</ul>";
             //}
+            return report;
+        }
+
+        public static string writeCodingReportAttributesWithArms(ItemSet itemSet, AttributeSet attributeSet, string report)
+        {
+            List<ReadOnlyItemAttribute> roias = itemSet.GetItemAttributes(attributeSet.AttributeId);
+            if (roias != null && roias.Count > 0)
+            {
+                foreach (ReadOnlyItemAttribute roia in roias)
+                {
+                    string AttributeName = attributeSet.AttributeName;
+                    if (roia.ArmId != 0)
+                    {
+                        AttributeName += " [" + roia.ArmTitle + "]";
+                    }
+
+                    report += "<li>" + AttributeName + "<br /><i>" + roia.AdditionalText.Replace("\n", "<br />") + "</i>";
+                    if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
+                    {
+                        List<ItemAttributeFullTextDetails> ll = roia.ItemAttributeFullTextList.ToList();
+                        ll.Sort();
+                        report += dialogCoding.addFullTextToComparisonReport(ll);
+                    }
+                    report += "</li>";
+                }
+                if (CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                {
+                    report += "<ul>";
+                    foreach (AttributeSet child in attributeSet.Attributes)
+                    {
+                        report = writeCodingReportAttributesWithArms(itemSet, child, report);
+                    }
+                    report += "</ul>";
+                }
+            }
+            else
+            {
+                if (CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                {
+                    report += "<li style='color:DarkGray;'>" + attributeSet.AttributeName + "</li>";
+                    report += "<ul>";
+                    foreach (AttributeSet child in attributeSet.Attributes)
+                    {
+                        report = writeCodingReportAttributesWithArms(itemSet, child, report);
+                    }
+                    report += "</ul>";
+                }
+            }
             return report;
         }
 

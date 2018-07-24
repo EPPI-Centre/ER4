@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "About Klasifiki";
+}
+<h2>@ViewData["Title"]</h2>
+<p>
+    Klasifiki (Esperanto for ‘classify’) is a new tool to allow users to utilise classifications about research – whether assigned by humans or machines.
+</p>
+
+<p>
+    This initial release depends upon the PubMed database and shows classifications by machine learning models built by Aaron Cohen and colleagues which denote whether: a record is describing a Randomised Controlled Trial (RCT); and whether it included human participants.
+</p><p>
+    This release is a proof of concept and is not designed to withstand real world (or heavy) usage. It is a stepping stone, intended to allow us to learn how to manage the expected workloads and to allow selected users to provide early feedback.
+</p><p>
+    Our plans include:
+</p><p>
+    <ul>
+        <li>
+            Building the service as an API (useable by third party tools) as well as a standalone user interface.
+        </li>
+        <li>
+            Building the service as an API (useable by third party tools) as well as a standalone user interface.
+        </li>
+        <li>
+            Integrating the API into <a href="https://eppi.ioe.ac.uk/cms/er4/" target="_blank">EPPI-Reviewer</a>.
+        </li>
+        <li>
+            Expand the range of Machine Learning results:
+            <ul class="small">
+                <li>
+                    Add a second RCT classifier (scoring all records).
+                </li>
+                <li>
+                    Add classifiers for other study types including economic evaluations and systematic reviews.
+                </li>
+                <li>
+                    Also include the study type classifications from <a href="http://crowd.cochrane.org/" target="_blank">Cochrane Crowd</a>.
+                </li>
+            </ul>
+        </li>
+        <li>
+            Allow users to upload their own references for automatic classification.
+        </li>
+        <li>
+            Allow to download results.
+        </li>
+    </ul>
+</p>
+<p>
+    Aaron M. Cohen, MD MS, Zackary Dunivin, BS, Neil R. Smalheiser, MD PhD. (2018) A Probabilistic Automated Tagger to Identify Human-Related Publications. <a href="http://arrowsmith.psych.uic.edu/arrowsmith_uic/download/Human_Tagger_Docs/Text_only_A_probabilistic_automated_tagger_to_identify_human_articles_2018d.docx" target="_blank">Preprint</a>. 
+</p>
+<p>
+    Cohen AM, Smalheiser NR, McDonagh MS, Yu C, Adams CE, Davis JM, Yu PS. (2015) <a href="https://academic.oup.com/jamia/article-lookup/doi/10.1093/jamia/ocu025" target="_blank">Automated confidence ranked classification of randomized controlled trial articles: an aid to evidence-based medicine</a>. Journal of the American Medical Informatics Association (2015) 22(3):707-17. 
+</p>

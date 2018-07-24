@@ -254,7 +254,15 @@ namespace BusinessLibrary.BusinessClasses
                             currentParentAttribute = reader["USER_DEF_TEXT"].ToString();
                             if (Convert.ToBoolean(reader["DISPLAY_CODE"].ToString()) == true)
                             {
-                                currentCell += reader["ATTRIBUTE_NAME"].ToString();
+                                string armText = reader["ARM_NAME"].ToString();
+                                if (armText == "")
+                                {
+                                    currentCell += reader["ATTRIBUTE_NAME"].ToString();
+                                }
+                                else
+                                {
+                                    currentCell += reader["ATTRIBUTE_NAME"].ToString() + " [" + armText + "]";
+                                }
                             }
                             if (Convert.ToBoolean(reader["DISPLAY_ADDITIONAL_TEXT"].ToString()) == true)
                             {
@@ -283,7 +291,15 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             if (Convert.ToBoolean(reader["DISPLAY_CODE"].ToString()) == true)
                             {
-                                currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString();
+                                string armText = reader["ARM_NAME"].ToString();
+                                if (armText == "")
+                                {
+                                    currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString();
+                                }
+                                else
+                                {
+                                    currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString() + " [" + armText + "]";
+                                }
                             }
                             if (Convert.ToBoolean(reader["DISPLAY_ADDITIONAL_TEXT"].ToString()) == true )
                             {
@@ -369,7 +385,15 @@ namespace BusinessLibrary.BusinessClasses
                     currentCell += "<td valign='top'><b>" + reader["USER_DEF_TEXT"].ToString() + "</b>";
                     if (Convert.ToBoolean(reader["DISPLAY_CODE"].ToString()) == true)
                     {
-                        currentCell += " " + reader["ATTRIBUTE_NAME"].ToString();
+                        string armText = reader["ARM_NAME"].ToString();
+                        if (armText == "")
+                        {
+                            currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString();
+                        }
+                        else
+                        {
+                            currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString() + " [" + armText + "]";
+                        }
                     }
                     if (Convert.ToBoolean(reader["DISPLAY_ADDITIONAL_TEXT"].ToString()) == true)
                     {
@@ -393,7 +417,15 @@ namespace BusinessLibrary.BusinessClasses
                     currentCell += "<br /><b>" + reader["USER_DEF_TEXT"].ToString() + "</b>";
                     if (Convert.ToBoolean(reader["DISPLAY_CODE"].ToString()) == true)
                     {
-                        currentCell += " " + reader["ATTRIBUTE_NAME"].ToString();
+                        string armText = reader["ARM_NAME"].ToString();
+                        if (armText == "")
+                        {
+                            currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString();
+                        }
+                        else
+                        {
+                            currentCell += "<p>" + reader["ATTRIBUTE_NAME"].ToString() + " [" + armText + "]";
+                        }
                     }
                     if (Convert.ToBoolean(reader["DISPLAY_ADDITIONAL_TEXT"].ToString()) == true)
                     {

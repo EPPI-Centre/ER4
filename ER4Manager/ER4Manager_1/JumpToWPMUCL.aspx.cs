@@ -27,7 +27,7 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
                 xml.Value = MakeXMLRequest().ToString();
                 Utils.ExecuteSP(true, Server, "st_BillMarkAsSubmitted", Utils.GetSessionString("Contact_ID"), Utils.GetSessionString("Draft_Bill_ID"), Math.Round(VatTot, 2));
                 Utils.SetSessionString("lblEmailAddress", null);
-                form1.Action = Utils.WPMServerUrl;
+                form1.Action = Utils.UCLWPMServerUrl;
             }
         }
     }
@@ -95,10 +95,56 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
         //                          </payments>
         //                        </wpmpaymentrequest>";
 
-        string clientID = Utils.WPMclientID;//this should be provided by WPM
+
+
+        /*
+        < clientid > 1111 </ clientid >
+        < requesttype > 1 </ requesttype >
+        < pathwayid > 2222 </ pathwayid >
+        < departmentid > 1 </ departmentid >
+        < staffid ></ staffid >
+        < customerid >< ![CDATA[20710579]] ></ customerid >
+        < title >< ![CDATA[Mr]] ></ title >
+        < firstname >< ![CDATA[Godwin]] ></ firstname >
+        < middlename >< ![CDATA[James]] ></ middlename >
+        < lastname >< ![CDATA[Smith]] ></ lastname >
+
+        < emailfrom >< ![CDATA[swilkins@wpmeducation.com]] ></ emailfrom >
+        < toemail >< ![CDATA[astarmer@wpmeducation.com]] ></ toemail >
+        < ccemail >< ![CDATA[smuir@wpmeducation.com]] ></ ccemail >
+        < emailfooter >< ![CDATA[HELLO]] ></ emailfooter >
+
+        < transactionreference >< ![CDATA[20710579]] ></ transactionreference >
+        < redirecturl >< ![CDATA[https://redirecturl.com]]></redirecturl>
+        < callbackurl >< ![CDATA[https://callbackurl.com]]></callbackurl>
+        < cancelurl >< ![CDATA[https://cancelurl.com]]></cancelurl>
+
+        < billaddress1 >< ![CDATA[52anaddress]] ></ billaddress1 >
+        < billaddress2 >< ![CDATA[address2]] ></ billaddress2 >
+        < billaddress3 >< ![CDATA[address3]] ></ billaddress3 >
+        < billtown >< ![CDATA[BurgessHill]] ></ billtown >
+        < billcounty >< ![CDATA[WestSussex]] ></ billcounty >
+        < billpostcode >< ![CDATA[BG238HR]] ></ billpostcode >
+        < billcountry >< ![CDATA[UnitedKingdom]] ></ billcountry >
+
+        < customfield1 >< ![CDATA[Sean1TEST]] ></ customfield1 >
+        < customfield2 >< ![CDATA[Sean2TEST]] ></ customfield2 >
+        < customfield3 >< ![CDATA[Sean3TEST]] ></ customfield3 >
+        < customfield4 >< ![CDATA[Sean4TEST]] ></ customfield4 >
+        < customfield5 >< ![CDATA[Sean5TEST]] ></ customfield5 >
+        < customfield6 >< ![CDATA[Sean6TEST]] ></ customfield6 >
+        < customfield7 >< ![CDATA[Sean7TEST]] ></ customfield7 >
+        < customfield8 >< ![CDATA[Sean8TEST]] ></ customfield8 >
+        < customfield9 >< ![CDATA[Sean9TEST]] ></ customfield9 >
+        < customfield10 >< ![CDATA[Sean10TEST]] ></ customfield10 >
+        */
+
+
+
+        string clientID = Utils.UCLWPMclientID;//this should be provided by WPM
 
         //string msgid = getMD5Hash(clientID + billID + );
-        string pathwayid = Utils.WPMpathwayid;//this should come from WPM
+        string pathwayid = Utils.UCLWPMpathwayid;//this should come from WPM
         bool isAdmDB = true;
         float VatRate = 0, currentAmount;
         int numberMonths;
@@ -112,46 +158,57 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
         else VatRate = 0;
         idr.Close();
 
-        //XElement res = new XElement("wpmpaymentrequest", new XAttribute("msgid", msgid));
         XElement res = new XElement("wpmpaymentrequest");
         XElement tmpX = new XElement("clientid", clientID);
-        //XElement paymentsX;
         res.Add(tmpX);
         res.Add(new XElement("requesttype", 1));
         res.Add(new XElement("pathwayid", pathwayid));
-        res.Add(new XElement("pspid", "1"));
-        //res.Add(new XElement("style", new XCData(Utils.WPMstyle)));//this could be styleID(int) ask WPM!
-        res.Add(new XElement("departmentid", Utils.WPMdepartmentid));//this should come from WPM
+        /*res.Add(new XElement("pspid", "1"));*/
+        res.Add(new XElement("departmentid", Utils.UCLWPMdepartmentid));//this should come from WPM
         res.Add(new XElement("staffid", ""));//this should come from WPM
         res.Add(new XElement("customerid", new XCData(Utils.GetSessionString("Contact_ID"))));
         res.Add(new XElement("title", ""));
         res.Add(new XElement("firstname", new XCData(Utils.GetSessionString("ContactName"))));
         res.Add(new XElement("middlename", ""));
         res.Add(new XElement("lastname", ""));
-        res.Add(new XElement("toemail", new XCData(Utils.GetSessionString("lblEmailAddress"))));
+        
+
         res.Add(new XElement("emailfrom", new XCData("EPPISupport@ucl.ac.uk")));
+        res.Add(new XElement("toemail", new XCData(Utils.GetSessionString("lblEmailAddress"))));
         res.Add(new XElement("ccemail", new XCData("EPPISupport@ucl.ac.uk")));
-        //res.Add(new XElement("emailfooter", new XCData("<br><br>In case this message is unexpected, please don't hesitate to contact our support staff:<br><a href='mailto:EPPIsupport@ioe.ac.uk'>EPPIsupport@ioe.ac.uk</a><br>")));
         res.Add(new XElement("emailfooter", new XCData("Test Footer")));
-        //res.Add(new XElement("retryemailto", new XCData("EPPISupport@ioe.ac.uk")));
+
         res.Add(new XElement("transactionreference", new XCData(billID)));
-        res.Add(new XElement("customfield1", ""));
-        res.Add(new XElement("customfield2", ""));
-        res.Add(new XElement("customfield3", ""));
-        res.Add(new XElement("customfield4", ""));
-        res.Add(new XElement("customfield5", ""));
-        res.Add(new XElement("customfield6", ""));
-        res.Add(new XElement("customfield7", ""));
-        res.Add(new XElement("customfield8", ""));
-        res.Add(new XElement("customfield9", ""));
-        res.Add(new XElement("customfield10", ""));
-        //res.Add(new XElement("redirecturl", new XCData(HttpContext.Current.Request.Url.ToString().Replace("JumpToWPM.aspx", "Summary.aspx"))));
         res.Add(new XElement("redirecturl", new XCData(HttpContext.Current.Request.Url.ToString().Replace("JumpToWPMUCL.aspx", "ReturnFromPayment.aspx"))));
-        if (Utils.USEproxyIN) res.Add(new XElement("callbackurl", new XCData(Utils.ProxyURL)));
-        else res.Add(new XElement("callbackurl", new XCData(Utils.WPMCallBackURL)));
-        //res.Add(new XElement("cancelurl", new XCData(HttpContext.Current.Request.Url.ToString().Replace("JumpToWPM.aspx", "Summary.aspx"))));
+        if (Utils.USEproxyIN)
+            res.Add(new XElement("callbackurl", new XCData(Utils.ProxyURL)));
+        else
+            res.Add(new XElement("callbackurl", new XCData(Utils.WPMCallBackURL)));
         res.Add(new XElement("cancelurl", new XCData(HttpContext.Current.Request.Url.ToString().Replace("JumpToWPMUCL.aspx", "ReturnFromPayment.aspx" + "?ID=" + billID))));
-        res.Add(new XElement("live", Utils.WPMisLive));
+
+
+        /*
+        res.Add(new XElement("billaddress1", "52anaddress"));
+        res.Add(new XElement("billaddress2", "address2"));
+        res.Add(new XElement("billaddress3", "address3"));
+        res.Add(new XElement("billtown", "BurgessHill"));
+        res.Add(new XElement("billcounty", "WestSussex"));
+        res.Add(new XElement("billpostcode", "BG238HR"));
+        res.Add(new XElement("billcountry", "UnitedKingdom"));
+
+        res.Add(new XElement("customfield1", "test c01"));
+        res.Add(new XElement("customfield2", "test c02"));
+        res.Add(new XElement("customfield3", "test c03"));
+        res.Add(new XElement("customfield4", "test c04"));
+        res.Add(new XElement("customfield5", "test c05"));
+        res.Add(new XElement("customfield6", "test c06"));
+        res.Add(new XElement("customfield7", "test c07"));
+        res.Add(new XElement("customfield8", "test c08"));
+        res.Add(new XElement("customfield9", "test c09"));
+        res.Add(new XElement("customfield10", "test c10"));
+        */
+
+        //res.Add(new XElement("live", Utils.UCLWPMisLive));
 
         idr = Utils.GetReader(isAdmDB, "st_BillGetDraft", Utils.GetSessionString("Contact_ID"));
         if (idr.Read())
@@ -281,7 +338,7 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
         //		</payment>
         //	</payments>
         //</wpmpaymentrequest>"));
-        string msgid = Utils.getMD5Hash(clientID + billID + Math.Round(Tot, 2).ToString("F2"));
+        string msgid = Utils.getMD5HashUCL(clientID + billID + Math.Round(Tot, 2).ToString("F2"));
         res.Add(new XAttribute("msgid", msgid));
         //string test = getMD5Hash("8185" + "26" + "375.00");
         // test = getMD5Hash("8185" + "26" + "375");
@@ -320,9 +377,10 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
         subEl.Add(new XElement("amounttopayvat", VAT == "0" ? "" : VAT));
         subEl.Add(new XElement("amounttopayexvat", AmountEx));
         //subEl.Add(new XElement("vatrate", VATRate == "0" ? "" : VATRate));
-        subEl.Add(new XElement("dateofpayment", System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
+
+        subEl.Add(new XElement("dateofpayment", System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));       
+        subEl.Add(new XElement("editable", 0, new XAttribute("minamount", "0"), new XAttribute("maxamount", "0")));
         subEl.Add(new XElement("mandatory", "1"));
-        subEl.Add(new XElement("openamount", 0, new XAttribute("minamount", "0"), new XAttribute("maxamount", "0")));
         res.Add(subEl);
         return res;
     }

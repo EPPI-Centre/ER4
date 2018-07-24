@@ -380,7 +380,18 @@
     background-position:0 0;
 }
 
-#ContinueToWPMUCL
+#ContinueToWPMUCL {
+    display: block;
+    width: 91px;
+    height: 24px;
+    min-height: 23px;
+    min-width: 91px;
+    background-image: url('Images/WPMContinue.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}
+
+#ContinueToWPMUCLTest
 {
     display: block;
     width:91px;

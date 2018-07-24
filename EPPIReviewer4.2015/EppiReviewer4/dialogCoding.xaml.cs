@@ -182,9 +182,16 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-
-
-            
+            if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+            {
+                Arms.Visibility = Visibility.Visible;
+                Arms.IsEnabled = true;
+            }
+            else
+            {
+                Arms.Visibility = Visibility.Collapsed;
+                Arms.IsEnabled = false;
+            }
         }
 
         
@@ -296,6 +303,7 @@ namespace EppiReviewer4
             ClearCurrentTextDocument();
             PaneItemDetails.SelectedIndex = 0;
             GetItemDocumentList(DataContext as Item);
+            GetItemArmList(DataContext as Item);
             dialogItemDetailsControl.BindNew(DataContext as Item);
         }
 
@@ -372,6 +380,7 @@ namespace EppiReviewer4
                 
                 //(DataContext as Item).GetDocumentList();
                 GetItemDocumentList(DataContext as Item);
+                GetItemArmList(DataContext as Item);
                 
                 dialogItemDetailsControl.BindTree(DataContext as Item);
             }
@@ -431,7 +440,17 @@ namespace EppiReviewer4
             GridDocuments.IsEnabled = false;
             provider.Refresh();
         }
-        
+
+        private void GetItemArmList(Item item)
+        {
+            CslaDataProvider provider = this.Resources["ItemArmsData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            provider.FactoryParameters.Add(item.ItemId);
+            provider.FactoryMethod = "GetItemArmList";
+            GridArms.IsEnabled = false;
+            provider.Refresh();
+        }
+
         private void LoadAllItemSets(Int64 ItemId)
         {
             DataPortal<ItemSetList> dp = new DataPortal<ItemSetList>();
@@ -681,7 +700,6 @@ namespace EppiReviewer4
             //CodingRecordGrid.IsEnabled = false;
             dp.BeginFetch(new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>(-(DataContext as Item).ItemId));
             
-            //3 call the new system to loadItemAttributes in codestreecontrol
             //4 proceed as before
             
         }
@@ -1219,6 +1237,7 @@ Proceed?";
         private string writeCodingRecord(ItemSet itemSet)
         {
             string report = "<h2>Reviewer: " + itemSet.ContactName + "</h2>" + "<h3>Date: " + DateTime.Now.ToShortDateString() + "</h3>";
+
             int SetId = itemSet.SetId;
             //ReviewSetsList rsl = App.Current.Resources["CodeSets"] as ReviewSetsList;
 
@@ -1228,7 +1247,7 @@ Proceed?";
                 report += "<p><h1>" + reviewSet.SetName + "</h1></p><p><ul>";
                 foreach (AttributeSet attributeSet in reviewSet.Attributes)
                 {
-                    report += dialogItemReportWriter.writeCodingReportAttributes(itemSet, attributeSet, "");
+                    report += dialogItemReportWriter.writeCodingReportAttributesWithArms(itemSet, attributeSet, "");
                 }
                 report += "</ul></p>";
                 report += itemSet.OutcomeItemList.OutcomesTable();
@@ -1398,7 +1417,10 @@ Proceed?";
                 ReadOnlyItemAttribute roia = comparison1.GetItemAttribute(attributeSet.AttributeId);
                 if (roia != null)
                 {
-                    report += "<li><FONT COLOR='BLUE'>[" + comparison1.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                    report += "<li><FONT COLOR='BLUE'>[" + comparison1.ContactName + "] " +
+                        attributeSet.AttributeName +
+                        (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                        "<br /><i>" + roia.AdditionalText + "</i></font></li>";
                     oneReviewerHasSelected = true;
                     if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                     {
@@ -1410,7 +1432,10 @@ Proceed?";
                 roia = comparison2.GetItemAttribute(attributeSet.AttributeId);
                 if (roia != null)
                 {
-                    report += "<li><FONT COLOR='RED'>[" + comparison2.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                    report += "<li><FONT COLOR='RED'>[" + comparison2.ContactName + "] " +
+                        attributeSet.AttributeName + 
+                        (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                        "<br /><i>" +  roia.AdditionalText + "</i></font></li>";
                     oneReviewerHasSelected = true;
                     if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                     {
@@ -1424,7 +1449,10 @@ Proceed?";
                     roia = comparison3.GetItemAttribute(attributeSet.AttributeId);
                     if (roia != null)
                     {
-                        report += "<li><FONT COLOR='GREEN'>[" + comparison3.ContactName + "] " + attributeSet.AttributeName + "<br /><i>" + roia.AdditionalText + "</i></font></li>";
+                        report += "<li><FONT COLOR='GREEN'>[" + comparison3.ContactName + "] " +
+                            attributeSet.AttributeName + 
+                            (roia.ArmTitle == "" ? "" : " (" + roia.ArmTitle + ")") +
+                            "<br /><i>" +  roia.AdditionalText + "</i></font></li>";
                         oneReviewerHasSelected = true;
                         if (roia.ItemAttributeFullTextList != null && roia.ItemAttributeFullTextList.Count > 0)
                         {
@@ -1965,6 +1993,7 @@ Proceed?";
                                 ClearCurrentTextDocument();
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
+                                GetItemArmList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                                 CheckRunTraining(e2.Object.Rank);
@@ -2049,6 +2078,7 @@ Proceed?";
                                 ClearCurrentTextDocument();
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
+                                GetItemArmList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                             }
@@ -2357,7 +2387,10 @@ Proceed?";
                 itemData.ItemSetId = 0;
                 itemData.SetId = aset.SetId;
                 itemData.AttributeId = aset.AttributeId;
+                itemData.AttributeSetId = aset.AttributeSetId;
                 itemData.AdditionalText = "";
+                itemData.ArmId = codesTreeControl.ComboArms.Visibility ==
+                    Visibility.Visible ? Convert.ToInt64((codesTreeControl.ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
                 DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
                 ItemAttributeSaveCommand command = new ItemAttributeSaveCommand("Insert",
                     itemData.AttributeId,
@@ -2366,6 +2399,7 @@ Proceed?";
                     itemData.AttributeId,
                     itemData.SetId,
                     itemData.ItemId,
+                    itemData.ArmId,
                     rInfo);
                 dp.ExecuteCompleted += (o2, e2) =>
                 {
@@ -2380,6 +2414,16 @@ Proceed?";
                     {
                         itemData.ItemAttributeId = e2.Object.ItemAttributeId;
                         itemData.ItemSetId = e2.Object.ItemSetId;
+                        foreach (ItemSet iSet in codesTreeControl.CurrentItemData) // need to add it to the list as well as a pointer from the codestree for when people switch between arms / study
+                        {
+                            if (iSet.SetId == itemData.SetId)
+                            {
+                                // a bit painful - we need to create a readonly object and add to a read only list...
+                                ReadOnlyItemAttribute newIa = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(itemData);
+                                iSet.ItemAttributes.AddToReadOnlyItemAttributeList(newIa);
+                                break;
+                            }
+                        }
                         aset.IsSelected = true;
                         aset.ItemData = itemData;
                         cmdApplyCodeClick(sender, e);
@@ -2881,6 +2925,85 @@ Proceed?";
                 }
             };
             dp.BeginExecute(command);
+        }
+
+        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            if (provider.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+            if (provider.IsBusy == false)
+            {
+                GridArms.IsEnabled = true;
+                tbArmDescriptor.DataContext = null;
+                codesTreeControl.ResetArms(provider.Data as ItemArmList);
+            }
+        }
+
+        private void NewArm_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            if (tbNewArm.Text != null && provider != null)
+            {
+                if (tbNewArm.Text == "")
+                {
+                    RadWindow.Alert("Arm name cannot be empty");
+                    return;
+                }
+                foreach (ItemArm arm in (provider.Data as ItemArmList))
+                {
+                    if (arm.Title == tbNewArm.Text)
+                    {
+                        RadWindow.Alert("Arm names must be unique");
+                        return;
+                    }
+                }
+                ItemArmList thelist = provider.Data as ItemArmList;
+                ItemArm ia = null;
+
+                if (tbArmDescriptor.DataContext == null)
+                {
+                    ia = new ItemArm();
+                    ia.ItemId = (DataContext as Item).ItemId;
+                    ia.Ordering = thelist.Count;
+                    thelist.Add(ia);
+                }
+                else
+                {
+                    ia = tbArmDescriptor.DataContext as ItemArm;
+                }
+                ia.Title = tbNewArm.Text;
+                ia.Saved += Ia_Saved;
+                ia.BeginEdit();
+                ia.ApplyEdit();
+                tbNewArm.Text = "";
+                tbArmDescriptor.DataContext = null;
+                tbArmDescriptor.Text = "New arm";
+            }
+        }
+
+        private void Ia_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider_DataChanged_1(sender, e);
+        }
+
+        private void CancelArm_Click(object sender, RoutedEventArgs e)
+        {
+            tbArmDescriptor.Text = "New arm";
+            tbArmDescriptor.DataContext = null;
+            tbNewArm.Text = "";
+        }
+
+        private void cmdEditarm_Click(object sender, RoutedEventArgs e)
+        {
+            tbArmDescriptor.Text = "Edit arm";
+            tbArmDescriptor.DataContext = (sender as Button).DataContext;
+            tbNewArm.Text = ((sender as Button).DataContext as ItemArm).Title;
+        }
+
+        private void cmdDeletearm_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         public void UnHookMe()

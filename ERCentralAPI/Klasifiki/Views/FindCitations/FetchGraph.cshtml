@@ -1,0 +1,103 @@
+﻿@model ReferenceListResult
+
+@{
+    ViewData["Title"] = "Fetch";
+}
+<form method="post" action="~/FindCitations">
+    <input type="hidden" name="ListOfIDs" id="ListOfIDs" value="@Model.ListOfIDs" />
+    <input type="hidden" name="SearchString" id="SearchString" value="@Model.SearchString" />
+    <input type="hidden" name="SearchMethod" id="SearchMethod" value="@Model.SearchMethod" />
+    @{if (Model.HideNAinGraph)
+        {
+            @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='False' />") ;
+        }
+        else
+        {
+            @Html.Raw("<input type='hidden' name='HideNAcolumnVal' id='HideNAcolumnVal' value='True' />");
+        }
+    }
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-secondary" type="submit" formaction="Fetch" value="Back to Table View" style="margin:1px;">Back to List</button>
+        <button class="btn btn-light" ID="ShowNAcolumnBT" type="submit" formaction="ViewGraph" value="Show NA column" style="margin:1px;">
+            @if (!Model.HideNAinGraph)
+            {<span>Hide NA column</span> }
+            else
+            { <span>Show NA column</span>}
+        </button>
+    </div>
+    @Html.Partial("_SearchData.cshtml", Model)
+
+
+    @*<div class="row">
+            Your search was
+            @{
+                if (Model.SearchMethod == "PubMedSearch")
+                {<span>a PubMed search.</span>}
+                else if (Model.SearchMethod == "PubMedIDs")
+                {<span>a search via PubMedIDs.</span>}
+            }
+        </div>
+        <div class="row">
+            Your search was: <span style="border:2px dotted red">@Model.SearchString</span>.
+        </div>*@
+    <div class="row">
+
+
+    </div>
+</form>
+
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script type="text/javascript">
+
+        window.onload = function () {
+            var chart = new CanvasJS.Chart("RCTchartContainer", {
+                theme: "theme2",
+                animationEnabled: true,
+                title: {
+                    text: "RCT Scores Distribution"
+                },
+                data: [
+                    {
+                        type: "column",
+                        dataPoints: [
+                            @foreach(var lab in Model.RCTDataPoints)
+                            {
+                                @:{ y: @lab.Value , label: '@lab.Key' },
+                            }
+                            ]
+
+                    }
+                ]
+            });
+            chart.render();
+            var chart2 = new CanvasJS.Chart("HumanchartContainer", {
+                theme: "theme2",
+                animationEnabled: true,
+                title: {
+                    text: "Human Study Scores Distribution"
+                },
+                data: [
+                    {
+                        type: "column",
+                        dataPoints: [
+                            @foreach(var lab in Model.HumanDataPoints)
+                            {
+                                @:{ y: @lab.Value , label: '@lab.Key' },
+                            }
+                            ]
+
+                    }
+                ]
+            });
+            chart2.render();
+        };
+</script>
+
+<div class="border border-dark p-1 mb-3">
+    <div id="RCTchartContainer" class="" style="height:350px;"></div>
+</div>
+<div class="border border-dark p-1 mb-3">
+    <div id="HumanchartContainer" style="height:350px;"></div>
+</div>
+
+

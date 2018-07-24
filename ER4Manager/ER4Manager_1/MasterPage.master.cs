@@ -19,7 +19,7 @@ public partial class MasterPage : System.Web.UI.MasterPage
             }
             else
             {
-                if (rtsMenu.Tabs[8].Selected != true) // i.e. if there isn't an error and logout isn't selected
+                if (rtsMenu.Tabs[9].Selected != true) // i.e. if there isn't an error and logout isn't selected
                 {
                     rtsMenu.Tabs[1].Visible = true;
                 }
@@ -35,11 +35,17 @@ public partial class MasterPage : System.Web.UI.MasterPage
                 rtsMenu.Tabs[5].Visible = true;
                 rtsMenu.Tabs[6].Visible = true;
                 rtsMenu.Tabs[7].Visible = true;
+                rtsMenu.Tabs[8].Visible = true;
             }
 
             if (Utils.GetSessionString("IsSiteLicenseAdm") == "1")
             {
                 rtsMenu.Tabs[6].Visible = true;
+            }
+
+            if (Utils.GetSessionString("IsOrganisationAdm") == "1")
+            {
+                rtsMenu.Tabs[7].Visible = true;
             }
 
             //string test = (Utils.GetSessionString("EnableDataPresenter").ToString());

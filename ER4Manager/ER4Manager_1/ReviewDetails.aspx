@@ -231,7 +231,7 @@ function openReviewerList(ID) {
                         <br />
                         <asp:CheckBox ID="cbIsCheckedOutHere" runat="server" 
                             oncheckedchanged="cbIsCheckedOutHere_CheckedChanged" Text="Is checked out here" 
-                            ToolTip="(auto save)" />
+                            ToolTip="(auto save)" AutoPostBack="True" />
                         <br />
                         <asp:TextBox ID="tbCheckedOutBy" runat="server"></asp:TextBox>
 &nbsp;&nbsp;&nbsp; <asp:LinkButton ID="lbSave1" runat="server" onclick="lbSave1_Click" 

@@ -1057,6 +1057,27 @@ namespace BusinessLibrary.BusinessClasses
                     else SetProperty(ItemStatusTooltipProperty, "Excluded from review");
             }
         }
+        
+        private static PropertyInfo<ItemArmList> ArmsProperty = RegisterProperty<ItemArmList>(new PropertyInfo<ItemArmList>("Arms", "Arms"));
+        public ItemArmList Arms
+        {
+            get
+            {
+                ItemArmList result = GetProperty(ArmsProperty);
+                if (result != null)
+                {
+                    return result;
+                }
+                result = ItemArmList.NewItemArmList();
+                this.LoadProperty(ArmsProperty, result);
+                return GetProperty(ArmsProperty);
+
+            }
+            set
+            {
+                SetProperty(ArmsProperty, value);
+            }
+        }
 
 
 

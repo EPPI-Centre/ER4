@@ -50,6 +50,19 @@ public partial class Purchase : System.Web.UI.Page
                 buildPurchasedReviewsGrid();
                 calculateTotalFees();
                 */
+
+                bool isAdmDB = true;
+                IDataReader idr = Utils.GetReader(isAdmDB, "st_ManagementSettings");
+                if (idr.Read()) // it exists
+                {
+                    if (idr["ENABLE_UCL_SHOP"].ToString() == "True")
+                    {
+                        pnlContinueToWPMUCL.Visible = true;
+                        pnlContinueToWPM.Visible = false;
+                    }
+                }
+                idr.Close();
+
             }
             
             if (Utils.GetSessionString("PurchasesEnabled") == "True")
@@ -61,6 +74,12 @@ public partial class Purchase : System.Web.UI.Page
             {
                 cmdPurchase.Enabled = true;
             }
+            /*
+            if (Utils.GetSessionString("IsAdm") == "True")
+            {
+                pnlWPMUCL.Visible = true;
+            }
+            */
         }
         else
         {

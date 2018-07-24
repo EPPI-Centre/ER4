@@ -61,6 +61,7 @@ namespace EppiReviewer4
         private int ToDoSetID = -1;
         private AttributeSet ToDoAtt = null;
         AttributeSetToPasteList toPlist;
+        public List<ItemSet> CurrentItemData = null;
 
         private RadWClassifier windowClassifier = new RadWClassifier();
 
@@ -218,7 +219,7 @@ namespace EppiReviewer4
                 TreeView.ItemTemplateSelector = this.Resources["myReadOnlyTemplateSelector"] as ReadOnlyTemplateSelector;
             }
             CodingGrid.Children.Add(TreeView);
-            Grid.SetRow(TreeView, 2);
+            Grid.SetRow(TreeView, 3);
             TreeView.ItemsSource = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
 
             CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
@@ -772,6 +773,7 @@ namespace EppiReviewer4
                                         itemData.AttributeId,
                                         itemData.SetId,
                                         itemData.ItemId,
+                                        itemData.ArmId,
                                         rInfo);
                                     dp.ExecuteCompleted += (o, e2) =>
                                     {
@@ -1383,14 +1385,17 @@ namespace EppiReviewer4
         }
         public void LoadItemAttributes(List<ItemSet> data)
         {
-            ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
-            reviewSets.LoadingAttributes = true;
-            reviewSets.SetItemData(data);
-            reviewSets.LoadingAttributes = false;
-            BusyLoading.IsRunning = false;
-            //BusyLoadingAllAttributes.IsRunning = false;
-            //DoLiveComparisons();
-            TreeView.IsEnabled = true;
+            doLoadItemAttributes(data);
+            
+            // JT commenting out this lot and just using doLoadItemAttributes below, as it's the same code??
+            //ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
+            //reviewSets.LoadingAttributes = true;
+            //reviewSets.SetItemData(data);
+            //reviewSets.LoadingAttributes = false;
+            //BusyLoading.IsRunning = false;
+            ////BusyLoadingAllAttributes.IsRunning = false;
+            ////DoLiveComparisons();
+            //TreeView.IsEnabled = true;
         }
         private void LoadItemAttributes(Int64 ItemId)
         {
@@ -1399,21 +1404,41 @@ namespace EppiReviewer4
             {
                 if (e2.Object != null)
                 {
-                    ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
-                    reviewSets.LoadingAttributes = true;
                     ItemSetList isl = e2.Object as ItemSetList;
-                    reviewSets.SetItemData(isl.SetsVisibleToUser);
-                    reviewSets.LoadingAttributes = false;
-                    BusyLoading.IsRunning = false;
-                    //BusyLoadingAllAttributes.IsRunning = false;
-                    //DoLiveComparisons();
-                    TreeView.IsEnabled = true;
+                    doLoadItemAttributes(isl.SetsVisibleToUser);
+
+                    // JT commenting out this lot and just using doLoadItemAttributes below, as it's the same code??
+                    //ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
+                    //reviewSets.LoadingAttributes = true;
+                    //ItemSetList isl = e2.Object as ItemSetList;
+                    //reviewSets.SetItemData(isl.SetsVisibleToUser);
+                    //reviewSets.LoadingAttributes = false;
+                    //BusyLoading.IsRunning = false;
+                    ////BusyLoadingAllAttributes.IsRunning = false;
+                    ////DoLiveComparisons();
+                    //TreeView.IsEnabled = true;
                 }
             };
             BusyLoading.IsRunning = true;
             //BusyLoadingAllAttributes.IsRunning = true;
             TreeView.IsEnabled = false;
             dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(ItemId));
+        }
+
+        private void doLoadItemAttributes(List<ItemSet> data)
+        {
+            CurrentItemData = data; // JT added storing this 10/06/2018 in order to support arms
+            ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
+            Int64 CurrentArm = 0;
+            if (ComboArms.Items.Count > 0)
+            {
+                CurrentArm = Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag);
+            }
+            reviewSets.LoadingAttributes = true;
+            reviewSets.SetItemData(data, CurrentArm);
+            reviewSets.LoadingAttributes = false;
+            BusyLoading.IsRunning = false;
+            TreeView.IsEnabled = true;
         }
 
         private AttributeSet currentAttributeSet;
@@ -1453,6 +1478,7 @@ namespace EppiReviewer4
                     currentAttributeSet.ItemData.AttributeId,
                     currentAttributeSet.ItemData.SetId,
                     currentAttributeSet.ItemData.ItemId,
+                    currentAttributeSet.ItemData.ArmId, // JT added 10/06/2018
                     rInfo);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
@@ -1469,7 +1495,7 @@ namespace EppiReviewer4
                 BusyLoading.IsRunning = true;
                 dp.BeginExecute(command);
             }
-            else
+            else // the checkbox wasn't previously selected, so we need to select and save it
             {
                 ItemAttributeData itemData = new ItemAttributeData();
                 itemData.ItemAttributeId = 0;
@@ -1478,6 +1504,8 @@ namespace EppiReviewer4
                 itemData.SetId = currentAttributeSet.SetId;
                 itemData.AttributeId = currentAttributeSet.AttributeId;
                 itemData.AdditionalText = windowAdditionalText.TextBoxAdditionalText.Text;
+                itemData.AttributeSetId = currentAttributeSet.AttributeSetId;
+                itemData.ArmId = ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
 
                 DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
                 ItemAttributeSaveCommand command = new ItemAttributeSaveCommand("Insert",
@@ -1487,21 +1515,42 @@ namespace EppiReviewer4
                     itemData.AttributeId,
                     itemData.SetId,
                     itemData.ItemId,
+                    itemData.ArmId,
                     rInfo);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     BusyLoading.IsRunning = false;
                     if (e2.Error != null)
                     {
-                        MessageBox.Show(e2.Error.Message);
+                        //MessageBox.Show(e2.Error.Message);
+                        RadWindow.Alert("Warning: there was a problem saving your data." + Environment.NewLine + "Please close this window and try again.");
                     }
                     else
                     {
+                        // JT added this check in 19/07/2018, as otherwise the UI doesn't keep up with changing arms
+                        if (itemData.ItemSetId == 0)
+                        {
+                            LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
+                            if (itemData.ItemId == (DataContext as Item).ItemId)
+                            {//if this isn't true, it's because the UI has already moved to another item
+                                LoadItemAttributeSet(itemData.SetId, itemData.ItemId);
+                            }
+                        }
                         ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
                         itemData.ItemAttributeId = e2.Object.ItemAttributeId;
                         itemData.ItemSetId = e2.Object.ItemSetId;
                         reviewSets.LoadingAttributes = true; // setting this so that the autosave insert doesn't kick in
                         currentAttributeSet.IsSelected = true;
+                        foreach (ItemSet iSet in CurrentItemData) // need to add it to the list as well as a pointer from the codestree for when people switch between arms / study
+                        {
+                            if (iSet.SetId == itemData.SetId)
+                            {
+                                // a bit painful - we need to create a readonly object and add to a read only list...
+                                ReadOnlyItemAttribute newIa = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(itemData);
+                                iSet.ItemAttributes.AddToReadOnlyItemAttributeList(newIa);
+                                break;
+                            }
+                        }
                         currentAttributeSet.ItemData = itemData;
                         reviewSets.LoadingAttributes = false;
                     }
@@ -1535,6 +1584,8 @@ namespace EppiReviewer4
                 itemData.SetId = iad.SetId;
                 itemData.AttributeId = iad.AttributeId;
                 itemData.AdditionalText = "";
+                itemData.AttributeSetId = iad.AttributeSetId;
+                itemData.ArmId = ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
                 itemData.IsCompleted = false;
                 itemData.IsLocked = true;
             }
@@ -3297,7 +3348,10 @@ namespace EppiReviewer4
                     
                     itemData.SetId = iad.SetId;
                     itemData.AttributeId = iad.AttributeId;
+                    itemData.AttributeSetId = iad.AttributeSetId;
                     itemData.AdditionalText = "";
+                    itemData.ArmId = ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0;
+                    
                     iad.ItemData = itemData;
                     
                     DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
@@ -3308,6 +3362,7 @@ namespace EppiReviewer4
                         itemData.AttributeId,
                         itemData.SetId,
                         itemData.ItemId,
+                        itemData.ArmId,
                         rInfo);
                     dp.ExecuteCompleted += (o, e2) =>
                     {
@@ -3330,7 +3385,7 @@ namespace EppiReviewer4
                             else if (itemData.ItemSetId == 0)
                             {//item didn't belong to this set, reload all sets, as this will make sure the current set gets the latest item_set_id
                                  //will become: get the new reviewSet and load just that
-                                 //LoadItemAttributes(itemData.ItemId);
+                                 LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
                                 if (itemData.ItemId == (DataContext as Item).ItemId)
                                 {//if this isn't true, it's because the UI has already moved to another item
                                     LoadItemAttributeSet(iad.ItemData.SetId, iad.ItemData.ItemId);
@@ -3338,10 +3393,19 @@ namespace EppiReviewer4
                             }
                             else
                             {// just fill the data for this attribute
-
                                 itemData.ItemAttributeId = e2.Object.ItemAttributeId;
                                 itemData.ItemSetId = e2.Object.ItemSetId;
                                 iad.IsSelected = true;
+                                foreach (ItemSet iSet in CurrentItemData) // need to add it to the list as well as a pointer from the codestree for when people switch between arms / study
+                                {
+                                    if (iSet.SetId == itemData.SetId)
+                                    {
+                                        // a bit painful - we need to create a readonly object and add to a read only list...
+                                        ReadOnlyItemAttribute newIa = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(itemData);
+                                        iSet.ItemAttributes.AddToReadOnlyItemAttributeList(newIa);
+                                        break;
+                                    }
+                                }
                                 iad.ItemData = itemData;
                             }
                         }
@@ -3364,6 +3428,7 @@ namespace EppiReviewer4
                                 iad.ItemData.AttributeId,
                                 iad.ItemData.SetId,
                                 iad.ItemData.ItemId,
+                                iad.ItemData.ArmId,
                                 rInfo);
                             dp.ExecuteCompleted += (o, e2) =>
                             {
@@ -3384,6 +3449,21 @@ namespace EppiReviewer4
                                     //LoadItemAttributes(iad.ItemData.ItemId);
                                     iad.ItemData = null;
                                     iad.IsSelected = false;
+                                    // need to remove it from the list or it will reappear if we change arms and back again
+                                    foreach (ItemSet iSet in CurrentItemData) 
+                                    {
+                                        if (iSet.SetId == iad.SetId)
+                                        {
+                                            foreach (ReadOnlyItemAttribute roia in iSet.ItemAttributes)
+                                            {
+                                                if (roia.AttributeId == e2.Object.AttributeId)
+                                                {
+                                                    iSet.ItemAttributes.RemoveFromReadOnlyItemAttributeList(roia);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
                                     this.SelectedItemChanged.Invoke(sender, e);//this is needed to notify the pdf viewer: coding in PDF may have been deleted.
                                 }
                             };
@@ -3408,7 +3488,7 @@ namespace EppiReviewer4
                     ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
                     //ReviewSet rs = reviewSets.GetReviewSet(SetID);
                     reviewSets.LoadingAttributes = true;
-                    reviewSets.SetItemSetData(e2.Object);
+                    reviewSets.SetItemSetData(e2.Object, ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0);
                     reviewSets.LoadingAttributes = false;
                     BusyLoading.IsRunning = false;
                     //BusyLoadingAllAttributes.IsRunning = false;
@@ -4029,7 +4109,57 @@ namespace EppiReviewer4
             if (provider == null) return;
             provider.Refresh();
         }
+
+        public void ResetArms(ItemArmList arms)
+        {
+            resettingArms = true;
+            if (arms != null && arms.Count > 0)
+            {
+                ComboArms.Items.Clear();
+                ComboBoxItem sa = new ComboBoxItem();
+                sa.Content = "Whole study";
+                sa.Tag = 0;
+                ComboArms.Items.Add(sa);
+                foreach (ItemArm arm in arms)
+                {
+                    ComboBoxItem newarm = new ComboBoxItem();
+                    newarm.Content = arm.Title;
+                    newarm.Tag = arm.ItemArmId;
+                    ComboArms.Items.Add(newarm);
+                }
+                ComboArms.SelectedIndex = 0;
+                ComboArms.Visibility = Visibility.Visible;
+                ArmsToolBar.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ComboArms.Items.Clear();
+                ComboArms.Visibility = Visibility.Collapsed;
+                ArmsToolBar.Visibility = Visibility.Collapsed;
+            }
+            if (CurrentItemData != null)
+            {
+                doLoadItemAttributes(CurrentItemData); // in case this is triggered before the codestree data are loaded
+            }
+            resettingArms = false;
+        }
+
+        private bool resettingArms = false;
+
+        private void ComboArms_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (CurrentItemData != null && resettingArms == false)
+            {
+                doLoadItemAttributes(CurrentItemData);
+                this.SelectedItemChanged.Invoke(sender, e);
+            }
+        }
     } // END MAIN CodesTreeControl CLASS
+
+
+
+
+
     public class AttributeSetToPaste : IComparable
     {
         public int SetID;

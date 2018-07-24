@@ -35,7 +35,7 @@ public partial class Summary : System.Web.UI.Page
                 {
                     radTs.SelectedIndex = 0;
                     radTs.Tabs[0].Tabs[0].Selected = true;
-                    radTs.Tabs[0].Tabs[1].Width = 660;
+                    radTs.Tabs[0].Tabs[1].Width = 700;
                 }
                 System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                 if (lbl1 != null)
@@ -44,6 +44,7 @@ public partial class Summary : System.Web.UI.Page
                 }
 
                 buildContactGrid();
+                buildOrganisationGrid();
                 buildContactPurchasesGrid();
                 buildShareableReviewGrid();
                 buildNonShareableReviewGrid();
@@ -179,6 +180,29 @@ public partial class Summary : System.Web.UI.Page
         }
     }
 
+    private void buildOrganisationGrid()
+    {
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("ORGANISATION_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("ORGANISATION_NAME", typeof(string)));
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_Organisation_Get_By_ContactID",
+                Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["ORGANISATION_ID"] = idr1["ORGANISATION_ID"].ToString();
+            newrow2["ORGANISATION_NAME"] = idr1["ORGANISATION_NAME"].ToString();
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        gvOrganisations.DataSource = dt2;
+        gvOrganisations.DataBind();
+
+        if (dt2.Rows.Count != 0)
+            pnlOrganisations.Visible = true;
+    }
 
     private void buildContactPurchasesGrid()
     {
@@ -2648,4 +2672,37 @@ public partial class Summary : System.Web.UI.Page
     }
 
 
+
+    protected void gvOrganisations_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        int index = Convert.ToInt32(e.CommandArgument);
+        string organisationID = (string)gvOrganisations.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                bool isAdmDB = true;
+                Utils.ExecuteSP(isAdmDB, Server, "st_OrganisationRemoveMember",
+                    organisationID, Utils.GetSessionString("Contact_ID"));
+
+                buildOrganisationGrid();
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    protected void gvOrganisations_RowEditing(object sender, GridViewEditEventArgs e)
+    {
+
+    }
+
+    protected void gvOrganisations_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
+        }
+    }
 }
