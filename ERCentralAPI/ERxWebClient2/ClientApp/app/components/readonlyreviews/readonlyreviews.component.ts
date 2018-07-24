@@ -23,19 +23,20 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
     constructor(private router: Router,http: Http, @Inject('BASE_URL') baseUrl: string, private ReviewerIdentity: ReviewerIdentityService) {//,@Inject(ReviewerIdentityService) private ReviewerIdentity: ReviewerIdentityService) {
         this._http = http;
         this._baseUrl = baseUrl;
-        console.log('rOr constructor: ' + this.ReviewerIdentity.ContactId);
+        console.log('rOr constructor: ' + this.ReviewerIdentity.userId);
+        this.ReviewerIdentity.Report();
         this.getReviews();
         
     }
     onSubmit(f: string) {
-        this.ReviewerIdentity.ReviewId = +f;
+        this.ReviewerIdentity.reviewId = +f;
         this.router.navigate(['fetch-reviewsets'])
     }
 
     getReviews() {
         //console.log('rOr getReviews: ' + this.ReviewerIdentity.ContactId);
         //this.ReviewerIdentity.Report();
-        let body = "contactId="+ this.ReviewerIdentity.ContactId;
+        let body = "contactId="+ this.ReviewerIdentity.userId;
         //let body = JSON.stringify({ 'contactId': 1 });
         let requestoptions = new RequestOptions({
             method: RequestMethod.Post,

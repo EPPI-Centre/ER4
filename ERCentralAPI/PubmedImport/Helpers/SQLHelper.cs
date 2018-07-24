@@ -1,5 +1,6 @@
 #if CSLA_NETCORE
 using Csla.Data;
+using ERxWebClient2;
 #endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -205,4 +206,26 @@ namespace EPPIDataServices.Helpers
 
     }
 }
+#if(CSLA_NETCORE)
+namespace BusinessLibrary.Data
+{
+    public static class DataConnection
+    {
+        public static string ConnectionString
+        {
+            get
+            {
+                return Program.SqlHelper.ER4DB;
+            }
+        }
 
+        public static string AdmConnectionString
+        {
+            get
+            {
+                return Program.SqlHelper.ER4AdminDB;
+            }
+        }
+    }
+}
+#endif
