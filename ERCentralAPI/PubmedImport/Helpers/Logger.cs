@@ -29,75 +29,7 @@ namespace EPPIDataServices.Helpers
 
             loggerConfig = config;
         }
-
-        // If requried the next step would be to convert each of these into extension
-        // methods -- not required until decision on detail is made.
-        public void LogFTPexceptionSafely(Exception e, List<string> messages, string doingWhat)
-        {
-            if (e == null || e.Message == null || e.Message == "")
-            {
-                messages.Add("Unknown error " + doingWhat);
-            }
-            else
-            {
-                messages.Add("Error " + doingWhat + " At time: " + DateTime.Now.ToString("HH:mm:ss"));
-                this.LogInformation("Error " + doingWhat);
-                messages.Add(e.Message);
-                this.LogInformation(e.Message);
-                this.LogInformation(e.StackTrace);
-                messages.Add(e.StackTrace);
-            }
-        }
-        public void LogSQLException(Exception e, string Description, params SqlParameter[] parameters)
-        {
-            LogException(e, Description);
-            LogMessageLine("SQL parameters:");
-            foreach (SqlParameter par in parameters)
-            {
-                LogMessageLine("Param NAME: " + par.ParameterName + "; Param Value: " + par.Value.ToString());
-            }
-        }
-        public void LogException(Exception e, string Description)
-        {
-            LogMessageLine(Description);
-            if (e.Message != null && e.Message != "")
-                LogMessageLine("MSG: " + e.Message);
-            if (e.StackTrace != null && e.StackTrace != "")
-                LogMessageLine("STACK TRC:" + e.StackTrace);
-            if (e.InnerException != null)
-            {
-                LogMessageLine("Inner Exception(s): ");
-                Exception ie = e.InnerException;
-                int i = 0;
-                while (ie != null && i < 10)
-                {
-                    i++;
-                    if (ie.Message != null && ie.Message != "")
-                        LogMessageLine("MSG(" + i.ToString() + "): " + ie.Message);
-                    if (ie.StackTrace != null && ie.StackTrace != "")
-                        LogMessageLine("STACK TRC(" + i.ToString() + "):" + ie.StackTrace);
-                    ie = ie.InnerException;
-                }
-            }
-        }
-        public void LogMessageLine(string line)
-        {//will also log multiple lines, TBH - this method ensures line ends with NewLine
-            if (!line.EndsWith(Environment.NewLine)) line += Environment.NewLine;
-            LogMessageString(line);
-        }
-        public void LogMessageString(string MessageToLog)
-        {//can be used when we want to progressively append without adding a newline after each addition
-            if (MessageToLog == null || MessageToLog == "") return;
-            if (SaveLog)
-            {
-                if (LogFileFullPath == "")
-                {
-                    LogFileFullPath = CreateLogFileName();
-                }
-                File.AppendAllText(LogFileFullPath, MessageToLog);
-            }
-            Console.Write(MessageToLog);
-        }
+                
         private static string CreateLogFileName()
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
@@ -191,6 +123,29 @@ namespace EPPIDataServices.Helpers
         public static string SQLParams;
         public static string strFTP;
 
+        public static void LogException(this ILogger logger, Exception ex)
+        {
+            if (ex.Message != null && ex.Message != "")
+                logger.LogError("MSG: " + ex.Message);
+            if (ex.StackTrace != null && ex.StackTrace != "")
+                logger.LogError("STACK TRC:" + ex.StackTrace);
+            if (ex.InnerException != null)
+            {
+                logger.LogError("Inner Exception(s): ");
+                Exception ie = ex.InnerException;
+                int i = 0;
+                while (ie != null && i < 10)
+                {
+                    i++;
+                    if (ie.Message != null && ie.Message != "")
+                        logger.LogError("MSG(" + i.ToString() + "): " + ie.Message);
+                    if (ie.StackTrace != null && ie.StackTrace != "")
+                        logger.LogError("STACK TRC(" + i.ToString() + "):" + ie.StackTrace);
+                    ie = ie.InnerException;
+                }
+            }
+        }
+
         static LoggerExtensions()
         {
             _SQLActionFailed = LoggerMessage.Define<string, string>(
@@ -206,12 +161,16 @@ namespace EPPIDataServices.Helpers
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
         {
+            LogException(logger, ex);
             SQLParams = "";
             if (parameters != null)
             {
                 foreach (var item in parameters)
                 {
-                    SQLParams += item.ParameterName + ",";
+                    if (item != null)
+                    {
+                        SQLParams += item.ParameterName + "," + " SQLValue: " + item.Value.ToString();
+                    }
                 }
             }
             _SQLActionFailed(logger, message, SQLParams, ex);
