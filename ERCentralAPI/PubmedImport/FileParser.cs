@@ -443,9 +443,9 @@ namespace PubmedImport
             DeleteParsedFile(filepath);
 
             string duration = EPPILogger.Duration(start);
-            _logger.Log(LogLevel.Information, "Imported " + Citations.Count.ToString() + " records in " + duration);
+            _logger.Log(LogLevel.Information, "Imported " + Citations.Count.ToString() + " (new) records in " + duration);
 
-            result.Messages.Add("Imported " + Citations.Count.ToString() + " records in " + duration);
+            result.Messages.Add("Imported " + Citations.Count.ToString() + " (new) records in " + duration);
             result.EndTime = DateTime.Now;
             if (Citations != null && result.CitationsCommitted > 0 && result.ErrorCount == 0)
             {

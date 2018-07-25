@@ -232,7 +232,7 @@ namespace EPPIDataServices.Helpers
             strFTP = "";
             foreach (var item in messages)
             {
-                strFTP += item + ",";
+                strFTP += item + Environment.NewLine;
             }
             _FTPActionFailed(logger, strFTP, doingWhat, ex);
         }
