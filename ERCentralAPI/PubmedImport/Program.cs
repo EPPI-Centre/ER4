@@ -329,7 +329,7 @@ namespace PubmedImport
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(configure => configure.AddConsole()
-            )
+                    ).AddLogging(configure => configure.AddSerilog())
                 .AddTransient<FileParser>()
                 .AddTransient<RCTTaggerImport>();
 

@@ -233,7 +233,7 @@ namespace PubmedImport
             Citations = new List<ReferenceRecord>();
             foreach (XElement xCit in values)
             {
-                _logger.Log(LogLevel.Information, "Processing record: " + (Citations.Count + 1).ToString() + ".");
+                //_logger.Log(LogLevel.Information, "Processing record: " + (Citations.Count + 1).ToString() + ".");
                 //Program.Logger.LogMessageLine("Processing record: " + (Citations.Count + 1).ToString() + ".");
                 try
                 {
