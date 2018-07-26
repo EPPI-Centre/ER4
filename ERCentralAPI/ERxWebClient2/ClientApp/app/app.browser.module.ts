@@ -4,7 +4,7 @@ import { AppModuleShared } from './app.shared.module';
 import { AppComponent } from './components/app/app.component';
 import { ReviewerIdentityService } from './components/app/revieweridentity.service';
 import { HomeComponent } from './components/home/home.component';
-import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
+//import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 
 @NgModule({
     bootstrap: [AppComponent
@@ -16,7 +16,7 @@ import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/read
         AppModuleShared
     ],
     providers: [
-        ReviewerIdentityService ,
+        //ReviewerIdentityService ,
         { provide: 'BASE_URL', useFactory: getBaseUrl }
     ]
 })

@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, } from 'rxjs';
 import { ReviewerIdentityService } from '../app/revieweridentity.service';
-import 'rxjs/add/operator/toPromise';
+//import 'rxjs/add/operator/toPromise';
 
 
 
