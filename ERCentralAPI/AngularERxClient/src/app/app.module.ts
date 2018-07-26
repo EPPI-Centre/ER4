@@ -21,7 +21,8 @@ import { ReviewerIdentityService } from './Services/revieweridentity.service';
     , RouterModule.forRoot([])
   ],
   providers: [
-    { provide: 'BASE_URL', useFactory: getBaseUrl }],
+    { provide: 'BASE_URL', useFactory: getBaseUrl }
+    , { provide: 'API_BASE_URL', useFactory: getAPIBaseUrl }],
 
   bootstrap: [AppComponent]
 })
@@ -33,4 +34,13 @@ export class AppModule {
 
 export function getBaseUrl() {
   return document.getElementsByTagName('base')[0].href;
+}
+export function getAPIBaseUrl() {
+  let tmp: string = document.getElementsByTagName('base')[0].href;
+  let i: number = tmp.lastIndexOf(':');
+  if (i != -1) {
+    tmp = tmp.substr(0, i);
+    return tmp + '/ERxWebClient2/';
+  }
+  return tmp;
 }

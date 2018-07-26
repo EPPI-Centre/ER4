@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 //import { Response, Headers, RequestOptions, RequestMethod } from '@angular/http';
-import { HttpClient, HttpParams } from '@angular/common/http'; 
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http'; 
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../Services/revieweridentity.service';
@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   private headers: Headers = new Headers({ "Content-Type": 'application/x-www-form-urlencoded' });
   constructor(private router: Router, http: HttpClient
     , private ReviewerIdentity: ReviewerIdentityService
-    , @Inject('BASE_URL') baseUrl: string) {
+    , @Inject('API_BASE_URL') baseUrl: string) {
     this._http = http;
     this._baseUrl = baseUrl;
   }//, @Inject(ReviewerIdentityService) private ReviewerIdentity: ReviewerIdentityService) { }
@@ -37,12 +37,22 @@ export class LoginComponent implements OnInit {
 
     let httpParams = new HttpParams()
       .append("Username", u)
-      .append("Password", "p");
+      .append("Password", p);
+    let data = { 'Username': u, 'Password': p };
 
-    let options = { params: httpParams };
-    
+    //let options = {
+    //  headers: new HttpHeaders({
+    //    'Content-Type': 'application/x-www-form-urlencoded',
+    //  }),  params: httpParams };
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        //'Authorization': 'my-auth-token'
+      })
+    };
+    let user: LoginFromData = new LoginFromData(u, p);
 
-    this._http.post<ReviewerIdentityService>(this._baseUrl + 'api/Login/Login', options).subscribe(result => {
+    this._http.post<ReviewerIdentityService>(this._baseUrl + 'api/Login/Login', user, httpOptions).subscribe(result => {
       
       if (result.userId > 0) {
         this.ReviewerIdentity.userId = result.userId;
@@ -61,4 +71,12 @@ export class LoginComponent implements OnInit {
     }, error => console.error(error));
   }
 
+}
+export class LoginFromData {
+  public Username: string;
+  public Password: string;
+  constructor(u: string, p: string) {
+    this.Username = u;
+    this.Password = p
+  }
 }
