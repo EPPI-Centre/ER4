@@ -48,6 +48,7 @@ export class HomeComponent {
                 this.ReviewerIdentity.loginMode = tmpReviewerIdentity.loginMode;
                 this.ReviewerIdentity.isAuthenticated = tmpReviewerIdentity.isAuthenticated;
                 this.ReviewerIdentity.roles = tmpReviewerIdentity.roles;
+                this.ReviewerIdentity.token = tmpReviewerIdentity.token;
             }
             console.log('home login: ' + this.ReviewerIdentity.userId);
             if (this.ReviewerIdentity.userId > 0) this.router.navigate(['readonlyreviews']);

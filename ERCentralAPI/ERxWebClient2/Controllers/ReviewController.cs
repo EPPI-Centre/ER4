@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using Csla.Data;
 using ERxWebClient2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
 namespace ERxWebClient2.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     public class ReviewController : Controller
     {

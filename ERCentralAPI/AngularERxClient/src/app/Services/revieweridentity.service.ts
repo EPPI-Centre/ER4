@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ReviewerIdentityService {
     public reviewId: number = 0;
     public ticket: string = "";

@@ -93,6 +93,18 @@ namespace BusinessLibrary.Security
                 return GetProperty<string>(TicketProperty);
             }
         }
+        public static readonly PropertyInfo<string> TokenProperty = RegisterProperty<string>(typeof(ReviewerIdentityWebClient), new PropertyInfo<string>("Token", "Token", 0));
+        public string Token
+        {
+            get
+            {
+                return GetProperty<string>(TokenProperty);
+            }
+            set
+            {
+                LoadProperty(TokenProperty, value);
+            }
+        }
         public static readonly PropertyInfo<DateTime> AccountExpirationProperty = RegisterProperty<DateTime>(typeof(ReviewerIdentityWebClient), new PropertyInfo<DateTime>("AccountExpiration", "AccountExpiration"));
         public DateTime AccountExpiration
         {
