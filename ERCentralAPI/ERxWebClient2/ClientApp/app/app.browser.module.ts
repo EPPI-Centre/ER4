@@ -4,6 +4,8 @@ import { AppModuleShared } from './app.shared.module';
 import { AppComponent } from './components/app/app.component';
 import { ReviewerIdentityService } from './components/app/revieweridentity.service';
 import { HomeComponent } from './components/home/home.component';
+import { HttpClientModule } from '@angular/common/http';
+
 //import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 
 @NgModule({
@@ -13,6 +15,7 @@ import { HomeComponent } from './components/home/home.component';
     ],
     imports: [
         BrowserModule,
+        HttpClientModule,
         AppModuleShared
     ],
     providers: [

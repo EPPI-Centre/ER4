@@ -20,23 +20,20 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
     private _http: Http;
     private _baseUrl: string;
     private headers: Headers = new Headers({ "Content-Type": 'application/x-www-form-urlencoded'  });
-    constructor(private router: Router,http: Http, @Inject('BASE_URL') baseUrl: string, private ReviewerIdentity: ReviewerIdentityService) {//,@Inject(ReviewerIdentityService) private ReviewerIdentity: ReviewerIdentityService) {
+    constructor(private router: Router,http: Http, @Inject('BASE_URL') baseUrl: string, private ReviewerIdentityServ: ReviewerIdentityService) {//,@Inject(ReviewerIdentityService) private ReviewerIdentity: ReviewerIdentityService) {
         this._http = http;
         this._baseUrl = baseUrl;
-        console.log('rOr constructor: ' + this.ReviewerIdentity.userId);
-        this.ReviewerIdentity.Report();
-        this.getReviews();
-        
+        console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
     onSubmit(f: string) {
-        this.ReviewerIdentity.reviewId = +f;
+        this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
         this.router.navigate(['fetch-reviewsets'])
     }
 
     getReviews() {
         //console.log('rOr getReviews: ' + this.ReviewerIdentity.ContactId);
         //this.ReviewerIdentity.Report();
-        let body = "contactId="+ this.ReviewerIdentity.userId;
+        let body = "contactId=" + this.ReviewerIdentityServ.reviewerIdentity.userId;
         //let body = JSON.stringify({ 'contactId': 1 });
         let requestoptions = new RequestOptions({
             method: RequestMethod.Post,
@@ -59,18 +56,9 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         //}, error => console.error(error));
     }
     ngOnInit() {
-        //console.log('rOr init: ' + this.ReviewerIdentity.ContactId);
-        //this.ReviewerIdentity.Report();
-        //if (this.ReviewerIdentity.ContactId != 0 && !this.ReviewList) {
-        //    //this.getReviews();
-        //} else {
-        //    this.ReviewerIdentity.ContactId = 1214;
-        //    //this.getReviews();
-        //}
-        //alert(something);
-        //this._http.post(this._baseUrl + 'api/review/reviewsbycontact', something.).subscribe(result => {
-        //        this.ReviewList = result.json() as ReadOnlyReview[];
-        //}, error => console.error(error));
+        console.log('rOr init: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
+        this.ReviewerIdentityServ.Report();
+        this.getReviews();//we don't want this sort of thing in the constructor, API calls should be done after...
     }
 }
 
