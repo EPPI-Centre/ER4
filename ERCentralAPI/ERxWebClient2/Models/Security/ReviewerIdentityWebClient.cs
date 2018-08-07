@@ -153,6 +153,12 @@ namespace BusinessLibrary.Security
         {
             return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(username, password, reviewId, LoginMode));
         }
+#if (CSLA_NETCORE)
+        public static ReviewerIdentityWebClient GetIdentity(int contactId, int reviewId)
+        {
+            return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(contactId, reviewId, "CSLA"));
+        }
+#endif
         DateTime ContactExp = new DateTime(1, 1, 1);
         DateTime ReviewExp = new DateTime(1, 1, 1);
         private void DataPortal_Fetch(CredentialsCriteria criteria)
@@ -236,84 +242,111 @@ namespace BusinessLibrary.Security
                                 {
                                     bool isValidCochraneUser = false;
                                     if (IsInRole("CochraneUser"))
-                                    //{//different logic applies to decide if user has readonly role. 
-                                    //    isValidCochraneUser = CheckCochraneUser(connection, criteria, null);
-                                    //}
-                                    if (!isValidCochraneUser)
-                                    {//this could happen if:
-                                        //a. user is not Cochrane (no Archie IDs in ER4)
-                                        //b. user has an Archie Id but tokens couldn't be refreshed
-                                        //c. user was in Archie but isn't anymore.
+                                        //{//different logic applies to decide if user has readonly role. 
+                                        //    isValidCochraneUser = CheckCochraneUser(connection, criteria, null);
+                                        //}
+                                        if (!isValidCochraneUser)
+                                        {//this could happen if:
+                                         //a. user is not Cochrane (no Archie IDs in ER4)
+                                         //b. user has an Archie Id but tokens couldn't be refreshed
+                                         //c. user was in Archie but isn't anymore.
+                                            LoginToReview(connection, criteria);
 
-                                        using (SqlCommand command2 = new SqlCommand("st_ContactLoginReview", connection))
-                                        {
-                                            DateTime check;
-                                            command2.CommandType = System.Data.CommandType.StoredProcedure;
-                                            command2.Parameters.Add(new SqlParameter("@userId", UserId));
-                                            command2.Parameters.Add(new SqlParameter("@reviewId", criteria.ReviewId));
-                                            command2.Parameters.Add(new SqlParameter("@IsArchieUser", false));
-                                            command2.Parameters.Add("@GUI", System.Data.SqlDbType.UniqueIdentifier);
-                                            command2.Parameters["@GUI"].Direction = System.Data.ParameterDirection.Output;
-                                            command2.CommandTimeout = 60;
-                                            using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
-                                            {
-                                                if (reader2.Read())
-                                                {
-                                                    if (criteria.ReviewId == reader2.GetInt32("REVIEW_ID")
-                                                       && (reader2.GetString("ARCHIE_ID") == "" || reader2.GetString("ARCHIE_ID") == "prospective_______")
-                                                       //we do not allow non archie users to access registered Archie reviews, 
-                                                       //but we do allow non archie users to open prospective archie reviews
-                                                       )
-                                                    {
-                                                        ContactExp = reader2.GetDateTime("CONTACT_EXP");
-                                                        ReviewExp = reader2.GetDateTime("REVIEW_EXP");
-                                                        if (ReviewExp == new DateTime(1, 1, 1)) ReviewExp = new DateTime(3000, 1, 1);
-                                                        LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);
-                                                        //if (check == new DateTime(1, 1, 1)) check = DateTime.Now.AddDays(1);
-                                                        check = ContactExp < ReviewExp ? ContactExp : ReviewExp;
-                                                        if (check < DateTime.Today && (reader2.GetInt32("FUNDER_ID") != UserId || ContactExp < DateTime.Today))
-                                                        {//if either the account or the review are expired and (this is not the review owner, or the current account is expired) then we 
-                                                            //mark the user as ReadOnly. 
-                                                            //Hence, if the the review is expired, the account is not, and the user is the review owner, the user DOES NOT get the ReadOnly restrictions
-                                                            Roles.Add("ReadOnlyUser");
-                                                        }
-
-                                                        Roles.Add(reader2.GetString("Role"));
-                                                        while (reader2.Read())//query returns multiple lines, one per Role, so in case user has many roles, we read all lines
-                                                        {
-                                                            Roles.Add(reader2.GetString("Role"));
-                                                        }
-                                                        //Roles.Add("AdminUser");// ADDED BY JAMES TEMPORARILY!!!
-
-                                                    }
-                                                    else
-                                                    {
-                                                        LoadProperty<int>(ReviewIdProperty, 0);
-                                                        IsAuthenticated = false;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    LoadProperty<int>(ReviewIdProperty, 0);
-                                                    IsAuthenticated = false;
-                                                }
-                                            }
-
-
-                                            if (GetProperty<int>(ReviewIdProperty) != 0)
-                                            {
-                                                LoadProperty(TicketProperty, command2.Parameters["@GUI"].Value.ToString());
-                                                LoadProperty(ReviewExpirationProperty, ReviewExp);
-                                                LoadProperty(AccountExpirationProperty, ContactExp);
-                                            }
                                         }
-                                    }
                                 }
 
                             }
                         }
                     }
                     connection.Close();
+                }
+            }
+#if (CSLA_NETCORE)
+            else if (criteria.ReviewId != 0 && criteria.ContactId != 0)
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    Roles = new MobileList<string>();
+                    LoadProperty<int>(UserIdProperty, criteria.ContactId);
+                    LoginToReview(connection, criteria);
+                    if (ReviewId != 0 && Roles.Count > 0)
+                    {//it worked
+                        LoadProperty<int>(UserIdProperty, criteria.ContactId);
+                        IsAuthenticated = true;
+                    }
+                    else
+                    {//logon to review failed!
+                        LoadProperty<int>(ReviewIdProperty, 0);
+                        LoadProperty<int>(UserIdProperty, 0);
+                        IsAuthenticated = false;
+                    }
+                }
+            }
+        }
+#endif
+        public void LoginToReview(SqlConnection connection, CredentialsCriteria criteria)
+        {
+            using (SqlCommand command2 = new SqlCommand("st_ContactLoginReview", connection))
+            {
+                DateTime check;
+                command2.CommandType = System.Data.CommandType.StoredProcedure;
+                command2.Parameters.Add(new SqlParameter("@userId", UserId));
+                command2.Parameters.Add(new SqlParameter("@reviewId", criteria.ReviewId));
+                command2.Parameters.Add(new SqlParameter("@IsArchieUser", false));
+                command2.Parameters.Add("@GUI", System.Data.SqlDbType.UniqueIdentifier);
+                command2.Parameters["@GUI"].Direction = System.Data.ParameterDirection.Output;
+                command2.CommandTimeout = 60;
+                using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
+                {
+                    if (reader2.Read())
+                    {
+                        if (criteria.ReviewId == reader2.GetInt32("REVIEW_ID")
+                           && (reader2.GetString("ARCHIE_ID") == "" || reader2.GetString("ARCHIE_ID") == "prospective_______")
+                           //we do not allow non archie users to access registered Archie reviews, 
+                           //but we do allow non archie users to open prospective archie reviews
+                           )
+                        {
+                            ContactExp = reader2.GetDateTime("CONTACT_EXP");
+                            ReviewExp = reader2.GetDateTime("REVIEW_EXP");
+                            if (ReviewExp == new DateTime(1, 1, 1)) ReviewExp = new DateTime(3000, 1, 1);
+                            LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);
+                            //if (check == new DateTime(1, 1, 1)) check = DateTime.Now.AddDays(1);
+                            check = ContactExp < ReviewExp ? ContactExp : ReviewExp;
+                            if (check < DateTime.Today && (reader2.GetInt32("FUNDER_ID") != UserId || ContactExp < DateTime.Today))
+                            {//if either the account or the review are expired and (this is not the review owner, or the current account is expired) then we 
+                             //mark the user as ReadOnly. 
+                             //Hence, if the the review is expired, the account is not, and the user is the review owner, the user DOES NOT get the ReadOnly restrictions
+                                Roles.Add("ReadOnlyUser");
+                            }
+
+                            Roles.Add(reader2.GetString("Role"));
+                            while (reader2.Read())//query returns multiple lines, one per Role, so in case user has many roles, we read all lines
+                            {
+                                Roles.Add(reader2.GetString("Role"));
+                            }
+                            //Roles.Add("AdminUser");// ADDED BY JAMES TEMPORARILY!!!
+
+                        }
+                        else
+                        {
+                            LoadProperty<int>(ReviewIdProperty, 0);
+                            IsAuthenticated = false;
+                        }
+                    }
+                    else
+                    {
+                        LoadProperty<int>(ReviewIdProperty, 0);
+                        IsAuthenticated = false;
+                    }
+                }
+
+
+                if (GetProperty<int>(ReviewIdProperty) != 0)
+                {
+                    LoadProperty(TicketProperty, command2.Parameters["@GUI"].Value.ToString());
+                    LoadProperty(ReviewExpirationProperty, ReviewExp);
+                    LoadProperty(AccountExpirationProperty, ContactExp);
                 }
             }
         }

@@ -20,6 +20,7 @@ namespace BusinessLibrary.Security
         private string _LoginMode;
         private string _ArchieState;
         private string _ArchieCode;
+        
         public string Username
         {
             get
@@ -64,6 +65,16 @@ namespace BusinessLibrary.Security
                 return _ArchieCode;
             }
         }
+#if (CSLA_NETCORE)
+        private int _ContactId;
+        public int ContactId
+        {
+            get
+            {
+                return _ContactId;
+            }
+        }
+#endif
         public CredentialsCriteria(string username, string password, int reviewid)
         //: base(typeof(CredentialsCriteria))
         {
@@ -80,6 +91,16 @@ namespace BusinessLibrary.Security
             _reviewId = reviewid;
             _LoginMode = loginMode;
         }
+#if (CSLA_NETCORE)
+        public CredentialsCriteria(int contactID, int reviewid, string loginMode)
+        //: base(typeof(CredentialsCriteria))
+        {
+            _username = "";
+            _ContactId = contactID;
+            _reviewId = reviewid;
+            _LoginMode = loginMode;
+        }
+#endif
         public CredentialsCriteria(string ArchieCode, string Status, string loginMode, int reviewid)
         {
             _password = "";

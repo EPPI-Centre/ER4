@@ -1,61 +1,49 @@
-import { Component, Inject } from '@angular/core';
-import { Http, Response, Headers, RequestOptions, RequestMethod } from '@angular/http';
+import { Component, Inject, OnInit } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
-import { ReviewerIdentityService } from '../app/revieweridentity.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 
 @Component({
     selector: 'fetchreviewsets',
     templateUrl: './fetchreviewsets.component.html'
 })
-export class FetchReviewSetsComponent {
+export class FetchReviewSetsComponent implements OnInit {
     public ReviewSets: ReviewSet[] = [];
-    private headers: Headers = new Headers({ "Content-Type": 'application/x-www-form-urlencoded' });
+    
     constructor(private router: Router,
-        private http: Http,
-        @Inject('BASE_URL') private baseUrl: string,
+        private _httpC: HttpClient,
+        @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService) {
-        if (ReviewerIdentityServ.reviewerIdentity.userId == 0 || ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+    }
+    ngOnInit() {
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
         else {
             this.GetReviewSets();
         }
-        //this.nodes = this.ReviewSets;
     }
+
     nodes: singleNode[] = [];
     options = {};
     GetReviewSets() {
         let body = "RevId=" + this.ReviewerIdentityServ.reviewerIdentity.reviewId;
-        //let body = JSON.stringify({ 'contactId': 1 });
-        let requestoptions = new RequestOptions({
-            method: RequestMethod.Post,
-            url: this.baseUrl + 'api/Codeset/CodesetsByReview',
-            headers: this.headers,
-            body: body
-        });
-
-        this.http.request(this.baseUrl + 'api/review/reviewsbycontact', requestoptions).subscribe(result => {
-            this.ReviewSets = result.json() as ReviewSet[];
-            this.nodes = this.ReviewSets as singleNode[];
-            for (let singleNode of this.nodes) {
-                console.log(singleNode.name);
+        
+        this._httpC.post<ReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview',
+            body).subscribe(
+            result => {
+                this.ReviewSets = result;
+                this.nodes = this.ReviewSets as singleNode[];
+                for (let singleNode of this.nodes) {
+                    console.log(singleNode.name);
+                }
+            }, error => {
+                console.error(error);
+                this.router.navigate(['readonlyreviews']);
             }
-        }, error => console.error(error));
-        //this.http.get(this.baseUrl + 'api/Codeset/CodesetsByReview').subscribe(result => {
-        //    this.ReviewSets = result.json() as ReviewSet[];
-        //    this.nodes = this.ReviewSets as singleNode[];
-        //    for (let singleNode of this.nodes) {
-        //        console.log(singleNode.name);
-        //    }
-        //}, error => console.error(error));
+            );
     }
-    //ngOnInit() {
-    //    //treeview = $.fn['treeview'] as Function;
-    //    getTree();
-    //    alert('building tree');
-    //    ($('#tree')).treeview({ data: getTree() });
-    //}
 }
 
 

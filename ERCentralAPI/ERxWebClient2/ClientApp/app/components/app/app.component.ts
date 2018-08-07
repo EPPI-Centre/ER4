@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ReviewerIdentityService } from '../app/revieweridentity.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
     selector: 'app',

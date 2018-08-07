@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using BusinessLibrary.Security;
 using ERxWebClient2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ERxWebClient2.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class CodesetController : Controller
     {
@@ -20,6 +24,16 @@ namespace ERxWebClient2.Controllers
         public IEnumerable<ReviewSet> CodesetsByReview(int RevId)//should receive a reviewID!
         {
             //int RevId = 7;
+            IEnumerable<Claim> claims = User.Claims;
+            
+            var sss = User.Identity.Name;
+            var fff = User.Claims.First(c => c.Type == "userId").Value;
+            int cID;
+            if (!int.TryParse(fff, out cID))
+            {
+                return null;
+            }
+            ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId);
             if (RevId == null || RevId == 0) RevId = 7;
             List<ReviewSet> res = new List<ReviewSet>();
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))

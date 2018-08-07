@@ -19,7 +19,7 @@ namespace BusinessLibrary.Security
     [Serializable]
     public class ReviewerPrincipal : CslaPrincipal
     {
-        private ReviewerPrincipal(IIdentity identity)
+        public ReviewerPrincipal(IIdentity identity)
             : base(identity)
         { }
 

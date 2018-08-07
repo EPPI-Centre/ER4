@@ -30,9 +30,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Security\RiExtension.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerPrincipal.cs" Link="Models\Security\ReviewerPrincipal.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\RiExtension.cs" Link="Models\Security\RiExtension.cs" />
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
