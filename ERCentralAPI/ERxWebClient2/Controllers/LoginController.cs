@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication;
 using Csla.Security;
 using System.Security.Principal;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERxWebClient2.Controllers
 {
@@ -45,12 +46,21 @@ namespace ERxWebClient2.Controllers
             ri.Token = BuildToken(ri);
             return ri;
         }
+        [Authorize]
         [HttpPost("[action]")]
-        public ReviewerIdentityWebClient LoginToReview(string Username, string Password, int ReviewId)
+        public ReviewerIdentityWebClient LoginToReview(int ReviewId)
         {
-            ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(Username, Password, ReviewId, "web", "");
-            ri.Token = BuildToken(ri);
-            return ri;
+            var userId = User.Claims.First(c => c.Type == "userId").Value;
+            int cID;
+            bool canProceed = true;
+            canProceed = int.TryParse(userId, out cID);
+            if (canProceed)
+            {
+                ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, ReviewId, User.Identity.Name);
+                ri.Token = BuildToken(ri);
+                return ri;
+            }
+            else return null;
         }
         private string BuildToken(ReviewerIdentityWebClient ri)
         {
@@ -62,7 +72,12 @@ namespace ERxWebClient2.Controllers
             riCI.AddClaim(new Claim("reviewId", ri.ReviewId.ToString()));
             riCI.AddClaim(new Claim("userId", ri.UserId.ToString()));
             riCI.AddClaim(new Claim("name", ri.Name));
-
+            riCI.AddClaim(new Claim("reviewTicket", ri.Ticket));
+            riCI.AddClaim(new Claim("isSiteAdmin", ri.IsSiteAdmin.ToString()));
+            foreach (var userRole in ri.Roles)
+            {
+                riCI.AddClaim(new Claim(ClaimTypes.Role, userRole));
+            }
             var token = new JwtSecurityToken(_config["AppSettings:EPPIApiUrl"],
               _config["AppSettings:EPPIApiClientName"],
               riCI.Claims,

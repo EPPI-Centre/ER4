@@ -21,8 +21,17 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
     onSubmit(f: string) {
-        this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
-        this.router.navigate(['fetch-reviewsets'])
+        let RevId: number = parseInt(f, 10);
+        this.ReviewerIdentityServ.LoginToReview(RevId).subscribe(ri => {
+            this.ReviewerIdentityServ.reviewerIdentity = ri;
+            console.log('login to Review: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
+            if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0 && this.ReviewerIdentityServ.reviewerIdentity.reviewId === RevId) {
+                this.ReviewerIdentityServ.Save();
+                this.router.navigate(['fetch-reviewsets']);
+            }
+        })
+        //this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
+        //this.router.navigate(['fetch-reviewsets'])
     }
 
     getReviews() {

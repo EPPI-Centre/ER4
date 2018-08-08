@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using Csla;
 using Csla.Core;
@@ -65,6 +66,7 @@ namespace BusinessLibrary.Security
                 return _ArchieCode;
             }
         }
+        
 #if (CSLA_NETCORE)
         private int _ContactId;
         public int ContactId
@@ -73,6 +75,19 @@ namespace BusinessLibrary.Security
             {
                 return _ContactId;
             }
+        }
+        private string _DisplayName;
+        public string DisplayName
+        {
+            get
+            {
+                return _DisplayName;
+            }
+        }
+        private ClaimsPrincipal _ClaimsP;
+        public ClaimsPrincipal ClaimsP
+        {
+            get { return _ClaimsP; }
         }
 #endif
         public CredentialsCriteria(string username, string password, int reviewid)
@@ -92,13 +107,18 @@ namespace BusinessLibrary.Security
             _LoginMode = loginMode;
         }
 #if (CSLA_NETCORE)
-        public CredentialsCriteria(int contactID, int reviewid, string loginMode)
-        //: base(typeof(CredentialsCriteria))
+        public CredentialsCriteria(int contactID, int reviewid, string displayName, string loginMode)
         {
-            _username = "";
+            _DisplayName = displayName;
             _ContactId = contactID;
             _reviewId = reviewid;
             _LoginMode = loginMode;
+        }
+        public CredentialsCriteria(ClaimsPrincipal CP)
+        {//with this, we'll create a full RI based on the user logged on via its JWToken, without using the DB.
+            //should be fast as this is done every time a controller will use a CSLA object that needs the ReviewerIdentity
+            _ClaimsP = CP;
+            _LoginMode = "MVC";
         }
 #endif
         public CredentialsCriteria(string ArchieCode, string Status, string loginMode, int reviewid)

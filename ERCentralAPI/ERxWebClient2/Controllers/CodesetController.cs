@@ -13,7 +13,7 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class CodesetController : Controller
+    public class CodesetController : CSLAController
     {
         private static string[] Summaries = new[]
         {
@@ -24,17 +24,20 @@ namespace ERxWebClient2.Controllers
         public IEnumerable<ReviewSet> CodesetsByReview(int RevId)//should receive a reviewID!
         {
             //int RevId = 7;
-            IEnumerable<Claim> claims = User.Claims;
-            
-            var sss = User.Identity.Name;
-            var fff = User.Claims.First(c => c.Type == "userId").Value;
-            int cID;
-            if (!int.TryParse(fff, out cID))
-            {
-                return null;
-            }
-            ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId);
-            if (RevId == null || RevId == 0) RevId = 7;
+            //IEnumerable<Claim> claims = User.Claims;
+
+            //var sss = User.Identity.Name;
+            //var fff = User.Claims.First(c => c.Type == "userId").Value;
+            //int cID;
+            //if (!int.TryParse(fff, out cID))
+            //{
+            //    return null;
+            //}
+            //ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId, User.Identity.Name);
+            //if (RevId == null || RevId == 0) RevId = 7;
+
+            SetCSLAUser();
+
             List<ReviewSet> res = new List<ReviewSet>();
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
             {

@@ -154,9 +154,13 @@ namespace BusinessLibrary.Security
             return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(username, password, reviewId, LoginMode));
         }
 #if (CSLA_NETCORE)
-        public static ReviewerIdentityWebClient GetIdentity(int contactId, int reviewId)
+        public static ReviewerIdentityWebClient GetIdentity(int contactId, int reviewId, string displayName)
         {
-            return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(contactId, reviewId, "CSLA"));
+            return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(contactId, reviewId, displayName, "CSLA"));
+        }
+        public static ReviewerIdentityWebClient GetIdentity(System.Security.Claims.ClaimsPrincipal CP)
+        {
+            return GetCslaIdentity<ReviewerIdentityWebClient>(new CredentialsCriteria(CP));
         }
 #endif
         DateTime ContactExp = new DateTime(1, 1, 1);
@@ -273,6 +277,7 @@ namespace BusinessLibrary.Security
                     if (ReviewId != 0 && Roles.Count > 0)
                     {//it worked
                         LoadProperty<int>(UserIdProperty, criteria.ContactId);
+                        LoadProperty<string>(NameProperty, criteria.DisplayName);
                         IsAuthenticated = true;
                     }
                     else
@@ -283,8 +288,44 @@ namespace BusinessLibrary.Security
                     }
                 }
             }
-        }
+            else if (criteria.ClaimsP != null && criteria.ClaimsP.Claims != null && criteria.ClaimsP.Claims.Count() > 0)
+            {//build the RI object quickly based on the data we got from the JWT, WITHOUT passing through the DB.
+                //this is used when an MVC controller will rely on a CSLA BO that needs a fully formed RI object.
+                //as a result, the Ticket will be checked against the DB if and where RI.ReviewId is retreived, as in ER4.
+                //thus, it's OK to avoid checking on the DB at this stage.
+                Roles = new MobileList<string>();
+                foreach (System.Security.Claims.Claim claim in criteria.ClaimsP.Claims)
+                {
+                    switch (claim.Type)
+                    {
+                        case System.Security.Claims.ClaimTypes.Role:
+                            Roles.Add(claim.Value);
+                            break;
+                        case "reviewId":
+                            int tmp;
+                            if (int.TryParse(claim.Value, out tmp)) LoadProperty<int>(ReviewIdProperty, tmp);
+                            break;
+                        case "userId":
+                            int tmp2;
+                            if (int.TryParse(claim.Value, out tmp2)) LoadProperty<int>(UserIdProperty, tmp2);
+                            break;
+                        case "name":
+                            LoadProperty<string>(NameProperty, claim.Value);
+                            break;
+                        case "reviewTicket":
+                            LoadProperty<string>(TicketProperty, claim.Value);
+                            break;
+                        case "isSiteAdmin":
+                            LoadProperty<bool>(IsSiteAdminProperty, (claim.Value.ToLower() == "true") );
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 #endif
+        }
+
         public void LoginToReview(SqlConnection connection, CredentialsCriteria criteria)
         {
             using (SqlCommand command2 = new SqlCommand("st_ContactLoginReview", connection))

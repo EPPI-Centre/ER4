@@ -21,6 +21,7 @@ export class FetchReviewSetsComponent implements OnInit {
             this.router.navigate(['home']);
         }
         else {
+            console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
             this.GetReviewSets();
         }
     }

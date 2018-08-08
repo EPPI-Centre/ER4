@@ -17,43 +17,8 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class ReviewController : Controller
+    public class ReviewController : CSLAController
     {
-        public ReviewController()
-        {
-            
-            
-        }
-        private void SetCSLAUser()
-        {//this needs to be a Controller Extension, then, in controller methods, we call it when needed (i.e. when using CSLA objects that require reviewerIdentity)
-            var sss = User.Identity.Name;
-            User.Claims.Append(new Claim("Name", sss));
-            var userId = User.Claims.First(c => c.Type == "userId").Value;
-            int cID;
-            bool canProceed = true;
-            canProceed = int.TryParse(userId, out cID);
-
-            if (canProceed)
-            {
-                var revId0 = User.Claims.First(c => c.Type == "reviewId");
-                string revId = "0";
-                if (revId0 == null || revId0.Value == null) canProceed = false;
-                else
-                {
-                    revId = revId0.Value;
-                    int RevId;
-                    canProceed = int.TryParse(revId, out RevId);
-                    if (canProceed)
-                    {
-                        ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId);
-                        //ReviewerPrincipal principal = new ReviewerPrincipal(ri as System.Security.Principal.IIdentity);
-                        ReviewerPrincipal principal = new ReviewerPrincipal(ri);
-                        Csla.ApplicationContext.User = principal;
-                        //
-                    }
-                }
-            }
-        }
         [HttpPost("[action]")]
         public IEnumerable<ReadOnlyReview> ReviewsByContact(int contactId)//should receive a reviewID!
         {

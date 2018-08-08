@@ -39,10 +39,14 @@ export class ReviewerIdentityService {
     
     
     public LoginReq(u: string, p: string) {
-        let body2 = "Username=" + u + "&Password=" + p;
-        
+        let body = "Username=" + u + "&Password=" + p;
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-            body2);
+            body);
+    }
+    public LoginToReview(RevId: number) {
+        let body = "ReviewId=" + RevId;
+        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
+            body);
     }
     public Save() {
         if (this._reviewerIdentity.userId != 0)
