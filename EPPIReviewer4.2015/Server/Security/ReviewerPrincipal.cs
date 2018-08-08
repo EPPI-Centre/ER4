@@ -81,7 +81,7 @@ namespace BusinessLibrary.Security
 #elif (CSLA_NETCORE)
         public static void Login(string username, string password, int reviewId, string roles, string LoginMode)
         {
-            ReviewerIdentityWebClient.GetIdentity(username, password, reviewId, roles, LoginMode);
+            ReviewerIdentity.GetIdentity(username, password, reviewId, roles, LoginMode);
         }
 #endif
 
@@ -105,7 +105,7 @@ namespace BusinessLibrary.Security
 #else 
         public static void Logout()
         {
-            Csla.Security.UnauthenticatedIdentity identity = ReviewerIdentityWebClient.UnauthenticatedIdentity();
+            Csla.Security.UnauthenticatedIdentity identity = ReviewerIdentity.UnauthenticatedIdentity();
             ReviewerPrincipal principal = new ReviewerPrincipal(identity);
             Csla.ApplicationContext.User = principal;
         }

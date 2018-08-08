@@ -23,7 +23,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(User);
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
                 ReviewerPrincipal principal = new ReviewerPrincipal(ri);
                 Csla.ApplicationContext.User = principal;
                 return true;//we might want to do more checks!

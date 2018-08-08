@@ -51,7 +51,7 @@ namespace BusinessLibrary.BusinessClasses
 #if !CSLA_NETCORE
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 #elif CSLA_NETCORE
-            ReviewerIdentityWebClient ri = Csla.ApplicationContext.User.Identity as ReviewerIdentityWebClient;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 #endif
             int currentRid = ri.ReviewId;
             RaiseListChangedEvents = false;

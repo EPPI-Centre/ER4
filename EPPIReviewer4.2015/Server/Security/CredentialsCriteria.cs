@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if (CSLA_NETCORE)
 using System.Security.Claims;
+#endif
 using System.Text;
 using Csla;
 using Csla.Core;

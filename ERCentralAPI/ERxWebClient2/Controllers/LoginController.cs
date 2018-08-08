@@ -31,9 +31,9 @@ namespace ERxWebClient2.Controllers
             _config = conf;
         }
         [HttpPost("[action]")]
-        public ReviewerIdentityWebClient Login(string Username, string Password)
+        public ReviewerIdentity Login(string Username, string Password)
         {
-            ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(Username, Password, 0, "web", "");
+            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(Username, Password, 0, "web", "");
 
             //var userIdentity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -48,7 +48,7 @@ namespace ERxWebClient2.Controllers
         }
         [Authorize]
         [HttpPost("[action]")]
-        public ReviewerIdentityWebClient LoginToReview(int ReviewId)
+        public ReviewerIdentity LoginToReview(int ReviewId)
         {
             var userId = User.Claims.First(c => c.Type == "userId").Value;
             int cID;
@@ -56,13 +56,13 @@ namespace ERxWebClient2.Controllers
             canProceed = int.TryParse(userId, out cID);
             if (canProceed)
             {
-                ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, ReviewId, User.Identity.Name);
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, ReviewId, User.Identity.Name);
                 ri.Token = BuildToken(ri);
                 return ri;
             }
             else return null;
         }
-        private string BuildToken(ReviewerIdentityWebClient ri)
+        private string BuildToken(ReviewerIdentity ri)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["AppSettings:EPPIApiClientSecret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
