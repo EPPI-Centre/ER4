@@ -3,29 +3,44 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { isPlatformServer, isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
 })
+
 export class ReviewerIdentityService {
+
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
-        @Inject('BASE_URL') private _baseUrl: string) {}
+        @Inject('BASE_URL') private _baseUrl: string
+        , @Inject(PLATFORM_ID) private _platformId: Object) { }
+
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
+
     public get reviewerIdentity(): ReviewerIdentity {
-         
-        if (this._reviewerIdentity.userId == 0) {
-            let tmp: any = localStorage.getItem('currentErUser');
-            let tmp2: ReviewerIdentity = tmp;
-            if (tmp2 == undefined || tmp2 == null || tmp2.userId == 0) {
-                return this._reviewerIdentity;
-            }
-            else {
-                this._reviewerIdentity = tmp2;
-            }
+
+        if (isPlatformBrowser(this._platformId)) {
+
+            if (this._reviewerIdentity.userId == 0) {
+
+                    let tmp: any = localStorage.getItem('currentErUser');
+                    let tmp2: ReviewerIdentity = tmp;
+                    if (tmp2 == undefined || tmp2 == null || tmp2.userId == 0) {
+                        return this._reviewerIdentity;
+                    }
+                    else {
+                        this._reviewerIdentity = tmp2;
+                    }
+                }
         }
+            
         return this._reviewerIdentity;
+
     }
+
+
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
     }
@@ -49,10 +64,12 @@ export class ReviewerIdentityService {
             body);
     }
     public Save() {
-        if (this._reviewerIdentity.userId != 0)
-            localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
-        else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
-            localStorage.removeItem('currentErUser');
+        //if (isPlatformBrowser(this._platformId)) {
+            if (this._reviewerIdentity.userId != 0)
+                localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
+            else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
+                localStorage.removeItem('currentErUser');
+        //}
     }
 }
 export class ReviewerIdentity {
