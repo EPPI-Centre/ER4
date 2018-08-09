@@ -28,16 +28,19 @@ export class ReviewerIdentityService {
             if (this._reviewerIdentity.userId == 0) {
 
                 console.log("before LS: " + this._platformId);
-                let tmp: any = localStorage.getItem('currentErUser');
+                const userJson = localStorage.getItem('currentErUser');
+                let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
+                //let tmp: any = localStorage.getItem('currentErUser');
                 console.log("after LS: " + this._platformId);
-                    let tmp2: ReviewerIdentity = tmp;
-                    if (tmp2 == undefined || tmp2 == null || tmp2.userId == 0) {
+                    //let tmp2: ReviewerIdentity = tmp;
+                if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
                         return this._reviewerIdentity;
-                    }
-                    else {
-                        this._reviewerIdentity = tmp2;
-                    }
                 }
+                else {
+                    console.log("Got User from LS");
+                    this._reviewerIdentity = currentUser;
+                }
+            }
         }
             
         return this._reviewerIdentity;
