@@ -32,8 +32,6 @@ import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/read
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
-            { path: 'counter', component: CounterComponent },
-            { path: 'fetch-data', component: FetchDataComponent },
             { path: 'fetch-reviewsets', component: FetchReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: '**', redirectTo: 'home' }

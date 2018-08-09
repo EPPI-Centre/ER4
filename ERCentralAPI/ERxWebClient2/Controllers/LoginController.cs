@@ -19,6 +19,7 @@ using Csla.Security;
 using System.Security.Principal;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Csla;
 
 namespace ERxWebClient2.Controllers
 {
@@ -87,5 +88,14 @@ namespace ERxWebClient2.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+
+        [HttpGet("[action]")]
+        public  GetLatestUpdateMsgCommand VersionInfo()
+        {
+            DataPortal<GetLatestUpdateMsgCommand> dp = new DataPortal<GetLatestUpdateMsgCommand>();
+            GetLatestUpdateMsgCommand command = new GetLatestUpdateMsgCommand();
+            command =  dp.Execute(command);
+            return command;
+        }
     }
 }
