@@ -625,10 +625,18 @@ namespace BusinessLibrary.Security
                 Error = "";
                 ErrorReason = "";
                 WebResponse wr = we.Response;
-                using (var reader = new StreamReader(wr.GetResponseStream()))
+                if (wr == null)
                 {
-                    json = reader.ReadToEnd();
+                    json = "{\"error\": \"no_response\", \"error_description\": \"Could not contact webserver.\" }";
                     webc.Dispose();
+                }
+                else
+                {
+                    using (var reader = new StreamReader(wr.GetResponseStream()))
+                    {
+                        json = reader.ReadToEnd();
+                        webc.Dispose();
+                    }
                 }
             }
             dict = (Dictionary<string, object>)ser.DeserializeObject(json);
