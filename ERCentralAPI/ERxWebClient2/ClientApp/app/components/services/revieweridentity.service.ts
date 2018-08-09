@@ -2,13 +2,15 @@ import { Component, Inject, Injectable } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
-})
+    }
+)
 
 export class ReviewerIdentityService {
 
@@ -25,7 +27,9 @@ export class ReviewerIdentityService {
 
             if (this._reviewerIdentity.userId == 0) {
 
-                    let tmp: any = localStorage.getItem('currentErUser');
+                console.log("before LS: " + this._platformId);
+                let tmp: any = localStorage.getItem('currentErUser');
+                console.log("after LS: " + this._platformId);
                     let tmp2: ReviewerIdentity = tmp;
                     if (tmp2 == undefined || tmp2 == null || tmp2.userId == 0) {
                         return this._reviewerIdentity;
@@ -45,11 +49,11 @@ export class ReviewerIdentityService {
         this._reviewerIdentity = ri;
     }
     public Report()  {
-        console.log('Reporting Cid: ' + this._reviewerIdentity.userId);
-        console.log('NAME: ' + this._reviewerIdentity.name);
-        console.log('Token: ' + this._reviewerIdentity.token);
-        console.log('Ticket: ' + this._reviewerIdentity.ticket);
-        console.log('Expires on: ' + this._reviewerIdentity.accountExpiration);
+        console.log('Reporting Cid: ' + this.reviewerIdentity.userId);
+        console.log('NAME: ' + this.reviewerIdentity.name);
+        console.log('Token: ' + this.reviewerIdentity.token);
+        console.log('Ticket: ' + this.reviewerIdentity.ticket);
+        console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
     
     

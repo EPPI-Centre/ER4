@@ -34,31 +34,30 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         //this.router.navigate(['fetch-reviewsets'])
     }
 
-    getReviews(currentUser: any) {
+    getReviews() {
 
-        let body2 = "contactId=" + currentUser.userId;
+        let body2 = "contactId=" + this.ReviewerIdentityServ.reviewerIdentity.userId;
         console.log('Calling get reviews...!');
          this._httpC.post<ReadOnlyReview[]>(this._baseUrl + 'api/review/reviewsbycontact',
              body2).subscribe(result => this.ReviewList = result);
     }
     ngOnInit() {
 
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            console.log("didn't work!");
             this.router.navigate(['home']);
         }
         else {
 
-            const userJson = localStorage.getItem('currentErUser');
+            //const userJson = localStorage.getItem('currentErUser');
 
-            console.log('On intiation this should have th user from the localstorage ' + userJson);
+            //console.log('On intiation this should have th user from the localstorage ' + userJson);
 
-            let currentUser: any = userJson !== null ? JSON.parse(userJson) : '';
+            //let currentUser: any = userJson !== null ? JSON.parse(userJson) : '';
 
-            console.log('rOr init: ' + currentUser.userId);
+            //console.log('rOr init: ' + currentUser.userId);
             this.ReviewerIdentityServ.Report();
-
-            this.getReviews(currentUser);//we don't want this sort of thing in the constructor, API calls should be done after...
-
+            this.getReviews();//we don't want this sort of thing in the constructor, API calls should be done after...
         }
 
       
