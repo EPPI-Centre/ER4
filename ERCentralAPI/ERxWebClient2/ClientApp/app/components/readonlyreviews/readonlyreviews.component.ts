@@ -27,7 +27,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
             console.log('login to Review: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
             if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0 && this.ReviewerIdentityServ.reviewerIdentity.reviewId === RevId) {
                 this.ReviewerIdentityServ.Save();
-                this.router.navigate(['fetch-reviewsets']);
+                this.router.navigate(['main']);
             }
         })
         //this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;

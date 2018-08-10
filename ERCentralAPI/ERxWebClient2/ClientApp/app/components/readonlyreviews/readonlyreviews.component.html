@@ -1,32 +1,33 @@
 
-<h1>Your Reviews:</h1>
-<p *ngIf="!ReviewSets"><em>Loading...</em></p>
+<h4>Your Reviews:</h4>
+<p *ngIf="!ReviewList"><em>Loading...</em></p>
 
-
-<table class='table' *ngIf="ReviewList" >
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Review</th>
-            <th>Last Access:</th>
-            <th>Open</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let roReview of ReviewList">
-            <td>{{ roReview.reviewId }}</td>
-            <td>{{ roReview.reviewName }}</td>
-            <td>{{ roReview.lastAccess }}</td>
-            <td>
-                <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
-                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}" >
-                    <button>GO!</button>
-                </form>
-                <!--<form method="post" action="['/readonlyreviews']">
-                    <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />
-                    <button type="submit">GO!</button>
-                </form>-->
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class='table h-50 mh-50' *ngIf="ReviewList">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Review</th>
+                <th>Last Access:</th>
+                <th>Open</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let roReview of ReviewList">
+                <td>{{ roReview.reviewId }}</td>
+                <td>{{ roReview.reviewName }}</td>
+                <td>{{ roReview.lastAccess }}</td>
+                <td>
+                    <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+                        <button>GO!</button>
+                    </form>
+                    <!--<form method="post" action="['/readonlyreviews']">
+                        <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />
+                        <button type="submit">GO!</button>
+                    </form>-->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

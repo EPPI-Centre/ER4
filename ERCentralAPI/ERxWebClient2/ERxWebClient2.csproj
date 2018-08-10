@@ -37,6 +37,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ArchieIdentity.cs" Link="Models\Security\ArchieIdentity.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerIdentity.cs" Link="Models\Security\ReviewerIdentity.cs" />
@@ -46,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ClientApp\app\components\main\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 

@@ -12,7 +12,8 @@ import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
 import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
-
+import { MainComponent } from './components/main/main.component';
+import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component'
 
 @NgModule({
     declarations: [
@@ -22,7 +23,9 @@ import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/read
         FetchDataComponent,
         FetchReviewSetsComponent,
         FetchReadOnlyReviewsComponent,
-        HomeComponent
+        HomeComponent,
+        WorkAllocationContactListComp,
+        MainComponent
     ],
     imports: [
         CommonModule,
@@ -36,6 +39,8 @@ import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/read
             { path: 'fetch-data', component: FetchDataComponent },
             { path: 'fetch-reviewsets', component: FetchReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
+            { path: 'main', component: MainComponent }, 
+            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: '**', redirectTo: 'home' }
         ])
     ]

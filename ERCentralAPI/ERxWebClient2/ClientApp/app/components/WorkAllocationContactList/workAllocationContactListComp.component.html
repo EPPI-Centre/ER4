@@ -1,0 +1,32 @@
+<p *ngIf="!_workAllocationContactListService.workAllocations"><em>Loading your Allocations...</em></p>
+
+    <table class='table table-responsive' *ngIf="_workAllocationContactListService.workAllocations">
+        <thead>
+            <tr>
+                <th>Codes to apply:</th>
+                <th>Group of studies</th>
+                <th>Allocated</th>
+                <th>Started</th>
+                <th>Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations">
+                <td>{{ alloc.setName }}</td>
+                <td>{{ alloc.attributeName }}</td>
+                <td>{{ alloc.totalAllocation }}</td>
+                <td>{{ alloc.totalStarted }}</td>
+                <td>{{ alloc.totalRemaining }}</td>
+
+                <!--<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+                    <button>GO!</button>
+                </form>-->
+                <!--<form method="post" action="['/readonlyreviews']">
+                    <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />
+                    <button type="submit">GO!</button>
+                </form>-->
+
+            </tr>
+        </tbody>
+    </table>
