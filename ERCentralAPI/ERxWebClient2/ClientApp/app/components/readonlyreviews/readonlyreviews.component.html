@@ -1,9 +1,9 @@
 
 <h4>Your Reviews:</h4>
-<p *ngIf="!ReviewList"><em>Loading...</em></p>
+<p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
 <div class="table-responsive">
-    <table class='table h-50 mh-50' *ngIf="ReviewList">
+    <table class='table h-50 mh-50' *ngIf="_readonlyreviewsService.ReadOnlyReviews">
         <thead>
             <tr>
                 <th>ID</th>
@@ -13,7 +13,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let roReview of ReviewList">
+            <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
                 <td>{{ roReview.reviewId }}</td>
                 <td>{{ roReview.reviewName }}</td>
                 <td>{{ roReview.lastAccess }}</td>
