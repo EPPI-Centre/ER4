@@ -49,6 +49,8 @@ namespace ERxWebClient2
             services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.
+                options.SerializerSettings.CheckAdditionalContent = true;
+                
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
         }

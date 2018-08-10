@@ -243,8 +243,9 @@ namespace AuthorsHandling
     [Serializable]
     public class AutH : BusinessBase<AutH> //this type stores the 5 values that define one author
     {
+        
         #region properties
-        private static PropertyInfo<string> FirstNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FirstName", "FirstName", 0));
+        public static readonly PropertyInfo<string> FirstNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FirstName", "FirstName", 0));
         public string FirstName
         {
             get { return GetProperty(FirstNameProperty); }
@@ -254,7 +255,7 @@ namespace AuthorsHandling
                 else SetProperty(FirstNameProperty, value);
             }
         }
-        private static PropertyInfo<string> LastNameProperty = RegisterProperty<string>(new PropertyInfo<string>("LastName", "LastName", 0));
+        public static readonly PropertyInfo<string> LastNameProperty = RegisterProperty<string>(new PropertyInfo<string>("LastName", "LastName", 0));
         public string LastName
         {
             get { return GetProperty(LastNameProperty); }
@@ -264,7 +265,7 @@ namespace AuthorsHandling
                 else SetProperty(LastNameProperty, value);
             }
         }
-        private static PropertyInfo<string> MiddleNameProperty = RegisterProperty<string>(new PropertyInfo<string>("MiddleName", "MiddleName", 0));
+        public static readonly PropertyInfo<string> MiddleNameProperty = RegisterProperty<string>(new PropertyInfo<string>("MiddleName", "MiddleName", 0));
         public string MiddleName
         {
             get { return GetProperty(MiddleNameProperty); }
@@ -274,13 +275,13 @@ namespace AuthorsHandling
                 else SetProperty(MiddleNameProperty, value);
             }
         }
-        private static PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
+        public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
         public int Rank
         {
             get { return GetProperty(RankProperty); }
             set { SetProperty(RankProperty, value); }
         }
-        private static PropertyInfo<int> RoleProperty = RegisterProperty<int>(new PropertyInfo<int>("Role", "Role", 0));
+        public static readonly PropertyInfo<int> RoleProperty = RegisterProperty<int>(new PropertyInfo<int>("Role", "Role", 0));
         public int Role
         {
             get { return GetProperty(RoleProperty); }
@@ -288,6 +289,7 @@ namespace AuthorsHandling
         }
         #endregion
         #region constructors
+        
         internal static AutH NewAutH(string LastName, string FirstName, string MiddleName, int Rank, int Role)
         {
             AutH res = new AutH();
@@ -340,11 +342,9 @@ namespace AuthorsHandling
             res.SetProperty(RoleProperty, 0);
             return res;
         }
-#if SILVERLIGHT
+
         public AutH() { }
-#else
-        private AutH() { }
-#endif
+
         #endregion
     }
     [Serializable]
