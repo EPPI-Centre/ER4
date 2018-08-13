@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -24,7 +24,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
 
                 console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
-
+    @Output() OpeningNewReview = new EventEmitter();
     onSubmit(f: string) {
             let RevId: number = parseInt(f, 10);
             this.ReviewerIdentityServ.LoginToReview(RevId).subscribe(ri => {
@@ -32,6 +32,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
             console.log('login to Review: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
             if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0 && this.ReviewerIdentityServ.reviewerIdentity.reviewId === RevId) {
                 this.ReviewerIdentityServ.Save();
+                this.router.onSameUrlNavigation = "reload";
+                this.OpeningNewReview.emit();
                 this.router.navigate(['main']);
             }
         })

@@ -40,7 +40,23 @@ namespace ERxWebClient2.Controllers
             crit.PageNumber = 0;
             ItemList result = dp.Fetch(crit);
             return new ItemList4Json(result);
-        } 
+        }
+        
+        [HttpPost("[action]")]
+        public ItemList4Json WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)//should receive a reviewID!
+        {
+            SetCSLAUser();
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            DataPortal<ItemList> dp = new DataPortal<ItemList>();
+            SelectionCriteria crit = new SelectionCriteria();
+            crit.WorkAllocationId = AllocationId;
+            crit.ListType = ListType;
+            crit.PageSize = pageSize;
+            crit.PageNumber = pageNumber;
+            ItemList result = dp.Fetch(crit);
+            return new ItemList4Json(result);
+        }
     }
     public class ItemList4Json
     {
@@ -58,9 +74,9 @@ namespace ERxWebClient2.Controllers
             get { return _list.PageIndex; }
         }
 
-        public List<Item> Items
+        public ItemList Items
         {
-            get { return _list.ToList(); }
+            get { return _list; }
         }
         public ItemList4Json(ItemList list)
         { _list = list; }

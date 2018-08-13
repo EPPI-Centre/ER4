@@ -13,7 +13,9 @@ import { CounterComponent } from './components/counter/counter.component';
 import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component'
+import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
+import { ItemListComp } from './components/ItemList/itemListComp.component';
+
 
 @NgModule({
     declarations: [
@@ -25,6 +27,7 @@ import { WorkAllocationContactListComp } from './components/WorkAllocationContac
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         WorkAllocationContactListComp,
+        ItemListComp,
         MainComponent
     ],
     imports: [

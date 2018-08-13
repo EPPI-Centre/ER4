@@ -19,41 +19,49 @@ export class ItemListService {
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
 
-    private _Items: Item[] = [];
+    private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
-    public get Items(): Item[] {
-        if (this._Items.length == 0) {
+    public get ItemList(): ItemList {
+        if (this._ItemList.items.length == 0) {
 
-            const workAllocationsJson = localStorage.getItem('ItemsList');
-            let workAllocations: Item[] = workAllocationsJson !== null ? JSON.parse(workAllocationsJson) : [];
-            if (workAllocations == undefined || workAllocations == null || workAllocations.length == 0) {
-                return this._Items;
+            const listJson = localStorage.getItem('ItemsList');
+            let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
+            if (list == undefined || list == null || list.items.length == 0) {
+                return this._ItemList;
             }
             else {
-                console.log("Got workAllocations from LS");
-                this._Items = workAllocations;
+                console.log("Got ItemsList from LS");
+                this._ItemList = list;
             }
         }
-        return this._Items;
+        return this._ItemList;
 
     }
-
-
-    public SaveItems(items: Item[], criteria: Criteria) {
-        this._Items = items;
-        this._Criteria = criteria;
+    public SaveItems(items: ItemList) {
+        this._ItemList = items;
         this.Save();
     }
+    
     
     
     public Fetch() {
 
         return this._httpC.get<Item[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
     }
+    public FetchWithCrit(crit: Criteria) {
+        //let body = "Username=" + u + "&Password=" + p;
+        //return this._httpC.post<ItemList>(this._baseUrl + 'api/Login/Login',
+        //    body);
+    }
+    public FetchWorkAlloc(AllocationId: number, allocSubtype: string, pageSize: number, pageNumber: number) {
+        let body = "AllocationId=" + AllocationId + "&ListType=" + allocSubtype
+            + "&pageSize=" + pageSize + "&pageNumber=" + pageNumber;
+        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/WorkAllocation', body);
+    }
 
     private Save() {
-        if (this._Items.length > 0) {
-            localStorage.setItem('ItemsList', JSON.stringify(this._Items));
+        if (this._ItemList.items.length > 0) {
+            localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
             localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
         }
         else if (localStorage.getItem('ItemsList')) {
@@ -64,31 +72,82 @@ export class ItemListService {
 }
 
 export class ItemList {
-    workAllocationId: number = 0;
-    contactName: string = "";
-    contactId: string = "";
-    setName: string = "";
-    setId: number = 0;
-    attributeName: string = "";
-    attributeId: number = 0;
-    totalAllocation: number = 0;
-    totalStarted: number = 0;
-    totalRemaining: number = 0;
+    pagesize: number = 0;
+    pageindex: number = 0;
+    pagecount: number = 0;
+    items: Item[] = [];
 }
 
 
 export class Item {
-    workAllocationId: number = 0;
-    contactName: string = "";
-    contactId: string = "";
-    setName: string = "";
-    setId: number = 0;
-    attributeName: string = "";
-    attributeId: number = 0;
-    totalAllocation: number = 0;
-    totalStarted: number = 0;
-    totalRemaining: number = 0;
+    itemId: number = 0;
+    masterItemId: number = 0;
+    isDupilcate: boolean= false;
+    typeId: number = 0;
+    title: string = "";
+    parentTitle: string = "";
+    shortTitle: string = "";
+    dateCreated: string = "";
+    createdBy: string = "";
+    dateEdited: string = "";
+    editedBy: string = "";
+    year: string = "";
+    month: string = "";
+    standardNumber: string = "";
+    city: string = "";
+    country: string = "";
+    publisher: string = "";
+    institution: string = "";
+    volume: string = "";
+    pages: string = "";
+    edition: string = "";
+    issue: string = "";
+    isLocal: string = "";
+    availability: string = "";
+    uRL: string = "";
+    oldItemId: string = "";
+    abstract: string = "";
+    comments: string = "";
+    typeName: string = "";
+    authors: string = "";
+    parentAuthors: string = "";
+    dOI: string = "";
+    keywords: string = "";
+    attributeAdditionalText: string = "";
+    rank: number = 0;
+    isItemDeleted: boolean = false;
+    isIncluded: boolean = true;
+    isSelected: boolean = false;
+    itemStatus: string = "";
+    itemStatusTooltip: string = "";
+    arms: Arm[] = [];
 }
 export class Criteria {
-
+    onlyIncluded: boolean = true;
+    showDeleted: boolean = false;
+    sourceId: number = 0;
+    searchId: number = 0;
+    xAxisSetId: number = 0;
+    xAxisAttributeId: number = 0;
+    yAxisSetId: number = 0;
+    yAxisAttributeId: number = 0;
+    filterSetId: number = 0;
+    filterAttributeId: number = 0;
+    attributeSetIdList: string = "";
+    listType: string = "";
+    pageNumber: number = 0;
+    pageSize: number = 0;
+    workAllocationId: number = 0;
+    comparisonId: number = 0;
+    description: string = "";
+    contactId: number = 0;
+    setId: number = 0;
+    showInfoColumn: boolean = true;
+    showScoreColumn: boolean = true;
+}
+export class Arm {
+    itemArmId: number = 0;
+    itemId: number = 0;
+    ordering: number = 0;
+    title: string = "";
 }

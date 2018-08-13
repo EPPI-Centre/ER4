@@ -1,21 +1,21 @@
 <div class="h-100 mh-100" style="max-height: 200px;">
     <div class="row">
-        This is header(main).
+        <h4>Coding Only Interface</h4>
         You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
         Review ID = {{ReviewerIdentityServ.reviewerIdentity.reviewId}}
     </div>
 
     <div class="row d-flex border border-info h-100 mh-50" style="max-height: 50%;">
         <div class="col-md-6 h-100">
-            ItemList
+            <ItemListComp></ItemListComp>
         </div>
         <div class="col-md-6 border border-info h-100 mh-100">
             <div class="row border border-dark">UserData</div>
             <div class="row border border-dark h-100">
-                <WorkAllocationContactListComp></WorkAllocationContactListComp>
+                <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'></WorkAllocationContactListComp>
             </div>
             <div class="row border border-dark" style="max-height: 50%;">
-                <readonlyreviews class="mh-50"></readonlyreviews>
+                <readonlyreviews (OpeningNewReview)="Reload()" class="mh-50"></readonlyreviews>
             </div>
         </div>
     </div>
