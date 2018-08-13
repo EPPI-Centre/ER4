@@ -10,11 +10,12 @@ import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
-import { FetchReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
+import { ReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
+import { ItemCodingComp } from './components/coding/coding.component';
 
 
 @NgModule({
@@ -23,11 +24,12 @@ import { ItemListComp } from './components/ItemList/itemListComp.component';
         NavMenuComponent,
         CounterComponent,
         FetchDataComponent,
-        FetchReviewSetsComponent,
+        ReviewSetsComponent,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         WorkAllocationContactListComp,
         ItemListComp,
+        ItemCodingComp,
         MainComponent
     ],
     imports: [
@@ -40,9 +42,10 @@ import { ItemListComp } from './components/ItemList/itemListComp.component';
             { path: 'home', component: HomeComponent },
             { path: 'counter', component: CounterComponent },
             { path: 'fetch-data', component: FetchDataComponent },
-            { path: 'fetch-reviewsets', component: FetchReviewSetsComponent },
+            { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'main', component: MainComponent }, 
+            { path: 'itemcoding/:itemId', component: ItemCodingComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: '**', redirectTo: 'home' }
         ])

@@ -15,33 +15,15 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class CodesetController : CSLAController
     {
-        private static string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        [HttpPost("[action]"), HttpGet("[action]")]
-        public IEnumerable<ReviewSet> CodesetsByReview(int RevId)//should receive a reviewID!
-        {
-            //int RevId = 7;
-            //IEnumerable<Claim> claims = User.Claims;
-
-            //var sss = User.Identity.Name;
-            //var fff = User.Claims.First(c => c.Type == "userId").Value;
-            //int cID;
-            //if (!int.TryParse(fff, out cID))
-            //{
-            //    return null;
-            //}
-            //ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId, User.Identity.Name);
-            //if (RevId == null || RevId == 0) RevId = 7;
-
+        [HttpGet("[action]")]
+        public IEnumerable<ReviewSet> CodesetsByReview()
+        {//not using CSLA object!! this needs revising
             SetCSLAUser();
-
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             List<ReviewSet> res = new List<ReviewSet>();
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
             {
-                SqlParameter RevID = new SqlParameter("@REVIEW_ID", RevId);
+                SqlParameter RevID = new SqlParameter("@REVIEW_ID", ri.ReviewId);
                 try
                 {
                     using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_ReviewSets", RevID))
@@ -57,10 +39,7 @@ namespace ERxWebClient2.Controllers
                     Program.Logger.LogSQLException(e, "Error fetching list of codesets", RevID);
                 }
             }
-            IEnumerable<ReviewSet> res2 = res as IEnumerable<ReviewSet>;
             return (IEnumerable<ReviewSet>)res;
         }
-
-        
     }
 }
