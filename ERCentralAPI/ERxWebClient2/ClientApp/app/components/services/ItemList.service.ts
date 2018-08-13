@@ -35,10 +35,26 @@ export class ItemListService {
             }
         }
         return this._ItemList;
-
     }
-    public SaveItems(items: ItemList) {
+    public get ListCriteria(): Criteria {
+        if (this._Criteria.listType == "") {
+            const critJson = localStorage.getItem('ItemsListCriteria');
+            let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
+            if (crit == undefined || crit == null) {
+                return this._Criteria;
+            }
+            else {
+                console.log("Got Criteria from LS");
+                this._Criteria = crit;
+            }
+        }
+        return this._Criteria;
+    }
+
+
+    public SaveItems(items: ItemList, crit: Criteria) {
         this._ItemList = items;
+        this._Criteria = crit;
         this.Save();
     }
     
@@ -49,9 +65,7 @@ export class ItemListService {
         return this._httpC.get<Item[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
     }
     public FetchWithCrit(crit: Criteria) {
-        //let body = "Username=" + u + "&Password=" + p;
-        //return this._httpC.post<ItemList>(this._baseUrl + 'api/Login/Login',
-        //    body);
+        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit);
     }
     public FetchWorkAlloc(AllocationId: number, allocSubtype: string, pageSize: number, pageNumber: number) {
         let body = "AllocationId=" + AllocationId + "&ListType=" + allocSubtype
@@ -62,10 +76,14 @@ export class ItemListService {
     private Save() {
         if (this._ItemList.items.length > 0) {
             localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
-            localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
         }
         else if (localStorage.getItem('ItemsList')) {
             localStorage.removeItem('ItemsList');
+        }
+        if (this._Criteria.listType != "") {
+            localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
+        }
+        else if (localStorage.getItem('ItemsListCriteria')) {
             localStorage.removeItem('ItemsListCriteria');
         }
     }
@@ -136,7 +154,7 @@ export class Criteria {
     attributeSetIdList: string = "";
     listType: string = "";
     pageNumber: number = 0;
-    pageSize: number = 0;
+    pageSize: number = 100;
     workAllocationId: number = 0;
     comparisonId: number = 0;
     description: string = "";

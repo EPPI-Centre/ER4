@@ -54,6 +54,16 @@ export class WorkAllocationContactListComp implements OnInit {
             }
         }
     }
+    LoadGivenList(workAllocationId: number, subtype: string) {
+        for (let workAll of this._workAllocationContactListService.workAllocations) {
+            if (workAll.workAllocationId == workAllocationId) {
+                console.log("emitting: " + workAll.attributeId);
+                this.ListSubType = subtype;
+                this.criteriaChange.emit(workAll);
+                return;
+            }
+        }
+    }
     Clear() {
         this._workAllocationContactListService.workAllocations = [];
         this._workAllocationContactListService.Save();

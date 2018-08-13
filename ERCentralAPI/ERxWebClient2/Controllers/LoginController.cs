@@ -31,10 +31,11 @@ namespace ERxWebClient2.Controllers
         {
             _config = conf;
         }
+        
         [HttpPost("[action]")]
-        public ReviewerIdentity Login(string Username, string Password)
+        public ReviewerIdentity Login([FromBody] LoginCreds lc)
         {
-            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(Username, Password, 0, "web", "");
+            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
 
             //var userIdentity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -42,22 +43,23 @@ namespace ERxWebClient2.Controllers
             //bool CorrectCredentials = task.Result.Item1;
             //if (!CorrectCredentials) return Redirect("~/Login"); //DoFail();
             //ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
-            
+
 
             ri.Token = BuildToken(ri);
             return ri;
         }
         [Authorize]
         [HttpPost("[action]")]
-        public ReviewerIdentity LoginToReview(int ReviewId)
+        public ReviewerIdentity LoginToReview([FromBody] LoginToReview ltr)
         {
+
             var userId = User.Claims.First(c => c.Type == "userId").Value;
             int cID;
             bool canProceed = true;
             canProceed = int.TryParse(userId, out cID);
             if (canProceed)
             {
-                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, ReviewId, User.Identity.Name);
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, ltr.ReviewId, User.Identity.Name);
                 ri.Token = BuildToken(ri);
                 return ri;
             }
@@ -97,5 +99,15 @@ namespace ERxWebClient2.Controllers
             command =  dp.Execute(command);
             return command;
         }
+        
+    }
+    public class LoginCreds
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+    public class LoginToReview
+    {
+        public int ReviewId { get; set; }
     }
 }

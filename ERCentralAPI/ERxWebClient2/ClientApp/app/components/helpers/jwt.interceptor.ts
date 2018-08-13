@@ -18,14 +18,14 @@ export class JwtInterceptor implements HttpInterceptor {
                 request = request.clone({
                     setHeaders: {
                         Authorization: `Bearer ${currentUser.token}`,
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json; charset=utf-8'
                     }
                 });
             }
             else {
                 request = request.clone({
                     setHeaders: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json; charset=utf-8'
                     }
                 });
             }

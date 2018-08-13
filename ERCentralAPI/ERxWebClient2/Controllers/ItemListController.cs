@@ -41,6 +41,39 @@ namespace ERxWebClient2.Controllers
             ItemList result = dp.Fetch(crit);
             return new ItemList4Json(result);
         }
+
+        [HttpPost("[action]")]
+        public ItemList4Json Fetch([FromBody] SelCritMVC crit )
+        {
+            SetCSLAUser();
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            DataPortal<ItemList> dp = new DataPortal<ItemList>();
+            SelectionCriteria CSLAcrit = new SelectionCriteria();
+            CSLAcrit.OnlyIncluded = crit.onlyIncluded;
+            CSLAcrit.ShowDeleted = crit.showDeleted;
+            CSLAcrit.SourceId = crit.sourceId;
+            CSLAcrit.SearchId = crit.searchId;
+            CSLAcrit.XAxisSetId = crit.xAxisSetId;
+            CSLAcrit.XAxisAttributeId = crit.xAxisAttributeId;
+            CSLAcrit.YAxisSetId = crit.yAxisSetId;
+            CSLAcrit.YAxisAttributeId = crit.yAxisAttributeId;
+            CSLAcrit.FilterSetId = crit.filterSetId;
+            CSLAcrit.FilterAttributeId = crit.filterAttributeId;
+            CSLAcrit.AttributeSetIdList = crit.attributeSetIdList;
+            CSLAcrit.ListType = crit.listType;
+            CSLAcrit.PageNumber = crit.pageNumber;
+            CSLAcrit.PageSize = crit.pageSize;
+            CSLAcrit.WorkAllocationId = crit.workAllocationId;
+            CSLAcrit.ComparisonId = crit.comparisonId;
+            CSLAcrit.Description = crit.description;
+            CSLAcrit.ContactId = crit.contactId;
+            CSLAcrit.SetId = crit.setId;
+            CSLAcrit.ShowInfoColumn = crit.showInfoColumn;
+            CSLAcrit.ShowScoreColumn = crit.showScoreColumn;
+            ItemList result = dp.Fetch(CSLAcrit);
+            return new ItemList4Json(result);
+        }
         
         [HttpPost("[action]")]
         public ItemList4Json WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)//should receive a reviewID!
@@ -58,6 +91,31 @@ namespace ERxWebClient2.Controllers
             return new ItemList4Json(result);
         }
     }
+    public class SelCritMVC
+    {
+        public bool onlyIncluded { get; set; }
+        public bool showDeleted { get; set; }
+        public int sourceId { get; set; }
+        public int searchId { get; set; }
+        public Int64 xAxisSetId { get; set; }
+        public Int64 xAxisAttributeId { get; set; }
+        public Int64 yAxisSetId { get; set; }
+        public Int64 yAxisAttributeId { get; set; }
+        public Int64 filterSetId { get; set; }
+        public Int64 filterAttributeId { get; set; }
+        public string attributeSetIdList { get; set; }
+        public string listType { get; set; }
+        public int pageNumber { get; set; }
+        public int pageSize { get; set; }
+        public int workAllocationId { get; set; }
+        public int comparisonId { get; set; }
+        public string description { get; set; }
+        public int contactId { get; set; }
+        public int setId { get; set; }
+        public bool showInfoColumn { get; set; }
+        public bool showScoreColumn { get; set; }
+    }
+    //{"onlyIncluded":true,"showDeleted":false,"sourceId":0,"searchId":0,"xAxisSetId":0,"xAxisAttributeId":0,"yAxisSetId":0,"yAxisAttributeId":0,"filterSetId":0,"filterAttributeId":0,"attributeSetIdList":"","listType":"GetItemWorkAllocationListRemaining","pageNumber":0,"pageSize":100,"workAllocationId":500,"comparisonId":0,"description":"","contactId":0,"setId":0,"showInfoColumn":true,"showScoreColumn":true}
     public class ItemList4Json
     {
         private ItemList _list;

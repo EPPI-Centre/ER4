@@ -7,7 +7,7 @@ import { Observable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
-import { ItemListService } from '../services/ItemList.service';
+import { ItemListService, Criteria } from '../services/ItemList.service';
 
 
 @Component({
@@ -26,11 +26,14 @@ export class ItemListComp implements OnInit {
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
 
-    public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string ) {
-        this.ItemListService.FetchWorkAlloc(workAlloc.workAllocationId, ListSubType, 100, 0)
+    public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
+        let crit = new Criteria();
+        crit.listType = ListSubType;
+        crit.workAllocationId = workAlloc.workAllocationId;
+        this.ItemListService.FetchWithCrit(crit)
             .subscribe(list => {
                 console.log("Got ItemList, lenght = " + list.items.length);
-                this.ItemListService.SaveItems(list);
+                this.ItemListService.SaveItems(list, crit);
             })
     }
 

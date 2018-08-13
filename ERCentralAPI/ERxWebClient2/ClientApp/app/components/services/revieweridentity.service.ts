@@ -61,12 +61,14 @@ export class ReviewerIdentityService {
     
     
     public LoginReq(u: string, p: string) {
-        let body = "Username=" + u + "&Password=" + p;
+        let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-            body);
+            reqpar);
+            //body);
     }
     public LoginToReview(RevId: number) {
-        let body = "ReviewId=" + RevId;
+        //data: JSON.stringify({ FilterName: "Dirty Deeds" })
+        let body = JSON.stringify({ ReviewId: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body);
     }
@@ -79,6 +81,16 @@ export class ReviewerIdentityService {
         //}
     }
 }
+
+class LoginCreds {
+    constructor(u: string, p: string) {
+        this.Username = u;
+        this.Password = p;
+    }
+    public Username: string = "";
+    public Password: string = "";
+    }
+
 export class ReviewerIdentity {
     public reviewId: number = 0;
     public ticket: string = "";

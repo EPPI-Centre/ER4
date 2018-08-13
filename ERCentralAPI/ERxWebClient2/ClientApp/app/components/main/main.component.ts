@@ -57,7 +57,7 @@ export class MainComponent implements OnInit, AfterViewInit {
         //this.itemListComp.
     }
     Clear() {
-        this.ItemListService.SaveItems(new ItemList());
+        this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.workAllocationsComp.Clear();
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
