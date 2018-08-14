@@ -55,6 +55,7 @@ export class ItemListService {
     public SaveItems(items: ItemList, crit: Criteria) {
         this._ItemList = items;
         this._Criteria = crit;
+        console.log(crit);
         this.Save();
     }
     
@@ -95,7 +96,6 @@ export class ItemList {
     pagecount: number = 0;
     items: Item[] = [];
 }
-
 
 export class Item {
     itemId: number = 0;

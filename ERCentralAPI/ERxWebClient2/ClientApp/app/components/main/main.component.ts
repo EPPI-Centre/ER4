@@ -62,6 +62,9 @@ export class MainComponent implements OnInit, AfterViewInit {
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+        console.log(this.workAllocationsComp.ListSubType);
+        //console.log("length of items list = " + this.ItemListService.ItemList.items.length);
+
         //this.ItemListService.FetchWorkAlloc(workAlloc.workAllocationId, this.workAllocations.ListSubType, 100, 0)
         //    .subscribe(list => {
         //        console.log("Got ItemList, lenght = " + list.items.length);
