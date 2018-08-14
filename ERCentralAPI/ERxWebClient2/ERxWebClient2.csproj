@@ -34,14 +34,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetList.cs" Link="Models\AttributeSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArm.cs" Link="Models\ItemArm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArmList.cs" Link="Models\ItemArmList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetails.cs" Link="Models\ItemAttributeFullTextDetails.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeTextList.cs" Link="Models\ItemAttributeTextList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemList.cs" Link="Models\ItemList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetList.cs" Link="Models\ItemSetList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeList.cs" Link="Models\ReadOnlyItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ArchieIdentity.cs" Link="Models\Security\ArchieIdentity.cs" />

@@ -33,18 +33,11 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-#if SILVERLIGHT
         public OutcomeItemAttributeList() { }
-#else
-        private OutcomeItemAttributeList() { }
-#endif
 
 
-#if SILVERLIGHT
-       
-#else
-        
 
+#if !SILVERLIGHT
         protected void DataPortal_Fetch(SingleCriteria<AttributeSetList, int> criteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

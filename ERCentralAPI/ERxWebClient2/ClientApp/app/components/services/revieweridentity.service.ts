@@ -68,7 +68,7 @@ export class ReviewerIdentityService {
     }
     public LoginToReview(RevId: number) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
-        let body = JSON.stringify({ ReviewId: RevId });
+        let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body);
     }

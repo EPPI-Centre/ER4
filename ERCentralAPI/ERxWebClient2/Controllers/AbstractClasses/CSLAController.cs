@@ -62,4 +62,16 @@ namespace ERxWebClient2.Controllers
             //return canProceed;
         }
     }
+    public class SingleStringCriteria
+    {
+        public string Value { get; set; }
+    }
+    public class SingleIntCriteria
+    {
+        public int Value { get; set; }
+    }
+    public class SingleInt64Criteria
+    {
+        public Int64 Value { get; set; }
+    }
 }
