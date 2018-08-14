@@ -8,7 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
-
+//import { DataSource } from '@angular/cdk/collections';
 
 @Component({
     selector: 'ItemListComp',
@@ -25,6 +25,9 @@ export class ItemListComp implements OnInit {
     }
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
+
+    //dataSource = this.ItemListService.ItemList.items;
+    //displayedColumns = ['Authors'];
 
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
         let crit = new Criteria();

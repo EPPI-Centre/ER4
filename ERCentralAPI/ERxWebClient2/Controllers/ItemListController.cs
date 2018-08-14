@@ -72,6 +72,8 @@ namespace ERxWebClient2.Controllers
             CSLAcrit.ShowInfoColumn = crit.showInfoColumn;
             CSLAcrit.ShowScoreColumn = crit.showScoreColumn;
             ItemList result = dp.Fetch(CSLAcrit);
+
+            //return Json(result);
             return new ItemList4Json(result);
         }
         
@@ -88,6 +90,8 @@ namespace ERxWebClient2.Controllers
             crit.PageSize = pageSize;
             crit.PageNumber = pageNumber;
             ItemList result = dp.Fetch(crit);
+            //return Json(result);
+
             return new ItemList4Json(result);
         }
     }

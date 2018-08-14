@@ -12,11 +12,12 @@
         </thead>
         <tbody>
             <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations">
-                <td>{{ alloc.setName }}</td>
-                <td>{{ alloc.attributeName }}</td>
-                <td>{{ alloc.totalAllocation }}</td>
-                <td>{{ alloc.totalStarted }}</td>
-                <td>{{ alloc.totalRemaining }}</td>
+                <td >{{ alloc.setName }}</td>
+                <td >{{ alloc.attributeName }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">{{ alloc.totalAllocation }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListStarted')">{{ alloc.totalStarted }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListRemaining')">{{ alloc.totalRemaining }}</td>
+                
 
                 <!--<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                     <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">

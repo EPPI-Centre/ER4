@@ -9,8 +9,7 @@ import { PLATFORM_ID } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
-    }
-)
+})
 
 export class WorkAllocationContactListService {
 

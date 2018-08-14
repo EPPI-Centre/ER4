@@ -31,6 +31,9 @@ export class WorkAllocationContactListComp implements OnInit {
         this._workAllocationContactListService.Fetch().subscribe(result => {
             this._workAllocationContactListService.workAllocations = result;
             console.log("got " + this._workAllocationContactListService.workAllocations.length + " Work Allocs.");
+            for (let workAll of this._workAllocationContactListService.workAllocations) {
+                console.log("WA_Id: " + workAll.workAllocationId);
+            }
             this.LoadDefaultItemList();
         });
     }
@@ -40,6 +43,7 @@ export class WorkAllocationContactListComp implements OnInit {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalRemaining > 0) {
                 console.log("emitting: " + workAll.attributeId);
+                console.log("WA_Id: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationListRemaining";
                 this.criteriaChange.emit(workAll);
                 return;
@@ -48,6 +52,7 @@ export class WorkAllocationContactListComp implements OnInit {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalAllocation > 0) {
                 console.log("emitting: " + workAll.attributeId);
+                console.log("blah the blah: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
                 return;
@@ -58,7 +63,9 @@ export class WorkAllocationContactListComp implements OnInit {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.workAllocationId == workAllocationId) {
                 console.log("emitting: " + workAll.attributeId);
+                // Sergio I do not know where this comes from!
                 this.ListSubType = subtype;
+                //this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
                 return;
             }
@@ -69,7 +76,9 @@ export class WorkAllocationContactListComp implements OnInit {
         this._workAllocationContactListService.Save();
     }
 
-
+    log(blah: string) {
+        console.log(blah)
+    }
 
     ngOnInit() {
 

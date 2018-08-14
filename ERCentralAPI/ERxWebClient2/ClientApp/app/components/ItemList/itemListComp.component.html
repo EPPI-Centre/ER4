@@ -1,6 +1,5 @@
 <p *ngIf="ItemListService.ItemList.items.length == 0"><em>Loading Items...</em></p>
-
-    <table class='table table-responsive' *ngIf="ItemListService.ItemList.items.length > 0">
+ <table class='table table-responsive' *ngIf="ItemListService.ItemList.items.length > 0">
         <thead>
             <tr>
                 <th>[]</th>
@@ -27,6 +26,19 @@
                     <button type="submit">GO!</button>
                 </form>-->
 
-            </tr>
+   </tr>
         </tbody>
-    </table>
+    </table> 
+
+
+
+<!--<div>
+  <mat-table [dataSource]="ItemListService.ItemList.items">
+    <ng-container matColumnDef="Authors">
+        <mat-header-cell *matHeaderCellDef> Authors </mat-header-cell>
+        <mat-cell *matCellDef="let item"> {{ item.authors}} </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>-->
