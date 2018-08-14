@@ -1,0 +1,17 @@
+<div class="h-100 mh-100">
+    <div class="row d-flex border border-info">
+        <div class="col-md-3 h-100">
+            <reviewsets></reviewsets>
+        </div>
+        <div class="col-md-9 border border-info">
+            <h4>ITEM Details.</h4>
+            <div *ngIf="item">
+                <div class="row"><b>ID:&nbsp;</b>{{item.itemId}}</div>
+                <div class="row"><b>Title:&nbsp;</b>{{item.title}}</div>
+                <div class="row"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+                <div class="row"><b>Authors:&nbsp;</b> {{item.authors}}</div>
+                <div class="row"><b>Type:&nbsp;</b> {{item.typeName}}</div>
+            </div>
+        </div>
+    </div>
+</div>

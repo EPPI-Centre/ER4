@@ -58,9 +58,21 @@ export class ItemListService {
         console.log(crit);
         this.Save();
     }
-    
-    
-    
+    public getItem(itemId: number): Item {
+        let ff = this.ItemList.items.find(found => found.itemId == itemId);
+        if (ff != undefined && ff != null) return ff;
+        return new Item();
+    }
+    public getPrevious(itemId: number): Item {
+        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+        if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) return this._ItemList.items[ff-1];
+        return new Item();
+    }
+    public getNext(itemId: number): Item {
+        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+        if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
+        return new Item();
+    }
     public Fetch() {
 
         return this._httpC.get<Item[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
