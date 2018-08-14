@@ -65,7 +65,7 @@ export class WorkAllocationContactListComp implements OnInit {
                 console.log("emitting: " + workAll.attributeId);
                 // Sergio I do not know where this comes from!
                 this.ListSubType = subtype;
-                this.ListSubType = "GetItemWorkAllocationList";
+                //this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
                 return;
             }

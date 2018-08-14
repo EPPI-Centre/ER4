@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
-
+//import { MatTableModule } from '@angular/material';
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
@@ -28,7 +28,8 @@ import { ItemListComp } from './components/ItemList/itemListComp.component';
         HomeComponent,
         WorkAllocationContactListComp,
         ItemListComp,
-        MainComponent
+        MainComponent,
+        //MatTableModule
     ],
     imports: [
         CommonModule,

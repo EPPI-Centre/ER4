@@ -12,12 +12,12 @@
         </thead>
         <tbody>
             <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations">
-                <td (click)="LoadGivenList(alloc.workAllocationId,'')">{{ alloc.setName }}</td>
-                <td (click)="LoadGivenList(alloc.workAllocationId,'')">{{ alloc.attributeName }}</td>
-                <td (click)="LoadGivenList(alloc.workAllocationId,'')">{{ alloc.totalAllocation }}</td>
-                <td (click)="LoadGivenList(alloc.workAllocationId,'')">{{ alloc.totalStarted }}</td>
-                <td (click)="LoadGivenList(alloc.workAllocationId,'')">{{ alloc.totalRemaining }}</td>
-                <td hidden (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">{{alloc.workAllocationId}}</td>
+                <td >{{ alloc.setName }}</td>
+                <td >{{ alloc.attributeName }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">{{ alloc.totalAllocation }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListStarted')">{{ alloc.totalStarted }}</td>
+                <td (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListRemaining')">{{ alloc.totalRemaining }}</td>
+                
 
                 <!--<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                     <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
