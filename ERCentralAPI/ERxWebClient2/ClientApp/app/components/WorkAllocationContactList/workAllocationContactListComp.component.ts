@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -13,12 +13,13 @@ import { WorkAllocationContactListService, WorkAllocation } from '../services/Wo
 @Component({
     selector: 'WorkAllocationContactListComp',
     templateUrl: './workAllocationContactListComp.component.html',
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: blue;}'],
     //providers: [ReviewerIdentityService]
     providers: []
 })
-export class WorkAllocationContactListComp implements OnInit {
-
-    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
+export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
+    constructor(
+    private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         private _workAllocationContactListService: WorkAllocationContactListService
     ) { }
 
@@ -26,6 +27,17 @@ export class WorkAllocationContactListComp implements OnInit {
     }
     @Output() criteriaChange = new EventEmitter();
     public ListSubType: string = "";
+    private activeCellId: string = "notstartedyet";
+
+    public isClassVisibleStart: boolean = false;
+    public isClassVisibleRem: boolean = false;
+    public isClassVisibleAll: boolean = false;
+    public clickedIndex: string = '';
+
+
+    setClickedIndex(i: string) {
+        this.clickedIndex = i;
+    }
 
     getWorkAllocationContactList() {
         this._workAllocationContactListService.Fetch().subscribe(result => {
@@ -46,6 +58,9 @@ export class WorkAllocationContactListComp implements OnInit {
                 console.log("WA_Id: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationListRemaining";
                 this.criteriaChange.emit(workAll);
+                this.activeCellId = '#waRemaining-' + workAll.workAllocationId;
+                let cell = document.querySelector('#waRemaining-' + workAll.workAllocationId);
+                if (cell) cell.classList.add("UsedWorkAllocation");
                 return;
             }
         }
@@ -55,6 +70,8 @@ export class WorkAllocationContactListComp implements OnInit {
                 console.log("blah the blah: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
+                let cell = document.querySelector('#waAll-' + workAll.workAllocationId);
+                if (cell) cell.classList.add("UsedWorkAllocation");
                 return;
             }
         }
@@ -67,9 +84,22 @@ export class WorkAllocationContactListComp implements OnInit {
                 this.ListSubType = subtype;
                 //this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
+               // this.updateCellStyles(workAllocationId, subtype);
                 return;
             }
         }
+    }
+    updateCellStyles(workAllocationId: number, subtype: string) {
+        let idRoot: string = "#waRemaining-";
+        if (subtype == "GetItemWorkAllocationList") {
+            idRoot = "#waAll-";
+        } else if (subtype == "GetItemWorkAllocationListStarted") {
+            idRoot = "#waStarted-"
+        }
+        let cell0 = document.querySelector('.UsedWorkAllocation');
+        if (cell0) cell0.classList.remove("UsedWorkAllocation");
+        let cell = document.querySelector(idRoot + workAllocationId);
+        if (cell) cell.classList.add("UsedWorkAllocation");
     }
     Clear() {
         this._workAllocationContactListService.workAllocations = [];
@@ -82,6 +112,15 @@ export class WorkAllocationContactListComp implements OnInit {
 
     ngOnInit() {
 
+        //if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+        //    this.router.navigate(['home']);
+        //}
+        //else {
+        //    console.log("getting WorkAllocs");
+        //    this.getWorkAllocationContactList();
+        //}
+    }
+    ngAfterContentInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
