@@ -8,6 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
+import { ItemCodingService } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 export class ItemCodingComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, private ItemListService: ItemListService
-        , private route: ActivatedRoute
+        , private route: ActivatedRoute, private ItemCodingService: ItemCodingService
     ) { }
     private sub: any;
     private itemID: number = 0;
@@ -43,7 +44,14 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     }
     private GetItem() {
-        this.item = this.ItemListService.getItem(this.itemID)
+        this.item = this.ItemListService.getItem(this.itemID);
+        this.GetItemCoding();
+    }
+    private GetItemCoding() {
+        this.ItemCodingService.Fetch(this.itemID).subscribe(result => {
+            this.ItemCodingService.ItemCodingList = result;
+            this.ItemCodingService.Save();
+        })
     }
     ngOnDestroy() {
         this.sub.unsubscribe();

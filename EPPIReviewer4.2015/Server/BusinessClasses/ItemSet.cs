@@ -50,7 +50,13 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
 
+        //consider changing this by applying the following implementation inside ER4!
+        //custom runtime JSON serialisation:
+        //https://blog.rsuter.com/advanced-newtonsoft-json-dynamically-rename-or-ignore-properties-without-changing-the-serialized-class/
         public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemSetId
         {
             get
@@ -60,6 +66,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetId
         {
             get
@@ -73,6 +82,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemId
         {
             get
@@ -86,6 +98,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int ContactId
         {
             get
@@ -99,6 +114,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public string ContactName
         {
             get
@@ -112,6 +130,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", string.Empty));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public string SetName
         {
             get
@@ -125,6 +146,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsCompleted
         {
             get
@@ -138,6 +162,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", true));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsLocked
         {
             get
@@ -204,8 +231,12 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
         public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsSelected
-        {
+        {//refers to it being selected in the coding record tab
             get
             {
                 return GetProperty(IsSelectedProperty);
