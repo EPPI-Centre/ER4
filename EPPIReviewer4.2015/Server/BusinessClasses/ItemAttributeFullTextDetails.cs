@@ -23,12 +23,8 @@ namespace BusinessLibrary.BusinessClasses
     [JsonObject(MemberSerialization.OptIn)]
     public class ItemAttributeFullTextDetails : BusinessBase<ItemAttributeFullTextDetails>, IComparable
     {
-
-#if SILVERLIGHT
     public ItemAttributeFullTextDetails() { }
-#else
-        private ItemAttributeFullTextDetails() { }
-#endif
+
         public int CompareTo(object y)
         {//implements IComparable, used to sort items!
             if (y == null) return 1;
@@ -75,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         
 
-        private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        public static readonly PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
         [JsonProperty]
         public Int64 ItemDocumentId
         {
@@ -89,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
         public Int64 ItemAttributeId
         {
             get
@@ -101,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemAttributeIdProperty, value);
             }
         }
-        private static PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+        public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
         public Int64 ItemSetId
         {
             get
@@ -113,7 +109,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemSetIdProperty, value);
             }
         }
-        private static PropertyInfo<Int64> ItemAttributeTextIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeTextId", "ItemAttributeTextId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeTextIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeTextId", "ItemAttributeTextId"));
         public Int64 ItemAttributeTextId
         {
             get
@@ -125,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemAttributeTextIdProperty, value);
             }
         }
-        private static PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom", 0));
+        public static readonly PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom", 0));
         [JsonProperty]
         public int TextFrom
         {
@@ -139,7 +135,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo", 0));
+        public static readonly PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo", 0));
         [JsonProperty]
         public int TextTo
         {
@@ -154,7 +150,7 @@ namespace BusinessLibrary.BusinessClasses
         }
        
 
-        private static PropertyInfo<string> TextProperty = RegisterProperty<string>(new PropertyInfo<string>("Text", "Text", 0));
+        public static readonly PropertyInfo<string> TextProperty = RegisterProperty<string>(new PropertyInfo<string>("Text", "Text", 0));
         [JsonProperty]
         public string Text
         {
@@ -168,7 +164,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsFromPDFProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFromPDF", "IsFromPDF", 0));
+        public static readonly PropertyInfo<bool> IsFromPDFProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFromPDF", "IsFromPDF", 0));
         [JsonProperty]
         public bool IsFromPDF
         {
@@ -181,7 +177,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(IsFromPDFProperty, value);
             }
         }
-        private static PropertyInfo<string> DocTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("DocTitle", "DocTitle", 0));
+        public static readonly PropertyInfo<string> DocTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("DocTitle", "DocTitle", 0));
         [JsonProperty]
         public string DocTitle
         {
@@ -194,7 +190,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(DocTitleProperty, value);
             }
         }
-        private static PropertyInfo<string> ItemArmProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemArm", "ItemArm", ""));
+        public static readonly PropertyInfo<string> ItemArmProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemArm", "ItemArm", ""));
         [JsonProperty]
         public string ItemArm
         {

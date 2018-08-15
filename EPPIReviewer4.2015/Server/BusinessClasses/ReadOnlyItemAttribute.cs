@@ -24,12 +24,10 @@ namespace BusinessLibrary.BusinessClasses
     public class ReadOnlyItemAttribute : ReadOnlyBase<ReadOnlyItemAttribute>
     {
 
-#if SILVERLIGHT
+
     public ReadOnlyItemAttribute() { }
     
-#else
-        private ReadOnlyItemAttribute() { }
-#endif
+
         //private ItemAttributeTextList _ItemAttributeTextList;
         public ItemAttributeTextList ItemAttributeTextList
         {
@@ -47,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
                 return null;
             }
         }
-        private static PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttribute Id"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttribute Id"));
         public Int64 ItemAttributeId
         {
             get
@@ -56,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -65,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+        public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
         public Int64 ItemSetId
         {
             get
@@ -74,7 +72,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         [JsonProperty]
         public Int64 AttributeId
         {
@@ -84,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
+        public static readonly PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
         [JsonProperty]
         public string AdditionalText
         {
@@ -94,7 +92,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
         public int ContactId
         {
             get
@@ -103,7 +101,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "AttributeSetId"));
+        public static readonly PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "AttributeSetId"));
         public Int64 AttributeSetId
         {
             get
@@ -112,7 +110,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ArmId", "ArmId"));
+        public static readonly PropertyInfo<Int64> ArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ArmId", "ArmId"));
         [JsonProperty]
         public Int64 ArmId
         {
@@ -122,7 +120,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ArmTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmTitle", "ArmTitle", string.Empty));
+        public static readonly PropertyInfo<string> ArmTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmTitle", "ArmTitle", string.Empty));
         [JsonProperty]
         public string ArmTitle
         {
@@ -132,7 +130,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsCompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsComplete", "IsComplete"));
+        public static readonly PropertyInfo<bool> IsCompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsComplete", "IsComplete"));
         public bool IsComplete
         {
             get
@@ -141,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked"));
+        public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked"));
         public bool IsLocked
         {
             get
@@ -150,7 +148,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        //private static PropertyInfo<ItemAttributeTextList> ItemAttributeTextListProperty = RegisterProperty<ItemAttributeTextList>(new PropertyInfo<ItemAttributeTextList>("ItemAttributeTextList", "ItemAttributeTextList"));
+        //public static readonly PropertyInfo<ItemAttributeTextList> ItemAttributeTextListProperty = RegisterProperty<ItemAttributeTextList>(new PropertyInfo<ItemAttributeTextList>("ItemAttributeTextList", "ItemAttributeTextList"));
         //public ItemAttributeTextList ItemAttributeTextList
         //{
         //    get
@@ -158,7 +156,7 @@ namespace BusinessLibrary.BusinessClasses
         //        return GetProperty(ItemAttributeTextListProperty);
         //    }
         //}
-        private static PropertyInfo<ItemAttributeFullTextDetailsList> ItemAttributeFullTextListProperty = RegisterProperty<ItemAttributeFullTextDetailsList>(new PropertyInfo<ItemAttributeFullTextDetailsList>("ItemAttributeFullTextList", "ItemAttributeFullTextList"));
+        public static readonly PropertyInfo<ItemAttributeFullTextDetailsList> ItemAttributeFullTextListProperty = RegisterProperty<ItemAttributeFullTextDetailsList>(new PropertyInfo<ItemAttributeFullTextDetailsList>("ItemAttributeFullTextList", "ItemAttributeFullTextList"));
         public ItemAttributeFullTextDetailsList ItemAttributeFullTextList
         {
             get

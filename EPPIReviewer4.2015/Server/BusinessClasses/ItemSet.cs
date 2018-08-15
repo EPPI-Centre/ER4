@@ -44,13 +44,19 @@ namespace BusinessLibrary.BusinessClasses
         }
     }
 #else
-        private ItemSet()
+        public ItemSet()
         {
             
         }
 #endif
 
-        private static PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+        //consider changing this by applying the following implementation inside ER4!
+        //custom runtime JSON serialisation:
+        //https://blog.rsuter.com/advanced-newtonsoft-json-dynamically-rename-or-ignore-properties-without-changing-the-serialized-class/
+        public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemSetId
         {
             get
@@ -59,7 +65,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId", 0));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetId
         {
             get
@@ -72,7 +81,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemId
         {
             get
@@ -85,7 +97,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int ContactId
         {
             get
@@ -98,7 +113,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+        public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public string ContactName
         {
             get
@@ -111,7 +129,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", string.Empty));
+        public static readonly PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", string.Empty));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public string SetName
         {
             get
@@ -124,7 +145,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted", false));
+        public static readonly PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsCompleted
         {
             get
@@ -137,7 +161,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", true));
+        public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", true));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsLocked
         {
             get
@@ -152,7 +179,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<ReadOnlyItemAttributeList> ItemAttributesProperty = RegisterProperty<ReadOnlyItemAttributeList>(new PropertyInfo<ReadOnlyItemAttributeList>("ItemAttributes", "ItemAttributes"));
+        public static readonly PropertyInfo<ReadOnlyItemAttributeList> ItemAttributesProperty = RegisterProperty<ReadOnlyItemAttributeList>(new PropertyInfo<ReadOnlyItemAttributeList>("ItemAttributes", "ItemAttributes"));
         public ReadOnlyItemAttributeList ItemAttributes
         {
             get
@@ -203,9 +230,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             return retVal;
         }
-        private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+        public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsSelected
-        {
+        {//refers to it being selected in the coding record tab
             get
             {
                 return GetProperty(IsSelectedProperty);
@@ -216,7 +247,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<OutcomeItemList> OutcomeItemListProperty = RegisterProperty<OutcomeItemList>(new PropertyInfo<OutcomeItemList>("OutcomeItemList", "OutcomeItemList"));
+        public static readonly PropertyInfo<OutcomeItemList> OutcomeItemListProperty = RegisterProperty<OutcomeItemList>(new PropertyInfo<OutcomeItemList>("OutcomeItemList", "OutcomeItemList"));
         [JsonProperty]
         public OutcomeItemList OutcomeItemList
         {

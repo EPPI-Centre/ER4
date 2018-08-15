@@ -78,7 +78,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 #else
-        private ItemSetList() { }
+        public ItemSetList() { }
 #endif
 
         internal static ItemSetList NewItemSetList()

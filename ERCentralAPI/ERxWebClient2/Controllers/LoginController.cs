@@ -50,7 +50,7 @@ namespace ERxWebClient2.Controllers
         }
         [Authorize]
         [HttpPost("[action]")]
-        public ReviewerIdentity LoginToReview([FromBody] LoginToReview ltr)
+        public ReviewerIdentity LoginToReview([FromBody] SingleIntCriteria RevIDCrit)
         {
 
             var userId = User.Claims.First(c => c.Type == "userId").Value;
@@ -59,7 +59,7 @@ namespace ERxWebClient2.Controllers
             canProceed = int.TryParse(userId, out cID);
             if (canProceed)
             {
-                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, ltr.ReviewId, User.Identity.Name);
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
                 ri.Token = BuildToken(ri);
                 return ri;
             }
