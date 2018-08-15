@@ -27,12 +27,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
     @Output() criteriaChange = new EventEmitter();
     public ListSubType: string = "";
-    private activeCellId: string = "notstartedyet";
 
-    public isClassVisibleStart: boolean = false;
-    public isClassVisibleRem: boolean = false;
-    public isClassVisibleAll: boolean = false;
-    public clickedIndex: string = '';
+    public clickedIndex: string = 'waRemaining-0';
 
 
     setClickedIndex(i: string) {
@@ -54,24 +50,22 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
         if (!this._workAllocationContactListService.workAllocations) return;
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalRemaining > 0) {
+                console.log(this.clickedIndex);
                 console.log("emitting: " + workAll.attributeId);
                 console.log("WA_Id: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationListRemaining";
                 this.criteriaChange.emit(workAll);
-                this.activeCellId = '#waRemaining-' + workAll.workAllocationId;
-                let cell = document.querySelector('#waRemaining-' + workAll.workAllocationId);
-                if (cell) cell.classList.add("UsedWorkAllocation");
                 return;
             }
         }
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalAllocation > 0) {
                 console.log("emitting: " + workAll.attributeId);
+                console.log(this.clickedIndex);
                 console.log("blah the blah: " + workAll.workAllocationId);
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
-                let cell = document.querySelector('#waAll-' + workAll.workAllocationId);
-                if (cell) cell.classList.add("UsedWorkAllocation");
+
                 return;
             }
         }
@@ -79,28 +73,15 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     LoadGivenList(workAllocationId: number, subtype: string) {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.workAllocationId == workAllocationId) {
+                console.log(this.clickedIndex);
                 console.log("emitting: " + workAll.attributeId);
-                // Sergio I do not know where this comes from!
                 this.ListSubType = subtype;
-                //this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
-               // this.updateCellStyles(workAllocationId, subtype);
                 return;
             }
         }
     }
-    updateCellStyles(workAllocationId: number, subtype: string) {
-        let idRoot: string = "#waRemaining-";
-        if (subtype == "GetItemWorkAllocationList") {
-            idRoot = "#waAll-";
-        } else if (subtype == "GetItemWorkAllocationListStarted") {
-            idRoot = "#waStarted-"
-        }
-        let cell0 = document.querySelector('.UsedWorkAllocation');
-        if (cell0) cell0.classList.remove("UsedWorkAllocation");
-        let cell = document.querySelector(idRoot + workAllocationId);
-        if (cell) cell.classList.add("UsedWorkAllocation");
-    }
+
     Clear() {
         this._workAllocationContactListService.workAllocations = [];
         this._workAllocationContactListService.Save();
@@ -112,13 +93,6 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
 
     ngOnInit() {
 
-        //if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-        //    this.router.navigate(['home']);
-        //}
-        //else {
-        //    console.log("getting WorkAllocs");
-        //    this.getWorkAllocationContactList();
-        //}
     }
     ngAfterContentInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
