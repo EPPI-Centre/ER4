@@ -100,7 +100,9 @@ export class ItemListService {
             localStorage.removeItem('ItemsListCriteria');
         }
     }
+
 }
+
 
 export class ItemList {
     pagesize: number = 0;
@@ -108,6 +110,7 @@ export class ItemList {
     pagecount: number = 0;
     items: Item[] = [];
 }
+
 
 export class Item {
     itemId: number = 0;
@@ -165,8 +168,15 @@ export class Criteria {
     filterAttributeId: number = 0;
     attributeSetIdList: string = "";
     listType: string = "";
+
     pageNumber: number = 0;
     pageSize: number = 100;
+    totalItems: number = 0;
+    startPage: number= 0;
+    endPage: number = 0;
+    startIndex: number = 0;
+    endIndex: number = 0;
+
     workAllocationId: number = 0;
     comparisonId: number = 0;
     description: string = "";

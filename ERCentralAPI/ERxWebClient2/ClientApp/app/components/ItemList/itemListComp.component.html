@@ -1,34 +1,57 @@
-<p *ngIf="ItemListService.ItemList.items.length == 0"><em>Loading Items...</em></p>
- <table class='table table-responsive' *ngIf="ItemListService.ItemList.items.length > 0">
-        <thead>
-            <tr>
-                <th>[]</th>
-                <th>Authors:</th>
-                <th>Title</th>
-                <th>Year</th>
-                <th>ID</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of ItemListService.ItemList.items">
-                <td><button (click)="OpenItem(item.itemId)">GO</button></td>
-                <td>{{ item.authors }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.year }}</td>
-                <td>{{ item.itemId }}</td>
+<!--<p *ngIf="ItemListService.ItemList.items.length == 0"><em>Loading Items...</em></p>-->
 
-                <!--<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
-                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                    <button>GO!</button>
-                </form>-->
-                <!--<form method="post" action="['/readonlyreviews']">
-                    <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />
-                    <button type="submit">GO!</button>
-                </form>-->
+<!--<table class='table table-responsive' *ngIf="ItemListService.ItemList.items.length > 0">
+    <thead>
+        <tr>
+            <th>[]</th>
+            <th>Authors:</th>
+            <th>Title</th>
+            <th>Year</th>
+            <th>ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of ItemListService.ItemList.items">
+            <td><button (click)="OpenItem(item.itemId)">GO</button></td>
+            <td>{{ item.authors }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ item.itemId }}</td>
 
-   </tr>
-        </tbody>
-    </table> 
+        </tr>
+    </tbody>
+</table>-->
+
+
+<div>
+    <div class="container">
+        <div class="text-left">
+            <h2>Pagination Service</h2>
+
+            <!-- items being paged -->
+            <div *ngFor="let item of pagedItems">{{item.title}}</div>
+
+            <!-- pager -->
+            <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
+                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                    <a class="page-link" (click)="setPage(1)">First</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === 1}">
+                    <a class="page-link" (click)="setPage(pager.currentPage - 1)">Previous</a>
+                </li>
+                <li *ngFor="let page of pager.pages" [ngClass]="{active:pager.currentPage === page}">
+                    <a class="page-link" (click)="setPage(page)">{{page}}</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                    <a class="page-link" (click)="setPage(pager.currentPage + 1)">Next</a>
+                </li>
+                <li [ngClass]="{disabled:pager.currentPage === pager.totalPages}">
+                    <a class="page-link" (click)="setPage(pager.totalPages)">Last</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 
 

@@ -111,6 +111,11 @@ namespace ERxWebClient2.Controllers
         public string listType { get; set; }
         public int pageNumber { get; set; }
         public int pageSize { get; set; }
+        public int totalItems { get; set; }
+        public int startPage { get; set; }
+        public int endPage { get; set; }
+        public int startIndex { get; set; }
+        public int endIndex { get; set; }
         public int workAllocationId { get; set; }
         public int comparisonId { get; set; }
         public string description { get; set; }

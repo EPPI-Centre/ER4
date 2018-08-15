@@ -7,7 +7,8 @@ import { Observable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
-
+import { PagerService } from '../services/pager.service'
+import { ItemListService } from '../services/ItemList.service'
 
 
 @Component({
@@ -20,11 +21,14 @@ import { WorkAllocationContactListService, WorkAllocation } from '../services/Wo
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        private _workAllocationContactListService: WorkAllocationContactListService
+        private _workAllocationContactListService: WorkAllocationContactListService,
+        private _PagerService: PagerService,
+        private ItemListService: ItemListService
     ) { }
 
     onSubmit(f: string) {
     }
+
     @Output() criteriaChange = new EventEmitter();
     public ListSubType: string = "";
 
@@ -76,6 +80,10 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
                 console.log(this.clickedIndex);
                 console.log("emitting: " + workAll.attributeId);
                 this.ListSubType = subtype;
+
+                // initialize to page 1
+               // this.setPage(1);
+
                 this.criteriaChange.emit(workAll);
                 return;
             }
@@ -100,6 +108,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
         }
         else {
             console.log("getting WorkAllocs");
+            //this.allItems = data;
             this.getWorkAllocationContactList();
         }
     }

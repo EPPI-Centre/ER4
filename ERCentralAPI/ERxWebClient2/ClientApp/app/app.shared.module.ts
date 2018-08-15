@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
-//import { MatTableModule } from '@angular/material';
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
@@ -17,8 +16,6 @@ import { WorkAllocationContactListComp } from './components/WorkAllocationContac
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { ItemCodingService } from './components/services/ItemCoding.service';
-
-
 
 @NgModule({
     declarations: [
@@ -33,12 +30,12 @@ import { ItemCodingService } from './components/services/ItemCoding.service';
         ItemListComp,
         ItemCodingComp,
         MainComponent
-        //MatTableModule
     ],
     imports: [
         CommonModule,
         HttpModule,
         FormsModule,
+        ReactiveFormsModule,
         TreeModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
