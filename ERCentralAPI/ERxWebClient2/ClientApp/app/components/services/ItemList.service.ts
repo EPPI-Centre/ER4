@@ -78,7 +78,38 @@ export class ItemListService {
         return this._httpC.get<Item[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
     }
     public FetchWithCrit(crit: Criteria) {
-        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit);
+        this._Criteria = crit;
+        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(list => {
+                console.log("crit: page =" + this._Criteria.pageNumber);
+                this.SaveItems(list, this._Criteria);
+            });
+    }
+    public FetchNextPage() {
+        console.log('total items are: ' + this._Criteria.totalItems);
+        if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
+            this._Criteria.pageNumber += 1;
+        } else {
+        }
+        //return this.FetchWithCrit(this._Criteria);
+        this.FetchWithCrit(this._Criteria)
+    }
+    public FetchPrevPage() {
+        console.log('total items are: ' + this._Criteria.totalItems);
+        if (this.ItemList.pageindex == 0 ) {
+            return this.FetchWithCrit(this._Criteria);
+        } else {
+            this._Criteria.pageNumber -= 1;
+            return this.FetchWithCrit(this._Criteria);
+        }
+    }
+    public FetchLastPage() {
+        this._Criteria.pageNumber = this.ItemList.pagecount - 1;
+        return this.FetchWithCrit(this._Criteria);
+    }
+    public FetchFirstPage() {
+        this._Criteria.pageNumber = 0;
+        return this.FetchWithCrit(this._Criteria);
     }
     public FetchWorkAlloc(AllocationId: number, allocSubtype: string, pageSize: number, pageNumber: number) {
         let body = "AllocationId=" + AllocationId + "&ListType=" + allocSubtype
@@ -106,7 +137,7 @@ export class ItemListService {
 
 export class ItemList {
     pagesize: number = 0;
-    pageindex: number = 0;
+    pageindex: number = 1;
     pagecount: number = 0;
     items: Item[] = [];
 }

@@ -14,7 +14,7 @@ import { ItemListService } from '../services/ItemList.service'
 @Component({
     selector: 'WorkAllocationContactListComp',
     templateUrl: './workAllocationContactListComp.component.html',
-    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: blue;}'],
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     //providers: [ReviewerIdentityService]
     providers: []
 })

@@ -19,7 +19,7 @@ import { style } from '@angular/animations';
     selector: 'ItemListComp',
     templateUrl: './ItemListComp.component.html',
     providers: [],
-   
+    styles: ["button.disabled {color:black; }"]
 })
 export class ItemListComp implements OnInit {
 
@@ -31,29 +31,22 @@ export class ItemListComp implements OnInit {
     onSubmit(f: string) {
 
     }
-
-    // array of all items to be paged
-    allItems: any[] = [];
-
-    // pager object
-    pager: any = {};
-
-    // paged items
-    pagedItems: any[] = [];
+    private sub: any;
+    
 
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
-        this.ItemListService.FetchWithCrit(crit)
-            .subscribe(list => {
+        this.sub = this.ItemListService.FetchWithCrit(crit);
+            //.subscribe(list => {
 
-                this.allItems = list.items;
-                this.setPage(1);
-                console.log("Got ItemList, length = " + list.items.length);
-                this.ItemListService.SaveItems(list, crit);
+            //    //this.allItems = list.items;
+            //    //this.setPage(1);
+            //    console.log("Got ItemList, length = " + list.items.length);
+            //    this.ItemListService.SaveItems(list, crit);
 
-            })
+            //})
     }
 
     OpenItem(itemId: number) {
@@ -70,23 +63,55 @@ export class ItemListComp implements OnInit {
         }
         else {
             // initialize to page 1
-            this.allItems = this.ItemListService.ItemList.items;
+            //this.allItems = this.ItemListService.ItemList.items;
 
-            this.setPage(1);
+            //this.setPage(1);
 
             console.log('Got in here...1');
         }
     }
+    nextPage() {
+        this.ItemListService.FetchNextPage();
+            //.subscribe(list => {
 
-    setPage(page: number) {
-        // get pager object from service
-        this.pager = this.pagerService.getPager(this.allItems.length, page);
+            //    //this.allItems = list.items;
+            //    //this.setPage(1);
+            //    console.log("Got ItemList, length = " + list.items.length);
+            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
 
-        console.log('Indexes here are:{0}, {1} ' , this.pager.startIndex , this.pager.endIndex + 1);
-
-        // get current page of items
-        this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
+            //})
     }
+    prevPage() {
+        this.ItemListService.FetchPrevPage();
+            //.subscribe(list => {
+
+            //    //this.allItems = list.items;
+            //    //this.setPage(1);
+            //    console.log("Got ItemList, length = " + list.items.length);
+            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
+
+            //});
+    }
+    firstPage() {
+        this.ItemListService.FetchFirstPage();
+            //.subscribe(list => {
+            //    //this.allItems = list.items;
+            //    //this.setPage(1);
+            //    console.log("Got ItemList, length = " + list.items.length);
+            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
+            //})
+    }
+    lastPage() {
+        this.ItemListService.FetchLastPage();
+            //.subscribe(list => {
+            //    //this.allItems = list.items;
+            //    //this.setPage(1);
+            //    console.log("Got ItemList, length = " + list.items.length);
+            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
+            //})
+    }
+
+    
 }
 
 
