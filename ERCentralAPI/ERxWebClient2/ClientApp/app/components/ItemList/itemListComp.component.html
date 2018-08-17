@@ -1,38 +1,3 @@
-<!--<script>
-    var n = document.getElementById('number').innerHTML;
-</script>-->
-
-<!--<ul *ngIf="ItemListService.ItemList" class="pagination">
-    <li>
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
-                class="page-link" (click)="firstPage()">
-            First
-        </button>
-    </li>
-    <li>
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
-                class="page-link" (click)="prevPage()">
-            Previous
-        </button>
-    </li>
-    <li>
-        <button class="page-link disabled">{{ItemListService.ItemList.pageindex + 1}}</button>
-    </li>
-    <li>
-       
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" class="page-link" (click)="nextPage()">Next</button>
-    </li>
-    <li>
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" class="page-link" (click)="lastPage()">Last</button>
-    </li>
-    <li>
-        <button class="page-link">Showing {{ItemListService.ItemList.items.length}} items out of {{ItemListService._Criteria.totalItems}}</button>
-        
-    </li>
-    <li>
-        <p class="page-link">Page: <input class="col-md-2" #box (keyup.enter)="onEnter(box.value)" value="{{value}}"> of {{ItemListService.ItemList.pagecount}} pages</p>
-    </li>
-</ul>-->
 <paginatorComp></paginatorComp>
 <table class='table table-responsive' *ngIf="ItemListService.ItemList.items.length > 0" style="max-height: 800px;">
     <thead>
@@ -54,15 +19,3 @@
     </tbody>
 </table>
 <paginatorComp></paginatorComp>
-
-
-<!--<div>
-  <mat-table [dataSource]="ItemListService.ItemList.items">
-    <ng-container matColumnDef="Authors">
-        <mat-header-cell *matHeaderCellDef> Authors </mat-header-cell>
-        <mat-cell *matCellDef="let item"> {{ item.authors}} </mat-cell>
-    </ng-container>
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
-</div>-->

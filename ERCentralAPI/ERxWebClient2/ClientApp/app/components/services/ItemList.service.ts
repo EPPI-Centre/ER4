@@ -22,11 +22,6 @@ export class ItemListService {
         private _WorkAllocationService: WorkAllocationContactListService
         ) { }
 
-    // For pagination
-    //pagesize: number = 0;
-    //pageindex: number = 1;
-    //pagecount: number = 0;
-    //
 
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();

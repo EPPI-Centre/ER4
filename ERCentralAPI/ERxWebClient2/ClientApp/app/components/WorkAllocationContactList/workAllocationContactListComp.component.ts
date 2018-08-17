@@ -13,7 +13,6 @@ import { ItemListService } from '../services/ItemList.service'
     selector: 'WorkAllocationContactListComp',
     templateUrl: './workAllocationContactListComp.component.html',
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
-    //providers: [ReviewerIdentityService]
     providers: []
 })
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
@@ -80,9 +79,6 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
                 console.log(this.clickedIndex);
                 console.log("emitting: " + workAll.attributeId);
                 this.ListSubType = subtype;
-
-                // initialize to page 1
-               // this.setPage(1);
 
                 this.criteriaChange.emit(workAll);
                 return;
