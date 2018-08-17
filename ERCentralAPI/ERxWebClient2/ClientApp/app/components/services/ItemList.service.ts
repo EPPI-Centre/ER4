@@ -82,13 +82,10 @@ export class ItemListService {
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
         return new Item();
     }
-    public Fetch() {
-
-        return this._httpC.get<Item[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
-    }
+    
     public FetchWithCrit(crit: Criteria) {
         this._Criteria = crit;
-        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {
                 console.log("crit: page =" + this._Criteria.pageNumber);
                 console.log("crit: page =" + this._Criteria.totalItems);
