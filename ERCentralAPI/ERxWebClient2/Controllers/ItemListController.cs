@@ -140,7 +140,10 @@ namespace ERxWebClient2.Controllers
         {
             get { return _list.PageIndex; }
         }
-
+        public int totalItemCount
+        {
+            get { return _list.TotalItemCount; }
+        }
         public ItemList Items
         {
             get { return _list; }

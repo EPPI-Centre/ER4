@@ -7,9 +7,7 @@ import { Observable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
-import { PagerService } from '../services/pager.service'
 import { ItemListService } from '../services/ItemList.service'
-
 
 @Component({
     selector: 'WorkAllocationContactListComp',
@@ -22,7 +20,6 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         private _workAllocationContactListService: WorkAllocationContactListService,
-        private _PagerService: PagerService,
         private ItemListService: ItemListService
     ) { }
 
@@ -33,10 +30,13 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     public ListSubType: string = "";
 
     public clickedIndex: string = 'waRemaining-0';
-
+    public allocTotal: number = 0;
+    public allocStarted: number = 0;
+    public allocRem: number = 0;
 
     setClickedIndex(i: string) {
         this.clickedIndex = i;
+        this._workAllocationContactListService.clickedIndex = i;
     }
 
     getWorkAllocationContactList() {

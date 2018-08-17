@@ -1,33 +1,23 @@
 <p *ngIf="!_workAllocationContactListService.workAllocations"><em>Loading your Allocations...</em></p>
 
-    <table class='table table-responsive' *ngIf="_workAllocationContactListService.workAllocations">
-        <thead>
-            <tr>
-                <th>Codes to apply:</th>
-                <th>Group of studies</th>
-                <th>Allocated</th>
-                <th>Started</th>
-                <th>Remaining</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations; let i = index">
-                <td>{{ alloc.setName }}</td>
-                <td>{{ alloc.attributeName }}</td>
-                <td id="waAll-{{alloc.workAllocationId}}" [ngClass] = "{'UsedWorkAllocation' : 'waAll-'+ i == this.clickedIndex}"  (click)="setClickedIndex('waAll-'+ i); LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">{{ alloc.totalAllocation }}</td>
-                <td id="waStarted-{{alloc.workAllocationId}}"  [ngClass] = "{'UsedWorkAllocation' : 'waStarted-'+ i == this.clickedIndex}"  (click)="setClickedIndex('waStarted-'+ i); LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListStarted')">{{ alloc.totalStarted }}</td>
-                <td id="waRemaining-{{alloc.workAllocationId}}" [ngClass] = "{'UsedWorkAllocation' : 'waRemaining-'+ i == this.clickedIndex}"  (click)="setClickedIndex('waRemaining-'+ i);LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListRemaining')">{{ alloc.totalRemaining }}</td>
 
-
-                <!--<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
-        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-        <button>GO!</button>
-    </form>-->
-                <!--<form method="post" action="['/readonlyreviews']">
-        <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />
-        <button type="submit">GO!</button>
-    </form>-->
-
-            </tr>
-        </tbody>
-    </table>
+<table class='table table-responsive' *ngIf="_workAllocationContactListService.workAllocations">
+    <thead>
+        <tr>
+            <th>Codes to apply:</th>
+            <th>Group of studies</th>
+            <th>Allocated</th>
+            <th>Started</th>
+            <th>Remaining</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations; let i = index">
+            <td>{{ alloc.setName }}</td>
+            <td>{{ alloc.attributeName }}</td>
+            <td id="waAll-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ i == this.clickedIndex}" (click)="setClickedIndex('waAll-'+ i); LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">{{ alloc.totalAllocation }}</td>
+            <td id="waStarted-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waStarted-'+ i == this.clickedIndex}" (click)="setClickedIndex('waStarted-'+ i); LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListStarted')">{{ alloc.totalStarted }}</td>
+            <td id="waRemaining-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waRemaining-'+ i == this.clickedIndex}" (click)="setClickedIndex('waRemaining-'+ i);LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationListRemaining')">{{ alloc.totalRemaining }}</td>
+        </tr>
+    </tbody>
+</table>

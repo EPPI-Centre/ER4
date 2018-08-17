@@ -16,6 +16,7 @@ import { WorkAllocationContactListComp } from './components/WorkAllocationContac
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { ItemCodingService } from './components/services/ItemCoding.service';
+import { paginatorComp } from './components/paginator/paginator.component';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,7 @@ import { ItemCodingService } from './components/services/ItemCoding.service';
         WorkAllocationContactListComp,
         ItemListComp,
         ItemCodingComp,
+        paginatorComp,
         MainComponent
     ],
     imports: [

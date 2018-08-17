@@ -6,6 +6,8 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Injectable({
     providedIn: 'root',
@@ -16,8 +18,15 @@ export class ItemListService {
 
     constructor(
         private _httpC: HttpClient,
-        @Inject('BASE_URL') private _baseUrl: string
+        @Inject('BASE_URL') private _baseUrl: string,
+        private _WorkAllocationService: WorkAllocationContactListService
         ) { }
+
+    // For pagination
+    //pagesize: number = 0;
+    //pageindex: number = 1;
+    //pagecount: number = 0;
+    //
 
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
@@ -54,6 +63,11 @@ export class ItemListService {
 
     public SaveItems(items: ItemList, crit: Criteria) {
         this._ItemList = items;
+        for (var _i = 0; _i < this._WorkAllocationService._workAllocations.length; _i++) {
+
+             
+        }
+        console.log('inside saveItems.  totalitems are: ' + items.items.length);
         this._Criteria = crit;
         console.log(crit);
         this.Save();
@@ -82,16 +96,23 @@ export class ItemListService {
         return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {
                 console.log("crit: page =" + this._Criteria.pageNumber);
+                console.log("crit: page =" + this._Criteria.totalItems);
+
+                var testN = this._WorkAllocationService.clickedIndex.lastIndexOf('-');
+                var totalLength = this._WorkAllocationService.clickedIndex.length;
+                var posN = parseInt(this._WorkAllocationService.clickedIndex.substr(testN + 1, totalLength - testN));
+                if (isNaN(posN)) { posN = 0; }
+               
+                this._Criteria.totalItems = this._WorkAllocationService.workAllocations[posN].totalAllocation;
+                
                 this.SaveItems(list, this._Criteria);
             });
     }
     public FetchNextPage() {
-        console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
         }
-        //return this.FetchWithCrit(this._Criteria);
         this.FetchWithCrit(this._Criteria)
     }
     public FetchPrevPage() {
@@ -109,6 +130,10 @@ export class ItemListService {
     }
     public FetchFirstPage() {
         this._Criteria.pageNumber = 0;
+        return this.FetchWithCrit(this._Criteria);
+    }
+    public FetchParticularPage(pageNum: number) {
+        this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria);
     }
     public FetchWorkAlloc(AllocationId: number, allocSubtype: string, pageSize: number, pageNumber: number) {
@@ -139,6 +164,7 @@ export class ItemList {
     pagesize: number = 0;
     pageindex: number = 1;
     pagecount: number = 0;
+    totalItemCount: number = 0;
     items: Item[] = [];
 }
 

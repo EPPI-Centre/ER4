@@ -6,25 +6,25 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service';
+import { WorkAllocation, WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 import { FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule  } from '@angular/forms';
 import { Subject } from 'rxjs/index';
 import { debounceTime, startWith, merge, switchMap, share  } from 'rxjs/operators/index';
 import { pipe } from 'rxjs'
-import { PagerService } from '../services/pager.service'
 import { style } from '@angular/animations';
 
 @Component({
     selector: 'ItemListComp',
     templateUrl: './ItemListComp.component.html',
-    providers: [],
-    styles: ["button.disabled {color:black; }"]
+    providers: []
 })
 export class ItemListComp implements OnInit {
 
-    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, private ItemListService: ItemListService
-        , private pagerService: PagerService) {
+    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
+        private ItemListService: ItemListService,
+        private _WorkAllocationService: WorkAllocationContactListService
+    ) {
 
     }
 
@@ -32,21 +32,18 @@ export class ItemListComp implements OnInit {
 
     }
     private sub: any;
-    
+
+    value = 1;
+    onEnter(value: number) {
+        this.value = value ;
+        this.ItemListService.FetchParticularPage(value-1);
+    }
 
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
         this.sub = this.ItemListService.FetchWithCrit(crit);
-            //.subscribe(list => {
-
-            //    //this.allItems = list.items;
-            //    //this.setPage(1);
-            //    console.log("Got ItemList, length = " + list.items.length);
-            //    this.ItemListService.SaveItems(list, crit);
-
-            //})
     }
 
     OpenItem(itemId: number) {
@@ -62,53 +59,22 @@ export class ItemListComp implements OnInit {
             this.router.navigate(['home']);
         }
         else {
-            // initialize to page 1
-            //this.allItems = this.ItemListService.ItemList.items;
-
-            //this.setPage(1);
 
             console.log('Got in here...1');
         }
     }
     nextPage() {
         this.ItemListService.FetchNextPage();
-            //.subscribe(list => {
-
-            //    //this.allItems = list.items;
-            //    //this.setPage(1);
-            //    console.log("Got ItemList, length = " + list.items.length);
-            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
-
-            //})
     }
     prevPage() {
         this.ItemListService.FetchPrevPage();
-            //.subscribe(list => {
 
-            //    //this.allItems = list.items;
-            //    //this.setPage(1);
-            //    console.log("Got ItemList, length = " + list.items.length);
-            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
-
-            //});
     }
     firstPage() {
         this.ItemListService.FetchFirstPage();
-            //.subscribe(list => {
-            //    //this.allItems = list.items;
-            //    //this.setPage(1);
-            //    console.log("Got ItemList, length = " + list.items.length);
-            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
-            //})
     }
     lastPage() {
         this.ItemListService.FetchLastPage();
-            //.subscribe(list => {
-            //    //this.allItems = list.items;
-            //    //this.setPage(1);
-            //    console.log("Got ItemList, length = " + list.items.length);
-            //    this.ItemListService.SaveItems(list, this.ItemListService.ListCriteria);
-            //})
     }
 
     

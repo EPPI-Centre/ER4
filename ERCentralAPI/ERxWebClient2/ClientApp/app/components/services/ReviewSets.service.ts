@@ -9,8 +9,8 @@ import { PLATFORM_ID } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
-}
-)
+})
+
 export class ReviewSetsService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,

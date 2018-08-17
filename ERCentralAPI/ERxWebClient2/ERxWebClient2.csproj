@@ -26,7 +26,10 @@
 
   <ItemGroup>
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
+    <Compile Remove="ClientApp\app\components\NewFolder\**" />
     <Content Remove="ClientApp\**" />
+    <EmbeddedResource Remove="ClientApp\app\components\NewFolder\**" />
+    <None Remove="ClientApp\app\components\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,7 +73,6 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\app\components\main\" />
-    <Folder Include="ClientApp\app\components\NewFolder\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 

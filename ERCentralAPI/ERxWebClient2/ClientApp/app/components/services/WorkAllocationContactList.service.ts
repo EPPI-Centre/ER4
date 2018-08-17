@@ -18,7 +18,9 @@ export class WorkAllocationContactListService {
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
 
-    private _workAllocations: WorkAllocation[] = [];
+    public _workAllocations: WorkAllocation[] = [];
+
+    public clickedIndex: string = '';
 
     public get workAllocations(): WorkAllocation[] {
         if (this._workAllocations.length == 0) {
