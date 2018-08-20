@@ -44,7 +44,7 @@ export class readonlyreviewsService {
     }
         
     public Fetch() {
-        console.log('fetching rors');
+
         return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews');
     }
 

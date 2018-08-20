@@ -51,9 +51,7 @@ export class WorkAllocationContactListService {
 
         for (let workAll of this.workAllocations) {
             if (workAll.totalRemaining > 0) {
-                console.log(this.clickedIndex);
-                console.log("emitting: " + workAll.attributeId);
-                console.log("WA_Id: " + workAll.workAllocationId);
+              
                 subtype = "GetItemWorkAllocationListRemaining";
                 criteriaChange.emit(workAll);
                 return;
@@ -61,9 +59,7 @@ export class WorkAllocationContactListService {
         }
         for (let workAll of this.workAllocations) {
             if (workAll.totalAllocation > 0) {
-                console.log("emitting: " + workAll.attributeId);
-                console.log(this.clickedIndex);
-                console.log("blah the blah: " + workAll.workAllocationId);
+               
                 subtype = "GetItemWorkAllocationList";
                 criteriaChange.emit(workAll);
 
@@ -78,13 +74,7 @@ export class WorkAllocationContactListService {
 
                 this.workAllocations = result;
 
-                console.log("got " + this.workAllocations.length + " Work Allocs.");
-
-                for (let workAll of this.workAllocations) {
-                    console.log("WA_Id: " + workAll.workAllocationId);
-                }
-
-            this.LoadDefaultItemList(criteriaChange, subtype);
+                this.LoadDefaultItemList(criteriaChange, subtype);
             });
 
 }

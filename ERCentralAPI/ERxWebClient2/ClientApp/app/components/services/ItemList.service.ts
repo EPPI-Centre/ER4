@@ -22,7 +22,6 @@ export class ItemListService {
         private _WorkAllocationService: WorkAllocationContactListService
         ) { }
 
-
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     public get ItemList(): ItemList {
@@ -83,16 +82,7 @@ export class ItemListService {
         this._Criteria = crit;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {
-                console.log("crit: page =" + this._Criteria.pageNumber);
-                console.log("crit: page =" + this._Criteria.totalItems);
 
-                var testN = this._WorkAllocationService.clickedIndex.lastIndexOf('-');
-                var totalLength = this._WorkAllocationService.clickedIndex.length;
-                var posN = parseInt(this._WorkAllocationService.clickedIndex.substr(testN + 1, totalLength - testN));
-                if (isNaN(posN)) { posN = 0; }
-               
-                this._Criteria.totalItems = this._WorkAllocationService.workAllocations[posN].totalAllocation;
-                
                 this.SaveItems(list, this._Criteria);
             });
     }
