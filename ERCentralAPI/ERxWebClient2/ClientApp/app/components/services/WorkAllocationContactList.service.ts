@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -44,11 +44,51 @@ export class WorkAllocationContactListService {
         this._workAllocations = wa;
         this.Save();
     }
-    
-    
-    public Fetch() {
-        return this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
+
+    LoadDefaultItemList(criteriaChange: EventEmitter<any>, subtype: string) {
+
+        if (!this.workAllocations) return;
+
+        for (let workAll of this.workAllocations) {
+            if (workAll.totalRemaining > 0) {
+                console.log(this.clickedIndex);
+                console.log("emitting: " + workAll.attributeId);
+                console.log("WA_Id: " + workAll.workAllocationId);
+                subtype = "GetItemWorkAllocationListRemaining";
+                criteriaChange.emit(workAll);
+                return;
+            }
+        }
+        for (let workAll of this.workAllocations) {
+            if (workAll.totalAllocation > 0) {
+                console.log("emitting: " + workAll.attributeId);
+                console.log(this.clickedIndex);
+                console.log("blah the blah: " + workAll.workAllocationId);
+                subtype = "GetItemWorkAllocationList";
+                criteriaChange.emit(workAll);
+
+                return;
+            }
+        }
     }
+    
+    public Fetch(criteriaChange: EventEmitter<any>, subtype: string) {
+
+        return this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
+
+                this.workAllocations = result;
+
+                console.log("got " + this.workAllocations.length + " Work Allocs.");
+
+                for (let workAll of this.workAllocations) {
+                    console.log("WA_Id: " + workAll.workAllocationId);
+                }
+
+            this.LoadDefaultItemList(criteriaChange, subtype);
+            });
+
+}
+
 
     public Save() {
         if (this._workAllocations.length > 0)
@@ -57,6 +97,7 @@ export class WorkAllocationContactListService {
             localStorage.removeItem('WorkAllocationContactList');
     }
 }
+
 export class WorkAllocation {
     workAllocationId: number = 0;
     contactName: string = "";

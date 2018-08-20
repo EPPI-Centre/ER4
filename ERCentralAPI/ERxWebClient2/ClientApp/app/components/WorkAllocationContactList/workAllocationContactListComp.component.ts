@@ -1,3 +1,4 @@
+/// <reference path="../services/itemlist.service.ts" />
 import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
@@ -26,7 +27,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
 
     @Output() criteriaChange = new EventEmitter();
-    public ListSubType: string = "";
+    public ListSubType: string = "GetItemWorkAllocationList";
 
     public clickedIndex: string = 'waRemaining-0';
     public allocTotal: number = 0;
@@ -39,40 +40,10 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
 
     getWorkAllocationContactList() {
-        this._workAllocationContactListService.Fetch().subscribe(result => {
-            this._workAllocationContactListService.workAllocations = result;
-            console.log("got " + this._workAllocationContactListService.workAllocations.length + " Work Allocs.");
-            for (let workAll of this._workAllocationContactListService.workAllocations) {
-                console.log("WA_Id: " + workAll.workAllocationId);
-            }
-            this.LoadDefaultItemList();
-        });
-    }
 
-    LoadDefaultItemList() {
-        if (!this._workAllocationContactListService.workAllocations) return;
-        for (let workAll of this._workAllocationContactListService.workAllocations) {
-            if (workAll.totalRemaining > 0) {
-                console.log(this.clickedIndex);
-                console.log("emitting: " + workAll.attributeId);
-                console.log("WA_Id: " + workAll.workAllocationId);
-                this.ListSubType = "GetItemWorkAllocationListRemaining";
-                this.criteriaChange.emit(workAll);
-                return;
-            }
-        }
-        for (let workAll of this._workAllocationContactListService.workAllocations) {
-            if (workAll.totalAllocation > 0) {
-                console.log("emitting: " + workAll.attributeId);
-                console.log(this.clickedIndex);
-                console.log("blah the blah: " + workAll.workAllocationId);
-                this.ListSubType = "GetItemWorkAllocationList";
-                this.criteriaChange.emit(workAll);
-
-                return;
-            }
-        }
+        this._workAllocationContactListService.Fetch(this.criteriaChange, this.ListSubType);
     }
+      
     LoadGivenList(workAllocationId: number, subtype: string) {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.workAllocationId == workAllocationId) {

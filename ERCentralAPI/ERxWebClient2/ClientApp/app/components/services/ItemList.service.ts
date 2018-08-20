@@ -58,10 +58,6 @@ export class ItemListService {
 
     public SaveItems(items: ItemList, crit: Criteria) {
         this._ItemList = items;
-        for (var _i = 0; _i < this._WorkAllocationService._workAllocations.length; _i++) {
-
-             
-        }
         console.log('inside saveItems.  totalitems are: ' + items.items.length);
         this._Criteria = crit;
         console.log(crit);

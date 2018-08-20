@@ -25,6 +25,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
                 console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
     @Output() OpeningNewReview = new EventEmitter();
+
     onSubmit(f: string) {
             let RevId: number = parseInt(f, 10);
             this.ReviewerIdentityServ.LoginToReview(RevId).subscribe(ri => {
