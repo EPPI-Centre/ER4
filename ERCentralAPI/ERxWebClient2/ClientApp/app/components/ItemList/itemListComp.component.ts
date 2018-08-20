@@ -32,6 +32,8 @@ export class ItemListComp implements OnInit {
 
     }
     private sub: any;
+    @Output() dataChange = new EventEmitter();
+
 
     value = 1;
     onEnter(value: number) {
@@ -40,6 +42,9 @@ export class ItemListComp implements OnInit {
     }
 
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
+        console.log('CALLING LOAD WORK ALLOC LIST METHOD');
+        console.log('WORK ALLOCATION IS: ' + workAlloc.workAllocationId);
+
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
@@ -59,7 +64,7 @@ export class ItemListComp implements OnInit {
             this.router.navigate(['home']);
         }
         else {
-
+            this.dataChange.emit();
             console.log('Got in here...1');
         }
     }

@@ -27,6 +27,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
 
     @Output() criteriaChange = new EventEmitter();
+    //@Output() dataChange = new EventEmitter();
+
     public ListSubType: string = "GetItemWorkAllocationList";
 
     public clickedIndex: string = 'waRemaining-0';
@@ -39,9 +41,34 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
         this._workAllocationContactListService.clickedIndex = i;
     }
 
+    ////goes back to work alloc component
+    LoadDefaultItemList() {
+
+        if (!this._workAllocationContactListService.workAllocations) return;
+
+        for (let workAll of this._workAllocationContactListService.workAllocations) {
+            if (workAll.totalRemaining > 0) {
+
+                this.ListSubType = "GetItemWorkAllocationListRemaining";
+                this.criteriaChange.emit(workAll);
+                return;
+            }
+        }
+        for (let workAll of this._workAllocationContactListService.workAllocations) {
+            if (workAll.totalAllocation > 0) {
+
+                this.ListSubType = "GetItemWorkAllocationList";
+                this.criteriaChange.emit(workAll);
+
+                return;
+            }
+        }
+    }
+
     getWorkAllocationContactList() {
 
-        this._workAllocationContactListService.Fetch(this.criteriaChange, this.ListSubType);
+        this._workAllocationContactListService.Fetch();
+
     }
       
     LoadGivenList(workAllocationId: number, subtype: string) {

@@ -22,6 +22,7 @@ export class WorkAllocationContactListService {
 
     public clickedIndex: string = '';
 
+
     public get workAllocations(): WorkAllocation[] {
         if (this._workAllocations.length == 0) {
 
@@ -44,40 +45,17 @@ export class WorkAllocationContactListService {
         this._workAllocations = wa;
         this.Save();
     }
-
-    LoadDefaultItemList(criteriaChange: EventEmitter<any>, subtype: string) {
-
-        if (!this.workAllocations) return;
-
-        for (let workAll of this.workAllocations) {
-            if (workAll.totalRemaining > 0) {
-              
-                subtype = "GetItemWorkAllocationListRemaining";
-                criteriaChange.emit(workAll);
-                return;
-            }
-        }
-        for (let workAll of this.workAllocations) {
-            if (workAll.totalAllocation > 0) {
-               
-                subtype = "GetItemWorkAllocationList";
-                criteriaChange.emit(workAll);
-
-                return;
-            }
-        }
-    }
+   
     
-    public Fetch(criteriaChange: EventEmitter<any>, subtype: string) {
+    public Fetch() {
 
         return this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
 
-                this.workAllocations = result;
+                this.workAllocations = result;//also saves to local storage
+                
+        });
 
-                this.LoadDefaultItemList(criteriaChange, subtype);
-            });
-
-}
+    }
 
 
     public Save() {
