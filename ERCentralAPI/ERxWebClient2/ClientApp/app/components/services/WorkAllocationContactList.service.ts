@@ -12,11 +12,15 @@ import { PLATFORM_ID } from '@angular/core';
 })
 
 export class WorkAllocationContactListService {
-
+    private sub: any;
+    @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+    ) {
+        if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
+            localStorage.removeItem('WorkAllocationContactList');
+    }
 
     public _workAllocations: WorkAllocation[] = [];
 
@@ -49,10 +53,10 @@ export class WorkAllocationContactListService {
     
     public Fetch() {
 
-        return this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
+        this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
 
                 this.workAllocations = result;//also saves to local storage
-                
+            this.ListLoaded.emit();
         });
 
     }

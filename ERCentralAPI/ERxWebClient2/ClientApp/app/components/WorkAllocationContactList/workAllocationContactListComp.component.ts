@@ -56,10 +56,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
         }
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalAllocation > 0) {
-
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
-
                 return;
             }
         }
@@ -74,10 +72,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     LoadGivenList(workAllocationId: number, subtype: string) {
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.workAllocationId == workAllocationId) {
-                console.log(this.clickedIndex);
-                console.log("emitting: " + workAll.attributeId);
                 this.ListSubType = subtype;
-
                 this.criteriaChange.emit(workAll);
                 return;
             }
@@ -94,15 +89,16 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
 
     ngOnInit() {
-
+        
     }
     ngAfterContentInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
         else {
-            console.log("getting WorkAllocs");
-            //this.allItems = data;
+            this._workAllocationContactListService.ListLoaded.subscribe(
+                () => this.LoadDefaultItemList()
+            );
             this.getWorkAllocationContactList();
         }
     }

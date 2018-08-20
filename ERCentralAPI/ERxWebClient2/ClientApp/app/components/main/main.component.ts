@@ -56,13 +56,13 @@ export class MainComponent implements OnInit, AfterViewInit {
         this.workAllocationsComp.Clear();
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
-
+        console.log('in main ' + workAlloc.attributeId + "subtype " + this.workAllocationsComp.ListSubType);
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
-    LoadDefault() {
-        // try loading the default list now...
-        this.workAllocationsComp.LoadDefaultItemList();
-    }
+    //LoadDefault() {
+    //    // try loading the default list now...
+    //    this.workAllocationsComp.LoadDefaultItemList();
+    //}
 
 }
