@@ -57,14 +57,12 @@ export class MainComponent implements OnInit, AfterViewInit {
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
 
-        console.log('inside this func: ' + workAlloc.workAllocationId);
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
     LoadDefault() {
         // try loading the default list now...
         this.workAllocationsComp.LoadDefaultItemList();
-        console.log('testing 123');
     }
 
 }
