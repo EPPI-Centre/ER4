@@ -38,14 +38,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
 
-        this.ReviewerIdentityServ.LoginReq(u, p).subscribe(ri => {
-            this.ReviewerIdentityServ.reviewerIdentity = ri;
-            console.log('home login: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
-            if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0) {
-                this.ReviewerIdentityServ.Save();
-                this.router.navigate(['readonlyreviews']);
-            }
-        })
+        this.ReviewerIdentityServ.LoginReq(u, p);
         
     };
     ngOnInit() {

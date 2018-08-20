@@ -45,7 +45,9 @@ export class readonlyreviewsService {
         
     public Fetch() {
 
-        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews');
+        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews').subscribe(result => {
+            this.ReadOnlyReviews = result;
+        });
     }
 
     public Save() {

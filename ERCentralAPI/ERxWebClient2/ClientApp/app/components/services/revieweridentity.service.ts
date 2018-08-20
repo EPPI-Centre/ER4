@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -63,14 +63,31 @@ export class ReviewerIdentityService {
     public LoginReq(u: string, p: string) {
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-            reqpar);
+            reqpar).subscribe(ri => {
+                this.reviewerIdentity = ri;
+                console.log('home login: ' + this.reviewerIdentity.userId);
+                if (this.reviewerIdentity.userId > 0) {
+                    this.Save();
+                    this.router.navigate(['readonlyreviews']);
+                }
+            });
             //body);
     }
-    public LoginToReview(RevId: number) {
+    public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
-            body);
+            body).subscribe(ri => {
+
+                this.reviewerIdentity = ri;
+                console.log('login to Review: ' + this.reviewerIdentity.userId);
+                if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
+                    this.Save();
+                    this.router.onSameUrlNavigation = "reload";
+                    OpeningNewReview.emit();
+                    this.router.navigate(['main']);
+                }
+            });
     }
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
