@@ -26,10 +26,7 @@
 
   <ItemGroup>
     <!-- Files not to publish (note that the 'dist' subfolders are re-added below) -->
-    <Compile Remove="ClientApp\app\components\NewFolder\**" />
     <Content Remove="ClientApp\**" />
-    <EmbeddedResource Remove="ClientApp\app\components\NewFolder\**" />
-    <None Remove="ClientApp\app\components\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,6 +57,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeList.cs" Link="Models\ReadOnlyItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />

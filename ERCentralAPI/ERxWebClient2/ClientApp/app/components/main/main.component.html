@@ -1,22 +1,62 @@
-<div class="h-100 mh-100" style="max-height: 200px;">
+<!--<div class="container-fluid" >
     <div class="row">
-        <h4>Coding Only Interface</h4>
-        You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
-        Review ID = {{ReviewerIdentityServ.reviewerIdentity.reviewId}}
+        <div class="row col-md-6">
+            <h4 class="col-md-4">Coding Only Interface</h4>
+            <div class="col-md-8">
+                You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
+                Review ID = {{ReviewerIdentityServ.reviewerIdentity.reviewId}}
+            </div>
+        </div>
+        <div class="row col-md-6">
+            Your account expires on: {{ReviewerIdentityServ.reviewerIdentity.accountExpiration}}
+            Current review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration}}
+        </div>
     </div>
-
-    <div class="row d-flex border border-info" >
-        <div class="col-md-6 h-100">
+    <div class="row d-flex border border-info">
+        <div class="col-md-6 ">
             <ItemListComp></ItemListComp>
         </div>
-        <div class="col-md-6 border border-info" style="max-height: 800px;">
-            <div class="row border border-dark">UserData</div>
-            <div class="row border border-dark">
+        <div class="row col-md-6 border border-info ">
+            <div class="row border border-dark col-md-12">UserData</div>
+            <div class=" border border-dark">
                 <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'></WorkAllocationContactListComp>
             </div>
-            <div class="row border border-dark h-100">
+            <div >
                 <readonlyreviews (OpeningNewReview)="Reload()"></readonlyreviews>
             </div>
+        </div>
+    </div>
+</div>-->
+
+<div class="container-fluid" >
+    <h4 class="text-dark font-weight-bold">Coding Only Interface</h4>
+    <div class="row col-md-12">
+        <p class="text-left m-1"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}.</p>
+        <p class="text-center m-1">Review ID = {{ReviewerIdentityServ.reviewerIdentity.reviewId}}</p>
+        <!--<p class="text-center m-1">Review Name = <ReviewInfoComp></ReviewInfoComp> </p>-->
+        <p class="text-right m-1">Your account expires on: {{ReviewerIdentityServ.reviewerIdentity.accountExpiration}}</p>
+        <p class="text-right m-1">Current review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration}}</p>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 py-2">
+            <div class="card card-body  bg-secondary">
+                <ItemListComp   style="max-height: 900px;"></ItemListComp>
+            </div>
+        </div>
+        <div class="col-sm-6 py-2">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h3 class="card-title">Work Allocation List</h3>
+                    <p class="card-text">
+                        <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'></WorkAllocationContactListComp>
+                    </p>
+                </div>
+            </div>
+            <div class="card card-body bg-info" >
+                <readonlyreviews style="max-height: 600px;" (OpeningNewReview)="Reload()"></readonlyreviews>
+            </div>
+        </div>
+        <div class="col-sm-6 py-2">
         </div>
     </div>
 </div>

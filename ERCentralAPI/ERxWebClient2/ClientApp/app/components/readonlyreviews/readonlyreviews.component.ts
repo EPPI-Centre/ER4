@@ -73,7 +73,6 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
             this.router.navigate(['home']);
         }
         else {
-
             console.log("getting ReadOnlyReviews");
             this.ReviewerIdentityServ.Report();
             this.getReviews();
