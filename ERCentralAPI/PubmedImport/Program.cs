@@ -49,7 +49,7 @@ namespace PubmedImport
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
             string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
             return LogFilename;
         }
 
@@ -130,7 +130,7 @@ namespace PubmedImport
                 _logger.Log(LogLevel.Error,"");
 				System.Environment.Exit(0);
 			}
-			_logger.LogInformation("Parser testing!");
+			
 			if (result.DoWhat == "ftpsamplefile")
 			{
                 _logger.LogInformation("Importing PubMed Sample XML file.");
