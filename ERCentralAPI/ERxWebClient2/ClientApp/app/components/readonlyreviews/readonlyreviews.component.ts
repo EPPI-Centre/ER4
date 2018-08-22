@@ -74,8 +74,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         }
         else {
 
-            console.log("getting ReadOnlyReviews");
-            this.ReviewerIdentityServ.Report();
+            //console.log("getting ReadOnlyReviews");
+            //this.ReviewerIdentityServ.Report();
             this.getReviews();
         }
     }

@@ -30,7 +30,7 @@ export class ItemListService {
                 return this._ItemList;
             }
             else {
-                console.log("Got ItemsList from LS");
+                //console.log("Got ItemsList from LS");
                 this._ItemList = list;
             }
         }
@@ -44,7 +44,7 @@ export class ItemListService {
                 return this._Criteria;
             }
             else {
-                console.log("Got Criteria from LS");
+                //console.log("Got Criteria from LS");
                 this._Criteria = crit;
             }
         }
@@ -60,17 +60,43 @@ export class ItemListService {
         if (ff != undefined && ff != null) return ff;
         return new Item();
     }
+    public hasPrevious(itemId: number): boolean {
+        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+        if (ff != undefined && ff != null && ff > 0) {
+            //console.log('Has prev (yes)' + ff);
+            return true;
+        }
+        else {
+            //console.log('Has prev (no)' + ff);
+            return false;
+        }
+    }
+    public getFirst(): Item {
+        let ff = this.ItemList.items[0];
+        if (ff != undefined && ff != null) return ff;
+        return new Item();
+    }
     public getPrevious(itemId: number): Item {
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) return this._ItemList.items[ff-1];
         return new Item();
     }
+    public hasNext(itemId: number): boolean {
+        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+        if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return true;
+        else return false;
+    }
     public getNext(itemId: number): Item {
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+        //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
         return new Item();
     }
-    
+    public getLast(): Item {
+        let ff = this.ItemList.items[this._ItemList.items.length - 1];
+        if (ff != undefined && ff != null) return ff ;
+        return new Item();
+    }
     public FetchWithCrit(crit: Criteria) {
         this._Criteria = crit;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)

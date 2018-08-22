@@ -1,12 +1,14 @@
 <ul *ngIf="ItemListService.ItemList" class="pagination justify-content-start">
     <li>
         <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+                [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
                 class="page-link" (click)="firstPage()">
             First
         </button>
     </li>
     <li>
         <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+                [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
                 class="page-link" (click)="prevPage()">
             Previous
         </button>
@@ -14,14 +16,20 @@
     </li>
     <li  class="p-1" style="width:160px; min-width:160px;">
         <div class="align-bottom"> Page: 
-        <input [attr.disabled]="ItemListService.ItemList.pagecount === 1 ? '' : null" class="col-md-5" #box (keyup.enter)="onEnter(box.value)" value="{{ItemListService.ItemList.pageindex + 1}}"> 
+        <input [attr.disabled]="ItemListService.ItemList.pagecount === 1 ? '' : null" 
+                [disabled]="ItemListService.ItemList.pagecount === 1"
+               class="col-md-5" #box (keyup.enter)="onEnter(box.value)" value="{{ItemListService.ItemList.pageindex + 1}}"> 
         of {{ItemListService.ItemList.pagecount}}</div>
     </li>
     <li >
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" class="page-link" (click)="nextPage()">Next</button>
+        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" 
+                [disabled]="ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount"
+                class="page-link" (click)="nextPage()">Next</button>
     </li>
     <li>
-        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" class="page-link" (click)="lastPage()">Last</button>
+        <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}" 
+                [disabled]="ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount"
+                class="page-link" (click)="lastPage()">Last</button>
     </li>
     <li class="col-md-4"  >
         <div class="mt-2">Showing {{ItemListService.ItemList.items.length}} items of {{ItemListService.ItemList.totalItemCount}}</div>

@@ -36,11 +36,11 @@ export class ReviewSetsComponent implements OnInit {
         //console.log('Getting codetree nodes');
         if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) 
         {
-            console.log('found my nodes');
+            //console.log('found my nodes');
             return this.ReviewSetsService.ReviewSets;
         }
         else {
-            console.log('NO nodes');
+            //console.log('NO nodes');
             return null;
         }
     }

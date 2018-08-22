@@ -80,7 +80,7 @@ export class ReviewSetsService {
         let result: ReviewSet[] = [];
         console.log('digest local JSON');
         for (let iItemset of data) {
-            console.log('+');
+            //console.log('+');
             let newSet: ReviewSet = new ReviewSet();
             newSet.set_id = iItemset.set_id;
             newSet.set_name = iItemset.set_name;
@@ -112,19 +112,23 @@ export class ReviewSetsService {
     }
     public static childrenFromLocalJSONarray(data: any[]): SetAttribute[] {
         let result: SetAttribute[] = [];
-        for (let iAtt of data) {
-            console.log('.');
-            let newAtt: SetAttribute = new SetAttribute();
-            newAtt.attribute_id = iAtt.attribute_id;
-            newAtt.attribute_name = iAtt.attribute_name;
-            newAtt.order = iAtt.order;
-            newAtt.attribute_type = iAtt.attribute_type;
-            newAtt.attribute_type_id = iAtt.attribute_type_id;
-            newAtt.attribute_set_desc = iAtt.attribute_set_desc;
-            newAtt.attribute_desc = iAtt.attribute_desc;
-            //console.log(newAtt.isSelected);
-            newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes);
-            result.push(newAtt);
+        if (data && data != undefined) {
+            
+            for (let iAtt of data) {
+                //console.log('.');
+                let newAtt: SetAttribute = new SetAttribute();
+                newAtt.attribute_id = iAtt.attribute_id;
+                newAtt.attribute_name = iAtt.attribute_name;
+                newAtt.order = iAtt.order;
+                newAtt.attribute_type = iAtt.attribute_type;
+                newAtt.attribute_type_id = iAtt.attribute_type_id;
+                newAtt.attribute_set_desc = iAtt.attribute_set_desc;
+                newAtt.attribute_desc = iAtt.attribute_desc;
+                //console.log(newAtt.isSelected);
+                if (iAtt.attributes) newAtt.attributes = ReviewSetsService.childrenFromLocalJSONarray(iAtt.attributes);
+                else newAtt.attributes = []; 
+                result.push(newAtt);
+            }
         }
         return result;
     }
@@ -158,6 +162,17 @@ export class ReviewSetsService {
             }
         }
         return result;
+    }
+    public clearItemData() {
+        for (let set of this._ReviewSets) {
+            this.clearItemDataInChildren(set.attributes);
+        }
+    }
+    private clearItemDataInChildren(children: SetAttribute[]) {
+        for (let att of children) {
+            if (att.isSelected) att.isSelected = false;
+            if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
+        }
     }
 }
 

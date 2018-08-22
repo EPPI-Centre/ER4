@@ -43,16 +43,20 @@ export class paginatorComp implements OnInit {
     }
 
     nextPage() {
+        //console.log('np');
         this.ItemListService.FetchNextPage();
     }
     prevPage() {
+        //console.log('pp');
         this.ItemListService.FetchPrevPage();
 
     }
     firstPage() {
+        //console.log('fp');
         this.ItemListService.FetchFirstPage();
     }
     lastPage() {
+        //console.log('lp');
         this.ItemListService.FetchLastPage();
     }
     
