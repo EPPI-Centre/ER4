@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetList.cs" Link="Models\AttributeSetList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
@@ -57,6 +58,10 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeList.cs" Link="Models\ReadOnlyItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetType.cs" Link="Models\ReadOnlySetType.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetTypeList.cs" Link="Models\ReadOnlySetTypeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />

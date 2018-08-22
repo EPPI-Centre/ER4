@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ERxWebClient2.Models
 {
-    public class ReviewSet
+    public class ReviewSet2
     {
         
-        public ReviewSet()
+        public ReviewSet2()
         {
             children = new List<SetAttribute>();
         }
@@ -29,12 +29,12 @@ namespace ERxWebClient2.Models
        
 
 
-        public static List<ReviewSet> GetReviewSets(SqlConnection conn, SqlDataReader reader)
+        public static List<ReviewSet2> GetReviewSets(SqlConnection conn, SqlDataReader reader)
         {
-            List<ReviewSet> res = new List<ReviewSet>();
+            List<ReviewSet2> res = new List<ReviewSet2>();
             while (reader.Read())
             {
-                ReviewSet set = new ReviewSet();
+                ReviewSet2 set = new ReviewSet2();
                 set.review_set_id= (int)reader["REVIEW_SET_ID"];
                 set.review_id = (int?)reader["REVIEW_ID"];
                 set.id = (int?)reader["SET_ID"];

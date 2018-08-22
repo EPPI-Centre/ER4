@@ -680,6 +680,14 @@ namespace BusinessLibrary.BusinessClasses
         internal static AttributeSet GetAttributeSet(SafeDataReader reader, int maxD)
         {
             AttributeSet returnValue = new AttributeSet();
+            try
+            {
+                returnValue.MarkOld();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             returnValue.LoadProperty<int>(MaxDepthProperty, maxD);//setting this here because it needs to be correct when adding a ref to returnValue inside it's children
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -696,7 +704,11 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader2.Read())
                         {
                             AttributeSet newAttributeSet = AttributeSet.GetAttributeSet(reader2, maxD);
+#if (!CSLA_NETCORE)
                             newAttributeSet.HostAttribute = returnValue;
+#else
+                            newAttributeSet.LoadProperty(HostAttributeProperty, returnValue);
+#endif
                             returnValue.Attributes.Add(newAttributeSet);
                         }
                         reader2.Close();
@@ -717,12 +729,11 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             
-            returnValue.MarkOld();
             return returnValue;
         }
 
 #endif
-    }
+                        }
 
     [Serializable]
     public class ItemAttributeData

@@ -15,18 +15,15 @@ import { forEach } from '@angular/router/src/utils/collection';
 )
 
 export class ItemListService {
-
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService
         ) { }
-
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
-
             const listJson = localStorage.getItem('ItemsList');
             let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
             if (list == undefined || list == null || list.items.length == 0) {
@@ -53,8 +50,6 @@ export class ItemListService {
         }
         return this._Criteria;
     }
-
-
     public SaveItems(items: ItemList, crit: Criteria) {
         this._ItemList = items;
         this._Criteria = crit;
@@ -79,8 +74,7 @@ export class ItemListService {
     public FetchWithCrit(crit: Criteria) {
         this._Criteria = crit;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(list => {
-
+            .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
                 this.SaveItems(list, this._Criteria);
             });
     }
