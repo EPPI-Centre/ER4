@@ -1,13 +1,15 @@
 <script src="bootstrap-treeview.js"></script>
-<h4>Codes:</h4>
+<h4>Codes: </h4>
 
-<p *ngIf="!nodes"><em>Loading...</em></p>
-
-<tree-root [nodes]="nodes" [options]="options">
-    <ng-template #treeNodeTemplate let-node let-index="index">
-        <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" checked="{{node.data.isSelected}}" *ngIf=node.data.showCheckBox />
-        <span>{{ node.data.name }}</span>
-    </ng-template>
-</tree-root>
+<p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
+<div *ngIf="nodes && nodes.length > 0">
+    <tree-root *ngIf="nodes" [nodes]="nodes" [options]="options">
+        <ng-template #treeNodeTemplate let-node let-index="index">
+            <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
+                   *ngIf="node.data.showCheckBox" />
+            <span>{{node.data.name}}</span>
+        </ng-template>
+    </tree-root>
+</div>
 
 

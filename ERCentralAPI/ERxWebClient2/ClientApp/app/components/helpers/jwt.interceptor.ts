@@ -11,8 +11,8 @@ export class JwtInterceptor implements HttpInterceptor {
         const userJson = localStorage.getItem('currentErUser');
         
         let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-        console.log('Intercepted! Cid =' + currentUser.userId);
-        console.log(request.method);//&& request.method == 'POST'
+        //console.log('Intercepted! Cid =' + currentUser.userId);
+        //console.log(request.method);//&& request.method == 'POST'
         if (request.method == 'POST') {
             if (currentUser && currentUser.token) {
                 request = request.clone({
