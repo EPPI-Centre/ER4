@@ -49,7 +49,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e) ;
-                return -1;
+                return -2;
             }
         }
         /// <summary> 
@@ -70,7 +70,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
-                return -1;
+                return -2;
             }
         }
 
@@ -82,7 +82,6 @@ namespace EPPIDataServices.Helpers
                 //CheckConnection(connection);
                 using (SqlCommand command = new SqlCommand(SPname, connection))
                 {
-
                     command.Transaction = transaction;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.AddRange(parameters);
@@ -93,7 +92,7 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
-                return -1;
+                return -2;
             }
         }
 

@@ -100,6 +100,8 @@ namespace PubmedImport
                             {
                                 var resBulkInsert = BulkInsertDataTable(dt, connection, transaction);
                             }
+                            //throw Instantiate<System.Data.SqlClient.SqlException>();
+                            //throw new Exception("Test Exception");
                         }
                         catch (SqlException ex)
                         {
@@ -129,7 +131,12 @@ namespace PubmedImport
                 }
             }
         }
-        
+
+        public static T Instantiate<T>() where T : class
+        {
+            return System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T)) as T;
+        }
+
         private readonly ILogger _logger;
 
         public FileParser(ILogger<EPPILogger> logger)
