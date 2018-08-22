@@ -9,6 +9,7 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
+import { ReviewInfoService } from '../services/ReviewInfo.service'
 
 @Component({
     selector: 'main',
@@ -19,6 +20,7 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 export class MainComponent implements OnInit, AfterViewInit {
     constructor(private router: Router,
         private ReviewerIdentityServ: ReviewerIdentityService,
+        private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
         private ItemListService: ItemListService
@@ -44,7 +46,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     };
     ngOnInit() {
 
-       
+        this.ReviewInfoService.Fetch();
     }
     Reload() {
         this.Clear();

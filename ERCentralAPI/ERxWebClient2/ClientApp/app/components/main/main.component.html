@@ -30,17 +30,12 @@
 
 <div class="container-fluid" >
     <h4 class="text-dark font-weight-bold">Coding Only Interface</h4>
-    <div class="row col-md-12">
-        <p class="text-left m-1"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}.</p>
-        <p class="text-center m-1">Review ID = {{ReviewerIdentityServ.reviewerIdentity.reviewId}}</p>
-        <!--<p class="text-center m-1">Review Name = <ReviewInfoComp></ReviewInfoComp> </p>-->
-        <p class="text-right m-1">Your account expires on: {{ReviewerIdentityServ.reviewerIdentity.accountExpiration}}</p>
-        <p class="text-right m-1">Current review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration}}</p>
-    </div>
+    <!--<div class="row col-md-12">
+         </div>-->
     <div class="row">
         <div class="col-sm-6 py-2">
             <div class="card card-body  bg-secondary">
-                <ItemListComp   style="max-height: 900px;"></ItemListComp>
+                <ItemListComp   style="max-height: 820px;"></ItemListComp>
             </div>
         </div>
         <div class="col-sm-6 py-2">
@@ -53,10 +48,16 @@
                 </div>
             </div>
             <div class="card card-body bg-info" >
-                <readonlyreviews style="max-height: 600px;" (OpeningNewReview)="Reload()"></readonlyreviews>
+                <readonlyreviews style="max-height: 520px;" (OpeningNewReview)="Reload()"></readonlyreviews>
             </div>
         </div>
-        <div class="col-sm-6 py-2">
+        <div class="col-sm-12 py-2">
+            <div class="card card-body bg-warning">
+                <p class="text-left"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
+                | Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}
+                | Your account expires on: {{ReviewerIdentityServ.reviewerIdentity.accountExpiration}}
+                | Current review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration}}</p>
+            </div>
         </div>
     </div>
 </div>

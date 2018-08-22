@@ -17,10 +17,9 @@ export class readonlyreviewsService {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
-
-
+    
     private _ReviewList: ReadOnlyReview[] = [];
-
+    
     public get ReadOnlyReviews(): ReadOnlyReview[] {
         if (this._ReviewList.length == 0) {
 
@@ -42,6 +41,7 @@ export class readonlyreviewsService {
         this._ReviewList = ror;
         this.Save();
     }
+    
         
     public Fetch() {
 

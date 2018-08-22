@@ -6,6 +6,7 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { ReviewInfoService } from '../services/ReviewInfo.service'
 
 @Injectable({
     providedIn: 'root',
@@ -16,6 +17,7 @@ export class ReviewerIdentityService {
 
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
+        private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         , @Inject(PLATFORM_ID) private _platformId: Object) { }
 
@@ -34,7 +36,8 @@ export class ReviewerIdentityService {
                 console.log("after LS: " + this._platformId);
                     //let tmp2: ReviewerIdentity = tmp;
                 if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
-                        return this._reviewerIdentity;
+
+                    return this._reviewerIdentity;
                 }
                 else {
                     console.log("Got User from LS");
@@ -58,6 +61,7 @@ export class ReviewerIdentityService {
         console.log('Ticket: ' + this.reviewerIdentity.ticket);
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
+      
     
     
     public LoginReq(u: string, p: string) {
@@ -88,6 +92,7 @@ export class ReviewerIdentityService {
                     this.router.navigate(['main']);
                 }
             });
+      
     }
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
@@ -121,3 +126,6 @@ export class ReviewerIdentity {
     public token: string = "";
     public isAuthenticated: boolean = false;
 }
+
+
+
