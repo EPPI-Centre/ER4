@@ -182,16 +182,6 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-            if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
-            {
-                Arms.Visibility = Visibility.Visible;
-                Arms.IsEnabled = true;
-            }
-            else
-            {
-                Arms.Visibility = Visibility.Collapsed;
-                Arms.IsEnabled = false;
-            }
         }
 
         
@@ -337,6 +327,22 @@ namespace EppiReviewer4
             if ((PaneItemDetails.SelectedIndex == 0) && (ScrollViewerCitationDetails.VerticalOffset > 0))
             {
                 ScrollViewerCitationDetails.ScrollToVerticalOffset(0);
+            }
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null && RevInfoProvider.Data != null)
+            {
+                ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+                //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+                if (rInfo.EnableArms) // || ri.IsSiteAdmin)
+                {
+                    Arms.Visibility = Visibility.Visible;
+                    Arms.IsEnabled = true;
+                }
+                else
+                {
+                    Arms.Visibility = Visibility.Collapsed;
+                    Arms.IsEnabled = false;
+                }
             }
         }
 
