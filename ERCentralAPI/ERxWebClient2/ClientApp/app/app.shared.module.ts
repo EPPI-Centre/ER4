@@ -18,6 +18,8 @@ import { ItemCodingComp } from './components/coding/coding.component';
 import { ItemCodingService } from './components/services/ItemCoding.service';
 import { paginatorComp } from './components/paginator/paginator.component';
 
+
+
 @NgModule({
     declarations: [
         AppComponent,

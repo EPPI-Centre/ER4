@@ -211,7 +211,7 @@ namespace EPPIDataServices.Helpers
             {
                 foreach (var item in parameters)
                 {
-                    SQLParams += item.ParameterName + ",";
+                    SQLParams += " ParamName: " + item.ParameterName + ", ParamValue: " + item.Value;
                 }
             }
             _SQLActionFailed(logger, message, SQLParams, ex);

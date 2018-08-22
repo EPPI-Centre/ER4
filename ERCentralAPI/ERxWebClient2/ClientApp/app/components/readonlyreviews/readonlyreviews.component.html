@@ -2,8 +2,8 @@
 <h4>Your Reviews:</h4>
 <p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
-<div class="table-responsive">
-    <table class='table h-50 mh-50' *ngIf="_readonlyreviewsService.ReadOnlyReviews">
+<div class="table-responsive" style="max-height: 500px;">
+    <table class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
         <thead>
             <tr>
                 <th>ID</th>

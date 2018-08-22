@@ -49,16 +49,16 @@ namespace PubmedImport
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
             string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
             return LogFilename;
         }
 
         static void Main(string[] args)
 		{
             // Required for SERILOG
-            //Log.Logger = new LoggerConfiguration()
-            //    .WriteTo.File(CreateLogFileName())
-            //    .CreateLogger();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(CreateLogFileName())
+                .CreateLogger();
 
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
@@ -328,9 +328,15 @@ namespace PubmedImport
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            //Action<ILoggingBuilder> tester = new Action<ILoggingBuilder>(configure => configure.AddConsole());
+            //Action<ILoggingBuilder> tester2 = new Action<ILoggingBuilder>(configure => configure.AddSerilog());
+
             services.AddLogging(configure => configure.AddConsole()
             )
                 .AddTransient<FileParser>()
+                .AddTransient<RCTTaggerImport>();
+            services.AddLogging(configure => configure.AddSerilog()
+           ).AddTransient<FileParser>()
                 .AddTransient<RCTTaggerImport>();
 
         }

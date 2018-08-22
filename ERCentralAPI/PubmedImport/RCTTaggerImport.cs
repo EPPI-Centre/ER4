@@ -29,7 +29,7 @@ namespace PubmedImport
             _logger = logger;
         }
 
-         SQLHelper SqlHelper;
+        SQLHelper SqlHelper;
 
         private  int upMonth;
 

@@ -53,7 +53,7 @@ export class ItemListComp implements OnInit {
     OpenItem(itemId: number) {
         if (itemId > 0) {
             this.router.navigate(['itemcoding', itemId]);
-        }
+        } 
     }
     
 
