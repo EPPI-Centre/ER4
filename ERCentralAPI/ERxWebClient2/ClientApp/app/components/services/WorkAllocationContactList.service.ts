@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -12,15 +12,20 @@ import { PLATFORM_ID } from '@angular/core';
 })
 
 export class WorkAllocationContactListService {
-
+    private sub: any;
+    @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+    ) {
+        if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
+            localStorage.removeItem('WorkAllocationContactList');
+    }
 
     public _workAllocations: WorkAllocation[] = [];
 
     public clickedIndex: string = '';
+
 
     public get workAllocations(): WorkAllocation[] {
         if (this._workAllocations.length == 0) {
@@ -44,11 +49,18 @@ export class WorkAllocationContactListService {
         this._workAllocations = wa;
         this.Save();
     }
-    
+   
     
     public Fetch() {
-        return this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList');
+
+        this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
+
+                this.workAllocations = result;//also saves to local storage
+            this.ListLoaded.emit();
+        });
+
     }
+
 
     public Save() {
         if (this._workAllocations.length > 0)
@@ -57,6 +69,7 @@ export class WorkAllocationContactListService {
             localStorage.removeItem('WorkAllocationContactList');
     }
 }
+
 export class WorkAllocation {
     workAllocationId: number = 0;
     contactName: string = "";

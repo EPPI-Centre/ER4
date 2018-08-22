@@ -31,7 +31,9 @@ export class ItemListComp implements OnInit {
     onSubmit(f: string) {
 
     }
-    private sub: any;
+    //private sub: any;
+    //@Output() loadDefault = new EventEmitter();
+
 
     value = 1;
     onEnter(value: number) {
@@ -40,10 +42,12 @@ export class ItemListComp implements OnInit {
     }
 
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
+
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
-        this.sub = this.ItemListService.FetchWithCrit(crit);
+        //this.sub =
+            this.ItemListService.FetchWithCrit(crit);
     }
 
     OpenItem(itemId: number) {
@@ -59,8 +63,7 @@ export class ItemListComp implements OnInit {
             this.router.navigate(['home']);
         }
         else {
-
-            console.log('Got in here...1');
+            //this.loadDefault.emit();
         }
     }
     nextPage() {

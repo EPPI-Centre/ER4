@@ -15,7 +15,6 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
     templateUrl: './main.component.html'
      ,providers: []
 
-    //providers: [ReviewerIdentityService]
 })
 export class MainComponent implements OnInit, AfterViewInit {
     constructor(private router: Router,
@@ -26,29 +25,25 @@ export class MainComponent implements OnInit, AfterViewInit {
     ) {
         
     }
+
     @ViewChild(WorkAllocationContactListComp)
     private workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild(ItemListComp)
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent
+
     ngAfterViewInit() {
+
     }
 
     onLogin(u: string, p:string) {
-        //this.ReviewerIdentityServ.Login(u, p);
 
-        this.ReviewerIdentityServ.LoginReq(u, p).subscribe(ri => {
-            this.ReviewerIdentityServ.reviewerIdentity = ri;
-            console.log('home login: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
-            if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0) {
-                this.ReviewerIdentityServ.Save();
-                this.router.navigate(['readonlyreviews']);
-            }
-        })
+        this.ReviewerIdentityServ.LoginReq(u, p);
         
     };
     ngOnInit() {
+
        
     }
     Reload() {
@@ -61,15 +56,13 @@ export class MainComponent implements OnInit, AfterViewInit {
         this.workAllocationsComp.Clear();
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
+        console.log('in main ' + workAlloc.attributeId + "subtype " + this.workAllocationsComp.ListSubType);
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
-        console.log(this.workAllocationsComp.ListSubType);
-        //console.log("length of items list = " + this.ItemListService.ItemList.items.length);
 
-        //this.ItemListService.FetchWorkAlloc(workAlloc.workAllocationId, this.workAllocations.ListSubType, 100, 0)
-        //    .subscribe(list => {
-        //        console.log("Got ItemList, lenght = " + list.items.length);
-        //    })
     }
-   
+    //LoadDefault() {
+    //    // try loading the default list now...
+    //    this.workAllocationsComp.LoadDefaultItemList();
+    //}
 
 }

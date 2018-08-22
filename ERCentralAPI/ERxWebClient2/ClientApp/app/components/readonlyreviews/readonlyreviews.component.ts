@@ -24,19 +24,13 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
 
                 console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
+
     @Output() OpeningNewReview = new EventEmitter();
+
     onSubmit(f: string) {
             let RevId: number = parseInt(f, 10);
-            this.ReviewerIdentityServ.LoginToReview(RevId).subscribe(ri => {
-            this.ReviewerIdentityServ.reviewerIdentity = ri;
-            console.log('login to Review: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
-            if (this.ReviewerIdentityServ.reviewerIdentity.userId > 0 && this.ReviewerIdentityServ.reviewerIdentity.reviewId === RevId) {
-                this.ReviewerIdentityServ.Save();
-                this.router.onSameUrlNavigation = "reload";
-                this.OpeningNewReview.emit();
-                this.router.navigate(['main']);
-            }
-        })
+        this.ReviewerIdentityServ.LoginToReview(RevId, this.OpeningNewReview);
+
         //this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
         //this.router.navigate(['fetch-reviewsets'])
     }
@@ -67,10 +61,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
     getReviews() {
         console.log('inside get reviews');
         if (this._readonlyreviewsService.ReadOnlyReviews.length == 0) {
-            this._readonlyreviewsService.Fetch().subscribe(result => {
-                this._readonlyreviewsService.ReadOnlyReviews = result;
-                console.log("got " + this._readonlyreviewsService.ReadOnlyReviews.length + " ReadOnlyReviews.");
-            });
+
+            this._readonlyreviewsService.Fetch();
         }
     }
 

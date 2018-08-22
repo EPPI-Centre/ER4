@@ -86,7 +86,7 @@ export class ItemListService {
         this.FetchWithCrit(this._Criteria)
     }
     public FetchPrevPage() {
-        console.log('total items are: ' + this._Criteria.totalItems);
+        //console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex == 0 ) {
             return this.FetchWithCrit(this._Criteria);
         } else {
@@ -137,8 +137,6 @@ export class ItemList {
     totalItemCount: number = 0;
     items: Item[] = [];
 }
-
-
 export class Item {
     itemId: number = 0;
     masterItemId: number = 0;
