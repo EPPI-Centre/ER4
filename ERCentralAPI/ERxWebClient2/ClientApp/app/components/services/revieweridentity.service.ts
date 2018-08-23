@@ -29,18 +29,18 @@ export class ReviewerIdentityService {
 
             if (this._reviewerIdentity.userId == 0) {
 
-                console.log("before LS: " + this._platformId);
+                //console.log("before LS: " + this._platformId);
                 const userJson = localStorage.getItem('currentErUser');
                 let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
                 //let tmp: any = localStorage.getItem('currentErUser');
-                console.log("after LS: " + this._platformId);
+                //console.log("after LS: " + this._platformId);
                     //let tmp2: ReviewerIdentity = tmp;
                 if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
                     return this._reviewerIdentity;
                 }
                 else {
-                    console.log("Got User from LS");
+                    //console.log("Got User from LS");
                     this._reviewerIdentity = currentUser;
                 }
             }
@@ -69,7 +69,7 @@ export class ReviewerIdentityService {
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
                 this.reviewerIdentity = ri;
-                console.log('home login: ' + this.reviewerIdentity.userId);
+                //console.log('home login: ' + this.reviewerIdentity.userId);
                 if (this.reviewerIdentity.userId > 0) {
                     this.Save();
                     this.router.navigate(['readonlyreviews']);
@@ -84,7 +84,7 @@ export class ReviewerIdentityService {
             body).subscribe(ri => {
 
                 this.reviewerIdentity = ri;
-                console.log('login to Review: ' + this.reviewerIdentity.userId);
+                //console.log('login to Review: ' + this.reviewerIdentity.userId);
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";

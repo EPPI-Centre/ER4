@@ -16,7 +16,8 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
     selector: 'itemcoding',
     templateUrl: './coding.component.html',
     //providers: [ReviewerIdentityService]
-    providers: []
+    providers: [],
+    styles: ["button.disabled {color:black; }"]
 })
 export class ItemCodingComp implements OnInit, OnDestroy {
 
@@ -32,7 +33,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     //public ListSubType: string = "";
 
     ngOnInit() {
-
+        console.log('init!');
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
@@ -52,15 +53,84 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.ItemCodingService.Fetch(this.itemID).subscribe(result => {
             this.ItemCodingService.ItemCodingList = result;
 
-            //this.ReviewSetsService.AddItemData(result);
+            this.ReviewSetsService.AddItemData(result);
             this.ItemCodingService.Save();
         })
     }
     SetCoding() {
+        this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
     }
     ngOnDestroy() {
         this.sub.unsubscribe();
+    }
+    private _hasPrevious: boolean | null = null;
+    hasPrevious(): boolean {
+        
+        if (!this.item || !this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.items || this.ItemListService.ItemList.items.length < 1) {
+            //console.log('NO!');
+            return false;
+        }
+        else if (this._hasPrevious === null) {
+            this._hasPrevious = this.ItemListService.hasPrevious(this.item.itemId);
+        }
+        //console.log('has prev? ' + this._hasPrevious);
+        return this._hasPrevious;
+    }
+    MyHumanIndex():number {
+        return this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) + 1;
+    }
+    private _hasNext: boolean | null = null;
+    hasNext(): boolean {
+        if (!this.item || !this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.items || this.ItemListService.ItemList.items.length < 1) {
+            return false;
+        }
+        else if (this._hasNext === null)
+        {
+            this._hasNext = this.ItemListService.hasNext(this.item.itemId);
+        }
+        return this._hasNext;
+    }
+    firstItem() {
+        console.log('First');
+        
+        if (this.item) this.goToItem(this.ItemListService.getFirst());
+    }
+    prevItem() {
+        console.log('Prev');
+        if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
+    }
+    nextItem() {
+        console.log('Next');
+        if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
+    }
+    lastItem() {
+        console.log('Last');
+        if (this.item) this.goToItem(this.ItemListService.getLast());
+    }
+    clearItemData() {
+        this._hasNext = null;
+        this._hasPrevious = null;
+        this.item = undefined;
+        this.itemID = -1;
+        this.ItemCodingService.ItemCodingList = [];
+        if (this.ReviewSetsService) this.ReviewSetsService.clearItemData();
+    }
+    goToItem(item: Item) {
+        //console.log('gti');
+        this.clearItemData();
+        this.router.navigate(['itemcoding', item.itemId]);
+        this.item = item;
+        //console.log(this.item.title);
+        if (this.item.itemId != this.itemID) {
+            //console.log('ouch');
+            this.itemID = this.item.itemId;
+        }
+        this.GetItemCoding();
+    }
+    BackToMain() {
+        this.clearItemData();
+        this.router.navigate(['main']);
     }
 }
 
