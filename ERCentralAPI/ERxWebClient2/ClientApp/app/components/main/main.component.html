@@ -42,9 +42,9 @@
         <div class="col-sm-6 py-2">
             <div class="card">
                 <div class="card card-body bg-warning">
-                    <p class="text-left" style="max-height: 20px;" >
-                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-                        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
+                    <p >
+                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }} 
+                     | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
                     </p>
                 </div>
             </div>
@@ -61,11 +61,12 @@
             </div>
         </div>
         <div class="col-sm-12 py-2">
-            <div class="card bg-light">
-                <p class="text-left">
-                    Status: Normal.
-                    | You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
-                    | Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}
+            <div class="card bg-light" [ngClass]="{'bg-light': dateManipulation() > 30 , 'bg-warning': dateManipulation() < 30 && dateManipulation() > 0 , 'bg-danger': dateManipulation() < 0 }">
+                <p *ngIf="dateManipulation() > 30">Status: Normal.</p>
+                <p *ngIf="dateManipulation() < 30 && dateManipulation() > 0">Status: Expiry Approaching.</p>
+                <p *ngIf=" dateManipulation() < 0">Status: URGENT.</p>
+                <p > | You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
+                | Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}
                 </p>
             </div>
         </div>
