@@ -36,15 +36,15 @@
     <div class="row">
         <div class="col-sm-6 py-2">
             <div class="card card-body  bg-secondary">
-                <ItemListComp style="max-height: 820px;"></ItemListComp>
+                <ItemListComp style="max-height: 920px;"></ItemListComp>
             </div>
         </div>
         <div class="col-sm-6 py-2">
-            <div class="col-sm-12 py-2">
+            <div class="card">
                 <div class="card card-body bg-warning">
-                    <p class="text-left">
-                        Your account expires on: {{ReviewerIdentityServ.reviewerIdentity.accountExpiration}}
-                        | Current review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration}}
+                    <p class="text-left" style="max-height: 20px;" >
+                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+                        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
                     </p>
                 </div>
             </div>
@@ -61,9 +61,10 @@
             </div>
         </div>
         <div class="col-sm-12 py-2">
-            <div class="card card-body bg-warning">
+            <div class="card bg-light">
                 <p class="text-left">
-                    You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
+                    Status: Normal.
+                    | You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
                     | Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}
                 </p>
             </div>
