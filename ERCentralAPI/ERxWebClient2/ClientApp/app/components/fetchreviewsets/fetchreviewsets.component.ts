@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -16,7 +16,10 @@ export class ReviewSetsComponent implements OnInit {
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsService: ReviewSetsService
-    ) {}
+    ) { }
+
+    
+
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
@@ -57,6 +60,22 @@ export class ReviewSetsComponent implements OnInit {
             //}
             //);
     }
+    CheckBoxClicked(event: any, AttId: number, additionalText: string, armId: number) {
+        
+        let evdata: CheckBoxClickedEventData = new CheckBoxClickedEventData();
+        evdata.event = event;
+        evdata.armId = armId;
+        evdata.AttId = AttId;
+        evdata.additionalText = additionalText;
+        this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
+    }
+
+}
+export class CheckBoxClickedEventData {
+    event: any | null = null;
+    AttId: number = 0;
+    additionalText: string = "";
+    armId: number = 0;
 }
 
 

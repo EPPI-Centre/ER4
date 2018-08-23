@@ -4,9 +4,10 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
+import { ReviewInfo } from './ReviewInfo.service';
+import { CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -19,26 +20,33 @@ import { ItemSet } from './ItemCoding.service';
 
 export class ReviewSetsService {
     constructor(private router: Router, //private _http: Http, 
-        private _httpC: HttpClient,
+        private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string) { }
 
     private _ReviewSets: ReviewSet[] = [];
+    private _IsBusy: boolean = true;
+    public get CanWrite(): boolean {
+        if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) return false;
+        else if (this._IsBusy || !this.ReviewerIdentityService.HasWriteRights) return false;
+        else return true;
+    }
     GetReviewSets() {
+        this._IsBusy = true;
         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
             data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
+                this._IsBusy = false;
             }
         );
     }
     public get ReviewSets(): ReviewSet[] {
         if (this._ReviewSets.length == 0) {
-
-            //this.GetReviewSets();
-
+            this._IsBusy = true;
             const ReviewSetsJson = localStorage.getItem('ReviewSets');
             let ReviewSets: ReviewSet[] = ReviewSetsJson !== null ? ReviewSetsService.digestLocalJSONarray(JSON.parse(ReviewSetsJson)) : [];
             if (ReviewSets == undefined || ReviewSets == null || ReviewSets.length == 0) {
                 let first: ReviewSet = ReviewSets[0];
+                this._IsBusy = false;
                 return this._ReviewSets;
             }
             else {
@@ -46,11 +54,14 @@ export class ReviewSetsService {
                 this._ReviewSets = ReviewSets;
             }
         }
+        this._IsBusy = false;
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
+        this._IsBusy = true;
         this._ReviewSets = sets;
         this.Save();
+        this._IsBusy = false;
     }
     private Save() {
         if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
@@ -130,6 +141,7 @@ export class ReviewSetsService {
         return result;
     }
     public AddItemData(ItemCodingList: ItemSet[]) {
+        this._IsBusy = true;
         for (let itemset of ItemCodingList) {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId );
             if (destSet) {
@@ -146,6 +158,7 @@ export class ReviewSetsService {
                 }
             }
         }
+        this._IsBusy = false;
     }
     private FindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
@@ -161,15 +174,33 @@ export class ReviewSetsService {
         return result;
     }
     public clearItemData() {
+        this._IsBusy = true;
         for (let set of this._ReviewSets) {
             this.clearItemDataInChildren(set.attributes);
         }
+        this._IsBusy = false;
     }
     private clearItemDataInChildren(children: SetAttribute[]) {
         for (let att of children) {
             if (att.isSelected) att.isSelected = false;
             if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
         }
+    }
+    public createAttSaveCommand(currentItemSets: ItemSet[]): ItemAttributeSaveCommand{
+        let result: ItemAttributeSaveCommand = new ItemAttributeSaveCommand();
+        //ItemAttributeId: number = 0;
+        //public ItemSetId: number = 0;
+        //public AdditionalText: string = "";
+        //public AttributeId: number = 0;
+        //public SetId: number = 0;
+        //public ItemId: number = 0;
+        //public ItemArmId: number = 0;
+        //public RevInfo: ReviewInfo | null = null;
+        return result;
+    }
+    @Output() ItemCodingCheckBoxClickedEvent: EventEmitter<CheckBoxClickedEventData> = new EventEmitter<CheckBoxClickedEventData>();
+    public PassItemCodingCeckboxChangedEvent(evdata: CheckBoxClickedEventData) {
+        this.ItemCodingCheckBoxClickedEvent.emit(evdata);
     }
 }
 
@@ -272,6 +303,16 @@ export interface iAttributeSet {
 export interface iSetType {
     setTypeName: string;
     setTypeDescription: string;
+}
+export class ItemAttributeSaveCommand {
+    public ItemAttributeId: number = 0;
+    public ItemSetId: number = 0;
+    public AdditionalText: string = "";
+    public AttributeId: number = 0;
+    public SetId: number = 0;
+    public ItemId: number = 0;
+    public ItemArmId: number = 0;
+    public RevInfo: ReviewInfo | null = null;
 }
 
 

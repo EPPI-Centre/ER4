@@ -6,7 +6,7 @@
     <tree-root *ngIf="nodes" [nodes]="nodes" [options]="options">
         <ng-template #treeNodeTemplate let-node let-index="index">
             <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
-                   *ngIf="node.data.showCheckBox" />
+                   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data.id, node.data.additionalText, node.data.armId)" />
             <span>{{node.data.name}}</span>
         </ng-template>
     </tree-root>

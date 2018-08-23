@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -9,7 +9,8 @@ import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewSets.service';
+import { ReviewSetsComponent, CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, private ItemListService: ItemListService
         , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService
     ) { }
+    
     private sub: any;
     private itemID: number = 0;
     private item?: Item;
@@ -49,7 +51,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 );
                 this.itemID = +params['itemId'];
                 this.GetItem();
-            })
+            });
+            this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
         }
 
     }
@@ -80,6 +83,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     }
     SetCoding() {
         this.ReviewSetsService.clearItemData();
+        
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
     }
     ngOnDestroy() {
@@ -135,7 +139,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.item = undefined;
         this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
-        if (this.ReviewSetsService) this.ReviewSetsService.clearItemData();
+        if (this.ReviewSetsService) {
+            this.ReviewSetsService.clearItemData();
+        }
     }
     goToItem(item: Item) {
         //console.log('gti');
@@ -152,6 +158,10 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     BackToMain() {
         this.clearItemData();
         this.router.navigate(['main']);
+    }
+    ItemAttributeSave(data: CheckBoxClickedEventData) {
+        console.log('Checkbox clicked reached coding: ' + data.AttId);
+        console.log('state: ' + data.event.target.checked);
     }
 }
 

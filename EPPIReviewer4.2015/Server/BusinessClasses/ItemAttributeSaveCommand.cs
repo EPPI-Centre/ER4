@@ -23,11 +23,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeSaveCommand : CommandBase<ItemAttributeSaveCommand>
     {
-#if SILVERLIGHT
+
     public ItemAttributeSaveCommand(){}
-#else
-        protected ItemAttributeSaveCommand() { }
-#endif
+
 
         private string _saveType;
         private Int64 _ItemAttributeId;
@@ -73,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             get { return _itemArmId; }
         }
 
-        private static PropertyInfo<ReviewInfo> RevInfoProperty = RegisterProperty<ReviewInfo>(new PropertyInfo<ReviewInfo>("RevInfo", "RevInfo"));
+        public static readonly PropertyInfo<ReviewInfo> RevInfoProperty = RegisterProperty<ReviewInfo>(new PropertyInfo<ReviewInfo>("RevInfo", "RevInfo"));
         public ReviewInfo RevInfo
         {
             get { return ReadProperty(RevInfoProperty); }
