@@ -125,6 +125,8 @@ export class ReviewerIdentity {
     public roles: string[] = [];
     public token: string = "";
     public isAuthenticated: boolean = false;
+    public daysLeftAccount: number = 0;
+    public daysLeftReview: number = 0;
 }
 
 
