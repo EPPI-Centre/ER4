@@ -62,12 +62,12 @@
         </div>
         <div class="col-sm-12 py-2">
             <div class="card bg-light" [ngClass]="{'bg-light': dateManipulation() > 30 , 'bg-warning': dateManipulation() < 30 && dateManipulation() > 0 , 'bg-danger': dateManipulation() < 0 }">
-                <p *ngIf="dateManipulation() > 30">Status: Normal.</p>
-                <p *ngIf="dateManipulation() < 30 && dateManipulation() > 0">Status: Expiry Approaching.</p>
-                <p *ngIf=" dateManipulation() < 0">Status: URGENT.</p>
-                <p > | You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
+                <span class="col-md-3" *ngIf="dateManipulation() > 30">Status: Normal.</span>
+                <span class="col-md-3"  *ngIf="dateManipulation() < 30 && dateManipulation() > 0">Status: Expiry Approaching.</span>
+                <span class="col-md-3"  *ngIf=" dateManipulation() < 0">Status: URGENT.</span>
+                <span class="col-md-3" > | You are {{ReviewerIdentityServ.reviewerIdentity.name}}.
                 | Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}
-                </p>
+                </span>
             </div>
         </div>
     </div>
