@@ -42,11 +42,11 @@ export class MainComponent implements OnInit, AfterViewInit {
 
     getDaysLeftAccount() {
 
-        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount -18 ;
+        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
     }
     getDaysLeftReview() {
 
-        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview - 2670;
+        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
     }
     onLogin(u: string, p:string) {
 
