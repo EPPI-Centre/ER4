@@ -49,7 +49,6 @@ export class paginatorComp implements OnInit {
     prevPage() {
         //console.log('pp');
         this.ItemListService.FetchPrevPage();
-
     }
     firstPage() {
         //console.log('fp');

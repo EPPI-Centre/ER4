@@ -37,8 +37,25 @@ export class MainComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
+
     }
 
+    dateManipulation() {
+
+        let date1: Date = new Date(Date.now());
+
+        let date2: Date = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration);
+
+        //new Date('2018, 08, 20');
+
+        var diff = Math.abs(date2.getTime() - date1.getTime());
+        var diffDays = Math.ceil(diff / (1000 * 3600 * 24)); 
+
+        console.log('the difference in days is: ' + diffDays);
+
+        return diffDays-15; 
+
+    }
     onLogin(u: string, p:string) {
 
         this.ReviewerIdentityServ.LoginReq(u, p);
