@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -13,7 +13,7 @@ import { ItemCodingComp } from '../coding/coding.component';
 })
 
 export class ItemCodingService {
-
+    @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
@@ -46,15 +46,23 @@ export class ItemCodingService {
         
     public Fetch(ItemId: number) {
         let body = JSON.stringify({ Value: ItemId });
-        return this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
-            body);
+        this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
+            body).subscribe(result => {
+                this.ItemCodingList = result;
+                this.DataChanged.emit();
+                //this.ReviewSetsService.AddItemData(result);
+                //this.Save();
+            });
     }
 
     public Save() {
-        if (this._ItemCodingList.length > 0)
-            localStorage.setItem('ItemCodingList', JSON.stringify(this._ItemCodingList));
-        else if (localStorage.getItem('ItemCodingList'))//to be confirmed!! 
-            localStorage.removeItem('ItemCodingList');
+        //nope! We're not saving this to localstorage:
+        //item coding comes and goes (as we change items), so best not to keep it, if needed we'll re-fetch it.
+
+        //if (this._ItemCodingList.length > 0)
+        //    localStorage.setItem('ItemCodingList', JSON.stringify(this._ItemCodingList));
+        //else if (localStorage.getItem('ItemCodingList'))//to be confirmed!! 
+        //    localStorage.removeItem('ItemCodingList');
     }
 }
 

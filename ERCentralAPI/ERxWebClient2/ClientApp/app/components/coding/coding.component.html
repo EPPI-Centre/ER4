@@ -4,11 +4,13 @@
             <reviewsets></reviewsets>
         </div>
         <div class="col-md-9 border border-info">
-            <h4>ITEM Details.</h4>
-            <button 
-                    class="page-link" (click)="BackToMain()">
-                XClose/backX
-            </button>
+            <div class="d-flex justify-content-between">
+                <h4>ITEM Details.</h4>
+                <button class="page-link" (click)="BackToMain()">
+                    Close/back
+                </button>
+            </div>
+            
             <div class="row">
                 <ul *ngIf="ItemListService.ItemList" class="pagination justify-content-start">
                     <li>

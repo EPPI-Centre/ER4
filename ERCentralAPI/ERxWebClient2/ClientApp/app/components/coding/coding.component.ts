@@ -39,23 +39,44 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
         else {
             this.sub = this.route.params.subscribe(params => {
+                this.ItemCodingService.DataChanged.subscribe(
+                    () => {
+                        if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
+                            console.log('data changed event caught');
+                            this.SetCoding();
+                        }
+                    }
+                );
                 this.itemID = +params['itemId'];
                 this.GetItem();
             })
         }
 
     }
+    //ngAfterContentInit() {
+    //    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+    //        this.router.navigate(['home']);
+    //    }
+    //    else {
+    //        this._workAllocationContactListService.ListLoaded.subscribe(
+    //            () => this.LoadDefaultItemList()
+    //        );
+    //        this.getWorkAllocationContactList();
+    //    }
+    //}
     private GetItem() {
         this.item = this.ItemListService.getItem(this.itemID);
         this.GetItemCoding();
     }
     private GetItemCoding() {
-        this.ItemCodingService.Fetch(this.itemID).subscribe(result => {
-            this.ItemCodingService.ItemCodingList = result;
+        
+        this.ItemCodingService.Fetch(this.itemID);
+        //    .subscribe(result => {
+        //    this.ItemCodingService.ItemCodingList = result;
 
-            this.ReviewSetsService.AddItemData(result);
-            this.ItemCodingService.Save();
-        })
+        //    this.ReviewSetsService.AddItemData(result);
+        //    this.ItemCodingService.Save();
+        //})
     }
     SetCoding() {
         this.ReviewSetsService.clearItemData();

@@ -22,9 +22,6 @@ export class ReviewSetsService {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string) { }
 
-
-    @Output() criteriaChange = new EventEmitter();
-
     private _ReviewSets: ReviewSet[] = [];
     GetReviewSets() {
         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
