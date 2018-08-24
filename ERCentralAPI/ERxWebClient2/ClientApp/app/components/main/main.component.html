@@ -42,9 +42,9 @@
         <div class="col-sm-6 py-2">
             <div class="card">
                 <div class="card card-body bg-warning">
-                    <p >
-                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }} 
-                     | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
+                    <p>
+                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+                        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
                     </p>
                 </div>
             </div>
@@ -60,23 +60,24 @@
                 <readonlyreviews style="max-height: 520px;" (OpeningNewReview)="Reload()"></readonlyreviews>
             </div>
         </div>
-        <div class="col-sm-12 py-2">
-            <div class="card bg-light">
-                Status: normal. 
-                <div class="col-md-3"  [ngClass]="{'bg-light': getDaysLeftAccount() > 14 , 'bg-warning': getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1 , 'bg-danger': getDaysLeftAccount() < 1 }">
-                    | 
-                    <span  *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</span>
-                    <span  *ngIf="getDaysLeftAccount() <= 1 && getDaysLeftAccount() > 0">Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? " today!" : " tomorrow!"}}</span>
-                    <span  *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!</span>
-                    <span  *ngIf="getDaysLeftAccount() < 0"> User: {{ReviewerIdentityServ.reviewerIdentity.name}} (Expired)</span>
-                </div>
-                <div class="col-md-3"  [ngClass]="{'bg-light': getDaysLeftReview() > 14 , 'bg-warning': getDaysLeftReview() < 14 && getDaysLeftReview() > 1 , 'bg-danger': getDaysLeftReview() < 1 }">
-                    |
-                    <span  *ngIf="getDaysLeftReview() > 14"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</span>
-                    <span  *ngIf="getDaysLeftReview() <= 1 && getDaysLeftReview() > 0">Your Review will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview == 0 ? " today!" : " tomorrow!"}}</span>
-                    <span  *ngIf="getDaysLeftReview() < 14 && getDaysLeftReview() > 1">Your Review will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview}} days!</span>
-                    <span  *ngIf="getDaysLeftReview() < 0"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}} (Expired)</span>
-                </div>
+        <div class="col-sm-12 card bg-light">
+            <div class="card-body">
+                <table >
+                    <tr >
+                        <td class="bg-light ">
+                            Status: normal.
+                            |
+                            <td  *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
+                            <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
+                            <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!" *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
+                            <td class="bg-danger" *ngIf="getDaysLeftAccount() < 0"> User: {{ReviewerIdentityServ.reviewerIdentity.name}} (Expired)</td>
+                            |
+                            <td *ngIf="getDaysLeftReview() > 14"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
+                            <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Review will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview == 0 ? ' today!' : ' tomorrow!'}}" *ngIf="getDaysLeftReview() == 1  && getDaysLeftReview() == 0">Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
+                            <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Review will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview}} days!" *ngIf="getDaysLeftReview() < 14 && getDaysLeftReview() > 1">Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
+                            <td class="bg-danger" *ngIf="getDaysLeftReview() < 0"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}} (Expired)</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>

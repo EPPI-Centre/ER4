@@ -10,6 +10,7 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
+import * as $ from 'jquery'
 
 @Component({
     selector: 'main',
@@ -33,11 +34,17 @@ export class MainComponent implements OnInit, AfterViewInit {
     @ViewChild(ItemListComp)
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
-    private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent
+    private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
 
+
+    
     ngAfterViewInit() {
 
 
+    }
+    tootlTipText() {
+
+        return "HELLO";
     }
 
     getDaysLeftAccount() {
@@ -56,6 +63,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
+        //$('[data-toggle="tooltip"]').tooltip();
     }
     Reload() {
         this.Clear();

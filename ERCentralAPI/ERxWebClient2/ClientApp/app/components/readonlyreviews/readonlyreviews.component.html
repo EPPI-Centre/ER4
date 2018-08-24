@@ -9,7 +9,7 @@
                 <th>ID</th>
                 <th>Review</th>
                 <th>Last Access:</th>
-                <th>Open</th>
+                <th data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">Coding Only</th>
             </tr>
         </thead>
         <tbody>
@@ -20,7 +20,7 @@
                 <td>
                     <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                         <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                        <button>GO!</button>
+                        <button data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">GO!</button>
                     </form>
                     <!--<form method="post" action="['/readonlyreviews']">
                         <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />

@@ -136,6 +136,21 @@ namespace BusinessLibrary.Security
                 return (IsInRole("CochraneUser"));
             }
         }
+        public int DaysLeftAccount
+        {
+            get
+            {
+                return AccountExpiration.Subtract(DateTime.Today).Days;
+            }
+        }
+        public int DaysLeftReview
+        {
+            get
+            {
+                return ReviewExpiration.Subtract(DateTime.Today).Days;
+            }
+        }
+
 #if SILVERLIGHT
 
     public ReviewerIdentity() {}
@@ -153,20 +168,7 @@ namespace BusinessLibrary.Security
         GetCslaIdentity<ReviewerIdentity>(completed, new CredentialsCriteria(username, password, ArchieCode, Status, LoginMode, reviewId));
     }
 #else
-        public int DaysLeftAccount
-        {
-            get
-            {
-                return AccountExpiration.Subtract(DateTime.Today).Days;
-            }
-        }
-        public int DaysLeftReview
-        {
-            get
-            {
-                return ReviewExpiration.Subtract(DateTime.Today).Days;
-            }
-        }
+
         public static ReviewerIdentity GetIdentity(string username, string password, int reviewId, string LoginMode, string roles)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, reviewId, LoginMode));
