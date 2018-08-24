@@ -10,6 +10,7 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
+import * as $ from 'jquery'
 
 @Component({
     selector: 'main',
@@ -33,28 +34,26 @@ export class MainComponent implements OnInit, AfterViewInit {
     @ViewChild(ItemListComp)
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
-    private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent
+    private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
 
+
+    
     ngAfterViewInit() {
 
 
     }
+    tootlTipText() {
 
-    dateManipulation() {
+        return "HELLO";
+    }
 
-        let date1: Date = new Date(Date.now());
+    getDaysLeftAccount() {
 
-        let date2: Date = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration);
+        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
+    }
+    getDaysLeftReview() {
 
-        //new Date('2018, 08, 20');
-
-        var diff = Math.abs(date2.getTime() - date1.getTime());
-        var diffDays = Math.ceil(diff / (1000 * 3600 * 24)); 
-
-        console.log('the difference in days is: ' + diffDays);
-
-        return diffDays-15; 
-
+        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
     }
     onLogin(u: string, p:string) {
 
@@ -64,6 +63,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
+        //$('[data-toggle="tooltip"]').tooltip();
     }
     Reload() {
         this.Clear();
