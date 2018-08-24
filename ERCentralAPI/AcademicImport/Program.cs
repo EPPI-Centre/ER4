@@ -8,14 +8,31 @@ using Microsoft.Azure.DataLake.Store;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest.Azure.Authentication;
 using Microsoft.Extensions.Configuration;
+using EPPIDataServices.Helpers;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace AcademicImport
 {
     public class Program
     {
-        
+        public static SQLHelper SqlHelper = null;
+
+        private static string CreateLogFileName()
+        {
+            DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
+            string LogFilename = logDir.FullName + @"\" + "AcademicImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            return LogFilename;
+        }
+
         public static void Main(string[] args)
         {
+            // Required for SERILOG
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(CreateLogFileName())
+                .CreateLogger();
+
             string appdata = Environment.GetEnvironmentVariable(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) ? "APPDATA" : "Home");
 
             var builder = new ConfigurationBuilder()
@@ -40,19 +57,39 @@ namespace AcademicImport
 
             try
             {
-                // When this is a service, enumerate through directory on DataLake and find the most recent dataset
+                DirectoryEntry latest = null;
+                // Enumerate through directory on DataLake and find the most recent dataset
                 foreach (DirectoryEntry entry in client.EnumerateDirectory("/graph"))
                 {
-                    // store in a string variable the name of the most recent directory
+                    if (latest == null)
+                    {
+                        latest = entry;
+                    }
+                    else
+                    {
+                        if (entry.LastModifiedTime > latest.LastModifiedTime)
+                        {
+                            latest = entry;
+                        }
+                    }
                     PrintDirectoryEntry(entry);
                 }
 
-                // check whether we have a new dataset now by comparing with the record that we grabbed from the existing SQL DB above
+                // When this is a service ADD a check here to see whether we have a new dataset now by comparing
+                // with the record that we grabbed from the existing SQL DB above
+
                 // if the most recent on DataLake == our current DB - just exit here
 
                 // if we have a new dataset on DataLake to bring down we have work to do...
 
+
+
+
                 // 1. Create a new SQL Database using the SQL script.
+                // TODO = CREATE DATABASE
+                // Now create all the tables
+
+
 
                 // 2. Go through each file that we want to download
                 string fileName = "/graph/2018-07-19/Affiliations.txt";
