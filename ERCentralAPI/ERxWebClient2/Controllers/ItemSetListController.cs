@@ -41,7 +41,90 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult ExcecuteItemAttributeSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
+        {
+            SetCSLAUser();
+            //ReviewInfo rinf = new ReviewInfo();
+            ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
+                MVCcmd.saveType
+                , MVCcmd.itemAttributeId
+                , MVCcmd.itemSetId
+                , MVCcmd.additionalText
+                , MVCcmd.attributeId
+                , MVCcmd.setId
+                , MVCcmd.itemId
+                , MVCcmd.itemArmId
+                , MVCcmd.revInfo.ToCSLAReviewInfo()
+                //,rinf
+                );
+            DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
+            cmd = dp.Execute(cmd);
+            MVCcmd.additionalText = cmd.AdditionalText;
+            MVCcmd.attributeId = cmd.AttributeId;
+            MVCcmd.itemArmId = cmd.ItemArmId;
+            MVCcmd.itemAttributeId = cmd.ItemAttributeId;
+            MVCcmd.itemId = cmd.ItemId;
+            MVCcmd.itemSetId = cmd.ItemSetId;
+            MVCcmd.setId = cmd.SetId;
+            return Ok(MVCcmd);
+        }
 
-
+    }
+    public class MVCItemAttributeSaveCommand
+    {
+        public string saveType { get; set; }
+        public Int64 itemAttributeId { get; set; }
+        public Int64 itemSetId { get; set; }
+        public string additionalText { get; set; }
+        public Int64 attributeId { get; set; }
+        public int setId { get; set; }
+        public Int64 itemId { get; set; }
+        public Int64 itemArmId { get; set; }
+        public MVCReviewInfo revInfo { get; set; }
+    }
+    public class MVCReviewInfo
+    {
+        public int reviewId { get; set; }
+        public string reviewName { get; set; }
+        public bool showScreening { get; set; }
+        public int screeningCodeSetId { get; set; }
+        public string screeningMode { get; set; }
+        public string screeningReconcilliation { get; set; }
+        public Int64 screeningWhatAttributeId { get; set; }
+        public int screeningNPeople { get; set; }
+        public bool screeningAutoExclude { get; set; }
+        public bool screeningModelRunning { get; set; }
+        public bool screeningIndexed { get; set; }
+        public bool screeningListIsGood { get; set; }
+        public string bL_ACCOUNT_CODE { get; set; }
+        public string bL_AUTH_CODE { get; set; }
+        public string bL_TX { get; set; }
+        public string bL_CC_ACCOUNT_CODE { get; set; }
+        public string bL_CC_AUTH_CODE { get; set; }
+        public string bL_CC_TX { get; set; }
+        public ReviewInfo ToCSLAReviewInfo()
+        {
+            ReviewInfo result = new ReviewInfo();
+            result.BL_ACCOUNT_CODE = this.bL_ACCOUNT_CODE;
+            result.BL_AUTH_CODE = this.bL_AUTH_CODE;
+            result.BL_CC_ACCOUNT_CODE = this.bL_CC_ACCOUNT_CODE;
+            result.BL_CC_AUTH_CODE = this.bL_CC_AUTH_CODE;
+            result.BL_CC_TX = this.bL_CC_TX;
+            result.BL_TX = this.bL_TX;
+            result.ReviewId = this.reviewId;
+            result.ReviewName = this.reviewName;
+            result.ScreeningAutoExclude = this.screeningAutoExclude;
+            result.ScreeningCodeSetId = this.screeningCodeSetId;
+            result.ScreeningIndexed = this.screeningIndexed;
+            result.ScreeningListIsGood = this.screeningListIsGood;
+            result.ScreeningMode = this.screeningMode;
+            result.ScreeningModelRunning = this.screeningModelRunning;
+            result.ScreeningNPeople = this.screeningNPeople;
+            result.ScreeningReconcilliation = this.screeningReconcilliation;
+            result.ScreeningWhatAttributeId = this.screeningWhatAttributeId;
+            result.ShowScreening = this.showScreening;
+            return result;
+        }
     }
 }

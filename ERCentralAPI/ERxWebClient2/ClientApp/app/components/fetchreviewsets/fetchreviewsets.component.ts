@@ -25,7 +25,7 @@ export class ReviewSetsComponent implements OnInit {
             this.router.navigate(['home']);
         }
         else {
-            console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
+            //console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
             this.GetReviewSets();
         }
     }
@@ -60,12 +60,12 @@ export class ReviewSetsComponent implements OnInit {
             //}
             //);
     }
-    CheckBoxClicked(event: any, AttId: number, additionalText: string, armId: number) {
+    CheckBoxClicked(event: any, AttId: string, additionalText: string, armId: number) {
         
         let evdata: CheckBoxClickedEventData = new CheckBoxClickedEventData();
         evdata.event = event;
         evdata.armId = armId;
-        evdata.AttId = AttId;
+        evdata.AttId = +AttId.replace('A', '');
         evdata.additionalText = additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }

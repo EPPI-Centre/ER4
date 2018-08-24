@@ -250,6 +250,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetId
         {
             get

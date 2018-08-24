@@ -3,14 +3,15 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, } from 'rxjs';
+import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
-import { ItemCodingService } from '../services/ItemCoding.service';
-import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewSets.service';
+import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
+import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
 import { ReviewSetsComponent, CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
+import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 
 
 @Component({
@@ -23,10 +24,12 @@ import { ReviewSetsComponent, CheckBoxClickedEventData } from '../fetchreviewset
 export class ItemCodingComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, private ItemListService: ItemListService
-        , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService
+        , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
+        private reviewInfoService: ReviewInfoService
     ) { }
-    
-    private sub: any;
+   
+    private subItemIDinPath: Subscription | null = null;
+    private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private itemID: number = 0;
     private item?: Item;
     onSubmit(f: string) {
@@ -35,16 +38,16 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     //public ListSubType: string = "";
 
     ngOnInit() {
-        console.log('init!');
+        //console.log('init!');
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
         else {
-            this.sub = this.route.params.subscribe(params => {
+            this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.ItemCodingService.DataChanged.subscribe(
                     () => {
                         if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                            console.log('data changed event caught');
+                            //console.log('data changed event caught');
                             this.SetCoding();
                         }
                     }
@@ -52,21 +55,14 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 this.itemID = +params['itemId'];
                 this.GetItem();
             });
-            this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 
     }
-    //ngAfterContentInit() {
-    //    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-    //        this.router.navigate(['home']);
-    //    }
-    //    else {
-    //        this._workAllocationContactListService.ListLoaded.subscribe(
-    //            () => this.LoadDefaultItemList()
-    //        );
-    //        this.getWorkAllocationContactList();
-    //    }
-    //}
+    
+
     private GetItem() {
         this.item = this.ItemListService.getItem(this.itemID);
         this.GetItemCoding();
@@ -87,7 +83,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
     }
     ngOnDestroy() {
-        this.sub.unsubscribe();
+        console.log('killing coding comp');
+        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
+        if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }
     private _hasPrevious: boolean | null = null;
     hasPrevious(): boolean {
@@ -160,9 +158,123 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.router.navigate(['main']);
     }
     ItemAttributeSave(data: CheckBoxClickedEventData) {
-        console.log('Checkbox clicked reached coding: ' + data.AttId);
-        console.log('state: ' + data.event.target.checked);
+        
+        let SubSuccess: Subscription;
+        let SubError: Subscription;//see https://medium.com/thecodecampus-knowledge/the-easiest-way-to-unsubscribe-from-observables-in-angular-5abde80a5ae3
+        
+        let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId);
+        
+        if (!attribute) {
+            //problem: we don't know what to code!
+            alert('Could not find the code we want to add to this item, please reload: something is not right with the data.');
+            return;
+        }
+
+        let itemSet: ItemSet | null = this.ItemCodingService.FindItemSetBySetId(attribute.set_id);
+
+        let cmd: ItemAttributeSaveCommand = new ItemAttributeSaveCommand();
+        if (itemSet) {
+            //we have an item set to use, so put the relevant data in cmd. Otherwise, default value is fine.
+            cmd.itemSetId = itemSet.itemSetId;
+        }
+        cmd.itemId = this.itemID;
+        cmd.additionalText = data.additionalText;
+        cmd.itemArmId = data.armId;
+        cmd.setId = attribute.set_id;
+        //console.log(attribute.set_id);
+        cmd.attributeId = data.AttId;
+        cmd.revInfo = this.reviewInfoService.ReviewInfo;
+        let itemAtt: ReadOnlyItemAttribute | null = null;
+        if (data.event.target.checked) {
+            //add new code to item
+            cmd.saveType = "Insert";
+        }
+        else if (!data.event.target.checked && itemSet) {
+            //we delete the coding
+            cmd.saveType = "Delete"; 
+            
+            for (let Candidate of itemSet.itemAttributesList) {
+                if (Candidate.attributeId == cmd.attributeId) {
+                    itemAtt = Candidate;
+                    break;
+                }
+            }
+            if (!itemAtt) {
+                //problem: we can't remove an item att, if we can't find it!
+                alert('Sorry: can\'t find the Attribute to remove...');
+                return;
+            }
+            cmd.itemAttributeId = itemAtt.itemAttributeId;
+        }
+        SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
+            //do something if command ended with an error
+            console.log('Error handling');
+            alert(cmdErr);
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
+        });
+        SubSuccess = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmdResult: ItemAttributeSaveCommand) => {
+            //update local version of the coding...
+            
+            if (cmd.saveType == "Insert") {
+                let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
+                newItemA.additionalText = cmdResult.additionalText;
+                newItemA.armId = cmdResult.itemArmId;
+                newItemA.armTitle = "";
+                newItemA.attributeId = cmdResult.attributeId;
+                newItemA.itemAttributeId = cmdResult.itemAttributeId;
+                if (itemSet) itemSet.itemAttributesList.push(newItemA);
+                else {//didn't have the itemSet, so need to create it...
+                    let newItemSet: ItemSet = new ItemSet();
+                    newItemSet.contactId = this.ReviewerIdentityServ.reviewerIdentity.userId;
+                    newItemSet.contactName = this.ReviewerIdentityServ.reviewerIdentity.name; 
+                    let setDest = this.ReviewSetsService.FindSetById(cmd.setId);
+                    if (setDest) {
+                        newItemSet.isCompleted = setDest.codingIsFinal;
+                        newItemSet.setName = setDest.set_name;
+                    }
+                    newItemSet.isLocked = false;
+                    newItemSet.itemId = cmdResult.itemId;
+                    newItemSet.itemSetId = cmdResult.itemSetId;
+                    newItemSet.setId = cmdResult.setId;
+                    newItemSet.itemAttributesList.push(newItemA);
+                    this.ItemCodingService.ItemCodingList.push(newItemSet);
+                }
+            }
+            else if (cmd.saveType == "Delete") {
+                
+                //if (itemSet) console.log(itemSet.itemAttributesList.length);
+                //if (itemAtt) console.log(itemAtt.attributeId);
+                if (itemSet && itemAtt) {
+
+                    itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
+                    //if (itemSet) console.log(itemSet.itemAttributesList.length);
+                }
+            }
+            
+            this.SetCoding();
+            SubSuccess.unsubscribe();
+            SubError.unsubscribe();
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
+        });
+        //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
+        this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
+    //event: any | null = null;
+    //AttId: number = 0;
+    //additionalText: string = "";
+    //armId: number = 0;
+
+    //saveType
+    //public ItemAttributeId: number = 0;
+    //public ItemSetId: number = 0;
+    //public AdditionalText: string = "";
+    //public AttributeId: number = 0;
+    //public SetId: number = 0;
+    //public ItemId: number = 0;
+    //public ItemArmId: number = 0;
+    //public RevInfo: ReviewInfo | null = null;
 }
 
 
