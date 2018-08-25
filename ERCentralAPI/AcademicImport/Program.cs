@@ -83,24 +83,25 @@ namespace AcademicImport
                 // if we have a new dataset on DataLake to bring down we have work to do...
 
 
-
-
                 // 1. Create a new SQL Database using the SQL script.
                 // TODO = CREATE DATABASE
-                // Now create all the tables
+                // Now create all the tables - see 'CreateTables.sql' for current shape of data
 
 
 
-                // 2. Go through each file that we want to download
+                // 2. Go through each file that we want to download. As there are a number of files for which we'll follow the same
+                // procedure, we should probably put this in a separate method.
                 string fileName = "/graph/2018-07-19/Affiliations.txt";
                 int count = 0;
+                int tempLimit = 10000; // ********** use this for testing so that there's no need to download the whole database!
                 Console.WriteLine("Reading file next");
                 using (var readStream = new StreamReader(client.GetReadStream(fileName)))
                 {
                     using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"E:\MSAcademic\Affiliations.txt"))
                     {
                         string line;
-                        while ((line = readStream.ReadLine()) != null)
+                        //while ((line = readStream.ReadLine()) != null) // for downloading the whole database
+                        while ((line = readStream.ReadLine()) != null || count == tempLimit)
                         {
                             file.WriteLine(line);
                             Console.WriteLine(count.ToString());
@@ -110,6 +111,7 @@ namespace AcademicImport
                 }
 
                 // once we've downloaded the file, put it into the SQL DB
+                // See the BulkTextUpload.sql file for an example of this. (We should probably put these into stored procedures)
 
                 // Once the file has been put into the DB, delete it from the local filesystem
                 if (File.Exists(@"E:\MSAcademic\Affiliations.txt"))
@@ -214,3 +216,4 @@ namespace AcademicImport
         }
     }
 }
+
