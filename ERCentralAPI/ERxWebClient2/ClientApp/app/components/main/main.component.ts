@@ -10,6 +10,8 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
+import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
+import { take, map } from 'rxjs/operators';
 import * as $ from 'jquery'
 
 @Component({
@@ -37,7 +39,8 @@ export class MainComponent implements OnInit, AfterViewInit {
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
 
 
-    
+    public countDown: any | undefined;
+    public count: number = 60;
     ngAfterViewInit() {
 
 
@@ -63,12 +66,22 @@ export class MainComponent implements OnInit, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
+        this.tester();
         //$('[data-toggle="tooltip"]').tooltip();
     }
     Reload() {
         this.Clear();
         this.workAllocationsComp.getWorkAllocationContactList();
         //this.itemListComp.
+    }
+    tester() {
+
+        console.log('asdfkjhasdkljfhkasfhdk');
+
+        this.countDown = timer(0, 1000).pipe(
+            take(this.count),
+            map(() => --this.count)
+        );
     }
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());

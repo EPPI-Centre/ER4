@@ -84,5 +84,19 @@ namespace ERxWebClient2.Controllers
             return result;
         }
 
+        //[HttpGet("[action]")]
+        //public ReadOnlyReviewList ReadOnlyReviews()//should receive a reviewID!
+        //{
+        //    SetCSLAUser();
+        //    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+        //    DataPortal<ReadOnlyReviewList> dp = new DataPortal<ReadOnlyReviewList>();
+        //    SingleCriteria<ReadOnlyReviewList, int> criteria = new SingleCriteria<ReadOnlyReviewList, int>(ri.UserId);
+        //    ReadOnlyReviewList result = dp.Fetch(criteria);
+
+       
+        //    return result;
+        //}
+
     }
 }

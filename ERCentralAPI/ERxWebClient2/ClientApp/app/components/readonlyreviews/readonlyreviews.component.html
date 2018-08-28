@@ -2,6 +2,7 @@
 <h4>Your Reviews:</h4>
 <p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
+
 <div class="table-responsive" style="max-height: 500px;">
     <table class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
         <thead>
@@ -20,7 +21,7 @@
                 <td>
                     <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                         <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                        <button data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">GO!</button>
+                        <button data-toggle="tooltip" data-placement="top" title="Coding-Only Interface1" >GO!</button>
                     </form>
                     <!--<form method="post" action="['/readonlyreviews']">
                         <input type="hidden" name="RevId" value="{{ roReview.reviewId }}" />

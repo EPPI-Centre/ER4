@@ -7,7 +7,8 @@ import { Observable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { readonlyreviewsService } from '../services/readonlyreviews.service';
-
+import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
+import { take, map } from 'rxjs/operators';
 
 @Component({
     selector: 'readonlyreviews',
@@ -34,6 +35,20 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         //this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
         //this.router.navigate(['fetch-reviewsets'])
     }
+
+    public countDown: any | undefined;
+    public count: number = 60;
+
+    tester() {
+
+        console.log('asdfkjhasdkljfhkasfhdk');
+
+        this.countDown = timer(0, 1000).pipe(
+            take(this.count),
+            map(() => --this.count)
+        );
+    }
+
 
     //getReviews() {
 
