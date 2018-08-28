@@ -10,9 +10,8 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
+import { timer } from 'rxjs'; 
 import { take, map } from 'rxjs/operators';
-//import * as $ from 'jquery'
 
 @Component({
     selector: 'main',
@@ -66,12 +65,11 @@ export class MainComponent implements OnInit, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
-
         let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
-        this.timerServerCheck(uu, guid);
-
-
+        if (guid != undefined && uu != '') {
+            this.timerServerCheck(uu, guid);
+        }
     }
     Reload() {
         this.Clear();
@@ -80,7 +78,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     }
     timerServerCheck(u: string, g: string) {
 
-        this.countDown = timer(20000, 20000).pipe(
+        this.countDown = timer(0, 30000).pipe(
             take(this.count),
             map(() => this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g))
         );

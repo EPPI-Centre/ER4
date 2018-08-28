@@ -30,9 +30,6 @@
 
 <div class="container-fluid">
     <h4 class="text-dark font-weight-bold">Coding Only Interface</h4>
-    <!--<div class="row col-md-12">
-         </div>-->
-    <h2 >{{countDown | async}}</h2>
     <div class="row">
         <div class="col-sm-6 py-2">
             <div class="card card-body  bg-secondary">
@@ -65,7 +62,7 @@
                 <table >
                     <tr >
                         <td class="bg-light ">
-                            Status: normal.
+                            Status: {{ReviewerIdentityServ.currentStatus}}
                             |
                             <td  *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                             <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>

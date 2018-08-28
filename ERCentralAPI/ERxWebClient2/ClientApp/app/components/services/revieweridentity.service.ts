@@ -22,6 +22,7 @@ export class ReviewerIdentityService {
         , @Inject(PLATFORM_ID) private _platformId: Object) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
+    private currentStatus: string = '';
 
     public get reviewerIdentity(): ReviewerIdentity {
 
@@ -45,9 +46,7 @@ export class ReviewerIdentityService {
                 }
             }
         }
-            
         return this._reviewerIdentity;
-
     }
 
     public get HasWriteRights(): boolean {
@@ -80,12 +79,15 @@ export class ReviewerIdentityService {
             });
             //body);
     }
+    public UpdateStatus(msg: string) {
+
+        console.log(msg);
+        this.currentStatus = msg;
+
+    }
 
     // Make a call to the stored proc in the CSLA BO
-    public LogonTicketCheckExpiration(
-        u: string,
-        g: string
-    ) {
+    public LogonTicketCheckExpiration(u: string, g: string) {
 
         let Lgt = new LogonTicketCheck(u, g);
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
@@ -93,14 +95,73 @@ export class ReviewerIdentityService {
 
                 // Sergio needs to check all and especially this
                 // condition...
-                if (this.reviewerIdentity.userId > 0 && lgt.result == 'Valid') {
-                    console.log('Successfully checked again...');
-                    this.Save();
-                } else {
-                    this.router.navigate(['home']);
-                }
+                //if (this.reviewerIdentity.userId > 0 && lgt.result == 'Valid') {
+                //    console.log('Successfully checked again...');
+                //    this.Save();
+                //} else {
+                //    this.router.navigate(['home']);
+                //}
+                if (lgt != null) {
+     
+                    if (lgt.result == "Valid") {
 
-            });
+                        this.UpdateStatus(lgt.serverMessage);
+                    }
+                    else {
+
+                        let msg: string  = "Sorry, you have been logged off automatically.\n";
+                        switch (lgt.result) {
+                            case "Expired":
+                                msg += "Your session has been inactive for too long.\n" 
+                                break;
+                            case "Invalid":
+                                msg += "Someone has logged on with the same credentials you are using.\n";
+                                msg += "This is not allowed in ER4. If you believe that someone is using your credentials without permission, ";
+                                msg += "you should contact the ER4 support.\n";
+                                break;
+                            case "None":
+                                msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
+                                msg += "Please contact the ER4 support team.\n";
+                                break;
+                            case "Multiple":
+                                // CHECK WITH SERGIO
+                                //if (this.reviewerIdentity.IsCochraneUser) {
+                                //    msg += "Your session has become invalid.\n";
+                                //    msg += "Most likely, the Cochrane review you have open has become 'Read-Only'.\n";
+                                //    msg += "This would happen if the review got Checked-In in Archie\n";
+                                //    msg += "(or someone undid the check-out).\n";
+                                //    msg += "If you think this wasn't the case, please contact EPPISupport.\n";
+                                //}
+                                //else {
+                                //    msg += "Your session has become invalid for unrecognised reasons (Return code = MULTIPLE).\n";
+                                //    msg += "Please contact the ER4 support team.\n";
+                                //}
+                                //break;
+                        }
+                        //string res = MessageBox.Show(msg + "You will be asked to logon again when you close this message.").ToString();
+                        //System.Windows.Browser.HtmlPage.Window.Invoke("Refresh");
+                    }
+                }
+                else {
+   
+                   // if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
+
+                   //     UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n"  +
+                   //         "This message will revert to normal when the connection will be re-established:\n" +
+                   //         "Please keep in mind that data changes made while disconnected cannot be saved.\n" +
+                   //         "If your Internet connection is working, we might be experiencing some technical problems,\n" +
+                   //         "We apologise for the inconvenience.");
+                   //     return;
+                   // }
+                   ////windowMOTD.Tag = "failure";
+                   //// windowMOTD.MOTDtextBlock.Text = "We are sorry, you have lost communication with the server. To avoid data corruption, the page will now reload.\n" +
+                   //     "This message may appear if you didn't log out during a software update.\n" +
+                   //     "Note that Eppi-Reviewer might fail to load until the update is completed, please wait a couple of minutes and try again.";
+                   // //windowMOTD.Show();
+                }
+            },
+            err => console.error('Ticket Check observer got an error: ' + err)
+        );
     }
 
     public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
