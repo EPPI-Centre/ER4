@@ -50,7 +50,11 @@ export class ReviewerIdentityService {
 
     }
 
-
+    public get HasWriteRights(): boolean {
+        if (!this.reviewerIdentity || !this.reviewerIdentity.reviewId || this.reviewerIdentity.reviewId == 0 || !this.reviewerIdentity.roles) return false;
+        else if (this.reviewerIdentity.roles.indexOf('ReadOnly') == -1) return true;
+        else return false;
+    }
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
     }

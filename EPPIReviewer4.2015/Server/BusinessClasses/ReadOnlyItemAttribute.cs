@@ -46,6 +46,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttribute Id"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemAttributeId
         {
             get

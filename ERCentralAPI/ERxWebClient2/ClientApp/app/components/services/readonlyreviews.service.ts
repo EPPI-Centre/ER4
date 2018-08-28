@@ -29,7 +29,7 @@ export class readonlyreviewsService {
                 return this._ReviewList;
             }
             else {
-                console.log("Got workAllocations from LS");
+                //console.log("Got workAllocations from LS");
                 this._ReviewList = ReadOnlyReviews;
             }
         }

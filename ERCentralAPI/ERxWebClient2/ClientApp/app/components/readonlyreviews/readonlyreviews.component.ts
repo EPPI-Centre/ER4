@@ -23,7 +23,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
                 private ReviewerIdentityServ: ReviewerIdentityService,
                 private _readonlyreviewsService: readonlyreviewsService) {
 
-                console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
+                //console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
 
     @Output() OpeningNewReview = new EventEmitter();
@@ -74,7 +74,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
     //}
 
     getReviews() {
-        console.log('inside get reviews');
+        //console.log('inside get reviews');
         if (this._readonlyreviewsService.ReadOnlyReviews.length == 0) {
 
             this._readonlyreviewsService.Fetch();

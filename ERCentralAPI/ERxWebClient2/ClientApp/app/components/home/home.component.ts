@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
     vInfo: versionInfo = new versionInfo();
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
-
+        localStorage.clear();
         this.ReviewerIdentityServ.LoginReq(u, p);
         
     };

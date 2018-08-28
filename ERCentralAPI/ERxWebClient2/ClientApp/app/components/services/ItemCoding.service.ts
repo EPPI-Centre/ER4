@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ItemCodingComp } from '../coding/coding.component';
-
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Injectable({
@@ -16,27 +16,25 @@ export class ItemCodingService {
     @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
-        @Inject('BASE_URL') private _baseUrl: string
+        @Inject('BASE_URL') private _baseUrl: string,
+        private ReviewerIdentityService: ReviewerIdentityService 
         ) { }
 
 
     private _ItemCodingList: ItemSet[] = [];
-
+    
     public get ItemCodingList(): ItemSet[] {
         if (this._ItemCodingList.length == 0) {
-
             const ItemSetsJson = localStorage.getItem('ItemCodingList');
             let ReadOnlyReviews: ItemSet[] = ItemSetsJson !== null ? JSON.parse(ItemSetsJson) : [];
             if (ReadOnlyReviews == undefined || ReadOnlyReviews == null || ReadOnlyReviews.length == 0) {
                 return this._ItemCodingList;
             }
             else {
-                console.log("Got ItemSets from LS");
-                this._ItemCodingList = ReadOnlyReviews;
+                //not sure we should do anything here
             }
         }
         return this._ItemCodingList;
-
     }
     
     public set ItemCodingList(icl: ItemSet[]) {
@@ -64,6 +62,34 @@ export class ItemCodingService {
         //else if (localStorage.getItem('ItemCodingList'))//to be confirmed!! 
         //    localStorage.removeItem('ItemCodingList');
     }
+    public FindItemSetBySetId(DestSetId: number): ItemSet | null {
+        //this is where somewhat complicated logic needs to happen. We need to replicate here the logic that decides if a new itemset is needed or not...
+        let result: ItemSet | null = null;
+        for (let itemSet of this._ItemCodingList) {
+            if (itemSet.setId == DestSetId) {
+                //we have an itemSet in the desired set: if complete, we'll use it. Otherwise, check that it belongs to current user.
+                //if itemset to be used is locked, we should not even have tried, so tricky case...
+                if (itemSet.isCompleted) {
+                    if (itemSet.isLocked) {
+                        alert('Coding is locked! We shouldn\'t be doing this...');
+                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
+                    }
+                    result = itemSet;
+                    break;
+                }
+                else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
+                    if (itemSet.isLocked) {
+                        alert('Coding is locked! We shouldn\'t be doing this...');
+                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
+                    }
+                    result = itemSet;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+   
 }
 
 export class ItemSet {
@@ -81,6 +107,7 @@ export class ItemSet {
 }
 export class ReadOnlyItemAttribute {
     attributeId: number = 0;
+    itemAttributeId: number = 0;
     additionalText: string = "";
     armId: number = 0;
     armTitle: string = "";
