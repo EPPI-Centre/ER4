@@ -66,9 +66,8 @@ export class ReviewerIdentityService {
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
       
-    
-    
     public LoginReq(u: string, p: string) {
+
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
@@ -81,6 +80,29 @@ export class ReviewerIdentityService {
             });
             //body);
     }
+
+    // Make a call to the stored proc in the CSLA BO
+    public LogonTicketCheckExpiration(
+        u: string,
+        g: string
+    ) {
+
+        let Lgt = new LogonTicketCheck(u, g);
+        return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
+            Lgt).subscribe(lgt => {
+
+                // Sergio needs to check all and especially this
+                // condition...
+                if (this.reviewerIdentity.userId > 0 && lgt.result == 'Valid') {
+                    console.log('Successfully checked again...');
+                    this.Save();
+                } else {
+                    this.router.navigate(['home']);
+                }
+
+            });
+    }
+
     public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
         let body = JSON.stringify({ Value: RevId });
@@ -90,6 +112,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
                 //console.log('login to Review: ' + this.reviewerIdentity.userId);
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
+                    console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
                     OpeningNewReview.emit();
@@ -115,7 +138,17 @@ class LoginCreds {
     }
     public Username: string = "";
     public Password: string = "";
+}
+class LogonTicketCheck {
+    constructor(u: string, g: string) {
+        this.userId = u;
+        this.gUID = g;
     }
+    public userId: string = "";
+    public gUID: string = "";
+    public result: string = "";
+    public serverMessage: string = "";
+}
 
 export class ReviewerIdentity {
     public reviewId: number = 0;
