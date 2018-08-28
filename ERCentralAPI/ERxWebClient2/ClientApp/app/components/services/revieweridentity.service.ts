@@ -88,10 +88,13 @@ export class ReviewerIdentityService {
 
     // Make a call to the stored proc in the CSLA BO
     public LogonTicketCheckExpiration(u: string, g: string) {
-
+        console.log('.');
         let Lgt = new LogonTicketCheck(u, g);
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             Lgt).subscribe(lgt => {
+
+                // it may be important to unsubscribe from this 
+                // somewhere relevant
 
                 // Sergio needs to check all and especially this
                 // condition...
@@ -200,6 +203,7 @@ class LoginCreds {
     public Username: string = "";
     public Password: string = "";
 }
+
 class LogonTicketCheck {
     constructor(u: string, g: string) {
         this.userId = u;

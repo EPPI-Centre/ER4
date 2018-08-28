@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,8 +10,8 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer } from 'rxjs'; 
-import { take, map } from 'rxjs/operators';
+import { timer, Subject } from 'rxjs'; 
+import { take, map, takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'main',
@@ -19,7 +19,7 @@ import { take, map } from 'rxjs/operators';
      ,providers: []
 
 })
-export class MainComponent implements OnInit, AfterViewInit {
+export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     constructor(private router: Router,
         private ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewInfoService: ReviewInfoService,
@@ -36,7 +36,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-
+    private killTrigger: Subject<void> = new Subject();
 
     public countDown: any | undefined;
     public count: number = 60;
@@ -67,7 +67,9 @@ export class MainComponent implements OnInit, AfterViewInit {
         this.ReviewInfoService.Fetch();
         let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
+        console.log('init main');
         if (guid != undefined && uu != '') {
+            console.log('init main: timer');
             this.timerServerCheck(uu, guid);
         }
     }
@@ -77,11 +79,15 @@ export class MainComponent implements OnInit, AfterViewInit {
         //this.itemListComp.
     }
     timerServerCheck(u: string, g: string) {
-
-        this.countDown = timer(0, 30000).pipe(
-            take(this.count),
-            map(() => this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g))
+        console.log(u + '+' + g);
+        this.countDown = timer(0, 8000).pipe(
+            takeUntil(this.killTrigger),
+            map(() => {
+                console.log('+');
+                this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
+            })
         );
+        this.countDown.subscribe(console.log('AHA!'));
     }
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
@@ -92,9 +98,9 @@ export class MainComponent implements OnInit, AfterViewInit {
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
-    //LoadDefault() {
-    //    // try loading the default list now...
-    //    this.workAllocationsComp.LoadDefaultItemList();
-    //}
+    ngOnDestroy() {
+        console.log('killing main comp');
+        if (this.countDown) this.killTrigger.next();
+    }
 
 }
