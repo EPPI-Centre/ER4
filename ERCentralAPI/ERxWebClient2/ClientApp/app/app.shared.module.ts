@@ -17,7 +17,7 @@ import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { ItemCodingService } from './components/services/ItemCoding.service';
 import { paginatorComp } from './components/paginator/paginator.component';
-
+import { StatusBarComponent } from './components/StatusBar/statusbar.component';
 
 
 @NgModule({
@@ -33,6 +33,7 @@ import { paginatorComp } from './components/paginator/paginator.component';
         ItemListComp,
         ItemCodingComp,
         paginatorComp,
+        StatusBarComponent,
         MainComponent
     ],
     imports: [

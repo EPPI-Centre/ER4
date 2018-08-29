@@ -1,12 +1,13 @@
 import { Component, Inject, Injectable, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -30,18 +31,16 @@ export class ReviewerIdentityService {
 
             if (this._reviewerIdentity.userId == 0) {
 
-                //console.log("before LS: " + this._platformId);
+
                 const userJson = localStorage.getItem('currentErUser');
                 let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-                //let tmp: any = localStorage.getItem('currentErUser');
-                //console.log("after LS: " + this._platformId);
-                    //let tmp2: ReviewerIdentity = tmp;
+
                 if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
                     return this._reviewerIdentity;
                 }
                 else {
-                    //console.log("Got User from LS");
+
                     this._reviewerIdentity = currentUser;
                 }
             }
@@ -71,49 +70,37 @@ export class ReviewerIdentityService {
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
                 this.reviewerIdentity = ri;
-                //console.log('home login: ' + this.reviewerIdentity.userId);
+
                 if (this.reviewerIdentity.userId > 0) {
                     this.Save();
                     this.router.navigate(['readonlyreviews']);
                 }
             });
-            //body);
+
     }
     public UpdateStatus(msg: string) {
 
-        console.log(msg);
         this.currentStatus = msg;
 
     }
 
     // Make a call to the stored proc in the CSLA BO
     public LogonTicketCheckExpiration(u: string, g: string) {
-        console.log('.');
-        let Lgt = new LogonTicketCheck(u, g);
+       
+        let LgtC = new LogonTicketCheck(u, g);
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
-            Lgt).subscribe(lgt => {
+            LgtC).subscribe(lgtC => {
 
-                // it may be important to unsubscribe from this 
-                // somewhere relevant
-
-                // Sergio needs to check all and especially this
-                // condition...
-                //if (this.reviewerIdentity.userId > 0 && lgt.result == 'Valid') {
-                //    console.log('Successfully checked again...');
-                //    this.Save();
-                //} else {
-                //    this.router.navigate(['home']);
-                //}
-                if (lgt != null) {
+                if (lgtC != null) {
      
-                    if (lgt.result == "Valid") {
+                    if (lgtC.result == "Valid") {
 
-                        this.UpdateStatus(lgt.serverMessage);
+                        this.UpdateStatus(lgtC.serverMessage);
                     }
                     else {
 
                         let msg: string  = "Sorry, you have been logged off automatically.\n";
-                        switch (lgt.result) {
+                        switch (lgtC.result) {
                             case "Expired":
                                 msg += "Your session has been inactive for too long.\n" 
                                 break;
@@ -141,12 +128,13 @@ export class ReviewerIdentityService {
                                 //}
                                 //break;
                         }
+                        this.UpdateStatus(msg);
                         //string res = MessageBox.Show(msg + "You will be asked to logon again when you close this message.").ToString();
                         //System.Windows.Browser.HtmlPage.Window.Invoke("Refresh");
                     }
                 }
                 else {
-   
+
                    // if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
 
                    //     UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n"  +
@@ -161,11 +149,31 @@ export class ReviewerIdentityService {
                    //     "This message may appear if you didn't log out during a software update.\n" +
                    //     "Note that Eppi-Reviewer might fail to load until the update is completed, please wait a couple of minutes and try again.";
                    // //windowMOTD.Show();
+                    this.router.navigate(['home']);
                 }
-            },
-            err => console.error('Ticket Check observer got an error: ' + err)
-        );
+            }
+            , err => {
+                this.handleError(err);
+                console.log('Something went wrong!' + err);
+                this.router.navigate(['home']);
+            })
     }
+
+    private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+            // A client-side or network error occurred. Handle it accordingly.
+            console.error('An error occurred:', error.error.message);
+        } else {
+            // The backend returned an unsuccessful response code.
+            // The response body may contain clues as to what went wrong,
+            console.error(
+                `Backend returned code ${error.status}, ` +
+                `body was: ${error.error}`);
+        }
+        // return an observable with a user-facing error message
+        //return throwError(
+        //    'Something bad happened; please try again later.');
+    };
 
     public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
@@ -176,7 +184,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
                 //console.log('login to Review: ' + this.reviewerIdentity.userId);
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
+                    //console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
                     OpeningNewReview.emit();
