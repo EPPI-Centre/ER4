@@ -185,7 +185,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         cmd.attributeId = data.AttId;
         cmd.revInfo = this.reviewInfoService.ReviewInfo;
         let itemAtt: ReadOnlyItemAttribute | null = null;
-        if (data.event.target.checked) {
+        if ((data.event.target && data.event.target.checked) || data.event == 'InfoboxTextAdded') {
             //add new code to item
             cmd.saveType = "Insert";
         }
