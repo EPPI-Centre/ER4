@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace AcademicImport
 {
@@ -45,6 +48,7 @@ namespace AcademicImport
             string clientSecret = configuration["AppSettings:clientSecret"];
             string tenantId = configuration["AppSettings:tenantId"];
             string adlsAccountFQDN = configuration["AppSettings:adlsAccountFQDN"];   // full account FQDN, not just the account name like example.azure.datalakestore.net
+            string writeToThisFolder = @"E:\MSAcademic\downloads"; 
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
 
@@ -89,37 +93,39 @@ namespace AcademicImport
 
 
 
-                // 2. Go through each file that we want to download. As there are a number of files for which we'll follow the same
-                // procedure, we should probably put this in a separate method.
-                string fileName = "/graph/2018-07-19/Affiliations.txt";
-                int count = 0;
-                int tempLimit = 10000; // ********** use this for testing so that there's no need to download the whole database!
-                Console.WriteLine("Reading file next");
-                using (var readStream = new StreamReader(client.GetReadStream(fileName)))
+                // 2. Go through each file that we want to download.
+
+                // empty the downloads folder
+                System.IO.DirectoryInfo di = new DirectoryInfo(writeToThisFolder);
+                foreach (FileInfo file in di.GetFiles())
                 {
-                    using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"E:\MSAcademic\Affiliations.txt"))
-                    {
-                        string line;
-                        //while ((line = readStream.ReadLine()) != null) // for downloading the whole database
-                        while ((line = readStream.ReadLine()) != null || count == tempLimit)
-                        {
-                            file.WriteLine(line);
-                            Console.WriteLine(count.ToString());
-                            count++;
-                        }
-                    }
+                    file.Delete();
                 }
+
+                int limit = 100; // ********** use this for testing so that there's no need to download the whole database!
+
+                DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/PaperRecommendations.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/PaperReferences.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/PaperUrls.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/FieldOfStudyChildren.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/FieldOfStudyRelationship.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/FieldsOfStudy.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/Journals.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/Authors.txt", writeToThisFolder, limit);
 
                 // once we've downloaded the file, put it into the SQL DB
                 // See the BulkTextUpload.sql file for an example of this. (We should probably put these into stored procedures)
 
                 // Once the file has been put into the DB, delete it from the local filesystem
+                /*
                 if (File.Exists(@"E:\MSAcademic\Affiliations.txt"))
                 {
                     File.Delete(@"E:\MSAcademic\Affiliations.txt");
                 }
-
-                // ... get next file
+                */
 
                 // once we've finished downloading all the files, delete all the older databases on DataLake, so we only have the most recent one being stored
                 // I think keep the most recent one, in case we need to rebuild the DB for any reason??
@@ -127,7 +133,7 @@ namespace AcademicImport
                 {
                     // store in a string variable the name of the most recent directory
                     // if each directory is not the most current, then delete it using this command
-                    client.DeleteRecursive("/graph/directoryname");
+                    // client.DeleteRecursive("/graph/directoryname");
                     // when this service is up and running, there will only ever be one directory deleted
                     // hopefully this doesn't mess up the Enumerable, but if it does, we'll need to enumerate and store a list of folders to delete
                 }
@@ -187,6 +193,79 @@ namespace AcademicImport
 
             Console.WriteLine("Done. Press ENTER to continue ...");
             Console.ReadLine();
+        }
+
+        private static bool DownloadThisFile(AdlsClient client, string graphPath, string fileName, string folder, int limit)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            int count = 0;
+            int tempLimit = limit == 0 ? -1 : limit; // i.e. if limit == 0 we download everything. less for testing
+            Console.WriteLine("Reading this file now: " + fileName);
+            Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
+            using (var readStream = new StreamReader(client.GetReadStream(graphPath + fileName)))
+            {
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(folder + fileName))
+                {
+                    string line;
+                    while ((line = readStream.ReadLine()) != null && count < tempLimit)
+                    {
+                        if (fileName == "/Papers.txt")
+                        {
+                            string [] f = line.Split('\t');
+                            string title = ToShortSearchText(f[5]);
+                            line += '\t' + Truncate(title, 2000);
+                        }
+                        file.WriteLine(line);
+                        count++;
+                    }
+                }
+            }
+            sw.Stop();
+            Console.WriteLine("That took: " + sw.Elapsed);
+            return true;
+        }
+
+        public static string Truncate(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
+
+
+        private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
+
+        public static string RemoveDiacritics(string stIn)
+        {
+            string stFormD = stIn.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+            for (int ich = 0; ich < stFormD.Length; ich++)
+            {
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(stFormD[ich]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(stFormD[ich]);
+                }
+            }
+            return (sb.ToString().Normalize(NormalizationForm.FormC));
+        }
+
+        public static string ToShortSearchText(string s)
+        {
+            return ToSimpleText(RemoveDiacritics(s))
+                .Replace("a", "")
+                .Replace("e", "")
+                .Replace("i", "")
+                .Replace("o", "")
+                .Replace("u", "");
+                //.Replace("ize", "")
+                //.Replace("ise", "");
+        }
+
+        public static string ToSimpleText(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return "";
+            return alphaNumericRegex.Value.Replace(s, "").ToLower();
         }
 
         private static void PrintDirectoryEntry(DirectoryEntry entry)
