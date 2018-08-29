@@ -1,10 +1,10 @@
 /// <reference path="../services/itemlist.service.ts" />
-import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, } from 'rxjs';
+import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
@@ -16,7 +16,7 @@ import { ItemListService } from '../services/ItemList.service'
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     providers: []
 })
-export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
+export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         private _workAllocationContactListService: WorkAllocationContactListService,
@@ -28,24 +28,55 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
 
     @Output() criteriaChange = new EventEmitter();
     //@Output() dataChange = new EventEmitter();
-
+    private subWorkAllocationsLoaded: Subscription | null = null;
     public ListSubType: string = "GetItemWorkAllocationList";
 
-    public clickedIndex: string = 'waRemaining-0';
+    public get clickedIndex(): string {
+        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
+
+            if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
+                //console.log('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
+                return 'waRemaining-' + this.ItemListService.ListCriteria.workAllocationId;
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
+                //console.log('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
+                return 'waStarted-' + this.ItemListService.ListCriteria.workAllocationId;
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
+                //console.log('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
+                return 'waAll-' + this.ItemListService.ListCriteria.workAllocationId;
+            }
+        }
+        return "";
+    };
     public allocTotal: number = 0;
     public allocStarted: number = 0;
     public allocRem: number = 0;
 
     setClickedIndex(i: string) {
-        this.clickedIndex = i;
-        this._workAllocationContactListService.clickedIndex = i;
+        //this.clickedIndex = i;
+        //this._workAllocationContactListService.clickedIndex = i;
     }
-
-    ////goes back to work alloc component
+    //will pick the ItemList to load. If one was 
     LoadDefaultItemList() {
-
         if (!this._workAllocationContactListService.workAllocations) return;
-
+        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
+            //we want to reload this list, no matter what it is...
+            // waStarted-921 :GetItemWorkAllocationListStarted
+            //waRemaining-921:GetItemWorkAllocationListRemaining
+            //waAll-921: GetItemWorkAllocationList
+            //if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
+            //    this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
+            //}
+            //else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
+            //    this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
+            //}
+            //else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
+            //    this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
+            //    }
+            this.ItemListService.Refresh();
+            return;
+        }
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalRemaining > 0) {
 
@@ -89,6 +120,22 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
     }
 
     ngOnInit() {
+        console.log('initWorkAlloc');
+        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
+            
+            if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
+                console.log('got inside1');
+                this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
+                this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
+                console.log('got inside2');
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
+                this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
+                console.log('got inside3');
+            }
+        }
         
     }
     ngAfterContentInit() {
@@ -96,11 +143,17 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit {
             this.router.navigate(['home']);
         }
         else {
-            this._workAllocationContactListService.ListLoaded.subscribe(
+
+            this.subWorkAllocationsLoaded = this._workAllocationContactListService.ListLoaded.subscribe(
                 () => this.LoadDefaultItemList()
             );
             this.getWorkAllocationContactList();
         }
+    }
+    ngOnDestroy() {
+        console.log('killing work alloc comp');
+        if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded;
+        //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }
 }
 

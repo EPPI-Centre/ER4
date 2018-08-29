@@ -196,6 +196,8 @@ export class ReviewSetsService {
     private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
+            if (result) break;
+            //console.log('Cand: ' + candidate.attribute_id + ' children: ' + candidate.attributes.length + ' Target: ' + AttributeId);
             if (AttributeId == candidate.attribute_id) {
                 result = candidate;
                 break;
@@ -262,6 +264,8 @@ export interface singleNode {
     attributes: singleNode[];
     showCheckBox: boolean;
     nodeType: string;
+    subTypeName: string;
+
     isSelected: boolean;
     additionalText: string;
     armId: number;
@@ -278,6 +282,10 @@ export class ReviewSet implements singleNode {
     set_order: number = -1;
     attributes: SetAttribute[] = [];
     showCheckBox: boolean = false;
+    public get subTypeName(): string {
+        if (this.setType) return this.setType.setTypeName;
+        else return "";
+    }
    
     setType: iSetType | null = null ;
     nodeType: string = "ReviewSet";
@@ -304,6 +312,9 @@ export class SetAttribute implements singleNode {
     public get showCheckBox(): boolean {
         if (this.attribute_type == 'Not selectable (no checkbox)') return false;
         else return true;
+    }
+    public get subTypeName(): string {
+         return this.attribute_type;
     }
     parent_attribute_id: number = -1;;
     attribute_type_id: number = -1;;

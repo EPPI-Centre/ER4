@@ -24,8 +24,8 @@ export class WorkAllocationContactListService {
 
     public _workAllocations: WorkAllocation[] = [];
 
-    public clickedIndex: string = '';
-
+    
+    public CurrentlyLoadedWorkAllocationSublist: WorkAllocationSublist = new WorkAllocationSublist();
 
     public get workAllocations(): WorkAllocation[] {
         if (this._workAllocations.length == 0) {
@@ -81,4 +81,8 @@ export class WorkAllocation {
     totalAllocation: number = 0;
     totalStarted: number = 0;
     totalRemaining: number = 0;
+}
+export class WorkAllocationSublist {
+    workAllocationId: number = 0;
+    listSubtype: string = "";
 }

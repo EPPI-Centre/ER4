@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
@@ -22,6 +22,7 @@ export class ItemListService {
         ) { }
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
+    private subListReplyReceived: Subscription | null = null;
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
             const listJson = localStorage.getItem('ItemsList');
@@ -51,6 +52,7 @@ export class ItemListService {
         return this._Criteria;
     }
     public SaveItems(items: ItemList, crit: Criteria) {
+        console.log('saving items');
         this._ItemList = items;
         this._Criteria = crit;
         this.Save();
@@ -99,10 +101,17 @@ export class ItemListService {
     }
     public FetchWithCrit(crit: Criteria) {
         this._Criteria = crit;
-        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+        if (this.subListReplyReceived) this.subListReplyReceived.unsubscribe();
+        this.subListReplyReceived = this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
                 this.SaveItems(list, this._Criteria);
             });
+    }
+    public Refresh() {
+        if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
+            //we have something to do
+            this.FetchWithCrit(this._Criteria);
+        }
     }
     public FetchNextPage() {
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {

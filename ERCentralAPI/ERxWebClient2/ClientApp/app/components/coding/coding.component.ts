@@ -161,7 +161,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         
         let SubSuccess: Subscription;
         let SubError: Subscription;//see https://medium.com/thecodecampus-knowledge/the-easiest-way-to-unsubscribe-from-observables-in-angular-5abde80a5ae3
-        
+        console.log(data.AttId);
         let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId);
         
         if (!attribute) {
