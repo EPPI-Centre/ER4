@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             Lgt.Result = cmd.Result;
             Lgt.ServerMessage = cmd.ServerMessage;
 
-            return Ok(cmd);
+            return Ok(Lgt);
         }
 
     }

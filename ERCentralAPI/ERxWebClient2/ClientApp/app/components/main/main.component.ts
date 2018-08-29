@@ -76,9 +76,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     Reload() {
         this.Clear();
         this.workAllocationsComp.getWorkAllocationContactList();
-        //this.itemListComp.
+
     }
     timerServerCheck(u: string, g: string) {
+
         console.log(u + '+' + g);
         this.countDown = timer(0, 8000).pipe(
             takeUntil(this.killTrigger),
@@ -94,13 +95,13 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.workAllocationsComp.Clear();
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
-        //console.log('in main ' + workAlloc.attributeId + "subtype " + this.workAllocationsComp.ListSubType);
+
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
     ngOnDestroy() {
-        console.log('killing main comp');
-        if (this.countDown) this.killTrigger.next();
-    }
 
+        if (this.countDown) this.killTrigger.next();
+
+    }
 }
