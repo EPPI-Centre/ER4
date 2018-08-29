@@ -36,18 +36,18 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
         //this.router.navigate(['fetch-reviewsets'])
     }
 
-    public countDown: any | undefined;
-    public count: number = 60;
+    //public countDown: any | undefined;
+    //public count: number = 60;
 
-    tester() {
+    //tester() {
 
-        console.log('asdfkjhasdkljfhkasfhdk');
+    //    console.log('asdfkjhasdkljfhkasfhdk');
 
-        this.countDown = timer(0, 1000).pipe(
-            take(this.count),
-            map(() => --this.count)
-        );
-    }
+    //    this.countDown = timer(0, 1000).pipe(
+    //        take(this.count),
+    //        map(() => --this.count)
+    //    );
+    //}
 
 
     //getReviews() {

@@ -65,31 +65,31 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
-        let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
-        let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
-        console.log('init main');
-        if (guid != undefined && uu != '') {
-            console.log('init main: timer');
-            this.timerServerCheck(uu, guid);
-        }
+        //let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
+        //let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
+        //console.log('init main');
+        //if (guid != undefined && uu != '') {
+        //    console.log('init main: timer');
+        //    this.timerServerCheck(uu, guid);
+        //}
     }
     Reload() {
         this.Clear();
         this.workAllocationsComp.getWorkAllocationContactList();
 
     }
-    timerServerCheck(u: string, g: string) {
+    //timerServerCheck(u: string, g: string) {
 
-        console.log(u + '+' + g);
-        this.countDown = timer(0, 8000).pipe(
-            takeUntil(this.killTrigger),
-            map(() => {
-                console.log('+');
-                this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
-            })
-        );
-        this.countDown.subscribe(console.log('AHA!'));
-    }
+    //    console.log(u + '+' + g);
+    //    this.countDown = timer(0, 8000).pipe(
+    //        takeUntil(this.killTrigger),
+    //        map(() => {
+    //            console.log('+');
+    //            this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
+    //        })
+    //    );
+    //    this.countDown.subscribe(console.log('AHA!'));
+    //}
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.workAllocationsComp.Clear();
@@ -101,7 +101,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     ngOnDestroy() {
 
-        if (this.countDown) this.killTrigger.next();
+        //if (this.countDown) this.killTrigger.next();
 
     }
 }

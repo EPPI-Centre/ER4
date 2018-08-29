@@ -34,15 +34,15 @@ export class StatusBarComponent implements OnInit {
     public count: number = 60;
 
     timerServerCheck(u: string, g: string) {
-        console.log(u + '+' + g);
+
         this.countDown = timer(0, 8000).pipe(
             takeUntil(this.killTrigger),
             map(() => {
-                console.log('+');
+              
                 this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
             })
         );
-        this.countDown.subscribe(console.log('AHA!'));
+        this.countDown.subscribe();
     }
 
     getDaysLeftAccount() {
@@ -64,9 +64,9 @@ export class StatusBarComponent implements OnInit {
         this.ReviewInfoService.Fetch();
         let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
-        console.log('init main');
+        
         if (guid != undefined && uu != '') {
-            console.log('init main: timer');
+  
             this.timerServerCheck(uu, guid);
         }
     }

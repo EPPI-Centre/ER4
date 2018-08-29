@@ -31,18 +31,16 @@ export class ReviewerIdentityService {
 
             if (this._reviewerIdentity.userId == 0) {
 
-                //console.log("before LS: " + this._platformId);
+
                 const userJson = localStorage.getItem('currentErUser');
                 let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-                //let tmp: any = localStorage.getItem('currentErUser');
-                //console.log("after LS: " + this._platformId);
-                    //let tmp2: ReviewerIdentity = tmp;
+
                 if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
                     return this._reviewerIdentity;
                 }
                 else {
-                    //console.log("Got User from LS");
+
                     this._reviewerIdentity = currentUser;
                 }
             }
@@ -72,28 +70,26 @@ export class ReviewerIdentityService {
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
                 this.reviewerIdentity = ri;
-                //console.log('home login: ' + this.reviewerIdentity.userId);
+
                 if (this.reviewerIdentity.userId > 0) {
                     this.Save();
                     this.router.navigate(['readonlyreviews']);
                 }
             });
-            //body);
+
     }
     public UpdateStatus(msg: string) {
 
-        console.log(msg);
         this.currentStatus = msg;
 
     }
 
     // Make a call to the stored proc in the CSLA BO
     public LogonTicketCheckExpiration(u: string, g: string) {
-        console.log('.');
+       
         let LgtC = new LogonTicketCheck(u, g);
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).subscribe(lgtC => {
-
 
                 if (lgtC != null) {
      
@@ -132,6 +128,7 @@ export class ReviewerIdentityService {
                                 //}
                                 //break;
                         }
+                        this.UpdateStatus(msg);
                         //string res = MessageBox.Show(msg + "You will be asked to logon again when you close this message.").ToString();
                         //System.Windows.Browser.HtmlPage.Window.Invoke("Refresh");
                     }
@@ -187,7 +184,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
                 //console.log('login to Review: ' + this.reviewerIdentity.userId);
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
+                    //console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
                     OpeningNewReview.emit();
