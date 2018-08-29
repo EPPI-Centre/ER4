@@ -14,6 +14,7 @@ import { timer, Subject } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
+
 @Component({
     selector: 'statusbar',
     templateUrl: './statusbar.component.html',
@@ -22,30 +23,32 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 export class StatusBarComponent implements OnInit {
 
+    @ViewChild('content') private content: any;
+
     constructor(private router: Router,
                 private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
                 private ReviewInfoService: ReviewInfoService,
-        private modalService: NgbModal
-    ) {
-
-    }
+                private modalService: NgbModal
+    ) {    }
 
     private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
+    public modalMsg: string = '';
 
     timerServerCheck(u: string, g: string) {
 
         this.countDown = timer(0, 8000).pipe(
             takeUntil(this.killTrigger),
             map(() => {
-              
                 this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
+                
             })
         );
         this.countDown.subscribe();
+ 
     }
 
     getDaysLeftAccount() {
@@ -71,6 +74,7 @@ export class StatusBarComponent implements OnInit {
         if (guid != undefined && uu != '') {
   
             this.timerServerCheck(uu, guid);
+            this.openMsg(this.content);
         }
     }
     //https://ng-bootstrap.github.io/#/components/modal/examples
