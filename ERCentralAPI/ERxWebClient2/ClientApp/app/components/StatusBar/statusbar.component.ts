@@ -12,6 +12,7 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 import { ReviewInfoService } from '../services/ReviewInfo.service'
 import { timer, Subject } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'statusbar',
@@ -25,7 +26,9 @@ export class StatusBarComponent implements OnInit {
                 private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
-                private ReviewInfoService: ReviewInfoService,) {
+                private ReviewInfoService: ReviewInfoService,
+        private modalService: NgbModal
+    ) {
 
     }
 
@@ -70,6 +73,14 @@ export class StatusBarComponent implements OnInit {
             this.timerServerCheck(uu, guid);
         }
     }
+    //https://ng-bootstrap.github.io/#/components/modal/examples
+    openMsg(content : any) {
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
+            alert('closed');
 
+        },
+            () => { alert('dismissed') }
+        );
+    }
 
 }

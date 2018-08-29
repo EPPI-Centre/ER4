@@ -1,10 +1,34 @@
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label for="dateOfBirth">Date of birth</label>
+                <div class="input-group">
+                    Hello
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Save</button>
+    </div>
+</ng-template>
+
+
+
 <div class="col-sm-12 card bg-light">
     <div class="card-body">
         <table>
             <tr>
-                <td class="bg-light ">
+                <td class="bg-light " (click)="openMsg(content)">
                     Status: {{ReviewerIdentityServ.currentStatus}}
-                    |
+                    | </td>
                 <td *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!" *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
@@ -18,3 +42,5 @@
         </table>
     </div>
 </div>
+
+

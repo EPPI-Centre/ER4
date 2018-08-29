@@ -18,6 +18,7 @@ import { ItemCodingComp } from './components/coding/coding.component';
 import { ItemCodingService } from './components/services/ItemCoding.service';
 import { paginatorComp } from './components/paginator/paginator.component';
 import { StatusBarComponent } from './components/StatusBar/statusbar.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -38,6 +39,7 @@ import { StatusBarComponent } from './components/StatusBar/statusbar.component';
     ],
     imports: [
         CommonModule,
+        NgbModule,
         HttpModule,
         FormsModule,
         ReactiveFormsModule,
