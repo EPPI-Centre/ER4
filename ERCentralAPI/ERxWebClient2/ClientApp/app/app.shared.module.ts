@@ -9,7 +9,7 @@ import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
 import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
-import { ReviewSetsComponent } from './components/fetchreviewsets/fetchreviewsets.component';
+import { ReviewSetsComponent, InfoBoxModalContent } from './components/fetchreviewsets/fetchreviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
@@ -35,8 +35,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         ItemCodingComp,
         paginatorComp,
         StatusBarComponent,
+        InfoBoxModalContent,
         MainComponent
     ],
+    entryComponents: [InfoBoxModalContent],
     imports: [
         CommonModule,
         NgbModule,

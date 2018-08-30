@@ -164,6 +164,7 @@ export class ReviewSetsService {
                         //console.log('.');
                         if (dest) {
                             dest.isSelected = true;
+                            dest.additionalText = itemAttribute.additionalText;
                             //console.log("found destination attr, id: " + itemAttribute.attributeId + "name: " + dest.attribute_name);
                         }
                     }

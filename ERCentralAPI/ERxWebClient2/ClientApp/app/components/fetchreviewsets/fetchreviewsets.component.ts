@@ -1,13 +1,26 @@
-import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet } from '../services/ReviewSets.service';
 import { ITreeOptions } from 'angular-tree-component';
+import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'reviewsets',
+    styles: [`
+                .ScreeningSet { color: #00BB00;} 
+                .AdminSet { color: #0000DD;} 
+                .ExcludeCode { color: #FF7777;} 
+                .bt-infoBox {    
+                    padding: .08rem .12rem .12rem .12rem;
+                    margin-bottom: .12rem;
+                    font-size: .875rem;
+                    line-height: 1.2;
+                    border-radius: .2rem;
+                }
+        `],
     templateUrl: './fetchreviewsets.component.html'
 })
 export class ReviewSetsComponent implements OnInit {
@@ -15,7 +28,8 @@ export class ReviewSetsComponent implements OnInit {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
-        private ReviewSetsService: ReviewSetsService
+       private ReviewSetsService: ReviewSetsService,
+       private modalService: NgbModal
     ) { }
 
     
@@ -69,7 +83,24 @@ export class ReviewSetsComponent implements OnInit {
         evdata.additionalText = additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }
+    //'InfoboxTextAdded'
+    openInfoBox(AttId: string, additionalText: string, armId: number, isAlreadyCoded: boolean) {
+        //const tmp: any = new InfoBoxModalContent();
+        let modalComp = this.modalService.open(InfoBoxModalContent);
+        console.log('ADDTXT: '+ additionalText);
+        modalComp.componentInstance.InfoBoxTextInput = additionalText;
+        modalComp.result.then((infoTxt) => {
+            //alert('closed: ' + AttId + ' Content: ' + infoTxt);
+            if (!isAlreadyCoded) this.CheckBoxClicked('InfoboxTextAdded', AttId, infoTxt, armId);
+            else {
+                //this.CheckBoxClicked('InfoboxTextAdded', AttId, infoTxt, armId);
+                alert('To Do: implement Update command');
+            }
+        },
+            () => { alert('dismissed: ' + AttId) }
+        );
 
+    }
 }
 export class CheckBoxClickedEventData {
     event: any | null = null;
@@ -77,7 +108,15 @@ export class CheckBoxClickedEventData {
     additionalText: string = "";
     armId: number = 0;
 }
+@Component({
+    selector: 'ngbd-InfoBoxModal-content',
+    templateUrl: './InfoBoxModal.component.html'
+})
+export class InfoBoxModalContent {
+    @Input() InfoBoxTextInput: string = "";
 
+    constructor(public activeModal: NgbActiveModal) { }
+}
 
 
 

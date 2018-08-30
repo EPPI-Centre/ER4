@@ -1,4 +1,21 @@
 <script src="bootstrap-treeview.js"></script>
+<ng-template #InfoBox let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <b class="modal-title" id="modal-basic-title">Additional Text</b>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <textarea class="form-control" #InfoBoxText rows="6" cols="50" ></textarea>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="d('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+        <button type="button" class="btn btn-outline-success" (click)="c(InfoBoxText.value)">Save</button>
+    </div>
+</ng-template>
 <h4>Codes: </h4>
 
 <p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
@@ -8,7 +25,11 @@
             <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
                    [disabled]="!ReviewSetsService.CanWrite"
                    *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data.id, node.data.additionalText, node.data.armId)" />
-            <span>{{node.data.name}}</span>
+            <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
+                              'AdminSet' : node.data.subTypeName == 'Administration',
+                              'ExcludeCode' : node.data.subTypeName == 'Exclude'
+                                }">{{node.data.name}}</span>
+            <button *ngIf="node.data.showCheckBox" class="btn btn-outline-info bt-infoBox ml-2" (click)="openInfoBox(node.data.id, node.data.additionalText, node.data.armId, node.data.isSelected)">Info</button>
         </ng-template>
     </tree-root>
 </div>
