@@ -1,4 +1,4 @@
-#if CSLA_NETCORE
+﻿#if CSLA_NETCORE
 using Csla.Data;
 #endif
 using Microsoft.Extensions.Configuration;
@@ -8,17 +8,18 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 
 namespace EPPIDataServices.Helpers
-{    
+{
 
-    public class SQLHelper 
+    public class SQLHelper
     {
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
         public readonly string ER4AdminDB = "";
+        public readonly string AcademicDB = "";
         // EPPILogger Logger;
         private readonly ILogger _logger;
 
-        public SQLHelper (IConfigurationRoot configuration, ILogger<EPPILogger> logger)
+        public SQLHelper(IConfigurationRoot configuration, ILogger<EPPILogger> logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
             //Logger = logger;
@@ -26,11 +27,13 @@ namespace EPPIDataServices.Helpers
             DataServiceDB = configuration["AppSettings:DataServiceDB"];
             ER4DB = configuration["AppSettings:ER4DB"];
             ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
+            AcademicDB = configuration["AppSettings:AcademicDB"];
         }
-        public SQLHelper (ILogger<EPPILogger> logger)
+        public SQLHelper(ILogger<EPPILogger> logger)
         {
             _logger = logger;
             DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";
+            AcademicDB = "Server=localhost;Database=Academic;Integrated Security=True;";
         }
         /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
@@ -47,14 +50,14 @@ namespace EPPIDataServices.Helpers
             }
             catch (Exception e)
             {
-                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e) ;
+                _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
                 return -2;
             }
         }
         /// <summary> 
         /// Call this when you want to use the same connection for multiple commands, will try opening the connection if it isn't already
         /// </summary> 
-        public int ExecuteNonQuerySP( SqlConnection connection, string SPname, params SqlParameter[] parameters)
+        public int ExecuteNonQuerySP(SqlConnection connection, string SPname, params SqlParameter[] parameters)
         {
             try
             {
@@ -73,6 +76,30 @@ namespace EPPIDataServices.Helpers
             }
         }
 
+        /// <summary> 
+        /// Call this when you want to use the same connection for multiple SQL text commands, will try opening the connection if it isn't already
+        /// James added this one, so do change it if he's done it wrong!
+        /// </summary> 
+        public int ExecuteNonQueryNonSP(SqlConnection connection, string CommandText)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(CommandText, connection))
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.CommandText = CommandText;
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing NonQueryNonSP: " + CommandText, null, e); // need to extend this to cope with no parameters!
+                return -2;
+            }
+        }
+
+
 
         public int ExecuteNonQuerySPWtrans(SqlConnection connection, string SPname, SqlTransaction transaction, params SqlParameter[] parameters)
         {
@@ -87,7 +114,7 @@ namespace EPPIDataServices.Helpers
                     command.Parameters.AddRange(parameters);
                     return command.ExecuteNonQuery();
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -107,7 +134,7 @@ namespace EPPIDataServices.Helpers
             try
             {
                 SqlConnection connection = new SqlConnection(connSt);
-                
+
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(SPname, connection))
                 {
@@ -115,7 +142,7 @@ namespace EPPIDataServices.Helpers
                     command.Parameters.AddRange(parameters);
                     return command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
                 }
-                
+
             }
             catch (Exception e)
             {

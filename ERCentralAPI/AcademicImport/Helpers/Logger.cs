@@ -15,7 +15,7 @@ namespace EPPIDataServices.Helpers
         private string LogFileFullPath = "";
         readonly CustomLoggerProviderConfiguration loggerConfigK;
         readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
-        
+
         public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
         {
             this.loggerConfigK = loggerConfigK;
@@ -29,7 +29,7 @@ namespace EPPIDataServices.Helpers
 
             loggerConfig = config;
         }
-                
+
         private static string CreateLogFileName()
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
@@ -55,13 +55,13 @@ namespace EPPIDataServices.Helpers
         // Main log method, for different types write extensions
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-                string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
-                WriteTextToFile(message);
+            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+            WriteTextToFile(message);
 
         }
         private void WriteTextToFile(string message)
         {
-            string filePath = CreateLogFileName(); 
+            string filePath = CreateLogFileName();
             using (StreamWriter streamWriter = new StreamWriter(filePath, true))
             {
                 streamWriter.WriteLine(message);

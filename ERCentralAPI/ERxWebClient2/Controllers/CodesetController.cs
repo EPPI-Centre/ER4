@@ -3,14 +3,24 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using EPPIDataServices.Helpers;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ERxWebClient2.Controllers
 {
     [Route("api/[controller]")]
     public class CodesetController : Controller
     {
+
+        private readonly ILogger _logger;
+
+        public CodesetController(ILogger<EPPILogger> logger)
+        {
+            _logger = logger;
+        }
+
         private static string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -37,13 +47,13 @@ namespace ERxWebClient2.Controllers
                 }
                 catch (Exception e)
                 {
-                    Program.Logger.LogSQLException(e, "Error fetching list of codesets", RevID);
+                    SqlParameter[] sqlParams = new SqlParameter[1];
+                    sqlParams[0] = RevID;
+                    _logger.SQLActionFailed("Error fetching list of codesets", sqlParams, e);
                 }
             }
             IEnumerable<ReviewSet> res2 = res as IEnumerable<ReviewSet>;
             return (IEnumerable<ReviewSet>)res;
         }
-
-        
     }
 }

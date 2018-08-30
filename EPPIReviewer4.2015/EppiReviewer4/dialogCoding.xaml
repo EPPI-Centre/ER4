@@ -651,7 +651,7 @@
                                                           Grid.Column="0" Grid.Row="1" />
                             </Grid>
                         </radDock:RadDocumentPane>
-                        <radDock:RadDocumentPane Header="Study arms" x:Name="Arms" Title="Study arms" CanUserClose="False" CanFloat="False" IsEnabled="True" >
+                        <radDock:RadDocumentPane Header="Study arms" x:Name="Arms" Title="Study arms" CanUserClose="False" CanFloat="False" Visibility="Collapsed" IsEnabled="True" >
                             <Grid >
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="35" />

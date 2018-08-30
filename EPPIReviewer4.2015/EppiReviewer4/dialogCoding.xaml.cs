@@ -182,18 +182,42 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-            if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null && RevInfoProvider.Data != null)
             {
-                Arms.Visibility = Visibility.Visible;
-                Arms.IsEnabled = true;
+                SetArmsTabVisibility();
             }
-            else
+            else if (RevInfoProvider != null)
             {
-                Arms.Visibility = Visibility.Collapsed;
-                Arms.IsEnabled = false;
+                RevInfoProvider.DataChanged += RevInfoProviderProvider_DataChanged;
+            }
+
+        }
+        private void RevInfoProviderProvider_DataChanged(object sender, EventArgs e)
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            RevInfoProvider.DataChanged -= RevInfoProviderProvider_DataChanged;
+            SetArmsTabVisibility();
+        }
+        public void SetArmsTabVisibility()
+        {
+            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            if (RevInfoProvider != null && RevInfoProvider.Data != null)
+            {
+                ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+                //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+                if (rInfo.EnableArms) // || ri.IsSiteAdmin)
+                {
+                    Arms.Visibility = Visibility.Visible;
+                    Arms.IsEnabled = true;
+                }
+                else
+                {
+                    Arms.Visibility = Visibility.Collapsed;
+                    Arms.IsEnabled = false;
+                }
             }
         }
-
         
         public void PrepareCodingOnly()
         {
@@ -338,6 +362,22 @@ namespace EppiReviewer4
             {
                 ScrollViewerCitationDetails.ScrollToVerticalOffset(0);
             }
+            //CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            //if (RevInfoProvider != null && RevInfoProvider.Data != null)
+            //{
+            //    ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
+            //    //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
+            //    if (rInfo.EnableArms) // || ri.IsSiteAdmin)
+            //    {
+            //        Arms.Visibility = Visibility.Visible;
+            //        Arms.IsEnabled = true;
+            //    }
+            //    else
+            //    {
+            //        Arms.Visibility = Visibility.Collapsed;
+            //        Arms.IsEnabled = false;
+            //    }
+            //}
         }
 
         public void BindTree(Item i)

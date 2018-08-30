@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using Csla.Data;
+using EPPIDataServices.Helpers;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -14,6 +16,14 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewController : Controller
     {
+
+        private readonly ILogger _logger;
+
+        public ReviewController(ILogger<EPPILogger> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpPost("[action]")]
         public IEnumerable<ReadOnlyReview> ReviewsByContact(int contactId)//should receive a reviewID!
         {
@@ -33,7 +43,9 @@ namespace ERxWebClient2.Controllers
                 }
                 catch (Exception e)
                 {
-                    Program.Logger.LogSQLException(e, "Error fetching list of codesets", cid);
+                    SqlParameter[] sqlParams = new SqlParameter[1];
+                    sqlParams[0] = cid;
+                    _logger.SQLActionFailed("Error fetching list of codesets", sqlParams, e);
                 }
             }
             IEnumerable<ReviewSet> res2 = res as IEnumerable<ReviewSet>;

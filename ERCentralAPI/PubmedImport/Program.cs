@@ -49,16 +49,16 @@ namespace PubmedImport
         {
             DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
             string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
             return LogFilename;
         }
 
         static void Main(string[] args)
 		{
             // Required for SERILOG
-            //Log.Logger = new LoggerConfiguration()
-            //    .WriteTo.File(CreateLogFileName())
-            //    .CreateLogger();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(CreateLogFileName())
+                .CreateLogger();
 
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
@@ -130,7 +130,7 @@ namespace PubmedImport
                 _logger.Log(LogLevel.Error,"");
 				System.Environment.Exit(0);
 			}
-			_logger.LogInformation("Parser testing!");
+			
 			if (result.DoWhat == "ftpsamplefile")
 			{
                 _logger.LogInformation("Importing PubMed Sample XML file.");
@@ -329,7 +329,7 @@ namespace PubmedImport
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(configure => configure.AddConsole()
-            )
+                    ).AddLogging(configure => configure.AddSerilog())
                 .AddTransient<FileParser>()
                 .AddTransient<RCTTaggerImport>();
 
