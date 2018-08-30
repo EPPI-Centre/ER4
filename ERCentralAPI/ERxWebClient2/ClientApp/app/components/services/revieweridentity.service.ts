@@ -27,8 +27,8 @@ export class ReviewerIdentityService {
         private modalService: NgbModal) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
-    private currentStatus: string = '';
-
+    public currentStatus: string = '';
+    public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
 
     public get reviewerIdentity(): ReviewerIdentity {
 
@@ -83,21 +83,34 @@ export class ReviewerIdentityService {
             });
 
     }
+
     public UpdateStatus(msg: string) {
 
         this.currentStatus = msg;
 
     }
 
+
+    public LogonTicketCheckAPI(u: string, g: string) {
+
+        let LgtC = new LogonTicketCheck(u, g);
+
+        return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
+            LgtC).toPromise();
+    }
+
     // Make a call to the stored proc in the CSLA BO
     public LogonTicketCheckExpiration(u: string, g: string) {
        
         let LgtC = new LogonTicketCheck(u, g);
+
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).subscribe(lgtC => {
 
                 if (lgtC != null) {
 
+                    this.exLgtCheck = lgtC;
+                    console.log('inside subscription: ' + this.exLgtCheck.result);
                     if (lgtC.result == "Valid") {
 
                         this.UpdateStatus(lgtC.serverMessage);
@@ -164,7 +177,6 @@ export class ReviewerIdentityService {
                     console.log('Something went wrong!' + err);
                     this.router.navigate(['home']);
             })
-
     }
 
     openMsg(content: any) {

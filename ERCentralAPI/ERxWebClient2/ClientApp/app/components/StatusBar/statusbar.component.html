@@ -1,6 +1,6 @@
 <ng-template #content let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+        <h4 class="modal-title" id="modal-basic-title">Security update</h4>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -8,15 +8,15 @@
     <div class="modal-body">
         <form>
             <div class="form-group">
-                <label for="dateOfBirth">Date of birth</label>
+                <label for="dateOfBirth">Message from Security logon ticket check</label>
                 <div class="input-group">
-                    Hello
+                    {{modalMsg}}
                 </div>
             </div>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Save</button>
+        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close</button>
     </div>
 </ng-template>
 

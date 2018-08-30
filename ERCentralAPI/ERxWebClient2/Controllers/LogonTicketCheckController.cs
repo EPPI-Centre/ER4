@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             Lgt.Result = cmd.Result;
             Lgt.ServerMessage = cmd.ServerMessage;
             Lgt.Result = "Expired";
-            Lgt.ServerMessage = "Broken...";
+            Lgt.ServerMessage = "...";
 
             return Ok(Lgt);
         }
