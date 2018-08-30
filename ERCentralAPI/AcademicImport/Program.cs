@@ -14,6 +14,10 @@ using Serilog;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AcademicImport
 {
@@ -44,6 +48,11 @@ namespace AcademicImport
                 .AddJsonFile($"{appdata}\\Microsoft\\UserSecrets\\AcademicImport.appsettings.User.json", optional: true);
 
             IConfigurationRoot configuration = builder.Build();
+            var serviceCollection = new ServiceCollection();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
+            SqlHelper = new SQLHelper(configuration, _logger);
+
             string applicationId = configuration["AppSettings:applicationId"];     // Also called client id
             string clientSecret = configuration["AppSettings:clientSecret"];
             string tenantId = configuration["AppSettings:tenantId"];
@@ -89,9 +98,13 @@ namespace AcademicImport
 
                 // 1. Create a new SQL Database using the SQL script.
                 // TODO = CREATE DATABASE
+                // at the moment we're assuming the database has been created
+
                 // Now create all the tables - see 'CreateTables.sql' for current shape of data
-
-
+                SqlConnection conn = new SqlConnection(Program.SqlHelper.AcademicDB);
+                conn.Open();
+                SqlHelper.ExecuteNonQueryNonSP(conn, "CREATE TABLE [dbo].[PaperReferences]([PaperID][bigint] NULL, [PaperReferenceID][bigint] NULL ON[PRIMARY]");
+                conn.Close();
 
                 // 2. Go through each file that we want to download.
 
@@ -104,7 +117,7 @@ namespace AcademicImport
 
                 int limit = 100; // ********** use this for testing so that there's no need to download the whole database!
 
-                DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
+                //DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
                 //DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
                 //DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
                 //DownloadThisFile(client, latest.FullName, "/PaperRecommendations.txt", writeToThisFolder, limit);
@@ -145,46 +158,6 @@ namespace AcademicImport
 
                 // We're done :)
 
-
-                // *********************************************************************************
-                // From here down - just potentially useful DataLake commands - nothing for our current script
-                // *********************************************************************************
-
-                // Create a file - automatically creates any parent directories that don't exist
-                // The AdlsOuputStream preserves record boundaries - it does not break records while writing to the store
-                //using (var stream = client.CreateFile(fileName, IfExists.Overwrite))
-                //{
-                //    byte[] textByteArray = Encoding.UTF8.GetBytes("This is test data to write.\r\n");
-                //    stream.Write(textByteArray, 0, textByteArray.Length);
-
-                //    textByteArray = Encoding.UTF8.GetBytes("This is the second line.\r\n");
-                //    stream.Write(textByteArray, 0, textByteArray.Length);
-                //}
-
-                //// Append to existing file
-                //using (var stream = client.GetAppendStream(fileName))
-                //{
-                //    byte[] textByteArray = Encoding.UTF8.GetBytes("This is the added line.\r\n");
-                //    stream.Write(textByteArray, 0, textByteArray.Length);
-                //}
-
-                // Get the properties of the file
-                //var directoryEntry = client.GetDirectoryEntry(fileName);
-                //PrintDirectoryEntry(directoryEntry);
-
-                //// Rename a file
-                //string destFilePath = "/Test/testRenameDest3.txt";
-                //client.Rename(fileName, destFilePath, true);
-
-                //// Enumerate directory
-                //foreach (var entry in client.EnumerateDirectory("/Test"))
-                //{
-                //    PrintDirectoryEntry(entry);
-                //}
-
-                //// Delete a directory and all it's subdirectories and files
-                //client.DeleteRecursive("/Test");
-
             }
             catch (AdlsException e)
             {
@@ -202,7 +175,6 @@ namespace AcademicImport
             int count = 0;
             int tempLimit = limit == 0 ? -1 : limit; // i.e. if limit == 0 we download everything. less for testing
             Console.WriteLine("Reading this file now: " + fileName);
-            Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
             using (var readStream = new StreamReader(client.GetReadStream(graphPath + fileName)))
             {
                 using (System.IO.StreamWriter file = new System.IO.StreamWriter(folder + fileName))
@@ -213,8 +185,16 @@ namespace AcademicImport
                         if (fileName == "/Papers.txt")
                         {
                             string [] f = line.Split('\t');
-                            string title = ToShortSearchText(f[5]);
-                            line += '\t' + Truncate(title, 2000);
+                            line += '\t' + Truncate(ToShortSearchText(f[4]), 500);
+                        }
+                        if (fileName == "/PaperAbstractsInvertedIndex.txt")
+                        {
+                            string [] f = line.Split('\t');
+                            var j = (JObject)JsonConvert.DeserializeObject(f[1]);
+                            int indexLength = j["IndexLength"].ToObject<int>();
+                            Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+                            string reconstructedAbstract = ReconstructInvertedAbstract(indexLength, invertedIndex);
+                            line = f[0] + '\t' + reconstructedAbstract.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
                         }
                         file.WriteLine(line);
                         count++;
@@ -231,7 +211,6 @@ namespace AcademicImport
             if (string.IsNullOrEmpty(value)) return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
-
 
         private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
 
@@ -268,6 +247,20 @@ namespace AcademicImport
             return alphaNumericRegex.Value.Replace(s, "").ToLower();
         }
 
+        public static string ReconstructInvertedAbstract(int indexLength, Dictionary<string, int[]> invertedIndex)
+        {
+            string[] abstractStr = new string[indexLength];
+            foreach (var pair in invertedIndex)
+            {
+                string word = pair.Key;
+                foreach (var index in pair.Value)
+                {
+                    abstractStr[index] = word;
+                }
+            }
+            return String.Join(" ", abstractStr);
+        }
+
         private static void PrintDirectoryEntry(DirectoryEntry entry)
         {
             Console.WriteLine($"Name: {entry.Name}");
@@ -296,3 +289,41 @@ namespace AcademicImport
     }
 }
 
+// *********************************************************************************
+// From here down - just potentially useful DataLake commands - nothing for our current script
+// *********************************************************************************
+
+// Create a file - automatically creates any parent directories that don't exist
+// The AdlsOuputStream preserves record boundaries - it does not break records while writing to the store
+//using (var stream = client.CreateFile(fileName, IfExists.Overwrite))
+//{
+//    byte[] textByteArray = Encoding.UTF8.GetBytes("This is test data to write.\r\n");
+//    stream.Write(textByteArray, 0, textByteArray.Length);
+
+//    textByteArray = Encoding.UTF8.GetBytes("This is the second line.\r\n");
+//    stream.Write(textByteArray, 0, textByteArray.Length);
+//}
+
+//// Append to existing file
+//using (var stream = client.GetAppendStream(fileName))
+//{
+//    byte[] textByteArray = Encoding.UTF8.GetBytes("This is the added line.\r\n");
+//    stream.Write(textByteArray, 0, textByteArray.Length);
+//}
+
+// Get the properties of the file
+//var directoryEntry = client.GetDirectoryEntry(fileName);
+//PrintDirectoryEntry(directoryEntry);
+
+//// Rename a file
+//string destFilePath = "/Test/testRenameDest3.txt";
+//client.Rename(fileName, destFilePath, true);
+
+//// Enumerate directory
+//foreach (var entry in client.EnumerateDirectory("/Test"))
+//{
+//    PrintDirectoryEntry(entry);
+//}
+
+//// Delete a directory and all it's subdirectories and files
+//client.DeleteRecursive("/Test");

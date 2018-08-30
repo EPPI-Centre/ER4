@@ -76,6 +76,30 @@ namespace EPPIDataServices.Helpers
             }
         }
 
+        /// <summary> 
+        /// Call this when you want to use the same connection for multiple SQL text commands, will try opening the connection if it isn't already
+        /// James added this one, so do change it if he's done it wrong!
+        /// </summary> 
+        public int ExecuteNonQueryNonSP(SqlConnection connection, string CommandText)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(CommandText, connection))
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.CommandText = CommandText;
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing NonQueryNonSP: " + CommandText, null, e); // need to extend this to cope with no parameters!
+                return -2;
+            }
+        }
+
+
 
         public int ExecuteNonQuerySPWtrans(SqlConnection connection, string SPname, SqlTransaction transaction, params SqlParameter[] parameters)
         {
