@@ -1,10 +1,4 @@
-﻿/****** Object:  Table [dbo].[Papers]    Script Date: 23/08/2018 21:22:59 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
+﻿DROP TABLE IF EXISTS [dbo].[Papers]
 CREATE TABLE [dbo].[Papers](
 	[PaperID] [bigint] NULL,
 	[Rank] [int] NULL,
@@ -26,60 +20,109 @@ CREATE TABLE [dbo].[Papers](
 	[ReferenceCount] [bigint] NULL,
 	[CitationCount] [bigint] NULL,
 	[EstimatedCitationCount] [int] NULL,
-	[CreatedDate] [datetime] NULL
+	[CreatedDate] [datetime] NULL,
+	[SearchText] [nvarchar](500) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-GO
 
-/****** Object:  Table [dbo].[PaperReferences]    Script Date: 23/08/2018 21:23:31 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
+DROP TABLE IF EXISTS [dbo].[PaperReferences]
 CREATE TABLE [dbo].[PaperReferences](
 	[PaperID] [bigint] NULL,
 	[PaperReferenceID] [bigint] NULL
 ) ON [PRIMARY]
-GO
 
-/****** Object:  Table [dbo].[PaperRecommendations]    Script Date: 23/08/2018 21:23:51 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
+DROP TABLE IF EXISTS [dbo].[PaperRecommendations]
 CREATE TABLE [dbo].[PaperRecommendations](
 	[PaperID] [bigint] NULL,
 	[RecommendedPaperID] [bigint] NULL,
 	[Score] [float] NULL
 ) ON [PRIMARY]
-GO
 
-/****** Object:  Table [dbo].[PaperFieldsOfStudy]    Script Date: 23/08/2018 21:24:09 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
+DROP TABLE IF EXISTS [dbo].[PaperFieldsOfStudy]
 CREATE TABLE [dbo].[PaperFieldsOfStudy](
 	[PaperID] [bigint] NULL,
 	[FieldOfStudyID] [bigint] NULL,
 	[Similarity] [float] NULL
 ) ON [PRIMARY]
-GO
 
-/****** Object:  Table [dbo].[PaperAbstractInvertedIndex]    Script Date: 23/08/2018 21:24:25 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE TABLE [dbo].[PaperAbstractInvertedIndex](
+DROP TABLE IF EXISTS [dbo].[PaperAbstractsInvertedIndex]
+CREATE TABLE [dbo].[PaperAbstractsInvertedIndex](
 	[PaperID] [bigint] NULL,
 	[IndexedAbstract] [nvarchar](max) NULL
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-GO
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[Authors]
+CREATE TABLE [dbo].[Authors](
+	[AuthorID] [bigint] NULL,
+	[Rank] [int] NULL,
+	[NormalizedName] [nvarchar](500) NULL,
+	[DisplayName] [nvarchar](500) NULL,
+	[LastKnownAffiliationId] [bigint] NULL,
+	[PaperCount] [bigint] NULL,
+	[CitationCount] [bigint] NULL,
+	[CreatedDate] [datetime] NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[Affiliations]
+CREATE TABLE [dbo].[Affiliations](
+	[AffiliationID] [bigint] NULL,
+	[Rank] [int] NULL,
+	[NormalizedName] [nvarchar](500) NULL,
+	[DisplayName] [nvarchar](500) NULL,
+	[GridID] [nvarchar](500) NULL,
+	[OfficialPage] [nvarchar](1000) NULL,
+	[WikiPage] [nvarchar](1000) NULL,
+	[PaperCount] [bigint] NULL,
+	[CitationCount] [bigint] NULL,
+	[CreatedDate] [datetime] NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[PaperUrls]
+CREATE TABLE [dbo].[PaperUrls](
+	[PaperId] [bigint] NULL,
+	[SourceType] [int] NULL,
+	[SourceURL] [nvarchar](2500) NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[FieldOfStudyChildren]
+CREATE TABLE [dbo].[FieldOfStudyChildren](
+	[FieldOfStudyId] [bigint] NULL,
+	[ChildFieldOfStudyId] [bigint] NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[FieldOfStudyRelationship]
+CREATE TABLE [dbo].[FieldOfStudyRelationship](
+	[FieldOfStudyId1] [bigint] NULL,
+	[DisplayName1] [nvarchar](1000) NULL,
+	[Type1] [nvarchar](1000) NULL,
+	[FieldOfStudyId2] [bigint] NULL,
+	[DisplayName2] [nvarchar](1000) NULL,
+	[Type2] [nvarchar](1000) NULL,
+	[Rank] [float] NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[FieldsOfStudy]
+CREATE TABLE [dbo].[FieldsOfStudy](
+	[FieldOfStudyId] [bigint] NULL,
+	[Rank] [int] NULL,
+	[NormalizedName] [nvarchar](500) NULL,
+	[DisplayName] [nvarchar](500) NULL,
+	[MainType] [nvarchar](500) NULL,
+	[Level] [int] NULL,
+	[PaperCount] [bigint] NULL,
+	[CitationCount] [bigint] NULL,
+	[CreatedDate] [datetime] NULL
+) ON [PRIMARY]
+
+DROP TABLE IF EXISTS [dbo].[Journals]
+CREATE TABLE [dbo].[Journals](
+	[JournalId] [bigint] NULL,
+	[Rank] [int] NULL,
+	[NormalizedName] [nvarchar](500) NULL,
+	[DisplayName] [nvarchar](500) NULL,
+	[ISSN] [nvarchar](500) NULL,
+	[Publisher] [nvarchar](500) NULL,
+	[Webpage] [nvarchar](500) NULL,
+	[PaperCount] [bigint] NULL,
+	[CitationCount] [bigint] NULL,
+	[CreatedDate] [datetime] NULL
+) ON [PRIMARY]
