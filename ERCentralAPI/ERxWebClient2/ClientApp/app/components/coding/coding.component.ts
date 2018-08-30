@@ -23,7 +23,7 @@ import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 })
 export class ItemCodingComp implements OnInit, OnDestroy {
 
-    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, private ItemListService: ItemListService
+    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, public ItemListService: ItemListService
         , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
         private reviewInfoService: ReviewInfoService
     ) { }
@@ -31,7 +31,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private itemID: number = 0;
-    private item?: Item;
+    public item?: Item;
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();

@@ -21,7 +21,7 @@ import { Services } from '@angular/core/src/view';
 export class paginatorComp implements OnInit {
 
     constructor(private router: Router,
-        private ItemListService: ItemListService    // I would like to make this generic
+        public ItemListService: ItemListService    // I would like to make this generic
 
     ) {
 

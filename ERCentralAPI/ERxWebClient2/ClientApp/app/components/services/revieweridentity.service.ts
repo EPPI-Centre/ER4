@@ -23,7 +23,7 @@ export class ReviewerIdentityService {
         , @Inject(PLATFORM_ID) private _platformId: Object) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
-    private currentStatus: string = '';
+    public currentStatus: string = '';
 
     public get reviewerIdentity(): ReviewerIdentity {
 

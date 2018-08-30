@@ -19,7 +19,7 @@ import { ItemListService } from '../services/ItemList.service'
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        private _workAllocationContactListService: WorkAllocationContactListService,
+        public _workAllocationContactListService: WorkAllocationContactListService,
         private ItemListService: ItemListService
     ) { }
 

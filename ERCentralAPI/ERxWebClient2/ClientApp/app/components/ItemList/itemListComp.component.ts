@@ -22,7 +22,7 @@ import { style } from '@angular/animations';
 export class ItemListComp implements OnInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        private ItemListService: ItemListService,
+        public ItemListService: ItemListService,
         private _WorkAllocationService: WorkAllocationContactListService
     ) {
 

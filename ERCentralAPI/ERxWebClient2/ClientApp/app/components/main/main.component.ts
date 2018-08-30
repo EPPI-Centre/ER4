@@ -21,7 +21,7 @@ import { take, map, takeUntil } from 'rxjs/operators';
 })
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     constructor(private router: Router,
-        private ReviewerIdentityServ: ReviewerIdentityService,
+        public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,

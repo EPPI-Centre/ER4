@@ -25,7 +25,7 @@ export class StatusBarComponent implements OnInit {
     constructor(private router: Router,
                 private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
-                private ReviewerIdentityServ: ReviewerIdentityService,
+                public ReviewerIdentityServ: ReviewerIdentityService,
                 private ReviewInfoService: ReviewInfoService,
         private modalService: NgbModal
     ) {

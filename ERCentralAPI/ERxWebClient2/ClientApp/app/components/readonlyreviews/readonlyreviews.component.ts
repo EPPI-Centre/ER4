@@ -21,7 +21,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
                 private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
-                private _readonlyreviewsService: readonlyreviewsService) {
+                public _readonlyreviewsService: readonlyreviewsService) {
 
                 //console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
