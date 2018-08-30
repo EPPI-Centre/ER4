@@ -93,11 +93,13 @@ export class ReviewSetsComponent implements OnInit {
             //alert('closed: ' + AttId + ' Content: ' + infoTxt);
             if (!isAlreadyCoded) this.CheckBoxClicked('InfoboxTextAdded', AttId, infoTxt, armId);
             else {
-                //this.CheckBoxClicked('InfoboxTextAdded', AttId, infoTxt, armId);
-                alert('To Do: implement Update command');
+                this.CheckBoxClicked('InfoboxTextUpdate', AttId, infoTxt, armId);
+                //alert('To Do: implement Update command');
             }
         },
-            () => { alert('dismissed: ' + AttId) }
+            () => {
+                //alert('dismissed: ' + AttId)
+            }
         );
 
     }
