@@ -44,7 +44,6 @@ namespace ERxWebClient2.Controllers
             //if (!CorrectCredentials) return Redirect("~/Login"); //DoFail();
             //ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
 
-
             ri.Token = BuildToken(ri);
             return ri;
         }
