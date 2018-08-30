@@ -189,6 +189,21 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             //add new code to item
             cmd.saveType = "Insert";
         }
+        else if (data.event == 'InfoboxTextUpdate' && itemSet) {
+            cmd.saveType = "Update";
+            for (let Candidate of itemSet.itemAttributesList) {
+                if (Candidate.attributeId == cmd.attributeId) {
+                    itemAtt = Candidate;
+                    break;
+                }
+            }
+            if (!itemAtt) {
+                //problem: we can't remove an item att, if we can't find it!
+                alert('Sorry: can\'t find the Attribute to update...');
+                return;
+            }
+            cmd.itemAttributeId = itemAtt.itemAttributeId;
+        }
         else if (!data.event.target.checked && itemSet) {
             //we delete the coding
             cmd.saveType = "Delete"; 
