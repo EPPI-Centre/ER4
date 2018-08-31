@@ -68,12 +68,12 @@
                     bindingConfiguration="LocalBasicHttpBinding_IWcfPortal"
                     contract="WcfPortal.IWcfPortal" 
                     name="LocalBasicHttpBinding_IWcfPortal" />
-          <endpoint address="http://bk-epi.ioe.ac.uk/Testing/ER4/WcfPortal.svc"
+          <endpoint address="http://er5-alpha.ucl.ac.uk/ER4/WcfPortal.svc"
                     binding="basicHttpBinding"
                     bindingConfiguration="BasicHttpBinding_IWcfPortal"
                     contract="WcfPortal.IWcfPortal"
                     name="TestingBasicHttpBinding_IWcfPortal"/>
-          <endpoint address="https://bk-epi.ioe.ac.uk/Testing/ER4/sWcfPortal.svc"
+          <endpoint address="https://er5-alpha.ucl.ac.uk/ER4/sWcfPortal.svc"
                     binding="basicHttpBinding"
                     bindingConfiguration="HttpsBinding_IWcfPortal"
                     contract="WcfPortal.IWcfPortal"

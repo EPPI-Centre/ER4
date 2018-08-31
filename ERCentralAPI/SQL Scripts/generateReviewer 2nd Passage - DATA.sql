@@ -567,5 +567,41 @@ GO
 
 
 
-USE [Reviewer]
+USE [ReviewerAdmin]
 GO
+
+INSERT INTO [dbo].[TB_LATEST_SERVER_MESSAGE]
+           ([MESSAGE]
+           )
+     VALUES
+           ('Normal'
+           )
+GO
+
+USE [ReviewerAdmin]
+GO
+
+INSERT INTO [dbo].[TB_UPDATE_MSG]
+           ([VERSION_NUMBER]
+           ,[DESCRIPTION]
+           ,[URL]
+           )
+     VALUES
+           ('4.0.0.0'
+           ,'First message, nothing to read, here.'
+           ,'https://eppi.ioe.ac.uk'
+           )
+GO
+--commented as IDs don't agree with at least one SProc
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('No extension', 'This No change to the extension date', '111', '0')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Purchase', 'Extension due to purchase', '111', '1')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Staff', 'Extension for EPPI staff', '111', '2')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Maintenance', 'Extension for network down time', '111', '3')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Making review non-shareable', 'Change review to non-shareable', '010', '4')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Has budget code', 'The project has a budget code without definate expiry date', '111', '5')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Restart trial', 'The user never used their trial access', '111', '6')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Return read-only access', 'Move the expiry date to less than two months in the past', '111', '7')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Working on EPPI-Centre project', 'The user is working on an EPPI-Centre project', '111', '8')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Activate review', 'The review has been activated', '111', '9')
+--INSERT INTO [TB_EXTENSION_TYPES]  ([EXTENSION_TYPE] ,[DESCRIPTION] ,[APPLIES_TO] ,[ORDER]) VALUES ('Activate user account', 'The user account has been activated', '111', '10')
+--GO

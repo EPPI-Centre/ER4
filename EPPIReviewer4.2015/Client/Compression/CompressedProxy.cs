@@ -48,7 +48,7 @@ namespace BusinessLibrary.Compression
               }
           }
 
-          else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.ioe.ac.uk")
+          else if (host == "er5-alpha" || host == "er5-alpha.ucl.ac.uk" || host == "win-er5-alpha-we.westeurope.cloudapp.azure.com" || host == "win-er5-alpha-we")
           {
               if (ri == null || ri.Ticket == null || ri.Ticket == "") //(ri != null && ri.Ticket != "")
               {//not authenticated, use https
@@ -60,7 +60,7 @@ namespace BusinessLibrary.Compression
               }
               else
               {//all normal use http
-                  this.EndPoint = "TestingBasicHttpBinding_IWcfPortal";
+                    this.EndPoint = "TestingHttpsBinding_IWcfPortal";// "TestingBasicHttpBinding_IWcfPortal";
               }
           }
           else if (host == "cs00032214" || host == "cs00032214.ucl.ac.uk" || host == "cs00032214.ad.ucl.ac.uk")
