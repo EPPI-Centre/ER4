@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -40,6 +42,9 @@ namespace ERxWebClient2.Controllers
             //Lgt.ServerMessage = "...";
 
             return Ok(Lgt);
+
+            //return Forbid();
+            //return Unauthorized();
         }
     }
 

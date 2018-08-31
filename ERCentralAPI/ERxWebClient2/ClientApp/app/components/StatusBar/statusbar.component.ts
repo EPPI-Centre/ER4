@@ -85,6 +85,28 @@ export class StatusBarComponent implements OnInit {
     }
     public UpdateStatus(msg: string) {
 
+        // NEED TO ADD THE FOLLOWING LOGIC TO THE BELOW
+        //string msgSt = "";
+        //if (Message.Substring(0, 1) == "!") {
+        //    StatusContainer.Background = new SolidColorBrush(Colors.Yellow);
+        //    msgSt = "Status: " + Message.Substring(1).Trim();
+        //}
+        //else {//textBlockMsg.Text 
+        //    msgSt = "Status: " + Message;
+        //    StatusContainer.Background = null;
+        //}
+        //if (msgSt.Length > 80) {
+        //    int ii = msgSt.LastIndexOf(" ", 80, 79);
+        //    string tmpStr = msgSt.Substring(0, msgSt.LastIndexOf(" ", 80, 79)) + "...";
+        //    windowMOTD.MOTDtextBlock.Text = msgSt.Replace(@"\n", Environment.NewLine);
+        //    textBlockMsg.Text = tmpStr.Replace(@"\n", "");
+        //    viewFullMOTD_hlink.Visibility = System.Windows.Visibility.Visible;
+        //}
+        //else {
+        //    viewFullMOTD_hlink.Visibility = System.Windows.Visibility.Collapsed;
+        //    textBlockMsg.Text = msgSt.Replace(@"\n", "");
+        //}
+
         this.ReviewerIdentityServ.currentStatus = msg;
 
     }
@@ -97,18 +119,21 @@ export class StatusBarComponent implements OnInit {
                 break;
             case FORBIDDEN:
                 // NB: we do not have this page yet.
-                this.router.navigateByUrl("/unauthorized");
+                //this.router.navigateByUrl("/unauthorized");
+                this.router.navigateByUrl("/home");
                 break;
             case BAD_REQUEST:
                 this.modalMsg = error.message;
                 this.openMsg(this.content);
-                //this.showError(error.message);
+                  // NB: we do not have this page yet.
+                this.router.navigateByUrl("/home");
                 break;
             default:
                 // NB: THIS ALSO NEEDS TO BE SET
                 this.modalMsg = "error here";
                 this.openMsg(this.content);
-                //this.showError(REFRESH_PAGE_ON_TOAST_CLICK_MESSAGE);
+                  // NB: we do not have this page yet.
+                this.router.navigateByUrl("/home");
         }
     }
     LogonTicketCheckTimer(user: string, guid: string) {
@@ -150,7 +175,9 @@ export class StatusBarComponent implements OnInit {
             },
             error => {
 
-                console.log(error);
+
+                if (this.timerTest) this.killTrigger.next();
+                console.log('Got inside error here: (meaning unauthorized worked correctly...)' + error);
                 this.handleError(error);
                 // NEED TO ASK SERGIO: not sure how to capture the error in the way defined here
 
