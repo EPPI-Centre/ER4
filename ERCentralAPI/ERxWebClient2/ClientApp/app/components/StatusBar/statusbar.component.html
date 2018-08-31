@@ -16,24 +16,21 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close</button>
+        <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close but stay on page for development reasons</button>
     </div>
 </ng-template>
-
 
 
 <div class="col-sm-12 card bg-light">
     <div class="card-body">
         <table>
-            <tr>
-                <td class="bg-light " (click)="openMsg(content)">
-                    Status: {{ReviewerIdentityServ.currentStatus}}
-                    | </td>
+            <tr style="white-space:pre-wrap;">
+                <td  class="{{statusClass}}" (click)="openMsg(content)"  >
+                    Status: {{ReviewerIdentityServ.currentStatus}}  </td>
                 <td *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!" *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-danger" *ngIf="getDaysLeftAccount() < 0"> User: {{ReviewerIdentityServ.reviewerIdentity.name}} (Expired)</td>
-                |
                 <td *ngIf="getDaysLeftReview() > 14"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Review will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview == 0 ? ' today!' : ' tomorrow!'}}" *ngIf="getDaysLeftReview() == 1  && getDaysLeftReview() == 0">Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Review will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview}} days!" *ngIf="getDaysLeftReview() < 14 && getDaysLeftReview() > 1">Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>

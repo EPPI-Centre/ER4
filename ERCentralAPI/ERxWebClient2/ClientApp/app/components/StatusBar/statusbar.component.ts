@@ -41,6 +41,7 @@ export class StatusBarComponent implements OnInit {
     public count: number = 60;
     public modalMsg: string = '';
     public testlgtC: any;
+    public statusClass: string = 'bg-light';
 
     //timerServerCheck(u: string, g: string): Observable<LogonTicketCheck> {
 
@@ -86,23 +87,26 @@ export class StatusBarComponent implements OnInit {
     public UpdateStatus(msg: string) {
 
         // NEED TO ADD THE FOLLOWING LOGIC TO THE BELOW
-        //string msgSt = "";
-        //if (Message.Substring(0, 1) == "!") {
-        //    StatusContainer.Background = new SolidColorBrush(Colors.Yellow);
-        //    msgSt = "Status: " + Message.Substring(1).Trim();
-        //}
-        //else {//textBlockMsg.Text 
-        //    msgSt = "Status: " + Message;
-        //    StatusContainer.Background = null;
-        //}
+        let msgSt: string = "";
+        if (msg.substr(0, 1) == "!") {
+
+            //StatusContainer.Background = new SolidColorBrush(Colors.Yellow);
+            this.statusClass = "bg-warning";
+            msgSt = "Status: " + msg.substr(1).trim();
+
+        }
         //if (msgSt.Length > 80) {
+
         //    int ii = msgSt.LastIndexOf(" ", 80, 79);
         //    string tmpStr = msgSt.Substring(0, msgSt.LastIndexOf(" ", 80, 79)) + "...";
         //    windowMOTD.MOTDtextBlock.Text = msgSt.Replace(@"\n", Environment.NewLine);
         //    textBlockMsg.Text = tmpStr.Replace(@"\n", "");
         //    viewFullMOTD_hlink.Visibility = System.Windows.Visibility.Visible;
+
         //}
+
         //else {
+
         //    viewFullMOTD_hlink.Visibility = System.Windows.Visibility.Collapsed;
         //    textBlockMsg.Text = msgSt.Replace(@"\n", "");
         //}
@@ -115,25 +119,25 @@ export class StatusBarComponent implements OnInit {
         let httpErrorCode = error.httpErrorCode;
         switch (httpErrorCode) {
             case UNAUTHORIZED:
-                this.router.navigateByUrl("/home");
+                //this.router.navigateByUrl("/home");
                 break;
             case FORBIDDEN:
                 // NB: we do not have this page yet.
                 //this.router.navigateByUrl("/unauthorized");
-                this.router.navigateByUrl("/home");
+                //this.router.navigateByUrl("/home");
                 break;
             case BAD_REQUEST:
                 this.modalMsg = error.message;
                 this.openMsg(this.content);
                   // NB: we do not have this page yet.
-                this.router.navigateByUrl("/home");
+                //this.router.navigateByUrl("/home");
                 break;
             default:
                 // NB: THIS ALSO NEEDS TO BE SET
                 this.modalMsg = "error here";
                 this.openMsg(this.content);
                   // NB: we do not have this page yet.
-                this.router.navigateByUrl("/home");
+                //this.router.navigateByUrl("/home");
         }
     }
     LogonTicketCheckTimer(user: string, guid: string) {
@@ -176,20 +180,22 @@ export class StatusBarComponent implements OnInit {
             error => {
 
 
-                if (this.timerTest) this.killTrigger.next();
+               
                 console.log('Got inside error here: (meaning unauthorized worked correctly...)' + error);
-                this.handleError(error);
+
                 // NEED TO ASK SERGIO: not sure how to capture the error in the way defined here
 
                 //if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
 
-                     this.UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n"  +
+                this.UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n" +
                          "This message will revert to normal when the connection will be re-established:\n" +
-                         "Please keep in mind that data changes made while disconnected cannot be saved.\n" +
-                         "If your Internet connection is working, we might be experiencing some technical problems,\n" +
+                         "Please keep in mind that data changes made while disconnected cannot be saved.\n " +
+                         "If your Internet connection is working, we might be experiencing some technical problems,\n " +
                          "We apologise for the inconvenience.");
-                return;
 
+                if (this.timerTest) this.killTrigger.next();
+
+                this.handleError(error);
                  //}
                 //windowMOTD.Tag = "failure";
                 // windowMOTD.MOTDtextBlock.Text = "We are sorry, you have lost communication with the server. To avoid data corruption, the page will now reload.\n" +
@@ -205,11 +211,11 @@ export class StatusBarComponent implements OnInit {
     openMsg(content : any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-                alert('Pressed Save' + res);
-                this.router.navigate(['home']);
+                alert('Simulate application returning to logon page: ' + res);
+               // this.router.navigate(['home']);
         },
         (res) => {
-                    alert('Pressed close by the x' + res)
+                    alert('Continue for debugging purposes: ' + res)
                     this.router.navigate(['home']);
                 }
         );
