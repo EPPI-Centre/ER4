@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="SQLScripts\BulkTextUpload.sql" />
+    <Content Include="SQLScripts\CreateIndexes.sql" />
     <Content Include="SQLScripts\CreateTables.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

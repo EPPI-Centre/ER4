@@ -248,12 +248,12 @@ namespace AcademicImport
                     {
                         if (fileName == "/Papers.txt")
                         {
-                            string [] f = line.Split('\t');
+                            string[] f = line.Split('\t');
                             line += '\t' + Truncate(ToShortSearchText(f[4]), 500);
                         }
                         if (fileName == "/PaperAbstractsInvertedIndex.txt")
                         {
-                            string [] f = line.Split('\t');
+                            string[] f = line.Split('\t');
                             var j = (JObject)JsonConvert.DeserializeObject(f[1]);
                             int indexLength = j["IndexLength"].ToObject<int>();
                             Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
@@ -301,8 +301,8 @@ namespace AcademicImport
                 .Replace("i", "")
                 .Replace("o", "")
                 .Replace("u", "");
-                //.Replace("ize", "")
-                //.Replace("ise", "");
+            //.Replace("ize", "")
+            //.Replace("ise", "");
         }
 
         public static string ToSimpleText(string s)
