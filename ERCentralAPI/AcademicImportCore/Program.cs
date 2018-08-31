@@ -36,7 +36,7 @@ namespace AcademicImport
 
         public static void Main(string[] args)
         {
-            // Required for SERILOG
+            // Required for SERILOG 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(CreateLogFileName())
                 .CreateLogger();
@@ -52,7 +52,8 @@ namespace AcademicImport
             var serviceCollection = new ServiceCollection();
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var _logger = serviceProvider.GetService<ILogger<Program>>();
-            SqlHelper = new SQLHelper(configuration, _logger);
+            SqlHelper = new SQLHelper(configuration, _logger); 
+            //SqlHelper = new SQLHelper(configuration, null);
 
             string applicationId = configuration["AppSettings:applicationId"];     // Also called client id
             string clientSecret = configuration["AppSettings:clientSecret"];
@@ -61,15 +62,15 @@ namespace AcademicImport
 
 
             // Change these settings for different install locations
-            bool isAlpha = true;
+            bool isAlpha = false;
 
             string writeToThisFolder = @"E:\MSAcademic\downloads";
             string SqlScriptFolder = @"\SQLScripts\";
-            int limit = 100; // ********** use this for testing. 0 = get everything
+            int limit = 0; // ********** use this for testing. 0 = get everything
 
             if (isAlpha)
             {
-                writeToThisFolder = @"\downloads";
+                writeToThisFolder = @"L:\MSAcademic\downloads";
                 SqlScriptFolder = @"\SqlScripts\";
             }
 
@@ -236,8 +237,8 @@ namespace AcademicImport
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            int count = 0;
-            int tempLimit = limit == 0 ? -1 : limit; // i.e. if limit == 0 we download everything. less for testing
+            Int64 count = 0;
+            Int64 tempLimit = limit == 0 ? 5000000000 : limit; // i.e. if limit == 0 we download everything. less for testing
             Console.WriteLine("Reading this file now: " + fileName);
             using (var readStream = new StreamReader(client.GetReadStream(graphPath + fileName)))
             {
