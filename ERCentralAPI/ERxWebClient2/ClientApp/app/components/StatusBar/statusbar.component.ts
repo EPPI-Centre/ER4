@@ -93,9 +93,10 @@ export class StatusBarComponent implements OnInit {
         let httpErrorCode = error.httpErrorCode;
         switch (httpErrorCode) {
             case UNAUTHORIZED:
-                this.router.navigateByUrl("/login");
+                this.router.navigateByUrl("/home");
                 break;
             case FORBIDDEN:
+                // NB: we do not have this page yet.
                 this.router.navigateByUrl("/unauthorized");
                 break;
             case BAD_REQUEST:
@@ -104,6 +105,7 @@ export class StatusBarComponent implements OnInit {
                 //this.showError(error.message);
                 break;
             default:
+                // NB: THIS ALSO NEEDS TO BE SET
                 this.modalMsg = "error here";
                 this.openMsg(this.content);
                 //this.showError(REFRESH_PAGE_ON_TOAST_CLICK_MESSAGE);
@@ -150,14 +152,17 @@ export class StatusBarComponent implements OnInit {
 
                 console.log(error);
                 this.handleError(error);
-                 //if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
+                // NEED TO ASK SERGIO: not sure how to capture the error in the way defined here
+
+                //if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
 
                      this.UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n"  +
                          "This message will revert to normal when the connection will be re-established:\n" +
                          "Please keep in mind that data changes made while disconnected cannot be saved.\n" +
                          "If your Internet connection is working, we might be experiencing some technical problems,\n" +
                          "We apologise for the inconvenience.");
-                     return;
+                return;
+
                  //}
                 //windowMOTD.Tag = "failure";
                 // windowMOTD.MOTDtextBlock.Text = "We are sorry, you have lost communication with the server. To avoid data corruption, the page will now reload.\n" +
@@ -165,7 +170,7 @@ export class StatusBarComponent implements OnInit {
                      //"Note that Eppi-Reviewer might fail to load until the update is completed, please wait a couple of minutes and try again.";
                  //windowMOTD.Show();
 
-               // ANGULAR SHOULD REFRESH ITSELF
+               // POSSIBLY, NEED TO CHECK: ANGULAR SHOULD REFRESH ITSELF; NO NEED TO REFRESH COMMAND ON WINDOW
             });
     }
 
