@@ -5,7 +5,15 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
     selector: 'app',
     providers: [ReviewerIdentityService],
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+    //styleUrls: ['./app.component.css'],
+    styles: [`
+                .body-content {
+                    padding-top: 50px;
+                }
+               .MainBg {
+                    background-color:#f8f8fd !important; 
+                }
+        `],
 })
 export class AppComponent {
     constructor(private ReviewerIdentity: ReviewerIdentityService) { }

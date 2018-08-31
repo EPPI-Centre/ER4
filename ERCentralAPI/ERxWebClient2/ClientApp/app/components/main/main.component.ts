@@ -16,6 +16,12 @@ import { take, map, takeUntil } from 'rxjs/operators';
 @Component({
     selector: 'main',
     templateUrl: './main.component.html'
+    ,styles: [`
+                
+               .ReviewsBg {
+                    background-color:#f1f1f8 !important; 
+                }
+        `]
      ,providers: []
 
 })

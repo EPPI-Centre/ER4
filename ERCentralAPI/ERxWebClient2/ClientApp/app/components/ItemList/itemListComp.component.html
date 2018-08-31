@@ -2,8 +2,8 @@
 <table class="table table-responsive" style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
     <thead>
         <tr>
-            <th>[]</th>
-            <th>Short T:</th>
+            <th>&nbsp;</th>
+            <th>Short Title</th>
             <th>Title</th>
             <th>Year</th>
             
@@ -11,7 +11,7 @@
     </thead>
     <tbody>
         <tr *ngFor="let item of ItemListService.ItemList.items">
-            <td><button (click)="OpenItem(item.itemId)">GO</button><br/>(Id: {{ item.itemId }})</td>
+            <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br/>(Id:&nbsp;{{ item.itemId }})</td>
             <td>{{ item.shortTitle }}</td>
             <td>{{ item.title }}</td>
             <td>{{ item.year }}</td>
