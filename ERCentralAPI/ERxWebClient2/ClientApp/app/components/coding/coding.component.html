@@ -1,17 +1,17 @@
 <div class="h-100 mh-100">
-    <div class="row d-flex border border-info">
-        <div class="col-md-3 h-100"  >
-            <reviewsets ></reviewsets>
+    <div class="row d-flex">
+        <div class="col-md-3 h-100">
+            <reviewsets class="bg-light"></reviewsets>
         </div>
-        <div class="col-md-9 border border-info">
+        <div class="col-md-9 border border-info bg-light">
             <div class="d-flex justify-content-between">
-                <h4>ITEM Details.</h4>
+                <h4>ITEM Details</h4>
                 <button class="page-link" (click)="BackToMain()">
                     Close/back
                 </button>
             </div>
-            
-            <div class="row">
+
+            <div class="row  ml-1">
                 <ul *ngIf="ItemListService.ItemList" class="pagination justify-content-start">
                     <li>
                         <button [ngClass]="{disabled:!hasPrevious()}"
@@ -46,7 +46,7 @@
 
                 </ul>
             </div>
-            <div *ngIf="item">
+            <div *ngIf="item" class="ml-1">
                 <div class="row"><b>ID:&nbsp;</b>{{item.itemId}}</div>
                 <div class="row"><b>Title:&nbsp;</b>{{item.title}}</div>
                 <div class="row"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
@@ -55,4 +55,5 @@
             </div>
         </div>
     </div>
+    <statusbar class="col-sm-12 card-body" resizable></statusbar>
 </div>

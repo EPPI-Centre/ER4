@@ -1,8 +1,8 @@
-<div class="d-flex justify-content-center">
-    <h3 class="justify-center">Welcome to EPPI-Reviewer Web (Alpha).</h3>
+<div class="d-flex justify-content-center bg-white mr-md-1 ml-md-1">
+    <h3 class="justify-center">Welcome to EPPI-Reviewer Web (Alpha).</h3><br />
 </div>
-<br />
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center flex-row-reverse border-bottom border-primary">
+
+<div class="row mr-md-1 ml-md-1 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
     <div class="col-md-1">&nbsp;</div>
     <div class="col-md-2">
         <!--<div class="panel" style="background-color: #33b5e5">-->
@@ -51,9 +51,10 @@
 </div>
 <div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light border-bottom border-primary">
     <div class="col-md-10">
-        <p>Please visit the EPPI-Reviewer gateway at:
-        <div class="text-center font-weight-bold m-0" ><a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">https://eppi.ioe.ac.uk/cms/er4</a></div>
-        The Gateway contains: User manual, Account Manager, Forgotten Password facility, Export to RIS utility, Support Forums and much more.
+        <p>
+            Please visit the EPPI-Reviewer gateway at:
+            <div class="text-center font-weight-bold m-0"><a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">https://eppi.ioe.ac.uk/cms/er4</a></div>
+            The Gateway contains: User manual, Account Manager, Forgotten Password facility, Export to RIS utility, Support Forums and much more.
     </div>
     <div class="col-md-2">
         Follow us on
@@ -82,7 +83,10 @@
     <div class="col-md-12 justify-content-end">
         <a href="{{vInfo.uRL}}">Read More...</a>
     </div>
-</div> 
+</div>
 <form #f="ngForm" (ngSubmit)="getVinfo()" hidden novalidate>
     <button>Getinfo</button>
 </form>
+<div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light ">
+    &nbsp;
+</div> 
