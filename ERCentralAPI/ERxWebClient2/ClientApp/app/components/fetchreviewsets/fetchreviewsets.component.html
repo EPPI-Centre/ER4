@@ -22,6 +22,10 @@
 <div *ngIf="nodes && nodes.length > 0" style="max-height: 800px; height:600px;" >
     <tree-root *ngIf="nodes" [nodes]="nodes" [options]="options"  style="max-height: 600px;">
         <ng-template #treeNodeTemplate let-node let-index="index">
+            <span *ngIf="node.data.nodeType == 'ReviewSet'">
+                <img *ngIf="node.data.codingComplete" title="Coding is complete" src="../assets/CodingComplete.png" class="mr-1"/>
+                <img *ngIf="!node.data.codingComplete" title="Coding is not complete" src="../assets/CodingNotComplete.png"  class="mr-1" />
+            </span>
             <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
                    [disabled]="!ReviewSetsService.CanWrite"
                    *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data.id, node.data.additionalText, node.data.armId)" />

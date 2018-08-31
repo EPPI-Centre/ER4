@@ -154,15 +154,45 @@ export class ReviewSetsService {
     }
     public AddItemData(ItemCodingList: ItemSet[]) {
         this._IsBusy = true;
-        for (let itemset of ItemCodingList) {
-            let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId );
+        //logic:
+            //if ITEM_SET is complete, show the tickbox.
+            //if ITEM_SET is not complete, show the tickbox only if the current user owns this item-set.
+        let completedList: ItemSet[] | undefined = ItemCodingList.filter(iset => iset.isCompleted == true);
+        let uncompletedList: ItemSet[] | undefined = ItemCodingList.filter(iset => iset.isCompleted == false && iset.contactId == this.ReviewerIdentityService.reviewerIdentity.userId);
+        let UsedSets: number[] = [];
+        for (let itemset of completedList) {
+            let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet) {
+                let set_id: number = destSet.set_id;
+                if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         //console.log('.');
                         if (dest) {
+                            UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
+                            dest.isSelected = true;
+                            dest.additionalText = itemAttribute.additionalText;
+                            destSet.codingComplete = true;
+                            //console.log("found destination attr, id: " + itemAttribute.attributeId + "name: " + dest.attribute_name);
+                        }
+                    }
+                }
+            }
+        }
+        for (let itemset of uncompletedList) {
+            let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
+            if (destSet && destSet.set_id) {
+                let set_id: number = destSet.set_id;
+                if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
+                for (let itemAttribute of itemset.itemAttributesList) {
+                    //console.log('.' + destSet.set_name);
+                    if (destSet.attributes) {
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
+                        //console.log('.');
+                        if (dest) {
+                            UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
                             dest.additionalText = itemAttribute.additionalText;
                             //console.log("found destination attr, id: " + itemAttribute.attributeId + "name: " + dest.attribute_name);
@@ -272,6 +302,7 @@ export interface singleNode {
     armId: number;
     armTitle: string;
     order: number;
+    codingComplete: boolean;
     
 }
 
@@ -298,7 +329,7 @@ export class ReviewSet implements singleNode {
     additionalText: string = "";
     armId: number = 0;
     armTitle: string = "";
-
+    codingComplete: boolean = false;
 }
 export class SetAttribute implements singleNode {
     attribute_id: number = -1;
@@ -337,6 +368,7 @@ export class SetAttribute implements singleNode {
     armId: number = 0;
     armTitle: string = "";
     order: number = 0;
+    codingComplete: boolean = false;
 }
 
 export interface iReviewSet {
