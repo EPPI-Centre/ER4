@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Sinks.File;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Globalization;
@@ -63,13 +64,13 @@ namespace AcademicImport
             bool isAlpha = true;
 
             string writeToThisFolder = @"E:\MSAcademic\downloads";
-            string SqlScriptFolder = @"../../SQLScripts/";
+            string SqlScriptFolder = @"\SQLScripts\";
             int limit = 100; // ********** use this for testing. 0 = get everything
 
             if (isAlpha)
             {
-                writeToThisFolder = "./downloads";
-                SqlScriptFolder = "./SqlScripts";
+                writeToThisFolder = @"\downloads";
+                SqlScriptFolder = @"\SqlScripts\";
             }
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
@@ -124,7 +125,6 @@ namespace AcademicImport
                     file.Delete();
                 }
                 Console.WriteLine("");
-
                 DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
                 DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
                 DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
@@ -138,16 +138,16 @@ namespace AcademicImport
                 DownloadThisFile(client, latest.FullName, "/Authors.txt", writeToThisFolder, limit);
                 DownloadThisFile(client, latest.FullName, "/Affiliations.txt", writeToThisFolder, limit);
                 Console.WriteLine("");
-
+                
                 // once we've downloaded the files, put them into the SQL DB
 
                 // Create all the tables
                 Console.WriteLine("Creating tables...");
                 SqlConnection conn = new SqlConnection(Program.SqlHelper.AcademicDB);
                 conn.Open();
-                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "CreateTables.sql"));
+                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "CreateTables.sql"));
                 SqlHelper.ExecuteNonQueryNonSP(conn, "DROP PROCEDURE IF EXISTS [BulkTextUpload]");
-                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "BulkTextUpload.sql").Replace("writeToThisFolder", writeToThisFolder));
+                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "BulkTextUpload.sql").Replace("writeToThisFolder", writeToThisFolder));
                 Console.WriteLine("");
 
                 // put the files into the DB
@@ -226,7 +226,7 @@ namespace AcademicImport
             Stopwatch sw = new Stopwatch();
             sw.Start();
             Console.WriteLine("Creating indexes...: ");
-            SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "CreateIndexes.sql"));
+            SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "CreateIndexes.sql"));
             sw.Stop();
             Console.WriteLine("Creating indexes took: " + sw.Elapsed);
             return true;
