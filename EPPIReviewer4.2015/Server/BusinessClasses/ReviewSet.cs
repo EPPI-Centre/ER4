@@ -276,6 +276,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<bool> AllowCodingEditsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowCodingEdits", "Allow coding edits", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool AllowCodingEdits
         {
             get

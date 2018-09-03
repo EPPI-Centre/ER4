@@ -1,6 +1,8 @@
 <p *ngIf="!_workAllocationContactListService.workAllocations"><em>Loading your Allocations...</em></p>
 
-
+<div class="row" *ngIf="reviewInfoService && reviewInfoService.ReviewInfo && reviewInfoService.ReviewInfo.screeningCodeSetId != 0 && reviewInfoService.ReviewInfo.screeningListIsGood">
+    <div class="align-content-end p-1 m-1">Priority screening List is Enabled and Ready: <button (click)="StartScreening()" class="btn btn-outline-info">Click Here</button> to start screening.</div>
+</div>
 <table class='table table-responsive'  style="height: 190px;" *ngIf="_workAllocationContactListService.workAllocations">
     <thead>
         <tr>

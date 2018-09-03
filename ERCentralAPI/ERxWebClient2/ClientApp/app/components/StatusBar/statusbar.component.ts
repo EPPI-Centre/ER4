@@ -71,7 +71,7 @@ export class StatusBarComponent implements OnInit {
 
     ngOnInit() {
 
-        this.ReviewInfoService.Fetch();
+        //this.ReviewInfoService.Fetch();
         let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
         
@@ -216,16 +216,17 @@ export class StatusBarComponent implements OnInit {
     }
 
     //https://ng-bootstrap.github.io/#/components/modal/examples
-    openMsg(content : any) {
+    openMsg(content: any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-                alert('Simulate application returning to logon page: ' + res);
-               // this.router.navigate(['home']);
+            //alert('Simulate application returning to logon page: ' + res);
+            // this.router.navigate(['home']);
         },
-        (res) => {
-                    alert('Continue for debugging purposes: ' + res)
-                    this.router.navigate(['home']);
-                }
+            (res) => {
+                //alert('Continue for debugging purposes: ' + res);
+                this.killTrigger.next();
+                this.router.navigate(['home']);
+            }
         );
     }
 }

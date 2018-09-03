@@ -88,6 +88,7 @@ export class ReviewSetsService {
             newSet.set_name = iItemset.setName;
             newSet.order = iItemset.setOrder;
             newSet.codingIsFinal = iItemset.codingIsFinal;
+            newSet.allowEditingCodeset = iItemset.allowCodingEdits;
             newSet.setType = iItemset.setType;
             newSet.attributes = ReviewSetsService.childrenFromJSONarray(iItemset.attributes.attributesList);
             result.push(newSet);
@@ -97,15 +98,16 @@ export class ReviewSetsService {
     public static digestLocalJSONarray(data: any[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         //console.log('digest local JSON');
-        for (let iItemset of data) {
+        for (let Itemset of data) {
             //console.log('+');
             let newSet: ReviewSet = new ReviewSet();
-            newSet.set_id = iItemset.set_id;
-            newSet.set_name = iItemset.set_name;
-            newSet.order = iItemset.order;
-            newSet.codingIsFinal = iItemset.codingIsFinal;
-            newSet.setType = iItemset.setType;
-            newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(iItemset.attributes);
+            newSet.set_id = Itemset.set_id;
+            newSet.set_name = Itemset.set_name;
+            newSet.order = Itemset.order;
+            newSet.codingIsFinal = Itemset.codingIsFinal;
+            newSet.allowEditingCodeset = Itemset.allowEditingCodeset;
+            newSet.setType = Itemset.setType;
+            newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
             result.push(newSet);
         }
         return result;
@@ -164,6 +166,7 @@ export class ReviewSetsService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet) {
                 let set_id: number = destSet.set_id;
+                destSet.itemSetIsLocked = itemset.isLocked;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
@@ -185,6 +188,8 @@ export class ReviewSetsService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet && destSet.set_id) {
                 let set_id: number = destSet.set_id;
+                destSet.itemSetIsLocked = itemset.isLocked;
+
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
@@ -304,7 +309,8 @@ export interface singleNode {
     armTitle: string;
     order: number;
     codingComplete: boolean;
-    
+    allowEditingCodeset: boolean;
+    itemSetIsLocked: boolean;
 }
 
 export class ReviewSet implements singleNode {
@@ -324,7 +330,8 @@ export class ReviewSet implements singleNode {
     nodeType: string = "ReviewSet";
     order: number = 0;
     codingIsFinal: boolean = true;
-
+    allowEditingCodeset: boolean = false;
+    itemSetIsLocked: boolean = false;
     
     isSelected: boolean = false;
     additionalText: string = "";
@@ -353,7 +360,8 @@ export class SetAttribute implements singleNode {
     attribute_type_id: number = -1;;
     attributes: SetAttribute[] = [];
     
-    
+    allowEditingCodeset: boolean = false;//not used for attributes
+    itemSetIsLocked: boolean = false;//not used for attributes
     nodeType: string = "SetAttribute";
     //private _isSelected: boolean = false;
     //public get isSelected(): boolean {
@@ -364,6 +372,7 @@ export class SetAttribute implements singleNode {
     //    console.log('setting is selected: [' + this._isSelected + '] to ' + val);
     //    this._isSelected = val;
     //}
+    allowCodingEdits: boolean = false; 
     isSelected: boolean = false; 
     additionalText: string = "";
     armId: number = 0;
@@ -380,6 +389,7 @@ export interface iReviewSet {
     setDescription: string;
     setOrder: number;
     codingIsFinal: boolean;
+    allowCodingEdits: boolean;//despite the name, this refers to whether the codeset is editable
     attributes: iAttributesList;
 }
 export interface iAttributesList
