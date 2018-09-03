@@ -25,6 +25,7 @@ export class HomeComponent implements OnInit {
         
     };
     ngOnInit() {
+        localStorage.clear();
         this.getVinfo();
     }
     getVinfo() {

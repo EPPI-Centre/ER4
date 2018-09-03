@@ -83,7 +83,10 @@ export class ReviewSetsComponent implements OnInit {
         evdata.additionalText = additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }
-    //'InfoboxTextAdded'
+    CompleteUncomplete(event: any, AttId: string, additionalText: string, armId: number) {
+        alert('Complete/uncomplete clicked')
+    }
+    
     openInfoBox(AttId: string, additionalText: string, armId: number, isAlreadyCoded: boolean) {
         //const tmp: any = new InfoBoxModalContent();
         let modalComp = this.modalService.open(InfoBoxModalContent);

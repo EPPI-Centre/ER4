@@ -242,6 +242,7 @@ export class ReviewSetsService {
     public clearItemData() {
         this._IsBusy = true;
         for (let set of this._ReviewSets) {
+            set.codingComplete = false;
             this.clearItemDataInChildren(set.attributes);
         }
         this._IsBusy = false;

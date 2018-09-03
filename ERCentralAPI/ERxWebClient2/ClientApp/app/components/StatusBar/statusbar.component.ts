@@ -15,7 +15,7 @@ import { take, map, takeUntil } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Response } from '@angular/http';
 import { ErrorHandler } from "@angular/core";
-import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN } from "http-status-codes/index";
+import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
 
 
 @Component({
@@ -132,6 +132,12 @@ export class StatusBarComponent implements OnInit {
                   // NB: we do not have this page yet.
                 //this.router.navigateByUrl("/home");
                 break;
+            case NOT_FOUND:
+                this.modalMsg = error.message;
+                this.openMsg(this.content);
+                // NB: we do not have this page yet.
+                //this.router.navigateByUrl("/home");
+                break;
             default:
                 // NB: THIS ALSO NEEDS TO BE SET
                 this.modalMsg = "error here";
@@ -159,15 +165,17 @@ export class StatusBarComponent implements OnInit {
                                 break;
                             case "Invalid":
                                 msg += "Someone has logged on with the same credentials you are using.\n";
-                                msg += "This is not allowed in ER4. If you believe that someone is using your credentials without permission, ";
+                                msg += "This is not allowed in EPPI-Reviewer. If you believe that someone is using your credentials without permission, ";
                                 msg += "you should contact the ER4 support.\n";
                                 break;
                             case "None":
                                 msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
-                                msg += "Please contact the ER4 support team.\n";
+                            msg += "Please contact EPPI-Reviewer support.\n";
                                 break;
-                            case "Multiple":
-
+                        case "Multiple":
+                            //we need to add Archie-specific cases in here.
+                                msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
+                                msg += "Please contact EPPI-Reviewer support.\n";
                             break;
                     }
                     msg += "You will be asked to logon again when you close this message."

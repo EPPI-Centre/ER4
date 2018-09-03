@@ -187,22 +187,6 @@ export class ReviewerIdentityService {
         );
     }
 
-    showModal(content: any) {
-        this.modalService.open(content).result.then(
-            (closeResult) => {
-                //modal close  
-                console.log("modal closed : ", closeResult);
-            }, (dismissReason) => {
-                //modal Dismiss  
-                if (dismissReason == ModalDismissReasons.ESC) {
-                    console.log("modal dismissed when used pressed ESC button");
-                } else if (dismissReason == ModalDismissReasons.BACKDROP_CLICK) {
-                    console.log("modal dismissed when used pressed backdrop");
-                } else {
-                    console.log(dismissReason);
-                }
-            })
-    }  
 
     private handleError(error: HttpErrorResponse) {
         if (error.error instanceof ErrorEvent) {
