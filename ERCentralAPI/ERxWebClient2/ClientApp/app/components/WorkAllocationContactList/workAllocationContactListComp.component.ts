@@ -9,6 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService } from '../services/ItemList.service'
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 @Component({
     selector: 'WorkAllocationContactListComp',
@@ -20,6 +21,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public _workAllocationContactListService: WorkAllocationContactListService,
+        public reviewInfoService: ReviewInfoService,
         private ItemListService: ItemListService
     ) { }
 
@@ -149,6 +151,9 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             );
             this.getWorkAllocationContactList();
         }
+    }
+    StartScreening() {
+        alert('Start Screening: not implemented');
     }
     ngOnDestroy() {
         console.log('killing work alloc comp');
