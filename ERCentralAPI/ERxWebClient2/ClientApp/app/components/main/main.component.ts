@@ -42,8 +42,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-    private killTrigger: Subject<void> = new Subject();
 
+    private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
     ngAfterViewInit() {
@@ -71,31 +71,13 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
-        //let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
-        //let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
-        //console.log('init main');
-        //if (guid != undefined && uu != '') {
-        //    console.log('init main: timer');
-        //    this.timerServerCheck(uu, guid);
-        //}
     }
     Reload() {
         this.Clear();
         this.workAllocationsComp.getWorkAllocationContactList();
 
     }
-    //timerServerCheck(u: string, g: string) {
 
-    //    console.log(u + '+' + g);
-    //    this.countDown = timer(0, 8000).pipe(
-    //        takeUntil(this.killTrigger),
-    //        map(() => {
-    //            console.log('+');
-    //            this.ReviewerIdentityServ.LogonTicketCheckExpiration(u, g);
-    //        })
-    //    );
-    //    this.countDown.subscribe(console.log('AHA!'));
-    //}
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.workAllocationsComp.Clear();
@@ -107,7 +89,6 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     ngOnDestroy() {
 
-        //if (this.countDown) this.killTrigger.next();
 
     }
 }
