@@ -50,10 +50,6 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
     }
-    tootlTipText() {
-
-        return "HELLO";
-    }
 
     getDaysLeftAccount() {
 
