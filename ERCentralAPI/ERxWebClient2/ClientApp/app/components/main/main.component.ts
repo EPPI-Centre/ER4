@@ -12,6 +12,7 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 import { ReviewInfoService } from '../services/ReviewInfo.service'
 import { timer, Subject } from 'rxjs'; 
 import { take, map, takeUntil } from 'rxjs/operators';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
     selector: 'main',
@@ -46,6 +47,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
+        
     ngAfterViewInit() {
 
 
@@ -64,27 +66,28 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewerIdentityServ.LoginReq(u, p);
         
     };
+
     ngOnInit() {
 
         this.ReviewInfoService.Fetch();
     }
+
     Reload() {
         this.Clear();
         this.workAllocationsComp.getWorkAllocationContactList();
-
     }
 
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.workAllocationsComp.Clear();
     }
+
     LoadWorkAllocList(workAlloc: WorkAllocation) {
 
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
     ngOnDestroy() {
-
 
     }
 }

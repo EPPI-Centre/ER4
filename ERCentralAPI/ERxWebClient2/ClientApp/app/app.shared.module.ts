@@ -19,6 +19,7 @@ import { ItemCodingService } from './components/services/ItemCoding.service';
 import { paginatorComp } from './components/paginator/paginator.component';
 import { StatusBarComponent } from './components/StatusBar/statusbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         paginatorComp,
         StatusBarComponent,
         InfoBoxModalContent,
+        ItemDocListComp,
         MainComponent
     ],
     entryComponents: [InfoBoxModalContent],

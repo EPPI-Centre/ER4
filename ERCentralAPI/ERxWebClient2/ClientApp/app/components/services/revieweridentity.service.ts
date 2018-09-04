@@ -105,6 +105,8 @@ export class ReviewerIdentityService {
 
     }
 
+    
+
     public FetchCurrentTicket() {
 
         return this._reviewerIdentity.ticket;
@@ -202,6 +204,5 @@ export class ReviewerIdentity {
     public daysLeftAccount: number = 0;
     public daysLeftReview: number = 0;
 }
-
 
 

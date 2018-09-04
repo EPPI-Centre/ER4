@@ -21,7 +21,7 @@ export class ReviewInfoService {
 
     private _ReviewInfo: ReviewInfo;
     public get ReviewInfo(): ReviewInfo {
-        console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
+        //console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
         if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
             return this._ReviewInfo;
         }
