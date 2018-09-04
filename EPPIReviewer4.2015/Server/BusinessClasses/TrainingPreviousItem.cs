@@ -30,15 +30,11 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(itemId));
         }
 
-#if SILVERLIGHT
+
     public TrainingPreviousItem() { }
 
-        
-#else
-        private TrainingPreviousItem() { }
-#endif
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -51,7 +47,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Item> ItemProperty = RegisterProperty<Item>(new PropertyInfo<Item>("Item", "Item"));
+        public static readonly PropertyInfo<Item> ItemProperty = RegisterProperty<Item>(new PropertyInfo<Item>("Item", "Item"));
         public Item Item
         {
             get

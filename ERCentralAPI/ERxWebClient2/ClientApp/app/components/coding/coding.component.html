@@ -12,7 +12,7 @@
             </div>
 
             <div class="row  ml-1">
-                <ul *ngIf="ItemListService.ItemList" class="pagination justify-content-start">
+                <ul *ngIf="ItemListService.ItemList && !IsScreening" class="pagination justify-content-start">
                     <li>
                         <button [ngClass]="{disabled:!hasPrevious()}"
                                 [disabled]="!hasPrevious()"
@@ -44,6 +44,23 @@
                         <div class="mt-2">Item {{MyHumanIndex()}} of {{ItemListService.ItemList.items.length}}</div>
                     </li>
 
+                </ul>
+                <ul *ngIf="IsScreening" class="pagination justify-content-start">
+                    <li>
+                        <button [ngClass]="{disabled:!HasPreviousScreening()}"
+                                [disabled]="!HasPreviousScreening()"
+                                class="page-link" (click)="prevScreeningItem()">
+                            Previously Screened
+                        </button>
+
+                    </li>
+                    <li>
+                        <button [ngClass]="{disabled:!CanMoveToNextInScreening()}"
+                                [disabled]="!CanMoveToNextInScreening()"
+                                class="page-link" (click)="GetItem()">
+                            Next In screening
+                        </button>
+                    </li>
                 </ul>
             </div>
             <div *ngIf="item" class="ml-1">

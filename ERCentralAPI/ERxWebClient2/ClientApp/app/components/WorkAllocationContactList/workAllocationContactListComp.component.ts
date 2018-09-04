@@ -10,6 +10,7 @@ import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 @Component({
     selector: 'WorkAllocationContactListComp',
@@ -22,7 +23,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public _workAllocationContactListService: WorkAllocationContactListService,
         public reviewInfoService: ReviewInfoService,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private PriorityScreeningService: PriorityScreeningService
     ) { }
 
     onSubmit(f: string) {
@@ -152,12 +154,21 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             this.getWorkAllocationContactList();
         }
     }
+    private subGotPriorityScreeningData: Subscription | null = null;
     StartScreening() {
-        alert('Start Screening: not implemented');
+        //alert('Start Screening: not implemented');
+        this.ItemListService.IsInScreeningMode = true;
+        this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
+        this.PriorityScreeningService.Fetch();
+
+    }
+    ContinueStartScreening() {
+        if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
+        this.router.navigate(['itemcoding', 'PriorityScreening']);
     }
     ngOnDestroy() {
         console.log('killing work alloc comp');
-        if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded;
+        if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded.unsubscribe();
         //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }
 }
