@@ -15,7 +15,7 @@
             </div>
         </form>
     </div>
-    <div class="modal-footer">
+    <div *ngIf="isAdmin" class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close but stay on page for development reasons</button>
     </div>
 </ng-template>

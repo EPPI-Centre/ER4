@@ -61,9 +61,11 @@ namespace ERxWebClient2.Controllers
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
                 ri.Token = BuildToken(ri);
                 return ri;
+                
             }
             else return null;
         }
+
         private string BuildToken(ReviewerIdentity ri)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["AppSettings:EPPIApiClientSecret"]));
@@ -88,7 +90,6 @@ namespace ERxWebClient2.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
 
         [HttpGet("[action]")]
         public  GetLatestUpdateMsgCommand VersionInfo()

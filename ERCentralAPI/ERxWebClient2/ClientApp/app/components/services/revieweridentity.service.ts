@@ -86,125 +86,53 @@ export class ReviewerIdentityService {
 
     }
 
+    public FetchCurrentRI() {
+
+        let reqpar = new LoginCreds('1799', 'CrapBirkbeck1');
+        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
+            reqpar).subscribe(ri => {
+                this.reviewerIdentity = ri;
+
+                if (this.reviewerIdentity.userId > 0) {
+                    this.Save();
+                }
+            });
+    }
+
     public UpdateStatus(msg: string) {
 
         this.currentStatus = msg;
 
     }
 
+    public FetchCurrentTicket() {
+
+        return this._reviewerIdentity.ticket;
+
+    }
 
     public LogonTicketCheckAPI(u: string, g: string) {
+
+        // Have to override here; ask Sergio...
+        g = this._reviewerIdentity.ticket;
 
         let LgtC = new LogonTicketCheck(u, g);
 
         return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).toPromise();
     }
-
-    // Make a call to the stored proc in the CSLA BO
-    //public LogonTicketCheckExpiration(u: string, g: string) {
        
-    //    let LgtC = new LogonTicketCheck(u, g);
-
-    //    return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
-    //        LgtC).subscribe(lgtC => {
-
-    //            if (lgtC != null) {
-
-    //                this.exLgtCheck = lgtC;
-    //                console.log('inside subscription: ' + this.exLgtCheck.result);
-    //                if (lgtC.result == "Valid") {
-
-    //                    this.UpdateStatus(lgtC.serverMessage);
-    //                }
-    //                else {
-
-    //                    let msg: string = "Sorry, you have been logged off automatically.\n";
-    //                    switch (lgtC.result) {
-    //                        case "Expired":
-    //                            msg += "Your session has been inactive for too long.\n"
-    //                            break;
-    //                        case "Invalid":
-    //                            msg += "Someone has logged on with the same credentials you are using.\n";
-    //                            msg += "This is not allowed in ER4. If you believe that someone is using your credentials without permission, ";
-    //                            msg += "you should contact the ER4 support.\n";
-    //                            break;
-    //                        case "None":
-    //                            msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
-    //                            msg += "Please contact the ER4 support team.\n";
-    //                            break;
-    //                        case "Multiple":
-    //                        // CHECK WITH SERGIO
-    //                        //if (this.reviewerIdentity.IsCochraneUser) {
-    //                        //    msg += "Your session has become invalid.\n";
-    //                        //    msg += "Most likely, the Cochrane review you have open has become 'Read-Only'.\n";
-    //                        //    msg += "This would happen if the review got Checked-In in Archie\n";
-    //                        //    msg += "(or someone undid the check-out).\n";
-    //                        //    msg += "If you think this wasn't the case, please contact EPPISupport.\n";
-    //                        //}
-    //                        //else {
-    //                        //    msg += "Your session has become invalid for unrecognised reasons (Return code = MULTIPLE).\n";
-    //                        //    msg += "Please contact the ER4 support team.\n";
-    //                        //}
-    //                        //break;
-    //                    }
-        
-    //                    //this.openMsg("content");
-    //                    //this.openMsg("You will be asked to logon again when you close this message.");
-    //                    //string res = MessageBox.Show(msg + "You will be asked to logon again when you close this message.").ToString();
-    //                    //System.Windows.Browser.HtmlPage.Window.Invoke("Refresh");
-    //                }
-    //            }
-    //            else {
-
-    //                // if (e.Error.GetType() == (new System.Reflection.TargetInvocationException(new Exception()).GetType())) {
-
-    //                //     UpdateStatus("!You have lost the connection with our server, please check your Internet connection.\n"  +
-    //                //         "This message will revert to normal when the connection will be re-established:\n" +
-    //                //         "Please keep in mind that data changes made while disconnected cannot be saved.\n" +
-    //                //         "If your Internet connection is working, we might be experiencing some technical problems,\n" +
-    //                //         "We apologise for the inconvenience.");
-    //                //     return;
-    //                // }
-    //                ////windowMOTD.Tag = "failure";
-    //                //// windowMOTD.MOTDtextBlock.Text = "We are sorry, you have lost communication with the server. To avoid data corruption, the page will now reload.\n" +
-    //                //     "This message may appear if you didn't log out during a software update.\n" +
-    //                //     "Note that Eppi-Reviewer might fail to load until the update is completed, please wait a couple of minutes and try again.";
-    //                // //windowMOTD.Show();
-    //                this.router.navigate(['home']);
-    //            }
-    //        }
-    //            , err => {
-    //                this.handleError(err);
-    //                console.log('Something went wrong!' + err);
-    //                this.router.navigate(['home']);
-    //        })
-    //}
 
     openMsg(content: any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
-            alert('closed');
+            //alert('closed');
         },
-            () => { alert('dismissed') }
+            () => {
+                //alert('dismissed')
+            }
         );
     }
 
-
-    private handleError(error: HttpErrorResponse) {
-        if (error.error instanceof ErrorEvent) {
-            // A client-side or network error occurred. Handle it accordingly.
-            console.error('An error occurred:', error.error.message);
-        } else {
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong,
-            console.error(
-                `Backend returned code ${error.status}, ` +
-                `body was: ${error.error}`);
-        }
-        // return an observable with a user-facing error message
-        //return throwError(
-        //    'Something bad happened; please try again later.');
-    };
 
     public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
@@ -213,9 +141,10 @@ export class ReviewerIdentityService {
             body).subscribe(ri => {
 
                 this.reviewerIdentity = ri;
-                //console.log('login to Review: ' + this.reviewerIdentity.userId);
+      
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    //console.log('sdfhaskjdf sakdjfhkasjdfhwuewjhdf' + this.reviewerIdentity.userId);
+                   
+
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
                     OpeningNewReview.emit();
@@ -226,10 +155,14 @@ export class ReviewerIdentityService {
     }
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
-            if (this._reviewerIdentity.userId != 0)
-                localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
+
+        if (this._reviewerIdentity.userId != 0) {
+            localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
+            
+        }
             else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
-                localStorage.removeItem('currentErUser');
+            localStorage.removeItem('currentErUser');
+
         //}
     }
 }
