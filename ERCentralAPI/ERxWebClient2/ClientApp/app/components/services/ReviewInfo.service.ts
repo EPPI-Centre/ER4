@@ -21,7 +21,7 @@ export class ReviewInfoService {
 
     private _ReviewInfo: ReviewInfo;
     public get ReviewInfo(): ReviewInfo {
-        console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
+        //console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
         if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
             return this._ReviewInfo;
         }
@@ -48,7 +48,7 @@ export class ReviewInfoService {
         return this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
             this._ReviewInfo = rI;
             this.Save();
-            console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
+            //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
         });
     }
 

@@ -15,7 +15,6 @@ import { MainComponent } from './components/main/main.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
-import { ItemCodingService } from './components/services/ItemCoding.service';
 import { paginatorComp } from './components/paginator/paginator.component';
 import { StatusBarComponent } from './components/StatusBar/statusbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';

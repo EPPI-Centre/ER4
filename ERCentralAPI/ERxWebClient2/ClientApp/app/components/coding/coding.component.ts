@@ -12,6 +12,7 @@ import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/I
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
 import { ReviewSetsComponent, CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 
 @Component({
@@ -25,12 +26,13 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, public ItemListService: ItemListService
         , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
-        private reviewInfoService: ReviewInfoService
+        private reviewInfoService: ReviewInfoService, public PriorityScreeningService: PriorityScreeningService
     ) { }
    
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private itemID: number = 0;
+    private itemString: string = '0';
     public item?: Item;
     onSubmit(f: string) {
     }
@@ -52,7 +54,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                         }
                     }
                 );
-                this.itemID = +params['itemId'];
+                this.itemString = params['itemId'];
                 this.GetItem();
             });
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
@@ -62,31 +64,55 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     }
     
-
+    private subGotScreeningItem: Subscription | null = null;
+    public IsScreening: boolean = false;
     private GetItem() {
-        this.item = this.ItemListService.getItem(this.itemID);
+        if (this.itemString == 'PriorityScreening') {
+            if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+            this.IsScreening = true;
+            this.PriorityScreeningService.NextItem();
+        }
+        else {
+            this.itemID = +this.itemString;
+            this.item = this.ItemListService.getItem(this.itemID);
+            this.IsScreening = false;
+            this.GetItemCoding();
+        }
+        
+    }
+    public HasPreviousScreening(): boolean{
+        console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
+        if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
+        return false;
+    }
+    public CanMoveToNextInScreening(): boolean {
+        
+        let ItemSetIndex = this.ItemCodingService.ItemCodingList.findIndex(cset =>
+                cset.setId == this.reviewInfoService.ReviewInfo.screeningCodeSetId
+            && (cset.contactId == this.ReviewerIdentityServ.reviewerIdentity.userId || cset.isCompleted));
+        if (ItemSetIndex == -1) return false;
+        else return true;
+    }
+    public prevScreeningItem() {
+        if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+        this.IsScreening = true;
+        this.PriorityScreeningService.PreviousItem();
+    }
+    public GotScreeningItem() {
+        console.log('got Screening Item');
+        this.item = this.PriorityScreeningService.CurrentItem;
+        this.itemID = this.item.itemId;
         this.GetItemCoding();
     }
     private GetItemCoding() {
         
         this.ItemCodingService.Fetch(this.itemID);
-        //    .subscribe(result => {
-        //    this.ItemCodingService.ItemCodingList = result;
-
-        //    this.ReviewSetsService.AddItemData(result);
-        //    this.ItemCodingService.Save();
-        //})
     }
     SetCoding() {
         this.ReviewSetsService.clearItemData();
-        
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
     }
-    ngOnDestroy() {
-        console.log('killing coding comp');
-        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
-        if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
-    }
+    
     private _hasPrevious: boolean | null = null;
     hasPrevious(): boolean {
         
@@ -258,12 +284,16 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             }
             else if (cmd.saveType == "Delete") {
                 
-                //if (itemSet) console.log(itemSet.itemAttributesList.length);
+                if (itemSet) console.log(itemSet.itemAttributesList.length);
                 //if (itemAtt) console.log(itemAtt.attributeId);
                 if (itemSet && itemAtt) {
-
+                    //remove the itemAttribute from itemSet
                     itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
-                    //if (itemSet) console.log(itemSet.itemAttributesList.length);
+                    if (itemSet.itemAttributesList.length == 0) {
+                        //if itemset does not have item attributes, remove the itemset
+                        this.ItemCodingService.ItemCodingList = this.ItemCodingService.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
+                    }
+                    if (itemSet) console.log(itemSet.itemAttributesList.length);
                 }
             }
             
@@ -276,20 +306,12 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
-    //event: any | null = null;
-    //AttId: number = 0;
-    //additionalText: string = "";
-    //armId: number = 0;
-
-    //saveType
-    //public ItemAttributeId: number = 0;
-    //public ItemSetId: number = 0;
-    //public AdditionalText: string = "";
-    //public AttributeId: number = 0;
-    //public SetId: number = 0;
-    //public ItemId: number = 0;
-    //public ItemArmId: number = 0;
-    //public RevInfo: ReviewInfo | null = null;
+    ngOnDestroy() {
+        console.log('killing coding comp');
+        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
+        if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
+        if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
+    }
 }
 
 

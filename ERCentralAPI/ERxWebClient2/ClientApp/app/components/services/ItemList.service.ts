@@ -8,6 +8,7 @@ import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { PriorityScreeningService } from './PriorityScreening.service';
 
 @Injectable({
     providedIn: 'root',
@@ -18,8 +19,30 @@ export class ItemListService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        private _WorkAllocationService: WorkAllocationContactListService
-        ) { }
+        private _WorkAllocationService: WorkAllocationContactListService,
+        private _PriorityScreeningService: PriorityScreeningService
+    ) { }
+    private _IsInScreeningMode: boolean | null = null;
+    public get IsInScreeningMode(): boolean {
+        //return this._IsInScreeningMode;
+        if (this._IsInScreeningMode === null) {
+            const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
+            let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
+            if (iism === null ) {
+                return false;
+            }
+            else {
+                //console.log("Got ItemsList from LS");
+                this.IsInScreeningMode = iism;
+            }
+        }
+        if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
+        else return false;
+    }
+    public set IsInScreeningMode(state: boolean) {
+        this._IsInScreeningMode = state;
+        this.Save();
+    }
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
@@ -63,15 +86,20 @@ export class ItemListService {
         return new Item();
     }
     public hasPrevious(itemId: number): boolean {
-        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-        if (ff != undefined && ff != null && ff > 0) {
-            //console.log('Has prev (yes)' + ff);
-            return true;
-        }
-        else {
-            //console.log('Has prev (no)' + ff);
-            return false;
-        }
+        //if (!this.IsInScreeningMode && this._PriorityScreeningService && this._PriorityScreeningService.TrainingList && this._PriorityScreeningService.TrainingList.length > 0) {
+        //    return this._PriorityScreeningService.HasPrevious();
+        //}
+        //else {
+            let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+            if (ff != undefined && ff != null && ff > 0) {
+                //console.log('Has prev (yes)' + ff);
+                return true;
+            }
+            else {
+                //console.log('Has prev (no)' + ff);
+                return false;
+            }
+        //}
     }
     public getFirst(): Item {
         let ff = this.ItemList.items[0];
@@ -84,9 +112,14 @@ export class ItemListService {
         return new Item();
     }
     public hasNext(itemId: number): boolean {
-        let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-        if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return true;
-        else return false;
+        //if (!this.IsInScreeningMode && this._PriorityScreeningService && this._PriorityScreeningService.TrainingList && this._PriorityScreeningService.TrainingList.length > 0) {
+        //    return this._PriorityScreeningService.HasNext();
+        //}
+        //else {
+            let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
+            if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return true;
+            else return false;
+        //}
     }
     public getNext(itemId: number): Item {
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
@@ -159,6 +192,10 @@ export class ItemListService {
         }
         else if (localStorage.getItem('ItemsListCriteria')) {
             localStorage.removeItem('ItemsListCriteria');
+        }
+        if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
+        else if (localStorage.getItem('ItemListIsInScreeningMode')) {
+            localStorage.removeItem('ItemListIsInScreeningMode');
         }
     }
 
