@@ -27,14 +27,11 @@ export class ItemListComp implements OnInit {
     ) {
 
     }
-
     onSubmit(f: string) {
 
     }
     //private sub: any;
     //@Output() loadDefault = new EventEmitter();
-
-
     value = 1;
     onEnter(value: number) {
         this.value = value ;
@@ -55,8 +52,6 @@ export class ItemListComp implements OnInit {
             this.router.navigate(['itemcoding', itemId]);
         } 
     }
-    
-
     ngOnInit() {
 
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -79,8 +74,7 @@ export class ItemListComp implements OnInit {
     lastPage() {
         this.ItemListService.FetchLastPage();
     }
-
-    
+        
 }
 
 

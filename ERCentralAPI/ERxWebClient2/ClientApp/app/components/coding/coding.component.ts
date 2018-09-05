@@ -105,7 +105,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.GetItemCoding();
     }
     private GetItemCoding() {
-        
+
+        console.log('sdjghklsdjghfjklh ' + this.itemID);
         this.ItemCodingService.Fetch(this.itemID);
     }
     SetCoding() {

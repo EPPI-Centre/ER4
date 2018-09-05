@@ -1,0 +1,22 @@
+<table class="table table-responsive " style="max-height: 775px;" *ngIf="ItemDocsService._itemDocs.length > 0">
+    <thead>
+        <tr>
+
+            <th>Short Title</th>
+            <th>Title</th>
+            <th>Doc Extension</th>
+            <th>Download Document</th>
+
+        </tr>
+    </thead>
+    <tbody >
+        <tr *ngFor="let ItemDocument of ItemDocsService._itemDocs">
+
+            <td>{{ ItemDocument.shortTitle }}</td>
+            <td>{{ ItemDocument.title }}</td>
+            <td>{{ItemDocument.extension}}</td>
+            <td><button class="btn btn-outline-primary btn-sm">DOWNLOAD</button><br />(Id:&nbsp;{{ ItemDocument.itemDocumentId }})</td>
+        </tr>
+    </tbody>
+</table>
+

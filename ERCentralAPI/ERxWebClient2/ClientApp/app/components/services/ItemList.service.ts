@@ -46,6 +46,8 @@ export class ItemListService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
+
+
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
             const listJson = localStorage.getItem('ItemsList');
@@ -180,6 +182,7 @@ export class ItemListService {
         return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/WorkAllocation', body);
     }
 
+
     private Save() {
         if (this._ItemList.items.length > 0) {
             localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
@@ -288,3 +291,37 @@ export class Arm {
     ordering: number = 0;
     title: string = "";
 }
+
+
+export class ItemDocumentList {
+
+    ItemDocuments: ItemDocument[] = [];
+}
+
+
+export class ItemDocument {
+
+    public itemDocumentId: number = 0;
+    public itemId: number = 0;
+    public shortTitle: string = '';
+    public extension: string = '';
+    public title: string = '';
+    public text: string = "";
+    public binaryExists: boolean = false;
+    public textFrom: number = 0;
+    public textTo: number = 0;
+    public freeNotesStream: string = "";
+    public freeNotesXML: string = '';
+    public isBusy: boolean = false;
+    public isChild: boolean = false;
+    public isDeleted: boolean = false;
+    public isDirty: boolean = false;
+    public isNew: boolean = false;
+    public isSavable: boolean = false;
+    public isSelfBusy: boolean = false;
+    public isSelfDirty: boolean = false;
+    public isSelfValid: boolean = false;
+    public isValid: boolean = false;
+
+}
+

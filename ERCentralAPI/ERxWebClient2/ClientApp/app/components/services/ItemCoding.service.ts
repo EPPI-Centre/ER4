@@ -6,7 +6,7 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ItemCodingComp } from '../coding/coding.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -22,7 +22,9 @@ export class ItemCodingService {
 
 
     private _ItemCodingList: ItemSet[] = [];
-    
+    public itemID = new Subject<number>();
+
+
     public get ItemCodingList(): ItemSet[] {
         if (this._ItemCodingList.length == 0) {
             const ItemSetsJson = localStorage.getItem('ItemCodingList');
@@ -43,6 +45,10 @@ export class ItemCodingService {
     }
         
     public Fetch(ItemId: number) {
+
+        this.itemID.next(ItemId); 
+
+
         let body = JSON.stringify({ Value: ItemId });
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
