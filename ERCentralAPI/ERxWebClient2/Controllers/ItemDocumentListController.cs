@@ -47,7 +47,7 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpGet("[action]")]
-        public IActionResult GetItemDocument()
+        public FileContentResult GetItemDocument()
         {
             SetCSLAUser();
 
