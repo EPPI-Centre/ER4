@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -24,17 +25,8 @@ export class ItemDocsService {
     public FetchDocList(itemID: number) {
 
         let body = JSON.stringify({ Value: itemID });
-        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body);
 
-            (res) => {
-                this._itemDocs = res;
-                for (var i = 0; i < res.length; i++) {
-
-                    console.log(this._itemDocs[i].title);
-                }
-            }
-            
-        );
     }
 
     //public Save() {
@@ -46,12 +38,10 @@ export class ItemDocsService {
 }
 
 
-
 export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];
 }
-
 
 export class ItemDocument {
 

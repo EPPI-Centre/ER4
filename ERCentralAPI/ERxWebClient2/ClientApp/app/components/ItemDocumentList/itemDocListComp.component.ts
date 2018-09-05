@@ -15,6 +15,9 @@ import { pipe } from 'rxjs'
 import { style } from '@angular/animations';
 import { ItemCodingService } from '../services/ItemCoding.service'
 import { ItemDocsService } from '../services/itemdocs.service'
+import { map } from 'rxjs/operators';
+import { Http, ResponseContentType } from '@angular/http';
+
 
 @Component({
     selector: 'ItemDocListComp',
@@ -28,47 +31,127 @@ export class ItemDocListComp implements OnInit {
         private _WorkAllocationService: WorkAllocationContactListService,
         private route: ActivatedRoute,
         private ItemCodingService: ItemCodingService,
-        private ItemDocsService: ItemDocsService
+        private ItemDocsService: ItemDocsService,
+        private _httpC: HttpClient,
+        @Inject('BASE_URL') private _baseUrl: string
 
     ) {
         this.sub = new Subscription();
     }
 
     public sub: Subscription;
-
+    public _itemDocs: ItemDocument[] = [];
     // testing
     @Input() itemID: number = 0;
+    //public itemID: number = 0;
 
     ngOnInit() {
 
       
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
+
+                this.router.navigate(['home']);
         }
         else {
 
-            this.sub = this.ItemCodingService.itemID.subscribe(
+                this.sub = this.ItemCodingService.DataChanged.subscribe(
                 
-                (itemID) => {
-                    console.log('inside the component doc stuff: ' + this.itemID);
-                    this.itemID = itemID;
-                    this.ItemDocsService.FetchDocList(this.itemID);
-                }
-            );
-            this.ItemDocsService.FetchDocList(this.itemID);
+                    () => {
+                        console.log('inside the component doc stuff: ' + this.itemID);
+                        //this.itemID = itemID;
+                        this.ItemDocsService.FetchDocList(this.itemID).subscribe(
+
+                        (res) => { this._itemDocs = res });
+                    });
+           
+            
+                this.ItemDocsService.FetchDocList(this.itemID).subscribe(
+
+                    (res) => {
+                        this._itemDocs = res;
+                        for (var i = 0; i < res.length; i++) {
+
+                            console.log(this._itemDocs[i].title);
+                        }
+                    }
+
+                );
 
         }
+    }
+    
+    DownloadDoc(itemDocumentId: number) {
+
+
+        alert('Trying to download....');
+        //return this._httpC
+        //    .get((this._baseUrl + 'api/ItemDocumentList/Download'
+        //    ),{}).pipe(
+        //        map(res => {
+        //        return {
+        //            filename: 'filename.pdf',
+        //            data: res
+        //        };
+        //    })
+        //    )
+        //    .subscribe(res => {
+        //        console.log('start download:', res);
+        //        var url = window.URL.createObjectURL(res.data);
+        //        var a = document.createElement('a');
+        //        document.body.appendChild(a);
+        //        a.setAttribute('style', 'display: none');
+        //        a.href = url;
+        //        a.download = res.filename;
+        //        a.click();
+        //        window.URL.revokeObjectURL(url);
+        //        a.remove(); // remove the element
+        //    }, error => {
+        //        console.log('download error:', JSON.stringify(error));
+        //    }, () => {
+        //        console.log('Completed file download.')
+        //    });
     }
 
     ngOnDestroy() {
 
-        this.sub.unsubscribe();
+       // this.sub.unsubscribe();
     }
 
 }
 
 
 
+export class ItemDocumentList {
+
+    ItemDocuments: ItemDocument[] = [];
+}
+
+
+export class ItemDocument {
+
+    public itemDocumentId: number = 0;
+    public itemId: number = 0;
+    public shortTitle: string = '';
+    public extension: string = '';
+    public title: string = '';
+    public text: string = "";
+    public binaryExists: boolean = false;
+    public textFrom: number = 0;
+    public textTo: number = 0;
+    public freeNotesStream: string = "";
+    public freeNotesXML: string = '';
+    public isBusy: boolean = false;
+    public isChild: boolean = false;
+    public isDeleted: boolean = false;
+    public isDirty: boolean = false;
+    public isNew: boolean = false;
+    public isSavable: boolean = false;
+    public isSelfBusy: boolean = false;
+    public isSelfDirty: boolean = false;
+    public isSelfValid: boolean = false;
+    public isValid: boolean = false;
+
+}
 
 
 
