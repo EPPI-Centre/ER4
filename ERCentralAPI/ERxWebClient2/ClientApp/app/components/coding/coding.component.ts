@@ -31,7 +31,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
    
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
-    private itemID: number = 0;
+    public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
     onSubmit(f: string) {

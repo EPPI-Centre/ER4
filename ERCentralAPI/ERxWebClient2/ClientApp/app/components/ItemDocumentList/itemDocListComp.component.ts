@@ -28,7 +28,7 @@ export class ItemDocListComp implements OnInit {
         private _WorkAllocationService: WorkAllocationContactListService,
         private route: ActivatedRoute,
         private ItemCodingService: ItemCodingService,
-        private ItemDocsService: ItemDocsService
+        public ItemDocsService: ItemDocsService
 
     ) {
         this.sub = new Subscription();

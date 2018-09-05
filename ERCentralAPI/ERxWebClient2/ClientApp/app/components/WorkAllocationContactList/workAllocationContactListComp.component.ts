@@ -124,20 +124,20 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     ngOnInit() {
-        console.log('initWorkAlloc');
+        //console.log('initWorkAlloc');
         if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
             
             if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
-                console.log('got inside1');
+                //console.log('got inside1');
                 this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
                 this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
-                console.log('got inside2');
+                //console.log('got inside2');
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
                 this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
-                console.log('got inside3');
+                //console.log('got inside3');
             }
         }
         

@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, EventEmitter } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../app/app.component'
@@ -9,6 +9,7 @@ import { ReviewInfoService } from '../services/ReviewInfo.service'
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, retry, map } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { ReviewSetsService } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
@@ -16,9 +17,6 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 )
 
 export class ReviewerIdentityService {
-
-
-
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
@@ -135,9 +133,12 @@ export class ReviewerIdentityService {
         );
     }
 
-
-    public LoginToReview(RevId: number, OpeningNewReview: EventEmitter<any>) {
+    @Output() OpeningNewReview = new EventEmitter();
+    public LoginToReview(RevId: number) {
         //data: JSON.stringify({ FilterName: "Dirty Deeds" })
+        //this.ReviewSetsService.Clear();
+        //console.log('Opening a review');
+        
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
@@ -145,11 +146,9 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                   
-
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
-                    OpeningNewReview.emit();
+                    this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
                 }
             });
