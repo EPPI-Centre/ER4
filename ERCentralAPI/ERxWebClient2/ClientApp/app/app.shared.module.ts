@@ -19,6 +19,7 @@ import { paginatorComp } from './components/paginator/paginator.component';
 import { StatusBarComponent } from './components/StatusBar/statusbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
+import { intropageComponent } from './components/intropage/intropage.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.c
         StatusBarComponent,
         InfoBoxModalContent,
         ItemDocListComp,
+        intropageComponent,
         MainComponent
     ],
     entryComponents: [InfoBoxModalContent],
@@ -56,7 +58,8 @@ import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.c
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'main', component: MainComponent }, 
             { path: 'itemcoding/:itemId', component: ItemCodingComp },
-            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
+            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage
+            { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

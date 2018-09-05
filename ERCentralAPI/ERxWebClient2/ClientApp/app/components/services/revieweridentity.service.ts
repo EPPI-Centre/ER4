@@ -80,7 +80,7 @@ export class ReviewerIdentityService {
 
                 if (this.reviewerIdentity.userId > 0) {
                     this.Save();
-                    this.router.navigate(['readonlyreviews']);
+                    this.router.navigate(['intropage']);
                 }
             });
 
