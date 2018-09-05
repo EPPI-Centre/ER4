@@ -39,6 +39,13 @@ export class JwtInterceptor implements HttpInterceptor {
                 });
             }
         }
+        //if (request.url.endsWith('TrainingRunCommand')) {
+        //    request = request.clone({
+        //        setHeaders: {
+        //            timeout: `20000`,
+        //        }
+        //    });
+        //}
  
         return next.handle(request);
     }

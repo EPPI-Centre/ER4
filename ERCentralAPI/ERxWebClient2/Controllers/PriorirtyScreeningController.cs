@@ -69,5 +69,29 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpGet("[action]")]
+        public IActionResult TrainingRunCommand()
+        {
+            try
+            {
+                SetCSLAUser();
+                TrainingRunCommand command = new TrainingRunCommand();
+                DataPortal<ReviewInfo> dpInfo = new DataPortal<ReviewInfo>();
+                ReviewInfo revInfo = dpInfo.Fetch();
+                command.RevInfo = revInfo;
+                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
+                //doIt.Start();
+                TrainingRunCommand result = dp.Execute(command);
+
+                //return Ok(result);
+                return Ok(command);
+            }
+            catch (Exception e)
+            {
+                //add logging
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 }

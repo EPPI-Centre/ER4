@@ -81,7 +81,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         
     }
     public HasPreviousScreening(): boolean{
-        console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
+        //console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
         if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
         return false;
     }
