@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Http, RequestOptions, URLSearchParams } from '@angular/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
@@ -16,7 +17,7 @@ import { style } from '@angular/animations';
 import { ItemCodingService } from '../services/ItemCoding.service'
 import { ItemDocsService } from '../services/itemdocs.service'
 import { map } from 'rxjs/operators';
-import { Http, ResponseContentType } from '@angular/http';
+import { ResponseContentType } from '@angular/http';
 
 
 @Component({
@@ -33,6 +34,7 @@ export class ItemDocListComp implements OnInit {
         private ItemCodingService: ItemCodingService,
         private ItemDocsService: ItemDocsService,
         private _httpC: HttpClient,
+        private http: Http,
         @Inject('BASE_URL') private _baseUrl: string
 
     ) {
@@ -82,19 +84,24 @@ export class ItemDocListComp implements OnInit {
     
     DownloadDoc(itemDocumentId: number) {
 
+        this.ItemDocsService.GetItemDocument(itemDocumentId);
 
-        alert('Trying to download....');
+    }
         //return this._httpC
-        //    .get((this._baseUrl + 'api/ItemDocumentList/Download'
-        //    ),{}).pipe(
+        //    .get((this._baseUrl + 'api/ItemDocumentList/GetItemDocument', body
+        //    ), {
+               
+        //    }).pipe(
         //        map(res => {
         //        return {
+                                       
         //            filename: 'filename.pdf',
         //            data: res
         //        };
         //    })
         //    )
         //    .subscribe(res => {
+
         //        console.log('start download:', res);
         //        var url = window.URL.createObjectURL(res.data);
         //        var a = document.createElement('a');
@@ -110,7 +117,7 @@ export class ItemDocListComp implements OnInit {
         //    }, () => {
         //        console.log('Completed file download.')
         //    });
-    }
+
 
     ngOnDestroy() {
 

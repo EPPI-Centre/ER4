@@ -5,6 +5,7 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { saveAs } from 'file-saver';
 
 @Injectable({
     providedIn: 'root',
@@ -26,9 +27,51 @@ export class ItemDocsService {
 
         let body = JSON.stringify({ Value: itemID });
         return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body);
+       
 
     }
+    private headers: any | undefined;
 
+    public GetItemDocument(itemDocumentId: number) {
+
+        console.log('got inside download func...: ' + itemDocumentId);
+
+        //let body = JSON.stringify({ Value: itemDocumentId });
+
+        //this._httpC.get<any>(this._baseUrl + 'api/ItemDocumentList/GetItemDocument')
+        //    .toPromise().then((res) => { console.log(res) });
+
+        //this._httpC.get<any>
+
+        fetch(this._baseUrl + 'api/ItemDocumentList/GetItemDocument', {
+
+        })
+            //    .subscribe(response => {
+            //    let headers = response.headers();
+            //    let blob = new Blob([response.data], { type: headers['content-type'] });
+            //    saveAs(blob, headers['filename']);
+            //    console.log(blob)
+            //    console.log(response.data)
+            //}) 
+
+            .then(response => 
+
+                response.blob()
+                
+            )
+            .then(blob => URL.createObjectURL(blob))
+            .then(url => {
+                var link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", 'filename');
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+    }
+    
     //public Save() {
     //    if (this._itemDocs != null)
     //        localStorage.setItem('ItemDocumentList', JSON.stringify(this._itemDocs));
