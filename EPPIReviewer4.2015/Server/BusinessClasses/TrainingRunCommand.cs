@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -22,7 +23,7 @@ using System.Xml;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
-using System.Net.Http.Formatting;
+
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -34,6 +35,8 @@ using Microsoft.WindowsAzure;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Data;
+#elif (!SILVERLIGHT && !CSLA_NETCORE) 
+using System.Net.Http.Formatting;
 using Microsoft.VisualBasic.FileIO;
 #endif
 
@@ -42,11 +45,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingRunCommand : CommandBase<TrainingRunCommand>
     {
-#if SILVERLIGHT
+
     public TrainingRunCommand(){}
-#else
-        protected TrainingRunCommand() { }
-#endif
+
 
         private string _title;
         private string _terms;
@@ -57,28 +58,28 @@ namespace BusinessLibrary.BusinessClasses
 
         private int _currentTrainingId;
 
-        private static PropertyInfo<ReviewInfo> RevInfoProperty = RegisterProperty<ReviewInfo>(new PropertyInfo<ReviewInfo>("RevInfo", "RevInfo"));
+        public static readonly PropertyInfo<ReviewInfo> RevInfoProperty = RegisterProperty<ReviewInfo>(new PropertyInfo<ReviewInfo>("RevInfo", "RevInfo"));
         public ReviewInfo RevInfo
         {
             get { return ReadProperty(RevInfoProperty); }
             set { LoadProperty(RevInfoProperty, value); }
         }
 
-        private static PropertyInfo<string> ReportBackProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportBack", "ReportBack"));
+        public static readonly PropertyInfo<string> ReportBackProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportBack", "ReportBack"));
         public string ReportBack
         {
             get { return ReadProperty(ReportBackProperty); }
             set { LoadProperty(ReportBackProperty, value); }
         }
 
-        private static PropertyInfo<string> ParametersProperty = RegisterProperty<string>(new PropertyInfo<string>("Parameters", "Parameters"));
+        public static readonly PropertyInfo<string> ParametersProperty = RegisterProperty<string>(new PropertyInfo<string>("Parameters", "Parameters"));
         public string Parameters
         {
             get { return ReadProperty(ParametersProperty); }
             set { LoadProperty(ParametersProperty, value); }
         }
 
-        private static PropertyInfo<string> SimulationResultsProperty = RegisterProperty<string>(new PropertyInfo<string>("SimulationResults", "SimulationResults"));
+        public static readonly PropertyInfo<string> SimulationResultsProperty = RegisterProperty<string>(new PropertyInfo<string>("SimulationResults", "SimulationResults"));
         public string SimulationResults
         {
             get { return ReadProperty(SimulationResultsProperty); }
@@ -199,12 +200,28 @@ namespace BusinessLibrary.BusinessClasses
                 //}
 
                 // (NEW change by Sergio) Stage 3: post the TB_ITEM data, this is forced if RevInfoScreeningIndexed == false.
-                justIndexed = UploadDataToAzureBlob(ReviewID, RevInfo.ScreeningIndexed); // when ScreeningIndexed == true data will be uploaded only if it isn't already there, returns FALSE when nothing is done
+                // when ScreeningIndexed == true data will be uploaded only if it isn't already there, UploadDataToAzureBlob returns FALSE when nothing is done
+
+                //BLOCK below is part of what forces to run Synchronously, which we actually don't really want this as it makes the MVC controller timeout
+                //Task<bool> task = UploadDataToAzureBlob(ReviewID, RevInfo.ScreeningIndexed);
+                //while (!task.IsCompleted) Thread.Sleep(100);
+                //justIndexed = task.Result;
+
+                //LINE below in MVC/CORE env makes the controller send the response without waiting... We're OK with this, for now.
+                justIndexed = await UploadDataToAzureBlob(ReviewID, RevInfo.ScreeningIndexed); 
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("uploads");
                 CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Vectors.csv");
+
+#if (!CSLA_NETCORE)
                 if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobData.Exists())
+#else
+                Task<bool> task2 = blockBlobData.ExistsAsync();
+                while (!task2.IsCompleted) Thread.Sleep(100);
+                bool blockBlobDataExistsRes = task2.Result;
+                if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobDataExistsRes)
+#endif
                 {//vectorise if:
                     //(currently user-set) flag forcing (re)indexing is set to FALSE ( = need to create index)
                     //OR we just built the index anyway (make sure vectors are up to date)
@@ -229,8 +246,14 @@ namespace BusinessLibrary.BusinessClasses
                 
                 container = blobClient.GetContainerReference("results");
                 CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + ".csv");
-                
+#if (!CSLA_NETCORE)
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+#else
+                Task<string> task3 = blockBlob.DownloadTextAsync();
+                while (!task3.IsCompleted) Thread.Sleep(100);
+                byte[] myFile = Encoding.UTF8.GetBytes(task3.Result);
+#endif
+
                 MemoryStream ms = new MemoryStream(myFile);
 
                 DataTable dt = new DataTable("Scores");
@@ -238,6 +261,7 @@ namespace BusinessLibrary.BusinessClasses
                 dt.Columns.Add("ITEM_ID");
                 dt.Columns.Add("REVIEW_ID");
                 bool MLreturnedEmptyLines = false;
+#if !CSLA_NETCORE
                 using (TextFieldParser csvReader = new TextFieldParser(ms))
                 {
                     csvReader.SetDelimiters(new string[] { "," });
@@ -285,6 +309,41 @@ namespace BusinessLibrary.BusinessClasses
                         
                     }
                 }
+#else
+                using (StreamReader csvReader = new StreamReader(ms))
+                {
+                    //csvReader.SetDelimiters(new string[] { "," });
+                    //csvReader.HasFieldsEnclosedInQuotes = false;
+                    string line;
+                    while ((line = csvReader.ReadLine()) != null)
+                    {
+                        string[] data = line.Split(',');
+                        if (data.Length == 3 && data[1].Length > 0 && data[2].Length > 0)
+                        {
+                            if (data[0] == "1")
+                            {
+                                data[0] = "0.999999";
+                            }
+                            else if (data[0] == "0")
+                            {
+                                data[0] = "0.000001";
+                            }
+                            else if (data[0].Length > 2 && data[0].Contains("E"))
+                            {
+                                double dbl = 0;
+                                double.TryParse(data[0], out dbl);
+                                //if (dbl == 0.0) throw new Exception("Gotcha!");
+                                data[0] = dbl.ToString("F10");
+                            }
+                            dt.Rows.Add(data);
+                        }
+                        else
+                        {
+                            MLreturnedEmptyLines = true;
+                        }
+                    }
+                }
+#endif
                 using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
                 {
                     sbc.DestinationTableName = "TB_SCREENING_ML_TEMP";
@@ -304,12 +363,25 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SCREENING_MODE", RevInfo.ScreeningMode));
                     command.Parameters.Add(new SqlParameter("@CODE_SET_ID", RevInfo.ScreeningCodeSetId));
                     command.Parameters.Add(new SqlParameter("@TRAINING_ID", _currentTrainingId));
+                    command.CommandTimeout = 145;
                     if (dt.Rows.Count > 30000)
                     {//adjust timeout for large reviews: we don't care if this is slow, as it's a costly operation anyway.
                         int adjuster = dt.Rows.Count - 29999;
                         command.CommandTimeout = command.CommandTimeout + (int)Math.Round(((double)adjuster / 1000));
                     }
+#if !CSLA_NETCORE
                     command.ExecuteNonQuery();
+#else
+                    //IN MVC project, this runs Asynchronously, thus outside the original try block. Might crash the whole server-side if not caught...
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception e)
+                    {
+                        MLreturnedEmptyLines = true;//send some signal that stuff didn't work...
+                    }
+#endif
                 }
                 connection.Close();
                 //new Add (Sept 2017): if ML returned empty lines, update the reviewinfo object with ScreeningIndexed = false, that's because new items were added
@@ -405,7 +477,10 @@ namespace BusinessLibrary.BusinessClasses
             //return text.Split(" @$/#.-:&*+=[]?!(){},''\">_<;%\\".ToCharArray());
         }
 
-        private bool UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
+        //private bool UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
+
+        private async Task<bool> UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
+
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
@@ -417,17 +492,34 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobContainer container = blobClient.GetContainerReference("uploads");
             CloudBlockBlob blockBlobData = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + ".csv");
             CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
-            if (!ScreeningIndexed
+#if (!CSLA_NETCORE)
+                if (!ScreeningIndexed
                 ||
                 !blockBlobData.Exists()
                 ||
                 !blockBlobLabels.Exists()
                 )
+#else
+            bool blockBlobDataExists = await blockBlobData.ExistsAsync();
+            bool blockBlobLabelsExists = await blockBlobLabels.ExistsAsync();
+
+            if (!ScreeningIndexed
+                ||
+                !blockBlobDataExists
+                ||
+                !blockBlobLabelsExists
+                )
+#endif
+
             {//we only do something if: 
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
+#if (!CSLA_NETCORE)
                     string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+#else
+                    string fileName = Path.GetTempPath() + ri.UserId.ToString() + ".csv";
+#endif
                     using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -466,7 +558,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                     connection.Close();
-
+#if (!CSLA_NETCORE)
                     using (var fileStream = System.IO.File.OpenRead(fileName))
                     {
                         blockBlobData.UploadFromStream(fileStream);
@@ -474,13 +566,25 @@ namespace BusinessLibrary.BusinessClasses
                     File.Delete(fileName);
                     //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
                     blockBlobLabels.UploadText(labels.ToString());
+#else
+                    using (var fileStream = System.IO.File.OpenRead(fileName))
+                    {
+                        await blockBlobData.UploadFromStreamAsync(fileStream);
+                    }
+                    File.Delete(fileName);
+                    //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+                    await blockBlobLabels.UploadTextAsync(labels.ToString());
+#endif
                 }
                 return true;//we actually did re-index
             }
             return false;//didn't re-index, wasn't necessary.
         }
-
+#if (!CSLA_NETCORE)
         private void UpdateAzureIncludeExcludeData(int ReviewID)
+#else
+        private async void UpdateAzureIncludeExcludeData(int ReviewID)
+#endif
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             StringBuilder labels = new StringBuilder();
@@ -514,7 +618,12 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("uploads");
                 CloudBlockBlob blockBlobLabels = container.GetBlockBlobReference(NameBase + "ReviewId" + RevInfo.ReviewId + "Labels.csv");
+#if (!CSLA_NETCORE)
                 blockBlobLabels.UploadText(labels.ToString());
+#else
+                await blockBlobLabels.UploadTextAsync(labels.ToString());
+#endif
+
             }
         }
 
@@ -538,8 +647,11 @@ namespace BusinessLibrary.BusinessClasses
             // Then call the simulation
             await InvokeBatchExecutionService(RevInfo, "Simulation");
         }
-
+#if (!CSLA_NETCORE)
         private void FetchSimulationResults(int ReviewID)
+#else
+        private async void FetchSimulationResults(int ReviewID)
+#endif
         {
             // Stage 6: bring the data down from Azure BLOB and write to the tb_training item table
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
@@ -549,7 +661,11 @@ namespace BusinessLibrary.BusinessClasses
 
             try // if the simulation hasn't finished yet, there will be no file
             {
+#if (!CSLA_NETCORE)
                 byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+#else
+                byte[] myFile = Encoding.UTF8.GetBytes(await blockBlob.DownloadTextAsync());
+#endif
                 MemoryStream ms = new MemoryStream(myFile);
                 SimulationResults = System.Text.Encoding.UTF8.GetString(ms.ToArray());
             }
@@ -682,17 +798,33 @@ namespace BusinessLibrary.BusinessClasses
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
                 // submit the job
+#if (!CSLA_NETCORE)
                 var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
+#else
+                Task<HttpResponseMessage> task = client.PostAsync(BaseUrl + "?api-version=2.0",
+                    new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
+                    );
+                while (!task.IsCompleted) Thread.Sleep(100);
+                var response = task.Result;
+#endif
                 if (!response.IsSuccessStatusCode)
                 {
                     await WriteFailedResponse(response);
                     return;
                 }
-
+#if (!CSLA_NETCORE)
                 string jobId = await response.Content.ReadAsAsync<string>();
-
-                // start the job
                 response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+#else
+                string jobId = await response.Content.ReadAsStringAsync();
+                jobId = jobId.Trim('"');
+                task = client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+                while (!task.IsCompleted) Thread.Sleep(100);
+                response = task.Result;
+                //response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+#endif
+                // start the job
+
                 if (!response.IsSuccessStatusCode)
                 {
                     await WriteFailedResponse(response);
@@ -704,6 +836,7 @@ namespace BusinessLibrary.BusinessClasses
                 bool done = false;
                 while (!done)
                 {
+#if (!CSLA_NETCORE)
                     response = await client.GetAsync(jobLocation);
                     if (!response.IsSuccessStatusCode)
                     {
@@ -712,6 +845,17 @@ namespace BusinessLibrary.BusinessClasses
                     }
 
                     BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+#else
+                    task = client.GetAsync(jobLocation);
+                    while (!task.IsCompleted) Thread.Sleep(100);
+                    response = task.Result;
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        await WriteFailedResponse(response);
+                        return;
+                    }
+                    BatchScoreStatus status = JsonConvert.DeserializeObject<BatchScoreStatus>(await response.Content.ReadAsStringAsync());
+#endif
                     if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
                     {
                         done = true;
@@ -747,5 +891,5 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #endif
-    }
-}
+                }
+            }

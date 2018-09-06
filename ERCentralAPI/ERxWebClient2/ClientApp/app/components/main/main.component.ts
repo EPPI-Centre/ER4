@@ -10,9 +10,10 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer, Subject } from 'rxjs'; 
+import { timer, Subject, Subscription } from 'rxjs'; 
 import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
     selector: 'main',
@@ -30,6 +31,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewInfoService: ReviewInfoService,
+        private ReviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
         private ItemListService: ItemListService
@@ -66,10 +68,11 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewerIdentityServ.LoginReq(u, p);
         
     };
-
+    subOpeningReview: Subscription | null = null;
     ngOnInit() {
-
+        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.ReviewInfoService.Fetch();
+        this.ReviewSetsService.GetReviewSets();
     }
 
     Reload() {
@@ -79,6 +82,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
+        this.ReviewSetsService.Clear();
         this.workAllocationsComp.Clear();
     }
 
@@ -88,6 +92,9 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
     }
     ngOnDestroy() {
-
+        if (this.subOpeningReview) {
+            this.subOpeningReview.unsubscribe();
+            //this.ReviewerIdentityServ.OpeningNewReview = null;
+        }
     }
 }

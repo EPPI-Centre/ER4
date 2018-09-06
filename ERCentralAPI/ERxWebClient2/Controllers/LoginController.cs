@@ -106,8 +106,4 @@ namespace ERxWebClient2.Controllers
         public string Username { get; set; }
         public string Password { get; set; }
     }
-    public class LoginToReview
-    {
-        public int ReviewId { get; set; }
-    }
 }

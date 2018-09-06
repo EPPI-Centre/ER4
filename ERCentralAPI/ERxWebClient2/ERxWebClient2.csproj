@@ -73,6 +73,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingList.cs" Link="Models\TrainingList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingNextItem.cs" Link="Models\TrainingNextItem.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingPreviousItem.cs" Link="Models\TrainingPreviousItem.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingRunCommand.cs" Link="Models\TrainingRunCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ArchieIdentity.cs" Link="Models\Security\ArchieIdentity.cs" />

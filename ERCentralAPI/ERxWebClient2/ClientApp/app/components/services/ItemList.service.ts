@@ -77,7 +77,7 @@ export class ItemListService {
         return this._Criteria;
     }
     public SaveItems(items: ItemList, crit: Criteria) {
-        console.log('saving items');
+        //console.log('saving items');
         this._ItemList = items;
         this._Criteria = crit;
         this.Save();

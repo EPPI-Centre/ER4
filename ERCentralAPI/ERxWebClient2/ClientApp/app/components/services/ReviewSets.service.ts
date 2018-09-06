@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -21,7 +21,7 @@ import { CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.com
 export class ReviewSetsService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
-        @Inject('BASE_URL') private _baseUrl: string) { }
+        @Inject('BASE_URL') private _baseUrl: string) {    }
 
     private _ReviewSets: ReviewSet[] = [];
     private _IsBusy: boolean = true;
@@ -41,6 +41,7 @@ export class ReviewSetsService {
         }
     }
     GetReviewSets() {
+        console.log('fetchReviewSets');
         this._IsBusy = true;
         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
             data => {
@@ -49,7 +50,15 @@ export class ReviewSetsService {
             }
         );
     }
+    subOpeningReview: Subscription | null = null;
+
+    public Clear() {
+        //console.log('Clearing Sets');
+        this._ReviewSets = [];
+        localStorage.removeItem('ReviewSets');
+    }
     public get ReviewSets(): ReviewSet[] {
+        console.log('getReviewSets');
         if (this._ReviewSets.length == 0) {
             //this._IsBusy = true;
             const ReviewSetsJson = localStorage.getItem('ReviewSets');

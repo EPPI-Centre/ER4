@@ -54,12 +54,12 @@
 <div class="container-fluid MainBg" resizable>
     <h4 class="text-dark font-weight-bold">Eppi Reviewer (Web) Coding Only Interface: Alpha</h4>
     <div class="row">
-        <div class="col-sm-6 py-2">
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
             <div class="card card-body bg-light">
                 <ItemListComp style="max-height: 920px;" resizable r-directions="['right']" r-flex="true"></ItemListComp>
             </div>
         </div>
-        <div class="col-sm-6 py-2">
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
             <div class="card">
                 <div class="card card-body bg-info">
                     <p>
@@ -68,7 +68,7 @@
                     </p>
                 </div>
             </div>
-            <div class="card bg-light">
+            <div class="card bg-light ">
                 <div class="card-body">
                     <h3 class="card-title">Work Allocation List</h3>
                     <p class="card-text">
@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="card card-body ReviewsBg">
-                <readonlyreviews style="max-height: 520px;" (OpeningNewReview)="Reload();" resizable r-directions="['right']" r-flex="true"></readonlyreviews>
+                <readonlyreviews style="max-height: 520px;" resizable r-directions="['right']" r-flex="true"></readonlyreviews>
             </div>
         </div>
         <statusbar class="col-sm-12 card-body"  resizable></statusbar>

@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -49,12 +49,26 @@ export class PriorityScreeningService {
         return this._TrainingList;
     }
 
+    private subtrainingList: Subscription | null = null;
     public Fetch() {
-        return this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
+        if (this.subtrainingList) {
+            this.subtrainingList.unsubscribe();
+            this.subtrainingList = null;
+        }
+        this.subtrainingList = this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
             this._TrainingList = tL;
             this.Save();
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
         });
+        return this.subtrainingList;
+    }
+    private DelayedFetch(waitSeconds: number) {
+        console.log('In DelayedFetch waiting ' + waitSeconds + 's');
+        setTimeout(() => {
+            console.log("I'm done waiting");
+            this.Fetch();
+        }, waitSeconds * 1000);
+        
     }
     public Save() {
         if (this._TrainingList && this._TrainingList.length > 0)
@@ -97,7 +111,7 @@ export class PriorityScreeningService {
                         this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
                     }
                     else this.CurrentItemIndex = currentIndex;
-                    //return this.CurrentItem;
+                    this.CheckRunTraining(success.rank);
                     this.gotItem.emit();
                 },
                 error => {
@@ -126,6 +140,40 @@ export class PriorityScreeningService {
                 });
     }
 
+    private CheckRunTraining(currentCount: number) {
+        let totalScreened = this._TrainingList[0].totalN;
+        for (let training of this._TrainingList) {
+            if (training.totalN > totalScreened) totalScreened = training.totalN;
+        }
+        if (totalScreened <= 1000) {
+            if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
+                currentCount == 750 )) {
+                console.log('RunningTraining!!!!');
+                this.RunNewTrainingCommand();
+            }
+        }
+        else if (totalScreened > 1000 && totalScreened < 5000) {
+            if ((currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
+                this.RunNewTrainingCommand();
+            }
+        }
+        else if (totalScreened >= 5000) {
+            if ((currentCount == 1000 || currentCount == 1500 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000
+                || currentCount == 3800 || currentCount == 4800 || currentCount == 5800 || currentCount == 6800 || currentCount == 7800
+                || currentCount == 8800 || currentCount == 9800 || currentCount == 18000 || currentCount == 11800))
+            {
+                this.RunNewTrainingCommand();
+            }
+        }
+        //let totalscreened = this._TrainingList
+    }
+    private RunNewTrainingCommand() {
+        return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
+            console.log(tL);
+            this.DelayedFetch(30 * 60);//seconds to wait...
+            //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
+        });
+    }
     //private _PreviousItem: Item = new Item();
     //public get PreviousItem(): Item {
     //    return this._PreviousItem;
