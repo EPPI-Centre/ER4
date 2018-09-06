@@ -43,6 +43,7 @@ export class ItemDocListComp implements OnInit {
 
     public sub: Subscription;
     public _itemDocs: ItemDocument[] = [];
+
     // testing
     @Input() itemID: number = 0;
     //public itemID: number = 0;
