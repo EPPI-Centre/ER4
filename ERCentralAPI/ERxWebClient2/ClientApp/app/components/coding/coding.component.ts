@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -34,6 +34,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
+    public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();
@@ -214,9 +215,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         let itemAtt: ReadOnlyItemAttribute | null = null;
         if ((data.event.target && data.event.target.checked) || data.event == 'InfoboxTextAdded') {
             //add new code to item
+            console.log('cmd.saveType = "Insert"');
             cmd.saveType = "Insert";
         }
         else if (data.event == 'InfoboxTextUpdate' && itemSet) {
+            console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
                 if (Candidate.attributeId == cmd.attributeId) {
@@ -258,7 +261,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         SubSuccess = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmdResult: ItemAttributeSaveCommand) => {
             //update local version of the coding...
             
-            if (cmd.saveType == "Insert") {
+            if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
                 let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
                 newItemA.additionalText = cmdResult.additionalText;
                 newItemA.armId = cmdResult.itemArmId;
@@ -301,6 +304,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.SetCoding();
             SubSuccess.unsubscribe();
             SubError.unsubscribe();
+            if (cmd.saveType == "Insert" && this.CheckBoxAutoAdvanceVal) {
+                //auto advance is on, we want to go to the next item
+                if (!this.IsScreening && this.hasNext()) this.nextItem();
+                else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
+            }
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
         });

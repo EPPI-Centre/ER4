@@ -262,7 +262,9 @@ export class ReviewSetsService {
         this._IsBusy = false;
     }
     private clearItemDataInChildren(children: SetAttribute[]) {
+        
         for (let att of children) {
+            att.additionalText = "";
             if (att.isSelected) att.isSelected = false;
             if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
         }
