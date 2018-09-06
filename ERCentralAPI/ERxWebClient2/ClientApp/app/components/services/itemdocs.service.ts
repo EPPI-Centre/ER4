@@ -4,6 +4,11 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { saveAs } from 'file-saver';
+import { OK } from 'http-status-codes';
+import { error } from '@angular/compiler/src/util';
+import { ReviewerIdentityService } from './revieweridentity.service';
 
 @Injectable({
     providedIn: 'root',
@@ -12,7 +17,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 export class ItemDocsService {
 
     constructor(
-        private _httpC: HttpClient,
+        private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
@@ -24,19 +29,46 @@ export class ItemDocsService {
     public FetchDocList(itemID: number) {
 
         let body = JSON.stringify({ Value: itemID });
-        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body);
+       
 
-            (res) => {
-                this._itemDocs = res;
-                for (var i = 0; i < res.length; i++) {
-
-                    console.log(this._itemDocs[i].title);
-                }
-            }
-            
-        );
     }
 
+
+
+
+    public GetItemDocument(itemDocumentId: number) {
+        
+        console.log('DOCID IS: ' + itemDocumentId);
+
+        let params = new HttpParams();
+        params = params.append('itemDocumentId', itemDocumentId.toString());
+        let requestHeaders: any = { Authorization: `Bearer ${this.ReviewerIdentityService.reviewerIdentity.token}` };
+
+        fetch(this._baseUrl + 'api/ItemDocumentList/GetItemDocument?ItemDocumentId=' + itemDocumentId, {
+            
+            headers: requestHeaders
+            
+        })
+            .then(response => {
+                
+                if (response.status >= 200 && response.status < 300) {
+                    response.blob().then(
+                        blob => {
+                            let url = URL.createObjectURL(blob);
+                            if (url) window.open(url);
+                        });
+                }
+            });
+            //.then(blob => URL.createObjectURL(blob))
+            //.then(url => window.open(url))
+            //.catch(
+                 
+            //    (response) => { console.log('asdfasdfasdf' + response); }
+            //)
+
+    }
+    
     //public Save() {
     //    if (this._itemDocs != null)
     //        localStorage.setItem('ItemDocumentList', JSON.stringify(this._itemDocs));
@@ -46,12 +78,10 @@ export class ItemDocsService {
 }
 
 
-
 export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];
 }
-
 
 export class ItemDocument {
 

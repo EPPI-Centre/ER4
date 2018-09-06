@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription, } from 'rxjs';
+import { Observable, Subscription, Subject, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
@@ -34,6 +34,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
+    public itemId = new Subject<number>();
+
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }
@@ -152,7 +154,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
     }
     nextItem() {
-        console.log('Next');
+        console.log('Next');    
         if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
     }
     lastItem() {
@@ -170,6 +172,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
     }
     goToItem(item: Item) {
+
         //console.log('gti');
         this.clearItemData();
         this.router.navigate(['itemcoding', item.itemId]);
@@ -180,6 +183,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.itemID = this.item.itemId;
         }
         this.GetItemCoding();
+        //subject stuff
+        console.log('called this once');
+        this.itemId.next(this.itemID);
     }
     BackToMain() {
         this.clearItemData();

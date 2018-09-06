@@ -46,6 +46,8 @@ namespace ERxWebClient2
                     };
                 });
 
+            services.AddSingleton(Configuration);
+
             services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.

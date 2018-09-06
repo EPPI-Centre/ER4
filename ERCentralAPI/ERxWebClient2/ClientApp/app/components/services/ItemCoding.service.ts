@@ -22,7 +22,7 @@ export class ItemCodingService {
 
 
     private _ItemCodingList: ItemSet[] = [];
-    public itemID = new Subject<number>();
+    //public itemID = new Subject<number>();
 
 
     public get ItemCodingList(): ItemSet[] {
@@ -46,8 +46,7 @@ export class ItemCodingService {
         
     public Fetch(ItemId: number) {
 
-        this.itemID.next(ItemId); 
-
+        //this.itemID.next(ItemId); 
 
         let body = JSON.stringify({ Value: ItemId });
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
