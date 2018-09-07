@@ -38,8 +38,6 @@ export class ItemDocsService {
 
     public GetItemDocument(itemDocumentId: number) {
         
-        console.log('DOCID IS: ' + itemDocumentId);
-
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
         let requestHeaders: any = { Authorization: `Bearer ${this.ReviewerIdentityService.reviewerIdentity.token}` };
@@ -59,12 +57,6 @@ export class ItemDocsService {
                         });
                 }
             });
-            //.then(blob => URL.createObjectURL(blob))
-            //.then(url => window.open(url))
-            //.catch(
-                 
-            //    (response) => { console.log('asdfasdfasdf' + response); }
-            //)
 
     }
     

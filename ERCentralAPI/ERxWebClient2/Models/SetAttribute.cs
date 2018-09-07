@@ -74,7 +74,8 @@ namespace ERxWebClient2.Models
             }
             catch (Exception e)
             {
-                Program.Logger.LogException(e, "Error fetching existing ref and/or creating local object.");
+                
+                //Program.Logger.LogException(e, "Error fetching existing ref and/or creating local object.");
             }
             return result;
         }
