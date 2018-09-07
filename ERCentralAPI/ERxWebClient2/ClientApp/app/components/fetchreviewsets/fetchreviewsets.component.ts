@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -25,7 +25,7 @@ import { Node } from '@angular/compiler/src/render3/r3_ast';
         `],
     templateUrl: './fetchreviewsets.component.html'
 })
-export class ReviewSetsComponent implements OnInit {
+export class ReviewSetsComponent implements OnInit, OnDestroy {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -128,7 +128,7 @@ export class ReviewSetsComponent implements OnInit {
     openInfoBox(data: singleNode) {
         //const tmp: any = new InfoBoxModalContent();
         let modalComp = this.modalService.open(InfoBoxModalContent);
-
+        
         console.log('ADDTXT: '+ data.additionalText);
         modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
         modalComp.result.then((infoTxt) => {
@@ -149,6 +149,11 @@ export class ReviewSetsComponent implements OnInit {
         );
 
     }
+    ngOnDestroy() {
+        //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
+        
+        //console.log('killing reviewSets comp');
+    }
 }
 
 
@@ -168,8 +173,11 @@ export class CheckBoxClickedEventData {
 })
 export class InfoBoxModalContent {
     @Input() InfoBoxTextInput: string = "";
-
-    constructor(public activeModal: NgbActiveModal) { }
+    public get IsReadOnly(): boolean {
+        //console.log('Is read only???');
+        return this.ReviewSetsService.CanWrite;
+    }
+    constructor(public activeModal: NgbActiveModal, private ReviewSetsService: ReviewSetsService) { }
 }
 
 

@@ -26,7 +26,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
     ]
 })
 export class AppModule {
-    constructor(private ReviewerIdentity: ReviewerIdentityService) { }
+    constructor() { }
 }
 
 export function getBaseUrl() {

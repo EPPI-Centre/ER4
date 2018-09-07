@@ -31,6 +31,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
    
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
+    private ItemCodingServiceDataChanged: Subscription | null = null;
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
@@ -49,7 +50,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
         else {
             this.subItemIDinPath = this.route.params.subscribe(params => {
-                this.ItemCodingService.DataChanged.subscribe(
+                this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
                     () => {
                         if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
                             //console.log('data changed event caught');
@@ -109,7 +110,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     }
     private GetItemCoding() {
 
-        console.log('sdjghklsdjghfjklh ' + this.itemID);
+        //console.log('sdjghklsdjghfjklh ' + this.itemID);
         this.ItemCodingService.Fetch(this.itemID);
     }
     SetCoding() {
@@ -260,7 +261,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
             //do something if command ended with an error
             console.log('Error handling');
-            alert(cmdErr);
+            alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
         });
@@ -324,6 +325,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     ngOnDestroy() {
         console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
+        if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     }

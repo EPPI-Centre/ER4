@@ -3,7 +3,6 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
     selector: 'app',
-    providers: [ReviewerIdentityService],
     templateUrl: './app.component.html',
     //styleUrls: ['./app.component.css'],
     styles: [`
@@ -16,5 +15,5 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
         `],
 })
 export class AppComponent {
-    constructor(private ReviewerIdentity: ReviewerIdentityService) { }
+    constructor() { }
 }

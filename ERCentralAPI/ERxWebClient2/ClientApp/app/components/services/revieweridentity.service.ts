@@ -74,6 +74,7 @@ export class ReviewerIdentityService {
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
+                //console.log('sub LoginReq used!');
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0) {
@@ -84,18 +85,7 @@ export class ReviewerIdentityService {
 
     }
 
-    public FetchCurrentRI() {
-
-        let reqpar = new LoginCreds('1799', 'CrapBirkbeck1');
-        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-            reqpar).subscribe(ri => {
-                this.reviewerIdentity = ri;
-
-                if (this.reviewerIdentity.userId > 0) {
-                    this.Save();
-                }
-            });
-    }
+    
 
     public UpdateStatus(msg: string) {
 
@@ -142,7 +132,8 @@ export class ReviewerIdentityService {
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
-
+                //if (localStorage.getItem('currentErUser')) localStorage.removeItem('currentErUser');
+                //console.log('sub LoginToReview used!');
                 this.reviewerIdentity = ri;
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {

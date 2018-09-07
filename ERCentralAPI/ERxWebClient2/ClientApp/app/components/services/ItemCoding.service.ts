@@ -12,7 +12,7 @@ import { Subject } from 'rxjs';
     providedIn: 'root',
 })
 
-export class ItemCodingService {
+export class ItemCodingService  {
     @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
@@ -94,7 +94,6 @@ export class ItemCodingService {
         }
         return result;
     }
-   
 }
 
 export class ItemSet {
