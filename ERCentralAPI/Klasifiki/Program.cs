@@ -43,7 +43,6 @@ namespace Klasifiki
                 //Without logging to the Datbase
                 BuildWebHost(args).Run();
             }
-
         }
 
         public static IWebHost BuildWebHost(string[] args) =>

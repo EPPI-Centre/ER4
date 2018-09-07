@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
@@ -21,7 +22,7 @@ namespace ERxWebClient2.Controllers
     {
 
         private IConfiguration _configuration;
-        private ILogger<EPPILogger> _Logger;
+        private readonly ILogger<EPPILogger> _Logger;
 
         public ItemDocumentListController(IConfiguration configuration, ILogger<EPPILogger> logger)
         {
@@ -50,27 +51,34 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public ActionResult GetItemDocument(int ItemDocumentID)
         {
+           
             SetCSLAUser();
 
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
             SQLHelper sQLHelper = new SQLHelper(_configuration, _Logger);
 
+            SqlParameter DOC_ID = new SqlParameter("@DOC_ID", SqlDbType.Int);
+            SqlParameter REV_ID = new SqlParameter("@REV_ID", SqlDbType.Int);
+
+            SqlParameter[] parameters = new SqlParameter[2];
+            parameters[0] = DOC_ID;
+            parameters[1] = REV_ID;
+
             try
             {
+
+                
+
+                DOC_ID.Value = ItemDocumentID;
+                REV_ID.Value = ri.ReviewId;
+
                 using (SqlConnection conn = new SqlConnection(sQLHelper.ER4DB))
                 {
-                    conn.Open();
-
-                    using (SqlCommand Cmd = new SqlCommand("st_ItemDocumentBin", conn))
-                    {
-                        SqlParameter DOC_ID = Cmd.Parameters.Add("@DOC_ID", SqlDbType.Int);
-                        SqlParameter REV_ID = Cmd.Parameters.Add("@REV_ID", SqlDbType.Int);
-                        Cmd.CommandType = CommandType.StoredProcedure;
-                        // HARDCODED FOR TESTING
-                        DOC_ID.Value = ItemDocumentID;
-                        REV_ID.Value = ri.ReviewId;
-                        SqlDataReader dr = Cmd.ExecuteReader();
+                        conn.Open();
+                    
+                        SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID);
+                                            
                         dr.Read();
                         // CHANGE THIS AT THE END
                         if (!dr.HasRows) return NotFound();
@@ -173,17 +181,22 @@ namespace ERxWebClient2.Controllers
                             FileDownloadName = name
                         };
                         return result;
-                    }
+
                 }
             }
             catch (Exception e)
             {
-                //add logging
+                // Testing Logging
+                _Logger.Log(LogLevel.Information, 0, "Shutting Down...", e, Formatter);
+                _Logger.SQLActionFailed("Error...", parameters, e);
                 return NotFound();
             }
         }
+
+        public static string Formatter<TState>(TState state, Exception e)
+        {
+            return "{0}" + e.Message.ToString();
+        }
     }
-
-
 }
 
