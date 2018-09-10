@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -10,7 +10,7 @@ import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewSetsComponent, CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
+import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
@@ -31,11 +31,13 @@ export class ItemCodingComp implements OnInit, OnDestroy {
    
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
+    private ItemCodingServiceDataChanged: Subscription | null = null;
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
 
+    public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();
@@ -48,7 +50,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
         else {
             this.subItemIDinPath = this.route.params.subscribe(params => {
-                this.ItemCodingService.DataChanged.subscribe(
+                this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
                     () => {
                         if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
                             //console.log('data changed event caught');
@@ -108,7 +110,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     }
     private GetItemCoding() {
 
-        console.log('sdjghklsdjghfjklh ' + this.itemID);
+        //console.log('sdjghklsdjghfjklh ' + this.itemID);
         this.ItemCodingService.Fetch(this.itemID);
     }
     SetCoding() {
@@ -220,9 +222,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         let itemAtt: ReadOnlyItemAttribute | null = null;
         if ((data.event.target && data.event.target.checked) || data.event == 'InfoboxTextAdded') {
             //add new code to item
+            console.log('cmd.saveType = "Insert"');
             cmd.saveType = "Insert";
         }
         else if (data.event == 'InfoboxTextUpdate' && itemSet) {
+            console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
                 if (Candidate.attributeId == cmd.attributeId) {
@@ -257,14 +261,14 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
             //do something if command ended with an error
             console.log('Error handling');
-            alert(cmdErr);
+            alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
         });
         SubSuccess = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmdResult: ItemAttributeSaveCommand) => {
             //update local version of the coding...
             
-            if (cmd.saveType == "Insert") {
+            if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
                 let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
                 newItemA.additionalText = cmdResult.additionalText;
                 newItemA.armId = cmdResult.itemArmId;
@@ -307,6 +311,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.SetCoding();
             SubSuccess.unsubscribe();
             SubError.unsubscribe();
+            if (cmd.saveType == "Insert" && this.CheckBoxAutoAdvanceVal) {
+                //auto advance is on, we want to go to the next item
+                if (!this.IsScreening && this.hasNext()) this.nextItem();
+                else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
+            }
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
         });
@@ -316,6 +325,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     ngOnDestroy() {
         console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
+        if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     }

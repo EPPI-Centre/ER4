@@ -1,5 +1,5 @@
 
-    <div *ngIf="ItemListService.ItemList" class="pagination justify-content-start d-flex flex-wrap col-12 mb-1">
+    <div *ngIf="ItemListService.ItemList && ItemListService.ItemList.items.length > 0" class="pagination justify-content-start d-flex flex-wrap col-12 mb-1">
         <div class="m-0">
             <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
                     [disabled]="ItemListService.ItemList.pageindex + 1 === 1"

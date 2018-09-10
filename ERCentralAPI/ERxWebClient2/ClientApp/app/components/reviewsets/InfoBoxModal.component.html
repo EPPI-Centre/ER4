@@ -13,6 +13,8 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="activeModal.close(InfoBoxText.value)">Save</button>
+        <button type="button" class="btn btn-outline-success" [disabled]="IsReadOnly"
+                [attr.disabled]="IsReadOnly ? null : ''"
+                (click)="activeModal.close(InfoBoxText.value)">Save</button>
     </div>
 

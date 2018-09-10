@@ -7,9 +7,8 @@ import { TreeModule } from 'angular-tree-component';
 import { AppComponent } from './components/app/app.component';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
-import { FetchDataComponent } from './components/fetchdata/fetchdata.component';
 import { CounterComponent } from './components/counter/counter.component';
-import { ReviewSetsComponent, InfoBoxModalContent } from './components/fetchreviewsets/fetchreviewsets.component';
+import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
@@ -27,7 +26,6 @@ import { FilterPipe } from './filters/filter.pipe';
         AppComponent,
         NavMenuComponent,
         CounterComponent,
-        FetchDataComponent,
         ReviewSetsComponent,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
@@ -54,7 +52,6 @@ import { FilterPipe } from './filters/filter.pipe';
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
             { path: 'counter', component: CounterComponent },
-            { path: 'fetch-data', component: FetchDataComponent },
             { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'main', component: MainComponent }, 

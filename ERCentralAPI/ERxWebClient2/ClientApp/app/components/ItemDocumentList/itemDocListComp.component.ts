@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Http, RequestOptions, URLSearchParams } from '@angular/http';
 import { forEach } from '@angular/router/src/utils/collection';
@@ -25,32 +25,24 @@ import { ResponseContentType } from '@angular/http';
     templateUrl: './ItemDocListComp.component.html',
     providers: []
 })
-export class ItemDocListComp implements OnInit {
+export class ItemDocListComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService,
-        private _WorkAllocationService: WorkAllocationContactListService,
-        private route: ActivatedRoute,
         private ItemCodingService: ItemCodingService,
-        private ItemDocsService: ItemDocsService,
-        private _httpC: HttpClient,
-        private http: Http,
+        public ItemDocsService: ItemDocsService,
         @Inject('BASE_URL') private _baseUrl: string
 
     ) {
-        this.sub = new Subscription();
     }
-
-    public sub: Subscription;
-    public _itemDocs: ItemDocument[] = [];
+    public me: string = "I don't know";
+    public sub: Subscription | null = null;
+    //public _itemDocs: ItemDocument[] = [];
 
     // testing
     @Input() itemID: number = 0;
     //public itemID: number = 0;
 
     ngOnInit() {
-
-      
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 
                 this.router.navigate(['home']);
@@ -62,23 +54,22 @@ export class ItemDocListComp implements OnInit {
                     () => {
                         console.log('inside the component doc stuff: ' + this.itemID);
                         //this.itemID = itemID;
-                        this.ItemDocsService.FetchDocList(this.itemID).subscribe(
-
-                        (res) => { this._itemDocs = res });
-                    });
-           
-            
-                this.ItemDocsService.FetchDocList(this.itemID).subscribe(
-
-                    (res) => {
-                        this._itemDocs = res;
-                        for (var i = 0; i < res.length; i++) {
-
-                            console.log(this._itemDocs[i].title);
-                        }
+                        this.ItemDocsService.FetchDocList(this.itemID);
                     }
-
                 );
+           
+            //this.ItemDocsService.FetchDocList(this.itemID);
+              //this.ItemDocsService.FetchDocList(this.itemID).subscribe(
+
+              //      (res) => {
+              //          this._itemDocs = res;
+              //          for (var i = 0; i < res.length; i++) {
+
+              //              console.log(this._itemDocs[i].title);
+              //          }
+              //      }
+
+              //  );
 
         }
     }
@@ -121,8 +112,8 @@ export class ItemDocListComp implements OnInit {
 
 
     ngOnDestroy() {
-
-       // this.sub.unsubscribe();
+        //console.log('killing itemDocListComp');
+        if (this.sub) this.sub.unsubscribe();
     }
 
 }

@@ -5,7 +5,6 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { saveAs } from 'file-saver';
 import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
@@ -23,15 +22,15 @@ export class ItemDocsService {
        
     }
 
-    public _itemDocs: ItemDocument[] = [];
+    public _itemDocs: ItemDocument[] = []; 
    
 
     public FetchDocList(itemID: number) {
 
         let body = JSON.stringify({ Value: itemID });
-        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body);
-       
-
+        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+            (res) => { this._itemDocs = res }
+        );
     }
 
 
@@ -68,6 +67,7 @@ export class ItemDocsService {
     //    else if (localStorage.getItem('ItemDocumentList'))//to be confirmed!! 
     //        localStorage.removeItem('ItemDocumentList');
     //}
+    
 }
 
 

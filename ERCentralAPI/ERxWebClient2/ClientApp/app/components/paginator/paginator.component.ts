@@ -34,7 +34,7 @@ export class paginatorComp implements OnInit {
 
     value = 1;
     onEnter(value: number) {
-        this.value = value;
+        this.value = value; 
         this.ItemListService.FetchParticularPage(value - 1);
     }
     

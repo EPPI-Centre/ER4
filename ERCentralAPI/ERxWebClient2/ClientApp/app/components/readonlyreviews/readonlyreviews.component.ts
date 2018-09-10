@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -15,7 +15,7 @@ import { take, map } from 'rxjs/operators';
     templateUrl: './readonlyreviews.component.html',
     providers: []
 })
-export class FetchReadOnlyReviewsComponent implements OnInit {
+export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
 
     constructor(private router: Router,
                 private _httpC: HttpClient,
@@ -32,50 +32,13 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
             let RevId: number = parseInt(f, 10);
         this.ReviewerIdentityServ.LoginToReview(RevId);
 
-        //this.ReviewerIdentityServ.reviewerIdentity.reviewId = +f;
-        //this.router.navigate(['fetch-reviewsets'])
+        
     }
-
-    //public countDown: any | undefined;
-    //public count: number = 60;
-
-    //tester() {
-
-    //    console.log('asdfkjhasdkljfhkasfhdk');
-
-    //    this.countDown = timer(0, 1000).pipe(
-    //        take(this.count),
-    //        map(() => --this.count)
-    //    );
-    //}
-
-
-    //getReviews() {
-
-    //    let body2 = "contactId=" + this.ReviewerIdentityServ.reviewerIdentity.userId;
-    //    console.log('Calling get reviews...!');
-    //     this._httpC.post<ReadOnlyReview[]>(this._baseUrl + 'api/review/reviewsbycontact',
-    //         body2).subscribe(result => this.ReviewList = result);
-    //}
-
-    //ngOnInit() {
-
-    //    if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-    //        console.log("didn't work!");
-    //        this.router.navigate(['home']);
-    //    }
-    //    else {
-
-    //        this.ReviewerIdentityServ.Report();
-    //        this.getReviews();//we don't want this sort of thing in the constructor, API calls should be done after...
-    //    }
-
-      
-    //}
 
     getReviews() {
         //console.log('inside get reviews');
-        if (this._readonlyreviewsService.ReadOnlyReviews.length == 0) {
+        //when we're not in a review, we want the fresh list! otherwise we're OK with the existing one
+        if (this._readonlyreviewsService.ReadOnlyReviews.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
 
             this._readonlyreviewsService.Fetch();
         }
@@ -93,6 +56,10 @@ export class FetchReadOnlyReviewsComponent implements OnInit {
             //this.ReviewerIdentityServ.Report();
             this.getReviews();
         }
+    }
+    ngOnDestroy() {
+        //console.log('killing ROR comp');
+        //this._readonlyreviewsService.ReadOnlyReviews = [];
     }
 
 }
