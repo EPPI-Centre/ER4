@@ -36,12 +36,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     }
     public me: string = "I don't know";
     public sub: Subscription | null = null;
-    //public _itemDocs: ItemDocument[] = [];
-
-    // testing
+ 
     @Input() itemID: number = 0;
-    //public itemID: number = 0;
-
+    
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 
@@ -53,24 +50,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
                 
                     () => {
                         console.log('inside the component doc stuff: ' + this.itemID);
-                        //this.itemID = itemID;
                         this.ItemDocsService.FetchDocList(this.itemID);
                     }
                 );
-           
-            //this.ItemDocsService.FetchDocList(this.itemID);
-              //this.ItemDocsService.FetchDocList(this.itemID).subscribe(
-
-              //      (res) => {
-              //          this._itemDocs = res;
-              //          for (var i = 0; i < res.length; i++) {
-
-              //              console.log(this._itemDocs[i].title);
-              //          }
-              //      }
-
-              //  );
-
         }
     }
     
@@ -79,40 +61,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         this.ItemDocsService.GetItemDocument(itemDocumentId);
 
     }
-        //return this._httpC
-        //    .get((this._baseUrl + 'api/ItemDocumentList/GetItemDocument', body
-        //    ), {
-               
-        //    }).pipe(
-        //        map(res => {
-        //        return {
-                                       
-        //            filename: 'filename.pdf',
-        //            data: res
-        //        };
-        //    })
-        //    )
-        //    .subscribe(res => {
-
-        //        console.log('start download:', res);
-        //        var url = window.URL.createObjectURL(res.data);
-        //        var a = document.createElement('a');
-        //        document.body.appendChild(a);
-        //        a.setAttribute('style', 'display: none');
-        //        a.href = url;
-        //        a.download = res.filename;
-        //        a.click();
-        //        window.URL.revokeObjectURL(url);
-        //        a.remove(); // remove the element
-        //    }, error => {
-        //        console.log('download error:', JSON.stringify(error));
-        //    }, () => {
-        //        console.log('Completed file download.')
-        //    });
-
 
     ngOnDestroy() {
-        //console.log('killing itemDocListComp');
+
         if (this.sub) this.sub.unsubscribe();
     }
 

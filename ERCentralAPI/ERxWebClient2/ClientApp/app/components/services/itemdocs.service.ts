@@ -34,12 +34,11 @@ export class ItemDocsService {
     }
 
 
-
-
     public GetItemDocument(itemDocumentId: number) {
         
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
+        //console.log(this.ReviewerIdentityService.reviewerIdentity.token);
         let requestHeaders: any = { Authorization: `Bearer ${this.ReviewerIdentityService.reviewerIdentity.token}` };
 
         fetch(this._baseUrl + 'api/ItemDocumentList/GetItemDocument?ItemDocumentId=' + itemDocumentId, {

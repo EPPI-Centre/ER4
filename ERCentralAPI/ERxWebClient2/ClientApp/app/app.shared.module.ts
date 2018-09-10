@@ -18,7 +18,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 import { intropageComponent } from './components/intropage/intropage.component';
 
-
 @NgModule({
     declarations: [
         AppComponent,

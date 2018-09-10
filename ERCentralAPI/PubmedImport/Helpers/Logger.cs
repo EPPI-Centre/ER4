@@ -206,6 +206,7 @@ namespace EPPIDataServices.Helpers
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)
         {
+
             SQLParams = "";
             if (parameters != null)
             {

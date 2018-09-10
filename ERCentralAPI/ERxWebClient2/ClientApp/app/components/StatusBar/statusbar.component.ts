@@ -16,6 +16,7 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Response } from '@angular/http';
 import { ErrorHandler } from "@angular/core";
 import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 @Component({
@@ -33,7 +34,8 @@ export class StatusBarComponent implements OnInit {
                 @Inject('BASE_URL') private _baseUrl: string,
                 public ReviewerIdentityServ: ReviewerIdentityService,
                 private ReviewInfoService: ReviewInfoService,
-                private modalService: NgbModal
+        private modalService: NgbModal,
+        public sanitizer: DomSanitizer
     ) {    }
 
     private killTrigger: Subject<void> = new Subject();
@@ -69,7 +71,7 @@ export class StatusBarComponent implements OnInit {
         
         if (guid != undefined && uu != '') {
 
-            this.timerObj = timer(30000, 30000).pipe(
+            this.timerObj = timer(3000, 3000).pipe(
                 takeUntil(this.killTrigger));
 
             this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
@@ -80,14 +82,16 @@ export class StatusBarComponent implements OnInit {
 
     public UpdateStatus(msg: string) {
 
-        let msgSt: string = "";
+        let msgSt: string = msg;
         if (msg.substr(0, 1) == "!") {
 
             this.statusClass = "bg-warning";
             msgSt = "Status: " + msg.substr(1).trim();
 
         }
-        this.ReviewerIdentityServ.currentStatus = msg;
+        let content1 = msgSt.replace(new RegExp('\n', 'g'), "<br />")
+        console.log(content1);
+        this.ReviewerIdentityServ.currentStatus = msgSt;
 
     }
 
@@ -137,19 +141,19 @@ export class StatusBarComponent implements OnInit {
 
                     if (this.timerObj) this.killTrigger.next();
 
-                    let msg: string = "Sorry, you have been logged off automatically.\n";
+                    let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                             case "Expired":
-                                msg += "Your session has been inactive for too long.\n"
+                            msg += "Your session has been inactive for too long.\n" + "<br/>";
                                 break;
                             case "Invalid":
-                                msg += "Someone has logged on with the same credentials you are using.\n";
-                                msg += "This is not allowed in EPPI-Reviewer. If you believe that someone is using your credentials without permission, ";
-                                msg += "you should contact the ER4 support.\n";
+                            msg += "Someone has logged on with the same credentials you are using.\n" + "<br/>";
+                            msg += "This is not allowed in EPPI-Reviewer. If you believe that someone is using your credentials without permission, " + "<br/>";
+                            msg += "you should contact the ER4 support.\n" + "<br/>";
                                 break;
                             case "None":
-                                msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
-                            msg += "Please contact EPPI-Reviewer support.\n";
+                            msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n" + "<br/>";
+                            msg += "Please contact EPPI-Reviewer support.\n" + "<br/>";
                                 break;
                         case "Multiple":
                             //we need to add Archie-specific cases in here.
