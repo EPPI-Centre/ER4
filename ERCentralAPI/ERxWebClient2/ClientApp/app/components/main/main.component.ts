@@ -85,6 +85,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewSetsService.Clear();
         this.workAllocationsComp.Clear();
     }
+    Logout() {
+        this.Clear();
+        this.router.navigate(['home']);
+    }
 
     LoadWorkAllocList(workAlloc: WorkAllocation) {
 

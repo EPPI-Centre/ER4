@@ -26,7 +26,7 @@ export class ReviewerIdentityService {
         private modalService: NgbModal) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
-    public currentStatus: string = '';
+    public currentStatus: string = 'No message yet.';
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
 
     public get reviewerIdentity(): ReviewerIdentity {

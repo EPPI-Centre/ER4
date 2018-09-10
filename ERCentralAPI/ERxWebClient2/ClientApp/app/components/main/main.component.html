@@ -1,6 +1,18 @@
 <div class="container-fluid MainBg" resizable>
-    <h4 class="text-dark font-weight-bold">Eppi-Reviewer (Web) Coding: Alpha Version</h4>
-    <div class="row">
+    <table class="col-12">
+        <tr>
+        <th class="w-20"><h4 class="text-dark font-weight-bold mt-1">Eppi-Reviewer Coding</h4></th>
+        <td class="w-80">
+            <button class="page-link ml-2 pt-1 float-right" (click)="Logout()">
+                Logout
+            </button>
+            <div class="float-right pt-1">
+                {{ReviewerIdentityServ.reviewerIdentity.name}}
+            </div>
+        </td>
+        </tr>
+    </table>
+    <div class="row flex-row-reverse">
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
             <div class="card card-body bg-light">
                 <ItemListComp style="max-height: 920px;" resizable r-directions="['right']" r-flex="true"></ItemListComp>
@@ -15,7 +27,7 @@
                     </p>
                 </div>
             </div>
-            <div class="card bg-light ">
+            <div class="card bg-light mt-2 ">
                 <div class="card-body">
                     <h3 class="card-title">Work Allocation List</h3>
                     <p class="card-text">
@@ -23,17 +35,18 @@
                     </p>
                 </div>
             </div>
-
-            <ngb-accordion #acc="ngbAccordion" activeIds="config-panel-one">
-                <ngb-panel class="dropdown-header" title="Your Reviews:" id="config-panel-one">
-                    <ng-template ngbPanelContent>
-                        <div class="card card-body ReviewsBg">
-                            <readonlyreviews style="max-height: 520px;" resizable r-directions="['right']" r-flex="true"></readonlyreviews>
-                        </div>
-                    </ng-template>
-                </ngb-panel>
-            </ngb-accordion>
+            <div class="card card-body ReviewsBg  mt-2 ">
+                <div>
+                    <button type="button" class="btn btn-outline-primary" (click)="isCollapsed = !isCollapsed"
+                            [attr.aria-expanded]="!isCollapsed" aria-controls="readOnlyReviews">
+                        My Reviews (+/-)
+                    </button>
+                </div>
+                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isCollapsed"
+                                 style="max-height: 520px;" resizable r-directions="['right']"
+                                 r-flex="true"></readonlyreviews>
+            </div>
         </div>
-        <statusbar class="col-sm-12 card-body"  resizable></statusbar>
+        <statusbar class="col-sm-12 card-body" resizable></statusbar>
     </div>
 </div>

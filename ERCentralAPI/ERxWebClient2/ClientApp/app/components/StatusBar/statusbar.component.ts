@@ -88,13 +88,35 @@ export class StatusBarComponent implements OnInit {
         if (msg.substr(0, 1) == "!") {
 
             this.statusClass = "bg-warning";
-            msgSt = "Status: " + msg.substr(1).trim();
+            msgSt = msg.substr(1).trim();
 
         }
-        if (msgSt.length > 80) {
-
+        let truncateIndex: number = msgSt.indexOf("<br />");
+        if (msgSt.length > 40 || truncateIndex != -1) {
+            let st: string[] = msgSt.replace("<br />", " ").replace("  ", " ").split(" ");
+            if (st.length > 8) {
+                if (st[0].length + 1
+                    + st[1].length + 1
+                    + st[2].length + 1
+                    + st[3].length + 1
+                    + st[4].length + 1
+                    + st[5].length + 1
+                    + st[6].length + 1
+                    + st[7].length + 1 < truncateIndex) {
+                    //first new line happens after the first 8 words.
+                    truncateIndex = st[0].length + 1
+                        + st[1].length + 1
+                        + st[2].length + 1
+                        + st[3].length + 1
+                        + st[4].length + 1
+                        + st[5].length + 1
+                        + st[6].length + 1
+                        + st[7].length + 1;
+                }
+            }
             this.fullMsg = msgSt;
-            this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
+            //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
+            this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, truncateIndex);
             this.isMoreButtonVisible = true;
 
         } else {
