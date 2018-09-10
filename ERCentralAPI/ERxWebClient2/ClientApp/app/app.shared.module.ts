@@ -19,7 +19,6 @@ import { StatusBarComponent } from './components/StatusBar/statusbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 import { intropageComponent } from './components/intropage/intropage.component';
-import { FilterPipe } from './filters/filter.pipe';
 
 @NgModule({
     declarations: [
@@ -37,7 +36,6 @@ import { FilterPipe } from './filters/filter.pipe';
         InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
-        FilterPipe ,
         MainComponent
     ],
     entryComponents: [InfoBoxModalContent],

@@ -20,14 +20,12 @@
     </div>
 </ng-template>
 
-
 <div class="col-sm-12 card bg-light">
     <div class="card-body">
         <table>
-            <tr style="white-space:pre-line;">
+            <tr >
 
-                <td class="{{statusClass}}">
-                    Status:  {{ReviewerIdentityServ.currentStatus | FilterPipe:  }}
+                <td class="{{statusClass}}" [innerHTML]="ReviewerIdentityServ.currentStatus">>
                 </td>
                 <td *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>

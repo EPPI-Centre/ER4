@@ -18,6 +18,7 @@ import { ErrorHandler } from "@angular/core";
 import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
 import { DomSanitizer } from '@angular/platform-browser';
 
+
 @Component({
     selector: 'statusbar',
     templateUrl: './statusbar.component.html',
