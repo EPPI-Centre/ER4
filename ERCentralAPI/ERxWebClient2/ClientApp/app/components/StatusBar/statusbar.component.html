@@ -24,9 +24,11 @@
 <div class="col-sm-12 card bg-light">
     <div class="card-body">
         <table>
-            <tr style="white-space:pre-wrap;">
-                <td  class="{{statusClass}}" (click)="openMsg(content)"  >
-                    Status: {{ReviewerIdentityServ.currentStatus}}  </td>
+            <tr style="white-space:pre-line;">
+
+                <td class="{{statusClass}}">
+                    Status:  {{ReviewerIdentityServ.currentStatus | FilterPipe:  }}
+                </td>
                 <td *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!" *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>

@@ -488,6 +488,22 @@
         "webpack-sources": "^1.1.0"
       }
     },
+    "@ngx-translate/core": {
+      "version": "10.0.2",
+      "resolved": "https://registry.npmjs.org/@ngx-translate/core/-/core-10.0.2.tgz",
+      "integrity": "sha512-7nM3DrJaqKswwtJlbu2kuKNl+hE8Isr18sKsKvGGpSxQk+G0gO0reDlx2PhUNus7TJTkA1C59vU/JoN8hIvZ4g==",
+      "requires": {
+        "tslib": "^1.9.0"
+      }
+    },
+    "@ngx-translate/http-loader": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/@ngx-translate/http-loader/-/http-loader-3.0.1.tgz",
+      "integrity": "sha1-ILD5i8bCUyESnT4zAqs8xInApCo=",
+      "requires": {
+        "tslib": "^1.9.0"
+      }
+    },
     "@types/chai": {
       "version": "4.1.4",
       "resolved": "https://registry.npmjs.org/@types/chai/-/chai-4.1.4.tgz",
@@ -9951,9 +9967,9 @@
       }
     },
     "rxjs": {
-      "version": "6.2.2",
-      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-6.2.2.tgz",
-      "integrity": "sha512-0MI8+mkKAXZUF9vMrEoPnaoHkfzBPP4IGwUYRJhIRJF6/w3uByO1e91bEHn8zd43RdkTMKiooYKmwz7RH6zfOQ==",
+      "version": "6.3.2",
+      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-6.3.2.tgz",
+      "integrity": "sha512-hV7criqbR0pe7EeL3O66UYVg92IR0XsA97+9y+BWTePK9SKmEI5Qd3Zj6uPnGkNzXsBywBQWTvujPl+1Kn9Zjw==",
       "dev": true,
       "requires": {
         "tslib": "^1.9.0"

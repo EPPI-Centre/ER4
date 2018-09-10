@@ -29,25 +29,21 @@ export class ReviewerIdentityService {
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
 
     public get reviewerIdentity(): ReviewerIdentity {
+        
+        if (this._reviewerIdentity.userId == 0) {
+            const userJson = localStorage.getItem('currentErUser');
+            let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
 
-        if (isPlatformBrowser(this._platformId)) {
+            if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
-            if (this._reviewerIdentity.userId == 0) {
+                return this._reviewerIdentity;
+            }
+            else {
 
-
-                const userJson = localStorage.getItem('currentErUser');
-                let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-
-                if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
-
-                    return this._reviewerIdentity;
-                }
-                else {
-
-                    this._reviewerIdentity = currentUser;
-                }
+                this._reviewerIdentity = currentUser;
             }
         }
+        
         return this._reviewerIdentity;
     }
 
@@ -146,6 +142,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
+                    console.log('got into it');
                     this.Save();
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();

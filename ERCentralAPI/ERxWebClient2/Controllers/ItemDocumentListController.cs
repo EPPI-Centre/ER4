@@ -22,9 +22,9 @@ namespace ERxWebClient2.Controllers
     {
 
         private IConfiguration _configuration;
-        private readonly ILogger<EPPILogger> _Logger;
+        private readonly ILogger<ItemDocumentListController> _Logger;
 
-        public ItemDocumentListController(IConfiguration configuration, ILogger<EPPILogger> logger)
+        public ItemDocumentListController(IConfiguration configuration, ILogger<ItemDocumentListController> logger)
         {
             _configuration = configuration;
             _Logger = logger;
@@ -56,7 +56,7 @@ namespace ERxWebClient2.Controllers
 
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            SQLHelper sQLHelper = new SQLHelper(_configuration, _Logger);
+            SQLHelper sQLHelper = new SQLHelper(_configuration, null);
 
             SqlParameter DOC_ID = new SqlParameter("@DOC_ID", SqlDbType.Int);
             SqlParameter REV_ID = new SqlParameter("@REV_ID", SqlDbType.Int);
@@ -67,9 +67,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-
                 
-
                 DOC_ID.Value = ItemDocumentID;
                 REV_ID.Value = ri.ReviewId;
 
@@ -78,7 +76,8 @@ namespace ERxWebClient2.Controllers
                         conn.Open();
                     
                         SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID);
-                                            
+
+                        
                         dr.Read();
                         // CHANGE THIS AT THE END
                         if (!dr.HasRows) return NotFound();
@@ -186,9 +185,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                // Testing Logging
-                _Logger.Log(LogLevel.Information, 0, "Shutting Down...", e, Formatter);
-                _Logger.SQLActionFailed("Error...", parameters, e);
+                _Logger.LogInformation("Testing the logger here for functionality...", parameters);
+                _Logger.SQLActionFailed("Download Error...", parameters, e);
                 return NotFound();
             }
         }
