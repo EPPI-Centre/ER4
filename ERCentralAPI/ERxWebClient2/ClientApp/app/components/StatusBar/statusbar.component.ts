@@ -71,7 +71,7 @@ export class StatusBarComponent implements OnInit {
         
         if (guid != undefined && uu != '') {
 
-            this.timerObj = timer(3000, 3000).pipe(
+            this.timerObj = timer(30000, 30000).pipe(
                 takeUntil(this.killTrigger));
 
             this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));

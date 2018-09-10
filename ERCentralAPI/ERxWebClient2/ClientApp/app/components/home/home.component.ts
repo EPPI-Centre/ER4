@@ -20,9 +20,9 @@ export class HomeComponent implements OnInit {
         this.ReviewerIdentityServ.LoginFailed.subscribe(() => this.LoginFailed());
     }
     vInfo: versionInfo = new versionInfo();
-    ShowLoginFailed: boolean = false;
-    ShowUsernameRequired: boolean = false;
-    ShowPasswordRequired: boolean = false;
+    public ShowLoginFailed: boolean = false;
+    public ShowUsernameRequired: boolean = false;
+    public ShowPasswordRequired: boolean = false;
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
         localStorage.clear();

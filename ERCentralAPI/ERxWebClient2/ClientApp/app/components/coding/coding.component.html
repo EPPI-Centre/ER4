@@ -8,14 +8,19 @@
             <reviewsets class="bg-light"></reviewsets>
         </div>
         <div class="col-sm-12 col-md-9 col-lg-9 border border-info bg-light">
-            
+
             <div class="d-flex justify-content-between">
                 <h4>ITEM Details</h4>
-                <button class="page-link" (click)="BackToMain()">
-                    Close/back
-                </button>
+                <div class="row">
+                    <div *ngIf="HasTermList"  class="row justify-content-end bg-info pt-1 ml-0 pr-3">
+                        <div class="form-check-label ml-2 mt-0" for="exampleCheck1">Show terms?</div>
+                        <div class=""><input type="checkbox" class="ml-2 mt-1 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()"></div>
+                    </div>
+                    <button class="page-link pt-0" (click)="BackToMain()">
+                        Close/back
+                    </button>
+                </div>
             </div>
-
             <div class="row  ml-1">
                 <ul *ngIf="ItemListService.ItemList && !IsScreening" class="pagination justify-content-start">
                     <li>
@@ -67,11 +72,15 @@
                         </button>
                     </li>
                 </ul>
+
             </div>
+            
             <div *ngIf="item" class="ml-1">
                 <div class="row"><b>ID:&nbsp;</b>{{item.itemId}}</div>
-                <div class="row"><b>Title:&nbsp;</b>{{item.title}}</div>
-                <div class="row"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+                <div *ngIf="ShowHighlights" class="row"><b>Title:&nbsp;</b><div [innerHTML]="HTitle"></div></div>
+                <div *ngIf="!ShowHighlights" class="row"><b>Title:&nbsp;</b>{{item.title}}</div>
+                <div *ngIf="ShowHighlights" class="row"><b>Abstract2:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
+                <div *ngIf="!ShowHighlights" class="row"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
                 <div class="row"><b>Authors:&nbsp;</b> {{item.authors}}</div>
                 <div class="row"><b>Type:&nbsp;</b> {{item.typeName}}</div>
             </div>

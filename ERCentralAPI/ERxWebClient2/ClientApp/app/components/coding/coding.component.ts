@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -13,20 +13,28 @@ import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../se
 import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
+import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 
 
 @Component({
+   
     selector: 'itemcoding',
     templateUrl: './coding.component.html',
     //providers: [ReviewerIdentityService]
     providers: [],
-    styles: ["button.disabled {color:black; }"]
+    styles: [`
+                button.disabled {
+                    color:black; 
+                    }
+            `]
+
 })
 export class ItemCodingComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, public ItemListService: ItemListService
         , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
         private reviewInfoService: ReviewInfoService, public PriorityScreeningService: PriorityScreeningService
+        , private ReviewerTermsService: ReviewerTermsService
     ) { }
    
     private subItemIDinPath: Subscription | null = null;
@@ -36,6 +44,16 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
+    private subGotScreeningItem: Subscription | null = null;
+    public IsScreening: boolean = false;
+    public ShowHighlights: boolean = false;
+    public HAbstract: string = "";
+    public HTitle: string = "";
+
+    public get HasTermList(): boolean {
+        if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
+        else return true;
+    };
 
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
@@ -62,15 +80,19 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 this.GetItem();
             });
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            this.ReviewerTermsService.Fetch();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 
     }
     
-    private subGotScreeningItem: Subscription | null = null;
-    public IsScreening: boolean = false;
+    WipeHighlights() {
+        this.HAbstract = "";
+        this.HTitle = "";
+    }
     private GetItem() {
+        this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
             if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
             this.IsScreening = true;
@@ -98,6 +120,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         else return true;
     }
     public prevScreeningItem() {
+        this.WipeHighlights();
         if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
         this.IsScreening = true;
         this.PriorityScreeningService.PreviousItem();
@@ -114,8 +137,45 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.ItemCodingService.Fetch(this.itemID);
     }
     SetCoding() {
+        this.SetHighlights();
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
+    }
+    
+    ShowHighlightsClicked() {
+        if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == ''))
+        {
+            this.SetHighlights();
+        }
+    }
+    SetHighlights() {
+        if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
+            for (let term of this.ReviewerTermsService.TermsList) {
+                if (term.reviewerTerm && term.reviewerTerm.length > 0) {
+                    console.log(term.reviewerTerm);
+                    let lFirst = term.reviewerTerm.substr(0,1);
+                    lFirst = lFirst.toLowerCase();
+                    let uFirst = lFirst.toUpperCase();
+                    let lTerm = lFirst + term.reviewerTerm.substr(1);
+                    let uTerm = uFirst + term.reviewerTerm.substr(1);
+                    console.log('uTerm:' + uTerm);
+                    let reg = new RegExp(lTerm , "g");
+                    let reg2 = new RegExp(uTerm , "g");
+                    if (term.included) {
+                        this.HTitle = this.item.title.replace(reg, "<span class='RelevantTerm'>" + lTerm +"</span>");
+                        this.HTitle = this.HTitle.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
+                        this.HAbstract = this.item.abstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
+                        this.HAbstract = this.HAbstract.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
+                    }
+                    else {
+                        this.HTitle = this.HTitle.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
+                        this.HTitle = this.HTitle.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
+                        this.HAbstract = this.HAbstract.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
+                        this.HAbstract = this.HAbstract.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
+                    }
+                }
+            }
+        }
     }
     
     private _hasPrevious: boolean | null = null;
@@ -146,20 +206,20 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         return this._hasNext;
     }
     firstItem() {
-        console.log('First');
+        this.WipeHighlights();
         
         if (this.item) this.goToItem(this.ItemListService.getFirst());
     }
     prevItem() {
-        console.log('Prev');
+        this.WipeHighlights();
         if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
     }
     nextItem() {
-        console.log('Next');    
+        this.WipeHighlights();
         if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
     }
     lastItem() {
-        console.log('Last');
+        this.WipeHighlights();
         if (this.item) this.goToItem(this.ItemListService.getLast());
     }
     clearItemData() {
@@ -173,8 +233,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
     }
     goToItem(item: Item) {
-
         //console.log('gti');
+        this.WipeHighlights();
         this.clearItemData();
         this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
