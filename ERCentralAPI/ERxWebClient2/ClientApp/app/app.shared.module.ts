@@ -5,9 +5,7 @@ import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
 import { AppComponent } from './components/app/app.component';
-import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { HomeComponent } from './components/home/home.component';
-import { CounterComponent } from './components/counter/counter.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
@@ -24,8 +22,6 @@ import { intropageComponent } from './components/intropage/intropage.component';
 @NgModule({
     declarations: [
         AppComponent,
-        NavMenuComponent,
-        CounterComponent,
         ReviewSetsComponent,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
@@ -50,7 +46,6 @@ import { intropageComponent } from './components/intropage/intropage.component';
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
-            { path: 'counter', component: CounterComponent },
             { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'main', component: MainComponent }, 

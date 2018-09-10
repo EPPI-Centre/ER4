@@ -26,22 +26,30 @@
     </div>
     <div class="col-md-8">
         <div class="form-horizontal" role="form">
-            <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)" novalidate>
+            <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)" >
                 <div class="form-group  row">
                     <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
                     <div class="col-sm-7">
-                        <input #c_name name="username" class="form-control" ngModel>
+                        <input #c_name name="username" required class="form-control" ngModel>
+                    </div>
+                    <div *ngIf="ShowUsernameRequired" class=" m-1">
+                        <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
                     </div>
                 </div>
                 <div class="form-group  row">
                     <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
                     <div class="col-sm-7">
-                        <input #c_password type="password" class="form-control" name="password" ngModel>
+                        <input #c_password type="password" required class="form-control" name="password" ngModel>
+                    </div>
+                    <div *ngIf="ShowPasswordRequired" class=" m-1">
+                        <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
                     </div>
                 </div>
-                <div class="form-group  row">
-                    <div class="offset-md-1 col-sm-7">
-                        <input type="submit" value="Login" class="btn btn-primary" /> &nbsp;  <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
+                <div class="form-group">
+                    <div class="row offset-md-1 col-sm-7 align-content-center ">
+                        <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;  
+                        <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
+                        <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
                     </div>
                 </div>
             </form>

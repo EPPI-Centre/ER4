@@ -10,6 +10,7 @@ import { Observable, throwError, of } from 'rxjs';
 import { catchError, retry, map } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService } from './ReviewSets.service';
+import { error } from '@angular/compiler/src/util';
 
 @Injectable({
     providedIn: 'root',
@@ -68,7 +69,7 @@ export class ReviewerIdentityService {
         console.log('Ticket: ' + this.reviewerIdentity.ticket);
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
-      
+    @Output() LoginFailed = new EventEmitter();  
     public LoginReq(u: string, p: string) {
 
         let reqpar = new LoginCreds(u, p);
@@ -81,7 +82,10 @@ export class ReviewerIdentityService {
                     this.Save();
                     this.router.navigate(['intropage']);
                 }
-            });
+            }, error => {
+                this.LoginFailed.emit();
+            }
+            );
 
     }
 
@@ -142,7 +146,8 @@ export class ReviewerIdentityService {
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
                 }
-            });
+            }
+            );
       
     }
     public Save() {
