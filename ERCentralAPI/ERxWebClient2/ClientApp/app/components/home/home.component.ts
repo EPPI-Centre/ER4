@@ -16,14 +16,33 @@ export class HomeComponent implements OnInit {
         private ReviewerIdentityServ: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
-    ) { }
+    ) {
+        this.ReviewerIdentityServ.LoginFailed.subscribe(() => this.LoginFailed());
+    }
     vInfo: versionInfo = new versionInfo();
+    ShowLoginFailed: boolean = false;
+    ShowUsernameRequired: boolean = false;
+    ShowPasswordRequired: boolean = false;
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
         localStorage.clear();
+        this.ShowLoginFailed = false;
+        this.ShowUsernameRequired = false;
+        this.ShowPasswordRequired = false;
+        if (u.length < 2) {
+            this.ShowUsernameRequired = true;
+            return;
+        }
+        if (p.length < 6) {
+            this.ShowPasswordRequired = true;
+            return;
+        }
         this.ReviewerIdentityServ.LoginReq(u, p);
-        
     };
+    
+    LoginFailed() {
+        this.ShowLoginFailed = true;
+    }
     ngOnInit() {
         localStorage.clear();
         this.getVinfo();
