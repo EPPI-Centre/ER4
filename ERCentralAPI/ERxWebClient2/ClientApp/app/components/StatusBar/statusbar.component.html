@@ -9,8 +9,7 @@
         <form>
             <div class="form-group">
                 <label for="dateOfBirth">Message from Security logon ticket check</label>
-                <div class="input-group">
-                    {{modalMsg}}
+                <div class="input-group" [innerHTML]="modalMsg">
                 </div>
             </div>
         </form>
@@ -23,10 +22,9 @@
 <div class="col-sm-12 card bg-light">
     <div class="card-body">
         <table>
-            <tr >
-
-                <td class="{{statusClass}}" [innerHTML]="ReviewerIdentityServ.currentStatus">>
-                </td>
+            <tr>
+                <td class="{{statusClass}}" [innerHTML]="ReviewerIdentityServ.currentStatus"> </td>
+              
                 <td *ngIf="getDaysLeftAccount() > 14"> You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-warning" data-toggle="tooltip" data-placement="top" title="Your Account will expire {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount == 0 ? 'today!' : 'tomorrow!'}}" *ngIf="getDaysLeftAccount() == 1 || getDaysLeftAccount() == 0">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Account will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftAccount}} days!" *ngIf="getDaysLeftAccount() < 14 && getDaysLeftAccount() > 1">You are {{ReviewerIdentityServ.reviewerIdentity.name}}</td>
@@ -36,6 +34,7 @@
                 <td class="bg-light" data-toggle="tooltip" data-placement="top" title="Your Review will expire in {{ReviewerIdentityServ.reviewerIdentity.daysLeftReview}} days!" *ngIf="getDaysLeftReview() < 14 && getDaysLeftReview() > 1">Review Name: {{ReviewInfoService.ReviewInfo.reviewName}}</td>
                 <td class="bg-danger" *ngIf="getDaysLeftReview() < 0"> Review Name: {{ReviewInfoService.ReviewInfo.reviewName}} (Expired)</td>
             </tr>
+            <tr>  <td><button (click)="pressedMore()" class="btn-warning" [hidden]="!isMoreButtonVisible">...more</button></td></tr>
         </table>
     </div>
 </div>

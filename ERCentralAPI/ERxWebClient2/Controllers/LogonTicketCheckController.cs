@@ -39,6 +39,8 @@ namespace ERxWebClient2.Controllers
             Lgt.Result = cmd.Result;
             Lgt.ServerMessage = cmd.ServerMessage;
             if (Lgt.ServerMessage.Contains(@"\n")) Lgt.ServerMessage = Lgt.ServerMessage.Replace(@"\n", @"<br />");
+            
+            
             //Lgt.Result = "Expired";
             //Lgt.ServerMessage = "...";
 
