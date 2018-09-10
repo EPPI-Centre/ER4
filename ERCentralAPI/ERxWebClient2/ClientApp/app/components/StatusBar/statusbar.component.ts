@@ -45,6 +45,8 @@ export class StatusBarComponent implements OnInit {
     public testlgtC: any;
     public statusClass: string = 'bg-light';
     public IsAdmin: boolean = false;
+    private isMoreButtonVisible = false;
+    private fullMsg: string = '';
      
     getDaysLeftAccount() {
 
@@ -89,9 +91,24 @@ export class StatusBarComponent implements OnInit {
             msgSt = "Status: " + msg.substr(1).trim();
 
         }
-        let content1 = msgSt.replace(new RegExp('\n', 'g'), "<br />")
-        console.log(content1);
-        this.ReviewerIdentityServ.currentStatus = msgSt;
+        if (msgSt.length > 80) {
+
+            this.fullMsg = msgSt;
+            this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
+            this.isMoreButtonVisible = true;
+
+        } else {
+
+            this.ReviewerIdentityServ.currentStatus = msgSt;
+        }
+        
+
+    }
+
+    pressedMore() {
+
+        this.modalMsg = this.fullMsg;
+        this.openMsg(this.content);
 
     }
 
@@ -149,7 +166,7 @@ export class StatusBarComponent implements OnInit {
                             case "Invalid":
                             msg += "Someone has logged on with the same credentials you are using.\n" + "<br/>";
                             msg += "This is not allowed in EPPI-Reviewer. If you believe that someone is using your credentials without permission, " + "<br/>";
-                            msg += "you should contact the ER4 support.\n" + "<br/>";
+                            msg += "you should contact EPPI-Reviewer support.\n" + "<br/>";
                                 break;
                             case "None":
                             msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n" + "<br/>";
@@ -183,12 +200,14 @@ export class StatusBarComponent implements OnInit {
     openMsg(content : any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-                    alert('Simulate application returning to logon page: ' + res);
+                    //alert('Simulate application returning to logon page: ' + res);
 
         },
         (res) => {
-                    alert('Continue for debugging purposes: ' + res)
-                    this.router.navigate(['home']);
+                    //alert('Continue for debugging purposes: ' + res)
+                    if (!this.isMoreButtonVisible == true) {
+                        this.router.navigate(['home']);
+                    }
                 }
         );
     }
