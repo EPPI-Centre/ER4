@@ -7,7 +7,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
-import { CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
+import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { Item } from './ItemList.service';
 
 

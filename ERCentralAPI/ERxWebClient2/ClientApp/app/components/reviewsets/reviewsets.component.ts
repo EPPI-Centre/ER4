@@ -23,7 +23,7 @@ import { Node } from '@angular/compiler/src/render3/r3_ast';
                     border-radius: .2rem;
                 }
         `],
-    templateUrl: './fetchreviewsets.component.html'
+    templateUrl: './reviewsets.component.html'
 })
 export class ReviewSetsComponent implements OnInit, OnDestroy {
    constructor(private router: Router,

@@ -7,7 +7,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo } from './ReviewInfo.service';
-import { CheckBoxClickedEventData } from '../fetchreviewsets/fetchreviewsets.component';
+import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function

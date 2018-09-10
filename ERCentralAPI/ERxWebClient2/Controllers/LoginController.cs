@@ -33,19 +33,23 @@ namespace ERxWebClient2.Controllers
         }
         
         [HttpPost("[action]")]
-        public ReviewerIdentity Login([FromBody] LoginCreds lc)
+        public IActionResult Login([FromBody] LoginCreds lc)
         {
-            ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
-
-            //var userIdentity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            //Task<(bool, TokenResponse)> task = Task.Run(() => IdentityServer4Client.LoginAsync(username, password, userIdentity));
-            //bool CorrectCredentials = task.Result.Item1;
-            //if (!CorrectCredentials) return Redirect("~/Login"); //DoFail();
-            //ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
-
-            ri.Token = BuildToken(ri);
-            return ri;
+            try
+            {
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
+                if (ri.IsAuthenticated)
+                {
+                    ri.Token = BuildToken(ri);
+                    return Ok(ri);
+                }
+                else { return Forbid(); }
+            }
+            catch (Exception e)
+            {
+                //add logging
+                return Forbid();
+            }
         }
         [Authorize]
         [HttpPost("[action]")]
