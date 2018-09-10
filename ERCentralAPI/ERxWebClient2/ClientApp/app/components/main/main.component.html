@@ -23,9 +23,16 @@
                     </p>
                 </div>
             </div>
-            <div class="card card-body ReviewsBg">
-                <readonlyreviews style="max-height: 520px;" resizable r-directions="['right']" r-flex="true"></readonlyreviews>
-            </div>
+
+            <ngb-accordion #acc="ngbAccordion" activeIds="config-panel-one">
+                <ngb-panel class="dropdown-header" title="Your Reviews:" id="config-panel-one">
+                    <ng-template ngbPanelContent>
+                        <div class="card card-body ReviewsBg">
+                            <readonlyreviews style="max-height: 520px;" resizable r-directions="['right']" r-flex="true"></readonlyreviews>
+                        </div>
+                    </ng-template>
+                </ngb-panel>
+            </ngb-accordion>
         </div>
         <statusbar class="col-sm-12 card-body"  resizable></statusbar>
     </div>
