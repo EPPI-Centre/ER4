@@ -26,7 +26,10 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
                 //console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
 
-
+    FormatDate(DateSt: string): string {
+        let date: Date = new Date(DateSt);
+        return date.toLocaleDateString();
+    }
 
     onSubmit(f: string) {
             let RevId: number = parseInt(f, 10);

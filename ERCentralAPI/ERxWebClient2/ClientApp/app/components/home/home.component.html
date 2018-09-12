@@ -1,100 +1,106 @@
-<div class="d-flex justify-content-center bg-white mr-md-1 ml-md-1">
-    <h3 class="justify-center">Welcome to EPPI-Reviewer Web (Alpha).</h3><br />
-</div>
-
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
-    <div class="col-md-1">&nbsp;</div>
-    <div class="col-md-2">
-        <!--<div class="panel" style="background-color: #33b5e5">-->
-        <div class="panel" style="background-color: #FFFFFF">
-            <table>
-                <tr>
-                    <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
-                        <img src="../assets/EPPI-Centre_logo2.png" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p class="text-right border-bottom border-dark">
-                            <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
-                            to Create your Account.
-                        </p>
-                    </td>
-                </tr>
-            </table>
-        </div>
+<div class="h-100">
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center border-bottom border-primary">
+        &nbsp;
     </div>
-    <div class="col-md-8">
-        <div class="form-horizontal" role="form">
-            <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)" >
-                <div class="form-group  row">
-                    <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
-                    <div class="col-sm-7">
-                        <input #c_name name="username" required class="form-control" ngModel>
-                    </div>
-                    <div *ngIf="ShowUsernameRequired" class=" m-1">
-                        <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
-                    </div>
-                </div>
-                <div class="form-group  row">
-                    <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
-                    <div class="col-sm-7">
-                        <input #c_password type="password" required class="form-control" name="password" ngModel>
-                    </div>
-                    <div *ngIf="ShowPasswordRequired" class=" m-1">
-                        <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="row offset-md-1 col-sm-7 align-content-center ">
-                        <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;  
-                        <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
-                        <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="col-md-1">&nbsp;</div>
-</div>
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light border-bottom border-primary">
-    <div class="col-md-10">
-        <p>
-            Please visit the EPPI-Reviewer gateway at:
-            <div class="text-center font-weight-bold m-0"><a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">https://eppi.ioe.ac.uk/cms/er4</a></div>
-            The Gateway contains: User manual, Account Manager, Forgotten Password facility, Export to RIS utility, Support Forums and much more.
-    </div>
-    <div class="col-md-2">
-        Follow us on
-        <br />
-        <a href="https://twitter.com/EPPIReviewer" target="_blank">Twitter</a><br />
-    </div>
-    <div><a class="text-danger font-weight-bold" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>
-</div>
-<br />
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-    <div class="col-md-4 font-weight-bold">
-        Latest Changes:
-    </div>
-    <div class="col-md-4">
-        Version: {{vInfo.versionN}}
-    </div>
-    <div class="col-md-4 justify-content-end">
-        {{vInfo.date}}
-    </div>
-</div>
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-    <div class="col-md-12 ">
-        {{vInfo.description}}
+    <div class="d-flex justify-content-center bg-white mr-md-1 ml-md-1 ">
+        <h3 class="justify-center ">Welcome to EPPI-Reviewer Web (Alpha).</h3><br />
     </div>
 
-    <div class="col-md-12 justify-content-end">
-        <a href="{{vInfo.uRL}}">Read More...</a>
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
+        <div class="col-md-1">&nbsp;</div>
+        <div class="col-md-2">
+            <!--<div class="panel" style="background-color: #33b5e5">-->
+            <div class="panel" style="background-color: #FFFFFF">
+                <table>
+                    <tr>
+                        <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
+                            <img src="../assets/EPPI-Centre_logo2.png" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-right border-bottom border-dark">
+                                <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
+                                to Create your Account.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-horizontal" role="form">
+                <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
+                    <div class="form-group  row">
+                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
+                        <div class="col-sm-7">
+                            <input #c_name name="username" required class="form-control" ngModel>
+                        </div>
+                        <div *ngIf="ShowUsernameRequired" class=" m-1">
+                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
+                        </div>
+                    </div>
+                    <div class="form-group  row">
+                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
+                        <div class="col-sm-7">
+                            <input #c_password type="password" required class="form-control" name="password" ngModel>
+                        </div>
+                        <div *ngIf="ShowPasswordRequired" class=" m-1">
+                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row offset-md-1 col-sm-7 align-content-center ">
+                            <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;
+                            <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
+                            <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-1">&nbsp;</div>
+    </div>
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light border-bottom border-primary">
+        <div class="col-md-10">
+            <p>
+                Please visit the EPPI-Reviewer gateway at:
+                <div class="text-center font-weight-bold m-0"><a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">https://eppi.ioe.ac.uk/cms/er4</a></div>
+                The Gateway contains: User manual, Account Manager, Forgotten Password facility, Export to RIS utility, Support Forums and much more.
+        </div>
+        <div class="col-md-2 mt-4">
+            <a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="../assets/FollowUs.png" /></a>
+            <br />&nbsp;on <a href="https://twitter.com/EPPIReviewer" target="_blank">
+                Twitter
+            </a>
+            <br />
+
+        </div>
+        <div><a class="text-danger font-weight-bold" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>
+    </div>
+    <br />
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+        <div class="col-md-4 font-weight-bold">
+            Latest Changes:
+        </div>
+        <div class="col-md-4">
+            Version: {{vInfo.versionN}}
+        </div>
+        <div class="col-md-4 justify-content-end">
+            {{vInfo.date}}
+        </div>
+    </div>
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+        <div class="col-md-12 ">
+            {{vInfo.description}}
+        </div>
+
+        <div class="col-md-12 justify-content-end">
+            <a href="{{vInfo.uRL}}">Read More...</a>
+        </div>
+    </div>
+
+    <div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light h-100 align-bottom">
+        &nbsp;
     </div>
 </div>
-<form #f="ngForm" (ngSubmit)="getVinfo()" hidden novalidate>
-    <button>Getinfo</button>
-</form>
-<div class="row mr-md-1 ml-md-1 d-flex justify-content-center bg-light ">
-    &nbsp;
-</div> 

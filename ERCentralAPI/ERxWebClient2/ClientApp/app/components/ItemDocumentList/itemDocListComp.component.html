@@ -1,22 +1,24 @@
-<table class="table table-responsive " style="max-height: 775px;" *ngIf="ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0">
-    <thead>
-        <tr>
-
-            <th>Short Title</th>
-            <th>Title</th>
-            <th>Doc Extension</th>
-            <th>Download Document</th>
-
-        </tr>
-    </thead>
-    <tbody >
-        <tr *ngFor="let ItemDocument of ItemDocsService._itemDocs">
-
-            <td>{{ ItemDocument.shortTitle }}</td>
-            <td>{{ ItemDocument.title }}</td>
-            <td>{{ItemDocument.extension}}</td>
-            <td><button class="btn btn-outline-primary btn-sm"  (click)="DownloadDoc(ItemDocument.itemDocumentId)">DOWNLOAD</button><br />(Id:&nbsp;{{ ItemDocument.itemDocumentId }})</td>
-        </tr>
-    </tbody>
-</table>
-
+<div class=" w-100 row ml-2 border-top border-info mr-4"  
+     *ngIf="ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0">
+    <div class=""><b>Documents:</b></div>
+    <table class="table-responsive small col-12 mr-4  justify-content-around" style="max-height: 200px;" >
+        <thead >
+            <tr>
+                <th class="col-1">Id</th>
+                <th class="col-3">Short Title</th>
+                <th class="col-4">Title</th>
+                <th class="col-2">Extension</th>
+                <th class="col-2">Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let ItemDocument of ItemDocsService._itemDocs">
+                <td class="col-1">{{ ItemDocument.itemDocumentId }}</td>
+                <td class="col-3">{{ ItemDocument.shortTitle }}</td>
+                <td class="col-4">{{ ItemDocument.title }}</td>
+                <td class="col-2">{{ItemDocument.extension}}</td>
+                <td class="col-2"><button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId)">DOWNLOAD</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy, Renderer2 } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -32,6 +32,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
        private modalService: NgbModal,
+       private renderer: Renderer2,
        private cd: ChangeDetectorRef
     ) { }
     @ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
@@ -128,7 +129,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
     openInfoBox(data: singleNode) {
         //const tmp: any = new InfoBoxModalContent();
         let modalComp = this.modalService.open(InfoBoxModalContent);
-        
+        this.renderer.selectRootElement('#InfoBoxText').focus();
         console.log('ADDTXT: '+ data.additionalText);
         modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
         modalComp.result.then((infoTxt) => {
@@ -148,6 +149,13 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
             }
         );
 
+    }
+    public SelectedNodeData: singleNode | null = null;
+    public SelectedCodeDescription: string = "";
+    NodeSelected(node: singleNode) {
+        this.SelectedNodeData = node;
+        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+        //console.log(node.description)
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();

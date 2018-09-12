@@ -33,7 +33,7 @@ export class StatusBarComponent implements OnInit {
                 private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
                 public ReviewerIdentityServ: ReviewerIdentityService,
-                private ReviewInfoService: ReviewInfoService,
+                public ReviewInfoService: ReviewInfoService,
         private modalService: NgbModal,
         public sanitizer: DomSanitizer
     ) {    }
@@ -45,17 +45,10 @@ export class StatusBarComponent implements OnInit {
     public testlgtC: any;
     public statusClass: string = 'bg-light';
     public IsAdmin: boolean = false;
-    private isMoreButtonVisible = false;
+    public isMoreButtonVisible = false;
     private fullMsg: string = '';
      
-    getDaysLeftAccount() {
-
-        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
-    }
-    getDaysLeftReview() {
-
-        return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
-    }
+    
 
     ngOnDestroy() {
 

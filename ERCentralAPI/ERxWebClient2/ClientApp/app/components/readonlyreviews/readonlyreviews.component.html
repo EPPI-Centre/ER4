@@ -19,7 +19,7 @@
                         <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
                             <td>{{ roReview.reviewId }}</td>
                             <td>{{ roReview.reviewName }}</td>
-                            <td>{{ roReview.lastAccess }}</td>
+                            <td>{{ FormatDate(roReview.lastAccess) }}</td>
                             <td>
                                 <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                                     <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">

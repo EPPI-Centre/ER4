@@ -11,6 +11,7 @@ import { catchError, retry, map } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService } from './ReviewSets.service';
 import { error } from '@angular/compiler/src/util';
+import { ReviewerTermsService } from './ReviewerTerms.service';
 
 @Injectable({
     providedIn: 'root',
@@ -23,6 +24,7 @@ export class ReviewerIdentityService {
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         , @Inject(PLATFORM_ID) private _platformId: Object,
+        private ReviewerTermsService: ReviewerTermsService,
         private modalService: NgbModal) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
@@ -137,8 +139,10 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    console.log('got into it');
+                    //console.log('got into it');
                     this.Save();
+                    this.ReviewInfoService.Fetch();
+                    this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
@@ -158,6 +162,16 @@ export class ReviewerIdentityService {
             localStorage.removeItem('currentErUser');
 
         //}
+    }
+    getDaysLeftAccount() {
+        return this.reviewerIdentity.daysLeftAccount;
+    }
+    getDaysLeftReview() {
+        if (this.reviewerIdentity && this.reviewerIdentity.reviewExpiration
+            && this.reviewerIdentity.reviewExpiration.length >= 4
+            && this.reviewerIdentity.reviewExpiration.substring(0, 4) == '3000') return -999999;
+        else if (this.reviewerIdentity.daysLeftReview) return this.reviewerIdentity.daysLeftReview;
+        else return 100;
     }
 }
 

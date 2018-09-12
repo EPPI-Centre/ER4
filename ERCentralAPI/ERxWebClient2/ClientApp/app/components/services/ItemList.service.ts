@@ -134,8 +134,10 @@ export class ItemListService {
         if (ff != undefined && ff != null) return ff ;
         return new Item();
     }
-    public FetchWithCrit(crit: Criteria) {
+    public ListDescription: string = "";
+    public FetchWithCrit(crit: Criteria, listDescription: string) {
         this._Criteria = crit;
+        this.ListDescription = listDescription;
         if (this.subListReplyReceived) this.subListReplyReceived.unsubscribe();
         this.subListReplyReceived = this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
@@ -145,7 +147,7 @@ export class ItemListService {
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
             //we have something to do
-            this.FetchWithCrit(this._Criteria);
+            this.FetchWithCrit(this._Criteria, this.ListDescription);
         }
     }
     public FetchNextPage() {
@@ -153,36 +155,29 @@ export class ItemListService {
             this._Criteria.pageNumber += 1;
         } else {
         }
-        this.FetchWithCrit(this._Criteria)
+        this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
         //console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex == 0 ) {
-            return this.FetchWithCrit(this._Criteria);
+            return this.FetchWithCrit(this._Criteria, this.ListDescription);
         } else {
             this._Criteria.pageNumber -= 1;
-            return this.FetchWithCrit(this._Criteria);
+            return this.FetchWithCrit(this._Criteria, this.ListDescription);
         }
     }
     public FetchLastPage() {
         this._Criteria.pageNumber = this.ItemList.pagecount - 1;
-        return this.FetchWithCrit(this._Criteria);
+        return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
     public FetchFirstPage() {
         this._Criteria.pageNumber = 0;
-        return this.FetchWithCrit(this._Criteria);
+        return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
     public FetchParticularPage(pageNum: number) {
         this._Criteria.pageNumber = pageNum;
-        return this.FetchWithCrit(this._Criteria);
+        return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    public FetchWorkAlloc(AllocationId: number, allocSubtype: string, pageSize: number, pageNumber: number) {
-        let body = "AllocationId=" + AllocationId + "&ListType=" + allocSubtype
-            + "&pageSize=" + pageSize + "&pageNumber=" + pageNumber;
-        return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/WorkAllocation', body);
-    }
-
-
     private Save() {
         if (this._ItemList.items.length > 0) {
             localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));

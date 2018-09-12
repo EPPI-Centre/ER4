@@ -1,17 +1,5 @@
 <div class="container-fluid MainBg" resizable>
-    <table class="col-12">
-        <tr>
-        <th class="w-20"><h4 class="text-dark font-weight-bold mt-1">Eppi-Reviewer Coding</h4></th>
-        <td class="w-80">
-            <button class="page-link ml-2 pt-1 float-right" (click)="Logout()">
-                Logout
-            </button>
-            <div class="float-right pt-1">
-                {{ReviewerIdentityServ.reviewerIdentity.name}}
-            </div>
-        </td>
-        </tr>
-    </table>
+    <HeaderComponent></HeaderComponent>
     <div class="row flex-row-reverse">
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
             <div class="card card-body bg-light">
@@ -19,14 +7,6 @@
             </div>
         </div>
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
-            <div class="card">
-                <div class="card card-body bg-info">
-                    <p>
-                        Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-                        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}
-                    </p>
-                </div>
-            </div>
             <div class="card bg-light mt-2 ">
                 <div class="card-body">
                     <h3 class="card-title">Work Allocation List</h3>
@@ -37,15 +17,21 @@
             </div>
             <div class="card card-body ReviewsBg  mt-2 ">
                 <div>
-                    <button type="button" class="btn btn-outline-primary" (click)="isCollapsed = !isCollapsed"
-                            [attr.aria-expanded]="!isCollapsed" aria-controls="readOnlyReviews">
-                        My Reviews (+/-)
+                    <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                            [attr.aria-expanded]="!isReviewPanelCollapsed">
+                        My Reviews {{ReviewPanelTogglingSymbol}}
                     </button>
                 </div>
-                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isCollapsed"
-                                 style="max-height: 520px;" resizable r-directions="['right']"
-                                 r-flex="true"></readonlyreviews>
+                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                                 style="max-height: 520px;"></readonlyreviews>
+
             </div>
+            <div class="card card-body bg-light mt-2">
+                {{MyInfoMessage()}}
+                <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+                | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
+            </div>
+
         </div>
         <statusbar class="col-sm-12 card-body" resizable></statusbar>
     </div>

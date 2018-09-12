@@ -12,11 +12,12 @@ import { MainComponent } from './components/main/main.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
-import { paginatorComp } from './components/paginator/paginator.component';
-import { StatusBarComponent } from './components/StatusBar/statusbar.component';
+import { paginatorComp } from './components/commonComponents/paginator.component';
+import { StatusBarComponent } from './components/commonComponents/statusbar.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 import { intropageComponent } from './components/intropage/intropage.component';
+import { HeaderComponent } from './components/commonComponents/header.component';
 
 @NgModule({
     declarations: [
@@ -32,6 +33,7 @@ import { intropageComponent } from './components/intropage/intropage.component';
         InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
+        HeaderComponent,
         MainComponent
     ],
     entryComponents: [InfoBoxModalContent],

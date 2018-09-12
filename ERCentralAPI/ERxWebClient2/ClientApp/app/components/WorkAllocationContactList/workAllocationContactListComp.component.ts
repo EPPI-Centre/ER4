@@ -78,6 +78,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             //else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
             //    this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
             //    }
+            this.log("that's why");
             this.ItemListService.Refresh();
             return;
         }
@@ -141,6 +142,15 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             }
         }
         
+    }
+    HasScreeningList(): boolean {
+        if (this.reviewInfoService
+            && this.reviewInfoService.ReviewInfo
+            && this.reviewInfoService.ReviewInfo.screeningCodeSetId != 0
+            && this.reviewInfoService.ReviewInfo.screeningListIsGood
+            && this.ReviewerIdentityServ.HasWriteRights)
+            return true;
+        else return false;
     }
     ngAfterContentInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {

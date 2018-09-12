@@ -58,7 +58,7 @@ export class ReviewSetsService {
         localStorage.removeItem('ReviewSets');
     }
     public get ReviewSets(): ReviewSet[] {
-        console.log('getReviewSets');
+        //console.log('getReviewSets');
         if (this._ReviewSets.length == 0) {
             //this._IsBusy = true;
             const ReviewSetsJson = localStorage.getItem('ReviewSets');
@@ -98,6 +98,7 @@ export class ReviewSetsService {
             newSet.order = iItemset.setOrder;
             newSet.codingIsFinal = iItemset.codingIsFinal;
             newSet.allowEditingCodeset = iItemset.allowCodingEdits;
+            newSet.description = iItemset.setDescription;
             newSet.setType = iItemset.setType;
             newSet.attributes = ReviewSetsService.childrenFromJSONarray(iItemset.attributes.attributesList);
             result.push(newSet);
@@ -115,6 +116,7 @@ export class ReviewSetsService {
             newSet.order = Itemset.order;
             newSet.codingIsFinal = Itemset.codingIsFinal;
             newSet.allowEditingCodeset = Itemset.allowEditingCodeset;
+            newSet.description = newSet.description;
             newSet.setType = Itemset.setType;
             newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
             result.push(newSet);
@@ -313,6 +315,7 @@ export interface singleNode {
     showCheckBox: boolean;
     nodeType: string;
     subTypeName: string;
+    description: string;
 
     isSelected: boolean;
     additionalText: string;
@@ -336,7 +339,7 @@ export class ReviewSet implements singleNode {
         if (this.setType) return this.setType.setTypeName;
         else return "";
     }
-   
+    public description: string = "";
     setType: iSetType | null = null ;
     nodeType: string = "ReviewSet";
     order: number = 0;
@@ -360,6 +363,9 @@ export class SetAttribute implements singleNode {
     attribute_set_desc: string = "";
     attribute_desc: string = "";
     set_id: number = 0;
+    public get description(): string {
+        return this.attribute_set_desc;
+    }
     public get showCheckBox(): boolean {
         if (this.attribute_type == 'Not selectable (no checkbox)') return false;
         else return true;

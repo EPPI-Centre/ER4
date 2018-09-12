@@ -14,6 +14,7 @@ import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/rev
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
+import { ItemDocsService } from '../services/itemdocs.service';
 
 
 @Component({
@@ -34,7 +35,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, public ItemListService: ItemListService
         , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
         private reviewInfoService: ReviewInfoService, public PriorityScreeningService: PriorityScreeningService
-        , private ReviewerTermsService: ReviewerTermsService
+        , private ReviewerTermsService: ReviewerTermsService, public ItemDocsService: ItemDocsService 
     ) { }
    
     private subItemIDinPath: Subscription | null = null;
@@ -80,7 +81,6 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 this.GetItem();
             });
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-            this.ReviewerTermsService.Fetch();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
@@ -381,6 +381,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         });
         //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
+    }
+    toHTML(text: string): string {
+        return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
     }
     ngOnDestroy() {
         console.log('killing coding comp');

@@ -1,4 +1,11 @@
 <paginatorComp></paginatorComp>
+
+    <div *ngIf="ItemListService.ListDescription != ''" 
+         class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
+        <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
+    </div>
+
+
 <table class="table table-responsive" style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
     <thead>
         <tr>

@@ -93,6 +93,7 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\app\components\main\" />
+    <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 

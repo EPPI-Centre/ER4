@@ -1,5 +1,3 @@
-<script src="bootstrap-treeview.js"></script>
-<!--<ng-template #ConfirmDeleteCoding let-c="close" let-d="dismiss">-->
 <div #ManualModal *ngIf="showManualModal">
     <div class="modal-backdrop fade show" style="z-index:999;" (click)="DeleteCodingCancelled()"></div>
     <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
@@ -26,15 +24,13 @@
         </div>
     </div>
 </div>
-<!--</ng-template>-->
-<!--</div>-->
-<h4>Codes</h4>
-
 <p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
 <div *ngIf="nodes && nodes.length > 0" style="max-height: 800px; height:600px;">
-    <tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 600px;">
-        <ng-template #treeNodeTemplate let-node let-index="index">
-            <span *ngIf="node.data.nodeType == 'ReviewSet'">
+    <tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 600px;"
+               (activate)="NodeSelected($event.node.data)">
+        <ng-template #treeNodeTemplate let-node let-index="index" >
+            <span *ngIf="node.data.nodeType == 'ReviewSet'"
+                  >
                 <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
                 <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
                 <img *ngIf="node.data.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png"
@@ -53,9 +49,12 @@
                               'AdminSet' : node.data.subTypeName == 'Administration',
                               'ExcludeCode' : node.data.subTypeName == 'Exclude'
                                 }">{{node.data.name}}</span>
-            <button *ngIf="node.data.showCheckBox" class="btn btn-outline-info bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
+            <button *ngIf="node.data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
         </ng-template>
     </tree-root>
 </div>
-
-
+<div class="mt-2" *ngIf="SelectedCodeDescription != ''">
+    <div class="card card-title mb-0 font-weight-bold">Code description:</div>
+        <div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">
+        </div>
+</div>

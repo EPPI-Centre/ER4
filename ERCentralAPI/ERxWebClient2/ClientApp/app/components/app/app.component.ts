@@ -10,7 +10,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
                     padding-top: 50px;
                 }
                .MainBg {
-                    background-color:#f8f8fd !important; 
+                    background-color:#d8d8e2 !important; 
                 }
         `],
 })

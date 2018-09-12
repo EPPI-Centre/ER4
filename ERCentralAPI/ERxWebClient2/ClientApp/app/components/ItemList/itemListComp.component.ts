@@ -37,14 +37,26 @@ export class ItemListComp implements OnInit {
         this.value = value ;
         this.ItemListService.FetchParticularPage(value-1);
     }
-
+    
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
 
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
-        //this.sub =
-            this.ItemListService.FetchWithCrit(crit);
+        let ListDescr: string = "Showing ";
+        if (ListSubType == 'GetItemWorkAllocationListRemaining') {
+            ListDescr = "work allocation remaining: " + workAlloc.attributeName;
+        }
+        else if (ListSubType == 'GetItemWorkAllocationListStarted') {
+            ListDescr = "work allocation started: " + workAlloc.attributeName;
+        }
+        else if (ListSubType == 'GetItemWorkAllocationList') {
+            ListDescr = "total work allocation: " + workAlloc.attributeName;
+        }
+        else {
+            ListDescr = "work allocation (unknown)";
+        }      
+        this.ItemListService.FetchWithCrit(crit, ListDescr);
     }
 
     OpenItem(itemId: number) {

@@ -39,6 +39,7 @@ namespace ERxWebClient2
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(3),
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["AppSettings:EPPIApiUrl"],
                         ValidAudience = Configuration["AppSettings:EPPIApiClientName"],

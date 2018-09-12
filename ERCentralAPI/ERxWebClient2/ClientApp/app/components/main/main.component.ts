@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -49,12 +49,18 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
-        
+    public isReviewPanelCollapsed = false;
+    public get ReviewPanelTogglingSymbol(): string {
+        if (this.isReviewPanelCollapsed) return '🠉';
+        else return '🠋';
+    }
     ngAfterViewInit() {
 
 
     }
-
+    toggleReviewPanel() {
+        this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+    }
     getDaysLeftAccount() {
 
         return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
@@ -71,7 +77,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     subOpeningReview: Subscription | null = null;
     ngOnInit() {
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
-        this.ReviewInfoService.Fetch();
+        //this.ReviewInfoService.Fetch();
         this.ReviewSetsService.GetReviewSets();
     }
 
@@ -85,15 +91,26 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewSetsService.Clear();
         this.workAllocationsComp.Clear();
     }
-    Logout() {
-        this.Clear();
-        this.router.navigate(['home']);
-    }
-
     LoadWorkAllocList(workAlloc: WorkAllocation) {
 
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
+    }
+    MyInfoMessage(): string {
+        let msg: string  = "Your account expires on: ";
+        let revPart: string = "";
+        let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
+            revPart = " | Current review is private (does not expire).";
+        }
+        else {
+            let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
+            revPart = " | Current(shared) review expires on " + RevExp + ".";
+        }
+        msg += AccExp + revPart;
+        return msg;
+        //Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+        //        | Current(shared) review expires on { { ReviewerIdentityServ.reviewerIdentity.reviewExpiration | date: 'shortDate' } }
     }
     ngOnDestroy() {
         if (this.subOpeningReview) {
