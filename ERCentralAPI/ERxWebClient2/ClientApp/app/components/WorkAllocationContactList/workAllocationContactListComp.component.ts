@@ -78,7 +78,6 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             //else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
             //    this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
             //    }
-            this.log("that's why");
             this.ItemListService.Refresh();
             return;
         }
