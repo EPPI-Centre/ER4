@@ -51,8 +51,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     public count: number = 60;
     public isReviewPanelCollapsed = false;
     public get ReviewPanelTogglingSymbol(): string {
-        if (this.isReviewPanelCollapsed) return '🠉';
-        else return '🠋';
+        if (this.isReviewPanelCollapsed) return '&uarr;';
+        else return '&darr;';
     }
     ngAfterViewInit() {
 

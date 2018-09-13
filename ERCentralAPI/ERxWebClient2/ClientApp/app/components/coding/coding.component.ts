@@ -150,6 +150,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     }
     SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
+            this.HTitle = this.item.title;
+            this.HAbstract = this.item.abstract;
             for (let term of this.ReviewerTermsService.TermsList) {
                 if (term.reviewerTerm && term.reviewerTerm.length > 0) {
                     console.log(term.reviewerTerm);
@@ -162,9 +164,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                     let reg = new RegExp(lTerm , "g");
                     let reg2 = new RegExp(uTerm , "g");
                     if (term.included) {
-                        this.HTitle = this.item.title.replace(reg, "<span class='RelevantTerm'>" + lTerm +"</span>");
+                        this.HTitle = this.HTitle.replace(reg, "<span class='RelevantTerm'>" + lTerm +"</span>");
                         this.HTitle = this.HTitle.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
-                        this.HAbstract = this.item.abstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
+                        this.HAbstract = this.HAbstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
                         this.HAbstract = this.HAbstract.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
                     }
                     else {
