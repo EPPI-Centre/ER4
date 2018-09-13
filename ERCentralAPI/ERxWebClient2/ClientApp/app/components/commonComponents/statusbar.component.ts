@@ -66,7 +66,7 @@ export class StatusBarComponent implements OnInit {
         
         if (guid != undefined && uu != '') {
 
-            this.timerObj = timer(30000, 30000).pipe(
+            this.timerObj = timer(3000, 3000).pipe(
                 takeUntil(this.killTrigger));
 
             this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
@@ -116,8 +116,6 @@ export class StatusBarComponent implements OnInit {
 
             this.ReviewerIdentityServ.currentStatus = msgSt;
         }
-        
-
     }
 
     pressedMore() {
@@ -129,33 +127,33 @@ export class StatusBarComponent implements OnInit {
 
     public handleError(error: any) {
 
-        console.error(error);
-        let httpErrorCode = error.httpErrorCode;
-        // For now we set all the error messages to the
-        // same message.
-        this.modalMsg = "We are sorry, you have lost communication with the server. To avoid data corruption, the page will now reload.\n" +
-                    "This message may appear if you didn't log out during a software update.\n" +
-                     "Note that Eppi-Reviewer might fail to load until the update is completed, please wait a couple of minutes and try again.";
+
+        let httpErrorCode = error;
 
         switch (httpErrorCode) {
-            case UNAUTHORIZED:
-               
+            case 401:
+                console.log('got inside the correct part for 401...');
+                this.modalMsg = 'got inside the correct part for a 401...';
                 this.openMsg(this.content);
                 break;
-            case FORBIDDEN:
-             
+            case 403:
+                console.log('got inside the correct part for 403...');
+                this.modalMsg = 'got inside the correct part for a 403...';
                 this.openMsg(this.content);
                 break;
-            case BAD_REQUEST:
-               
+            case 400:
+                console.log('got inside the correct part for 400...');
+                this.modalMsg = 'got inside the correct part for a 400...';
                 this.openMsg(this.content);
                 break;
-            case NOT_FOUND:
-               
+            case 404:
+                console.log('got inside the correct part for 404...');
+                this.modalMsg = 'got inside the correct part for a 404...';
                 this.openMsg(this.content);
                 break;
             default:
-             
+                console.log('got inside the correct part for default...');
+                this.modalMsg = 'got inside the correct part for a default...';
                 this.openMsg(this.content);
 
         }
@@ -172,7 +170,7 @@ export class StatusBarComponent implements OnInit {
                 }else {
 
                     if (this.timerObj) this.killTrigger.next();
-
+                    console.log(success);
                     let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                             case "Expired":
@@ -202,11 +200,9 @@ export class StatusBarComponent implements OnInit {
             },
             error => {
 
-                console.log('An unauthorized worked correctly...' + error);
-
                 if (this.timerObj) this.killTrigger.next();
 
-                this.handleError(error);
+                this.handleError(error.status);
 
           });
     }
