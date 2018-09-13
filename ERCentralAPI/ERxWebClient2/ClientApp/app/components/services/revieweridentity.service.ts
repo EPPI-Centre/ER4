@@ -110,7 +110,7 @@ export class ReviewerIdentityService {
 
         let LgtC = new LogonTicketCheck(u, g);
 
-        return this._httpC.post<LogonTicketCheck>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
+        return this._httpC.post<any>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).toPromise();
     }
        
@@ -146,8 +146,8 @@ export class ReviewerIdentityService {
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
+                    }
                 }
-            }
             );
       
     }
