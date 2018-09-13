@@ -42,10 +42,10 @@ namespace ERxWebClient2.Controllers
 
             //Lgt.Result = "Expired";
             //Lgt.ServerMessage = "...";
-            //return Ok(Lgt);
+            return Ok(Lgt);
             //return Forbid();
             //return Unauthorized();
-            return BadRequest();
+            //return BadRequest();
 
         }
     }
