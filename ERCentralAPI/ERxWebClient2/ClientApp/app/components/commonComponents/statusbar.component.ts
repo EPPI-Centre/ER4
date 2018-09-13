@@ -146,6 +146,11 @@ export class StatusBarComponent implements OnInit {
                 this.modalMsg = 'got inside the correct part for a 400...';
                 this.openMsg(this.content);
                 break;
+            case 404:
+                console.log('got inside the correct part for 404...');
+                this.modalMsg = 'got inside the correct part for a 404...';
+                this.openMsg(this.content);
+                break;
             default:
                 console.log('got inside the correct part for default...');
                 this.modalMsg = 'got inside the correct part for a default...';
