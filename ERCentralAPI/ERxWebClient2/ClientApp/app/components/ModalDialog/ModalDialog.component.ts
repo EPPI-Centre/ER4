@@ -8,7 +8,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     selector: 'app-confirm-dialog',
     template: `
 <div>
-  <div class="modal-header">
+  <div class="modal-header  bg-danger">
     <h4 class="modal-title">{{title}}</h4>
   </div>
   <div class="modal-body">
@@ -16,7 +16,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   </div>
   <div class="modal-footer">
       <button type="button"
-      class="btn btn-outline-dark"
+      class="btn btn-danger"
       (click)="activeModal.close(true)">Close</button>
   </div>
 </div>

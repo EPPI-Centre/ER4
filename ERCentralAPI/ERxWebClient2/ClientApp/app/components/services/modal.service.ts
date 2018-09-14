@@ -15,7 +15,7 @@ export class ModalService {
     constructor(private ngbModal: NgbModal) { }
 
     public confirm(
-        prompt = 'Really?', title = 'Error'
+        prompt = 'Really?!', title = 'Error'
     ): Observable<boolean> {
         const modal = this.ngbModal.open(
             ModalDialogComponent, { backdrop: 'static' });

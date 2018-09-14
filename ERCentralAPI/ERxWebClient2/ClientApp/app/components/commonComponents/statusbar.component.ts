@@ -217,7 +217,7 @@ export class StatusBarComponent implements OnInit {
         this.modalService.confirm(
             'There has been an error'
         ).pipe(
-            //take(1) // take() manages unsubscription for us
+            
         ).subscribe(result => {
 
             console.log('testing again....=>' + err.status)
