@@ -22,7 +22,7 @@ namespace ERxWebClient2.Controllers
     {
 
         [HttpGet("[action]")]
-        public ReadOnlyReviewList ReadOnlyReviews()//should receive a reviewID!
+        public IActionResult ReadOnlyReviews()//should receive a reviewID!
         {
             SetCSLAUser();
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -36,7 +36,7 @@ namespace ERxWebClient2.Controllers
             //Action.Invoke(ri, returnValue);
 
             //return returnValue;
-            return result;
+            return Ok(result);
         }
 
         //[HttpGet("[action]")]

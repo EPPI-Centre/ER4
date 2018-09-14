@@ -18,12 +18,13 @@ namespace ERxWebClient2.Controllers
     public class CodesetController : CSLAController
     {
         [HttpGet("[action]")]
-        public ReviewSetsList CodesetsByReview()
+        public IActionResult CodesetsByReview()
         {
             SetCSLAUser();
             DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
             ReviewSetsList res = dp.Fetch();
-            return res;
+            return Ok(res);
+
             //not using CSLA object!! this needs revising
             //SetCSLAUser();
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -48,5 +49,6 @@ namespace ERxWebClient2.Controllers
             //}
             //return (IEnumerable<ReviewSet>)res;
         }
+
     }
 }

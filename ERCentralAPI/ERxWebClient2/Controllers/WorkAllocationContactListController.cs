@@ -21,7 +21,7 @@ namespace ERxWebClient2.Controllers
     public class WorkAllocationContactListController : CSLAController
     {
         [HttpGet("[action]")]
-        public WorkAllocationContactList WorkAllocationContactList()//should receive a reviewID!
+        public IActionResult WorkAllocationContactList()//should receive a reviewID!
         {
             SetCSLAUser();
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -34,7 +34,7 @@ namespace ERxWebClient2.Controllers
             //    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             //});
             //return resSt;
-            return result;
+            return Ok(result);
         }
 
         

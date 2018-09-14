@@ -22,7 +22,7 @@ namespace ERxWebClient2.Controllers
     {
 
         [HttpGet("[action]")]
-        public ReviewInfo ReviewInfo()
+        public IActionResult ReviewInfo()
         {
             SetCSLAUser();
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -31,7 +31,7 @@ namespace ERxWebClient2.Controllers
 
             ReviewInfo result = dp.Fetch();
 
-            return result;
+            return Ok(result);
         }
 
     }

@@ -31,7 +31,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public ItemDocumentList GetDocuments([FromBody] SingleInt64Criteria ItemIDCrit)
+        public IActionResult GetDocuments([FromBody] SingleInt64Criteria ItemIDCrit)
         {
 
             SetCSLAUser();
@@ -43,7 +43,7 @@ namespace ERxWebClient2.Controllers
 
             ItemDocumentList result = dp.Fetch(criteria);
             
-            return result;
+            return Ok(result);
 
         }
 
