@@ -23,7 +23,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ConfirmDialogComponent {
+export class ModalDialogComponent {
     title: string = '';
     prompt: string= '';
 

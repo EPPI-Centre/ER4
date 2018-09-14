@@ -18,7 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 import { intropageComponent } from './components/intropage/intropage.component';
 import { HeaderComponent } from './components/commonComponents/header.component';
-import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
 
 @NgModule({
     declarations: [
@@ -34,11 +34,11 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
         InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
-        ConfirmDialogComponent,
+        ModalDialogComponent,
         HeaderComponent,
         MainComponent
     ],
-    entryComponents: [InfoBoxModalContent, ConfirmDialogComponent],
+    entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         CommonModule,
         NgbModule,
