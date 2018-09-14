@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy, Renderer2, ElementRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -107,7 +107,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
         this.showManualModal = false;
     }
     DeleteCodingCancelled() {
-        console.log('trying to close...')
+        //console.log('trying to close...')
         if (this.DeletingData) this.DeletingData.isSelected = true;
         this.DeletingEvent = undefined;
         this.DeletingData = null;
@@ -118,7 +118,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
         evdata.event = event;
         evdata.armId = data.armId;
         evdata.AttId = +data.id.replace('A', '');
-        console.log('AttID: ' + evdata.AttId);
+        //console.log('AttID: ' + evdata.AttId);
         evdata.additionalText = data.additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }
@@ -129,18 +129,21 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
     openInfoBox(data: singleNode) {
         //const tmp: any = new InfoBoxModalContent();
         let modalComp = this.modalService.open(InfoBoxModalContent);
-        this.renderer.selectRootElement('#InfoBoxText').focus();
-        console.log('ADDTXT: '+ data.additionalText);
+        //console.log('ADDTXT: '+ data.additionalText);
         modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
+        modalComp.componentInstance.focus();
+        //let tBox = this.renderer.selectRootElement('#InfoBoxText');
+        //tBox.innerText = modalComp.componentInstance.InfoBoxTextInput;
+        //console.log(tBox);
         modalComp.result.then((infoTxt) => {
             data.additionalText = infoTxt;
             if (!data.isSelected) {
                 
-                console.log('InfoboxTextAdded ' + data.additionalText);
+                //console.log('InfoboxTextAdded ' + data.additionalText);
                 this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);//checkbox is not ticked: we are adding this code
             }
             else {
-                console.log('InfoboxTextUpdate ' + data.additionalText);
+                //console.log('InfoboxTextUpdate ' + data.additionalText);
                 this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);// checkbox is ticked: we are editing text in infobox
             }
         },
@@ -180,12 +183,17 @@ export class CheckBoxClickedEventData {
     templateUrl: './InfoBoxModal.component.html'
 })
 export class InfoBoxModalContent {
+    @ViewChild('InfoBoxText')
+    InfoBoxText!: ElementRef;
     @Input() InfoBoxTextInput: string = "";
     public get IsReadOnly(): boolean {
         //console.log('Is read only???');
         return this.ReviewSetsService.CanWrite;
     }
     constructor(public activeModal: NgbActiveModal, private ReviewSetsService: ReviewSetsService) { }
+    public focus() {
+        this.InfoBoxText.nativeElement.focus();
+    }
 }
 
 

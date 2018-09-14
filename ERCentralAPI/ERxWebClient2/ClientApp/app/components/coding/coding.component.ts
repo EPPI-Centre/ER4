@@ -126,7 +126,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.PriorityScreeningService.PreviousItem();
     }
     public GotScreeningItem() {
-        console.log('got Screening Item');
+        //console.log('got Screening Item');
         this.item = this.PriorityScreeningService.CurrentItem;
         this.itemID = this.item.itemId;
         this.GetItemCoding();
@@ -154,13 +154,13 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.HAbstract = this.item.abstract;
             for (let term of this.ReviewerTermsService.TermsList) {
                 if (term.reviewerTerm && term.reviewerTerm.length > 0) {
-                    console.log(term.reviewerTerm);
+                    //console.log(term.reviewerTerm);
                     let lFirst = term.reviewerTerm.substr(0,1);
                     lFirst = lFirst.toLowerCase();
                     let uFirst = lFirst.toUpperCase();
                     let lTerm = lFirst + term.reviewerTerm.substr(1);
                     let uTerm = uFirst + term.reviewerTerm.substr(1);
-                    console.log('uTerm:' + uTerm);
+                    //console.log('uTerm:' + uTerm);
                     let reg = new RegExp(lTerm , "g");
                     let reg2 = new RegExp(uTerm , "g");
                     if (term.included) {
@@ -247,7 +247,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
         this.GetItemCoding();
         //subject stuff
-        console.log('called this once');
+        //console.log('called this once');
         this.itemId.next(this.itemID);
     }
     BackToMain() {
@@ -258,7 +258,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         
         let SubSuccess: Subscription;
         let SubError: Subscription;//see https://medium.com/thecodecampus-knowledge/the-easiest-way-to-unsubscribe-from-observables-in-angular-5abde80a5ae3
-        console.log(data.AttId);
+        //console.log(data.AttId);
         let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId);
         
         if (!attribute) {
@@ -284,11 +284,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         let itemAtt: ReadOnlyItemAttribute | null = null;
         if ((data.event.target && data.event.target.checked) || data.event == 'InfoboxTextAdded') {
             //add new code to item
-            console.log('cmd.saveType = "Insert"');
+            //console.log('cmd.saveType = "Insert"');
             cmd.saveType = "Insert";
         }
         else if (data.event == 'InfoboxTextUpdate' && itemSet) {
-            console.log('cmd.saveType = "Update"');
+            //console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
                 if (Candidate.attributeId == cmd.attributeId) {
@@ -322,7 +322,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
             //do something if command ended with an error
-            console.log('Error handling');
+            //console.log('Error handling');
             alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
@@ -357,7 +357,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             }
             else if (cmd.saveType == "Delete") {
                 
-                if (itemSet) console.log(itemSet.itemAttributesList.length);
+                //if (itemSet) console.log(itemSet.itemAttributesList.length);
                 //if (itemAtt) console.log(itemAtt.attributeId);
                 if (itemSet && itemAtt) {
                     //remove the itemAttribute from itemSet
@@ -366,7 +366,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                         //if itemset does not have item attributes, remove the itemset
                         this.ItemCodingService.ItemCodingList = this.ItemCodingService.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
                     }
-                    if (itemSet) console.log(itemSet.itemAttributesList.length);
+                    //if (itemSet) console.log(itemSet.itemAttributesList.length);
                 }
             }
             
@@ -388,7 +388,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
     }
     ngOnDestroy() {
-        console.log('killing coding comp');
+        //console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();

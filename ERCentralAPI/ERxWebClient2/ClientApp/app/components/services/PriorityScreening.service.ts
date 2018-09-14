@@ -63,9 +63,9 @@ export class PriorityScreeningService {
         return this.subtrainingList;
     }
     private DelayedFetch(waitSeconds: number) {
-        console.log('In DelayedFetch waiting ' + waitSeconds + 's');
+        //console.log('In DelayedFetch waiting ' + waitSeconds + 's');
         setTimeout(() => {
-            console.log("I'm done waiting");
+            //console.log("I'm done waiting");
             this.Fetch();
         }, waitSeconds * 1000);
         
@@ -80,10 +80,10 @@ export class PriorityScreeningService {
     public NextItem() {
         //Logic: if we are within the list of already seen items, find who's next and fetch it,
         //otherwise ask for "next in list", which will reserve the item (TrainingNextItem)
-        console.log(this.CurrentItem == null);
-        console.log(this.CurrentItem.itemId == 0);
-        console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
-        console.log(this.ScreenedItemIds.length);
+        //console.log(this.CurrentItem == null);
+        //console.log(this.CurrentItem.itemId == 0);
+        //console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+        //console.log(this.ScreenedItemIds.length);
 
         if ((this.CurrentItem == null || this.CurrentItem.itemId == 0) || (this.ScreenedItemIds.indexOf(this.CurrentItem.itemId) == this.ScreenedItemIds.length - 1)) {
             this.FetchNextItem();
@@ -94,17 +94,17 @@ export class PriorityScreeningService {
         //return new Item();
     }
     public PreviousItem() {
-        console.log('api/.../TrainingNextItem');
+        //console.log('api/.../TrainingNextItem');
         if (this.CurrentItemIndex > 0) this.FetchScreenedItem(this.CurrentItemIndex - 1);
     }
     private FetchNextItem() {
-        console.log('api/PriorirtyScreening/TrainingNextItem');
+        //console.log('api/PriorirtyScreening/TrainingNextItem');
         let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
         this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
             body).toPromise().then(
                 success => {
                     this.CurrentItem = success.item;
-                    console.log(this.CurrentItem.itemId);
+                    //console.log(this.CurrentItem.itemId);
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
                     if (currentIndex == -1) {
                         this.ScreenedItemIds.push(this.CurrentItem.itemId);
@@ -121,12 +121,12 @@ export class PriorityScreeningService {
     }
 
     private FetchScreenedItem(index: number) {
-        console.log('api/PriorirtyScreening/TrainingPreviousItem index: ' + index);
+        //console.log('api/PriorirtyScreening/TrainingPreviousItem index: ' + index);
         let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
         this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
             body).toPromise().then(
             success => {
-                console.log(success.item.title);
+                //console.log(success.item.title);
                     this.CurrentItem = success.item;
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
                     if (currentIndex != -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);
@@ -148,7 +148,7 @@ export class PriorityScreeningService {
         if (totalScreened <= 1000) {
             if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
                 currentCount == 750 )) {
-                console.log('RunningTraining!!!!');
+                //console.log('RunningTraining!!!!');
                 this.RunNewTrainingCommand();
             }
         }
@@ -169,7 +169,7 @@ export class PriorityScreeningService {
     }
     private RunNewTrainingCommand() {
         return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
-            console.log(tL);
+            //console.log(tL);
             this.DelayedFetch(30 * 60);//seconds to wait...
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
         });

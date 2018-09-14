@@ -41,7 +41,7 @@ export class ReviewSetsService {
         }
     }
     GetReviewSets() {
-        console.log('fetchReviewSets');
+        //console.log('fetchReviewSets');
         this._IsBusy = true;
         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
             data => {
@@ -300,7 +300,7 @@ export class ReviewSetsService {
                 this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
                 //this._IsBusy = false;
             }, error => {
-                console.log('ERROR!--ExecuteItemAttributeSaveCommand');
+                //console.log('ERROR!--ExecuteItemAttributeSaveCommand');
                 this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
             }
