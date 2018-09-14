@@ -56,30 +56,40 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult LoginToReview([FromBody] SingleIntCriteria RevIDCrit)
         {
-
-            
-            var userId = User.Claims.First(c => c.Type == "userId").Value;
-            int cID;
-            bool canProceed = true;
-            canProceed = int.TryParse(userId, out cID);
-            if (canProceed)
-            {
-                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
-                int Rid = ri.ReviewId;
-                if (ri.Ticket == "")
+            try
+            { 
+                var userId = User.Claims.First(c => c.Type == "userId").Value;
+                int cID;
+                bool canProceed = true;
+                canProceed = int.TryParse(userId, out cID);
+                if (canProceed)
                 {
-                    return Unauthorized();
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
+                    int Rid = ri.ReviewId;
+                    if (ri.Ticket == "")
+                    {
+                        return Unauthorized();
+                    }
+                    ri.Token = BuildToken(ri);
+                    return Ok(ri);
+
                 }
-                ri.Token = BuildToken(ri);
-                return Ok(ri);
 
+                else return StatusCode(500, "login to review failed");
+                {
+
+                }
             }
+            catch (Exception)
+            {
 
-            else return StatusCode(500, "login to review failed");
+                throw;
+            }
         }
 
         private string BuildToken(ReviewerIdentity ri)
         {
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["AppSettings:EPPIApiClientSecret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             IIdentity id = ri as IIdentity;
@@ -105,12 +115,21 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public  GetLatestUpdateMsgCommand VersionInfo()
+        public IActionResult VersionInfo()
         {
-            DataPortal<GetLatestUpdateMsgCommand> dp = new DataPortal<GetLatestUpdateMsgCommand>();
-            GetLatestUpdateMsgCommand command = new GetLatestUpdateMsgCommand();
-            command =  dp.Execute(command);
-            return command;
+            try
+            {
+
+                DataPortal<GetLatestUpdateMsgCommand> dp = new DataPortal<GetLatestUpdateMsgCommand>();
+                GetLatestUpdateMsgCommand command = new GetLatestUpdateMsgCommand();
+                command =  dp.Execute(command);
+                return Ok(command);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         
     }

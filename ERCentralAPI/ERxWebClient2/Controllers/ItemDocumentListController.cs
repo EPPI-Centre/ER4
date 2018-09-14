@@ -51,7 +51,7 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public ActionResult GetItemDocument(int ItemDocumentID)
         {
-           
+            
             SetCSLAUser();
 
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

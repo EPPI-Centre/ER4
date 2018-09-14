@@ -24,19 +24,29 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public IActionResult ReadOnlyReviews()//should receive a reviewID!
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            DataPortal<ReadOnlyReviewList> dp = new DataPortal<ReadOnlyReviewList>();
-            SingleCriteria<ReadOnlyReviewList, int> criteria = new SingleCriteria<ReadOnlyReviewList, int>(ri.UserId);
-            ReadOnlyReviewList result = dp.Fetch(criteria);
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            //ReadOnlyReviewList returnValue = new ReadOnlyReviewList();
-            //Action<ReviewerIdentity, ReadOnlyReviewList> Action = new Action<ReviewerIdentity, ReadOnlyReviewList>(Doit);
-            //Action.Invoke(ri, returnValue);
+                DataPortal<ReadOnlyReviewList> dp = new DataPortal<ReadOnlyReviewList>();
+                SingleCriteria<ReadOnlyReviewList, int> criteria = new SingleCriteria<ReadOnlyReviewList, int>(ri.UserId);
+                ReadOnlyReviewList result = dp.Fetch(criteria);
 
-            //return returnValue;
-            return Ok(result);
+                //ReadOnlyReviewList returnValue = new ReadOnlyReviewList();
+                //Action<ReviewerIdentity, ReadOnlyReviewList> Action = new Action<ReviewerIdentity, ReadOnlyReviewList>(Doit);
+                //Action.Invoke(ri, returnValue);
+
+                //return returnValue;
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
         //[HttpGet("[action]")]
@@ -49,7 +59,7 @@ namespace ERxWebClient2.Controllers
         //    SingleCriteria<ReadOnlyReviewList, int> criteria = new SingleCriteria<ReadOnlyReviewList, int>(ri.UserId);
         //    ReadOnlyReviewList result = dp.Fetch(criteria);
 
-       
+
         //    return result;
         //}
 

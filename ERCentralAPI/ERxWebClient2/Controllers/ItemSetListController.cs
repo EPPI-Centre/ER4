@@ -44,30 +44,40 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult ExcecuteItemAttributeSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
         {
-            SetCSLAUser();
-            //ReviewInfo rinf = new ReviewInfo();
-            ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
-                MVCcmd.saveType
-                , MVCcmd.itemAttributeId
-                , MVCcmd.itemSetId
-                , MVCcmd.additionalText
-                , MVCcmd.attributeId
-                , MVCcmd.setId
-                , MVCcmd.itemId
-                , MVCcmd.itemArmId
-                , MVCcmd.revInfo.ToCSLAReviewInfo()
-                //,rinf
-                );
-            DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
-            cmd = dp.Execute(cmd);
-            MVCcmd.additionalText = cmd.AdditionalText;
-            MVCcmd.attributeId = cmd.AttributeId;
-            MVCcmd.itemArmId = cmd.ItemArmId;
-            MVCcmd.itemAttributeId = cmd.ItemAttributeId;
-            MVCcmd.itemId = cmd.ItemId;
-            MVCcmd.itemSetId = cmd.ItemSetId;
-            MVCcmd.setId = cmd.SetId;
-            return Ok(MVCcmd);
+            try
+            {
+
+                SetCSLAUser();
+                //ReviewInfo rinf = new ReviewInfo();
+                ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
+                    MVCcmd.saveType
+                    , MVCcmd.itemAttributeId
+                    , MVCcmd.itemSetId
+                    , MVCcmd.additionalText
+                    , MVCcmd.attributeId
+                    , MVCcmd.setId
+                    , MVCcmd.itemId
+                    , MVCcmd.itemArmId
+                    , MVCcmd.revInfo.ToCSLAReviewInfo()
+                    //,rinf
+                    );
+                DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
+                cmd = dp.Execute(cmd);
+                MVCcmd.additionalText = cmd.AdditionalText;
+                MVCcmd.attributeId = cmd.AttributeId;
+                MVCcmd.itemArmId = cmd.ItemArmId;
+                MVCcmd.itemAttributeId = cmd.ItemAttributeId;
+                MVCcmd.itemId = cmd.ItemId;
+                MVCcmd.itemSetId = cmd.ItemSetId;
+                MVCcmd.setId = cmd.SetId;
+                return Ok(MVCcmd);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
     }

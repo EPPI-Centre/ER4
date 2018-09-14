@@ -26,27 +26,38 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult ExcecuteCheckTicketExpirationCommand([FromBody] LoginTicketCheck Lgt)
         {
-            SetCSLAUser();
-            CheckTicketExpirationCommand cmd = new CheckTicketExpirationCommand(
 
-                Lgt.userId,
-                Lgt.GUID
+            try
+            {
 
-            );
-            DataPortal<CheckTicketExpirationCommand> dp = new DataPortal<CheckTicketExpirationCommand>();
-            cmd = dp.Execute(cmd);
 
-            Lgt.Result = cmd.Result;
-            Lgt.ServerMessage = cmd.ServerMessage;
-            if (Lgt.ServerMessage.Contains(@"\n")) Lgt.ServerMessage = Lgt.ServerMessage.Replace(@"\n", @"<br />");
+                SetCSLAUser();
+                CheckTicketExpirationCommand cmd = new CheckTicketExpirationCommand(
 
-            //Lgt.Result = "Expired";
-            //Lgt.ServerMessage = "...";
-            return Ok(Lgt);
-            //return Forbid();
-            //return Unauthorized();
-            //return BadRequest();
+                    Lgt.userId,
+                    Lgt.GUID
 
+                );
+                DataPortal<CheckTicketExpirationCommand> dp = new DataPortal<CheckTicketExpirationCommand>();
+                cmd = dp.Execute(cmd);
+
+                Lgt.Result = cmd.Result;
+                Lgt.ServerMessage = cmd.ServerMessage;
+                if (Lgt.ServerMessage.Contains(@"\n")) Lgt.ServerMessage = Lgt.ServerMessage.Replace(@"\n", @"<br />");
+
+                //Lgt.Result = "Expired";
+                //Lgt.ServerMessage = "...";
+                return Ok(Lgt);
+                //return Forbid();
+                //return Unauthorized();
+                //return BadRequest();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 

@@ -24,14 +24,25 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public IActionResult ReviewInfo()
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            DataPortal<ReviewInfo> dp = new DataPortal<ReviewInfo>();
+            try
+            {
 
-            ReviewInfo result = dp.Fetch();
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            return Ok(result);
+                DataPortal<ReviewInfo> dp = new DataPortal<ReviewInfo>();
+
+                ReviewInfo result = dp.Fetch();
+
+                return Ok(result);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
     }

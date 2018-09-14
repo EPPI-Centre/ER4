@@ -20,10 +20,19 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public IActionResult CodesetsByReview()
         {
-            SetCSLAUser();
-            DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
-            ReviewSetsList res = dp.Fetch();
-            return Ok(res);
+
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                ReviewSetsList res = dp.Fetch();
+                return Ok(res);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
 
             //not using CSLA object!! this needs revising
             //SetCSLAUser();

@@ -23,18 +23,27 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public IActionResult WorkAllocationContactList()//should receive a reviewID!
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            DataPortal<WorkAllocationContactList> dp = new DataPortal<WorkAllocationContactList>();
-            WorkAllocationContactList result = dp.Fetch();
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                DataPortal<WorkAllocationContactList> dp = new DataPortal<WorkAllocationContactList>();
+                WorkAllocationContactList result = dp.Fetch();
 
-            //Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
-            //string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
-            //{
-            //    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            //});
-            //return resSt;
-            return Ok(result);
+                //Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
+                //string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
+                //{
+                //    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                //});
+                //return resSt;
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
 
         

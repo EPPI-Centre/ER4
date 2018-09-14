@@ -26,20 +26,29 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public ItemList4Json IncludedItems()//should receive a reviewID!
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            DataPortal<ItemList> dp = new DataPortal<ItemList>();            
-            SelectionCriteria crit = new SelectionCriteria();
-            //crit = new SelectionCriteria();
-            crit.ListType = "StandardItemList";
-            crit.OnlyIncluded = true;
-            crit.ShowDeleted = false;
-            crit.AttributeSetIdList = "";
-            crit.PageSize = 5;
-            crit.PageNumber = 0;
-            ItemList result = dp.Fetch(crit);
-            return new ItemList4Json(result);
+                DataPortal<ItemList> dp = new DataPortal<ItemList>();
+                SelectionCriteria crit = new SelectionCriteria();
+                //crit = new SelectionCriteria();
+                crit.ListType = "StandardItemList";
+                crit.OnlyIncluded = true;
+                crit.ShowDeleted = false;
+                crit.AttributeSetIdList = "";
+                crit.PageSize = 5;
+                crit.PageNumber = 0;
+                ItemList result = dp.Fetch(crit);
+                return new ItemList4Json(result);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         [HttpPost("[action]")]
@@ -86,21 +95,30 @@ namespace ERxWebClient2.Controllers
         }
         
         [HttpPost("[action]")]
-        public ItemList4Json WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)//should receive a reviewID!
+        public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)//should receive a reviewID!
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            try
+            {
 
-            DataPortal<ItemList> dp = new DataPortal<ItemList>();
-            SelectionCriteria crit = new SelectionCriteria();
-            crit.WorkAllocationId = AllocationId;
-            crit.ListType = ListType;
-            crit.PageSize = pageSize;
-            crit.PageNumber = pageNumber;
-            ItemList result = dp.Fetch(crit);
-            //return Json(result);
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            return new ItemList4Json(result);
+                DataPortal<ItemList> dp = new DataPortal<ItemList>();
+                SelectionCriteria crit = new SelectionCriteria();
+                crit.WorkAllocationId = AllocationId;
+                crit.ListType = ListType;
+                crit.PageSize = pageSize;
+                crit.PageNumber = pageNumber;
+                ItemList result = dp.Fetch(crit);
+                //return Json(result);
+
+                return Ok(new ItemList4Json(result));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
     public class SelCritMVC
