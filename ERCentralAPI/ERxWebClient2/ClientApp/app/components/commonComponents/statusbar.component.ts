@@ -65,12 +65,9 @@ export class StatusBarComponent implements OnInit {
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
         
         if (guid != undefined && uu != '') {
-
-            this.timerObj = timer(3000, 3000).pipe(
+            this.timerObj = timer(15000, 45000).pipe(
                 takeUntil(this.killTrigger));
-
             this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
-
         }
 
     }
@@ -132,27 +129,27 @@ export class StatusBarComponent implements OnInit {
 
         switch (httpErrorCode) {
             case 401:
-                console.log('got inside the correct part for 401...');
+                //console.log('got inside the correct part for 401...');
                 this.modalMsg = 'got inside the correct part for a 401...';
                 this.openMsg(this.content);
                 break;
             case 403:
-                console.log('got inside the correct part for 403...');
+                //console.log('got inside the correct part for 403...');
                 this.modalMsg = 'got inside the correct part for a 403...';
                 this.openMsg(this.content);
                 break;
             case 400:
-                console.log('got inside the correct part for 400...');
+                //console.log('got inside the correct part for 400...');
                 this.modalMsg = 'got inside the correct part for a 400...';
                 this.openMsg(this.content);
                 break;
             case 404:
-                console.log('got inside the correct part for 404...');
+                //console.log('got inside the correct part for 404...');
                 this.modalMsg = 'got inside the correct part for a 404...';
                 this.openMsg(this.content);
                 break;
             default:
-                console.log('got inside the correct part for default...');
+                //console.log('got inside the correct part for default...');
                 this.modalMsg = 'got inside the correct part for a default...';
                 this.openMsg(this.content);
 
@@ -170,7 +167,7 @@ export class StatusBarComponent implements OnInit {
                 }else {
 
                     if (this.timerObj) this.killTrigger.next();
-                    console.log(success);
+                    //console.log(success);
                     let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                             case "Expired":

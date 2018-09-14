@@ -49,7 +49,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
                 this.sub = this.ItemCodingService.DataChanged.subscribe(
                 
                     () => {
-                        console.log('inside the component doc stuff: ' + this.itemID);
+                        //console.log('inside the component doc stuff: ' + this.itemID);
                         this.ItemDocsService.FetchDocList(this.itemID);
                     }
                 );

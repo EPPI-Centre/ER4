@@ -120,7 +120,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     log(blah: string) {
-        console.log(blah)
+        console.log(blah);
     }
 
     ngOnInit() {
@@ -176,7 +176,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         this.router.navigate(['itemcoding', 'PriorityScreening']);
     }
     ngOnDestroy() {
-        console.log('killing work alloc comp');
+        //console.log('killing work alloc comp');
         if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded.unsubscribe();
         //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }

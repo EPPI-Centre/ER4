@@ -4,20 +4,26 @@
 
 @*<app asp-prerender-module="ClientApp/dist/main-server">Loading...</app>*@
 <head>
-<style>
-    .RelevantTerm {
-        color: white;
-        background-color: green;
-    }
+    <style>
+        .RelevantTerm {
+            color: white;
+            background-color: green;
+        }
 
-    .IrrelevantTerm {
-        color: white;
-        background-color: red;
-    }
-</style>    
+        .IrrelevantTerm {
+            color: white;
+            background-color: red;
+        }
+    </style>
 
 </head>
-<app>Loading...</app>
+<app>
+    <p>
+        Loading...
+    </p>
+    <p>Please note that this app <b>cannot work in Internet Explorer</b>.</p>
+    <p>Supported browsers include all fairly recent versions of Edge, FireFox, Safari (including iOS) and Chrome.</p>
+</app>
 <script src="~/dist/vendor.js" asp-append-version="true"></script>
 @section scripts {
 
