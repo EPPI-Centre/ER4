@@ -17,6 +17,7 @@ import { Response } from '@angular/http';
 import { ErrorHandler } from "@angular/core";
 import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
 import { DomSanitizer } from '@angular/platform-browser';
+import { ModalService } from '../services/modal.service';
 
 
 @Component({
@@ -34,8 +35,9 @@ export class StatusBarComponent implements OnInit {
                 @Inject('BASE_URL') private _baseUrl: string,
                 public ReviewerIdentityServ: ReviewerIdentityService,
                 public ReviewInfoService: ReviewInfoService,
-        private modalService: NgbModal,
-        public sanitizer: DomSanitizer
+        //private modalService: NgbModal,
+        public sanitizer: DomSanitizer,
+        public modalService: ModalService
     ) {    }
 
     private killTrigger: Subject<void> = new Subject();
@@ -115,46 +117,45 @@ export class StatusBarComponent implements OnInit {
         }
     }
 
-    pressedMore() {
+    //pressedMore() {
 
-        this.modalMsg = this.fullMsg;
-        this.openMsg(this.content);
+    //    this.modalMsg = this.fullMsg;
+    //    this.openMsg(this.content);
 
-    }
+    //}
 
-    public handleError(error: any) {
+    //public handleError(error: any) {
+        
+    //    let httpErrorCode = error;
 
+    //    switch (httpErrorCode) {
+    //        case 401:
+    //            console.log('got inside the correct part for 401...');
+    //            this.modalMsg = 'got inside the correct part for a 401...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 403:
+    //            console.log('got inside the correct part for 403...');
+    //            this.modalMsg = 'got inside the correct part for a 403...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 400:
+    //            console.log('got inside the correct part for 400...');
+    //            this.modalMsg = 'got inside the correct part for a 400...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 404:
+    //            console.log('got inside the correct part for 404...');
+    //            this.modalMsg = 'got inside the correct part for a 404...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        default:
+    //            console.log('got inside the correct part for default...');
+    //            this.modalMsg = 'got inside the correct part for a default...';
+    //            this.openMsg(this.content);
 
-        let httpErrorCode = error;
-
-        switch (httpErrorCode) {
-            case 401:
-                //console.log('got inside the correct part for 401...');
-                this.modalMsg = 'got inside the correct part for a 401...';
-                this.openMsg(this.content);
-                break;
-            case 403:
-                //console.log('got inside the correct part for 403...');
-                this.modalMsg = 'got inside the correct part for a 403...';
-                this.openMsg(this.content);
-                break;
-            case 400:
-                //console.log('got inside the correct part for 400...');
-                this.modalMsg = 'got inside the correct part for a 400...';
-                this.openMsg(this.content);
-                break;
-            case 404:
-                //console.log('got inside the correct part for 404...');
-                this.modalMsg = 'got inside the correct part for a 404...';
-                this.openMsg(this.content);
-                break;
-            default:
-                //console.log('got inside the correct part for default...');
-                this.modalMsg = 'got inside the correct part for a default...';
-                this.openMsg(this.content);
-
-        }
-    }
+    //    }
+    //}
 
     LogonTicketCheckTimer(user: string, guid: string) {
 
@@ -189,8 +190,9 @@ export class StatusBarComponent implements OnInit {
                             break;
                     }
                     msg += "You will be asked to logon again when you close this message."
-                    this.modalMsg = msg;
-                    this.openMsg(this.content);
+
+                    //this.modalMsg = msg;
+                    //this.openMsg(this.content);
                 }
 
 
@@ -199,26 +201,44 @@ export class StatusBarComponent implements OnInit {
 
                 if (this.timerObj) this.killTrigger.next();
 
-                this.handleError(error.status);
+                // Put this back afterwards...just check we
+                // can call the global modal service...
+                this.openConfirm(error);
+
+                //this.handleError(error.status);
 
           });
     }
 
-    //https://ng-bootstrap.github.io/#/components/modal/examples
-    openMsg(content : any) {
-        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
+    openConfirm(err: any) {
+        this.modalService.confirm(
+            'There has been an error'
+        ).pipe(
+            
+        ).subscribe(result => {
 
-                    //alert('Simulate application returning to logon page: ' + res);
-
-        },
-        (res) => {
-                    //alert('Continue for debugging purposes: ' + res)
-                    if (!this.isMoreButtonVisible == true) {
-                        this.router.navigate(['home']);
-                    }
-                }
-        );
+            console.log('testing again....=>' + err.status)
+            //console.log('asdfasdf' + { confirmedResult: result });
+            //this.confirmedResult = result;
+        });
     }
+
+
+    //https://ng-bootstrap.github.io/#/components/modal/examples
+    //openMsg(content : any) {
+    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
+
+    //                //alert('Simulate application returning to logon page: ' + res);
+
+    //    },
+    //    (res) => {
+    //                //alert('Continue for debugging purposes: ' + res)
+    //                if (!this.isMoreButtonVisible == true) {
+    //                    this.router.navigate(['home']);
+    //                }
+    //            }
+    //    );
+    //}
 
 }
 

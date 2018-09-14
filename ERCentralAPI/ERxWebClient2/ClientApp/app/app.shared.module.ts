@@ -18,6 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.component';
 import { intropageComponent } from './components/intropage/intropage.component';
 import { HeaderComponent } from './components/commonComponents/header.component';
+import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
 
 @NgModule({
     declarations: [
@@ -33,10 +34,11 @@ import { HeaderComponent } from './components/commonComponents/header.component'
         InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
+        ModalDialogComponent,
         HeaderComponent,
         MainComponent
     ],
-    entryComponents: [InfoBoxModalContent],
+    entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         CommonModule,
         NgbModule,
