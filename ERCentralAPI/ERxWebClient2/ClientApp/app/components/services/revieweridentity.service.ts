@@ -81,6 +81,7 @@ export class ReviewerIdentityService {
                     this.router.navigate(['intropage']);
                 }
             }, error => {
+                //check error is 401, if it is show modal and on modal close, go home
                 this.LoginFailed.emit();
             }
             );
