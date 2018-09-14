@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AppComponent } from '../app/app.component'
@@ -12,24 +12,57 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService } from './ReviewSets.service';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerTermsService } from './ReviewerTerms.service';
+import { ModalService } from './modal.service';
+import { take } from 'lodash';
+
 
 @Injectable({
     providedIn: 'root',
-    }
-)
+})
+    
+//@Component({
+
+//        selector: 'content',
+//        template: `< ng - template #content let - c="close" let - d="dismiss" >
+//        <div class="modal-header" >
+//        <h4 class="modal-title" id = "modal-basic-title" > Security update < /h4>
+//        < button type = "button" class= "close" aria - label="Close"(click) = "d('Cross click')" >
+//        <span aria - hidden="true" >& times; </span>
+//        < /button>
+//        < /div>
+//        < div class="modal-body" >
+//        <form>
+//        <div class="form-group" >
+//        <div class="input-group"[innerHTML] = "modalMsg" >
+//        </div>
+//        < /div>
+//        < /form>
+//        < /div>
+//        < div * ngIf="isAdmin" class="modal-footer" >
+//        <button type="button" class="btn btn-outline-dark"(click) = "c('Save click')" > Close but stay on page for development reasons < /button>
+//        < /div>
+//        < /ng-template>`
+
+//})
+
 
 export class ReviewerIdentityService {
+
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         , @Inject(PLATFORM_ID) private _platformId: Object,
         private ReviewerTermsService: ReviewerTermsService,
-        private modalService: NgbModal) { }
+        private modalService: ModalService
+    ) { }
 
     private _reviewerIdentity: ReviewerIdentity = new ReviewerIdentity;
     public currentStatus: string = 'No message yet.';
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
+    public modalMsg: string = '';
+
+    //@ViewChild('content') private content: any;
 
     public get reviewerIdentity(): ReviewerIdentity {
         
@@ -82,22 +115,83 @@ export class ReviewerIdentityService {
                 }
             }, error => {
                 //check error is 401, if it is show modal and on modal close, go home
+
+                this.openConfirm();
+
+                //this.handleError(error.status);
+
                 this.LoginFailed.emit();
-            }
+                }
             );
 
     }
 
-    
+    openConfirm() {
+        this.modalService.confirm(
+            'Your login has failed!'
+        ).pipe(
+            //take(1) // take() manages unsubscription for us
+        ).subscribe(result => {
+
+            console.log('asdfasdf' + { confirmedResult: result });
+            //this.confirmedResult = result;
+        });
+    }
+
+    //openMsg(content: any) {
+    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
+
+    //        //alert('Simulate application returning to logon page: ' + res);
+
+    //    },
+    //        (res) => {
+    //            //alert('Continue for debugging purposes: ' + res)
+    //            if (!this.isMoreButtonVisible == true) {
+    //                this.router.navigate(['home']);
+    //            }
+    //        }
+    //    );
+    //}
+
+    //public handleError(error: any) {
+
+    //    let httpErrorCode = error;
+
+    //    switch (httpErrorCode) {
+    //        case 401:
+    //            console.log('got inside the reviewerIdentity part for 401...');
+    //            this.modalMsg = 'got inside the reviewerIdentity part for a 401...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 403:
+    //            console.log('got inside the reviewerIdentity part for 403...');
+    //            this.modalMsg = 'got inside the reviewerIdentity part for a 403...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 400:
+    //            console.log('got inside the reviewerIdentity part for 400...');
+    //            this.modalMsg = 'got inside the reviewerIdentity part for a 400...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        case 404:
+    //            console.log('got inside the reviewerIdentity part for 404...');
+    //            this.modalMsg = 'got inside the reviewerIdentity part for a 404...';
+    //            this.openMsg(this.content);
+    //            break;
+    //        default:
+    //            console.log('got inside the reviewerIdentity part for default...');
+    //            this.modalMsg = 'got inside the reviewerIdentity part for a default...';
+    //            this.openMsg(this.content);
+
+    //    }
+    //}
 
     public UpdateStatus(msg: string) {
 
         this.currentStatus = msg;
 
     }
-
     
-
     public FetchCurrentTicket() {
 
         return this._reviewerIdentity.ticket;
@@ -116,15 +210,15 @@ export class ReviewerIdentityService {
     }
        
 
-    openMsg(content: any) {
-        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
-            //alert('closed');
-        },
-            () => {
-                //alert('dismissed')
-            }
-        );
-    }
+    //openMsg(content: any) {
+    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
+    //        //alert('closed');
+    //    },
+    //        () => {
+    //            //alert('dismissed')
+    //        }
+    //    );
+    //}
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {

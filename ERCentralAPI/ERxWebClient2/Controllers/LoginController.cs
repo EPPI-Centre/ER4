@@ -35,6 +35,9 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult Login([FromBody] LoginCreds lc)
         {
+
+            //return Forbid();
+
             try
             {
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
