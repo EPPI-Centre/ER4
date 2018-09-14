@@ -56,9 +56,10 @@ namespace ERxWebClient2.Controllers
         }
         [Authorize]
         [HttpPost("[action]")]
-        public ReviewerIdentity LoginToReview([FromBody] SingleIntCriteria RevIDCrit)
+        public IActionResult LoginToReview([FromBody] SingleIntCriteria RevIDCrit)
         {
 
+            
             var userId = User.Claims.First(c => c.Type == "userId").Value;
             int cID;
             bool canProceed = true;
@@ -66,11 +67,17 @@ namespace ERxWebClient2.Controllers
             if (canProceed)
             {
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
+                int Rid = ri.ReviewId;
+                if (ri.Ticket == "")
+                {
+                    return Unauthorized();
+                }
                 ri.Token = BuildToken(ri);
-                return ri;
-                
+                return Ok(ri);
+
             }
-            else return null;
+
+            else return StatusCode(500, "login to review failed");
         }
 
         private string BuildToken(ReviewerIdentity ri)

@@ -20,32 +20,6 @@ import { take } from 'lodash';
     providedIn: 'root',
 })
     
-//@Component({
-
-//        selector: 'content',
-//        template: `< ng - template #content let - c="close" let - d="dismiss" >
-//        <div class="modal-header" >
-//        <h4 class="modal-title" id = "modal-basic-title" > Security update < /h4>
-//        < button type = "button" class= "close" aria - label="Close"(click) = "d('Cross click')" >
-//        <span aria - hidden="true" >& times; </span>
-//        < /button>
-//        < /div>
-//        < div class="modal-body" >
-//        <form>
-//        <div class="form-group" >
-//        <div class="input-group"[innerHTML] = "modalMsg" >
-//        </div>
-//        < /div>
-//        < /form>
-//        < /div>
-//        < div * ngIf="isAdmin" class="modal-footer" >
-//        <button type="button" class="btn btn-outline-dark"(click) = "c('Save click')" > Close but stay on page for development reasons < /button>
-//        < /div>
-//        < /ng-template>`
-
-//})
-
-
 export class ReviewerIdentityService {
 
     constructor(private router: Router, //private _http: Http, 
@@ -114,9 +88,8 @@ export class ReviewerIdentityService {
                     this.router.navigate(['intropage']);
                 }
             }, error => {
-                //check error is 401, if it is show modal and on modal close, go home
-
-                this.openConfirm();
+                ////check error is 401, if it is show modal and on modal close, go home
+                //if (error = 401) this.SendBackHome();
 
                 //this.handleError(error.status);
 
@@ -125,19 +98,7 @@ export class ReviewerIdentityService {
             );
 
     }
-
-    openConfirm() {
-        this.modalService.confirm(
-            'Your login has failed!'
-        ).pipe(
-            //take(1) // take() manages unsubscription for us
-        ).subscribe(result => {
-
-            console.log('asdfasdf' + { confirmedResult: result });
-            //this.confirmedResult = result;
-        });
-    }
-
+    
     //openMsg(content: any) {
     //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
@@ -242,21 +203,39 @@ export class ReviewerIdentityService {
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
                     }
-                }
+            }
+            , error => {
+                console.log(error);
+                if (error.status == 401) this.SendBackHome();
+                else this.GenericError(error);
+            }
             );
       
+    }
+    SendBackHome() {
+        this.modalService.confirm(
+            'Your login has failed, please login again.'
+        ).subscribe(result => {
+                this.router.navigate(['home']);
+            }, error => {
+                this.router.navigate(['home']);
+            });
+    }
+    GenericError(error: any) {
+        this.modalService.confirm(
+            'Sorry, could not open the review. Error code is: ' + error.status + ". Error message is: " + error.statusText
+        );
     }
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
 
         if (this._reviewerIdentity.userId != 0) {
             localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
-            
         }
-            else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
+        else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
+        {
             localStorage.removeItem('currentErUser');
-
-        //}
+        }
     }
     getDaysLeftAccount() {
         return this.reviewerIdentity.daysLeftAccount;
