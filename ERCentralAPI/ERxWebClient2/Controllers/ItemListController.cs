@@ -43,38 +43,46 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public ItemList4Json Fetch([FromBody] SelCritMVC crit )
+        public IActionResult Fetch([FromBody] SelCritMVC crit )
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            DataPortal<ItemList> dp = new DataPortal<ItemList>();
-            SelectionCriteria CSLAcrit = new SelectionCriteria();
-            CSLAcrit.OnlyIncluded = crit.onlyIncluded;
-            CSLAcrit.ShowDeleted = crit.showDeleted;
-            CSLAcrit.SourceId = crit.sourceId;
-            CSLAcrit.SearchId = crit.searchId;
-            CSLAcrit.XAxisSetId = crit.xAxisSetId;
-            CSLAcrit.XAxisAttributeId = crit.xAxisAttributeId;
-            CSLAcrit.YAxisSetId = crit.yAxisSetId;
-            CSLAcrit.YAxisAttributeId = crit.yAxisAttributeId;
-            CSLAcrit.FilterSetId = crit.filterSetId;
-            CSLAcrit.FilterAttributeId = crit.filterAttributeId;
-            CSLAcrit.AttributeSetIdList = crit.attributeSetIdList;
-            CSLAcrit.ListType = crit.listType;
-            CSLAcrit.PageNumber = crit.pageNumber;
-            CSLAcrit.PageSize = crit.pageSize;
-            CSLAcrit.WorkAllocationId = crit.workAllocationId;
-            CSLAcrit.ComparisonId = crit.comparisonId;
-            CSLAcrit.Description = crit.description;
-            CSLAcrit.ContactId = crit.contactId;
-            CSLAcrit.SetId = crit.setId;
-            CSLAcrit.ShowInfoColumn = crit.showInfoColumn;
-            CSLAcrit.ShowScoreColumn = crit.showScoreColumn;
-            ItemList result = dp.Fetch(CSLAcrit);
+                DataPortal<ItemList> dp = new DataPortal<ItemList>();
+                SelectionCriteria CSLAcrit = new SelectionCriteria();
+                CSLAcrit.OnlyIncluded = crit.onlyIncluded;
+                CSLAcrit.ShowDeleted = crit.showDeleted;
+                CSLAcrit.SourceId = crit.sourceId;
+                CSLAcrit.SearchId = crit.searchId;
+                CSLAcrit.XAxisSetId = crit.xAxisSetId;
+                CSLAcrit.XAxisAttributeId = crit.xAxisAttributeId;
+                CSLAcrit.YAxisSetId = crit.yAxisSetId;
+                CSLAcrit.YAxisAttributeId = crit.yAxisAttributeId;
+                CSLAcrit.FilterSetId = crit.filterSetId;
+                CSLAcrit.FilterAttributeId = crit.filterAttributeId;
+                CSLAcrit.AttributeSetIdList = crit.attributeSetIdList;
+                CSLAcrit.ListType = crit.listType;
+                CSLAcrit.PageNumber = crit.pageNumber;
+                CSLAcrit.PageSize = crit.pageSize;
+                CSLAcrit.WorkAllocationId = crit.workAllocationId;
+                CSLAcrit.ComparisonId = crit.comparisonId;
+                CSLAcrit.Description = crit.description;
+                CSLAcrit.ContactId = crit.contactId;
+                CSLAcrit.SetId = crit.setId;
+                CSLAcrit.ShowInfoColumn = crit.showInfoColumn;
+                CSLAcrit.ShowScoreColumn = crit.showScoreColumn;
+                ItemList result = dp.Fetch(CSLAcrit);
 
-            //return Json(result);
-            return new ItemList4Json(result);
+                //return Json(result);
+                return Ok(new ItemList4Json(result));
+            }
+            catch (Exception e)
+            {
+                //add logging!
+                return StatusCode(500, e.Message);
+            }
         }
         
         [HttpPost("[action]")]

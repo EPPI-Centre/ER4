@@ -97,8 +97,8 @@ namespace ERxWebClient2.Controllers
             var token = new JwtSecurityToken(_config["AppSettings:EPPIApiUrl"],
               _config["AppSettings:EPPIApiClientName"],
               riCI.Claims,
-              //expires: DateTime.Now.AddHours(6),
-              expires: DateTime.Now.AddSeconds(15),
+              expires: DateTime.Now.AddHours(6),
+              //expires: DateTime.Now.AddSeconds(15),
               signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

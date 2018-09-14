@@ -9,6 +9,8 @@ import { PLATFORM_ID } from '@angular/core';
 import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
 import { forEach } from '@angular/router/src/utils/collection';
 import { PriorityScreeningService } from './PriorityScreening.service';
+import { ModalService } from './modal.service';
+import { error } from '@angular/compiler/src/util';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +22,8 @@ export class ItemListService {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService,
-        private _PriorityScreeningService: PriorityScreeningService
+        private _PriorityScreeningService: PriorityScreeningService,
+        private ModalService: ModalService
     ) { }
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
@@ -142,7 +145,8 @@ export class ItemListService {
         this.subListReplyReceived = this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
                 this.SaveItems(list, this._Criteria);
-            });
+            }, error => { this.ModalService.GenericError(error);}
+            );
     }
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {

@@ -8,6 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo } from './ReviewInfo.service';
 import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
+import { ModalService } from './modal.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -21,6 +22,7 @@ import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 export class ReviewSetsService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string) {    }
 
     private _ReviewSets: ReviewSet[] = [];
@@ -46,7 +48,11 @@ export class ReviewSetsService {
         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
             data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
-                //this._IsBusy = false;
+                this._IsBusy = false;
+            },
+            error => {
+                this.modalService.GenericError(error);
+                this.Clear();
             }
         );
     }
@@ -301,7 +307,8 @@ export class ReviewSetsService {
                 //this._IsBusy = false;
             }, error => {
                 //console.log('ERROR!--ExecuteItemAttributeSaveCommand');
-                this.ItemCodingItemAttributeSaveCommandError.emit(error);
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+                //this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
             }
         );

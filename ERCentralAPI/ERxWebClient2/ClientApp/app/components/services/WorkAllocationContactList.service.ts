@@ -6,6 +6,7 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { ModalService } from './modal.service';
 
 @Injectable({
     providedIn: 'root',
@@ -16,6 +17,7 @@ export class WorkAllocationContactListService {
     @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
@@ -57,7 +59,8 @@ export class WorkAllocationContactListService {
 
                 this.workAllocations = result;//also saves to local storage
             this.ListLoaded.emit();
-        });
+        }, error => { this.modalService.SendBackHomeWithError(error); }
+        );
 
     }
 

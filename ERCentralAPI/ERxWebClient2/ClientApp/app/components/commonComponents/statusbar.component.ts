@@ -132,31 +132,30 @@ export class StatusBarComponent implements OnInit {
         switch (httpErrorCode) {
             case 401:
 
-                this.modalMsg = 'got inside the correct part for a 401...';
-
+                this.modalMsg = 'Sorry, your session expired, please log-in again.';
                 break;
             case 403:
 
-                this.modalMsg = 'got inside the correct part for a 403...';
+                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 403.';
 
                 break;
             case 400:
  
-                this.modalMsg = 'got inside the correct part for a 400...';
+                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 400.';
 
                 break;
             case 404:
       
-                this.modalMsg = 'got inside the correct part for a 404...';
+                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 404.';
 
                 break;
             default:
 
-                this.modalMsg = 'got inside the correct part for a default...';
+                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes.';
 
         }
 
-        this.openMsg(this.content);
+        this.openMsgAndSendHome(this.content);
     }
 
     LogonTicketCheckTimer(user: string, guid: string) {
@@ -194,7 +193,7 @@ export class StatusBarComponent implements OnInit {
                     msg += "You will be asked to logon again when you close this message."
 
                     this.modalMsg = msg;
-                    this.openMsg(this.content);
+                    this.openMsgAndSendHome(this.content);
                 }
 
 
@@ -213,16 +212,18 @@ export class StatusBarComponent implements OnInit {
     openMsg(content : any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-        },
-        (res) => {
-
-                    if (!this.isMoreButtonVisible == true) {
-                        this.router.navigate(['home']);
-                    }
-                }
+        }
         );
     }
+    openMsgAndSendHome(content: any) {
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
+        },
+            (res) => {
+                this.router.navigate(['home']);
+            }
+        );
+    }
 }
 
 class LogonTicketCheck {

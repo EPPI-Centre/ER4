@@ -2,6 +2,7 @@ import { Component, Inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { ModalService } from './modal.service';
 
 @Injectable({
     providedIn: 'root',
@@ -11,6 +12,7 @@ export class ReviewerTermsService {
 
     constructor(
         private _httpC: HttpClient,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         
@@ -46,7 +48,9 @@ export class ReviewerTermsService {
         return this._httpC.get<ReviewerTerm[]>(this._baseUrl + 'api/ReviewerTermList/Fetch').subscribe(result => {
             this._TermsList = result;
             this.Save();
-        });
+        },
+            error => { this.modalService.GenericError(error); }
+        );
     }
 
     public Save() {

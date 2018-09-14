@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
+import { ModalService } from './modal.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,7 @@ export class ItemDocsService {
 
     constructor(
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
@@ -30,6 +32,7 @@ export class ItemDocsService {
         let body = JSON.stringify({ Value: itemID });
         return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
             (res) => { this._itemDocs = res }
+            , error => { this.modalService.GenericError(error); }
         );
     }
 

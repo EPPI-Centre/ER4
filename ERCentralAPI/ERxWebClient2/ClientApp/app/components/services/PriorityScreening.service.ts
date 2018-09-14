@@ -9,6 +9,7 @@ import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { Item } from './ItemList.service';
+import { ModalService } from './modal.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -22,6 +23,7 @@ import { Item } from './ItemList.service';
 export class PriorityScreeningService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
+        private modalService: ModalService,
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string) { }
     @Output() gotList = new EventEmitter();
@@ -59,7 +61,8 @@ export class PriorityScreeningService {
             this._TrainingList = tL;
             this.Save();
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
-        });
+        }, error => { this.modalService.SendBackHomeWithError(error); }
+        );
         return this.subtrainingList;
     }
     private DelayedFetch(waitSeconds: number) {
@@ -115,8 +118,7 @@ export class PriorityScreeningService {
                     this.gotItem.emit();
                 },
                 error => {
-                    //return new Item();
-                    this.gotItem.emit();
+                   this.modalService.SendBackHomeWithError(error); 
                 });
     }
 
@@ -136,7 +138,8 @@ export class PriorityScreeningService {
                 },
                 error => {
                     //return new Item();
-                    this.gotItem.emit();
+                    //this.gotItem.emit();
+                    this.modalService.SendBackHomeWithError(error);
                 });
     }
 
@@ -172,7 +175,8 @@ export class PriorityScreeningService {
             //console.log(tL);
             this.DelayedFetch(30 * 60);//seconds to wait...
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
-        });
+        }, error => { this.modalService.SendBackHomeWithError(error); }
+        );
     }
     //private _PreviousItem: Item = new Item();
     //public get PreviousItem(): Item {

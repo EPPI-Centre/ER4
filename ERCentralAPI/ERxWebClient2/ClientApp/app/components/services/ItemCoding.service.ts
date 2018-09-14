@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ItemCodingComp } from '../coding/coding.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subject } from 'rxjs';
+import { ModalService } from './modal.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,7 @@ export class ItemCodingService  {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
+        private modalService: ModalService,
         private ReviewerIdentityService: ReviewerIdentityService 
         ) { }
 
@@ -55,7 +57,8 @@ export class ItemCodingService  {
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
-            });
+            }, error => { this.modalService.SendBackHomeWithError(error); }
+            );
     }
 
     public Save() {

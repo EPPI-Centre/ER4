@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { ModalService } from './modal.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,6 +14,7 @@ export class ReviewInfoService {
 
     constructor(
         private _httpC: HttpClient,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         this._ReviewInfo = new ReviewInfo();
@@ -49,7 +51,8 @@ export class ReviewInfoService {
             this._ReviewInfo = rI;
             this.Save();
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
-        });
+        }, error => { this.modalService.SendBackHomeWithError(error); }
+        );
     }
 
     public Save() {

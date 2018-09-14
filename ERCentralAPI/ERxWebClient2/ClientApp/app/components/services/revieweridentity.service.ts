@@ -192,26 +192,12 @@ export class ReviewerIdentityService {
             }
             , error => {
                 console.log(error);
-                if (error.status == 401) this.SendBackHome();
-                else this.GenericError(error);
+                this.modalService.SendBackHomeWithError(error);
             }
             );
       
     }
-    SendBackHome() {
-        this.modalService.confirm(
-            'Your login has failed, please login again.'
-        ).subscribe(result => {
-                this.router.navigate(['home']);
-            }, error => {
-                this.router.navigate(['home']);
-            });
-    }
-    GenericError(error: any) {
-        this.modalService.confirm(
-            'Sorry, could not open the review. Error code is: ' + error.status + ". Error message is: " + error.statusText
-        );
-    }
+    
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
 
