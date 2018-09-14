@@ -22,7 +22,7 @@ import { take } from 'lodash';
     
 export class ReviewerIdentityService {
 
-    constructor(private router: Router, //private _http: Http, 
+    constructor(private router: Router, 
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
@@ -35,8 +35,6 @@ export class ReviewerIdentityService {
     public currentStatus: string = 'No message yet.';
     public exLgtCheck: LogonTicketCheck = new LogonTicketCheck("", "");
     public modalMsg: string = '';
-
-    //@ViewChild('content') private content: any;
 
     public get reviewerIdentity(): ReviewerIdentity {
         
@@ -90,8 +88,6 @@ export class ReviewerIdentityService {
             }, error => {
                 ////check error is 401, if it is show modal and on modal close, go home
                 //if (error = 401) this.SendBackHome();
-
-                //this.handleError(error.status);
 
                 this.LoginFailed.emit();
                 }
@@ -170,16 +166,6 @@ export class ReviewerIdentityService {
             LgtC).toPromise();
     }
        
-
-    //openMsg(content: any) {
-    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(() => {
-    //        //alert('closed');
-    //    },
-    //        () => {
-    //            //alert('dismissed')
-    //        }
-    //    );
-    //}
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {

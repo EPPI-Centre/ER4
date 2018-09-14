@@ -17,7 +17,6 @@ import { Response } from '@angular/http';
 import { ErrorHandler } from "@angular/core";
 import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
 import { DomSanitizer } from '@angular/platform-browser';
-import { ModalService } from '../services/modal.service';
 
 
 @Component({
@@ -35,9 +34,8 @@ export class StatusBarComponent implements OnInit {
                 @Inject('BASE_URL') private _baseUrl: string,
                 public ReviewerIdentityServ: ReviewerIdentityService,
                 public ReviewInfoService: ReviewInfoService,
-        //private modalService: NgbModal,
-        public sanitizer: DomSanitizer,
-        public modalService: ModalService
+        private modalService: NgbModal,
+        public sanitizer: DomSanitizer
     ) {    }
 
     private killTrigger: Subject<void> = new Subject();
@@ -67,9 +65,12 @@ export class StatusBarComponent implements OnInit {
         let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
         
         if (guid != undefined && uu != '') {
+
             this.timerObj = timer(15000, 45000).pipe(
                 takeUntil(this.killTrigger));
+
             this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
+
         }
 
     }
@@ -117,45 +118,46 @@ export class StatusBarComponent implements OnInit {
         }
     }
 
-    //pressedMore() {
+    pressedMore() {
 
-    //    this.modalMsg = this.fullMsg;
-    //    this.openMsg(this.content);
+        this.modalMsg = this.fullMsg;
+        this.openMsg(this.content);
 
-    //}
+    }
 
-    //public handleError(error: any) {
+    public handleError(error: any) {
         
-    //    let httpErrorCode = error;
+        let httpErrorCode = error;
 
-    //    switch (httpErrorCode) {
-    //        case 401:
-    //            console.log('got inside the correct part for 401...');
-    //            this.modalMsg = 'got inside the correct part for a 401...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 403:
-    //            console.log('got inside the correct part for 403...');
-    //            this.modalMsg = 'got inside the correct part for a 403...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 400:
-    //            console.log('got inside the correct part for 400...');
-    //            this.modalMsg = 'got inside the correct part for a 400...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 404:
-    //            console.log('got inside the correct part for 404...');
-    //            this.modalMsg = 'got inside the correct part for a 404...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        default:
-    //            console.log('got inside the correct part for default...');
-    //            this.modalMsg = 'got inside the correct part for a default...';
-    //            this.openMsg(this.content);
+        switch (httpErrorCode) {
+            case 401:
 
-    //    }
-    //}
+                this.modalMsg = 'got inside the correct part for a 401...';
+
+                break;
+            case 403:
+
+                this.modalMsg = 'got inside the correct part for a 403...';
+
+                break;
+            case 400:
+ 
+                this.modalMsg = 'got inside the correct part for a 400...';
+
+                break;
+            case 404:
+      
+                this.modalMsg = 'got inside the correct part for a 404...';
+
+                break;
+            default:
+
+                this.modalMsg = 'got inside the correct part for a default...';
+
+        }
+
+        this.openMsg(this.content);
+    }
 
     LogonTicketCheckTimer(user: string, guid: string) {
 
@@ -168,7 +170,7 @@ export class StatusBarComponent implements OnInit {
                 }else {
 
                     if (this.timerObj) this.killTrigger.next();
-                    //console.log(success);
+                    console.log(success);
                     let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                             case "Expired":
@@ -191,8 +193,8 @@ export class StatusBarComponent implements OnInit {
                     }
                     msg += "You will be asked to logon again when you close this message."
 
-                    //this.modalMsg = msg;
-                    //this.openMsg(this.content);
+                    this.modalMsg = msg;
+                    this.openMsg(this.content);
                 }
 
 
@@ -201,48 +203,30 @@ export class StatusBarComponent implements OnInit {
 
                 if (this.timerObj) this.killTrigger.next();
 
-                // Put this back afterwards...just check we
-                // can call the global modal service...
-                this.openConfirm(error);
-
-                //this.handleError(error.status);
+                this.handleError(error.status);
 
           });
     }
 
-    openConfirm(err: any) {
-        this.modalService.confirm(
-            'There has been an error'
-        ).pipe(
-            
-        ).subscribe(result => {
-
-            console.log('testing again....=>' + err.status)
-            //console.log('asdfasdf' + { confirmedResult: result });
-            //this.confirmedResult = result;
-        });
-    }
-
 
     //https://ng-bootstrap.github.io/#/components/modal/examples
-    //openMsg(content : any) {
-    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
+    openMsg(content : any) {
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-    //                //alert('Simulate application returning to logon page: ' + res);
+        },
+        (res) => {
 
-    //    },
-    //    (res) => {
-    //                //alert('Continue for debugging purposes: ' + res)
-    //                if (!this.isMoreButtonVisible == true) {
-    //                    this.router.navigate(['home']);
-    //                }
-    //            }
-    //    );
-    //}
+                    if (!this.isMoreButtonVisible == true) {
+                        this.router.navigate(['home']);
+                    }
+                }
+        );
+    }
 
 }
 
 class LogonTicketCheck {
+
     constructor(u: string, g: string) {
         this.userId = u;
         this.gUID = g;

@@ -1,7 +1,7 @@
 <ng-template #content let-c="close" let-d="dismiss">
-    <div class="modal-header">
+    <div class="modal-header bg-danger">
         <h4 class="modal-title" id="modal-basic-title">Security update</h4>
-        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <button type="button" class="btn btn-danger close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -17,6 +17,7 @@
         <button type="button" class="btn btn-outline-dark" (click)="c('Save click')">Close but stay on page for development reasons</button>
     </div>
 </ng-template>
+
 
 <div class="col-sm-12 card bg-light">
     <div class="card-body pr-1 pl-1 pt-2 pb-2">

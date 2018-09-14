@@ -36,8 +36,6 @@ namespace ERxWebClient2.Controllers
         public IActionResult Login([FromBody] LoginCreds lc)
         {
 
-            //return Forbid();
-
             try
             {
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
@@ -99,7 +97,8 @@ namespace ERxWebClient2.Controllers
             var token = new JwtSecurityToken(_config["AppSettings:EPPIApiUrl"],
               _config["AppSettings:EPPIApiClientName"],
               riCI.Claims,
-              expires: DateTime.Now.AddHours(6),
+              //expires: DateTime.Now.AddHours(6),
+              expires: DateTime.Now.AddSeconds(15),
               signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

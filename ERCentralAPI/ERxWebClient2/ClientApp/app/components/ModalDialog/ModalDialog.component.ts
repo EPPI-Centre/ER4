@@ -24,6 +24,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalDialogComponent {
+
     title: string = '';
     prompt: string= '';
 
