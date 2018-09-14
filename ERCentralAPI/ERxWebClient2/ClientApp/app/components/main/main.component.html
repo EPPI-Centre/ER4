@@ -3,7 +3,7 @@
     <div class="row flex-row-reverse">
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
             <div class="card card-body bg-light">
-                <ItemListComp style="max-height: 920px;" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                <ItemListComp resizable r-directions="['right']" r-flex="true"></ItemListComp>
             </div>
         </div>
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
@@ -19,7 +19,7 @@
                 <div>
                     <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
                             [attr.aria-expanded]="!isReviewPanelCollapsed">
-                        My Reviews {{ReviewPanelTogglingSymbol}}
+                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
                     </button>
                 </div>
                 <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"

@@ -1,28 +1,30 @@
-<paginatorComp></paginatorComp>
+<div class="border-0">
+    <paginatorComp class="row ml-1"></paginatorComp>
 
-    <div *ngIf="ItemListService.ListDescription != ''" 
+    <div *ngIf="ItemListService.ListDescription != ''"
          class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
         <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
     </div>
 
 
-<table class="table table-responsive" style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
-    <thead>
-        <tr>
-            <th>&nbsp;</th>
-            <th>Short Title</th>
-            <th>Title</th>
-            <th>Year</th>
-            
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let item of ItemListService.ItemList.items">
-            <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br/>(Id:&nbsp;{{ item.itemId }})</td>
-            <td>{{ item.shortTitle }}</td>
-            <td>{{ item.title }}</td>
-            <td>{{ item.year }}</td>
-        </tr>
-    </tbody>
-</table>
-<paginatorComp></paginatorComp>
+    <table class="table table-responsive mt-0 mb-0 pt-0 pt-0 " style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Short Title</th>
+                <th>Title</th>
+                <th>Year</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of ItemListService.ItemList.items">
+                <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br />(Id:&nbsp;{{ item.itemId }})</td>
+                <td>{{ item.shortTitle }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.year }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
+</div>
