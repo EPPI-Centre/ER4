@@ -275,7 +275,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_TXProperty, value);
             }
         }
-        private static PropertyInfo<bool> EnableArmsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("EnableArms", "EnableArms Id", false));
+        public static readonly PropertyInfo<bool> EnableArmsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("EnableArms", "EnableArms Id", false));
         public bool EnableArms
         {
             get

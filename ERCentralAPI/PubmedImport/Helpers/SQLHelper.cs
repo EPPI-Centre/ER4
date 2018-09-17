@@ -19,7 +19,7 @@ namespace EPPIDataServices.Helpers
         // EPPILogger Logger;
         private readonly ILogger _logger;
 
-        public SQLHelper (IConfiguration configuration, ILogger<EPPILogger> logger)
+        public SQLHelper (IConfiguration configuration, ILogger logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
             //Logger = logger;
@@ -28,7 +28,7 @@ namespace EPPIDataServices.Helpers
             ER4DB = configuration["AppSettings:ER4DB"];
             ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
         }
-        public SQLHelper (ILogger<EPPILogger> logger)
+        public SQLHelper (ILogger logger)
         {
             _logger = logger;
             DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";

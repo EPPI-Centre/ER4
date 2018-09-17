@@ -8,77 +8,77 @@ using System.IO;
 namespace EPPIDataServices.Helpers
 {
     // Specific implementation of dotnetcore ILogger
-    public class EPPILogger : ILogger
-    {
+    //public class EPPILogger : ILogger
+    //{
 
-        private bool SaveLog = false;
-        private string LogFileFullPath = "";
-        readonly CustomLoggerProviderConfiguration loggerConfigK;
-        readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
+    //    private bool SaveLog = false;
+    //    private string LogFileFullPath = "";
+    //    readonly CustomLoggerProviderConfiguration loggerConfigK;
+    //    readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
         
-        public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
-        {
-            this.loggerConfigK = loggerConfigK;
-        }
+    //    public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
+    //    {
+    //        this.loggerConfigK = loggerConfigK;
+    //    }
 
-        public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
-        {
-            // Need to change this so that the file is used for logging
-            // or not dependent on the setting...
-            SaveLog = true; // SaveLogTofile;
+    //    public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
+    //    {
+    //        // Need to change this so that the file is used for logging
+    //        // or not dependent on the setting...
+    //        SaveLog = true; // SaveLogTofile;
 
-            loggerConfig = config;
-        }
+    //        loggerConfig = config;
+    //    }
                 
-        private static string CreateLogFileName()
-        {
-            DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
-            string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
-            return LogFilename;
-        }
-        public static string Duration(DateTime starttime)
-        {
-            double ms = DateTime.Now.Subtract(starttime).TotalMilliseconds;
-            string duration = Math.Round(ms).ToString() + "ms.";
-            if (ms > 180000)
-            {
-                ms = DateTime.Now.Subtract(starttime).TotalMinutes;
-                duration = Math.Round(ms).ToString() + "m.";
-            }
-            else if (ms > 4000)
-            {
-                duration = Math.Round(ms / 1000).ToString() + "s.";
-            }
-            return duration;
-        }
-        // Main log method, for different types write extensions
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-                string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
-                WriteTextToFile(message);
+    //    private static string CreateLogFileName()
+    //    {
+    //        DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
+    //        string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+    //        //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+    //        return LogFilename;
+    //    }
+    //    public static string Duration(DateTime starttime)
+    //    {
+    //        double ms = DateTime.Now.Subtract(starttime).TotalMilliseconds;
+    //        string duration = Math.Round(ms).ToString() + "ms.";
+    //        if (ms > 180000)
+    //        {
+    //            ms = DateTime.Now.Subtract(starttime).TotalMinutes;
+    //            duration = Math.Round(ms).ToString() + "m.";
+    //        }
+    //        else if (ms > 4000)
+    //        {
+    //            duration = Math.Round(ms / 1000).ToString() + "s.";
+    //        }
+    //        return duration;
+    //    }
+    //    // Main log method, for different types write extensions
+    //    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    //    {
+    //            string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
+    //            WriteTextToFile(message);
 
-        }
-        private void WriteTextToFile(string message)
-        {
-            string filePath = CreateLogFileName(); 
-            using (StreamWriter streamWriter = new StreamWriter(filePath, true))
-            {
-                streamWriter.WriteLine(message);
-                streamWriter.Close();
-            }
-        }
+    //    }
+    //    private void WriteTextToFile(string message)
+    //    {
+    //        string filePath = CreateLogFileName(); 
+    //        using (StreamWriter streamWriter = new StreamWriter(filePath, true))
+    //        {
+    //            streamWriter.WriteLine(message);
+    //            streamWriter.Close();
+    //        }
+    //    }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            throw new NotImplementedException();
-        }
+    //    public bool IsEnabled(LogLevel logLevel)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return null;
-        }
-    }
+    //    public IDisposable BeginScope<TState>(TState state)
+    //    {
+    //        return null;
+    //    }
+    //}
 
     public class CustomLoggerProviderConfiguration
     {
@@ -95,26 +95,26 @@ namespace EPPIDataServices.Helpers
     // The ILogger provider is described below
     // see microsoft MSDN for different options here
     // EPPILogger class is used as the method and properties...
-    public class CustomLoggerProvider : ILoggerProvider
-    {
+    //public class CustomLoggerProvider : ILoggerProvider
+    //{
 
-        readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
-        readonly ConcurrentDictionary<string, EPPILogger> loggers =
-         new ConcurrentDictionary<string, EPPILogger>();
-        public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
-        {
-            loggerConfigK = config;
-        }
-        public ILogger CreateLogger(string category)
-        {
-            return loggers.GetOrAdd(category,
-             name => new EPPILogger(null, loggerConfigK));
-        }
-        public void Dispose()
-        {
-            //Write code here to dispose the resources
-        }
-    }
+    //    readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
+    //    readonly ConcurrentDictionary<string, EPPILogger> loggers =
+    //     new ConcurrentDictionary<string, EPPILogger>();
+    //    public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
+    //    {
+    //        loggerConfigK = config;
+    //    }
+    //    public ILogger CreateLogger(string category)
+    //    {
+    //        return loggers.GetOrAdd(category,
+    //         name => new EPPILogger(null, loggerConfigK));
+    //    }
+    //    public void Dispose()
+    //    {
+    //        //Write code here to dispose the resources
+    //    }
+    //}
 
     public static class LoggerExtensions
     {

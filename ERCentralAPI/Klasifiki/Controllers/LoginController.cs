@@ -22,7 +22,7 @@ namespace Klasifiki.Controllers
 
         private readonly ILogger _logger;
 
-        public LoginController(ILogger<EPPILogger> logger)
+        public LoginController(ILogger<LoginController> logger)
         {
             _logger = logger;
         }
@@ -52,6 +52,9 @@ namespace Klasifiki.Controllers
                 if (!CorrectCredentials) return Redirect("~/Login"); //DoFail();
                 ClaimsPrincipal user = new ClaimsPrincipal(userIdentity);
                 HttpContext.SignInAsync(user);
+
+                _logger.LogInformation("Logged on: username");
+
                 return Redirect("~/Home");
 
 

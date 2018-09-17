@@ -7,6 +7,7 @@ using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using Serilog.Sinks.File;
 using System.Collections.Concurrent;
 
 namespace Klasifiki
@@ -14,7 +15,7 @@ namespace Klasifiki
     public class Startup
     {
 
-        public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
+        public Startup(IConfiguration configuration, ILogger<Program> logger)
         {
             Configuration = configuration;
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
@@ -100,10 +101,11 @@ namespace Klasifiki
 
             app.UseStaticFiles();
             app.UseResponseCompression();
-            loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
-            {
-                LogLevel = LogLevel.Error
-            }));
+            //loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfigurationPubMed
+            //{
+            //    LogLevel = LogLevel.Error
+            //}));
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
