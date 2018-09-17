@@ -35,8 +35,8 @@ using Microsoft.WindowsAzure;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Data;
-#elif (!SILVERLIGHT && !CSLA_NETCORE) 
-using System.Net.Http.Formatting;
+#endif
+#if (!SILVERLIGHT && !CSLA_NETCORE) 
 using Microsoft.VisualBasic.FileIO;
 #endif
 
