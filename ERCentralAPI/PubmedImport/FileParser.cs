@@ -191,6 +191,7 @@ namespace PubmedImport
         static FileParserResult result;
         public FileParserResult ParseFile(string filepath)
         {
+            //Program.lo
             _logger.LogInformation("Parsing: " + filepath + ".");
             DateTime start = DateTime.Now;
             string fileContents;

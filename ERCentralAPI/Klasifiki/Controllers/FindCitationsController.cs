@@ -22,7 +22,7 @@ namespace Klasifiki.Controllers
     {
         private readonly ILogger _logger;
 
-          public FindCitationsController(ILogger<EPPILogger> logger)
+          public FindCitationsController(ILogger<FindCitationsController> logger)
         {
             _logger = logger;
         }
