@@ -1,0 +1,22 @@
+<div class="row ml-2 border-info mr-1"  
+     *ngIf="ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0">
+    <div class=""><b>Documents:</b></div>
+    <table class="table-responsive small mr-1" style="max-height: 200px;" >
+        <thead >
+            <tr>
+                <th style="width:15%" class="">Id</th>
+                <th style="width:20%" class="">Short Title</th>
+                <th style="width:60%" class="">File Name</th>
+                <th style="width:20%" class="">Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let ItemDocument of ItemDocsService._itemDocs">
+                <td class="">{{ ItemDocument.itemDocumentId }}</td>
+                <td class="">{{ ItemDocument.shortTitle }}</td>
+                <td class="">{{ ItemDocument.title }}</td>
+                <td class=""><button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId)">DOWNLOAD</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

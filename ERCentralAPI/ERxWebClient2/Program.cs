@@ -18,9 +18,15 @@ namespace ERxWebClient2
             BuildWebHost(args).Run();
         }
         public static SQLHelper SqlHelper;
-        internal static EPPILogger Logger;
+        //internal static EPPILogger Logger;
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

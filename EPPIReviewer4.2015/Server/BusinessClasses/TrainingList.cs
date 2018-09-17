@@ -26,20 +26,10 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch();
         }
-
-
-#if SILVERLIGHT
+        
         public TrainingList() { }
-#else
-        private TrainingList() { }
-#endif
 
-
-#if SILVERLIGHT
-       
-#else
-
-
+#if !SILVERLIGHT
         protected void DataPortal_Fetch()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

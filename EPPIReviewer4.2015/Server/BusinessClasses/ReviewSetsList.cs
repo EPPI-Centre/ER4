@@ -253,16 +253,13 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-#if SILVERLIGHT
-        public ReviewSetsList() { }
 
+        public ReviewSetsList() { }
+#if SILVERLIGHT
     protected override void AddNewCore()
     {
         Add(ReviewSet.NewReviewSet());
     }
-
-#else
-        private ReviewSetsList() { }
 #endif
 
 #if !SILVERLIGHT

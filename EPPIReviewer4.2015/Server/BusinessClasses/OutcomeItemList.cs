@@ -62,17 +62,17 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return this.ToList<Outcome>(); }
         }
-#if SILVERLIGHT
-        public OutcomeItemList() { }
 
+        public OutcomeItemList() { }
+#if SILVERLIGHT
     protected override void AddNewCore()
     {
         Add(Outcome.NewOutcome());
     }
 
-#else
-        private OutcomeItemList() { }
 #endif
+        
+
 
 
 #if SILVERLIGHT

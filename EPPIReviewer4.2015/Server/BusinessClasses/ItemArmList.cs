@@ -26,14 +26,8 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch(new SingleCriteria<Item, Int64>(Id));
         }
-
-
-#if SILVERLIGHT
         public ItemArmList() { }
-#else
-        private ItemArmList() { }
-#endif
-
+        
         public static ItemArmList NewItemArmList()
         {
             return new ItemArmList();

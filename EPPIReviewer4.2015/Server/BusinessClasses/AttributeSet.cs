@@ -28,11 +28,12 @@ namespace BusinessLibrary.BusinessClasses
     public class AttributeSet : BusinessBase<AttributeSet>
     {
 
-#if SILVERLIGHT
+
     public AttributeSet()
     { 
         Attributes = AttributeSetList.NewAttributeSetList();  // want the attributeSetList created without coming back to the server
     }
+#if SILVERLIGHT        
         public System.Windows.Media.Brush ForeGround
         {
             get
@@ -48,11 +49,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-#else
-        private AttributeSet()
-        {
-            //Attributes = AttributeSetList.NewAttributeSetList();  // want the attributeSetList created without coming back to the server
-        }
+
 #endif
         public override string ToString()
         {
@@ -128,7 +125,7 @@ namespace BusinessLibrary.BusinessClasses
             
         }
         // for controlling the appearance of the tree control
-        private static PropertyInfo<string> CurrentHotKeyTextProperty = RegisterProperty<string>(new PropertyInfo<string>("CurrentHotKeyText", "CurrentHotKeyText", ""));
+        public static readonly PropertyInfo<string> CurrentHotKeyTextProperty = RegisterProperty<string>(new PropertyInfo<string>("CurrentHotKeyText", "CurrentHotKeyText", ""));
         public string CurrentHotKeyText
         {
             get
@@ -142,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // for controlling the appearance of the tree control
-        private static PropertyInfo<bool> DisplayIsParentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayIsParent", "DisplayIsParent", false));
+        public static readonly PropertyInfo<bool> DisplayIsParentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayIsParent", "DisplayIsParent", false));
         public bool DisplayIsParent
         {
             get
@@ -242,7 +239,7 @@ namespace BusinessLibrary.BusinessClasses
             this.MarkClean();
         }
 
-        private static PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "Set Id"));
+        public static readonly PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "Set Id"));
         [JsonProperty]
         public Int64 AttributeSetId
         {
@@ -252,7 +249,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetId
         {
             get
@@ -265,7 +265,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         [JsonProperty]
         public Int64 AttributeId
         {
@@ -279,7 +279,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
+        public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
         public Int64 ParentAttributeId
         {
             get
@@ -292,7 +292,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> AttributeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeTypeId", "AttributeTypeId", 0));
+        public static readonly PropertyInfo<int> AttributeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeTypeId", "AttributeTypeId", 0));
         public int AttributeTypeId
         {
             get
@@ -305,7 +305,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeSetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "Set Description", string.Empty));
+        public static readonly PropertyInfo<string> AttributeSetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "Set Description", string.Empty));
         [JsonProperty]
         public string AttributeSetDescription
         {
@@ -319,7 +319,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> AttributeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeOrder", "Attribute Order", 0));
+        public static readonly PropertyInfo<int> AttributeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeOrder", "Attribute Order", 0));
         public int AttributeOrder
         {
             get
@@ -332,7 +332,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeType", "Attribute Type", string.Empty));
+        public static readonly PropertyInfo<string> AttributeTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeType", "Attribute Type", string.Empty));
         [JsonProperty]
         public string AttributeType
         {
@@ -346,7 +346,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "Attribute Name", string.Empty));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "Attribute Name", string.Empty));
         [JsonProperty]
         public string AttributeName
         {
@@ -360,7 +360,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeDescription", "Attribute Description", string.Empty));
+        public static readonly PropertyInfo<string> AttributeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeDescription", "Attribute Description", string.Empty));
         [JsonProperty]
         public string AttributeDescription
         {
@@ -374,7 +374,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "Contact Id", 0));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "Contact Id", 0));
         public int ContactId
         {
             get
@@ -386,7 +386,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ContactIdProperty, value);
             }
         }
-        private static PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
+        public static readonly PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
         public int MaxDepth
         {
             get
@@ -404,7 +404,7 @@ namespace BusinessLibrary.BusinessClasses
         [NotUndoable]
         public ItemAttributeData ItemData;
 
-        private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+        public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
         public bool IsSelected
         {
             get
@@ -417,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", false));
+        public static readonly PropertyInfo<bool> IsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLocked", "IsLocked", false));
         public bool IsLocked
         {
             get
@@ -439,7 +439,7 @@ namespace BusinessLibrary.BusinessClasses
         /* ***************** end item info ******************/
 
         [NotUndoable]
-        private static PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
+        public static readonly PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
         [JsonProperty(Order = 200)]
         public AttributeSetList Attributes
         {
@@ -523,7 +523,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         [NotUndoable]
-        private static PropertyInfo<AttributeSet> HostAttributeProperty = RegisterProperty<AttributeSet>(new PropertyInfo<AttributeSet>("HostAttribute", "Host Attribute"));
+        public static readonly PropertyInfo<AttributeSet> HostAttributeProperty = RegisterProperty<AttributeSet>(new PropertyInfo<AttributeSet>("HostAttribute", "Host Attribute"));
         public AttributeSet HostAttribute
         {
             get
@@ -683,6 +683,14 @@ namespace BusinessLibrary.BusinessClasses
         internal static AttributeSet GetAttributeSet(SafeDataReader reader, int maxD)
         {
             AttributeSet returnValue = new AttributeSet();
+            try
+            {
+                returnValue.MarkOld();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             returnValue.LoadProperty<int>(MaxDepthProperty, maxD);//setting this here because it needs to be correct when adding a ref to returnValue inside it's children
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -699,7 +707,11 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader2.Read())
                         {
                             AttributeSet newAttributeSet = AttributeSet.GetAttributeSet(reader2, maxD);
+#if (!CSLA_NETCORE)
                             newAttributeSet.HostAttribute = returnValue;
+#else
+                            newAttributeSet.LoadProperty(HostAttributeProperty, returnValue);
+#endif
                             returnValue.Attributes.Add(newAttributeSet);
                         }
                         reader2.Close();
@@ -720,12 +732,11 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             
-            returnValue.MarkOld();
             return returnValue;
         }
 
 #endif
-    }
+                        }
 
     [Serializable]
     public class ItemAttributeData

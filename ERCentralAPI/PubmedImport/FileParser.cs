@@ -58,7 +58,7 @@ namespace PubmedImport
 
                         int AuthorsCount = 0;
                         int ExternalCount = 0;
-                        //Int64 Items_S;
+                        Int64 Items_S;
                         Int64 Author_S;
                         Int64 External_S;
 
@@ -77,7 +77,7 @@ namespace PubmedImport
                                 //prepare all tables
                                 cmd.Transaction = transaction;
                                 cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.Parameters.Add(new SqlParameter("@Items_Number", 0));
+                                cmd.Parameters.Add(new SqlParameter("@Items_Number", updateCitations.Count));
                                 cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsCount));
                                 cmd.Parameters.Add(new SqlParameter("@Externals_Number", ExternalCount));
                                 cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
@@ -89,7 +89,7 @@ namespace PubmedImport
                                 cmd.ExecuteNonQuery();
 
                                 //get seeds values
-                                //Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                                Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
                                 Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
                                 External_S = (Int64)cmd.Parameters["@External_Seed"].Value;
 

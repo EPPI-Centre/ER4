@@ -328,9 +328,15 @@ namespace PubmedImport
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            //Action<ILoggingBuilder> tester = new Action<ILoggingBuilder>(configure => configure.AddConsole());
+            //Action<ILoggingBuilder> tester2 = new Action<ILoggingBuilder>(configure => configure.AddSerilog());
+
             services.AddLogging(configure => configure.AddConsole()
                     ).AddLogging(configure => configure.AddSerilog())
                 .AddTransient<FileParser>()
+                .AddTransient<RCTTaggerImport>();
+            services.AddLogging(configure => configure.AddSerilog()
+           ).AddTransient<FileParser>()
                 .AddTransient<RCTTaggerImport>();
 
         }
@@ -988,7 +994,7 @@ namespace PubmedImport
             List<PubMedUpdateFileImport> knownUpdateFiles = new List<PubMedUpdateFileImport>();
             try
             {
-                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll"))
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll2", new SqlParameter("fake param", "I'm a fake")))
                 {
                     //if (!reader.IsClosed)
                     //{

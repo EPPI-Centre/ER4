@@ -22,17 +22,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class OutcomeItemAttribute : BusinessBase<OutcomeItemAttribute>
     {
-#if SILVERLIGHT
+
     public OutcomeItemAttribute() { }
 
-        
-#else
-        private OutcomeItemAttribute() { }
-#endif
-
-        
-
-        private static PropertyInfo<int> OutcomeItemAttributeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeItemAttributeId", "OutcomeItemAttributeId"));
+        public static readonly PropertyInfo<int> OutcomeItemAttributeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeItemAttributeId", "OutcomeItemAttributeId"));
         public int OutcomeItemAttributeId
         {
             get
@@ -41,7 +34,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> OutcomeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeId", "OutcomeId"));
+        public static readonly PropertyInfo<int> OutcomeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeId", "OutcomeId"));
         public int OutcomeId
         {
             get
@@ -54,7 +47,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -67,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
+        public static readonly PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
         public string AdditionalText
         {
             get
@@ -79,7 +72,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AdditionalTextProperty, value);
             }
         }
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("Classifications", "Classifications"));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("Classifications", "Classifications"));
         public string AttributeName
         {
             get

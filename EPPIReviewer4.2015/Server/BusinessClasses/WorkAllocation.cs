@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private WorkAllocation() { }
+        public WorkAllocation() { }
 #endif
 
         public override string ToString()
@@ -35,7 +35,7 @@ namespace BusinessLibrary.BusinessClasses
             return ContactName;
         }
 
-        private static PropertyInfo<int> WorkAllocationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("WorkAllocationId", "WorkAllocationId"));
+        public static readonly PropertyInfo<int> WorkAllocationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("WorkAllocationId", "WorkAllocationId"));
         public int WorkAllocationId
         {
             get
@@ -44,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+        public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
         public string ContactName
         {
             get
@@ -57,7 +57,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", string.Empty));
+        public static readonly PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", string.Empty));
         public string SetName
         {
             get
@@ -83,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get
@@ -96,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
         public string AttributeName
         {
             get
@@ -109,7 +109,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -122,7 +122,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TotalAllocationProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalAllocation", "TotalAllocation"));
+        public static readonly PropertyInfo<int> TotalAllocationProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalAllocation", "TotalAllocation"));
         public int TotalAllocation
         {
             get
@@ -135,7 +135,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TotalStartedProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalStarted", "TotalStarted"));
+        public static readonly PropertyInfo<int> TotalStartedProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalStarted", "TotalStarted"));
         public int TotalStarted
         {
             get
@@ -148,7 +148,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TotalRemainingProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalRemaining", "TotalRemaining"));
+        public static readonly PropertyInfo<int> TotalRemainingProperty = RegisterProperty<int>(new PropertyInfo<int>("TotalRemaining", "TotalRemaining"));
         public int TotalRemaining
         {
             get
@@ -160,7 +160,8 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(TotalRemainingProperty, value);
             }
         }
-
+        
+        
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };

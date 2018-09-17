@@ -23,18 +23,12 @@ namespace BusinessLibrary.BusinessClasses
     [JsonObject(MemberSerialization.OptIn)]
     public class ReadOnlySetType : ReadOnlyBase<ReadOnlySetType>
     {
-
-#if SILVERLIGHT
-    public ReadOnlySetType() { }
-#else
-        private ReadOnlySetType() { }
-#endif
-
+        public ReadOnlySetType() { }
         public override string ToString()
         {
             return SetTypeName;
         }
-        private static PropertyInfo<int> SetTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetTypeId", "SetTypeId", 0));
+        public static readonly PropertyInfo<int> SetTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetTypeId", "SetTypeId", 0));
         public int SetTypeId
         {
             get
@@ -42,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetTypeIdProperty);
             }
         }
-        private static PropertyInfo<string> SetTypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeName", "SetTypeName", string.Empty));
+        public static readonly PropertyInfo<string> SetTypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeName", "SetTypeName", string.Empty));
         [JsonProperty]
         public string SetTypeName
         {
@@ -51,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetTypeNameProperty);
             }
         }
-        private static PropertyInfo<string> SetTypeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeDescription", "SetTypeDescription", string.Empty));
+        public static readonly PropertyInfo<string> SetTypeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetTypeDescription", "SetTypeDescription", string.Empty));
         [JsonProperty]
         public string SetTypeDescription
         {
@@ -60,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetTypeDescriptionProperty);
             }
         }
-        private static PropertyInfo<bool> AllowComparisonProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowComparison", "AllowComparison"));
+        public static readonly PropertyInfo<bool> AllowComparisonProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowComparison", "AllowComparison"));
         public bool AllowComparison
         {
             get
@@ -68,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AllowComparisonProperty);
             }
         }
-        private static PropertyInfo<bool> AllowRandomAllocationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowRandomAllocation", "AllowRandomAllocation"));
+        public static readonly PropertyInfo<bool> AllowRandomAllocationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowRandomAllocation", "AllowRandomAllocation"));
         public bool AllowRandomAllocation
         {
             get
@@ -77,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
+        public static readonly PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
         public int MaxDepth
         {
             get
@@ -85,7 +79,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(MaxDepthProperty);
             }
         }
-        private static PropertyInfo<AttributeTypes> AllowedCodeTypesProperty = RegisterProperty<AttributeTypes>(new PropertyInfo<AttributeTypes>("AllowedCodeTypes", "AllowedCodeTypes"));
+        public static readonly PropertyInfo<AttributeTypes> AllowedCodeTypesProperty = RegisterProperty<AttributeTypes>(new PropertyInfo<AttributeTypes>("AllowedCodeTypes", "AllowedCodeTypes"));
         public AttributeTypes AllowedCodeTypes
         {
             get
@@ -93,7 +87,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AllowedCodeTypesProperty);
             }
         }
-        private static PropertyInfo<MobileList<int>> AllowedSetTypesID4PasteProperty = RegisterProperty<MobileList<int>>(new PropertyInfo<MobileList<int>>("AllowedSetTypesID4Paste", "AllowedSetTypesID4Paste"));
+        public static readonly PropertyInfo<MobileList<int>> AllowedSetTypesID4PasteProperty = RegisterProperty<MobileList<int>>(new PropertyInfo<MobileList<int>>("AllowedSetTypesID4Paste", "AllowedSetTypesID4Paste"));
         public MobileList<int> AllowedSetTypesID4Paste
         {
             get

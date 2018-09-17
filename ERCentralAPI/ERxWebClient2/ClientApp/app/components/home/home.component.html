@@ -1,26 +1,107 @@
-<h1>Hello, world!</h1>
-<p>Welcome to your new single-page application, built with:</p>
-<ul>
-    <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-    <li><a href='https://angular.io/'>Angular</a> and <a href='http://www.typescriptlang.org/'>TypeScript</a> for client-side code</li>
-    <li><a href='https://webpack.github.io/'>Webpack</a> for building and bundling client-side resources</li>
-    <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-</ul>
-<p>To help you get started, we've also set up: check this out!</p>
-<ul>
-    <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-    <li><strong>Server-side prerendering</strong>. For faster initial loading and improved SEO, your Angular app is prerendered on the server. The resulting HTML is then transferred to the browser where a client-side copy of the app takes over.</li>
-    <li><strong>Webpack dev middleware</strong>. In development mode, there's no need to run the <code>webpack</code> build tool. Your client-side resources are dynamically built on demand. Updates are available as soon as you modify any file.</li>
-    <li><strong>Hot module replacement</strong>. In development mode, you don't even need to reload the page after making most changes. Within seconds of saving changes to files, your Angular app will be rebuilt and a new instance injected into the page.</li>
-    <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and the <code>webpack</code> build tool produces minified static CSS and JavaScript files.</li>
-</ul>
-<p>Get List of reviews for contact_id:</p>
-<!--<form method="post" action="/dist/">
-    <input type="text" name="contact_id" />
-    <button type="submit">GO!</button>
-</form>-->
-<form #f="ngForm" (ngSubmit)="onSubmit(c_id.value)" novalidate>
-    
-    <input #c_id name="contact_id" ngModel>
-    <button>Submit</button>
-</form>
+<div class="h-100">
+    <div class="row m-0 d-flex justify-content-center border-bottom border-primary">
+        &nbsp;
+    </div>
+    <div class="d-flex ml-1 mr-1 mt-0 mb-0 justify-content-center bg-white ">
+        <h3 class="justify-center m-1 ">EPPI-Reviewer Coding (Beta)</h3><br />
+    </div>
+
+    <div class="row ml-1 mr-1 mt-0 mb-0 d-flex justify-content-center flex-row-reverse bg-white border-bottom border-primary">
+        
+        <div class="col-md-2 m-1">
+            <!--<div class="panel" style="background-color: #33b5e5">-->
+            <div class="panel" style="background-color: #FFFFFF">
+                <table class="">
+                    <tr>
+                        <td class="border-bottom border-dark" style="padding: 6px;color: #FFFFFF;">
+                            <img src="../assets/EPPI-Centre_logo2.png" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p class="text-right border-bottom border-dark">
+                                <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Click here</a><br />
+                                to Create your Account.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-horizontal" role="form">
+                <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
+                    <div class="form-group row m-1 p-0">
+                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Username:</label>
+                        <div class="col-sm-7">
+                            <input #c_name name="username" required class="form-control" ngModel>
+                        </div>
+                        <div *ngIf="ShowUsernameRequired" class=" m-1">
+                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
+                        </div>
+                    </div>
+                    <div class="form-group row m-1 p-0">
+                        <label class="col-sm-2 control-label" for="tbTFullNameReg">Password:</label>
+                        <div class="col-sm-7">
+                            <input #c_password type="password" required class="form-control" name="password" ngModel>
+                        </div>
+                        <div *ngIf="ShowPasswordRequired" class=" m-1">
+                            <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
+                        </div>
+                    </div>
+                    <div class="form-group row m-1 p-0">
+                        <div class="row offset-md-1 col-sm-7 align-content-center ">
+                            <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;
+                            <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
+                            <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-1 p-0">&nbsp;</div>
+    </div>
+    <div class="row ml-1 mr-1 mt-0 mb-0 p-0 d-flex p-0 justify-content-center bg-light border-bottom border-primary">
+        <div class="col-12 col-sm-12 col-md-10 col-lg-11 col-xl-11 p-0">
+
+                Please visit the EPPI-Reviewer gateway at:
+                <div class="text-center font-weight-bold m-0"><a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">https://eppi.ioe.ac.uk/cms/er4</a></div>
+                The Gateway contains: User manual, Account Manager, Forgotten Password facility, Export to RIS utility, Support Forums and much more.
+
+        </div>
+        <div class="col-12 col-sm-12 col-md-2 col-lg-1 col-xl-1 mt-4 p-0 ml-0 float-right">
+            <a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="../assets/FollowUs.png" /></a>
+            <br />&nbsp;on <a href="https://twitter.com/EPPIReviewer" target="_blank">
+                Twitter
+            </a>
+            <br />
+
+        </div>
+        <div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>
+    </div>
+    <br />
+    <div class="row mr-1 ml-1  d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
+            Latest Changes:
+        </div>
+        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+            Version: {{vInfo.versionN}}
+        </div>
+        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+            {{vInfo.date}}
+        </div>
+    </div>
+    <div class="row d-flex ml-1 mr-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+        <div class="col-md-12 p-0 m-1">
+            {{vInfo.description}}
+        </div>
+
+        <div class="col-md-12 justify-content-end">
+            <a href="{{vInfo.uRL}}">Read More...</a>
+        </div>
+    </div>
+
+    <div class="row ml-1 mr-1 mt-0 mb-0 d-flex justify-content-center bg-light h-100 align-bottom">
+        &nbsp;
+    </div>
+</div>

@@ -1,5 +1,6 @@
 #if CSLA_NETCORE
 using Csla.Data;
+using ERxWebClient2;
 #endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,7 @@ namespace EPPIDataServices.Helpers
         // EPPILogger Logger;
         private readonly ILogger _logger;
 
-        public SQLHelper (IConfigurationRoot configuration, ILogger<EPPILogger> logger)
+        public SQLHelper (IConfiguration configuration, ILogger<EPPILogger> logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
             //Logger = logger;
@@ -81,7 +82,6 @@ namespace EPPIDataServices.Helpers
                 //CheckConnection(connection);
                 using (SqlCommand command = new SqlCommand(SPname, connection))
                 {
-
                     command.Transaction = transaction;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.AddRange(parameters);
@@ -205,4 +205,26 @@ namespace EPPIDataServices.Helpers
 
     }
 }
+#if(CSLA_NETCORE)
+namespace BusinessLibrary.Data
+{
+    public static class DataConnection
+    {
+        public static string ConnectionString
+        {
+            get
+            {
+                return Program.SqlHelper.ER4DB;
+            }
+        }
 
+        public static string AdmConnectionString
+        {
+            get
+            {
+                return Program.SqlHelper.ER4AdminDB;
+            }
+        }
+    }
+}
+#endif

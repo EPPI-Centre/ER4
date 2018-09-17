@@ -19,6 +19,9 @@ using System.Net;
 using System.IO;
 using System.Xml.Linq;
 #endif
+#if CSLA_NETCORE
+using Newtonsoft.Json;
+#endif
 
 namespace BusinessLibrary.Security
 {
@@ -26,7 +29,23 @@ namespace BusinessLibrary.Security
     [Serializable]
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
-        private static PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
+        public ArchieIdentity()
+        { }
+
+#if (!CSLA_NETCORE && !SILVERLIGHT)
+        System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
+#elif (CSLA_NETCORE && !SILVERLIGHT)
+        private static class ser
+        {
+            public static object DeserializeObject(string json)
+            {
+                var res = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                return res;
+            }
+        }
+#endif
+
+        public static readonly PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
         public string ArchieID
         {
             get
@@ -70,7 +89,7 @@ namespace BusinessLibrary.Security
             }
 
         }
-        private static PropertyInfo<string> ErrorProperty = RegisterProperty<string>(new PropertyInfo<string>("Error", "Error"));
+        public static readonly PropertyInfo<string> ErrorProperty = RegisterProperty<string>(new PropertyInfo<string>("Error", "Error"));
         public string Error
         {
             get
@@ -82,7 +101,7 @@ namespace BusinessLibrary.Security
                 SetProperty(ErrorProperty, value);
             }
         }
-        private static PropertyInfo<string> ErrorReasonProperty = RegisterProperty<string>(new PropertyInfo<string>("ErrorReason", "ErrorReason"));
+        public static readonly PropertyInfo<string> ErrorReasonProperty = RegisterProperty<string>(new PropertyInfo<string>("ErrorReason", "ErrorReason"));
         public string ErrorReason
         {
             get
@@ -124,17 +143,20 @@ namespace BusinessLibrary.Security
         }
         private ArchieIdentity(string code, string status, bool FromLocal)
         {//constructor that requires to validate AccessCode & status
-            //this may be done in two ways: by validating them in Archie (first logon, not accessing a review) and retrieve new Tokens
-            //or by validating them against the ER4 DB, this is used when accessing a review (archie will not validate the code+status anymore)
-            //also used when the tokens failed and the user Re-authenticated in Archie via the popup (fromLocal == false)
+         //this may be done in two ways: by validating them in Archie (first logon, not accessing a review) and retrieve new Tokens
+         //or by validating them against the ER4 DB, this is used when accessing a review (archie will not validate the code+status anymore)
+         //also used when the tokens failed and the user Re-authenticated in Archie via the popup (fromLocal == false)
+#if (CSLA_NETCORE)
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls12;
+#else
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
+#endif
             _code = code;
             _status = status;
             string dest = AccountBaseAddress + "oauth2/token";
             string json = "";
             Dictionary<string, object> dict;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
 
             if (!FromLocal)//we need to authenticate on Archie
             {
@@ -388,7 +410,7 @@ namespace BusinessLibrary.Security
                         json = reader.ReadToEnd();
                     }
                 }
-                System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+                //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
                 dict = (Dictionary<string, object>)ser.DeserializeObject(json);
                 if (dict.ContainsKey("error"))
                 {
@@ -586,7 +608,7 @@ namespace BusinessLibrary.Security
             int ValidFor;
             ValidUntil = new DateTime();
             Dictionary<string, object> dict;
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
+            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
             try
             {
                 byte[] responseArray = webc.UploadValues(dest, "POST", nvcoll);
@@ -603,10 +625,18 @@ namespace BusinessLibrary.Security
                 Error = "";
                 ErrorReason = "";
                 WebResponse wr = we.Response;
-                using (var reader = new StreamReader(wr.GetResponseStream()))
+                if (wr == null)
                 {
-                    json = reader.ReadToEnd();
+                    json = "{\"error\": \"no_response\", \"error_description\": \"Could not contact webserver.\" }";
                     webc.Dispose();
+                }
+                else
+                {
+                    using (var reader = new StreamReader(wr.GetResponseStream()))
+                    {
+                        json = reader.ReadToEnd();
+                        webc.Dispose();
+                    }
                 }
             }
             dict = (Dictionary<string, object>)ser.DeserializeObject(json);
@@ -849,7 +879,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + PartialEndpoint;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
             //WebClient webc = new WebClient();
             //webc.Headers[HttpRequestHeader.Authorization] = "Bearer " + accessToken ;
             //webc.Headers[HttpRequestHeader.ContentType] = "application/xml";
@@ -933,7 +963,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return null;
             string dest = BaseAddress + "rest/reviews/" + ArchieReviewID + "/latest";
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
             string json = "";
@@ -972,7 +1002,7 @@ namespace BusinessLibrary.Security
             if (!IsAuthenticated) return "Error: not authenticated in Archie";
             string dest = BaseAddress + "rest/reviews/" + ArchieReviewID + "/latest/undo";
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
-            System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
+            //System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dest);
             string json = "";
@@ -1007,5 +1037,5 @@ namespace BusinessLibrary.Security
         }
 #endif
 
-    }
+        }
 }

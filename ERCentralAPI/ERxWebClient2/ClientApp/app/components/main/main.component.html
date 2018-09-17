@@ -1,0 +1,38 @@
+<div class="container-fluid MainBg" resizable>
+    <HeaderComponent></HeaderComponent>
+    <div class="row flex-row-reverse">
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
+            <div class="card card-body bg-light">
+                <ItemListComp resizable r-directions="['right']" r-flex="true"></ItemListComp>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
+            <div class="card bg-light mt-2 ">
+                <div class="card-body">
+                    <h3 class="card-title">Work Allocation List</h3>
+                    <p class="card-text">
+                        <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)' resizable r-directions="['right']" r-flex="true"></WorkAllocationContactListComp>
+                    </p>
+                </div>
+            </div>
+            <div class="card card-body ReviewsBg  mt-2 ">
+                <div>
+                    <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                            [attr.aria-expanded]="!isReviewPanelCollapsed">
+                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                    </button>
+                </div>
+                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                                 style="max-height: 520px;"></readonlyreviews>
+
+            </div>
+            <div class="card card-body bg-light mt-2">
+                {{MyInfoMessage()}}
+                <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+                | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
+            </div>
+
+        </div>
+        <statusbar class="col-sm-12 card-body" resizable></statusbar>
+    </div>
+</div>

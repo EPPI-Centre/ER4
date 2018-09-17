@@ -34,8 +34,8 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch(new SingleCriteria<ReviewSet, int>(SetId));
         }
-#if SILVERLIGHT
         public ReviewSet() { }
+#if SILVERLIGHT        
         public System.Windows.Media.Brush ForeGround
         {
             get
@@ -59,8 +59,7 @@ namespace BusinessLibrary.BusinessClasses
                 return SetTypeId == 5;
             }
         }
-#else
-        private ReviewSet() { }
+
 #endif
 
         public override string ToString()
@@ -170,7 +169,7 @@ namespace BusinessLibrary.BusinessClasses
         
 
         // for controlling the appearance of the tree control
-        private static PropertyInfo<bool> DisplayIsParentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayIsParent", "DisplayIsParent", false));
+        public static readonly PropertyInfo<bool> DisplayIsParentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayIsParent", "DisplayIsParent", false));
         public bool DisplayIsParent
         {
             get
@@ -183,7 +182,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ReviewSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewSetId", "Set Id", 0));
+        public static readonly PropertyInfo<int> ReviewSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewSetId", "Set Id", 0));
         [JsonProperty]
         public int ReviewSetId
         {
@@ -193,7 +192,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "Set Id", 0));
         [JsonProperty]
         public int SetId
         {
@@ -202,7 +201,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetIdProperty);
             }
         }
-        private static PropertyInfo<int> OriginalSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OriginalSetId", "OriginalSetId", 0));
+        public static readonly PropertyInfo<int> OriginalSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OriginalSetId", "OriginalSetId", 0));
         public int OriginalSetId
         {
             get
@@ -210,7 +209,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(OriginalSetIdProperty);
             }
         }
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
         public int ReviewId
         {
             get
@@ -223,7 +222,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TypeId", "TypeId", 0));
+        public static readonly PropertyInfo<int> SetTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TypeId", "TypeId", 0));
         public int SetTypeId
         {
             get
@@ -236,7 +235,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<ReadOnlySetType> SetTypeProperty = RegisterProperty<ReadOnlySetType>(new PropertyInfo<ReadOnlySetType>("SetType", "set type"));
+        public static readonly PropertyInfo<ReadOnlySetType> SetTypeProperty = RegisterProperty<ReadOnlySetType>(new PropertyInfo<ReadOnlySetType>("SetType", "set type"));
         [JsonProperty]
         public ReadOnlySetType SetType
         {
@@ -250,7 +249,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "Set Name", string.Empty));
+        public static readonly PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "Set Name", string.Empty));
         [JsonProperty]
         public string SetName
         {
@@ -263,7 +262,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SetNameProperty, value);
             }
         }
-        private static PropertyInfo<string> SetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "SetDescription", string.Empty));
+        public static readonly PropertyInfo<string> SetDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SetDescription", "SetDescription", string.Empty));
         [JsonProperty]
         public string SetDescription
         {
@@ -276,7 +275,10 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SetDescriptionProperty, value);
             }
         }
-        private static PropertyInfo<bool> AllowCodingEditsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowCodingEdits", "Allow coding edits", false));
+        public static readonly PropertyInfo<bool> AllowCodingEditsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowCodingEdits", "Allow coding edits", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool AllowCodingEdits
         {
             get
@@ -291,7 +293,13 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> CodingIsFinalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CodingIsFinal", "Coding Is Final", true));
+        public static readonly PropertyInfo<bool> CodingIsFinalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CodingIsFinal", "Coding Is Final", true));
+        //consider changing this by applying the following implementation inside ER4!
+        //custom runtime JSON serialisation:
+        //https://blog.rsuter.com/advanced-newtonsoft-json-dynamically-rename-or-ignore-properties-without-changing-the-serialized-class/
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool CodingIsFinal
         {
             get
@@ -304,7 +312,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("SetOrder", "SetOrder", 0));
+        public static readonly PropertyInfo<int> SetOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("SetOrder", "SetOrder", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetOrder
         {
             get
@@ -319,7 +330,7 @@ namespace BusinessLibrary.BusinessClasses
 
        [NotUndoable]
         
-        private static PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
+        public static readonly PropertyInfo<AttributeSetList> AttributeSetProperty = RegisterProperty<AttributeSetList>(new PropertyInfo<AttributeSetList>("Attributes", "Attributes"));
         [JsonProperty(Order = 200)]
         public AttributeSetList Attributes
         {
@@ -333,7 +344,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+        public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
         public Int64 ItemSetId
         {
             get
@@ -346,7 +357,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemSetItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetItemId", "ItemSetItemId"));
+        public static readonly PropertyInfo<Int64> ItemSetItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetItemId", "ItemSetItemId"));
         public Int64 ItemSetItemId
         {
             get
@@ -359,7 +370,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> ItemSetSetIdProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("ItemSetSetId", "ItemSetSetId"));
+        public static readonly PropertyInfo<Int32> ItemSetSetIdProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("ItemSetSetId", "ItemSetSetId"));
         public Int32 ItemSetSetId
         {
             get
@@ -372,7 +383,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> ItemSetContactIdProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("ItemSetContactId", "ItemSetContactId"));
+        public static readonly PropertyInfo<Int32> ItemSetContactIdProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("ItemSetContactId", "ItemSetContactId"));
         public Int32 ItemSetContactId
         {
             get
@@ -385,7 +396,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ItemSetContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemSetContactName", "ItemSetContactName"));
+        public static readonly PropertyInfo<string> ItemSetContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemSetContactName", "ItemSetContactName"));
         public string ItemSetContactName
         {
             get
@@ -398,7 +409,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ItemSetIsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsCompleted", "ItemSetIsCompleted"));
+        public static readonly PropertyInfo<bool> ItemSetIsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsCompleted", "ItemSetIsCompleted"));
         public bool ItemSetIsCompleted
         {
             get
@@ -411,7 +422,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> ItemSetIsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsLocked", "ItemSetIsLocked"));
+        public static readonly PropertyInfo<bool> ItemSetIsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsLocked", "ItemSetIsLocked"));
         public bool ItemSetIsLocked
         {
             get
@@ -617,6 +628,7 @@ namespace BusinessLibrary.BusinessClasses
         internal static ReviewSet GetReviewSet(SafeDataReader reader)
         {
             ReviewSet returnValue = new ReviewSet();
+            returnValue.MarkOld();
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
             returnValue.LoadProperty<int>(ReviewSetIdProperty, reader.GetInt32("REVIEW_SET_ID"));
             returnValue.LoadProperty<int>(OriginalSetIdProperty, reader.GetInt32("ORIGINAL_SET_ID"));
@@ -633,7 +645,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.TempMaxDepth = reader.GetInt32("MAX_DEPTH");
             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
             
-            returnValue.MarkOld();
+           
             return returnValue;
         }
 
