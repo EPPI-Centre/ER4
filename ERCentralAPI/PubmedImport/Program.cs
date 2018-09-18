@@ -1,15 +1,12 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using EPPIDataServices.Helpers;
-using System.Xml;
-using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -123,12 +120,12 @@ namespace PubmedImport
             GetAppSettings(serviceProvider);
             if (SqlHelper == null)
 			{
-                _logger.LogCritical("Critical");
-                _logger.Log(LogLevel.Error,"Error connecting to DBs!");
-                _logger.Log(LogLevel.Error,"Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
-                _logger.Log(LogLevel.Error,"Aborting...");
-                _logger.Log(LogLevel.Error,"");
-				System.Environment.Exit(0);
+                _logger.LogInformation("Critical");
+                _logger.Log(LogLevel.Error, "Error connecting to DBs!");
+                _logger.Log(LogLevel.Error, "Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
+                _logger.Log(LogLevel.Error, "Aborting...");
+                _logger.Log(LogLevel.Error, "");
+                System.Environment.Exit(0);
 			}
 			
 			if (result.DoWhat == "ftpsamplefile")
@@ -166,7 +163,9 @@ namespace PubmedImport
 				{//"Unable to connect to the remote server" "The operation has timed out."
    
                     _logger.Log(LogLevel.Error,"Importing single XML file (" + SingleFile + ").");
-					if (deleteRecords) _logger.Log(LogLevel.Error,"", null); _logger.Log(LogLevel.Error,"DeleteRecords option: will delete records that already exist and won't add new ones!");
+					if (deleteRecords)
+                    _logger.Log(LogLevel.Error,"", null);
+                    _logger.Log(LogLevel.Error,"DeleteRecords option: will delete records that already exist and won't add new ones!");
 					bool canProceed = false;
 					(string Pathname, List<string> messages) = WebRequestGet.getFTPBinaryFiles(SingleFile, serviceProvider);
 					if (messages != null && messages.Count > 0)
@@ -226,14 +225,14 @@ namespace PubmedImport
 			{
                 _logger.LogInformation("");
                 _logger.LogInformation("Importing all XML files in FTP (baseline) folder.");
-				//although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
-				if (deleteRecords)
+                //although this mode is technically supported by the remaining DoWhat modes, we don't think it's safe to use it, so this option disables it...
+                if (deleteRecords)
 				{
 					result.TotalErrorCount++;
-   
-                    _logger.Log(LogLevel.Error,"DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
-					_logger.Log(LogLevel.Error,"DeleteRecords option: will delete records that already exist and won't add new ones!");
-				}
+
+                    _logger.Log(LogLevel.Error, "DeleteRecords option is not supported in \"ftpbaselinefolder\" mode.");
+                    _logger.Log(LogLevel.Error, "DeleteRecords option: will delete records that already exist and won't add new ones!");
+                }
 				else
 				{
 					DoFTPFolder(result, serviceProvider);
@@ -242,14 +241,14 @@ namespace PubmedImport
 			else if (result.DoWhat == "ftpupdatefolder")
 			{
                 _logger.LogInformation("Importing files from Updates folder (only those that were not imported already).");
-				
-				if (deleteRecords)
+
+                if (deleteRecords)
 				{
 					result.TotalErrorCount++;
-                    _logger.Log(LogLevel.Error,"DeleteRecords option: will delete records that already exist and won't add new ones!");
-   
-                    _logger.Log(LogLevel.Error,"DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
-				}
+                    _logger.Log(LogLevel.Error, "DeleteRecords option: will delete records that already exist and won't add new ones!");
+
+                    _logger.Log(LogLevel.Error, "DeleteRecords option is not supported in \"ftpupdatefolder\" mode.");
+                }
 				else
 				{
 					DoFTPUpdateFiles(result, serviceProvider);
@@ -282,8 +281,8 @@ namespace PubmedImport
 				ShowHelp();
 				if (WaitOnExit)
 				{
-                    _logger.Log(LogLevel.Error,"All done, press a key to quit.");
-					Console.ReadKey();
+                    _logger.Log(LogLevel.Error, "All done, press a key to quit.");
+                    Console.ReadKey();
 				}
 			}
 			else
@@ -299,13 +298,13 @@ namespace PubmedImport
                 }
                 else
                 {
-                    result.Summary = "Processed " + currCount.ToString() + " records in " + EPPILogger.Duration(result.StartTime);
+                    result.Summary = "Processed " + currCount.ToString() + " records in " + DateTime.Now.ToShortDateString();//EPPILogger.Duration(result.StartTime);
                 }
 
 				if (Program.simulate == false)
 				{
-                        _logger.LogInformation("Saving job summary to DB");
-						result.UpdateErrors();
+                    _logger.LogInformation("Saving job summary to DB");
+                    result.UpdateErrors();
                     //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB))
                     //{
                     SqlConnection conn = new SqlConnection(Program.SqlHelper.DataServiceDB);
@@ -315,14 +314,14 @@ namespace PubmedImport
                 }
 				if (WaitOnExit)
 				{
-   
+
                     _logger.LogInformation("All done, press a key to quit.");
-					Console.ReadKey();
+                    Console.ReadKey();
 				}
 				else
 				{
                     _logger.LogInformation("All done, exiting.");
-				}
+                }
 			}
 		}
 
@@ -335,16 +334,13 @@ namespace PubmedImport
                     ).AddLogging(configure => configure.AddSerilog())
                 .AddTransient<FileParser>()
                 .AddTransient<RCTTaggerImport>();
-            services.AddLogging(configure => configure.AddSerilog()
-           ).AddTransient<FileParser>()
-                .AddTransient<RCTTaggerImport>();
 
         }
 
         static void GetAppSettings(ServiceProvider serviceProvider)
         {
             
-            var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             System.IO.Directory.CreateDirectory(Directory.GetCurrentDirectory() + @"\Tmpfiles");
 			var builder = new ConfigurationBuilder()
@@ -446,14 +442,14 @@ namespace PubmedImport
             }
             catch (Exception e)
             {
-                logger.SQLActionFailed("", parameters, e);
+                logger.SQLActionFailed("Error inserting joblog entry into sql.", parameters, e);
                 //transaction.Rollback();
                 //  Program.Logger.LogException(e, "Error inserting joblog entry into sql.");
             }
         }
         static void DoFTPUpdateFiles(PubMedUpdateFileImportJobLog result, ServiceProvider serviceProvider)
 		{
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             (List<PubMedUpdateFileImport> updateFiles, List<string> messages)  = WebRequestGet.getUpdateFTPFiles(FTPUpdatesFolder, serviceProvider);// "ftp://ftp.ncbi.nlm.nih.gov/pubmed/updatefiles/");
 			if (messages != null && messages.Count > 0)
@@ -606,7 +602,7 @@ namespace PubmedImport
 
 		static void DoFTPFolder(PubMedUpdateFileImportJobLog result, ServiceProvider serviceProvider)
 		{
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             (List<string> lstFiles, List<string> messages) = WebRequestGet.GetPubMedBaselineFilesList(FTPBaselineFolder, serviceProvider);//"ftp://ftp.ncbi.nlm.nih.gov/pubmed/baseline/");
 			if (messages != null && messages.Count > 0)
@@ -817,7 +813,7 @@ namespace PubmedImport
 	{
 		public static (List<string> files, List<string> messages) GetPubMedBaselineFilesList(string RemoteFtpPath, ServiceProvider serviceProvider)
 		{
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
             string Username = "anonymous";
 			string Password = "";
 			List<string> messages = new List<string>();
@@ -852,7 +848,7 @@ namespace PubmedImport
 		}
 		public static (string localfile, List<string> messages) getFTPBinaryFiles(string FullFtpFilePath, ServiceProvider serviceProvider)
 		{
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             int filenameIndex = FullFtpFilePath.LastIndexOf('/');
 			if (filenameIndex < 1 || FullFtpFilePath.IndexOf(".xml.gz") < 1)
@@ -870,7 +866,7 @@ namespace PubmedImport
 		public static (string localfile, List<string> messages) getFTPBinaryFiles(string basePath, String FtpFileName, ServiceProvider serviceProvider)
 		{
 
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
             string RemoteFtpPath = basePath + FtpFileName;
 			List<string> messages = new List<string>();
 			int index = FtpFileName.IndexOf(".gz");
@@ -950,7 +946,7 @@ namespace PubmedImport
 		}
 		public static (List<PubMedUpdateFileImport> fileList, List<string> messages) getUpdateFTPFiles(string updateFTPPath, ServiceProvider serviceProvider)
 		{
-            var _logger = serviceProvider.GetService<ILogger<FileParser>>();
+            var _logger = serviceProvider.GetService<ILogger<Program>>();
 
             List<PubMedUpdateFileImport> fileList = new List<PubMedUpdateFileImport>();
 			List<PubMedUpdateFileImport> MatchingFilesList = new List<PubMedUpdateFileImport>();
@@ -994,7 +990,7 @@ namespace PubmedImport
             List<PubMedUpdateFileImport> knownUpdateFiles = new List<PubMedUpdateFileImport>();
             try
             {
-                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll2", new SqlParameter("fake param", "I'm a fake")))
+                using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_PubMedUpdateFileGetAll"))
                 {
                     //if (!reader.IsClosed)
                     //{

@@ -48,10 +48,10 @@ namespace Klasifiki
             else
             {
                 //Without logging to the Datbase
-                Log.Logger = new LoggerConfiguration().WriteTo.File(CreateLogFileName())
-               .CreateLogger();
-
-
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.File(CreateLogFileName())
+                    .CreateLogger();
+                
                 BuildWebHost(args).Run();
             }
         }

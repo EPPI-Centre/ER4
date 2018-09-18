@@ -24,7 +24,7 @@ namespace PubmedImport
         private readonly ILogger _logger;
         public PubMedUpdateFileImportJobLog _jobLogResult;
 
-        public RCTTaggerImport(ILogger<EPPILogger> logger)
+        public RCTTaggerImport(ILogger<RCTTaggerImport> logger)
         {
             _logger = logger;
         }
@@ -678,7 +678,7 @@ namespace PubmedImport
         {
             _jobLogResult = jobLogResult;
             // Setup the logger
-            var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
+            //var _logger = serviceProvider.GetService<ILogger>();
             
             // Warning this a terrible way to do this; if Arrowsmith change the format
             // of their links all of this will break.
@@ -699,11 +699,14 @@ namespace PubmedImport
 
             _logger.LogInformation("Checking for new yearly import files");
 
-            List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
 
-            List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
+            try
+            {
+                List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
+                List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
+
+                List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
+                List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
 
 
             if (yearlyRCTLinks.Count() > 0)
@@ -804,6 +807,13 @@ namespace PubmedImport
             // The weekly HUMAN Tagger file type happens below in: Weekly_Update_files()
             // there is no decompression required as the files are not gzipped.
             weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
+
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogException(ex);
+            }
 
             _logger.LogInformation("Finished all HUMAN Score updates");
             _logger.LogInformation("Logging all file results into SQL");

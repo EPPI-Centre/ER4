@@ -17,8 +17,9 @@ namespace PubmedImport
 {
     public class FileParser
     {
+        private readonly ILogger _logger;
 
-        private static void ExecuteSqlTransactionBulkActions(ILogger _logger, List<ReferenceRecord> updateCitations)
+        private static void ExecuteSqlTransactionBulkActions(ILogger logger, List<ReferenceRecord> updateCitations)
         {
             using (SqlConnection connection = new SqlConnection(Program.SqlHelper.DataServiceDB))
             {
@@ -106,12 +107,12 @@ namespace PubmedImport
                         }
                         catch (SqlException ex)
                         {
-                            _logger.Log(LogLevel.Error, ex, "FATAL ERROR: failed to bulk insert updated references.");
+                            logger.Log(LogLevel.Error, ex, "FATAL ERROR: failed to bulk insert updated references.");
                             success = -2;
                         }
                         if (success == -2)
                         {
-                            _logger.Log(LogLevel.Error, "Error happened in bulk Update phase: rolling back transaction.");
+                            logger.Log(LogLevel.Error, "Error happened in bulk Update phase: rolling back transaction.");
                             transaction.Rollback();
                         }
                         else
@@ -124,8 +125,8 @@ namespace PubmedImport
                 catch (Exception ex)
                 {
 
-                    _logger.LogInformation("Commit Exception Type: {0}", ex.GetType());
-                    _logger.LogInformation("  Message: {0}", ex.Message);
+                    logger.LogInformation("Commit Exception Type: {0}", ex.GetType());
+                    logger.LogInformation("  Message: {0}", ex.Message);
 
                     // roll back the transaction.
                     try
@@ -134,16 +135,14 @@ namespace PubmedImport
                     }
                     catch (Exception ex2)
                     {
-                        _logger.LogInformation("Rollback Exception Type: {0}", ex2.GetType());
-                        _logger.LogInformation("  Message: {0}", ex2.Message);
+                        logger.LogInformation("Rollback Exception Type: {0}", ex2.GetType());
+                        logger.LogInformation("  Message: {0}", ex2.Message);
                     }
                 }
             }
         }
-
-        private readonly ILogger _logger;
-
-        public FileParser(ILogger<EPPILogger> logger)
+        
+        public FileParser(ILogger<FileParser> logger)
         {
             _logger = logger;
         }
@@ -365,7 +364,8 @@ namespace PubmedImport
             {
                 ExecuteSqlTransactionBulkActions(_logger, UpdateCitations);
             }
-            string savedin = EPPILogger.Duration(now);
+
+            string savedin = DateTime.Now.ToShortDateString() ;//EPPILogger.Duration(now);
             //================================================================
             _logger.Log(LogLevel.Information, "Done updating references in: " + savedin);
             //Program.Logger.LogMessageLine("Done updating references in: " + savedin);
@@ -435,7 +435,7 @@ namespace PubmedImport
                     }
                 }
             }
-            savedin = EPPILogger.Duration(now);
+            savedin = DateTime.Now.ToShortDateString();//EPPILogger.Duration(now);
             _logger.Log(LogLevel.Information, "Saved new references in: " + savedin);
 
             result.Messages.Add("Saved new references in: " + savedin);
@@ -443,7 +443,7 @@ namespace PubmedImport
 
             DeleteParsedFile(filepath);
 
-            string duration = EPPILogger.Duration(start);
+            string duration = DateTime.Now.ToShortDateString();//EPPILogger.Duration(start);
             _logger.Log(LogLevel.Information, "Imported " + Citations.Count.ToString() + " (new) records in " + duration);
 
             result.Messages.Add("Imported " + Citations.Count.ToString() + " (new) records in " + duration);
