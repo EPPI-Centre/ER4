@@ -120,11 +120,12 @@ namespace PubmedImport
             GetAppSettings(serviceProvider);
             if (SqlHelper == null)
 			{
+
+
                 _logger.LogInformation("Critical");
-                _logger.Log(LogLevel.Error, "Error connecting to DBs!");
-                _logger.Log(LogLevel.Error, "Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
-                _logger.Log(LogLevel.Error, "Aborting...");
-                _logger.Log(LogLevel.Error, "");
+                _logger.LogError("Error connecting to DBs!");
+                _logger.LogError("Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
+                _logger.LogError("Aborting...");
                 System.Environment.Exit(0);
 			}
 			
@@ -252,14 +253,15 @@ namespace PubmedImport
 				{
 					DoFTPUpdateFiles(result, serviceProvider);
 
-                    var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
-                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
+                    //var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
+                    var rCTTaggerImport = new RCTTaggerImport(_logger);
+                    if (dontDoScores == false) rCTTaggerImport.RunRCTTaggerImport( result);
 				}
 			}
             else if (result.DoWhat == "dorctscores")
             {
-                var rCTTaggerImport = serviceProvider.GetService<RCTTaggerImport>();
-                rCTTaggerImport.RunRCTTaggerImport(serviceProvider, result);
+                var rCTTaggerImport = new RCTTaggerImport(_logger) ;//serviceProvider.GetService<RCTTaggerImport>();
+                rCTTaggerImport.RunRCTTaggerImport( result);
 
             }
             if (
@@ -585,6 +587,7 @@ namespace PubmedImport
 				}
 				catch (Exception e)
 				{
+
 					FileParserResult currentJobResult = new FileParserResult(updateFiles[i].FileName, deleteRecords);
 					currentJobResult.Success = false;
 					currentJobResult.ErrorCount++;

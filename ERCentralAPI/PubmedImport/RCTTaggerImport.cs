@@ -674,7 +674,7 @@ namespace PubmedImport
 
         // Main method to run entire import for both file types yearly and weekly and also
         // RCT and human tagger files
-        public void RunRCTTaggerImport( ServiceProvider serviceProvider, PubMedUpdateFileImportJobLog jobLogResult)
+        public void RunRCTTaggerImport( PubMedUpdateFileImportJobLog jobLogResult)
         {
             _jobLogResult = jobLogResult;
             // Setup the logger
