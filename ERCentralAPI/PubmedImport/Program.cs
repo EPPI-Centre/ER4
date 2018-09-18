@@ -145,11 +145,10 @@ namespace PubmedImport
                     result.ProcessedFilesResults.Add(spoof);
                 }
                 else
-                    {
-
-                        var fileParser = serviceProvider.GetService<FileParser>();
-                        result.ProcessedFilesResults.Add(fileParser.ParseFile(@"TmpFiles\" + Pathname));
-                    }
+                {
+                    FileParser fileParser = new FileParser(_logger); //var fileParser = serviceProvider.GetService<FileParser>();
+                    result.ProcessedFilesResults.Add(fileParser.ParseFile(@"TmpFiles\" + Pathname));
+                 }
                 }
 			else if (result.DoWhat == "singlefile")
 			{
@@ -216,7 +215,7 @@ namespace PubmedImport
 					}
                     if (canProceed)
                     {
-                        var fileParser = serviceProvider.GetService<FileParser>();
+                        FileParser fileParser = new FileParser(_logger); //var fileParser = serviceProvider.GetService<FileParser>();
                         result.ProcessedFilesResults.Add(fileParser.ParseFile(@"TmpFiles\" + Pathname));
                     }
                 }
@@ -331,9 +330,9 @@ namespace PubmedImport
             //Action<ILoggingBuilder> tester2 = new Action<ILoggingBuilder>(configure => configure.AddSerilog());
 
             services.AddLogging(configure => configure.AddConsole()
-                    ).AddLogging(configure => configure.AddSerilog())
-                .AddTransient<FileParser>()
-                .AddTransient<RCTTaggerImport>();
+                    ).AddLogging(configure => configure.AddSerilog());
+                //.AddTransient<FileParser>()
+                //.AddTransient<RCTTaggerImport>();
 
         }
 
@@ -551,7 +550,8 @@ namespace PubmedImport
 					FileParserResult currentJobResult = new FileParserResult(updateFiles[i].FileName, Program.deleteRecords);
 					if (canProceed)
 					{
-                        var fileParser = serviceProvider.GetService<FileParser>();
+                        FileParser fileParser = new FileParser(_logger);// serviceProvider.GetService<FileParser>();
+                        //var fileParser = serviceProvider.GetService<FileParser>();
                         currentJobResult = fileParser.ParseFile(@"TmpFiles\" + Pathname);
 
 						//save to DB the PubMedUpdateFileImport object, used to keep track of already processed daily upates

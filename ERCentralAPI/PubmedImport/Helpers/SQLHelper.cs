@@ -43,7 +43,7 @@ namespace EPPIDataServices.Helpers
                 using (SqlConnection connection = new SqlConnection(connSt))
                 {
                     connection.Open();
-                    return ExecuteNonQuerySP(connSt, SPname, parameters);
+                    return ExecuteNonQuerySP(connection, SPname, parameters);
                 }
             }
             catch (Exception e)

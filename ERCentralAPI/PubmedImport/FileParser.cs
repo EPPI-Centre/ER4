@@ -142,7 +142,7 @@ namespace PubmedImport
             }
         }
         
-        public FileParser(ILogger<FileParser> logger)
+        public FileParser(ILogger logger)
         {
             _logger = logger;
         }
@@ -246,7 +246,7 @@ namespace PubmedImport
                 catch (Exception e)
                 {
                     result.Messages.Add(e.Message);
-                    _logger.Log(LogLevel.Error, e.Message);
+                    _logger.LogException(e);
                     //                    Program.Logger.LogMessageLine(e.Message);
                     result.ErrorCount++;
                 }

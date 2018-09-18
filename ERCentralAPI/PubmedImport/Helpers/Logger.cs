@@ -27,8 +27,9 @@ namespace EPPIDataServices.Helpers
         public static string SQLParams;
         public static string strFTP;
 
-        public static void LogException(this ILogger logger, Exception ex)
+        public static void LogException(this ILogger logger, Exception ex, string message = "")
         {
+            if (message != "") logger.LogError(message);
             if (ex.Message != null && ex.Message != "")
                 logger.LogError("MSG: " + ex.Message);
             if (ex.StackTrace != null && ex.StackTrace != "")
@@ -55,7 +56,8 @@ namespace EPPIDataServices.Helpers
             _SQLActionFailed = LoggerMessage.Define<string, string>(
                 LogLevel.Error,
                new EventId(4, nameof(SQLActionFailed)),
-               "SQL Error detected (message = '{message}' SQLParams= {SQLParams})");
+               "SQL Error detected." + Environment.NewLine 
+               + "(message = '{message}' " + Environment.NewLine + " SQLParams= {SQLParams})");
 
             _FTPActionFailed = LoggerMessage.Define<string, string>(
                LogLevel.Error,
@@ -73,7 +75,9 @@ namespace EPPIDataServices.Helpers
                 {
                     if (item != null)
                     {
-                        SQLParams += item.ParameterName + "," + " SQLValue: " + item.Value.ToString();
+                        SQLParams += item.ParameterName + ", SQLValue: ";
+                        if (item.Value == null) SQLParams += "NULL" + Environment.NewLine;
+                        else SQLParams +=  item.Value.ToString() + Environment.NewLine;
                     }
                 }
             }
