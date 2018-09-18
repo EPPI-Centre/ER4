@@ -105,7 +105,6 @@ namespace Klasifiki
             //{
             //    LogLevel = LogLevel.Error
             //}));
-            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

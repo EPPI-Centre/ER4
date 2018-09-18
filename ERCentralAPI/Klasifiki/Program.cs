@@ -50,8 +50,10 @@ namespace Klasifiki
                 //Without logging to the Datbase
                 Log.Logger = new LoggerConfiguration()
                     .WriteTo.File(CreateLogFileName())
+                    .MinimumLevel.Error()
                     .CreateLogger();
-                
+               
+
                 BuildWebHost(args).Run();
             }
         }
