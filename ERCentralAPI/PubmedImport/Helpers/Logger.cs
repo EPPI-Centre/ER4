@@ -7,12 +7,6 @@ using System.IO;
 
 namespace EPPIDataServices.Helpers
 {
-   
-    //public class CustomLoggerProviderConfiguration
-    //{
-    //    public LogLevel LogLevel { get; set; } = LogLevel.Error;
-    //    public int EventId { get; set; } = 0;
-    //}
 
     public class CustomLoggerProviderConfigurationPubMed
     {
