@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Azure.DataLake.Store;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest.Azure.Authentication;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Sinks.File;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Globalization;
@@ -37,6 +34,9 @@ namespace AcademicImport
 
         public static void Main(string[] args)
         {
+
+            // Starting from here ==============================================
+
             // Required for SERILOG 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(CreateLogFileName())
@@ -81,6 +81,9 @@ namespace AcademicImport
                 writeToThisFolder = @"L:\MSAcademic\downloads";
                 SqlScriptFolder = @"\SqlScripts\";
             }
+
+            // Maybe ending here could be in a configuration method ===============================
+
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
 
@@ -135,19 +138,21 @@ namespace AcademicImport
                 }
                 Console.WriteLine("");
 
-                List<string> filenameColl = new List<string>();
-                filenameColl.Add("Papers");
-                filenameColl.Add("PaperAbstractsInvertedIndex");
-                filenameColl.Add("PaperFieldsOfStudy");
-                filenameColl.Add("PaperRecommendations");
-                filenameColl.Add("PaperReferences");
-                filenameColl.Add("PaperUrls");
-                filenameColl.Add("FieldOfStudyChildren");
-                filenameColl.Add("FieldOfStudyRelationship");
-                filenameColl.Add("FieldsOfStudy");
-                filenameColl.Add("Journals");
-                filenameColl.Add("Authors");
-                filenameColl.Add("Affiliations");
+                List<string> filenameColl = new List<string>
+                {
+                    "Papers",
+                    "PaperAbstractsInvertedIndex",
+                    "PaperFieldsOfStudy",
+                    "PaperRecommendations",
+                    "PaperReferences",
+                    "PaperUrls",
+                    "FieldOfStudyChildren",
+                    "FieldOfStudyRelationship",
+                    "FieldsOfStudy",
+                    "Journals",
+                    "Authors",
+                    "Affiliations"
+                };
 
                 foreach (var item in filenameColl)
                 {
@@ -176,9 +181,6 @@ namespace AcademicImport
 
                     // CREATE INDEXES ON THE APPROPRIATE TABLES / FIELDS
                     CreateIndexes(conn, SqlScriptFolder);
-
-                    conn.Close();
-
 
                 }
 
