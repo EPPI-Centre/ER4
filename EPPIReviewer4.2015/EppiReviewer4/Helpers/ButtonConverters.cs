@@ -480,127 +480,253 @@ namespace EppiReviewer4.Helpers
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            System.Collections.Generic.List<ReconcilingCode> val = value as System.Collections.Generic.List<ReconcilingCode>;
-            if (val == null || val.Count == 0) return "";
-            else
+            ReconcilingItem RecI = value as ReconcilingItem;
+            System.Collections.Generic.List<ReconcilingCode> val =  new System.Collections.Generic.List<ReconcilingCode>();
+            if (RecI == null) return null;
+            if (parameter.ToString() == "CodesReviewer1")
             {
-                StackPanel res = new StackPanel();
-                res.HorizontalAlignment = HorizontalAlignment.Stretch;
-                res.VerticalAlignment = VerticalAlignment.Stretch;
-                res.Orientation = Orientation.Vertical;
-                Thickness tk = new Thickness(2);
-                res.Margin = new Thickness(4);
-                
-                SolidColorBrush br = new SolidColorBrush(Colors.DarkGray);
-
-                foreach (ReconcilingCode rc in val)
-                {
-                    if (rc != null)
-                    {
-                        Grid singleCode = new Grid();//contains the full info for a single code
-                        singleCode.HorizontalAlignment = HorizontalAlignment.Left;
-                        singleCode.MouseLeftButtonDown += new MouseButtonEventHandler(tx_MouseLeftButtonDown);
-                        ColumnDefinition col1 = new ColumnDefinition();
-                        col1.Width = new GridLength(0);
-                        ColumnDefinition col2 = new ColumnDefinition();
-                        singleCode.ColumnDefinitions.Add(col1);
-                        singleCode.ColumnDefinitions.Add(col2);
-                        RowDefinition row1 = new RowDefinition();
-                        RowDefinition row2 = new RowDefinition();
-                        row2.Height = new GridLength(0);
-                        singleCode.RowDefinitions.Add(row1);
-                        singleCode.RowDefinitions.Add(row2);
-                        Border bd = new Border();//contains the actual code
-                        bd.BorderBrush = br;
-                        bd.HorizontalAlignment = HorizontalAlignment.Left;
-                        bd.Background = new SolidColorBrush(Colors.White);
-                        bd.Margin = tk;
-                        bd.BorderThickness = tk;
-                        bd.SetValue(Grid.ColumnProperty, 1);
-                        TextBlock tx = new TextBlock();//the code!
-                        tx.Text = rc.Name;
-                        tx.Height = 17;
-                        tx.Margin = tk;
-                        tx.DataContext = rc;
-                        bd.Child = tx;
-                        singleCode.Children.Add(bd);
-                        StackPanel graphicpath = new StackPanel();//contains the path of the full code, goes in singleCode [0,0]
-                        graphicpath.Orientation = Orientation.Horizontal;
-                        graphicpath.Margin = tk;
-                        string[] sep = {"<¬sep¬>"};
-                        Image img = new Image();
-                        img.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("../Icons/NextDocument.png", UriKind.Relative));
-                        img.Height = 10;
-                        img.Width = 10;
-                        img.Opacity = 100;
-                        img.Stretch = Stretch.Fill;
-                        graphicpath.Children.Add(img);
-                        graphicpath.SetValue(Grid.ColumnProperty, 0);
-                        string[] path = rc.Fullpath.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string node in path)
-                        {
-                            Border bd2 = new Border();
-                            bd2.BorderBrush = new SolidColorBrush(Colors.White);
-                            bd2.HorizontalAlignment = HorizontalAlignment.Left;
-                            bd2.Background = new SolidColorBrush(Color.FromArgb(255, 185, 240, 185));
-                            bd2.Margin = tk;
-                            bd2.BorderThickness = tk;
-                            
-                            TextBlock tx2 = new TextBlock();
-                            tx2.Text = node;
-                            tx2.Margin = tk;
-                            bd2.Child = tx2;
-                            graphicpath.Children.Add(bd2);
-                            Image img2 = new Image();
-                            img2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("../Icons/NextDocument.png", UriKind.Relative));
-                            img2.Height = 10;
-                            img2.Width = 10;
-                            img2.Opacity = 100;
-                            img2.Stretch = Stretch.Fill;
-                            graphicpath.Children.Add(img2);
-                        }
-                        singleCode.Children.Add(graphicpath);
-                        graphicpath.Visibility = Visibility.Collapsed;
-                        StackPanel spInfo = new StackPanel();
-                        spInfo.Visibility = Visibility.Collapsed;
-                        spInfo.SetValue(Grid.ColumnProperty, 0);
-                        spInfo.SetValue(Grid.RowProperty, 1);
-                        spInfo.SetValue(Grid.ColumnSpanProperty, 2);
-                        spInfo.Orientation = Orientation.Vertical;
-                        spInfo.Tag = rc.InfoBox;
-                        
-                        Border bdInfobox = new Border();
-                        bdInfobox.BorderBrush = new SolidColorBrush(Colors.Black);
-                        bdInfobox.BorderThickness = new Thickness(1);
-
-                        RichTextBox MyRTB = new RichTextBox();
-                        MyRTB.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-
-                        // Create a Run of plain text and some bold text.
-                        Bold myBold = new Bold();
-                        myBold.Inlines.Add("[Info] ");
-                        Run myRun2 = new Run();
-                        myRun2.Text = rc.InfoBox;
-
-                        // Create a paragraph and add the Run and Bold to it.
-                        Paragraph myParagraph = new Paragraph();
-                        myParagraph.Inlines.Add(myBold);
-                        myParagraph.Inlines.Add(myRun2);
-
-                        // Add the paragraph to the RichTextBox.
-                        MyRTB.Blocks.Add(myParagraph);
-
-                        TextBlock infobox = new TextBlock();
-                        infobox.TextWrapping = TextWrapping.Wrap;
-                        infobox.Text = rc.InfoBox.Length > 0 ? "[Info] " + rc.InfoBox : "";
-                        bdInfobox.Child = infobox;
-                        spInfo.Children.Add(MyRTB);
-                        singleCode.Children.Add(spInfo);
-                        res.Children.Add(singleCode);
-                    }
-                }
-                return res;
+                val = RecI.CodesReviewer1;
             }
+            else if (parameter.ToString() == "CodesReviewer2")
+            {
+                val = RecI.CodesReviewer2;
+            }
+            else if (parameter.ToString() == "CodesReviewer3")
+            {
+                val = RecI.CodesReviewer3;
+            }
+            else return null;
+            Border res = new Border();
+            res.HorizontalAlignment = HorizontalAlignment.Stretch;
+            //res.Width =  
+            res.VerticalAlignment = VerticalAlignment.Stretch;
+            
+            //res.Orientation = Orientation.Vertical;
+            res.Margin = new Thickness(4);
+            //res.Background = new SolidColorBrush(Colors.Cyan);
+            SolidColorBrush br = new SolidColorBrush(Colors.DarkGray);
+            SolidColorBrush Bluebr = new SolidColorBrush(Color.FromArgb(255, 42, 89, 155)); //#FF0C4f4F91 
+
+
+            Thickness tk = new Thickness(2);
+            Thickness tk2 = new Thickness(1);
+            
+            StackPanel ArmsContainer = new StackPanel();
+            ArmsContainer.Orientation = Orientation.Vertical;
+            ArmsContainer.HorizontalAlignment = HorizontalAlignment.Stretch;
+            TextBlock studyTblock = new TextBlock();
+            studyTblock.Text = "Whole Study";
+            StackPanel studyStack = new StackPanel();
+            studyStack.Orientation = Orientation.Vertical;
+            studyStack.Children.Add(studyTblock);
+            System.Collections.Generic.Dictionary<Int64, StackPanel> Rows = new System.Collections.Generic.Dictionary<long, StackPanel>();
+            Rows.Add(0, studyStack);
+            ArmsContainer.Children.Add(studyStack);
+            foreach (ItemArm iArm in RecI.ItemArms)
+            {
+                StackPanel armStack = new StackPanel();
+                armStack.Orientation = Orientation.Vertical;
+                Border aBd = new Border();
+                aBd.HorizontalAlignment = HorizontalAlignment.Center;
+                aBd.BorderBrush = Bluebr;
+                aBd.Background = new SolidColorBrush(Colors.Black);
+                Line l1 = new Line();
+                l1.SetValue(Grid.RowProperty, 1);
+                l1.X1 = 0; l1.X2 = 1; l1.Y1 = 0; l1.Y2 = 0; l1.Stroke = new SolidColorBrush(Colors.Red); l1.StrokeThickness = 1;
+                l1.Stretch = Stretch.Uniform;
+                aBd.Child = l1;
+                armStack.Children.Add(aBd);
+                TextBlock armTblock = new TextBlock();
+                armTblock.Text = iArm.Title;
+                armStack.Children.Add(armTblock);
+                Rows.Add(iArm.ItemArmId, armStack);
+                ArmsContainer.Children.Add(armStack);
+            }
+            foreach (ReconcilingCode rc in val)
+            {
+                if (rc != null)
+                {
+                    Grid singleCode = new Grid();//contains the full info for a single code
+                    singleCode.HorizontalAlignment = HorizontalAlignment.Left;
+                    singleCode.MouseLeftButtonDown += new MouseButtonEventHandler(tx_MouseLeftButtonDown);
+                    ColumnDefinition col1 = new ColumnDefinition();
+                    col1.Width = new GridLength(0);
+                    ColumnDefinition col2 = new ColumnDefinition();
+                    singleCode.ColumnDefinitions.Add(col1);
+                    singleCode.ColumnDefinitions.Add(col2);
+                    RowDefinition row1 = new RowDefinition();
+                    RowDefinition row2 = new RowDefinition();
+                    row2.Height = new GridLength(0);
+                    singleCode.RowDefinitions.Add(row1);
+                    singleCode.RowDefinitions.Add(row2);
+                    Border bd = new Border();//contains the actual code
+                    bd.BorderBrush = br;
+                    bd.HorizontalAlignment = HorizontalAlignment.Left;
+                    bd.Background = new SolidColorBrush(Colors.White);
+                    bd.Margin = tk;
+                    bd.BorderThickness = tk;
+                    bd.SetValue(Grid.ColumnProperty, 1);
+                    TextBlock tx = new TextBlock();//the code!
+                    tx.Text = rc.Name;
+                    tx.Height = 17;
+                    tx.Margin = tk;
+                    tx.DataContext = rc;
+                    bd.Child = tx;
+                    singleCode.Children.Add(bd);
+                    StackPanel graphicpath = new StackPanel();//contains the path of the full code, goes in singleCode [0,0]
+                    graphicpath.Orientation = Orientation.Horizontal;
+                    graphicpath.Margin = tk;
+                    string[] sep = { "<¬sep¬>" };
+                    Image img = new Image();
+                    img.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("../Icons/NextDocument.png", UriKind.Relative));
+                    img.Height = 10;
+                    img.Width = 10;
+                    img.Opacity = 100;
+                    img.Stretch = Stretch.Fill;
+                    graphicpath.Children.Add(img);
+                    graphicpath.SetValue(Grid.ColumnProperty, 0);
+                    string[] path = rc.Fullpath.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string node in path)
+                    {
+                        Border bd2 = new Border();
+                        bd2.BorderBrush = new SolidColorBrush(Colors.White);
+                        bd2.HorizontalAlignment = HorizontalAlignment.Left;
+                        //bd2.Background = new SolidColorBrush(Color.FromArgb(255, 185, 240, 185));
+                        bd2.Margin = tk;
+                        bd2.BorderThickness = tk;
+
+                        TextBlock tx2 = new TextBlock();
+                        tx2.Text = node;
+                        tx2.Margin = tk;
+                        bd2.Child = tx2;
+                        graphicpath.Children.Add(bd2);
+                        Image img2 = new Image();
+                        img2.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("../Icons/NextDocument.png", UriKind.Relative));
+                        img2.Height = 10;
+                        img2.Width = 10;
+                        img2.Opacity = 100;
+                        img2.Stretch = Stretch.Fill;
+                        graphicpath.Children.Add(img2);
+                    }
+                    singleCode.Children.Add(graphicpath);
+                    graphicpath.Visibility = Visibility.Collapsed;
+                    StackPanel spInfo = new StackPanel();
+                    spInfo.Visibility = Visibility.Collapsed;
+                    spInfo.SetValue(Grid.ColumnProperty, 0);
+                    spInfo.SetValue(Grid.RowProperty, 1);
+                    spInfo.SetValue(Grid.ColumnSpanProperty, 2);
+                    spInfo.Orientation = Orientation.Vertical;
+                    spInfo.Tag = rc.InfoBox;
+
+                    Border bdInfobox = new Border();
+                    bdInfobox.BorderBrush = new SolidColorBrush(Colors.Black);
+                    bdInfobox.BorderThickness = new Thickness(1);
+
+                    RichTextBox MyRTB = new RichTextBox();
+                    MyRTB.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+
+                    // Create a Run of plain text and some bold text.
+                    Bold myBold = new Bold();
+                    myBold.Inlines.Add("[Info] ");
+                    Run myRun2 = new Run();
+                    myRun2.Text = rc.InfoBox;
+
+                    // Create a paragraph and add the Run and Bold to it.
+                    Paragraph myParagraph = new Paragraph();
+                    myParagraph.Inlines.Add(myBold);
+                    myParagraph.Inlines.Add(myRun2);
+
+                    // Add the paragraph to the RichTextBox.
+                    MyRTB.Blocks.Add(myParagraph);
+
+                    TextBlock infobox = new TextBlock();
+                    infobox.TextWrapping = TextWrapping.Wrap;
+                    infobox.Text = rc.InfoBox.Length > 0 ? "[Info] " + rc.InfoBox : "";
+                    bdInfobox.Child = infobox;
+                    spInfo.Children.Add(MyRTB);
+                    singleCode.Children.Add(spInfo);
+                    Rows[rc.ArmID].Children.Add(singleCode);
+                    //res.Children.Add(singleCode);
+                }
+            }
+            res.Child = ArmsContainer;
+            //res.Children.Add(ArmsContainer);
+            return res;
+
+            //ColumnDefinition col1= new ColumnDefinition();
+            //col1.Width = new GridLength(99, GridUnitType.Star);
+            //ArmsContainer.ColumnDefinitions.Add(col1);
+            //ArmsContainer.RowDefinitions.Add(new RowDefinition());
+            //ColumnDefinition col2 = new ColumnDefinition();
+            //col2.Width = new GridLength(1, GridUnitType.Star);
+            //ArmsContainer.ColumnDefinitions.Add(col2);
+            ////ArmsContainer.Orientation = Orientation.Vertical;
+
+            //Border studyBorder = new Border();
+            //studyBorder.BorderBrush = Bluebr;
+            ////studyBorder.Background = new SolidColorBrush(Colors.LightGray);
+            //studyBorder.Margin = tk2;
+            //studyBorder.BorderThickness = tk2;
+            //studyBorder.HorizontalAlignment = HorizontalAlignment.Stretch;
+            //StackPanel studyStack = new StackPanel();
+            //studyStack.Orientation = Orientation.Vertical;
+            //studyStack.HorizontalAlignment = HorizontalAlignment.Stretch;
+            //studyBorder.Child = studyStack;
+            //studyBorder.SetValue(Grid.RowProperty, 0);
+            //studyBorder.SetValue(Grid.ColumnProperty, 0);
+            //studyStack.Children.Add(studyTblock);
+            //ArmsContainer.RowDefinitions.Add(new RowDefinition());
+            //<Line Grid.Row="1" X1="0" Y1="0" X2="1"  Y2="0" Stroke = "Red" StrokeThickness = "10" Stretch = "Uniform" ></ Line >
+            //    Line l1 = new Line();
+            //l1.SetValue(Grid.RowProperty, 1);
+            //l1.X1 = 0; l1.X2 = 1; l1.Y1 = 0; l1.Y2 = 0; l1.Stroke = new SolidColorBrush(Colors.Red); l1.StrokeThickness = 1;
+            //l1.Stretch = Stretch.Uniform;
+
+            //System.Collections.Generic.Dictionary<Int64, StackPanel> Rows = new System.Collections.Generic.Dictionary<long, StackPanel>();
+            //ArmsContainer.Children.Add(studyBorder);
+            //ArmsContainer.Background = new SolidColorBrush(Colors.LightGray);
+            //Rows.Add(0, studyStack);
+            //int armCounter = 1;
+            //foreach (ItemArm iArm in RecI.ItemArms)
+            //{
+            //    TextBlock armTblock = new TextBlock();
+            //    armTblock.Text = iArm.Title;
+                
+            //    Border armBorder = new Border();
+            //    //armBorder.Background = new SolidColorBrush(Colors.Yellow);
+            //    armBorder.Margin = tk2;
+            //    armBorder.BorderThickness = tk2;
+            //    armBorder.BorderBrush = Bluebr;
+            //    StackPanel armStack = new StackPanel();
+            //    armStack.Orientation = Orientation.Vertical;
+            //    armBorder.Child = armStack;
+            //    armStack.Children.Add(armTblock);
+            //    Rows.Add(iArm.ItemArmId, armStack);
+            //    RowDefinition row = new RowDefinition();
+                
+            //    ArmsContainer.RowDefinitions.Add(new RowDefinition());
+            //    armBorder.SetValue(Grid.RowProperty, armCounter);
+            //    ArmsContainer.Children.Add(armBorder);
+
+            //    armCounter++;
+            //}
+            
+
+
+
+
+            ////System.Collections.Generic.List<ReconcilingCode> val = value as System.Collections.Generic.List<ReconcilingCode>;
+            ////val.Sort(delegate (ReconcilingCode x, ReconcilingCode y)
+            ////{
+            ////    return x.ArmID.CompareTo(y.ArmID);
+            ////});
+            //if (val == null || val.Count == 0) return "";
+            //else
+            //{
+                
+
+                
+            //}
         }
         void tx_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

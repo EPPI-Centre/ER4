@@ -59,7 +59,22 @@ namespace BusinessLibrary.BusinessClasses
                 return SetTypeId == 5;
             }
         }
-
+        private bool _IsInArmContext = false;
+        public bool IsInArmContext
+        {
+            get { return _IsInArmContext; }
+            set
+            {
+                _IsInArmContext = value;
+                if (this.SetTypeId == 5)
+                {//we want to preven coding inside arms for Screening sets
+                    foreach (AttributeSet attributeSet in this.Attributes)
+                    {
+                        attributeSet.IsInArmContext = value;
+                    }
+                }
+            }
+        }
 #endif
 
         public override string ToString()
@@ -283,6 +298,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
+
                 return GetProperty(AllowCodingEditsProperty)&& 
                     Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this);
                 //&& Csla.Security.AuthorizationRules.CanEditObject(this.GetType());
@@ -427,6 +443,9 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
+#if SILVERLIGHT
+                if (this.SetTypeId == 5 && this.IsInArmContext) return true;
+#endif
                 return GetProperty(ItemSetIsLockedProperty);
             }
             set

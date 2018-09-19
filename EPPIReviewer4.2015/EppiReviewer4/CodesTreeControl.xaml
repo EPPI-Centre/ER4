@@ -19,7 +19,7 @@
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         
-        <local:AttributeCodingTemplateSelector x:Key="myAttributeCodingTemplateSelector">
+        <local:AttributeCodingTemplateSelector  x:Key="myAttributeCodingTemplateSelector">
             <local:TypedTemplate TypeName="SelectableAttributeTemplate">
                 <core:HierarchicalDataTemplate x:Name="SelectableAttributeTemplate" ItemsSource="{Binding Attributes}">
                     <StackPanel Orientation="Horizontal">
@@ -48,7 +48,7 @@
             </local:TypedTemplate>
 
             <local:TypedTemplate TypeName="CodeSetTemplate">
-                <core:HierarchicalDataTemplate x:Name="CodeSetTemplateN" ItemsSource="{Binding Attributes}">
+                <core:HierarchicalDataTemplate x:Name="CodeSetTemplateN"  ItemsSource="{Binding Attributes}">
                     <StackPanel Orientation="Horizontal">
                         <Image Margin="0,0,4,0" Source="Icons/person.png" Visibility="{Binding CodingIsFinal, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}" ToolTipService.ToolTip="Normal Mode: single data entry for all users"></Image>
                         <Image Margin="0,0,4,0" Source="Icons/team.png" Visibility="{Binding CodingIsFinal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}" ToolTipService.ToolTip="Comparison Mode: independent multi-user entry"></Image>

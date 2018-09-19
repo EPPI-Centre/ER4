@@ -291,7 +291,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer1K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl  Grid.Row="1" Content="{Binding CodesReviewer1, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl  Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer1'}" 
                                             BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ContentControl>
                         </Grid>
                     </DataTemplate>
@@ -321,7 +321,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer2K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl Grid.Row="1" Content="{Binding CodesReviewer2, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer2' }" 
                                             BorderThickness="0" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"></ContentControl>
                                 
                         </Grid>
@@ -351,7 +351,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer3K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl Grid.Row="1" Content="{Binding CodesReviewer3, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer3' }" 
                                             BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ContentControl>
                                 
                         </Grid>

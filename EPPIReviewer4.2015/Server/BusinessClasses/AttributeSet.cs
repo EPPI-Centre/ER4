@@ -49,6 +49,19 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+        private bool _IsInArmContext = false;
+        public bool IsInArmContext 
+        {
+            get {return _IsInArmContext;}
+            set 
+            {
+                _IsInArmContext = value;
+                OnPropertyChanged("IsLocked");
+                //this.IsLocked = !GetProperty(IsLockedProperty); 
+                //this.IsLocked = !GetProperty(IsLockedProperty);
+
+            }
+        }
 
 #endif
         public override string ToString()
@@ -422,9 +435,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return GetProperty(IsLockedProperty)|| 
+#if SILVERLIGHT
+                return GetProperty(IsLockedProperty)|| IsInArmContext ||
                     !Csla.Rules.BusinessRules.HasPermission( AuthorizationActions.EditObject, this); 
-                //| !Csla.Security.AuthorizationRules.CanEditObject(this.GetType()); 
+#else
+                return GetProperty(IsLockedProperty) ||
+                    !Csla.Rules.BusinessRules.HasPermission(AuthorizationActions.EditObject, this);
+#endif
+                
             }
             set
             {
