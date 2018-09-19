@@ -90,6 +90,7 @@ namespace Klasifiki.Controllers
             }
             catch (Exception e)
             {
+
                 _logger.LogError(e, "logging on");
                 //Program.Logger.LogException(e, "logging on");
                 return Redirect("~/Login/Index");

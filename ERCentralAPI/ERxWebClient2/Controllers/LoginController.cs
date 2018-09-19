@@ -1,25 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
-using Csla.Data;
-using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Csla.Security;
 using System.Security.Principal;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Csla;
+using Microsoft.Extensions.Logging;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -27,8 +21,11 @@ namespace ERxWebClient2.Controllers
     public class LoginController : Controller
     {
         private IConfiguration _config;
-        public LoginController(IConfiguration conf)
+        private readonly ILogger _logger;
+
+        public LoginController(IConfiguration conf, ILogger<LoginController> logger)
         {
+            _logger = logger;
             _config = conf;
         }
         
@@ -38,6 +35,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
+
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.Username, lc.Password, 0, "web", "");
                 if (ri.IsAuthenticated)
                 {
@@ -48,7 +46,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging
+                _logger.LogException(e, "Logging in exception!");
                 return Forbid();
             }
         }
@@ -80,10 +78,10 @@ namespace ERxWebClient2.Controllers
 
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                _logger.LogException(e, "Error occured when logging into a review");
+                return Forbid();
             }
         }
 
@@ -126,8 +124,9 @@ namespace ERxWebClient2.Controllers
                 return Ok(command);
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogException(e, "Error with the dataportal for version info in CSLA");
                 throw;
             }
         }

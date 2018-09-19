@@ -14,6 +14,8 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -22,7 +24,15 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class LogonTicketCheckController : CSLAController
     {
-        
+
+        private readonly ILogger _logger;
+
+        public LogonTicketCheckController(ILogger<LogonTicketCheckController> logger)
+        {
+
+            _logger = logger;
+        }
+
         [HttpPost("[action]")]
         public IActionResult ExcecuteCheckTicketExpirationCommand([FromBody] LoginTicketCheck Lgt)
         {
@@ -53,9 +63,10 @@ namespace ERxWebClient2.Controllers
                 //return BadRequest();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                string json = JsonConvert.SerializeObject(Lgt);
+                _logger.LogError(e, "Dataportal Error with Check ticket for user: {0}", json);
                 throw;
             }
         }

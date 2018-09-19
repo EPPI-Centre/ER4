@@ -10,6 +10,8 @@ using Csla;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -17,6 +19,14 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class CodesetController : CSLAController
     {
+
+        private readonly ILogger _logger;
+        
+        public CodesetController(ILogger<CodesetController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet("[action]")]
         public IActionResult CodesetsByReview()
         {
@@ -28,8 +38,9 @@ namespace ERxWebClient2.Controllers
                 ReviewSetsList res = dp.Fetch();
                 return Ok(res);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogException(e, "Dataportal error");
                 throw;
             }
 

@@ -12,6 +12,8 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -22,6 +24,15 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemListController : CSLAController
     {
+
+        private readonly ILogger _logger;
+
+        public ItemListController(ILogger<ItemListController> logger)
+        {
+            _logger = logger;
+
+        }
+
 
         [HttpGet("[action]")]
         public ItemList4Json IncludedItems()//should receive a reviewID!
@@ -43,9 +54,9 @@ namespace ERxWebClient2.Controllers
                 ItemList result = dp.Fetch(crit);
                 return new ItemList4Json(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogError(e, "Included Items dataportal error");
                 throw;
             }
             
@@ -56,6 +67,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
+
                 SetCSLAUser();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
@@ -89,7 +101,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging!
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Fetching criteria: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }

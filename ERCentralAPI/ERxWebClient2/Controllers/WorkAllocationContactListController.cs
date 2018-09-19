@@ -13,6 +13,8 @@ using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using EPPIDataServices.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,6 +22,13 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class WorkAllocationContactListController : CSLAController
     {
+        private readonly ILogger _logger;
+
+        public WorkAllocationContactListController(ILogger<WorkAllocationContactListController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet("[action]")]
         public IActionResult WorkAllocationContactList()//should receive a reviewID!
         {
@@ -38,9 +47,9 @@ namespace ERxWebClient2.Controllers
                 //return resSt;
                 return Ok(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogException(e, "Work Allocation data portal error");
                 throw;
             }
 

@@ -12,7 +12,10 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using EPPIDataServices.Helpers;
+using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,6 +23,15 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class PriorirtyScreeningController : CSLAController
     {
+
+        private readonly ILogger _logger;
+
+        public PriorirtyScreeningController(ILogger<PriorirtyScreeningController> logger)
+        {
+
+            _logger = logger;
+        }
+
 
         [HttpGet("[action]")]
         public IActionResult TrainingList()
@@ -33,7 +45,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging
+                _logger.LogException(e, "Error with the dataportal training list logic");
                 return StatusCode(500, e.Message);
             }
         }
@@ -49,7 +61,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error with Training of the next item: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }
@@ -65,7 +78,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error with Training of the previous item: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }
@@ -89,7 +103,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                //add logging
+                _logger.LogException(e, "Error with the dataportal training run command!");
                 return StatusCode(500, e.Message);
             }
         }
