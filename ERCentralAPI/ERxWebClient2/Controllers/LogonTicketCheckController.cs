@@ -40,7 +40,6 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-
                 SetCSLAUser();
                 CheckTicketExpirationCommand cmd = new CheckTicketExpirationCommand(
 

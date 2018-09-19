@@ -36,7 +36,6 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                throw new Exception("testing again...");
 
                 SetCSLAUser();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
