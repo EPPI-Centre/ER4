@@ -1433,6 +1433,20 @@ namespace EppiReviewer4
             if (ComboArms.Items.Count > 0)
             {
                 CurrentArm = Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag);
+                if (CurrentArm != 0)
+                {
+                    foreach (ReviewSet rs in reviewSets)
+                    {
+                        rs.IsInArmContext = true;
+                    }
+                }
+                else
+                {
+                    foreach (ReviewSet rs in reviewSets)
+                    {
+                        rs.IsInArmContext = false;
+                    }
+                }
             }
             reviewSets.LoadingAttributes = true;
             reviewSets.SetItemData(data, CurrentArm);
@@ -4151,6 +4165,7 @@ namespace EppiReviewer4
             if (CurrentItemData != null && resettingArms == false)
             {
                 doLoadItemAttributes(CurrentItemData);
+                
                 this.SelectedItemChanged.Invoke(sender, e);
             }
         }

@@ -91,7 +91,6 @@ namespace EppiReviewer4
         {
             InitializeComponent();
             //ItemsGrid.DataContext = localList;
-            
         }
         #region HANDLERS
         //put each XAML-declared handler in here, make it fire the corresponding event
@@ -115,13 +114,15 @@ namespace EppiReviewer4
         RadWComparisonReportOptions WindowComparisonRepOptions = new RadWComparisonReportOptions();
         int CurrentItem = 0;
         DataPortal<ItemSetList> dp;
+        DataPortal<ItemArmList> dpItemArms = new DataPortal<ItemArmList>();
         ReconcilingItemList localList;
         public Comparison comparison;
         public ReviewSet reviewSet;
         public string ComparisonDescription = "";
+        //DataPortal<ItemArmList> ArmsDataPortal = new DataPortal<ItemArmList>();
         public void StartGettingData()
         {
-            ItemList items = this.DataContext as ItemList;
+            items = this.DataContext as ItemList;
             
             if (comparison == null || items == null || items.Count == 0 || reviewSet == null) return;
             CurrentItem = 0;
@@ -136,44 +137,65 @@ namespace EppiReviewer4
 
             dp = new DataPortal<ItemSetList>();
             dp.FetchCompleted += new EventHandler<DataPortalResult<ItemSetList>>(DataFetched);
+            dpItemArms.FetchCompleted -= DpItemArms_FetchCompleted;
+            dpItemArms.FetchCompleted += new EventHandler<DataPortalResult<ItemArmList>>(DpItemArms_FetchCompleted);
             dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(items[0].ItemId));
+            this.items = (DataContext as ItemList);
             GetItemDocumentList(items[0]);
+        }
+        ItemList items;
+        private void DpItemArms_FetchCompleted(object sender, DataPortalResult<ItemArmList> e)
+        {
+            //add itemArm data, if not finished, start fetching ItemSetData.
+            if (e.Object != null) items[CurrentItem].Arms = e.Object;
+            CurrentItem++;
+            if (CurrentItem >= items.Count)//all done
+            {
+                ItemsGrid.DataContext = localList;
+                ItemsGrid.ItemsSource = localList.Items;
+                localListX = localList;
+                ItemsGridDataPager.IsEnabled = true;
+                WindowComparisonRepOptions.DataContext = localList;
+                ControlReviewer1.Tag = localList.Comparison.ContactId1;
+                ControlReviewer2.Tag = localList.Comparison.ContactId2;
+                ControlReviewer3.Tag = localList.Comparison.ContactId3;
+                ItemsGrid.SelectedItem = ItemsGrid.Items[0];
+                ItemsGrid.IsEnabled = true;
+            }
+            else
+            {
+                dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(items[CurrentItem].ItemId));
+            }
+
         }
 
         private void DataFetched(object o, DataPortalResult<ItemSetList> e2)
         {
+            
             if (e2.Error != null)
             {
                 RadWindow.Alert(e2.Error.Message);
             }
             else if (e2.Object != null)
             {
-                
-                CurrentItem++;
+                //add ItemSet data, start fetching ItemArm data
                 ItemSetList isl = e2.Object as ItemSetList;
-                ItemList items = (this.DataContext as ItemList);
-                localList.AddItem(items[CurrentItem - 1], isl);
-                if (CurrentItem >= items.Count)//all done
-                {
-                    ItemsGrid.DataContext = localList;
-                    ItemsGrid.ItemsSource = localList.Items;
-                    localListX = localList;
-                    ItemsGridDataPager.IsEnabled = true;
-                    WindowComparisonRepOptions.DataContext = localList;
-                    ControlReviewer1.Tag = localList.Comparison.ContactId1;
-                    ControlReviewer2.Tag = localList.Comparison.ContactId2;
-                    ControlReviewer3.Tag = localList.Comparison.ContactId3;
-                    ItemsGrid.SelectedItem = ItemsGrid.Items[0];
-                    ItemsGrid.IsEnabled = true;
-                }
-                else
-                {
-                    dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(items[CurrentItem].ItemId));
-                }
-            }
+                localList.AddItem(items[CurrentItem], isl);
+                dpItemArms.BeginFetch(new SingleCriteria<Item, Int64>(items[CurrentItem].ItemId));
 
-            
+
+            }
         }
+        
+        //private void GetItemArmList(Item item)
+        //{
+        //    CslaDataProvider provider = this.Resources["ItemArmsData"] as CslaDataProvider;
+        //    provider.FactoryParameters.Clear();
+        //    provider.FactoryParameters.Add(item.ItemId);
+        //    provider.FactoryMethod = "GetItemArmList";
+        //    GridArms.IsEnabled = false;
+        //    provider.Refresh();
+        //}
 
         private void ButtonComplete_Click(object sender, RoutedEventArgs e)
         {
@@ -433,7 +455,13 @@ namespace EppiReviewer4
                 return _ItemSetR3;
             }
         }
-
+        public List<ItemArm> ItemArms
+        {
+            get
+            {
+                return this.item.Arms.ToList();
+            }
+        }
 
         public ReconcilingItem(Item item, bool isCompleted, List<ReconcilingCode> codesReviewer1, List<ReconcilingCode> codesReviewer2, List<ReconcilingCode> codesReviewer3
             , string completedby, int completedbyID, long completedItemSetID
@@ -455,14 +483,25 @@ namespace EppiReviewer4
     //a single code for a single contact
     public class ReconcilingCode
     {
-        private Int64 _ID, _AttSetID;
+        private Int64 _ID, _AttSetID, _ArmID;
         private string _Name;
+        private string _ArmName;
         private string _Fullpath;
         private string _InfoBox;
         public Int64 ID
         { get { return _ID; } }
         public Int64 AttributeSetID
         { get { return _AttSetID; } }
+        public Int64 ArmID
+        {
+            get { return _ArmID; }
+            set { _ArmID = value; }
+        }
+        public string ArmName
+        {
+            get { return _ArmName; }
+            set { _ArmName = value; }
+        }
         public string Name
         { get { return _Name; } }
         public string Fullpath
@@ -589,12 +628,14 @@ namespace EppiReviewer4
                         foreach (ReadOnlyItemAttribute roia in iSet.ItemAttributes)
                         {
                             ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
-                                if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
-                                {//in such situations r0 is null
-                                    ReconcilingCode r = r0.Clone();
-                                    r.InfoBox = roia.AdditionalText;
-                                    r1.Add(r);
-                                }
+                            if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
+                            {//in such situations r0 is null
+                                ReconcilingCode r = r0.Clone();
+                                r.InfoBox = roia.AdditionalText;
+                                r.ArmID = roia.ArmId;
+                                r.ArmName = roia.ArmTitle;
+                                r1.Add(r);
+                            }
                         }
                     }
                     else if (iSet.ContactId == _Comparison.ContactId2)
@@ -607,6 +648,8 @@ namespace EppiReviewer4
                             {//in such situations r0 is null
                                 ReconcilingCode r = r0.Clone();
                                 r.InfoBox = roia.AdditionalText;
+                                r.ArmID = roia.ArmId;
+                                r.ArmName = roia.ArmTitle;
                                 r2.Add(r);
                             }
                         }
@@ -621,6 +664,8 @@ namespace EppiReviewer4
                             {//in such situations r0 is null
                                 ReconcilingCode r = r0.Clone();
                                 r.InfoBox = roia.AdditionalText;
+                                r.ArmID = roia.ArmId;
+                                r.ArmName = roia.ArmTitle;
                                 r3.Add(r);
                             }
                         }
