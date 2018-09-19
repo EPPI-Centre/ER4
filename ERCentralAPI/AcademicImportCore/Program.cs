@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Azure.DataLake.Store;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest.Azure.Authentication;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Sinks.File;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Globalization;
@@ -20,11 +17,12 @@ using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 
+
 namespace AcademicImport
 {
     public class Program
     {
-        public static SQLHelper SqlHelper = null;
+        public static SQLHelper SqlHelper;
 
         private static string CreateLogFileName()
         {
@@ -36,6 +34,9 @@ namespace AcademicImport
 
         public static void Main(string[] args)
         {
+
+            // Starting from here ==============================================
+
             // Required for SERILOG 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(CreateLogFileName())
@@ -49,11 +50,18 @@ namespace AcademicImport
                 .AddJsonFile($"{appdata}\\Microsoft\\UserSecrets\\AcademicImport.appsettings.User.json", optional: true);
 
             IConfigurationRoot configuration = builder.Build();
+
             var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+
             var serviceProvider = serviceCollection.BuildServiceProvider();
+
             var _logger = serviceProvider.GetService<ILogger<Program>>();
-            SqlHelper = new SQLHelper(configuration, _logger); 
-            //SqlHelper = new SQLHelper(configuration, null);
+
+            SqlHelper = new SQLHelper(configuration, _logger);
+
+            // Example of dotnetcore logging: see methods available to _logger.
+            _logger.LogInformation("Testing the logger in this new academic project");
 
             string applicationId = configuration["AppSettings:applicationId"];     // Also called client id
             string clientSecret = configuration["AppSettings:clientSecret"];
@@ -73,6 +81,9 @@ namespace AcademicImport
                 writeToThisFolder = @"L:\MSAcademic\downloads";
                 SqlScriptFolder = @"\SqlScripts\";
             }
+
+            // Maybe ending here could be in a configuration method ===============================
+
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
 
@@ -126,50 +137,52 @@ namespace AcademicImport
                     file.Delete();
                 }
                 Console.WriteLine("");
-                DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/PaperRecommendations.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/PaperReferences.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/PaperUrls.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/FieldOfStudyChildren.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/FieldOfStudyRelationship.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/FieldsOfStudy.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/Journals.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/Authors.txt", writeToThisFolder, limit);
-                DownloadThisFile(client, latest.FullName, "/Affiliations.txt", writeToThisFolder, limit);
+
+                List<string> filenameColl = new List<string>
+                {
+                    "Papers",
+                    "PaperAbstractsInvertedIndex",
+                    "PaperFieldsOfStudy",
+                    "PaperRecommendations",
+                    "PaperReferences",
+                    "PaperUrls",
+                    "FieldOfStudyChildren",
+                    "FieldOfStudyRelationship",
+                    "FieldsOfStudy",
+                    "Journals",
+                    "Authors",
+                    "Affiliations"
+                };
+
+                foreach (var item in filenameColl)
+                {
+                    DownloadThisFile(client, latest.FullName, "/" + item + ".txt", writeToThisFolder, limit);
+                }
                 Console.WriteLine("");
-                
                 // once we've downloaded the files, put them into the SQL DB
 
                 // Create all the tables
                 Console.WriteLine("Creating tables...");
-                SqlConnection conn = new SqlConnection(Program.SqlHelper.AcademicDB);
-                conn.Open();
-                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "CreateTables.sql"));
-                SqlHelper.ExecuteNonQueryNonSP(conn, "DROP PROCEDURE IF EXISTS [BulkTextUpload]");
-                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "BulkTextUpload.sql").Replace("writeToThisFolder", writeToThisFolder));
-                Console.WriteLine("");
+                using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
+                {
 
-                // put the files into the DB
-                UploadToDatabase(conn, "Papers");
-                UploadToDatabase(conn, "PaperAbstractsInvertedIndex");
-                UploadToDatabase(conn, "PaperFieldsOfStudy");
-                UploadToDatabase(conn, "PaperRecommendations");
-                UploadToDatabase(conn, "PaperReferences");
-                UploadToDatabase(conn, "PaperUrls");
-                UploadToDatabase(conn, "FieldOfStudyChildren");
-                UploadToDatabase(conn, "FieldOfStudyRelationship");
-                UploadToDatabase(conn, "FieldsOfStudy");
-                UploadToDatabase(conn, "Journals");
-                UploadToDatabase(conn, "Authors");
-                UploadToDatabase(conn, "Affiliations");
-                Console.WriteLine("");
+                    conn.Open();
+                    SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "CreateTables.sql"));
+                    SqlHelper.ExecuteNonQueryNonSP(conn, "DROP PROCEDURE IF EXISTS [BulkTextUpload]");
+                    SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(AppContext.BaseDirectory + SqlScriptFolder + "BulkTextUpload.sql").Replace("writeToThisFolder", writeToThisFolder));
+                    Console.WriteLine("");
 
-                // CREATE INDEXES ON THE APPROPRIATE TABLES / FIELDS
-                CreateIndexes(conn, SqlScriptFolder);
+                    // put the files into the DB
+                    foreach (var item in filenameColl)
+                    {
+                        UploadToDatabase(conn, item);
+                    }
+                    Console.WriteLine("");
 
-                conn.Close();
+                    // CREATE INDEXES ON THE APPROPRIATE TABLES / FIELDS
+                    CreateIndexes(conn, SqlScriptFolder);
+
+                }
 
                 // Once the file has been put into the DB, delete it from the local filesystem. e.g.
                 /*
@@ -205,6 +218,12 @@ namespace AcademicImport
 
             Console.WriteLine("Done. Press ENTER to continue ...");
             Console.ReadLine();
+        }
+
+        private static void ConfigureServices(ServiceCollection serviceCollection)
+        {
+            serviceCollection.AddLogging(configure => configure.AddConsole())
+                .AddLogging(configure => configure.AddSerilog());
         }
 
         private static bool UploadToDatabase(SqlConnection conn, string FileName)
@@ -310,6 +329,7 @@ namespace AcademicImport
         {
             if (string.IsNullOrWhiteSpace(s)) return "";
             return alphaNumericRegex.Value.Replace(s, "").ToLower();
+
         }
 
         public static string ReconstructInvertedAbstract(int indexLength, Dictionary<string, int[]> invertedIndex)

@@ -16,6 +16,9 @@ namespace EPPIDataServices.Helpers
         public readonly string DataServiceDB = "";
         public readonly string ER4DB = "";
         public readonly string ER4AdminDB = "";
+        public readonly string AcademicDB = "";
+
+
         // EPPILogger Logger;
         private readonly ILogger _logger;
 
@@ -24,15 +27,16 @@ namespace EPPIDataServices.Helpers
             //DatabaseName = configuration["AppSettings:DatabaseName"];
             //Logger = logger;
             _logger = logger;
-            DataServiceDB = configuration["AppSettings:DataServiceDB"];
-            ER4DB = configuration["AppSettings:ER4DB"];
-            ER4AdminDB = configuration["AppSettings:ER4AdminDB"];
+            DataServiceDB = configuration["AppSettings:DataServiceDB"] ?? "";
+            ER4DB = configuration["AppSettings:ER4DB"] ?? "";
+            ER4AdminDB = configuration["AppSettings:ER4AdminDB"] ?? "";
+            AcademicDB = configuration["AppSettings:AcademicDB"] ?? "";
         }
-        public SQLHelper (ILogger logger)
-        {
-            _logger = logger;
-            DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";
-        }
+        //public SQLHelper (ILogger logger)
+        //{
+        //    _logger = logger;
+        //    DataServiceDB = "Server=localhost;Database=DataService;Integrated Security=True;";
+        //}
         /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
         /// </summary> 
@@ -92,6 +96,30 @@ namespace EPPIDataServices.Helpers
             catch (Exception e)
             {
                 _logger.SQLActionFailed("Error exectuing SP: " + SPname, parameters, e);
+                return -2;
+            }
+        }
+
+
+        /// <summary> 
+        /// Call this when you want to use the same connection for multiple SQL text commands, will try opening the connection if it isn't already
+        /// James added this one, so do change it if he's done it wrong!
+        /// </summary> 
+        public int ExecuteNonQueryNonSP(SqlConnection connection, string CommandText)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(CommandText, connection))
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.CommandText = CommandText;
+                    return command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing NonQueryNonSP: " + CommandText, null, e); // need to extend this to cope with no parameters!
                 return -2;
             }
         }
