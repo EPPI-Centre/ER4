@@ -12,7 +12,9 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,11 +22,21 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemSetListController : CSLAController
     {
+
+        private readonly ILogger _logger;
+
+        public ItemSetListController(ILogger<ItemSetListController> logger)
+        {
+            _logger = logger;
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)
         {
             try
             {
+
                 SetCSLAUser();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
@@ -36,8 +48,8 @@ namespace ERxWebClient2.Controllers
 
             }
             catch(Exception e)
-            {
-                //add logging
+            {               
+                _logger.LogError(e, "Error when fetching a set list: {0}", ItemIDCrit.Value);
                 return StatusCode(500, e.Message);
             }
         }
@@ -73,14 +85,15 @@ namespace ERxWebClient2.Controllers
                 return Ok(MVCcmd);
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
                 throw;
             }
         }
-
     }
+
     public class MVCItemAttributeSaveCommand
     {
         public string saveType { get; set; }

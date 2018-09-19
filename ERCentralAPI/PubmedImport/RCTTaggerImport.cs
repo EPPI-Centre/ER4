@@ -24,7 +24,7 @@ namespace PubmedImport
         private readonly ILogger _logger;
         public PubMedUpdateFileImportJobLog _jobLogResult;
 
-        public RCTTaggerImport(ILogger<EPPILogger> logger)
+        public RCTTaggerImport(ILogger logger)
         {
             _logger = logger;
         }
@@ -72,7 +72,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                _logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                
                 return DateTime.Now;
             }
@@ -94,7 +94,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                _logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                 
                 return "";
             }
@@ -109,7 +109,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                _logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                 return "";
             }
         }
@@ -122,7 +122,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                _logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                 return "";
             }
         }
@@ -139,7 +139,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Format of files from arrowsmith must have changed; converting to year errors");
+                _logger.LogException(ex, "Format of files from arrowsmith must have changed; converting to year errors");
                 throw;
             }
 
@@ -185,7 +185,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "error scraping links");
+                _logger.LogException(ex, "error scraping links");
 
                 links.Add("error scraping links");
 
@@ -277,12 +277,12 @@ namespace PubmedImport
                 }
                 catch (SqlException sqlex)
                 {
-                    _logger.LogError(sqlex, "", sqlParams.ToArray());
+                    _logger.SQLActionFailed("Saving Scores File import Log", sqlParams.ToArray(), sqlex);
                     transaction.Rollback();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "");
+                    _logger.LogException(ex, "Saving Scores File import Log");
                     transaction.Rollback();
                 }
                 conn.Close();
@@ -367,7 +367,7 @@ namespace PubmedImport
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "deleting the compressed file.");
+                    _logger.LogException(ex, "deleting the compressed file.");
                 }
             }
             return unZippedFileName;
@@ -396,7 +396,7 @@ namespace PubmedImport
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "HTTP request error");
+                    _logger.LogException(e, "HTTP request error");
                     exceptions.Add(e);
                 }
             }
@@ -512,15 +512,15 @@ namespace PubmedImport
                         catch (SqlException sqlex)
                         {
                             fileParser.ErrorCount++;
-                            fileParser.Messages.Add("");
-                            _logger.LogError(sqlex, "", sqlParams.ToArray());
+                            fileParser.Messages.Add("Updating Arrow Scores");
+                            _logger.SQLActionFailed( "Updating Arrow Scores", sqlParams.ToArray(), sqlex);
                             transaction.Rollback();
                         }
                         catch (Exception ex)
                         {
                             fileParser.ErrorCount++;
-                            fileParser.Messages.Add("");
-                            _logger.LogError(ex, "");
+                            fileParser.Messages.Add("Updating Arrow Scores");
+                            _logger.LogException(ex, "Updating Arrow Scores");
                             transaction.Rollback();
                         }
                     }
@@ -542,7 +542,7 @@ namespace PubmedImport
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Catch all try block");
+                    _logger.LogException(ex, "Updating Arrow Scores (Catch all try block)");
                 }
                 finally
                 {
@@ -604,7 +604,7 @@ namespace PubmedImport
             string fileName = "";
             try
             {
-                using (SqlConnection conn = new SqlConnection("Server=localhost; Database = DataService; Integrated Security = True; "))
+                using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
                 {
                     conn.Open();
                     var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_UPLOAD_FILE_NAME]");
@@ -629,7 +629,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogException(ex, "");
 
             }
             return fileName;
@@ -641,7 +641,7 @@ namespace PubmedImport
             string fileName = "";
             try
             {
-                using (SqlConnection conn = new SqlConnection("Server=localhost; Database = DataService; Integrated Security = True; "))
+                using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
                 {
                     conn.Open();
                     var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_HUMAN_GET_LATEST_UPLOAD_FILE_NAME]");
@@ -666,7 +666,7 @@ namespace PubmedImport
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogError(ex, "LatestHumanUPDATEFile(): ");
 
             }
             return fileName;
@@ -674,11 +674,11 @@ namespace PubmedImport
 
         // Main method to run entire import for both file types yearly and weekly and also
         // RCT and human tagger files
-        public void RunRCTTaggerImport( ServiceProvider serviceProvider, PubMedUpdateFileImportJobLog jobLogResult)
+        public void RunRCTTaggerImport( PubMedUpdateFileImportJobLog jobLogResult)
         {
             _jobLogResult = jobLogResult;
             // Setup the logger
-            var _logger = serviceProvider.GetService<ILogger<EPPILogger>>();
+            //var _logger = serviceProvider.GetService<ILogger>();
             
             // Warning this a terrible way to do this; if Arrowsmith change the format
             // of their links all of this will break.
@@ -699,11 +699,14 @@ namespace PubmedImport
 
             _logger.LogInformation("Checking for new yearly import files");
 
-            List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
 
-            List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
-            List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
+            try
+            {
+                List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
+                List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
+
+                List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
+                List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
 
 
             if (yearlyRCTLinks.Count() > 0)
@@ -805,6 +808,13 @@ namespace PubmedImport
             // there is no decompression required as the files are not gzipped.
             weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogException(ex);
+            }
+
             _logger.LogInformation("Finished all HUMAN Score updates");
             _logger.LogInformation("Logging all file results into SQL");
 
@@ -818,7 +828,7 @@ namespace PubmedImport
             List<string> fileNames = new List<string>();
             try
             {
-                using (SqlConnection conn = new SqlConnection("Server = localhost; Database = DataService; Integrated Security = True; "))
+                using (SqlConnection conn = new SqlConnection(SqlHelper.DataServiceDB))
                 {
                     conn.Open();
                     var res = SqlHelper.ExecuteQuerySP(conn, "[dbo].[st_RCT_GET_LATEST_YEARLY_FILE_NAMES]");
@@ -834,12 +844,12 @@ namespace PubmedImport
             }
             catch (SqlException sqlex)
             {
-                _logger.SQLActionFailed("", null, sqlex);
+                _logger.SQLActionFailed("GetAllYearlyFiles()", null, sqlex);
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogException(ex, "GetAllYearlyFiles()");
 
             }
             return fileNames;

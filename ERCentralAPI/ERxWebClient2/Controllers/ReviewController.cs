@@ -12,7 +12,9 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,6 +22,14 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewController : CSLAController
     {
+
+        private readonly ILogger _logger;
+
+        public ReviewController(ILogger<ReviewController> logger)
+        {
+
+            _logger = logger;
+        }
 
         [HttpGet("[action]")]
         public IActionResult ReadOnlyReviews()//should receive a reviewID!
@@ -41,9 +51,9 @@ namespace ERxWebClient2.Controllers
                 //return returnValue;
                 return Ok(result);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                _logger.LogException(e, "ReadOnlyReviews data portal error");
                 throw;
             }
 

@@ -12,7 +12,9 @@ using Csla.Data;
 using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,6 +22,14 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewerTermListController : CSLAController
     {
+
+        private readonly ILogger _logger;
+
+        public ReviewerTermListController(ILogger<ReviewerTermListController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet("[action]")]
         public IActionResult Fetch()
         {
@@ -33,7 +43,7 @@ namespace ERxWebClient2.Controllers
             }
             catch(Exception e)
             {
-                //add logging
+                _logger.LogException(e, "Error with TrainingReviewerTermList");
                 return StatusCode(500, e.Message);
             }
         }

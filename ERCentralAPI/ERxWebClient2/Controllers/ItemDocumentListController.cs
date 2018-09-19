@@ -12,6 +12,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -33,17 +34,25 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult GetDocuments([FromBody] SingleInt64Criteria ItemIDCrit)
         {
+            try
+            {
+                SetCSLAUser();
 
-            SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                int rid = ri.ReviewId;
+                DataPortal<ItemDocumentList> dp = new DataPortal<ItemDocumentList>();
+                SingleCriteria<ItemDocumentList, Int64> criteria = new SingleCriteria<ItemDocumentList, Int64>(ItemIDCrit.Value);
 
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            int rid = ri.ReviewId;
-            DataPortal<ItemDocumentList> dp = new DataPortal<ItemDocumentList>();
-            SingleCriteria<ItemDocumentList, Int64> criteria = new SingleCriteria<ItemDocumentList, Int64>(ItemIDCrit.Value);
-
-            ItemDocumentList result = dp.Fetch(criteria);
+                ItemDocumentList result = dp.Fetch(criteria);
             
-            return Ok(result);
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e,"DocumentList data portal controller error",  ItemIDCrit.Value);
+                throw;
+            }
 
         }
 
@@ -185,7 +194,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogInformation("Testing the logger here for functionality...", parameters);
+                _Logger.LogError(e, "File download failure DOCID: {0}, REVID: {1}", parameters[0], parameters[1]);
                 _Logger.SQLActionFailed("Download Error...", parameters, e);
                 return NotFound();
             }
