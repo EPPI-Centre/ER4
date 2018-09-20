@@ -61,7 +61,10 @@ namespace AcademicImport
             SqlHelper = new SQLHelper(configuration, _logger);
 
             // Example of dotnetcore logging: see methods available to _logger.
-            _logger.LogInformation("Testing the logger in this new academic project");
+            _logger.LogInformation(Environment.NewLine);
+            _logger.LogInformation(Environment.NewLine);
+            _logger.LogInformation(Environment.NewLine);
+            _logger.LogInformation("MAG import starts...");
 
             string applicationId = configuration["AppSettings:applicationId"];     // Also called client id
             string clientSecret = configuration["AppSettings:clientSecret"];
