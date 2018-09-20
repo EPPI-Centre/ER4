@@ -72,10 +72,10 @@ namespace BusinessLibrary.BusinessClasses
             while (reader.Read())
             {
                 //see if the current attribute is already known, if not add
-                ReportAttribute ra = findAttributeById(reader.GetInt64("ATTRIBUTE_ID"));
+                ReportAttribute ra = findAttributeById(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ARM_NAME"));
                 if (ra == null)
                 {//create attr and add
-                    ra = new ReportAttribute(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
+                    ra = new ReportAttribute(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"), reader.GetString("ARM_NAME"));
                     if (!ReportAttributes.Contains(ra)) ReportAttributes.Add(ra);
                 }
 
@@ -129,7 +129,8 @@ namespace BusinessLibrary.BusinessClasses
                                 reader.GetInt32("REPORT_COLUMN_CODE_ID"),
                                 reader.GetInt64("ATTRIBUTE_ID"),
                                 reader.GetString("DOCUMENT_TITLE"),
-                                reader.GetString("CODED_TEXT"));
+                                reader.GetString("CODED_TEXT"),
+                                reader.GetString("ARM_NAME"));
             }
             reader.NextResult();
             while (reader.Read())
@@ -181,9 +182,9 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-        public void AddItemText(Int64 item_id, int RowID, Int64 attributeID, string Document, string text)
+        public void AddItemText(Int64 item_id, int RowID, Int64 attributeID, string Document, string text, string armName)
         {
-            ReportAttribute ra = this.findAttributeById(attributeID);
+            ReportAttribute ra = this.findAttributeById(attributeID, armName);
             if (ra == null) return;
 
             foreach (ReportItem rit in ReportItems)
@@ -408,11 +409,11 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReportAttributesProperty);
             }
         }
-        private ReportAttribute findAttributeById(Int64 ID)
+        private ReportAttribute findAttributeById(Int64 ID, string ArmName)
         {
             foreach (ReportAttribute ra in ReportAttributes)
             {
-                if (ra.AttributeId == ID) return ra;
+                if (ra.AttributeId == ID && ra.ArmName == ArmName) return ra;
             }
             return null;
         }
@@ -754,12 +755,18 @@ namespace BusinessLibrary.BusinessClasses
                                 ItemRow += "<p style='margin-left:5px; margin-right:5px;'><b>" + Row.RowName + "</b><br>";
                                 foreach (ReportAttribute ratt in rit.ItemColumnsData[rcd.ColumnId][Row.RowId])
                                 {
-                                    //add code name
+                                    //add code name & arm name
                                     if (Row.DisplayCode)
                                     {
-                                        if (showBullets) ItemRow += "&bull; " + ratt.AttributeName + "<br>";
-                                        else ItemRow += ratt.AttributeName + "<br>";
+                                        if (showBullets) ItemRow += "&bull; " + ratt.AttributeName;
+                                        else ItemRow += ratt.AttributeName;
+                                        if (ratt.ArmName != "")
+                                        {
+                                            ItemRow += "<span style='font-family:Times, serif; font-size: 76%;'>[Arm: " + ratt.ArmName + "]</span>";
+                                        }
+                                        ItemRow += "<br>";
                                     }
+                                    else if (ratt.ArmName != "") ItemRow += "<span style='font-family:Times, serif; font-size: 76%;'>[Arm: " + ratt.ArmName + "]</span>";
                                     //add addtn txt
                                     if (Row.DisplayAddtlTxt && rit.ItemColumnsInfoBox.ContainsKey(Row.RowId)
                                             && rit.ItemColumnsInfoBox[Row.RowId].ContainsKey(ratt))
@@ -790,6 +797,7 @@ namespace BusinessLibrary.BusinessClasses
                                             }
                                         }
                                     }
+                                    
                                 } 
                                 ItemRow += "</p>";
                                     
@@ -813,25 +821,40 @@ namespace BusinessLibrary.BusinessClasses
                         {   
                             bool AlreadyNotKnown = false;
                             if (rit.ItemColumnsData.ContainsKey(rcd.ColumnId) && rit.ItemColumnsData[rcd.ColumnId].ContainsKey(Row.RowId) && rit.ItemColumnsData[rcd.ColumnId][Row.RowId].Count != 0)
-                            {//item has data for this column+row
-                                HasData = true;
-                                ReportAttribute ratt = rit.ItemColumnsData[rcd.ColumnId][Row.RowId][0];
-                                AttributeSet atSet = ReviewSets.GetAttributeSetFromAttributeId(ratt.AttributeId);
-                                if (atSet.AttributeOrder == 0)
+                            {//item has data for this column+row, we need to exclude data from arms, so one more check is needed.
+                                ReportAttribute ratt = null;
+                                foreach (ReportAttribute tRatt in rit.ItemColumnsData[rcd.ColumnId][Row.RowId])
                                 {
-                                    RiskOfBSummaryL[ColCount][0]++;//adds 1 to the count of items without risk for this question
-                                    ItemRow += @"<td align=""center"" style=""background-color:rgb(111,235,121)""><font size=14>" + /*('\u263a').ToString()*/ "+" + "</font></td>";
+                                    if (tRatt.ArmName == "")
+                                    {//we can/should use this
+                                        HasData = true;
+                                        ratt = tRatt;
+                                        break;
+                                    }
                                 }
-                                else if (atSet.AttributeOrder == 1)
+                                if (ratt != null)
                                 {
-                                    RiskOfBSummaryL[ColCount][1]++;
-                                    ItemRow += @"<td align=""center"" style=""background-color:rgb(255,75,75)""><font size=14>" + /*('\u2639').ToString()*/ "-" + "</font></td>";
+                                    AttributeSet atSet = ReviewSets.GetAttributeSetFromAttributeId(ratt.AttributeId);
+                                    if (atSet.AttributeOrder == 0)
+                                    {
+                                        RiskOfBSummaryL[ColCount][0]++;//adds 1 to the count of items without risk for this question
+                                        ItemRow += @"<td align=""center"" style=""background-color:rgb(111,235,121)""><font size=14>" + /*('\u263a').ToString()*/ "+" + "</font></td>";
+                                    }
+                                    else if (atSet.AttributeOrder == 1)
+                                    {
+                                        RiskOfBSummaryL[ColCount][1]++;
+                                        ItemRow += @"<td align=""center"" style=""background-color:rgb(255,75,75)""><font size=14>" + /*('\u2639').ToString()*/ "-" + "</font></td>";
+                                    }
+                                    else
+                                    {
+                                        ItemRow += @"<td align=""center"" style=""background-color:rgb(254,250,98)""><font size=14>?</font></td>";
+                                        if (!AlreadyNotKnown) RiskOfBSummaryL[ColCount][2]++;
+                                        AlreadyNotKnown = true;
+                                    }
                                 }
                                 else
-                                {
-                                    ItemRow += @"<td align=""center"" style=""background-color:rgb(254,250,98)""><font size=14>?</font></td>";
-                                    if (!AlreadyNotKnown) RiskOfBSummaryL[ColCount][2]++;
-                                    AlreadyNotKnown = true;
+                                {//we only had Arms data, nothing applied to the whole study, so this is an empty cell.
+                                    ItemRow += @"<td align=""center"" style=""background-color:grey""><font size=14>N/A</font></td>";
                                 }
                             }
                             else
@@ -1232,10 +1255,11 @@ namespace BusinessLibrary.BusinessClasses
     public class ReportAttribute : ReadOnlyBase<ReportAttribute>, IEquatable<ReportAttribute>
     {
         public ReportAttribute() { }
-        public ReportAttribute(Int64 attributeId, string attributeName)
+        public ReportAttribute(Int64 attributeId, string attributeName, string armName)
         {
             LoadProperty(AttributeIdProperty, attributeId);
             LoadProperty(AttributeNameProperty, attributeName);
+            LoadProperty(ArmNameProperty, armName);
         }
         private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
@@ -1243,6 +1267,15 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(AttributeIdProperty);
+            }
+        }
+        //ARMS! this becomes part of the identity for this row. A code can be applied to the same item, if it's applied to different arms.
+        private static PropertyInfo<string> ArmNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmName", "ArmName"));
+        public string ArmName
+        {
+            get
+            {
+                return GetProperty(ArmNameProperty);
             }
         }
         //ColumnDataRow_name
@@ -1259,7 +1292,7 @@ namespace BusinessLibrary.BusinessClasses
             if (other == null)
                 return false;
 
-            if (this.AttributeId == other.AttributeId)
+            if (this.AttributeId == other.AttributeId && this.ArmName == other.ArmName)
                 return true;
             else
                 return false;
