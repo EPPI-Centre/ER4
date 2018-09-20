@@ -30,6 +30,29 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
+        // Gets relevant arms for the item in question 
+        [HttpPost("[action]")]
+        public IActionResult GetArms([FromBody] SingleInt64Criteria ItemIDCrit)
+        {
+            try
+            {
+                // try with dummy item id here
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
+                SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);
+                ItemArmList result = dp.Fetch(criteria);
+                
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error when fetching an arm list: {0}", ItemIDCrit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
 
         [HttpPost("[action]")]
         public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)

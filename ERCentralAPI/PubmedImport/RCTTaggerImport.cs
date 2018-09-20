@@ -699,15 +699,25 @@ namespace PubmedImport
 
             _logger.LogInformation("Checking for new yearly import files");
 
+            // This should be removed scraping is not good.
+            List<string> yearlyRCTLinks = new List<string>();
+            List<string> weeklyRCTLinks = new List<string>();
+            List<string> yearlyHumanLinks = new List<string>();
+            List<string> weeklyHumanLinks = new List<string>();
 
             try
             {
-                List<string> yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
-                List<string> weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
+                yearlyRCTLinks = htmlRCTLinks.Where(x => x.Contains(".gz")).ToList();
+                weeklyRCTLinks = htmlRCTLinks.Where(x => !x.Contains(".gz")).ToList();
 
-                List<string> yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
-                List<string> weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
+                yearlyHumanLinks = htmlHumanLinks.Where(x => x.Contains(".gz")).ToList();
+                weeklyHumanLinks = htmlHumanLinks.Where(x => !x.Contains(".gz")).ToList();
 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogException(ex);
+            }
 
             if (yearlyRCTLinks.Count() > 0)
             {
@@ -808,12 +818,6 @@ namespace PubmedImport
             // there is no decompression required as the files are not gzipped.
             weeklyHumanLinks.Where(y => GetDate(y) > currDate).ToList().ForEach(x => Weekly_Update_files(_jobLogResult, Program.ArrowsmithHumanURL + x.Substring(startInd + 1, x.Length - startInd - 1)));
 
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogException(ex);
-            }
 
             _logger.LogInformation("Finished all HUMAN Score updates");
             _logger.LogInformation("Logging all file results into SQL");

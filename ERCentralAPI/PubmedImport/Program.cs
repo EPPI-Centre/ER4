@@ -15,7 +15,6 @@ using System.Globalization;
 namespace PubmedImport
 {
 
- 
     class Program
 	{
 		//private static string DoWhat = "SampleFile";
@@ -120,8 +119,6 @@ namespace PubmedImport
             GetAppSettings(serviceProvider);
             if (SqlHelper == null)
 			{
-
-
                 _logger.LogInformation("Critical");
                 _logger.LogError("Error connecting to DBs!");
                 _logger.LogError("Please check that appsettings.json values have the right values and that SQL instance is running and reachable.");
@@ -333,8 +330,6 @@ namespace PubmedImport
 
             services.AddLogging(configure => configure.AddConsole()
                     ).AddLogging(configure => configure.AddSerilog());
-                //.AddTransient<FileParser>()
-                //.AddTransient<RCTTaggerImport>();
 
         }
 
@@ -376,7 +371,8 @@ namespace PubmedImport
                 _logger.Log(LogLevel.Error,"");
                 System.Environment.Exit(0);
 			}
-		}
+
+        }
         private static void SaveJobSummary(ILogger<Program> logger, SqlConnection conn, PubMedUpdateFileImportJobLog result)
         {
 

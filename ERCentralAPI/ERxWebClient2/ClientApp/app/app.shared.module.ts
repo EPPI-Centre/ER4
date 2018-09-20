@@ -19,11 +19,13 @@ import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.c
 import { intropageComponent } from './components/intropage/intropage.component';
 import { HeaderComponent } from './components/commonComponents/header.component';
 import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
+import { armsComp } from './components/arms/armsComp.component';
 
 @NgModule({
     declarations: [
         AppComponent,
         ReviewSetsComponent,
+        armsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         WorkAllocationContactListComp,
