@@ -672,7 +672,7 @@
 
                                 <telerikGridView:RadGridView x:Name="GridArms" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemArmsData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
                                     <telerikGridView:RadGridView.Columns>
-                                        <telerikGridView:GridViewDataColumn Header="Arm title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Arm title" DataMemberBinding="{Binding Title, Mode=OneWay}" IsReadOnly="True" Width="*"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditArm}" Width="60" Header="Edit" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteArm}" Width="70" Header="Delete" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
                                         

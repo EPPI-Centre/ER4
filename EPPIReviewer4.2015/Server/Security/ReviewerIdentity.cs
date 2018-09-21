@@ -219,18 +219,20 @@ namespace BusinessLibrary.Security
                                 LoadProperty<int>(UserIdProperty, reader.GetInt32("CONTACT_ID"));
                                 Name = reader.GetString("contact_name");
                                 LoadProperty<bool>(IsSiteAdminProperty, reader.GetBoolean("IS_SITE_ADMIN"));
-                                
+                                LoadProperty<DateTime>(AccountExpirationProperty, reader.GetDateTime("GRACE_EXP"));//new: Sept 2018, used to control if user can create new review
                                 Roles = new MobileList<string>();
                                 if (reader.GetInt32("IS_COCHRANE_USER") == 1)
                                 {
                                     Roles.Add("CochraneUser");
                                 }
                                 reader.Close();
-                                //if not logging on a review, give default "ReadOnly" role
+                                //if not logging on a review, "ReadOnly" role if account is expired
                                 if (criteria.ReviewId == 0)
                                 {
-                                    Roles.Add("RegularUser");//??? Check this
-                                }//if is site admin, allow to log on any review, revIDs are passed as a negative ID to indicate this is a logon to an arbitrary id
+                                    if (DateTime.Now > AccountExpiration) Roles.Add("ReadOnlyUser");
+                                    Roles.Add("RegularUser");//??? Check this do we need to?
+                                }
+                                //if is site admin, allow to log on any review, revIDs are passed as a negative ID to indicate this is a logon to an arbitrary id
                                 else if (IsSiteAdmin && criteria.ReviewId < 0)
                                 {
                                     //new code: use a special SP to logon to any review.
@@ -495,13 +497,13 @@ namespace BusinessLibrary.Security
                                 LoadProperty<bool>(IsSiteAdminProperty, reader.GetBoolean("IS_SITE_ADMIN"));
                                 reader.Close();
                                 Roles = new MobileList<string>();
-                                //if not logging on a review, give default "ReadOnly" role
+
                                 if (criteria.ReviewId == 0)
-                                {
+                                { //we don't restrict by Expiry date as this is a cochrane user: they can create a review even if their account is not valid.
                                     Roles.Add("RegularUser");//??? Check this
                                 }
                                 else
-                                {//this shouldn't ever happen, cick the hacker out!
+                                {//this shouldn't ever happen, kick the hacker out!
                                     IsAuthenticated = false;
                                     return;
                                 }

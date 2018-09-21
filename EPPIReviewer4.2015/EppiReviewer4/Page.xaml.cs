@@ -32,6 +32,7 @@ namespace EppiReviewer4
             windowReviews.WindowStartupLocation = Telerik.Windows.Controls.WindowStartupLocation.CenterScreen;
             windowReviews.ResizeMode = ResizeMode.NoResize;
             windowReviews.CanClose = false;
+            windowReviews.CanMove = true;
             windowReviews.IsRestricted = true;
             windowReviews.RestrictedAreaMargin = new Thickness(10);
             ReviewsGrid.Height = double.NaN;

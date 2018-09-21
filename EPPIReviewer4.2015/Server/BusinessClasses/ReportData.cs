@@ -728,12 +728,14 @@ namespace BusinessLibrary.BusinessClasses
                     res += Environment.NewLine + "<tr><td Style='width:15%'>&nbsp;</td><td Style='width:85%'>&nbsp;</td></tr>";
                 }
             bool HasData = false;
+            bool ReportHasArmData = false; //used to show a warning if a RoB-style report is "hiding" Arm Data.
             string ItemRow;
             //2. foreach item, cycle through columns & rows
             foreach (ReportItem rit in ReportItems)
             {
                 ItemRow = "";
                 HasData = false;
+                bool ItemHasArmData = false;//temp variable to see if a given item has ArmData (relevant fo RoB style reports).
                 if (IsHorizontal && !ShowRiskOfBias)
                 {
                     ItemRow += "<tr>";
@@ -823,6 +825,7 @@ namespace BusinessLibrary.BusinessClasses
                             if (rit.ItemColumnsData.ContainsKey(rcd.ColumnId) && rit.ItemColumnsData[rcd.ColumnId].ContainsKey(Row.RowId) && rit.ItemColumnsData[rcd.ColumnId][Row.RowId].Count != 0)
                             {//item has data for this column+row, we need to exclude data from arms, so one more check is needed.
                                 ReportAttribute ratt = null;
+                                
                                 foreach (ReportAttribute tRatt in rit.ItemColumnsData[rcd.ColumnId][Row.RowId])
                                 {
                                     if (tRatt.ArmName == "")
@@ -831,6 +834,7 @@ namespace BusinessLibrary.BusinessClasses
                                         ratt = tRatt;
                                         break;
                                     }
+                                    else ItemHasArmData = true;
                                 }
                                 if (ratt != null)
                                 {
@@ -966,49 +970,49 @@ namespace BusinessLibrary.BusinessClasses
                     ItemRow += "<tr><td Style='border-top: 1px solid black'>&nbsp;</td><td>&nbsp;</td></tr>";
                 }
                 if (HasData || !hideEmpty) res += ItemRow;
+                if (ItemHasArmData) ReportHasArmData = true;
             }
             if (ShowRiskOfBias)
             {//second RoB table, summaries for each category
-                //first check if there is some data to display
-                //int check = 0;
-                //foreach (int[] sin in RiskOfBSummaryL)
-                //{
-                //    check = check + sin[0] + sin[1] + sin[2];
-                //}
-                //if (check == 0)
-                //{//nothing here!!
-                //    res += "</table></body></html>";
-                //}
-                //else
-                //{
-                    res += "</table><table Style='width:100%; border-width: 1px;' >";
-                    int ColCount = 0;//keep track of the current column to update the correct element in RiskOfBSummaryL                    
-                    foreach (ReportColumnData rcd in ReportColumns)
+                
+                res += "</table><br style='font-size:50%' /><table Style='width:98%; border-width: 1px;' >";
+                int ColCount = 0;//keep track of the current column to update the correct element in RiskOfBSummaryL                    
+                foreach (ReportColumnData rcd in ReportColumns)
+                {
+                    foreach (ColumnRow row in rcd.ColumnRows)
                     {
-                        foreach (ColumnRow row in rcd.ColumnRows)
-                        {
-                            //res += "<tr><td>";
-                            res += "<tr Style='height:35px; min-height:35px; max-height:35px;'><td Style='width:20%;' valign=middle align=right>" + row.RowName + "&nbsp;&nbsp;</td><td>";
-                            int tot = RiskOfBSummaryL[ColCount][0] + RiskOfBSummaryL[ColCount][1] + RiskOfBSummaryL[ColCount][2];
-                            double Good = Math.Round((100 * (double)RiskOfBSummaryL[ColCount][0] / tot), 0);
-                            double Bad = Math.Round((100 * (double)RiskOfBSummaryL[ColCount][1] / tot), 0);
-                            double Bah = 100 - Good - Bad;
-                            //res += "<table style='margin:4px; borderwidth:0px; width:70%;'><tr><td Style='width:20%;'>" + rcd.ColumnName + "</td><td style='font-size: 1px;'>";
-                            res += "<table style='margin:4px; borderwidth:0px; height:35px; min-height:35px; max-height:35px; width:100%'><tr>";
-                            res += "<td style='width:" + (tot !=0 ?  Good.ToString() : "33%") + "%; background-color:rgb(111,235,121)' valign=middle align=center><b>" + (Good > 0 ? Good.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
-                            res += "<td style='width:" + (tot != 0 ? Bah.ToString() : "33%") + "%; background-color:rgb(254,250,98)' valign=middle align=center><b>" + (Bah > 0 ? Bah.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
-                            res += "<td style='width:" + (tot != 0 ? Bad.ToString() : "33%") + "%; background-color:rgb(255,75,75)' valign=middle align=center><b>" + (Bad > 0 ? Bad.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
-                            res += "</tr></table>";
-                            ColCount++;
-                        }
+                        //res += "<tr><td>";
+                        res += "<tr Style='height:35px; min-height:35px; max-height:35px;'><td Style='width:20%;' valign=middle align=right>" + row.RowName + "&nbsp;&nbsp;</td><td>";
+                        int tot = RiskOfBSummaryL[ColCount][0] + RiskOfBSummaryL[ColCount][1] + RiskOfBSummaryL[ColCount][2];
+                        double Good = Math.Round((100 * (double)RiskOfBSummaryL[ColCount][0] / tot), 0);
+                        double Bad = Math.Round((100 * (double)RiskOfBSummaryL[ColCount][1] / tot), 0);
+                        double Bah = 100 - Good - Bad;
+                        //res += "<table style='margin:4px; borderwidth:0px; width:70%;'><tr><td Style='width:20%;'>" + rcd.ColumnName + "</td><td style='font-size: 1px;'>";
+                        res += "<table style='margin:4px; borderwidth:0px; height:35px; min-height:35px; max-height:35px; width:100%'><tr>";
+                        res += "<td style='width:" + (tot !=0 ?  Good.ToString() : "33%") + "%; background-color:rgb(111,235,121)' valign=middle align=center><b>" + (Good > 0 ? Good.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
+                        res += "<td style='width:" + (tot != 0 ? Bah.ToString() : "33%") + "%; background-color:rgb(254,250,98)' valign=middle align=center><b>" + (Bah > 0 ? Bah.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
+                        res += "<td style='width:" + (tot != 0 ? Bad.ToString() : "33%") + "%; background-color:rgb(255,75,75)' valign=middle align=center><b>" + (Bad > 0 ? Bad.ToString() + "%</b></td>" : "</b>&nbsp;</td>");
+                        res += "</tr></table>";
+                        ColCount++;
                     }
-                    res += "</td></tr><tr><td colspan='2'>";
-                    res += "<table width='100%' cellpadding=10><tr><td>&nbsp</td><td align=right style='width:165px;'> Low risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(111,235,121); width:50px;'>&nbsp;</td>";
-                    res += "<td align=right style='width:165px;'> Unclear risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(254,250,98); width:50px;'>&nbsp;</td>";
-                    res += "<td align=right style='width:165px;'> High risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(255,75,75); width:50px;'>&nbsp;</td><td>&nbsp</td>";
-                    res += "</tr></table>";
+                }
+                res += "</td></tr><tr><td colspan='2'>";
+                res += "<table width='100%' cellpadding=10><tr><td>&nbsp</td><td align=right style='width:165px;'> Low risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(111,235,121); width:50px;'>&nbsp;</td>";
+                res += "<td align=right style='width:165px;'> Unclear risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(254,250,98); width:50px;'>&nbsp;</td>";
+                res += "<td align=right style='width:165px;'> High risk of bias: &nbsp;</td><td style='margin:12px; background-color:rgb(255,75,75); width:50px;'>&nbsp;</td><td>&nbsp</td>";
+                res += "</tr></table>";
+                if (ReportHasArmData)
+                {
+                    res += "</td></tr></table>" +
+                        "<P><span style='font-weight: bold; color:red;'>NOTE: The data collected for this Risk of Bias report included codes applied to one or more Study Arms.</span><br />"
+                        + "This might indicate a problem: we assume that Risk of Bias applies either to the whole study or to the comparison between an intervention and a control arm.<br />"
+                        + "Consequently, not knowing how to interpret a Risk Of Bias code applied to a single Arm, this report has been built by ignoring such data.</P>"
+                        + "</body></html>";
+                }
+                else
+                {
                     res += "</td></tr></table></body></html>";
-                //}
+                }
             }
             else
             {

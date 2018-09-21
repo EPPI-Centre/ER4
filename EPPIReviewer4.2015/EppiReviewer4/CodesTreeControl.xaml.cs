@@ -3528,11 +3528,29 @@ namespace EppiReviewer4
         {
             DialogParameters dp = new DialogParameters();
             tempRS = (sender as Image).DataContext as ReviewSet;
+            bool canProceed = false;
             if (tempRS.ItemAttributesCount() == 0)
             {//can't complete an item that has no codes in this set!
+                //need to check more in depth as codes might be here, but belong to a different arm.
+                foreach (ItemSet iSet in CurrentItemData)
+                {
+                    if (iSet.SetId == tempRS.SetId && iSet.ContactId == ri.UserId)//item set for current set, belonging to current user
+                    {
+                        if (iSet.ItemAttributes !=null && iSet.ItemAttributes.Count > 0)
+                        {//item has some codes for this set (and user): must belong to a different arm...
+                            canProceed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            { canProceed = true; }
+            if (!canProceed)
+            {
                 RadWindow.Alert("This item does not have any codes in this set."
-                                + Environment.NewLine + "In order to complete the coding, some coding"
-                                + Environment.NewLine + "information needs to be present.");
+                       + Environment.NewLine + "In order to complete the coding, some coding"
+                       + Environment.NewLine + "information needs to be present.");
             }
             else
             {
