@@ -17,6 +17,7 @@
 
             </tr>
         </thead>
+        <!--(click)="OpenItem(item.itemId)"-->
         <tbody>
             <tr *ngFor="let item of ItemListService.ItemList.items">
                 <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br />(Id:&nbsp;{{ item.itemId }})</td>

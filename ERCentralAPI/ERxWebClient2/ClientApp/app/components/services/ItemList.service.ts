@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, of, Subscription, Subject, BehaviorSubject } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
@@ -26,6 +26,7 @@ export class ItemListService {
         private ModalService: ModalService
     ) { }
     private _IsInScreeningMode: boolean | null = null;
+    private ItemID: number = 0;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
         if (this._IsInScreeningMode === null) {
@@ -49,7 +50,7 @@ export class ItemListService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
-
+    tmpItemIDChange: BehaviorSubject<number> = new BehaviorSubject<number>(this.ItemID);
 
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
@@ -85,7 +86,13 @@ export class ItemListService {
         this._Criteria = crit;
         this.Save();
     }
+    public eventChange(itemId: number) {
+
+        this.tmpItemIDChange.next(itemId);
+    }
     public getItem(itemId: number): Item {
+        console.log('getting item');
+        this.ItemID = itemId;
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) return ff;
         return new Item();
@@ -127,6 +134,7 @@ export class ItemListService {
         //}
     }
     public getNext(itemId: number): Item {
+        console.log('get next');
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
@@ -155,6 +163,7 @@ export class ItemListService {
         }
     }
     public FetchNextPage() {
+        console.log('np');
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {

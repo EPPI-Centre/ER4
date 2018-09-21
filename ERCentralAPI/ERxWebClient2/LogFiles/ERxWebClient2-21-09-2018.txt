@@ -1,0 +1,142 @@
+2018-09-21 09:39:37.570 +01:00 [ERR] (node:12620) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 09:43:34.132 +01:00 [ERR] (node:12328) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 09:44:35.069 +01:00 [ERR] (node:6092) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 09:55:48.610 +01:00 [ERR] (node:5008) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 10:11:54.602 +01:00 [ERR] (node:8136) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 10:31:17.346 +01:00 [ERR] (node:7416) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 10:41:42.570 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: c0b33a32d5100e832f4e
+Version: webpack 4.16.2
+Time: 12474ms
+Built at: 2018-09-21 10:41:42
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.24417aee20b65bdf3754.hot-update.js   8.45 KiB  main-client  [emitted]  main-client
+              24417aee20b65bdf3754.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.24417aee20b65bdf3754.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.24417aee20b65bdf3754.hot-update.js main-client.js.map main-client.24417aee20b65bdf3754.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:91:50 
+    TS1005: ')' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:94:9 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:91:45 
+    TS2304: Cannot find name 'res2'.
+2018-09-21 10:47:26.573 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 2e9deedb5f411128ff26
+Version: webpack 4.16.2
+Time: 12418ms
+Built at: 2018-09-21 10:47:26
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.4a009c31fb63dc5ef9e2.hot-update.js   8.44 KiB  main-client  [emitted]  main-client
+              4a009c31fb63dc5ef9e2.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.4a009c31fb63dc5ef9e2.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.4a009c31fb63dc5ef9e2.hot-update.js main-client.js.map main-client.4a009c31fb63dc5ef9e2.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:102:28 
+    TS2552: Cannot find name 'res'. Did you mean 'res2'?
+2018-09-21 11:22:58.849 +01:00 [ERR] (node:20052) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 11:34:12.346 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: af3c249df224705f07cf
+Version: webpack 4.16.2
+Time: 12443ms
+Built at: 2018-09-21 11:34:12
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.87d7e7a9463432dd1a50.hot-update.js   8.34 KiB  main-client  [emitted]  main-client
+              87d7e7a9463432dd1a50.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.87d7e7a9463432dd1a50.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.87d7e7a9463432dd1a50.hot-update.js main-client.js.map main-client.87d7e7a9463432dd1a50.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:86:66 
+    TS2339: Property 'tmpItemID' does not exist on type 'ItemListComp'.
+2018-09-21 11:49:49.919 +01:00 [ERR] (node:16696) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 11:54:11.114 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: aea8a4541386b3bf2b9c
+Version: webpack 4.16.2
+Time: 17880ms
+Built at: 2018-09-21 11:54:11
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.e74f8950e7ec2939b7dc.hot-update.js   23.5 KiB  main-client  [emitted]  main-client
+              e74f8950e7ec2939b7dc.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.e74f8950e7ec2939b7dc.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.e74f8950e7ec2939b7dc.hot-update.js main-client.js.map main-client.e74f8950e7ec2939b7dc.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/coding/coding.component.ts:108:30 
+    TS2339: Property 'eventChange' does not exist on type 'ItemListService'.
+2018-09-21 11:56:34.125 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 831edf31327a48e4e9ea
+Version: webpack 4.16.2
+Time: 12518ms
+Built at: 2018-09-21 11:56:34
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.e8e6f40e446f79e1f7f0.hot-update.js    8.4 KiB  main-client  [emitted]  main-client
+              e8e6f40e446f79e1f7f0.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.e8e6f40e446f79e1f7f0.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.e8e6f40e446f79e1f7f0.hot-update.js main-client.js.map main-client.e8e6f40e446f79e1f7f0.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:26:27 
+    TS2304: Cannot find name 'Subscription'.
+2018-09-21 11:58:13.619 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 510a70baaca5cf6bc9e5
+Version: webpack 4.16.2
+Time: 12497ms
+Built at: 2018-09-21 11:58:13
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.bbde5a83a6cdde18b201.hot-update.js   8.61 KiB  main-client  [emitted]  main-client
+              bbde5a83a6cdde18b201.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.bbde5a83a6cdde18b201.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.bbde5a83a6cdde18b201.hot-update.js main-client.js.map main-client.bbde5a83a6cdde18b201.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:93:28 
+    TS2304: Cannot find name 'res2'.
+2018-09-21 12:01:04.777 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 8a7a7b372cf78340cec2
+Version: webpack 4.16.2
+Time: 18127ms
+Built at: 2018-09-21 12:01:04
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.ca16a1d2037d9e0eb0a0.hot-update.js     16 KiB  main-client  [emitted]  main-client
+              ca16a1d2037d9e0eb0a0.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.ca16a1d2037d9e0eb0a0.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.ca16a1d2037d9e0eb0a0.hot-update.js main-client.js.map main-client.ca16a1d2037d9e0eb0a0.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/services/ItemList.service.ts:90:30 
+    TS2339: Property 'next' does not exist on type 'Observable<number>'.
+2018-09-21 12:11:53.570 +01:00 [ERR] (node:20192) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 12:17:06.667 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 8674046e7c50e6a1d28b
+Version: webpack 4.16.2
+Time: 12546ms
+Built at: 2018-09-21 12:17:06
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.600b8bf017449a333fab.hot-update.js   7.27 KiB  main-client  [emitted]  main-client
+              600b8bf017449a333fab.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.600b8bf017449a333fab.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.600b8bf017449a333fab.hot-update.js main-client.js.map main-client.600b8bf017449a333fab.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:79:16 
+    TS2322: Type 'Subscription' is not assignable to type 'arm[]'.
+  Property 'find' is missing in type 'Subscription'.
+2018-09-21 12:18:00.696 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 44c64b5eb43672b7c11a
+Version: webpack 4.16.2
+Time: 12813ms
+Built at: 2018-09-21 12:18:00
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.8674046e7c50e6a1d28b.hot-update.js   3.98 KiB  main-client  [emitted]  main-client
+              8674046e7c50e6a1d28b.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.8674046e7c50e6a1d28b.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.8674046e7c50e6a1d28b.hot-update.js main-client.js.map main-client.8674046e7c50e6a1d28b.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:79:16 
+    TS2322: Type 'void' is not assignable to type 'arm[]'.

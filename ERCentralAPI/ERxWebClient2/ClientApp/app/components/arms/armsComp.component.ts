@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit} from '@angular/core';
+import { Component, Inject, OnInit, Input} from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Http, RequestOptions, URLSearchParams } from '@angular/http';
 import { forEach } from '@angular/router/src/utils/collection';
@@ -8,6 +8,11 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ItemCodingComp } from '../coding/coding.component';
+import { ItemListComp } from '../ItemList/itemListComp.component';
+import { ItemListService } from '../services/ItemList.service';
+import { Subscription } from 'rxjs';
+import {  ArmsService } from '../services/arms.service';
 
 @Component({
     selector: 'armsComp',
@@ -19,43 +24,25 @@ export class armsComp implements OnInit{
 
     public arms: arm[] = [];
     public cacheArms: arm[] = [];
+    @Input() itemID: number = 0;
+    private subscription: Subscription = new Subscription;
 
     constructor(private _http: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
         private router: Router,
+        private itemCodingComp: ItemCodingComp,
+        private itemListServ: ItemListService,
         private ReviewerIdentityServ: ReviewerIdentityService, 
         private itemCodingServ: ItemCodingService,
         private reviewSetsServ: ReviewSetsService,
-        private route: ActivatedRoute
+        private armsService: ArmsService,
         ) {
         
     }
 
-    public Fetch(ItemId: number) {
 
-        let body = JSON.stringify({ Value: ItemId });
 
-        this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
-
-            body).subscribe(result => {
-
-                console.log('got inside subscription');
-                this.arms = result;
-                this.cacheArms = result;
-                const armsJson = JSON.stringify(this.arms)
-                console.log('jsonified: ' + armsJson );
-
-            }, error => { this.modalService.SendBackHomeWithError(error); }
-            );
-    }
-   
-
-    //public Fetch(ItemId: number) {
-
-    //    this.itemCodingSrv..filter(x => x. == this.personId)[0];
-        
-    //}
 
     filterArms(filterVal: any) {
 
@@ -78,9 +65,23 @@ export class armsComp implements OnInit{
 
     ngOnInit() {
 
-        console.log('initiated component...');
+        //this.subscription = 
+        this.itemListServ.tmpItemIDChange
+            .subscribe(itemR => {
+                this.arms =this.armsService.Fetch(itemR);
+            });
 
-        this.Fetch(1848769);
+        this.itemCodingComp.valueChange.subscribe(
+
+            (res2: number) => {
+                console.log('ItemID IS: ' + res2);
+
+               this.arms = this.armsService.Fetch(res2);
+            }
+        );
+
+        //hardcoded how do we find the pages itemId...1848769
+        
 
     }
 }
@@ -92,40 +93,6 @@ export class arm {
     itemArmId: number = 0;
 }
 
-
-
-
-//export class ItemDocumentList {
-
-//    ItemDocuments: ItemDocument[] = [];
-//}
-
-
-//export class ItemDocument {
-
-//    public itemDocumentId: number = 0;
-//    public itemId: number = 0;
-//    public shortTitle: string = '';
-//    public extension: string = '';
-//    public title: string = '';
-//    public text: string = "";
-//    public binaryExists: boolean = false;
-//    public textFrom: number = 0;
-//    public textTo: number = 0;
-//    public freeNotesStream: string = "";
-//    public freeNotesXML: string = '';
-//    public isBusy: boolean = false;
-//    public isChild: boolean = false;
-//    public isDeleted: boolean = false;
-//    public isDirty: boolean = false;
-//    public isNew: boolean = false;
-//    public isSavable: boolean = false;
-//    public isSelfBusy: boolean = false;
-//    public isSelfDirty: boolean = false;
-//    public isSelfValid: boolean = false;
-//    public isValid: boolean = false;
-
-//}
 
 
 

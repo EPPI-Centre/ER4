@@ -45,6 +45,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
+    @Output() valueChange = new EventEmitter();
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
@@ -104,6 +105,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.IsScreening = false;
             this.GetItemCoding();
         }
+        this.ItemListService.eventChange(this.itemID);
         
     }
     public HasPreviousScreening(): boolean{
@@ -217,6 +219,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
     }
     nextItem() {
+        console.log('inside next coding item component part');
         this.WipeHighlights();
         if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
     }
@@ -235,7 +238,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
     }
     goToItem(item: Item) {
-        //console.log('gti');
+
+        
         this.WipeHighlights();
         this.clearItemData();
         this.router.navigate(['itemcoding', item.itemId]);
@@ -249,6 +253,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         //subject stuff
         //console.log('called this once');
         this.itemId.next(this.itemID);
+        this.valueChange.emit(this.itemID);
+        console.log('gti' + this.itemID);
     }
     BackToMain() {
         this.clearItemData();

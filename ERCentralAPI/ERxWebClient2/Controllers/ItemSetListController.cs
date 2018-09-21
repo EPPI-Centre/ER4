@@ -34,6 +34,8 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult GetArms([FromBody] SingleInt64Criteria ItemIDCrit)
         {
+            //return Forbid();
+
             try
             {
                 // try with dummy item id here
