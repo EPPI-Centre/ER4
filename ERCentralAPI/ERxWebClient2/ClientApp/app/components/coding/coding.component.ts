@@ -15,6 +15,7 @@ import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
+import { ArmsService } from '../services/arms.service';
 
 
 @Component({
@@ -32,10 +33,15 @@ import { ItemDocsService } from '../services/itemdocs.service';
 })
 export class ItemCodingComp implements OnInit, OnDestroy {
 
-    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService, public ItemListService: ItemListService
-        , private route: ActivatedRoute, private ItemCodingService: ItemCodingService, private ReviewSetsService: ReviewSetsService,
-        private reviewInfoService: ReviewInfoService, public PriorityScreeningService: PriorityScreeningService
-        , private ReviewerTermsService: ReviewerTermsService, public ItemDocsService: ItemDocsService 
+    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
+        public ItemListService: ItemListService
+        , private route: ActivatedRoute, private ItemCodingService: ItemCodingService,
+        private ReviewSetsService: ReviewSetsService,
+        private reviewInfoService: ReviewInfoService,
+        public PriorityScreeningService: PriorityScreeningService
+        , private ReviewerTermsService: ReviewerTermsService,
+        public ItemDocsService: ItemDocsService,
+        private armservice: ArmsService
     ) { }
    
     private subItemIDinPath: Subscription | null = null;
@@ -51,6 +57,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     public ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
+    public arms: arm[] = [];
 
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
@@ -73,7 +80,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
                     () => {
                         if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                            //console.log('data changed event caught');
+                            console.log('data changed event caught');
                             this.SetCoding();
                         }
                     }
@@ -93,6 +100,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.HTitle = "";
     }
     private GetItem() {
+
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
             if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
@@ -104,8 +112,11 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.item = this.ItemListService.getItem(this.itemID);
             this.IsScreening = false;
             this.GetItemCoding();
+           // this.ItemListService.eventChange(this.itemID);
+            console.log('fill in arms here');
+            //this.arms = this.armservice.Fetch(this.itemID);
         }
-        this.ItemListService.eventChange(this.itemID);
+        
         
     }
     public HasPreviousScreening(): boolean{
@@ -136,12 +147,13 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private GetItemCoding() {
 
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
-        this.ItemCodingService.Fetch(this.itemID);
+        //this.arms = this.armservice.Fetch(this.itemID)
+        this.ItemCodingService.Fetch(this.itemID);    
     }
     SetCoding() {
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
-        this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList);
+        this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     
     ShowHighlightsClicked() {
@@ -213,10 +225,12 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.WipeHighlights();
         
         if (this.item) this.goToItem(this.ItemListService.getFirst());
+
     }
     prevItem() {
         this.WipeHighlights();
         if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
+
     }
     nextItem() {
         console.log('inside next coding item component part');
@@ -243,6 +257,8 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.WipeHighlights();
         this.clearItemData();
         this.router.navigate(['itemcoding', item.itemId]);
+
+        console.log('what do you need me to do?' + this.itemID);
         this.item = item;
         //console.log(this.item.title);
         if (this.item.itemId != this.itemID) {
@@ -250,11 +266,10 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.itemID = this.item.itemId;
         }
         this.GetItemCoding();
-        //subject stuff
-        //console.log('called this once');
-        this.itemId.next(this.itemID);
-        this.valueChange.emit(this.itemID);
-        console.log('gti' + this.itemID);
+        this.ItemListService.eventChange(this.itemID);
+         //this.itemId.next(this.itemID);
+        //this.valueChange.emit(this.itemID);
+      
     }
     BackToMain() {
         this.clearItemData();
@@ -265,7 +280,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         let SubSuccess: Subscription;
         let SubError: Subscription;//see https://medium.com/thecodecampus-knowledge/the-easiest-way-to-unsubscribe-from-observables-in-angular-5abde80a5ae3
         //console.log(data.AttId);
-        let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId);
+        let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId, data.armId);
         
         if (!attribute) {
             //problem: we don't know what to code!
@@ -377,6 +392,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             }
             
             this.SetCoding();
+            console.log('set dest');
             SubSuccess.unsubscribe();
             SubError.unsubscribe();
             if (cmd.saveType == "Insert" && this.CheckBoxAutoAdvanceVal) {
@@ -403,6 +419,12 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 }
 
 
+export class arm {
+
+    itemId: number = 0;
+    title: string = '';
+    itemArmId: number = 0;
+}
 
 
 

@@ -171,7 +171,10 @@ export class ReviewSetsService {
         }
         return result;
     }
-    public AddItemData(ItemCodingList: ItemSet[]) {
+    public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
+
+        console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
+
         this._IsBusy = true;
         //logic:
             //if ITEM_SET is complete, show the tickbox.
@@ -188,7 +191,7 @@ export class ReviewSetsService {
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
@@ -211,7 +214,7 @@ export class ReviewSetsService {
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);
@@ -225,10 +228,10 @@ export class ReviewSetsService {
         }
         this._IsBusy = false;
     }
-    public FindAttributeById(AttributeId: number): SetAttribute | null {
+    public FindAttributeById(AttributeId: number, itemArmID: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let Set of this.ReviewSets) {
-            result = this.internalFindAttributeById(Set.attributes, AttributeId);
+            result = this.internalFindAttributeById(Set.attributes, AttributeId, itemArmID);
             if (result) {
                 
                 break;
@@ -246,17 +249,17 @@ export class ReviewSetsService {
         }
         return result;
     }
-    private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
+    private internalFindAttributeById(list: SetAttribute[], AttributeId: number, itemArmID: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
             if (result) break;
             //console.log('Cand: ' + candidate.attribute_id + ' children: ' + candidate.attributes.length + ' Target: ' + AttributeId);
-            if (AttributeId == candidate.attribute_id) {
+            if (AttributeId == candidate.attribute_id && candidate.armId == itemArmID) {
                 result = candidate;
                 break;
             }
             else if (candidate.attributes) {
-                result = this.internalFindAttributeById(candidate.attributes, AttributeId);
+                result = this.internalFindAttributeById(candidate.attributes, AttributeId, itemArmID);
             }
         }
         return result;
@@ -450,6 +453,10 @@ export class ItemAttributeSaveCommand {
     public revInfo: ReviewInfo | null = null;
 }
 
+export class arm {
 
-
+    itemId: number = 0;
+    title: string = '';
+    itemArmId: number = 0;
+}
 

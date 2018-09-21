@@ -22,6 +22,7 @@ import {  ArmsService } from '../services/arms.service';
 
 export class armsComp implements OnInit{
 
+    public selectedArm: arm = new arm();
     public arms: arm[] = [];
     public cacheArms: arm[] = [];
     @Input() itemID: number = 0;
@@ -42,43 +43,39 @@ export class armsComp implements OnInit{
     }
 
 
-
-
     filterArms(filterVal: any) {
-
+        
         if (filterVal == "0") {
             console.log('filter value is 0!!!!');
-            this.arms = this.cacheArms;
+            //this.arms = this.cacheArms;
         }
         else {
             console.log('filter value is: ' + filterVal);
-            this.arms = this.cacheArms.filter((item) => item.itemArmId == filterVal);
+            this.selectedArm = this.arms.filter((x) => x.itemArmId == filterVal)[0];
+            this.reviewSetsServ.clearItemData();
+            this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, this.selectedArm.itemArmId);
 
-
-            // NOW SIMPLY Loop through LocalStorage and select all those attributes 
-            // where the armid is equal to the selection
-
-            // fire off another fetch for the page as the ItemSets have possible changed status
-            // WHERE itemArmId = a new value
         }
     }   
 
     ngOnInit() {
 
-        //this.subscription = 
+        this.subscription = 
         this.itemListServ.tmpItemIDChange
             .subscribe(itemR => {
-                this.arms =this.armsService.Fetch(itemR);
+                this.arms =this.armsService.FetchArms(itemR);
             });
 
-        this.itemCodingComp.valueChange.subscribe(
+        //this.arms = this.armsService.FetchArms(this.itemID);
 
-            (res2: number) => {
-                console.log('ItemID IS: ' + res2);
+        //this.itemCodingComp.valueChange.subscribe(
 
-               this.arms = this.armsService.Fetch(res2);
-            }
-        );
+        //    (res2: number) => {
+        //        console.log('ItemID IS: ' + res2);
+
+        //       this.arms = this.armsService.FetchArms(res2);
+        //    }
+        //);
 
         //hardcoded how do we find the pages itemId...1848769
         

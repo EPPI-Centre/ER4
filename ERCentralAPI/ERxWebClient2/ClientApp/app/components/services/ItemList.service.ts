@@ -119,8 +119,12 @@ export class ItemListService {
         return new Item();
     }
     public getPrevious(itemId: number): Item {
+        
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-        if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) return this._ItemList.items[ff-1];
+        if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length)
+        {
+            return this._ItemList.items[ff - 1];
+        }
         return new Item();
     }
     public hasNext(itemId: number): boolean {

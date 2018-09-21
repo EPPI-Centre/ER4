@@ -26,7 +26,7 @@ export class ArmsService {
 
     public arms: arm[] = [];
    
-    public Fetch(ItemId: number) {
+    public FetchArms(ItemId: number) {
 
         let body = JSON.stringify({ Value: ItemId });
 
@@ -38,13 +38,18 @@ export class ArmsService {
                 this.arms = result;
                 const armsJson = JSON.stringify(this.arms)
                 console.log('jsonified: ' + armsJson);
+                this.Save();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
 
         return this.arms;
     }
-
+    private Save() {
+        if (this.arms != undefined && this.arms != null && this.arms.length > 0) //{ }
+            localStorage.setItem('arms', JSON.stringify(this.arms));
+        else if (localStorage.getItem('arms')) localStorage.removeItem('arms');
+    }
        
 }
 

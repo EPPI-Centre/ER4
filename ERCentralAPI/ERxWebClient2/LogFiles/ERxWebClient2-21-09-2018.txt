@@ -140,3 +140,117 @@ Entrypoint main-client = main-client.js main-client.8674046e7c50e6a1d28b.hot-upd
 
 ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:79:16 
     TS2322: Type 'void' is not assignable to type 'arm[]'.
+2018-09-21 14:18:49.168 +01:00 [ERR] (node:13044) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 14:40:20.357 +01:00 [ERR] (node:11688) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 15:00:13.552 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 8bc556ad153f51d5e64a
+Version: webpack 4.16.2
+Time: 18258ms
+Built at: 2018-09-21 15:00:13
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.7e68b10624053e28f2de.hot-update.js   4.31 KiB  main-client  [emitted]  main-client
+              7e68b10624053e28f2de.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.7e68b10624053e28f2de.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.7e68b10624053e28f2de.hot-update.js main-client.js.map main-client.7e68b10624053e28f2de.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/services/arms.service.ts:41:17 
+    TS2663: Cannot find name 'Save'. Did you mean the instance member 'this.Save'?
+2018-09-21 15:03:52.156 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 58587e43b64528937215
+Version: webpack 4.16.2
+Time: 12394ms
+Built at: 2018-09-21 15:03:52
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.e3cc60564f0c16703147.hot-update.js   7.34 KiB  main-client  [emitted]  main-client
+              e3cc60564f0c16703147.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.e3cc60564f0c16703147.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.e3cc60564f0c16703147.hot-update.js main-client.js.map main-client.e3cc60564f0c16703147.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:55:35 
+    TS2339: Property 'cacheArms' does not exist on type 'arm[]'.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:55:46 
+    TS7006: Parameter 'item' implicitly has an 'any' type.
+2018-09-21 15:04:05.660 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: a41986de6a4e0511778b
+Version: webpack 4.16.2
+Time: 12329ms
+Built at: 2018-09-21 15:04:05
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.58587e43b64528937215.hot-update.js   7.33 KiB  main-client  [emitted]  main-client
+              58587e43b64528937215.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.58587e43b64528937215.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.58587e43b64528937215.hot-update.js main-client.js.map main-client.58587e43b64528937215.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:55:25 
+    TS2349: Cannot invoke an expression whose type lacks a call signature. Type 'arm[]' has no compatible call signatures.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:55:41 
+    TS7006: Parameter 'item' implicitly has an 'any' type.
+2018-09-21 15:06:42.552 +01:00 [ERR] (node:9876) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 15:37:49.105 +01:00 [ERR] (node:15280) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 15:39:33.736 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: bd636cb7621514579f86
+Version: webpack 4.16.2
+Time: 12694ms
+Built at: 2018-09-21 15:39:33
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.f6ce0a124ab45a788224.hot-update.js   7.19 KiB  main-client  [emitted]  main-client
+              f6ce0a124ab45a788224.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.f6ce0a124ab45a788224.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.f6ce0a124ab45a788224.hot-update.js main-client.js.map main-client.f6ce0a124ab45a788224.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:57:18 
+    TS2551: Property 'arm' does not exist on type 'armsComp'. Did you mean 'arms'?
+2018-09-21 15:40:38.366 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: b9936315e4eed34af0db
+Version: webpack 4.16.2
+Time: 12453ms
+Built at: 2018-09-21 15:40:38
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.bd636cb7621514579f86.hot-update.js   7.25 KiB  main-client  [emitted]  main-client
+              bd636cb7621514579f86.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.bd636cb7621514579f86.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.bd636cb7621514579f86.hot-update.js main-client.js.map main-client.bd636cb7621514579f86.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:60:81 
+    TS2345: Argument of type 'arm' is not assignable to parameter of type 'arm[]'.
+  Property 'find' is missing in type 'arm'.
+2018-09-21 15:41:23.845 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 1d8e6278a26f0ccf9336
+Version: webpack 4.16.2
+Time: 17859ms
+Built at: 2018-09-21 15:41:23
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.b9936315e4eed34af0db.hot-update.js   21.8 KiB  main-client  [emitted]  main-client
+              b9936315e4eed34af0db.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.b9936315e4eed34af0db.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.b9936315e4eed34af0db.hot-update.js main-client.js.map main-client.b9936315e4eed34af0db.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/coding/coding.component.ts:156:83 
+    TS2345: Argument of type 'arm[]' is not assignable to parameter of type 'arm'.
+  Property 'itemId' is missing in type 'arm[]'.
+2018-09-21 15:52:56.269 +01:00 [ERR] (node:23364) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-21 15:56:57.311 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: bbd292020e05a6eac6cc
+Version: webpack 4.16.2
+Time: 17944ms
+Built at: 2018-09-21 15:56:57
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.57a59301157ede928a88.hot-update.js   11.4 KiB  main-client  [emitted]  main-client
+              57a59301157ede928a88.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.57a59301157ede928a88.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.57a59301157ede928a88.hot-update.js main-client.js.map main-client.57a59301157ede928a88.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/coding/coding.component.ts:117:41 
+    TS2339: Property 'Fetch' does not exist on type 'ArmsService'.
+
+ERROR in [at-loader] ./ClientApp/app/components/coding/coding.component.ts:150:37 
+    TS2339: Property 'Fetch' does not exist on type 'ArmsService'.

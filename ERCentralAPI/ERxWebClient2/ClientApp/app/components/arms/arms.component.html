@@ -1,11 +1,12 @@
 <div class="card bg-info">
     <p class="card-title">Codes Apply to: </p>
     <div class="card-body">
-        <select class="btn-secondary"  (change)="filterArms($event.target.value)">
-            <option  value="0">--All--</option>
-            <option  [ngValue]="arm" *ngFor="let arm of arms" value={{arm.itemArmId}}>
+        <select class="btn-secondary" (change)="filterArms($event.target.value)">
+            <option value="0">--All--</option>
+            <option [ngValue]="arm" *ngFor="let arm of arms" value={{arm.itemArmId}}>
                 {{arm.title}}
             </option>
         </select>
+ 
     </div>
 </div>
