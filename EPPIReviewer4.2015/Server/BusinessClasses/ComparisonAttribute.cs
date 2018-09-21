@@ -101,6 +101,16 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AttributeNameProperty);
             }
         }
+        public string AttributeNameWithArm4HTML
+        {
+            get
+            {
+                if (GetProperty(ItemArmProperty) != "") return GetProperty(AttributeNameProperty) + " " +
+                        "<span style='font-family:Times, serif; font-size: 76%;'>[Arm: " + GetProperty(ItemArmProperty) + "]</span>";
+                else return GetProperty(AttributeNameProperty);
+            }
+        }
+
 
         private static PropertyInfo<string> ItemTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemTitle", "ItemTitle"));
         public string ItemTitle
@@ -108,6 +118,15 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(ItemTitleProperty);
+            }
+        }
+
+        private static PropertyInfo<string> ItemArmProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemArm", "ItemArm"));
+        public string ItemArm
+        {
+            get
+            {
+                return GetProperty(ItemArmProperty);
             }
         }
 
@@ -218,7 +237,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<string>(ItemTitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<bool>(IsCompletedProperty, reader.GetBoolean("IS_COMPLETED"));
-
+            returnValue.LoadProperty<string>(ItemArmProperty, reader.GetString("ARM_NAME"));
             returnValue.MarkOld();
             return returnValue;
         }
