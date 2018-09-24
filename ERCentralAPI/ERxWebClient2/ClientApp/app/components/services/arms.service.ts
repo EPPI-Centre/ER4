@@ -35,14 +35,10 @@ export class ArmsService {
        return this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
 
             body).subscribe(result => {
-
-                console.log('got inside subscription');
-                this.arms = result;
-                const armsJson = JSON.stringify(this.arms)
-                console.log('jsonified: ' + armsJson);
-                //this.Save();
-                this.gotArms.emit(this.arms);
-
+     
+                    this.arms = result;
+                    const armsJson = JSON.stringify(this.arms)
+                    this.gotArms.emit(this.arms);
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );

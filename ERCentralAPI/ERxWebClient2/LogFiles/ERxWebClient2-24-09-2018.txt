@@ -61,3 +61,19 @@ System.ObjectDisposedException: Safe handle has been closed
 2018-09-24 11:53:12.538 +01:00 [ERR] (node:10032) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
 2018-09-24 11:59:00.663 +01:00 [ERR] (node:21012) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
 2018-09-24 13:40:53.380 +01:00 [ERR] (node:24216) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 14:30:29.765 +01:00 [ERR] (node:10584) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 14:35:28.265 +01:00 [ERR] (node:22776) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 14:41:17.141 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 9217479b1e99826996a2
+Version: webpack 4.16.2
+Time: 12435ms
+Built at: 2018-09-24 14:41:17
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.7b82b70c08e13e599d99.hot-update.js   7.15 KiB  main-client  [emitted]  main-client
+              7b82b70c08e13e599d99.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.7b82b70c08e13e599d99.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.7b82b70c08e13e599d99.hot-update.js main-client.js.map main-client.7b82b70c08e13e599d99.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:26:13 
+    TS2564: Property '_arms' has no initializer and is not definitely assigned in the constructor.

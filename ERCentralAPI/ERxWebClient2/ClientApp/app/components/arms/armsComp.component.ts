@@ -11,7 +11,7 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
 import { ItemCodingComp } from '../coding/coding.component';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { ItemListService } from '../services/ItemList.service';
-import { Subscription } from 'rxjs';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import {  ArmsService } from '../services/arms.service';
 
 @Component({
@@ -39,18 +39,14 @@ export class armsComp implements OnInit{
         private reviewSetsServ: ReviewSetsService,
         private armsService: ArmsService,
         ) {
-        
     }
-
 
     filterArms(filterVal: any) {
         
         if (filterVal == "0") {
-            console.log('filter value is 0!!!!');
-            //this.arms = this.cacheArms;
+
         }
         else {
-            console.log('filter value is: ' + filterVal);
             this.selectedArm = this.arms.filter((x) => x.itemArmId == filterVal)[0];
             this.reviewSetsServ.clearItemData();
             this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, this.selectedArm.itemArmId);
@@ -63,19 +59,22 @@ export class armsComp implements OnInit{
         this.armsService.gotArms.subscribe(
 
             (res: arm[]) => {
-                this.arms = res;
-                alert('got the arms' + JSON.stringify(this.arms));
+                 this.arms = res;
             }
-        )
-        ;
+        );
 
         this.itemListServ.tmpItemIDChange
 
             .subscribe(itemR => {
-                console.log('focus on this subject change data' + itemR);
-                this.armsService.FetchArms(itemR);
 
-            });
+                if (itemR == null) {
+
+                } else {
+                    this.itemID = itemR;
+                    this.armsService.FetchArms(itemR);
+                }
+
+        });
 
     }
 }

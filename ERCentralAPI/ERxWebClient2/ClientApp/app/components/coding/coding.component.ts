@@ -76,6 +76,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.router.navigate(['home']);
         }
         else {
+            
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
                     () => {
@@ -87,6 +88,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
                 );
                 this.itemString = params['itemId'];
                 this.GetItem();
+         
             });
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
