@@ -190,6 +190,7 @@ export class ReviewSetsService {
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
+                    if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
                         //console.log('.');
@@ -212,6 +213,7 @@ export class ReviewSetsService {
 
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
+                    if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
