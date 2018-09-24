@@ -453,10 +453,4 @@ export class ItemAttributeSaveCommand {
     public revInfo: ReviewInfo | null = null;
 }
 
-export class arm {
-
-    itemId: number = 0;
-    title: string = '';
-    itemArmId: number = 0;
-}
 

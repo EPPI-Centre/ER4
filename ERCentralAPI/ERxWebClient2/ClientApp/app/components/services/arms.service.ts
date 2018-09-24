@@ -9,6 +9,7 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
+import { arm, Item } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -28,18 +29,17 @@ export class ArmsService {
     @Output() gotArms = new EventEmitter();
 
 
-    public FetchArms(ItemId: number) {
+    public FetchArms(currentItem: Item) {
 
-        let body = JSON.stringify({ Value: ItemId });
+        let body = JSON.stringify({ Value: currentItem.itemId });
 
        return this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
 
-            body).subscribe(result => {
-     
-                    this.arms = result;
-                    const armsJson = JSON.stringify(this.arms)
-                    this.gotArms.emit(this.arms);
-
+           body).subscribe(result => {
+               this.arms = result;
+               currentItem.arms = this.arms;
+               this.gotArms.emit(this.arms);
+               this.Save();
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
 
@@ -52,9 +52,3 @@ export class ArmsService {
        
 }
 
-export class arm {
-
-    itemId: number = 0;
-    title: string = '';
-    itemArmId: number = 0;
-}

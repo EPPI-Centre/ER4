@@ -51,13 +51,12 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
-    @Output() valueChange = new EventEmitter();
+    
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
-    public arms: arm[] = [];
 
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
@@ -260,12 +259,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
     }
     goToItem(item: Item) {
-
-        
         this.WipeHighlights();
         this.clearItemData();
         console.log('what do you need me to do?' + item.itemId);
-        this.ItemListService.eventChange(item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
         if (this.item.itemId != this.itemID) {
@@ -422,12 +418,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 }
 
 
-export class arm {
 
-    itemId: number = 0;
-    title: string = '';
-    itemArmId: number = 0;
-}
 
 
 

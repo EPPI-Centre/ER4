@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of, Subscription, Subject, BehaviorSubject } from 'rxjs';
@@ -50,8 +50,7 @@ export class ItemListService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
-    tmpItemIDChange: BehaviorSubject<number> = new BehaviorSubject<number>(this.ItemID);
-
+    @Output() ItemChanged = new EventEmitter<Item>();
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
             const listJson = localStorage.getItem('ItemsList');
@@ -86,16 +85,20 @@ export class ItemListService {
         this._Criteria = crit;
         this.Save();
     }
-    public eventChange(itemId: number) {
-
-        this.tmpItemIDChange.next(itemId);
-    }
+    
     public getItem(itemId: number): Item {
         console.log('getting item');
         this.ItemID = itemId;
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
-        if (ff != undefined && ff != null) return ff;
-        return new Item();
+        if (ff != undefined && ff != null) {
+            console.log('first emit');
+            this.ItemChanged.emit(ff);
+            return ff;
+        }
+        else {
+            this.ItemChanged.emit(new Item());
+            return new Item();
+        }
     }
     public hasPrevious(itemId: number): boolean {
         //if (!this.IsInScreeningMode && this._PriorityScreeningService && this._PriorityScreeningService.TrainingList && this._PriorityScreeningService.TrainingList.length > 0) {
@@ -115,17 +118,27 @@ export class ItemListService {
     }
     public getFirst(): Item {
         let ff = this.ItemList.items[0];
-        if (ff != undefined && ff != null) return ff;
-        return new Item();
+        if (ff != undefined && ff != null) {
+            this.ItemChanged.emit(ff);
+            return ff;
+        }
+        else {
+            this.ItemChanged.emit(new Item());
+            return new Item();
+        }
     }
     public getPrevious(itemId: number): Item {
         
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-        if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length)
-        {
+        if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) {
+            this.ItemChanged.emit(this._ItemList.items[ff - 1]);
             return this._ItemList.items[ff - 1];
         }
-        return new Item();
+        else {
+            this.ItemChanged.emit(new Item());
+            return new Item();
+        }
+        
     }
     public hasNext(itemId: number): boolean {
         //if (!this.IsInScreeningMode && this._PriorityScreeningService && this._PriorityScreeningService.TrainingList && this._PriorityScreeningService.TrainingList.length > 0) {
@@ -141,13 +154,26 @@ export class ItemListService {
       
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
-        if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
-        return new Item();
+        if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {
+            console.log('I am emitting');
+            this.ItemChanged.emit(this._ItemList.items[ff + 1]);
+            return this._ItemList.items[ff + 1];
+        }
+        else {
+            this.ItemChanged.emit(new Item());
+            return new Item();
+        }
     }
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
-        if (ff != undefined && ff != null) return ff ;
-        return new Item();
+        if (ff != undefined && ff != null) {
+            this.ItemChanged.emit(ff);
+            return ff;
+        }
+        else {
+            this.ItemChanged.emit(new Item());
+            return new Item();
+        }
     }
     public ListDescription: string = "";
     public FetchWithCrit(crit: Criteria, listDescription: string) {
@@ -265,7 +291,7 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: Arm[] = [];
+    arms: arm[] = [];
 }
 export class Criteria {
     onlyIncluded: boolean = true;
@@ -297,11 +323,11 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-export class Arm {
-    itemArmId: number = 0;
-    itemId: number = 0;
-    ordering: number = 0;
-    title: string = "";
+export interface arm {
+    itemArmId: number;
+    itemId: number;
+    ordering: number;
+    title: string;
 }
 
 

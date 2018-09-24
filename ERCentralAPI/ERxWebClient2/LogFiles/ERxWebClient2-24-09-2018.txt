@@ -77,3 +77,44 @@ Entrypoint main-client = main-client.js main-client.7b82b70c08e13e599d99.hot-upd
 
 ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:26:13 
     TS2564: Property '_arms' has no initializer and is not definitely assigned in the constructor.
+2018-09-24 15:07:15.010 +01:00 [ERR] (node:15704) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 15:17:45.280 +01:00 [ERR] (node:20508) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 15:27:01.884 +01:00 [ERR] (node:11160) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 15:57:54.286 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 4ef61fc706c226ea5e89
+Version: webpack 4.16.2
+Time: 17972ms
+Built at: 2018-09-24 15:57:54
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.78f813a45e9b005ba870.hot-update.js   4.26 KiB  main-client  [emitted]  main-client
+              78f813a45e9b005ba870.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.78f813a45e9b005ba870.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.78f813a45e9b005ba870.hot-update.js main-client.js.map main-client.78f813a45e9b005ba870.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/services/arms.service.ts:12:10 
+    TS2724: Module '"D:/Github/eppi/ERCentralAPI/ERxWebClient2/ClientApp/app/components/services/ItemList.service"' has no exported member 'arm'. Did you mean 'Arm'?
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:74:48 
+    TS2345: Argument of type 'number' is not assignable to parameter of type 'Item'.
+2018-09-24 15:58:00.096 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 6ff65929ba5b60cc7678
+Version: webpack 4.16.2
+Time: 16558ms
+Built at: 2018-09-24 15:58:00
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.4ef61fc706c226ea5e89.hot-update.js   61.3 KiB  main-client  [emitted]  main-client
+              4ef61fc706c226ea5e89.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.4ef61fc706c226ea5e89.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.4ef61fc706c226ea5e89.hot-update.js main-client.js.map main-client.4ef61fc706c226ea5e89.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/services/ItemList.service.ts:268:11 
+    TS2304: Cannot find name 'Arm'.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:74:48 
+    TS2345: Argument of type 'number' is not assignable to parameter of type 'Item'.
+
+ERROR in [at-loader] ./ClientApp/app/components/coding/coding.component.ts:60:18 
+    TS2304: Cannot find name 'arm'.
+2018-09-24 17:20:12.833 +01:00 [ERR] (node:22424) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
