@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -25,12 +25,14 @@ export class ArmsService {
     }
 
     public arms: arm[] = [];
-   
+    @Output() gotArms = new EventEmitter();
+
+
     public FetchArms(ItemId: number) {
 
         let body = JSON.stringify({ Value: ItemId });
 
-        this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
+       return this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
 
             body).subscribe(result => {
 
@@ -39,11 +41,12 @@ export class ArmsService {
                 const armsJson = JSON.stringify(this.arms)
                 console.log('jsonified: ' + armsJson);
                 //this.Save();
+                this.gotArms.emit(this.arms);
+
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
 
-        return this.arms;
     }
     private Save() {
         if (this.arms != undefined && this.arms != null && this.arms.length > 0) //{ }

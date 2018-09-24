@@ -60,3 +60,4 @@ System.ObjectDisposedException: Safe handle has been closed
 2018-09-24 11:44:04.909 +01:00 [ERR] (node:18268) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
 2018-09-24 11:53:12.538 +01:00 [ERR] (node:10032) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
 2018-09-24 11:59:00.663 +01:00 [ERR] (node:21012) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 13:40:53.380 +01:00 [ERR] (node:24216) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead

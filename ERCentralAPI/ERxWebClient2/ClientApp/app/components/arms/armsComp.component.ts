@@ -60,30 +60,22 @@ export class armsComp implements OnInit{
 
     ngOnInit() {
 
-        //this.subscription = 
+        this.armsService.gotArms.subscribe(
+
+            (res: arm[]) => {
+                this.arms = res;
+                alert('got the arms' + JSON.stringify(this.arms));
+            }
+        )
+        ;
 
         this.itemListServ.tmpItemIDChange
 
             .subscribe(itemR => {
                 console.log('focus on this subject change data' + itemR);
-                this.arms = this.armsService.FetchArms(itemR);
+                this.armsService.FetchArms(itemR);
 
             });
-
-        
-        //this.arms = this.armsService.FetchArms(this.itemID);
-
-        //this.itemCodingComp.valueChange.subscribe(
-
-        //    (res2: number) => {
-        //        console.log('ItemID IS: ' + res2);
-
-        //       this.arms = this.armsService.FetchArms(res2);
-        //    }
-        //);
-
-        //hardcoded how do we find the pages itemId...1848769
-        
 
     }
 }

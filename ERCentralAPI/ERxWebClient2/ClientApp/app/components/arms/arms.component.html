@@ -3,7 +3,7 @@
     <div class="card-body">
         <select (ngModelChange)="filterArms($event)" >
                 <option value="0">--All--</option>
-                <option *ngFor="let arm of arms"  [(ngModel)]="arm.itemArmId">
+                <option *ngFor="let arm of arms"  [value]="arm.itemArmId">
                     {{arm.title}}
                 </option>
             </select>
