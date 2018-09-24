@@ -112,12 +112,10 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.item = this.ItemListService.getItem(this.itemID);
             this.IsScreening = false;
             this.GetItemCoding();
-           // this.ItemListService.eventChange(this.itemID);
-            console.log('fill in arms here');
-            //this.arms = this.armservice.Fetch(this.itemID);
+            //this.ItemListService.eventChange(this.itemID);
+            console.log('fill in arms here teseroo1');
+
         }
-        
-        
     }
     public HasPreviousScreening(): boolean{
         //console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
@@ -228,14 +226,22 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     }
     prevItem() {
+        
         this.WipeHighlights();
-        if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
-
+        if (this.item) {
+            console.log('inside previous coding item component part' + this.item.itemId);
+   
+            this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
+        }
     }
     nextItem() {
-        console.log('inside next coding item component part');
+        
         this.WipeHighlights();
-        if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
+        if (this.item) {
+            this.goToItem(this.ItemListService.getNext(this.item.itemId));
+            console.log('inside next coding item component part' + this.item.itemId);
+            //this.valueChange.next(this.item.itemId);
+        }
     }
     lastItem() {
         this.WipeHighlights();
@@ -256,20 +262,15 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         
         this.WipeHighlights();
         this.clearItemData();
+        console.log('what do you need me to do?' + item.itemId);
+        this.ItemListService.eventChange(item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
-
-        console.log('what do you need me to do?' + this.itemID);
         this.item = item;
-        //console.log(this.item.title);
         if (this.item.itemId != this.itemID) {
-            //console.log('ouch');
+
             this.itemID = this.item.itemId;
         }
         this.GetItemCoding();
-        this.ItemListService.eventChange(this.itemID);
-         //this.itemId.next(this.itemID);
-        //this.valueChange.emit(this.itemID);
-      
     }
     BackToMain() {
         this.clearItemData();

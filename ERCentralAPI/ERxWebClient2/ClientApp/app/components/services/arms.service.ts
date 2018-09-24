@@ -38,7 +38,7 @@ export class ArmsService {
                 this.arms = result;
                 const armsJson = JSON.stringify(this.arms)
                 console.log('jsonified: ' + armsJson);
-                this.Save();
+                //this.Save();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );

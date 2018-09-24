@@ -60,12 +60,17 @@ export class armsComp implements OnInit{
 
     ngOnInit() {
 
-        this.subscription = 
+        //this.subscription = 
+
         this.itemListServ.tmpItemIDChange
+
             .subscribe(itemR => {
-                this.arms =this.armsService.FetchArms(itemR);
+                console.log('focus on this subject change data' + itemR);
+                this.arms = this.armsService.FetchArms(itemR);
+
             });
 
+        
         //this.arms = this.armsService.FetchArms(this.itemID);
 
         //this.itemCodingComp.valueChange.subscribe(

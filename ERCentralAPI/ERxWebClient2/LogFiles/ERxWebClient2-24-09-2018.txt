@@ -1,0 +1,62 @@
+2018-09-24 09:54:58.313 +01:00 [ERR] (node:16632) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 10:00:17.687 +01:00 [ERR] (node:15212) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 10:09:20.936 +01:00 [ERR] (node:11980) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 10:45:59.875 +01:00 [ERR] (node:18224) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 10:48:48.174 +01:00 [ERR] An unhandled exception has occurred while executing the request
+System.ObjectDisposedException: Safe handle has been closed
+   at System.Runtime.InteropServices.SafeHandle.DangerousAddRef(Boolean& success)
+   at System.StubHelpers.StubHelpers.SafeHandleAddRef(SafeHandle pHandle, Boolean& success)
+   at Interop.WinHttp.WinHttpQueryDataAvailable(SafeWinHttpHandle requestHandle, IntPtr parameterIgnoredAndShouldBeNullForAsync)
+   at System.Net.Http.WinHttpResponseStream.<CopyToAsyncCore>d__18.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.SpaServices.Webpack.ConditionalProxyMiddleware.<PerformProxyRequest>d__7.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   at Microsoft.AspNetCore.SpaServices.Webpack.ConditionalProxyMiddleware.<Invoke>d__6.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware.<Invoke>d__7.MoveNext()
+2018-09-24 10:48:48.196 +01:00 [ERR] Connection id "0HLH20A4DQRL2", Request id "0HLH20A4DQRL2:00000003": An unhandled exception was thrown by the application.
+System.ObjectDisposedException: Safe handle has been closed
+   at System.Runtime.InteropServices.SafeHandle.DangerousAddRef(Boolean& success)
+   at System.StubHelpers.StubHelpers.SafeHandleAddRef(SafeHandle pHandle, Boolean& success)
+   at Interop.WinHttp.WinHttpQueryDataAvailable(SafeWinHttpHandle requestHandle, IntPtr parameterIgnoredAndShouldBeNullForAsync)
+   at System.Net.Http.WinHttpResponseStream.<CopyToAsyncCore>d__18.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.SpaServices.Webpack.ConditionalProxyMiddleware.<PerformProxyRequest>d__7.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   at Microsoft.AspNetCore.SpaServices.Webpack.ConditionalProxyMiddleware.<Invoke>d__6.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware.<Invoke>d__7.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware.<Invoke>d__7.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.Server.IISIntegration.IISMiddleware.<Invoke>d__11.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.Hosting.Internal.RequestServicesContainerMiddleware.<Invoke>d__3.MoveNext()
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.Frame`1.<ProcessRequestsAsync>d__2.MoveNext()
+2018-09-24 11:23:40.670 +01:00 [ERR] (node:15016) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 11:29:18.570 +01:00 [ERR] (node:16764) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 11:44:04.909 +01:00 [ERR] (node:18268) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 11:53:12.538 +01:00 [ERR] (node:10032) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-24 11:59:00.663 +01:00 [ERR] (node:21012) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead

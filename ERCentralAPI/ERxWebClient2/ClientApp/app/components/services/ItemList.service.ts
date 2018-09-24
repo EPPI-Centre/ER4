@@ -138,7 +138,7 @@ export class ItemListService {
         //}
     }
     public getNext(itemId: number): Item {
-        console.log('get next');
+      
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) return this._ItemList.items[ff + 1];
