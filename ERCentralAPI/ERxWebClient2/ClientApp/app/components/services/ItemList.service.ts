@@ -26,7 +26,6 @@ export class ItemListService {
         private ModalService: ModalService
     ) { }
     private _IsInScreeningMode: boolean | null = null;
-    private ItemID: number = 0;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
         if (this._IsInScreeningMode === null) {
@@ -50,7 +49,7 @@ export class ItemListService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
-    @Output() ItemChanged = new EventEmitter<Item>();
+    @Output() ItemChanged = new EventEmitter();
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
             const listJson = localStorage.getItem('ItemsList');
@@ -79,24 +78,45 @@ export class ItemListService {
         }
         return this._Criteria;
     }
+    public get currentItem(): Item {
+        if (this._currentItem) return this._currentItem;
+        else {
+            const currentItemJson = localStorage.getItem('currentItem');
+            this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
+        }
+        return this._currentItem;
+    }
+    private SaveCurrentItem() {
+        if (this._currentItem) {
+            localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
+        }
+        else if (localStorage.getItem('currentItem')) {
+            localStorage.removeItem('currentItem');
+        }
+    }
+
+    private _currentItem: Item = new Item();
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         this._ItemList = items;
         this._Criteria = crit;
         this.Save();
     }
-    
+    private ChangingItem(newItem: Item) {
+        this._currentItem = newItem;
+        this.SaveCurrentItem();
+        this.ItemChanged.emit();
+    }
     public getItem(itemId: number): Item {
         console.log('getting item');
-        this.ItemID = itemId;
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) {
             console.log('first emit');
-            this.ItemChanged.emit(ff);
+            this.ChangingItem(ff);
             return ff;
         }
         else {
-            this.ItemChanged.emit(new Item());
+            this.ChangingItem(new Item());
             return new Item();
         }
     }
@@ -119,11 +139,11 @@ export class ItemListService {
     public getFirst(): Item {
         let ff = this.ItemList.items[0];
         if (ff != undefined && ff != null) {
-            this.ItemChanged.emit(ff);
+            this.ChangingItem(ff);
             return ff;
         }
         else {
-            this.ItemChanged.emit(new Item());
+            this.ChangingItem(new Item());
             return new Item();
         }
     }
@@ -131,11 +151,11 @@ export class ItemListService {
         
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) {
-            this.ItemChanged.emit(this._ItemList.items[ff - 1]);
+            this.ChangingItem(this._ItemList.items[ff - 1]);
             return this._ItemList.items[ff - 1];
         }
         else {
-            this.ItemChanged.emit(new Item());
+            this.ChangingItem(new Item());
             return new Item();
         }
         
@@ -155,23 +175,23 @@ export class ItemListService {
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {
-            console.log('I am emitting');
-            this.ItemChanged.emit(this._ItemList.items[ff + 1]);
+            //console.log('I am emitting');
+            this.ChangingItem(this._ItemList.items[ff + 1]);
             return this._ItemList.items[ff + 1];
         }
         else {
-            this.ItemChanged.emit(new Item());
+            this.ChangingItem(new Item());
             return new Item();
         }
     }
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
         if (ff != undefined && ff != null) {
-            this.ItemChanged.emit(ff);
+            this.ChangingItem(ff);
             return ff;
         }
         else {
-            this.ItemChanged.emit(new Item());
+            this.ChangingItem(new Item());
             return new Item();
         }
     }
@@ -238,6 +258,7 @@ export class ItemListService {
         else if (localStorage.getItem('ItemListIsInScreeningMode')) {
             localStorage.removeItem('ItemListIsInScreeningMode');
         }
+        this.SaveCurrentItem();
     }
 
 }

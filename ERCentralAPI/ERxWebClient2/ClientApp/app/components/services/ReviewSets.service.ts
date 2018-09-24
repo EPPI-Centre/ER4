@@ -192,7 +192,7 @@ export class ReviewSetsService {
                     //console.log('.' + destSet.set_name);
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
@@ -216,7 +216,7 @@ export class ReviewSetsService {
                     if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);
@@ -233,7 +233,7 @@ export class ReviewSetsService {
     public FindAttributeById(AttributeId: number, itemArmID: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let Set of this.ReviewSets) {
-            result = this.internalFindAttributeById(Set.attributes, AttributeId, itemArmID);
+            result = this.internalFindAttributeById(Set.attributes, AttributeId);
             if (result) {
                 
                 break;
@@ -251,17 +251,17 @@ export class ReviewSetsService {
         }
         return result;
     }
-    private internalFindAttributeById(list: SetAttribute[], AttributeId: number, itemArmID: number): SetAttribute | null {
+    private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
             if (result) break;
             //console.log('Cand: ' + candidate.attribute_id + ' children: ' + candidate.attributes.length + ' Target: ' + AttributeId);
-            if (AttributeId == candidate.attribute_id && candidate.armId == itemArmID) {
+            if (AttributeId == candidate.attribute_id ) {
                 result = candidate;
                 break;
             }
             else if (candidate.attributes) {
-                result = this.internalFindAttributeById(candidate.attributes, AttributeId, itemArmID);
+                result = this.internalFindAttributeById(candidate.attributes, AttributeId);
             }
         }
         return result;

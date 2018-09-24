@@ -19,7 +19,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 export class armsComp implements OnInit{
 
     public selectedArm?: arm ;
-    public arms: arm[] = [];
+    //public arms: arm[] = [];
     @Input() itemID: number = 0;
     private subscription: Subscription = new Subscription;
 
@@ -39,21 +39,25 @@ export class armsComp implements OnInit{
     filterArms(filterVal: any) {
         
         if (filterVal == "0") {
-            alert('sdfg: ' + filterVal);
-        }
-        else {
-            alert('sdfg: ' + filterVal);
-            this.selectedArm = this.arms.filter((x) => x.itemArmId == filterVal)[0];
+            console.log('sdfg0: ' + filterVal);
             this.reviewSetsServ.clearItemData();
-            this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, this.selectedArm.itemArmId);
-
+            this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, 0);
+        }
+        else if (this.CurrentItem) {
+            console.log('sdfg: ' + filterVal + this.CurrentItem.arms);
+            this.selectedArm = this.CurrentItem.arms.filter((x) => x.itemArmId == filterVal)[0];
+            this.reviewSetsServ.clearItemData();
+            if (this.selectedArm) this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, this.selectedArm.itemArmId);
+            else {//do something! it's not supposed to happen...
+            }
         }
     }   
     public CurrentItem?: Item;
     ngOnInit() {
         console.log('init armsComp');
+        this.CurrentItem = this.itemListServ.currentItem;
         this.PriorityScreeningService.gotItem.subscribe(() => this.GetArmsScreening());
-        this.itemListServ.ItemChanged.subscribe((res: Item) => this.GetArmsItem(res));
+        this.itemListServ.ItemChanged.subscribe(() => this.GetArmsItem());
         //this.armsService.gotArms.subscribe(
 
         //    (res: arm[]) => {
@@ -78,10 +82,10 @@ export class armsComp implements OnInit{
         this.CurrentItem = this.PriorityScreeningService.CurrentItem;
         this.armsService.FetchArms(this.PriorityScreeningService.CurrentItem);
     }
-    GetArmsItem(item: Item) {
+    GetArmsItem() {
         console.log('GetArmsItem(item: Item)');
-        this.CurrentItem = item;
-        this.armsService.FetchArms(item);
+        this.CurrentItem = this.itemListServ.currentItem;
+        if (this.CurrentItem) this.armsService.FetchArms(this.CurrentItem);
     }
 }
 
