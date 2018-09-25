@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription, Subject, } from 'rxjs';
+import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
@@ -47,6 +47,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
+    private ItemArmsDataChanged: Subscription | null = null;
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
@@ -75,24 +76,25 @@ export class ItemCodingComp implements OnInit, OnDestroy {
             this.router.navigate(['home']);
         }
         else {
-            
+
             this.subItemIDinPath = this.route.params.subscribe(params => {
-                this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-                    () => {
-                        if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                            console.log('data changed event caught');
-                            this.SetCoding();
-                        }
-                    }
-                );
                 this.itemString = params['itemId'];
                 this.GetItem();
-         
             });
+            this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+                () => {
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
+                        console.log('data changed event caught');
+                        this.SetCoding();
+                    }
+                }
+            );
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
+
 
     }
     
@@ -111,6 +113,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         else {
             this.itemID = +this.itemString;
             this.item = this.ItemListService.getItem(this.itemID);
+
             this.IsScreening = false;
             this.GetItemCoding();
             //this.ItemListService.eventChange(this.itemID);
@@ -118,6 +121,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
         }
     }
+
     public HasPreviousScreening(): boolean{
         //console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
         if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
@@ -146,8 +150,9 @@ export class ItemCodingComp implements OnInit, OnDestroy {
     private GetItemCoding() {
 
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
-        //this.arms = this.armservice.Fetch(this.itemID)
+        if(this.item) this.armservice.FetchArms(this.item)
         this.ItemCodingService.Fetch(this.itemID);    
+
     }
     SetCoding() {
         this.SetHighlights();

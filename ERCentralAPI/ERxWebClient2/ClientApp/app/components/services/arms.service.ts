@@ -33,7 +33,7 @@ export class ArmsService {
 
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-       return this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
+       this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
 
            body).subscribe(result => {
                this.arms = result;
@@ -42,7 +42,7 @@ export class ArmsService {
                this.Save();
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
-
+        return currentItem.arms;
     }
     private Save() {
         if (this.arms != undefined && this.arms != null && this.arms.length > 0) //{ }
