@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
@@ -131,7 +131,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
         let modalComp = this.modalService.open(InfoBoxModalContent);
         //console.log('ADDTXT: '+ data.additionalText);
         modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
-        modalComp.componentInstance.focus();
+        modalComp.componentInstance.focus(this.ReviewSetsService.CanWriteCoding(data));
         //let tBox = this.renderer.selectRootElement('#InfoBoxText');
         //tBox.innerText = modalComp.componentInstance.InfoBoxTextInput;
         //console.log(tBox);
@@ -186,12 +186,15 @@ export class InfoBoxModalContent {
     @ViewChild('InfoBoxText')
     InfoBoxText!: ElementRef;
     @Input() InfoBoxTextInput: string = "";
+    private canWrite: boolean = true;
     public get IsReadOnly(): boolean {
         //console.log('Is read only???');
-        return this.ReviewSetsService.CanWrite;
+        return this.canWrite;
+        //return this.ReviewSetsService.CanWriteCoding(new SetAttribute());//.CanWrite;
     }
     constructor(public activeModal: NgbActiveModal, private ReviewSetsService: ReviewSetsService) { }
-    public focus() {
+    public focus(canWrite: boolean) {
+        this.canWrite = canWrite;
         this.InfoBoxText.nativeElement.focus();
     }
 }

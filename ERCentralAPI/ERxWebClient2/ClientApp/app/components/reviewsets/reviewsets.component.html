@@ -43,13 +43,13 @@
                 <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this code set" src="../assets/CodeSetLocked.png" class="mr-1" />
             </span>
             <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
-                   [disabled]="!ReviewSetsService.CanWrite"
+                   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
                    *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
             <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                               'AdminSet' : node.data.subTypeName == 'Administration',
                               'ExcludeCode' : node.data.subTypeName == 'Exclude'
                                 }">{{node.data.name}}</span>
-            <button *ngIf="node.data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
+            <button *ngIf="node.data.showCheckBox"  class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
         </ng-template>
     </tree-root>
 </div>
