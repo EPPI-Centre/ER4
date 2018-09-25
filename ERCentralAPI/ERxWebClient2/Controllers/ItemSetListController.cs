@@ -85,6 +85,8 @@ namespace ERxWebClient2.Controllers
             {
 
                 SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (!ri.HasWriteRights()) return Unauthorized();
                 //ReviewInfo rinf = new ReviewInfo();
                 ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
                     MVCcmd.saveType

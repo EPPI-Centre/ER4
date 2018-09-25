@@ -49,6 +49,7 @@ export class ItemListService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private subListReplyReceived: Subscription | null = null;
+    private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
     public get ItemList(): ItemList {
         if (this._ItemList.items.length == 0) {
@@ -95,7 +96,7 @@ export class ItemListService {
         }
     }
 
-    private _currentItem: Item = new Item();
+   
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         this._ItemList = items;
