@@ -44,7 +44,9 @@ export class armsComp implements OnInit{
             this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, 0);
         }
         else if (this.CurrentItem) {
+
             console.log('sdfg: ' + filterVal + this.CurrentItem.arms);
+
             this.selectedArm = this.CurrentItem.arms.filter((x) => x.itemArmId == filterVal)[0];
             this.reviewSetsServ.clearItemData();
             if (this.selectedArm) this.reviewSetsServ.AddItemData(this.itemCodingServ.ItemCodingList, this.selectedArm.itemArmId);
@@ -54,38 +56,26 @@ export class armsComp implements OnInit{
     }   
     public CurrentItem?: Item;
     ngOnInit() {
+
         console.log('init armsComp');
+
         this.CurrentItem = this.itemListServ.currentItem;
         this.PriorityScreeningService.gotItem.subscribe(() => this.GetArmsScreening());
         this.itemListServ.ItemChanged.subscribe(() => this.GetArmsItem());
-        //this.armsService.gotArms.subscribe(
-
-        //    (res: arm[]) => {
-        //         this.arms = res;
-        //    }
-        //);
-
-        //this.itemListServ.tmpItemIDChange
-
-        //    .subscribe(itemR => {
-
-        //        if (itemR > 0) {
-                    
-        //            this.itemID = itemR;
-        //            this.armsService.FetchArms(itemR);
-        //        }
-
-        //});
 
     }
+
     GetArmsScreening() {
         this.CurrentItem = this.PriorityScreeningService.CurrentItem;
-        this.armsService.FetchArms(this.PriorityScreeningService.CurrentItem);
+        //this.armsService.FetchArms(this.PriorityScreeningService.CurrentItem);
     }
+
     GetArmsItem() {
-        console.log('GetArmsItem(item: Item)');
+        //console.log('Calling GetArmsItem(item: Item)');
         this.CurrentItem = this.itemListServ.currentItem;
-        if (this.CurrentItem) this.armsService.FetchArms(this.CurrentItem);
+        this.CurrentItem = this.itemCodingComp.item;
+        //console.log('arms look like this inside the item: ' + JSON.stringify(this.CurrentItem));
+        //if (this.CurrentItem) this.armsService.FetchArms(this.CurrentItem);
     }
 }
 
