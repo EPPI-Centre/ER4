@@ -49,7 +49,7 @@ export class ItemCodingService  {
     public Fetch(ItemId: number) {
 
         //this.itemID.next(ItemId); 
-
+        console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {

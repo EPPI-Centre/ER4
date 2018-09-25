@@ -1,11 +1,12 @@
 <div *ngIf="CurrentItem" class="card bg-info">
     <p class="card-title">Codes Apply to: </p>
     <div class="card-body">
-        <select (change)="filterArms($event.target.value)" >
-                <option value="0">Whole Study</option>
-                <option *ngFor="let arm of CurrentItem.arms" [value]="arm.itemArmId">
-                    {{arm.title}}
-                </option>
-            </select>
+        <!--<select (change)="filterArms($event.target.value)" >-->
+        <select (change)="ArmChanged($event.target.value)">
+            <option value="0">Whole Study</option>
+            <option *ngFor="let arm of CurrentItem.arms" [value]="arm.itemArmId">
+                {{arm.title}}
+            </option>
+        </select>
     </div>
 </div>

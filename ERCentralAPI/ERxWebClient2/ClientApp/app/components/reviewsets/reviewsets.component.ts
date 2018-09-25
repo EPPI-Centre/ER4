@@ -35,7 +35,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
        private renderer: Renderer2,
        private cd: ChangeDetectorRef
     ) { }
-    @ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
+    //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
     public showManualModal: boolean = false;
     ngOnInit() {
