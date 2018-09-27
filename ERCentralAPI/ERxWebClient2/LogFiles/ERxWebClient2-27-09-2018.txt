@@ -27,3 +27,149 @@ Entrypoint main-client = main-client.js main-client.af806f2df429e2f593d2.hot-upd
 
 ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:24:82 
     TS2355: A function whose declared type is neither 'void' nor 'any' must return a value.
+2018-09-27 10:38:52.458 +01:00 [ERR] (node:14804) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-27 10:42:08.218 +01:00 [ERR] (node:13804) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-27 10:51:45.881 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 9aad60d62ba21bfec105
+Version: webpack 4.16.2
+Time: 12700ms
+Built at: 2018-09-27 10:51:45
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js   2.92 MiB  main-client  [emitted]  main-client
+    main-client.c1c6e6ad5553ce67744c.hot-update.js  892 bytes  main-client  [emitted]  main-client
+              c1c6e6ad5553ce67744c.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.c1c6e6ad5553ce67744c.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.c1c6e6ad5553ce67744c.hot-update.js main-client.js.map main-client.c1c6e6ad5553ce67744c.hot-update.js.map
+
+ERROR in ./ClientApp/app/components/services/codesetstatistics.service.ts 77:8
+Module parse failed: 'return' outside of function (77:8)
+You may need an appropriate loader to handle this file type.
+|     get;
+2018-09-27 10:51:45.881 +01:00 [ERR] 
+|     {
+2018-09-27 10:51:45.881 +01:00 [ERR] 
+>         return GetProperty(NumItemsProperty);
+2018-09-27 10:51:45.881 +01:00 [ERR] 
+|     }
+2018-09-27 10:51:45.881 +01:00 [ERR] 
+| }
+2018-09-27 10:51:45.881 +01:00 [ERR] 
+ @ ./ClientApp/app/components/mainfull/mainfull.component.ts 22:0-112 33:25-54 63:22-51 125:8-32
+ @ ./ClientApp/app/app.shared.module.ts
+ @ ./ClientApp/app/app.browser.module.ts
+ @ ./ClientApp/boot.browser.ts
+ @ multi event-source-polyfill webpack-hot-middleware/client?path=__webpack_hmr&dynamicPublicPath=true ./ClientApp/boot.browser.ts
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:49 
+    TS1005: '(' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:73:16 
+    TS1005: ';' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:53 
+    TS1005: '(' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:77:20 
+    TS1005: ';' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:78:1 
+    TS1068: Unexpected token. A constructor, method, accessor, or property was expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:9 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:16 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:23 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:72 
+    TS1005: ';' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:86:9 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:86:21 
+    TS1005: ';' expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:94:1 
+    TS1128: Declaration or statement expected.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:28 
+    TS2391: Function implementation is missing or not immediately following the declaration.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:28 
+    TS7010: 'PropertyInfo', which lacks return-type annotation, implicitly has an 'any' return type.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:65 
+    TS2304: Cannot find name 'RegisterProperty'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:82 
+    TS2304: Cannot find name 'int'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:91 
+    TS2662: Cannot find name 'PropertyInfo'. Did you mean the static member 'ReviewStatisticsCodeSet.PropertyInfo'?
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:72:104 
+    TS2304: Cannot find name 'int'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:73:12 
+    TS7008: Member 'int' implicitly has an 'any' type.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:73:16 
+    TS7008: Member 'SetId' implicitly has an 'any' type.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:32 
+    TS7010: 'PropertyInfo', which lacks return-type annotation, implicitly has an 'any' return type.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:72 
+    TS2304: Cannot find name 'RegisterProperty'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:89 
+    TS2304: Cannot find name 'int'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:98 
+    TS2662: Cannot find name 'PropertyInfo'. Did you mean the static member 'ReviewStatisticsCodeSet.PropertyInfo'?
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:76:111 
+    TS2304: Cannot find name 'int'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:77:16 
+    TS2300: Duplicate identifier 'int'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:77:20 
+    TS7008: Member 'NumItems' implicitly has an 'any' type.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:79:5 
+    TS2304: Cannot find name 'get'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:32 
+    TS2304: Cannot find name 'PropertyInfo'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:47 
+    TS2304: Cannot find name 'bool'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:54 
+    TS2304: Cannot find name 'CompletedProperty'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:74 
+    TS2304: Cannot find name 'RegisterProperty'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:91 
+    TS2304: Cannot find name 'bool'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:101 
+    TS2304: Cannot find name 'PropertyInfo'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:85:114 
+    TS2304: Cannot find name 'bool'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:86:16 
+    TS2304: Cannot find name 'bool'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:86:21 
+    TS2304: Cannot find name 'Completed'.
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:88:5 
+    TS2304: Cannot find name 'get'.

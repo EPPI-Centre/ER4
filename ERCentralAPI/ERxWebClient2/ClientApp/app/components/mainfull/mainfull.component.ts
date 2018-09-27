@@ -83,15 +83,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         this.getCodesetStatistics(cmd);
         console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
     }
+
     getCodesetStatistics(cmd: ReviewStatisticsCountsCommand) {
 
-        console.log('Inside getcodesetStats');
         // if (this.ReviewSetsService.ReviewSets.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
-
-        console.log('nearly there');
         
         this.codesetStatsServ.GetReviewStatisticsCountsCommand(cmd);
-        
+
+        // Testing
+        console.log('completed is true bits');
+        this.codesetStatsServ.GetReviewSetsCompletedCodingCounts(true);
 
         //}
     }
@@ -121,6 +122,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         return msg;
        
     }
+
     ngOnDestroy() {
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();

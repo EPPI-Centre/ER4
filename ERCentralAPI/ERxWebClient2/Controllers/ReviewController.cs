@@ -57,10 +57,7 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "ReadOnlyReviews data portal error");
                 throw;
             }
-
         }
-
-
 
         [HttpPost("[action]")]
         public IActionResult ExcecuteReviewStatisticsCountCommand([FromBody] MVCReviewStatisticsCountsCommand MVCcmd)
@@ -97,6 +94,29 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [HttpPost("[action]")]
+        public IActionResult FetchCounts([FromBody]  SingleCriteria<bool> crit)
+        {
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                DataPortal<ReviewStatisticsCodeSetList> dp = new DataPortal<ReviewStatisticsCodeSetList>();
+
+                ReviewStatisticsCodeSetList result = dp.Fetch(new SingleCriteria<ReviewStatisticsCodeSetList, bool>(crit.Value));
+
+                //return Json(result);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject("");
+                _logger.LogError(e, "Fetching criteria: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MVCReviewStatisticsCountsCommand
