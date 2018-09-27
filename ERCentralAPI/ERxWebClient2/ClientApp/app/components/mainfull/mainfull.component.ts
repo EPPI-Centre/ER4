@@ -89,6 +89,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         
             this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
+            // Below could be in one method but explicit in order to test local storage
             this.codesetStatsServ.GetReviewSetsCompletedCodingCounts(true);
 
             this.codesetStatsServ.GetReviewSetsIncompleteCodingCounts(false);

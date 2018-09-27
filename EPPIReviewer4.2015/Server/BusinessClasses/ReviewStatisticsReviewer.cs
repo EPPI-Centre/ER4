@@ -22,13 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewStatisticsReviewer : BusinessBase<ReviewStatisticsReviewer>
     {
-#if SILVERLIGHT
-    public ReviewStatisticsReviewer() { }
 
-        
-#else
         public ReviewStatisticsReviewer() { }
-#endif
 
         public override string ToString()
         {

@@ -90,7 +90,7 @@ export class CodesetStatisticsService {
                
                this._ReviewStats = data;
                this.Save();
-               console.log('checking the stats data' + JSON.stringify(this._ReviewStats));
+               //console.log('checking the stats data' + JSON.stringify(this._ReviewStats));
                return data;
             }
         );

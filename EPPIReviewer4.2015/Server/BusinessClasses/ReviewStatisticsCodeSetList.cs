@@ -28,14 +28,8 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch(new SingleCriteria<ReviewStatisticsCodeSetList, bool>(IsCompleted));
         }
-
-
-#if SILVERLIGHT
+        
         public ReviewStatisticsCodeSetList() { }
-#else
-        public ReviewStatisticsCodeSetList() { }
-#endif
-
 
 #if SILVERLIGHT
        

@@ -22,13 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewStatisticsCodeSet : BusinessBase<ReviewStatisticsCodeSet>
     {
-#if SILVERLIGHT
-    public ReviewStatisticsCodeSet() { }
 
-        
-#else
         public ReviewStatisticsCodeSet() { }
-#endif
 
         public override string ToString()
         {

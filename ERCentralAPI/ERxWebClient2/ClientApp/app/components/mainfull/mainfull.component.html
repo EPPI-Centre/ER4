@@ -3,9 +3,9 @@
     <div class="row flex-row">
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 m-3">
             <div class="col-md-12 row">
-                <div class="card col-md-6">
-                    <div class="card-header font-weight-bold text-xl-left bg-secondary">COMPLETED CODESET COUNTS</div>
-                    <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
+                <div class="card col-md-6  mt-2">
+                    <div class="card-header font-weight-bold text-xl-left bg-primary">COMPLETED CODESET COUNTS</div>
+                    <table class="table table-striped" *ngIf="codesetStatsServ.CompletedCodesets">
                         <thead>
                             <tr>
                                 <th> CodeSet Name  </th>
@@ -13,16 +13,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of  codesetStatsServ.CompletedCodesets">
+                            <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
                                 <td>{{ item.title }}</td>
                                 <td>{{item.numItems}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="card col-md-6">
-                    <div class="card-header font-weight-bold text-xl-left bg-secondary">INCOMPLETE CODESET COUNTS</div>
-                    <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
+                <div class="card col-md-6  mt-2">
+                    <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
+                    <table class="table table-striped" *ngIf="codesetStatsServ.IncompleteCodesets">
                         <thead>
                             <tr>
                                 <th> CodeSet Name  </th>
@@ -30,16 +30,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of  codesetStatsServ.IncompleteCodesets">
+                            <tr *ngFor="let item of codesetStatsServ.IncompleteCodesets">
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.numItems}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="card  col-md-12">
-                    <div class="card-header font-weight-bold text-xl-left bg-secondary">Review Stats</div>
-                    <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
+                <div class="card col-md-12  mt-2">
+                    <div class="card-header font-weight-bold text-xl-left bg-primary">Review Stats</div>
+                    <table class="table table-striped" *ngIf="codesetStatsServ.ReviewStats">
                         <thead>
                             <tr>
                                 <th> Included  </th>
@@ -59,9 +59,9 @@
                     </table>
                 </div>
             </div>
-            <div class="card card-body ReviewsBg  mt-2 ">
+            <div class="card ReviewsBg mt-2 ">
                 <div>
-                    <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                    <button type="button" class="btn btn-outline-primary col-md-6" (click)="toggleReviewPanel()"
                             [attr.aria-expanded]="!isReviewPanelCollapsed">
                         My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
                     </button>
