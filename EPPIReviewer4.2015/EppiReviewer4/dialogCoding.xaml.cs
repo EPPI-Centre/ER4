@@ -113,8 +113,8 @@ namespace EppiReviewer4
             //to the xaml resources section!!
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
+            isEnorCodingOnly.DataContext = this;
             //end of read-only ui hack
-            
             //pdf coding
             highlights = new Highlights();
             this.notesCs = new NotesCs();
@@ -182,42 +182,8 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            {
-                SetArmsTabVisibility();
-            }
-            else if (RevInfoProvider != null)
-            {
-                RevInfoProvider.DataChanged += RevInfoProviderProvider_DataChanged;
-            }
-
         }
-        private void RevInfoProviderProvider_DataChanged(object sender, EventArgs e)
-        {
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            RevInfoProvider.DataChanged -= RevInfoProviderProvider_DataChanged;
-            SetArmsTabVisibility();
-        }
-        public void SetArmsTabVisibility()
-        {
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            {
-                ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
-                //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
-                if (rInfo.EnableArms) // || ri.IsSiteAdmin)
-                {
-                    Arms.Visibility = Visibility.Visible;
-                    Arms.IsEnabled = true;
-                }
-                else
-                {
-                    Arms.Visibility = Visibility.Collapsed;
-                    Arms.IsEnabled = false;
-                }
-            }
-        }
+        
         
         public void PrepareCodingOnly()
         {
@@ -226,12 +192,14 @@ namespace EppiReviewer4
             cmdOk.Visibility = System.Windows.Visibility.Collapsed;
             cmdCancelEditItem.Visibility = System.Windows.Visibility.Collapsed;
             codesTreeControl.ControlContext = "CodingOnly";
-            NotifyPropertyChanged("HasWriteRights");//coding only changes the value of haswriterights
+            
             //cellStyleCodingReportCodingOnly
             ComparisonButtons.Visibility = System.Windows.Visibility.Collapsed;
             dialogLinkedItemsControl.PrepareCodingOnly();
             dialogItemDetailsControl.PrepareCodingOnly();
             reviewerTerms.PrepareCodingOnly();
+            NotifyPropertyChanged("HasWriteRights");//coding only changes the value of haswriterights
+            NotifyPropertyChanged("HasWriteRightsOrCodingOnly");
         }
         private void CodingRecordGrid_DataLoaded(object sender, EventArgs e)
         {
@@ -362,22 +330,6 @@ namespace EppiReviewer4
             {
                 ScrollViewerCitationDetails.ScrollToVerticalOffset(0);
             }
-            //CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            //if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            //{
-            //    ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
-            //    //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
-            //    if (rInfo.EnableArms) // || ri.IsSiteAdmin)
-            //    {
-            //        Arms.Visibility = Visibility.Visible;
-            //        Arms.IsEnabled = true;
-            //    }
-            //    else
-            //    {
-            //        Arms.Visibility = Visibility.Collapsed;
-            //        Arms.IsEnabled = false;
-            //    }
-            //}
         }
 
         public void BindTree(Item i)
