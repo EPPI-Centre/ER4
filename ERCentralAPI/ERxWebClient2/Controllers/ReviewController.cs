@@ -61,8 +61,8 @@ namespace ERxWebClient2.Controllers
 
 
 
-        [HttpPost("[action]")]
-        public IActionResult ExcecuteReviewStatisticsCountCommand([FromBody] MVCReviewStatisticsCountsCommand MVCcmd)
+        [HttpGet("[action]")]
+        public IActionResult ExcecuteReviewStatisticsCountCommand()
         {
             try
             {
