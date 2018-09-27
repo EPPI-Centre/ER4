@@ -44,7 +44,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     @ViewChild(WorkAllocationContactListComp)
     private workAllocationsComp!: WorkAllocationContactListComp;
 
-    public stats: ReviewStatisticsCountsCommand = new ReviewStatisticsCountsCommand();
+    public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
     public isReviewPanelCollapsed = false;
@@ -79,18 +79,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         this.ReviewSetsService.GetReviewSets();
         console.log('Calling getcodesetStats');
-        let cmd = new ReviewStatisticsCountsCommand();
-        this.getCodesetStatistics(cmd);
+        this.getCodesetStatistics();
         console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
     }
-    getCodesetStatistics(cmd: ReviewStatisticsCountsCommand) {
+    getCodesetStatistics() {
 
         console.log('Inside getcodesetStats');
         // if (this.ReviewSetsService.ReviewSets.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
 
         console.log('nearly there');
         
-        this.codesetStatsServ.GetReviewStatisticsCountsCommand(cmd);
+        this.codesetStatsServ.GetReviewStatisticsCountsCommand();
         
 
         //}

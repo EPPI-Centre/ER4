@@ -62,37 +62,26 @@ namespace ERxWebClient2.Controllers
 
 
 
-        [HttpPost("[action]")]
-        public IActionResult ExcecuteReviewStatisticsCountCommand([FromBody] MVCReviewStatisticsCountsCommand MVCcmd)
+        [HttpGet("[action]")]
+        public IActionResult ExcecuteReviewStatisticsCountCommand()
         {
             try
             {
-
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (!ri.HasWriteRights()) return Unauthorized();
-
-                ReviewStatisticsCountsCommand cmd = new ReviewStatisticsCountsCommand(
-                    MVCcmd.ItemsDeleted
-                    , MVCcmd.ItemsExcluded
-                    , MVCcmd.ItemsIncluded
-                    , MVCcmd.DuplicateItems
-
-                    );
+                ReviewStatisticsCountsCommand cmd = new ReviewStatisticsCountsCommand();
                 DataPortal<ReviewStatisticsCountsCommand> dp = new DataPortal<ReviewStatisticsCountsCommand>();
                 cmd = dp.Execute(cmd);
-                MVCcmd.DuplicateItems = cmd.DuplicateItems;
-                MVCcmd.ItemsDeleted = cmd.ItemsDeleted;
-                MVCcmd.ItemsExcluded = cmd.ItemsExcluded;
-                MVCcmd.ItemsIncluded = cmd.ItemsIncluded;
-
-                return Ok(MVCcmd);
+                //MVCcmd.DuplicateItems = cmd.DuplicateItems;
+                //MVCcmd.ItemsDeleted = cmd.ItemsDeleted;
+                //MVCcmd.ItemsExcluded = cmd.ItemsExcluded;
+                //MVCcmd.ItemsIncluded = cmd.ItemsIncluded;
+                return Ok(cmd);
 
             }
             catch (Exception e)
             {
-                string json = JsonConvert.SerializeObject(MVCcmd);
-                _logger.LogError(e, "Dataportal Error with Review Statistics Counts: {0}", json);
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                _logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
                 throw;
             }
         }

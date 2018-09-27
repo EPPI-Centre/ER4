@@ -242,7 +242,7 @@ export class ItemListService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    private Save() {
+    public Save() {
         if (this._ItemList.items.length > 0) {
             localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
         }

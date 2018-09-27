@@ -27,3 +27,5 @@ Entrypoint main-client = main-client.js main-client.af806f2df429e2f593d2.hot-upd
 
 ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:24:82 
     TS2355: A function whose declared type is neither 'void' nor 'any' must return a value.
+2018-09-27 10:54:24.081 +01:00 [ERR] (node:15520) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-27 11:41:27.612 +01:00 [ERR] (node:4956) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
