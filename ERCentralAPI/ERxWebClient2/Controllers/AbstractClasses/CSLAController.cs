@@ -74,4 +74,8 @@ namespace ERxWebClient2.Controllers
     {
         public Int64 Value { get; set; }
     }
+    public class SingleBoolCriteria
+    {
+        public bool Value { get; set; }
+    }
 }

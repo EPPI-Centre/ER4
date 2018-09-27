@@ -9,7 +9,7 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { arm, Item } from './ItemList.service';
+import { arm, Item, ItemListService } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,6 +20,7 @@ export class ArmsService {
     constructor(
         private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
+        private ItemListService: ItemListService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
@@ -45,9 +46,10 @@ export class ArmsService {
         return currentItem.arms;
     }
     private Save() {
-        if (this.arms != undefined && this.arms != null && this.arms.length > 0) //{ }
-            localStorage.setItem('arms', JSON.stringify(this.arms));
-        else if (localStorage.getItem('arms')) localStorage.removeItem('arms');
+        if (this.ItemListService) this.ItemListService.Save();
+        //if (this.arms != undefined && this.arms != null && this.arms.length > 0) //{ }
+        //    localStorage.setItem('arms', JSON.stringify(this.arms));
+        //else if (localStorage.getItem('arms')) localStorage.removeItem('arms');
     }
        
 }

@@ -21,7 +21,7 @@
                     </table>
                 </div>
                 <div class="card  col-md-6">
-                    <div class="card-header font-weight-bold text-xl-left bg-secondary">CODESET STATISTICS</div>
+                    <div class="card-header font-weight-bold text-xl-left bg-secondary">Review Stats</div>
                     <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
                         <thead>
                             <tr>
@@ -33,10 +33,10 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{{ codesetStatsServ.stats.itemsIncluded}}</td>
-                                <td>{{ codesetStatsServ.stats.itemsExcluded}}</td>
-                                <td>{{ codesetStatsServ.stats.itemsDeleted}}</td>
-                                <td>{{ codesetStatsServ.stats.duplicateItems}}</td>
+                                <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}</td>
+                                <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}</td>
+                                <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}</td>
+                                <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}</td>
                             </tr>
                         </tbody>
                     </table>

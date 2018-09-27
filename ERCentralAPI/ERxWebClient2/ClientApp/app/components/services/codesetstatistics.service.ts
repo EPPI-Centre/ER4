@@ -19,18 +19,38 @@ export class CodesetStatisticsService {
        
     }
 
-    public stats: ReviewStatisticsCountsCommand = new ReviewStatisticsCountsCommand();
+    private _ReviewStats: ReviewStatisticsCountsCommand = {
+        itemsIncluded: -1,
+        itemsExcluded: -1,
+        itemsDeleted: -1,
+        duplicateItems: -1
+    };
+    public get ReviewStats(): ReviewStatisticsCountsCommand {
+        if (this._ReviewStats.itemsIncluded != -1 ) {
+            return this._ReviewStats;
+        }
+        else {
+            const ReviewStatsJson = localStorage.getItem('ReviewStats');
+            let rev_Stats: ReviewStatisticsCountsCommand = ReviewStatsJson !== null ? JSON.parse(ReviewStatsJson) : null;
+            if (rev_Stats == undefined || rev_Stats == null || rev_Stats.itemsIncluded == -1) {
 
-    public GetReviewStatisticsCountsCommand(cmd: ReviewStatisticsCountsCommand) {
+                return this._ReviewStats;
+            }
+            else {
+                //console.log("Got User from LS");
+                this._ReviewStats = rev_Stats;
+            }
+        }
+        return this._ReviewStats;
+    }
+    public GetReviewStatisticsCountsCommand() {
 
-       this._http.post<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/Review/ExcecuteReviewStatisticsCountCommand', cmd).subscribe(
-
-           data => {
-               cmd = data;                
-               this.stats = data;
+       this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/Review/ExcecuteReviewStatisticsCountCommand').subscribe(
+           data => {    
+               this._ReviewStats = data;
                this.Save();
-               console.log('checking the stats data' + JSON.stringify(this.stats));
-               return cmd;
+               console.log('checking the stats data' + JSON.stringify(this._ReviewStats));
+               return data;
             }
         );
        
@@ -52,18 +72,17 @@ export class CodesetStatisticsService {
 
 
     private Save() {
-        if (this.stats != undefined && this.stats != null ) //{ }
-            localStorage.setItem('stats', JSON.stringify(this.stats));
-        else if (localStorage.getItem('stats')) localStorage.removeItem('stats');
+        if (this.ReviewStats != undefined && this.ReviewStats != null ) //{ }
+            localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
+        else if (localStorage.getItem('ReviewStats')) localStorage.removeItem('ReviewStats');
     }
        
 }
-export class ReviewStatisticsCountsCommand {
-
-    public itemsIncluded: number = 0;
-    public itemsExcluded: number = 0;
-    public itemsDeleted: number = 0;
-    public duplicateItems: number = 0;
+export interface ReviewStatisticsCountsCommand {
+    itemsIncluded: number;
+    itemsExcluded: number;
+    itemsDeleted: number;
+    duplicateItems: number;
 }
 
 export class ReviewStatisticsCodeSet {
