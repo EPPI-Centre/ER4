@@ -4,23 +4,40 @@
         <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 m-3">
             <div class="col-md-12 row">
                 <div class="card col-md-6">
-                    <div class="card-header font-weight-bold text-xl-left bg-secondary">CODESET COUNTS</div>
+                    <div class="card-header font-weight-bold text-xl-left bg-secondary">COMPLETED CODESET COUNTS</div>
                     <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
                         <thead>
                             <tr>
-                                <th> CodeSet Name   </th>
+                                <th> CodeSet Name  </th>
                                 <th> Count  </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let codeset of this.ReviewSetsService.ReviewSets">
-                                <td>{{ codeset.set_name }}</td>
-                                <td>Count here<!--{{ codesetStatsServ.stats.itemsIncluded}}--></td>
+                            <tr *ngFor="let item of  codesetStatsServ.CompletedCodesets">
+                                <td>{{ item.title }}</td>
+                                <td>{{item.numItems}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="card  col-md-6">
+                <div class="card col-md-6">
+                    <div class="card-header font-weight-bold text-xl-left bg-secondary">INCOMPLETE CODESET COUNTS</div>
+                    <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
+                        <thead>
+                            <tr>
+                                <th> CodeSet Name  </th>
+                                <th> Count  </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of  codesetStatsServ.IncompleteCodesets">
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.numItems}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card  col-md-12">
                     <div class="card-header font-weight-bold text-xl-left bg-secondary">Review Stats</div>
                     <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
                         <thead>

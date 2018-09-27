@@ -87,11 +87,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         // if (this.ReviewSetsService.ReviewSets.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
         
-        this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+            this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
-        // Testing
-        console.log('completed is true bits');
-        this.codesetStatsServ.GetReviewSetsCompletedCodingCounts(true);
+            this.codesetStatsServ.GetReviewSetsCompletedCodingCounts(true);
+
+            this.codesetStatsServ.GetReviewSetsIncompleteCodingCounts(false);
 
         //}
     }

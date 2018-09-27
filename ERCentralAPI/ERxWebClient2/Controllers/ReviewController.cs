@@ -58,64 +58,6 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-
-
-
-        [HttpGet("[action]")]
-        public IActionResult ExcecuteReviewStatisticsCountCommand()
-        {
-            try
-            {
-                SetCSLAUser();
-                ReviewStatisticsCountsCommand cmd = new ReviewStatisticsCountsCommand();
-                DataPortal<ReviewStatisticsCountsCommand> dp = new DataPortal<ReviewStatisticsCountsCommand>();
-                cmd = dp.Execute(cmd);
-                //MVCcmd.DuplicateItems = cmd.DuplicateItems;
-                //MVCcmd.ItemsDeleted = cmd.ItemsDeleted;
-                //MVCcmd.ItemsExcluded = cmd.ItemsExcluded;
-                //MVCcmd.ItemsIncluded = cmd.ItemsIncluded;
-                return Ok(cmd);
-
-            }
-            catch (Exception e)
-            {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                _logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
-                throw;
-            }
-        }
-
-
-        [HttpPost("[action]")]
-        public IActionResult FetchCounts([FromBody]  SingleCriteria<bool> crit)
-        {
-            try
-            {
-                SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-                DataPortal<ReviewStatisticsCodeSetList> dp = new DataPortal<ReviewStatisticsCodeSetList>();
-
-                ReviewStatisticsCodeSetList result = dp.Fetch(new SingleCriteria<ReviewStatisticsCodeSetList, bool>(crit.Value));
-
-                //return Json(result);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                string json = JsonConvert.SerializeObject("");
-                _logger.LogError(e, "Fetching criteria: {0}", json);
-                return StatusCode(500, e.Message);
-            }
-        }
+               
     }
-
-    public class MVCReviewStatisticsCountsCommand
-    {
-        public int ItemsIncluded;
-        public int ItemsExcluded;
-        public int ItemsDeleted;
-        public int DuplicateItems;
-    }
-
 }
