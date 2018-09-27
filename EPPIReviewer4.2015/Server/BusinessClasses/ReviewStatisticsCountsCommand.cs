@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using Csla;
-using Csla.Security;
-using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using System.ComponentModel;
-using Csla.DataPortalClient;
-using System.Threading;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -26,7 +16,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ReviewStatisticsCountsCommand() { }
 #else
-        protected ReviewStatisticsCountsCommand() { }
+        public ReviewStatisticsCountsCommand() { }
 #endif
 
         private int _itemsIncluded;
@@ -51,6 +41,16 @@ namespace BusinessLibrary.BusinessClasses
         public int DuplicateItems
         {
             get { return _DuplicateItems; }
+        }
+
+
+        public ReviewStatisticsCountsCommand( int itemsIncluded,int itemsExcluded,int itemsDeleted,
+         int DuplicateItems)
+        {
+            _itemsDeleted = itemsDeleted;
+            _DuplicateItems = DuplicateItems;
+            _itemsExcluded = itemsExcluded;
+            _itemsIncluded = itemsIncluded;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)

@@ -197,7 +197,35 @@ export class ReviewerIdentityService {
             );
       
     }
-    
+
+
+    public LoginToFullReview(RevId: number) {
+
+
+        let body = JSON.stringify({ Value: RevId });
+        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
+            body).subscribe(ri => {
+
+                this.reviewerIdentity = ri;
+
+                if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
+
+                    this.Save();
+                    this.ReviewInfoService.Fetch();
+                    this.ReviewerTermsService.Fetch();
+                    this.router.onSameUrlNavigation = "reload";
+                    this.OpeningNewReview.emit();
+                    this.router.navigate(['mainFullReview']);
+                }
+            }
+                , error => {
+                    console.log(error);
+                    this.modalService.SendBackHomeWithError(error);
+                }
+            );
+
+    }
+
     public Save() {
         //if (isPlatformBrowser(this._platformId)) {
 

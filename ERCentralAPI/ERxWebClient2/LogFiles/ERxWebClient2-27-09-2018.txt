@@ -1,0 +1,29 @@
+2018-09-27 09:15:54.359 +01:00 [ERR] (node:13968) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-27 09:38:15.250 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 647b86588cf2cb7f170c
+Version: webpack 4.16.2
+Time: 12498ms
+Built at: 2018-09-27 09:38:15
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js   2.92 MiB  main-client  [emitted]  main-client
+    main-client.aeceb16a0af583e729e9.hot-update.js   13.3 KiB  main-client  [emitted]  main-client
+              aeceb16a0af583e729e9.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.aeceb16a0af583e729e9.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.aeceb16a0af583e729e9.hot-update.js main-client.js.map main-client.aeceb16a0af583e729e9.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/mainfull/mainfull.component.ts:93:80 
+    TS1005: ')' expected.
+2018-09-27 09:53:07.030 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 94cad4cd69434db35f5d
+Version: webpack 4.16.2
+Time: 12730ms
+Built at: 2018-09-27 09:53:06
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js   2.92 MiB  main-client  [emitted]  main-client
+    main-client.af806f2df429e2f593d2.hot-update.js   4.52 KiB  main-client  [emitted]  main-client
+              af806f2df429e2f593d2.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.af806f2df429e2f593d2.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.af806f2df429e2f593d2.hot-update.js main-client.js.map main-client.af806f2df429e2f593d2.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:24:82 
+    TS2355: A function whose declared type is neither 'void' nor 'any' must return a value.

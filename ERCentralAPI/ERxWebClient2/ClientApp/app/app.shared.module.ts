@@ -9,6 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
+import { MainFullReviewComponent } from './components/mainfull/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -38,6 +39,7 @@ import { armsComp } from './components/arms/armsComp.component';
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
+        MainFullReviewComponent,
         MainComponent
     ],
     entryComponents: [InfoBoxModalContent, ModalDialogComponent],
@@ -53,6 +55,7 @@ import { armsComp } from './components/arms/armsComp.component';
             { path: 'home', component: HomeComponent },
             { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
+            { path: 'mainFullReview', component: MainFullReviewComponent }, 
             { path: 'main', component: MainComponent }, 
             { path: 'itemcoding/:itemId', component: ItemCodingComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage

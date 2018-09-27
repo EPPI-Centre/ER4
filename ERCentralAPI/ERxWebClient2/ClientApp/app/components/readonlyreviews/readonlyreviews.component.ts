@@ -38,6 +38,12 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         
     }
 
+    onFullSubmit(f: string) {
+        let RevId: number = parseInt(f, 10);
+        this.ReviewerIdentityServ.LoginToFullReview(RevId);
+        
+    }
+
     getReviews() {
         //console.log('inside get reviews');
         //when we're not in a review, we want the fresh list! otherwise we're OK with the existing one

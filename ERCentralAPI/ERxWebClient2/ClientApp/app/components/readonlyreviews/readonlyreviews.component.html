@@ -9,6 +9,7 @@
                 <table class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
                     <thead>
                         <tr>
+                            <th>Full Reviewing</th>
                             <th>ID</th>
                             <th>Review</th>
                             <th>Last Access:</th>
@@ -17,6 +18,12 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
+                            <td>
+                                <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+                                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+                                    <button class="btn btn-info" data-placement="top" >Start Reviewing</button>
+                                </form>
+                            </td>
                             <td>{{ roReview.reviewId }}</td>
                             <td>{{ roReview.reviewName }}</td>
                             <td>{{ FormatDate(roReview.lastAccess) }}</td>

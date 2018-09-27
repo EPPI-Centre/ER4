@@ -73,6 +73,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsCountsCommand.cs" Link="Models\ReviewStatisticsCountsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Training.cs" Link="Models\Training.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingList.cs" Link="Models\TrainingList.cs" />
@@ -94,6 +95,7 @@
   <ItemGroup>
     <Folder Include="ClientApp\app\components\main\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
+    <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 

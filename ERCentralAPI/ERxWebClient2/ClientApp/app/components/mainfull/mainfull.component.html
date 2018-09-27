@@ -1,0 +1,53 @@
+<div class="container-fluid MainBg" resizable>
+    <HeaderComponent></HeaderComponent>
+    <div class="row flex-row">
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 m-3">
+            
+            <div class="card">
+                <div class="card-header font-weight-bold text-xl-left bg-secondary">CODESET STATISTICS</div>
+                    <table class="table table-striped" *ngIf="ReviewSetsService.ReviewSets">
+                        <thead>
+                            <tr>
+                                <th> CodeSet Name   </th>
+                                <th> Included  </th>
+                                <th> Excluded  </th>
+                                <th> Deleted   </th>
+                                <th> Duplicates </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let codeset of this.ReviewSetsService.ReviewSets">
+                                <td>{{ codeset.set_name }}</td>
+                                <td>{{ codesetStatsServ.stats.itemsIncluded}}</td>
+                                <td>{{ codesetStatsServ.stats.itemsExcluded}}</td>
+                                <td>{{ codesetStatsServ.stats.itemsDeleted}}</td>
+                                <td>{{ codesetStatsServ.stats.duplicateItems}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card card-body ReviewsBg  mt-2 ">
+                    <div>
+                        <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                                [attr.aria-expanded]="!isReviewPanelCollapsed">
+                            My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                        </button>
+                    </div>
+                    <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                                     style="max-height: 520px;"></readonlyreviews>
+                </div>
+                <div class="card card-body bg-light mt-2">
+
+
+
+                    {{MyInfoMessage()}}
+                    <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
+                </div>
+
+            </div>
+        <statusbar class="col-sm-12 card-body" resizable></statusbar>
+    </div>
+</div>
