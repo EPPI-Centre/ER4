@@ -83,11 +83,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
     }
 
-    getCodesetStatistics(cmd: ReviewStatisticsCountsCommand) {
+    getCodesetStatistics() {
 
         // if (this.ReviewSetsService.ReviewSets.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
         
-        this.codesetStatsServ.GetReviewStatisticsCountsCommand(cmd);
+        this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
         // Testing
         console.log('completed is true bits');
