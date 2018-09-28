@@ -1,7 +1,7 @@
 <div class="container-fluid " resizable>
     <HeaderComponent></HeaderComponent>
     <div class="row flex-row">
-        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 m-3">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 m-3">
             <div class="col-md-12 row">
                 <div class="card col-md-6  mt-2">
                     <div class="card-header font-weight-bold text-xl-left bg-primary">COMPLETED CODESET COUNTS</div>
@@ -10,12 +10,30 @@
                             <tr>
                                 <th> CodeSet Name  </th>
                                 <th> Count  </th>
+                                <th> Details</th>
+                                <th> Action </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
                                 <td>{{ item.title }}</td>
                                 <td>{{item.numItems}}</td>
+                               
+                                <td >
+                                    <div  *ngFor="let subItem of item.reviewerStatistics">
+                                        {{ subItem.title }}: {{ subItem.numItems }}
+                                    </div>
+                                    <!--<div>
+        <button type="button" class="btn btn-primary" (click)="toggleReviewPanel()"
+                [attr.aria-expanded]="!isReviewPanelCollapsed">
+            My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+        </button>
+    </div>
+    <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+     style="max-height: 520px;"></readonlyreviews>-->
+
+                                </td>
+                                <td><button class="btn btn-danger">Complete</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -27,12 +45,20 @@
                             <tr>
                                 <th> CodeSet Name  </th>
                                 <th> Count  </th>
+                                <th>Details</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of codesetStatsServ.IncompleteCodesets">
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.numItems}}</td>
+                                <td>
+                                    <div *ngFor="let subItem of item.reviewerStatistics">
+                                        {{ subItem.title }} : {{ subItem.numItems }}
+                                    </div>
+                                </td>
+                                <td><button class="btn btn-danger">Incomplete</button></td>
                             </tr>
                         </tbody>
                     </table>

@@ -103,10 +103,11 @@ export class CodesetStatisticsService {
             body).subscribe(result => {
 
                 this._CompletedCodesets = result;
+                //console.log(result);
                 this.SaveCompletedSets();
                 return result;
 
-            }, error => { this.modalService.SendBackHomeWithError(error); }
+            }, error => { this.modalService.SendBackHomeWithError(error);}
         );
 
     }
@@ -118,6 +119,7 @@ export class CodesetStatisticsService {
             body).subscribe(result => {
 
                 this._IncompleteCodesets = result;
+                console.log(this._IncompleteCodesets);
                 this.SaveIncompleteSets();
                 //return result;
 
@@ -158,5 +160,28 @@ export class ReviewStatisticsCodeSet {
     public setId: number = 0;
     public numItems: number = 0;
     public completed: boolean = false;
+    public reviewStatistics: ReviewStatistics[] = [];
+}
+
+
+export interface ReviewStatistics {
+
+    contactId: number;
+    contactName: string;
+    isBusy: boolean;
+    isChild: boolean;
+    isCompleted: boolean;
+    isDeleted: boolean;
+    isDirty: boolean;
+    isNew: boolean;
+    isSavable: boolean;
+    isSelfBusy: boolean;
+    isSelfDirty: boolean;
+    isSelfValid: boolean;
+    isValid: boolean;
+    numItems: number;
+    setId: number;
+    setName: string;
+    title: string;
 
 }

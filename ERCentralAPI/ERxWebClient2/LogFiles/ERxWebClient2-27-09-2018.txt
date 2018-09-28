@@ -173,3 +173,4 @@ ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.servi
 
 ERROR in [at-loader] ./ClientApp/app/components/services/codesetstatistics.service.ts:88:5 
     TS2304: Cannot find name 'get'.
+2018-09-27 16:28:09.902 +01:00 [ERR] (node:3432) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
