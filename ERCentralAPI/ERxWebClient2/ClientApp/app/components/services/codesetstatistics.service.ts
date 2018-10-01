@@ -160,25 +160,14 @@ export class ReviewStatisticsCodeSet {
     public setId: number = 0;
     public numItems: number = 0;
     public completed: boolean = false;
-    public reviewStatistics: ReviewStatistics[] = [];
+    public ReviewStatisticsReviewer: ReviewStatisticsReviewer[] = [];
 }
 
 
-export interface ReviewStatistics {
+export interface ReviewStatisticsReviewer {
 
     contactId: number;
     contactName: string;
-    isBusy: boolean;
-    isChild: boolean;
-    isCompleted: boolean;
-    isDeleted: boolean;
-    isDirty: boolean;
-    isNew: boolean;
-    isSavable: boolean;
-    isSelfBusy: boolean;
-    isSelfDirty: boolean;
-    isSelfValid: boolean;
-    isValid: boolean;
     numItems: number;
     setId: number;
     setName: string;
