@@ -20,7 +20,7 @@
                                 <td>{{item.numItems}}</td>
                                
                                 <td >
-                                    <div  *ngFor="let subItem of item.reviewerStatistics">
+                                    <div class="GreenCustom" *ngFor="let subItem of item.reviewerStatistics">
                                         {{ subItem.title }}: {{ subItem.numItems }}
                                     </div>
                                     <!--<div>
@@ -34,8 +34,7 @@
 
                                 </td>
                                 <td>
-                                  
-                                    <fa class="fal" name="check-circle"></fa>
+                                    <i class="fa fa-check-circle GreenIcon"></i>
                                 </td>
                             </tr>
                         </tbody>
@@ -61,7 +60,9 @@
                                         {{ subItem.title }} : {{ subItem.numItems }}
                                     </div>
                                 </td>
-                                <td><button class="btn btn-danger">Incomplete</button></td>
+                                <td><i class="fa fa-times-circle RedIcon"></i>
+                                <button class="btn btn-danger">Incomplete</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

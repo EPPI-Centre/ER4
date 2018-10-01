@@ -1,0 +1,15 @@
+.GreenIcon {
+    color: green;
+}
+.RedIcon {
+    color: red;
+}
+.RelevantTerm {
+    color: white;
+    background-color: green;
+}
+
+.IrrelevantTerm {
+    color: white;
+    background-color: red;
+}

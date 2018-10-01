@@ -22,6 +22,8 @@ const nonTreeShakableModules = [
     'es6-shim',
     'event-source-polyfill',
     'jquery',
+    '.\\CSS\\ERx.css',
+    'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css'
 ];
 const allModules = treeShakableModules.concat(nonTreeShakableModules);
@@ -59,7 +61,8 @@ module.exports = (env) => {
         output: { path: path.join(__dirname, 'wwwroot', 'dist') },
         module: {
             rules: [
-                { test: /\.css(\?|$)/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) }
+                { test: /\.css(\?|$)/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) },
+                { test: /path.join(__dirname, 'CSS', 'ERx.css')/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) }
             ]
         },
         plugins: [
