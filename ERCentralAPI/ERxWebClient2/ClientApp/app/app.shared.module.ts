@@ -21,6 +21,7 @@ import { intropageComponent } from './components/intropage/intropage.component';
 import { HeaderComponent } from './components/commonComponents/header.component';
 import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
 import { armsComp } from './components/arms/armsComp.component';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 @NgModule({
     declarations: [
@@ -44,6 +45,7 @@ import { armsComp } from './components/arms/armsComp.component';
     ],
     entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
+        AngularFontAwesomeModule,
         CommonModule,
         NgbModule,
         HttpModule,
