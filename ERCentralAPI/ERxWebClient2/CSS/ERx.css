@@ -1,3 +1,7 @@
+.table tr {
+    height: 75px;
+}
+
 .GreenIcon {
     color: green;
 }
@@ -13,3 +17,8 @@
     color: white;
     background-color: red;
 }
+
+body {
+    height: 700px;
+}
+

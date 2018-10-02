@@ -20,8 +20,9 @@ export class CodesetStatisticsService {
        
     }
 
-    private _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
-    private _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
+    public _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
+    public _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
+    public _tmpCodesets: ReviewStatisticsCodeSet[] = [];
 
     private _ReviewStats: ReviewStatisticsCountsCommand = {
         itemsIncluded: -1,
@@ -83,7 +84,7 @@ export class CodesetStatisticsService {
         return this._IncompleteCodesets;
     }
 
-    public GetReviewStatisticsCountsCommand() {
+    public async GetReviewStatisticsCountsCommand() {
 
        this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
            data => {    
@@ -96,36 +97,61 @@ export class CodesetStatisticsService {
         );
     }
 
-    public GetReviewSetsCompletedCodingCounts(completed: boolean) {
+    public async GetReviewSetsCodingCounts(completed: boolean) {
 
         let body = JSON.stringify({ Value: completed });
-        this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
-            body).subscribe(result => {
+        await this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
+            body).toPromise().then(
+
+            async (result) => {
 
                 this._CompletedCodesets = result;
-                //console.log(result);
+                console.log('complete array: ' + result);
                 this.SaveCompletedSets();
-                return result;
 
-            }, error => { this.modalService.SendBackHomeWithError(error);}
+                await this.GetReviewSetsIncompleteCodingCounts(false);
+
+            }, error => { this.modalService.SendBackHomeWithError(error); }
+
         );
 
     }
 
-    public GetReviewSetsIncompleteCodingCounts(completed: boolean) {
+    public formateIncompleteSets() {
+
+        for (var j = 0; j < this._CompletedCodesets.length; j++) {
+
+                var tempSetName = this._CompletedCodesets[j].setName
+
+                if (this.IncompleteCodesets.find(x => x.setName == tempSetName)) {
+
+                    this._tmpCodesets.push(this._CompletedCodesets[j]);
+                    
+                } else {
+
+                        this._tmpCodesets.push(new ReviewStatisticsCodeSet());
+                } 
+        }
+        console.log('Here lies the codesets: ' + this._tmpCodesets);
+
+    }
+
+    public async GetReviewSetsIncompleteCodingCounts(completed: boolean) {
 
         let body = JSON.stringify({ Value: completed });
-        this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
+        await this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
             body).subscribe(result => {
 
                 this._IncompleteCodesets = result;
-                console.log(this._IncompleteCodesets);
+                console.log('incomplete array: ' +this._IncompleteCodesets);
                 this.SaveIncompleteSets();
-                //return result;
+
+                this.formateIncompleteSets();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
 
+        
     }
     
     private Save() {

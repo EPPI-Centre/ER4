@@ -1,9 +1,45 @@
 <div class="container-fluid " resizable>
     <HeaderComponent></HeaderComponent>
     <div class="row flex-row">
+
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 m-3">
+
+            <div class="card col-md-9 row">
+                <div class="card-header font-weight-bold text-xl-left bg-primary">Review Stats</div>
+                <table class="table table-striped" *ngIf="codesetStatsServ.ReviewStats">
+                    <thead>
+                        <tr>
+                            <th> Included  </th>
+                            <th> Excluded  </th>
+                            <th> Deleted   </th>
+                            <th> Duplicates </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}   <i class="btn-lg fa fa-address-book"></i></td>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   <i class="btn-lg  fa fa-car"></i></td>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    <i class="btn-lg fa fa-table"></i></td>
+                            <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  <i class="btn-lg fa fa-file-zip-o"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!--<div class="card ReviewsBg mt-2 ">
+            <div>
+                <button type="button" class="btn btn-outline-primary col-md-6" (click)="toggleReviewPanel()"
+                        [attr.aria-expanded]="!isReviewPanelCollapsed">
+                    My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                </button>
+            </div>
+            <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                             style="max-height: 520px;"></readonlyreviews>
+        </div>-->
+
             <div class="col-md-12 row">
-                <div class="card col-md-6  mt-2">
+                <div class="card col-md-5  mt-2">
+                    <!--<button class="btn-primary" (click)="test()">Press for test</button>-->
                     <div class="card-header font-weight-bold text-xl-left bg-primary">COMPLETED CODESET COUNTS</div>
                     <table class="table table-striped" *ngIf="codesetStatsServ.CompletedCodesets">
                         <thead>
@@ -18,41 +54,33 @@
                             <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
                                 <td>{{ item.title }}</td>
                                 <td>{{item.numItems}}</td>
-                               
-                                <td >
+                                <td>
                                     <div class="GreenCustom" *ngFor="let subItem of item.reviewerStatistics">
                                         {{ subItem.title }}: {{ subItem.numItems }}
                                     </div>
-                                    <!--<div>
-        <button type="button" class="btn btn-primary" (click)="toggleReviewPanel()"
-                [attr.aria-expanded]="!isReviewPanelCollapsed">
-            My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-        </button>
-    </div>
-    <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
-     style="max-height: 520px;"></readonlyreviews>-->
-
                                 </td>
                                 <td>
                                     <i class="fa fa-check-circle GreenIcon"></i>
                                 </td>
                             </tr>
+
                         </tbody>
                     </table>
                 </div>
-                <div class="card col-md-6  mt-2">
+                <div class="card col-md-5  mt-2">
                     <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
                     <table class="table table-striped" *ngIf="codesetStatsServ.IncompleteCodesets">
                         <thead>
                             <tr>
-                                <th> CodeSet Name  </th>
+                                <th> CodeSet Name </th>
                                 <th> Count  </th>
-                                <th>Details</th>
-                                <th>Action</th>
+                                <th> Details</th>
+                                <th> Action </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of codesetStatsServ.IncompleteCodesets">
+                            <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
+
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.numItems}}</td>
                                 <td>
@@ -60,55 +88,44 @@
                                         {{ subItem.title }} : {{ subItem.numItems }}
                                     </div>
                                 </td>
-                                <td><i class="fa fa-times-circle RedIcon"></i>
-                                <button class="btn btn-danger">Incomplete</button>
+                                <td>
+                                    <i class="fa fa-times-circle RedIcon"></i>
+                                    <!--<button class="btn btn-danger">Incomplete</button>-->
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="card col-md-12  mt-2">
-                    <div class="card-header font-weight-bold text-xl-left bg-primary">Review Stats</div>
-                    <table class="table table-striped" *ngIf="codesetStatsServ.ReviewStats">
-                        <thead>
-                            <tr>
-                                <th> Included  </th>
-                                <th> Excluded  </th>
-                                <th> Deleted   </th>
-                                <th> Duplicates </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}</td>
-                                <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}</td>
-                                <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}</td>
-                                <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
-            <div class="card ReviewsBg mt-2 ">
-                <div>
-                    <button type="button" class="btn btn-outline-primary col-md-6" (click)="toggleReviewPanel()"
-                            [attr.aria-expanded]="!isReviewPanelCollapsed">
-                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-                    </button>
-                </div>
-                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
-                                 style="max-height: 520px;"></readonlyreviews>
-            </div>
-            <div class="card card-body bg-light mt-2">
+                <!--<div class="card col-md-6  mt-2">
+                <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
+                <table class="table table-striped" *ngIf="codesetStatsServ.IncompleteCodesets">
+                    <thead>
+                        <tr>
+                            <th> CodeSet Name  </th>
+                            <th> Count  </th>
+                            <th> Details</th>
+                            <th> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
+                    </tbody>
+                </table>
+            </div>-->
+
+                <div class="card card-body bg-light mt-2">
+
+        
 
 
                 {{MyInfoMessage()}}
                 <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
-            </div>
+            | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
+                </div>
 
+   
+            <statusbar class="col-sm-12 card-body" resizable></statusbar>
         </div>
-        <statusbar class="col-sm-12 card-body" resizable></statusbar>
     </div>
 </div>

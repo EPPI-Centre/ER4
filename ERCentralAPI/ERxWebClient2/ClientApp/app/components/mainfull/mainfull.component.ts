@@ -79,22 +79,25 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         this.ReviewSetsService.GetReviewSets();
         console.log('Calling getcodesetStats');
-        this.getCodesetStatistics();
-        console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
+
+        this.getCodesetStatisticsAsync();
+
+        //console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
+        
     }
 
-    getCodesetStatistics() {
+    test() {
 
-        // if (this.ReviewSetsService.ReviewSets.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
-        
-            this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+        this.codesetStatsServ.formateIncompleteSets();
+    }
+
+    async getCodesetStatisticsAsync() {
+
+            await this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
             // Below could be in one method but explicit in order to test local storage
-            this.codesetStatsServ.GetReviewSetsCompletedCodingCounts(true);
+            this.codesetStatsServ.GetReviewSetsCodingCounts(true);
 
-            this.codesetStatsServ.GetReviewSetsIncompleteCodingCounts(false);
-
-        //}
     }
 
     Reload() {
