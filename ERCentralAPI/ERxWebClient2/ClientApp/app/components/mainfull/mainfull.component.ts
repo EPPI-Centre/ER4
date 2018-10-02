@@ -78,7 +78,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 
         this.ReviewSetsService.GetReviewSets();
-        console.log('Calling getcodesetStats');
+        //console.log('Calling getcodesetStats');
 
         this.getCodesetStatisticsAsync();
 

@@ -106,7 +106,7 @@ export class CodesetStatisticsService {
             async (result) => {
 
                 this._CompletedCodesets = result;
-                console.log('complete array: ' + result);
+                //console.log('complete array: ' + result);
                 this.SaveCompletedSets();
 
                 await this.GetReviewSetsIncompleteCodingCounts(false);
@@ -132,7 +132,7 @@ export class CodesetStatisticsService {
                         this._tmpCodesets.push(new ReviewStatisticsCodeSet());
                 } 
         }
-        console.log('Here lies the codesets: ' + this._tmpCodesets);
+        //console.log('Here lies the codesets: ' + this._tmpCodesets);
 
     }
 
@@ -143,7 +143,7 @@ export class CodesetStatisticsService {
             body).subscribe(result => {
 
                 this._IncompleteCodesets = result;
-                console.log('incomplete array: ' +this._IncompleteCodesets);
+                //console.log('incomplete array: ' +this._IncompleteCodesets);
                 this.SaveIncompleteSets();
 
                 this.formateIncompleteSets();
