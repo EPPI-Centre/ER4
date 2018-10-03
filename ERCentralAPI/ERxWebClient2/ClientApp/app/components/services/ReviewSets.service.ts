@@ -57,11 +57,12 @@ export class ReviewSetsService {
         return true;
         
     }
-    GetReviewSets() {
+
+    async GetReviewSets(): Promise<ReviewSet[]> {
         //console.log('fetchReviewSets');
         this._IsBusy = true;
-        this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
-            data => {
+        await this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').toPromise().then(
+            async (data) => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
                 this._IsBusy = false;
             },
@@ -70,7 +71,9 @@ export class ReviewSetsService {
                 this.Clear();
             }
         );
+        return this.ReviewSets;
     }
+
     subOpeningReview: Subscription | null = null;
 
     public Clear() {

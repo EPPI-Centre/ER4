@@ -13,8 +13,8 @@ import { ReviewInfoService } from '../services/ReviewInfo.service'
 import { timer, Subject, Subscription } from 'rxjs'; 
 import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
-import { ReviewSetsService } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
+import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
 
 @Component({
     selector: 'mainfull',
@@ -48,6 +48,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     public countDown: any | undefined;
     public count: number = 60;
     public isReviewPanelCollapsed = false;
+
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';
@@ -74,21 +75,33 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     };
     subOpeningReview: Subscription | null = null;
 
-    ngOnInit() {
+    async ngOnInit() {
+
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 
-        this.ReviewSetsService.GetReviewSets();
-        //console.log('Calling getcodesetStats');
+        await this.ReviewSetsService.GetReviewSets();
 
-        this.getCodesetStatisticsAsync();
 
-        //console.log('stats on the page in question are: ' + JSON.stringify(this.stats));
+            //.then(
+
+
+            //(data) => {
+
+            //    this._ReviewSets = data;
+            //   // console.log(this._ReviewSets);
+            //}
+            
+            //);
+        
+        await this.getCodesetStatisticsAsync();
+
+      
         
     }
 
     test() {
 
-        this.codesetStatsServ.formateIncompleteSets();
+        this.codesetStatsServ.test();
     }
 
     async getCodesetStatisticsAsync() {

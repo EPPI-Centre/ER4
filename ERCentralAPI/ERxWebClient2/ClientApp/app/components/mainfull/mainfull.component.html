@@ -17,10 +17,10 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}   <i class="btn-lg fa fa-address-book"></i></td>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   <i class="btn-lg  fa fa-car"></i></td>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    <i class="btn-lg fa fa-table"></i></td>
-                            <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  <i class="btn-lg fa fa-file-zip-o"></i></td>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}   </td>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   </td>
+                            <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    </td>
+                            <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  </td>
                         </tr>
                     </tbody>
                 </table>
@@ -37,37 +37,57 @@
                              style="max-height: 520px;"></readonlyreviews>
         </div>-->
 
-            <div class="col-md-12 row">
-                <div class="card col-md-5  mt-2">
-                    <!--<button class="btn-primary" (click)="test()">Press for test</button>-->
-                    <div class="card-header font-weight-bold text-xl-left bg-primary">COMPLETED CODESET COUNTS</div>
+            <div class="col-md-9 row">
+                <div class="card col-md-12  mt-2">
+                    <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
                     <table class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
-                        <thead>
-                            <tr>
-                                <th> CodeSet Name  </th>
-                                <th> Count  </th>
-                                <th> Details</th>
-                                <th> Action </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
-                                <td>{{ item.title }}</td>
-                                <td>{{item.numItems}}</td>
-                                <td>
-                                    <div class="GreenCustom" *ngFor="let subItem of item.reviewerStatistics">
-                                        {{ subItem.title }}: {{ subItem.numItems }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <i class="fa fa-check-circle GreenIcon"></i>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
+                    <thead>
+                        <tr>
+                            <th> CodeSet Name  </th>
+                            <th> Count Complete  </th>
+                            <th> Count Incomplete</th>
+                            <th> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
+                            <td>{{ item.setName }}</td>
+                            <td>{{ item.countCompleted}}</td>
+                            <td>
+                                {{ item.countIncomplete}}
+                            </td>
+                            <td>
+                                <i class="fa fa-check-circle GreenIcon"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                    <!--<table class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
+        <thead>
+            <tr>
+                <th> CodeSet Name  </th>
+                <th> Count  </th>
+                <th> Details</th>
+                <th> Action </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
+                <td>{{ item.title }}</td>
+                <td>{{item.numItems}}</td>
+                <td>
+                    <div class="GreenCustom" *ngFor="let subItem of item.reviewerStatistics">
+                        {{ subItem.title }}: {{ subItem.numItems }}
+                    </div>
+                </td>
+                <td>
+                    <i class="fa fa-check-circle GreenIcon"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>-->
                 </div>
-                <div class="card col-md-5  mt-2">
+                <!--<div class="card col-md-5  mt-2">
                     <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
                     <table class="table table-striped alpha" *ngIf="codesetStatsServ.IncompleteCodesets">
                         <thead>
@@ -90,12 +110,12 @@
                                 </td>
                                 <td>
                                     <i class="fa fa-times-circle RedIcon"></i>
-                                    <!--<button class="btn btn-danger">Incomplete</button>-->
+                                   
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </div>-->
             </div>
                 <!--<div class="card col-md-6  mt-2">
                 <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
@@ -115,9 +135,6 @@
             </div>-->
 
                 <div class="card card-body bg-light mt-2">
-
-        
-
 
                 {{MyInfoMessage()}}
                 <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}

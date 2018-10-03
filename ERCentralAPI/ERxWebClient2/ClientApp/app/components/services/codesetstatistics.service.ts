@@ -4,6 +4,7 @@ import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { arm, Item } from './ItemList.service';
 import { filter } from 'rxjs/operators';
+import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,6 +16,7 @@ export class CodesetStatisticsService {
         private _http: HttpClient,
         private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
+        private reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
@@ -22,7 +24,8 @@ export class CodesetStatisticsService {
 
     public _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
     public _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
-    public _tmpCodesets: ReviewStatisticsCodeSet[] = [];
+    public _tmpCodesets: StatsCompletion[] = [];
+    //public _ReviewSets: ReviewSet[] = [];
 
     private _ReviewStats: ReviewStatisticsCountsCommand = {
         itemsIncluded: -1,
@@ -106,7 +109,7 @@ export class CodesetStatisticsService {
             async (result) => {
 
                 this._CompletedCodesets = result;
-                //console.log('complete array: ' + result);
+                console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 this.SaveCompletedSets();
 
                 await this.GetReviewSetsIncompleteCodingCounts(false);
@@ -117,24 +120,36 @@ export class CodesetStatisticsService {
 
     }
 
-    public formateIncompleteSets() {
+    public test() {
 
-        for (var j = 0; j < this._CompletedCodesets.length; j++) {
 
-                var tempSetName = this._CompletedCodesets[j].setName
+        //this.reviewSetsService.GetReviewSets();
+        for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
 
-                if (this.IncompleteCodesets.find(x => x.setName == tempSetName)) {
-
-                    this._tmpCodesets.push(this._CompletedCodesets[j]);
-                    
-                } else {
-
-                        this._tmpCodesets.push(new ReviewStatisticsCodeSet());
-                } 
+            console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
+            // need logic here for putting the coding sets in the correct order within coding complete 
+            // coding incomplete
         }
-        //console.log('Here lies the codesets: ' + this._tmpCodesets);
 
     }
+
+    //public formateIncompleteSets() {
+
+    //    for (var j = 0; j < this._CompletedCodesets.length; j++) {
+
+    //            var tempSetName = this._CompletedCodesets[j].setName
+
+    //            if (this.IncompleteCodesets.find(x => x.setName == tempSetName)) {
+
+    //                this._tmpCodesets.push(this._CompletedCodesets[j]);
+                    
+    //            } else {
+
+    //                    this._tmpCodesets.push(new ReviewStatisticsCodeSet());
+    //            } 
+    //    }
+    //    //console.log('Here lies the codesets: ' + this._tmpCodesets);
+    //}
 
     public async GetReviewSetsIncompleteCodingCounts(completed: boolean) {
 
@@ -143,15 +158,95 @@ export class CodesetStatisticsService {
             body).subscribe(result => {
 
                 this._IncompleteCodesets = result;
-                //console.log('incomplete array: ' +this._IncompleteCodesets);
+                console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
                 this.SaveIncompleteSets();
 
-                this.formateIncompleteSets();
+                this.formateSets();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
 
         
+    }
+    formateSets(): any {
+
+        for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
+
+            //console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
+
+            var tempSetName = this.reviewSetsService.ReviewSets[i].set_name;
+            let index1: number = this._CompletedCodesets.findIndex(x => x.setName == tempSetName);
+            let index2: number = this._IncompleteCodesets.findIndex(x => x.setName == tempSetName);
+
+            if (index1 != -1 && index2 != -1) {
+
+                let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
+                if (tmp) {
+                        let tmpSet = new StatsCompletion();
+                        tmpSet.setName = tempSetName;
+                        tmpSet.countCompleted = tmp.numItems;
+                
+                        let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
+
+                        if (tmpI) {
+                            tmpSet.countIncomplete = tmpI.numItems;
+                            this._tmpCodesets.push(tmpSet);
+                            continue;
+                        }
+                }
+               
+            }
+            if (index1 != -1) {
+
+                let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
+                
+                if (tmp) {
+
+                    let tmpSet = new StatsCompletion();
+                    tmpSet.setName = tempSetName;
+                    tmpSet.countCompleted = tmp.numItems;
+                    tmpSet.countIncomplete = 0;
+                    this._tmpCodesets.push(tmpSet);
+                    continue;
+                }
+                
+            }
+            if (index2 != -1) {
+
+                console.log('single find in incomplete');
+                let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
+
+                if (tmpI) {
+                    let tmpSet = new StatsCompletion();
+                    tmpSet.setName = tempSetName;
+                    tmpSet.countCompleted = 0;
+                    tmpSet.countIncomplete = tmpI.numItems;
+                    this._tmpCodesets.push(tmpSet);
+                    continue;
+                }
+               
+            }
+
+            // else do this stuff
+            let tmpSet = new StatsCompletion();
+            tmpSet.setName = tempSetName;
+            tmpSet.countCompleted = 0;
+            tmpSet.countIncomplete = 0;
+            this._tmpCodesets.push(tmpSet);
+
+            //if (this._IncompleteCodesets.findIndex(x => x.setName == tempSetName)) {
+            //    let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
+               
+            //    if (tmpI) {
+            //        let tmpSet = new StatsCompletion();
+            //        tmpSet.setName = tempSetName;
+            //        tmpSet.countCompleted = 0;
+            //        tmpSet.countIncomplete = tmpI.numItems;
+            //        this._tmpCodesets.push(tmpSet);
+            //            //this._IncompleteCodesets[tmpI]);
+            //    }
+            //}
+        }
     }
     
     private Save() {
@@ -198,5 +293,13 @@ export interface ReviewStatisticsReviewer {
     setId: number;
     setName: string;
     title: string;
+
+}
+
+export class StatsCompletion {
+
+    setName: string = '';
+    countCompleted: number = 0;
+    countIncomplete: number = 0;
 
 }
