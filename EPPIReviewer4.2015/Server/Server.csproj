@@ -217,6 +217,7 @@
     <Compile Include="BusinessClasses\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="BusinessClasses\ImportURLsCommand.cs" />
     <Compile Include="BusinessClasses\ItemArm.cs" />
+    <Compile Include="BusinessClasses\ItemArmDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemArmList.cs" />
     <Compile Include="BusinessClasses\ItemAttributeCountsCommand.cs" />
     <Compile Include="BusinessClasses\ItemAttributeFullTextDetails.cs" />

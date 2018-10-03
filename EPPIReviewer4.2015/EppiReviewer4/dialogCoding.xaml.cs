@@ -76,6 +76,7 @@ namespace EppiReviewer4
         
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
+        private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
 
         public List<Int64> ScreenedItemIds;
 
@@ -2995,7 +2996,11 @@ Proceed?";
 
         private void cmdDeletearm_Click(object sender, RoutedEventArgs e)
         {
+            ItemArm Deleting = (sender as Button).DataContext as ItemArm;
+            if (Deleting == null) return;
 
+            WindowCheckArmDelete.StartChecking(Deleting);
+            WindowCheckArmDelete.ShowDialog();
         }
 
         public void UnHookMe()
