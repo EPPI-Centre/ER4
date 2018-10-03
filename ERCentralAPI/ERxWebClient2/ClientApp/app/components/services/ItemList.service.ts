@@ -48,7 +48,6 @@ export class ItemListService {
     }
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
-    private subListReplyReceived: Subscription | null = null;
     private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
     public get ItemList(): ItemList {
@@ -200,9 +199,10 @@ export class ItemListService {
     public FetchWithCrit(crit: Criteria, listDescription: string) {
         this._Criteria = crit;
         this.ListDescription = listDescription;
-        if (this.subListReplyReceived) this.subListReplyReceived.unsubscribe();
-        this.subListReplyReceived = this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
+            this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(list => {
+                this._Criteria.totalItems = this.ItemList.totalItemCount;
+                //console.log('Got item list');
                 this.SaveItems(list, this._Criteria);
             }, error => { this.ModalService.GenericError(error);}
             );

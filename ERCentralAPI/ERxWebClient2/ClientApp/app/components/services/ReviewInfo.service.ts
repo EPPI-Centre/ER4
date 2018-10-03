@@ -47,7 +47,7 @@ export class ReviewInfoService {
 
     public Fetch() {
         //console.log('fetching revInfo');
-        return this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
+        this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
             this._ReviewInfo = rI;
             this.Save();
             //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);

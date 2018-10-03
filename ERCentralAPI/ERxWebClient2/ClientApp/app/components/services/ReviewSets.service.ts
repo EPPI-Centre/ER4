@@ -27,6 +27,9 @@ export class ReviewSetsService {
 
     private _ReviewSets: ReviewSet[] = [];
     private _IsBusy: boolean = true;
+    public get IsBusy(): boolean {
+        return this._IsBusy;
+    }
     private CurrentArmID: number = 0;
     public CanWriteCoding(attribute: singleNode): boolean {
         console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
