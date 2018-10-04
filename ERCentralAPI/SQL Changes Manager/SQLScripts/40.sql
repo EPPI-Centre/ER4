@@ -147,4 +147,24 @@ SET NOCOUNT ON
 SET NOCOUNT OFF
 GO
 
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 04/10/2018 10:47:26 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemArmDelete]
+(
+	@ITEM_ARM_ID BIGINT
+)
 
+As
+
+SET NOCOUNT ON
+	DELETE FROM TB_ITEM_ATTRIBUTE where ITEM_ARM_ID = @ITEM_ARM_ID
+	DELETE FROM TB_ITEM_ARM
+		WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+GO
