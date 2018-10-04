@@ -18,6 +18,7 @@ import { ItemCodingService } from '../services/ItemCoding.service'
 import { ItemDocsService } from '../services/itemdocs.service'
 import { map } from 'rxjs/operators';
 import { ResponseContentType } from '@angular/http';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ import { ResponseContentType } from '@angular/http';
 export class ItemDocListComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        private ItemCodingService: ItemCodingService,
+        private itemListService: ItemListService,
+        private priorityScreeningService: PriorityScreeningService,
         public ItemDocsService: ItemDocsService,
         @Inject('BASE_URL') private _baseUrl: string
 
@@ -46,13 +48,18 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         }
         else {
 
-                this.sub = this.ItemCodingService.DataChanged.subscribe(
-                
+            this.sub = this.itemListService.ItemChanged.subscribe(
                     () => {
                         //console.log('inside the component doc stuff: ' + this.itemID);
                         this.ItemDocsService.FetchDocList(this.itemID);
                     }
-                );
+            );
+            this.sub = this.priorityScreeningService.gotItem.subscribe(
+                () => {
+                    //console.log('inside the component doc stuff: ' + this.itemID);
+                    this.ItemDocsService.FetchDocList(this.itemID);
+                }
+            );
         }
     }
     

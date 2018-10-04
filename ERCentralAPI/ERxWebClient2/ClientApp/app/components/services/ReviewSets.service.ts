@@ -27,8 +27,9 @@ export class ReviewSetsService {
 
     private _ReviewSets: ReviewSet[] = [];
     private _IsBusy: boolean = true;
-    public get CanWrite(): boolean {
-        //console.log('checking if i can write, is busy = ' + this._IsBusy);
+    private CurrentArmID: number = 0;
+    public CanWriteCoding(attribute: singleNode): boolean {
+        console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
             //console.log('checking if i can write1');
             return false;
@@ -37,10 +38,24 @@ export class ReviewSetsService {
             //console.log('checking if i can write2');
             return false;
         }
-        else {
+        else if (this.CurrentArmID > 0 && (attribute.subTypeName == 'Include' || attribute.subTypeName == 'Exclude'))
+        {
             //console.log('checking if i can write3');
-            return true;
+            return false;
         }
+        let FullAttribute: SetAttribute | null = this.FindAttributeById(+attribute.id.substring(1));
+        if (FullAttribute) {
+            //console.log('checking if i can write5');
+            let Set = this.FindSetById(FullAttribute.set_id);
+            if (Set && Set.itemSetIsLocked) return false;
+        }
+        //else if () {
+            
+        //}
+        
+        //console.log('checking if i can write6');
+        return true;
+        
     }
     GetReviewSets() {
         //console.log('fetchReviewSets');
@@ -171,10 +186,11 @@ export class ReviewSetsService {
         }
         return result;
     }
+
     public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
 
         console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
-
+        this.CurrentArmID = itemArmID;
         this._IsBusy = true;
         //logic:
             //if ITEM_SET is complete, show the tickbox.
@@ -190,8 +206,9 @@ export class ReviewSetsService {
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
+                    if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
@@ -212,9 +229,10 @@ export class ReviewSetsService {
 
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
+                    if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
-                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId, itemArmID);
+                        let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);
@@ -228,10 +246,10 @@ export class ReviewSetsService {
         }
         this._IsBusy = false;
     }
-    public FindAttributeById(AttributeId: number, itemArmID: number): SetAttribute | null {
+    public FindAttributeById(AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let Set of this.ReviewSets) {
-            result = this.internalFindAttributeById(Set.attributes, AttributeId, itemArmID);
+            result = this.internalFindAttributeById(Set.attributes, AttributeId);
             if (result) {
                 
                 break;
@@ -249,17 +267,17 @@ export class ReviewSetsService {
         }
         return result;
     }
-    private internalFindAttributeById(list: SetAttribute[], AttributeId: number, itemArmID: number): SetAttribute | null {
+    private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
             if (result) break;
             //console.log('Cand: ' + candidate.attribute_id + ' children: ' + candidate.attributes.length + ' Target: ' + AttributeId);
-            if (AttributeId == candidate.attribute_id && candidate.armId == itemArmID) {
+            if (AttributeId == candidate.attribute_id ) {
                 result = candidate;
                 break;
             }
             else if (candidate.attributes) {
-                result = this.internalFindAttributeById(candidate.attributes, AttributeId, itemArmID);
+                result = this.internalFindAttributeById(candidate.attributes, AttributeId);
             }
         }
         return result;
@@ -323,8 +341,8 @@ export interface singleNode {
     name: string;
     attributes: singleNode[];
     showCheckBox: boolean;
-    nodeType: string;
-    subTypeName: string;
+    nodeType: string;//codeset or attribute?
+    subTypeName: string;//screening, admin, normal; selectable, non selectable, etc.
     description: string;
 
     isSelected: boolean;
@@ -453,10 +471,4 @@ export class ItemAttributeSaveCommand {
     public revInfo: ReviewInfo | null = null;
 }
 
-export class arm {
-
-    itemId: number = 0;
-    title: string = '';
-    itemArmId: number = 0;
-}
 

@@ -76,6 +76,7 @@ namespace EppiReviewer4
         
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
+        private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
 
         public List<Int64> ScreenedItemIds;
 
@@ -113,8 +114,8 @@ namespace EppiReviewer4
             //to the xaml resources section!!
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
+            isEnorCodingOnly.DataContext = this;
             //end of read-only ui hack
-            
             //pdf coding
             highlights = new Highlights();
             this.notesCs = new NotesCs();
@@ -168,6 +169,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdCancelDeleteDoc_Clicked +=new EventHandler<RoutedEventArgs>(cmdCancelDeleteDoc_Click);
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
+            WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
 
             //end hooking up radW events
 
@@ -182,43 +184,7 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            {
-                SetArmsTabVisibility();
-            }
-            else if (RevInfoProvider != null)
-            {
-                RevInfoProvider.DataChanged += RevInfoProviderProvider_DataChanged;
-            }
-
         }
-        private void RevInfoProviderProvider_DataChanged(object sender, EventArgs e)
-        {
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            RevInfoProvider.DataChanged -= RevInfoProviderProvider_DataChanged;
-            SetArmsTabVisibility();
-        }
-        public void SetArmsTabVisibility()
-        {
-            CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            {
-                ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
-                //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
-                if (rInfo.EnableArms) // || ri.IsSiteAdmin)
-                {
-                    Arms.Visibility = Visibility.Visible;
-                    Arms.IsEnabled = true;
-                }
-                else
-                {
-                    Arms.Visibility = Visibility.Collapsed;
-                    Arms.IsEnabled = false;
-                }
-            }
-        }
-        
         public void PrepareCodingOnly()
         {
             CodingOnlyMode = true;
@@ -226,12 +192,14 @@ namespace EppiReviewer4
             cmdOk.Visibility = System.Windows.Visibility.Collapsed;
             cmdCancelEditItem.Visibility = System.Windows.Visibility.Collapsed;
             codesTreeControl.ControlContext = "CodingOnly";
-            NotifyPropertyChanged("HasWriteRights");//coding only changes the value of haswriterights
+            
             //cellStyleCodingReportCodingOnly
             ComparisonButtons.Visibility = System.Windows.Visibility.Collapsed;
             dialogLinkedItemsControl.PrepareCodingOnly();
             dialogItemDetailsControl.PrepareCodingOnly();
             reviewerTerms.PrepareCodingOnly();
+            NotifyPropertyChanged("HasWriteRights");//coding only changes the value of haswriterights
+            NotifyPropertyChanged("HasWriteRightsOrCodingOnly");
         }
         private void CodingRecordGrid_DataLoaded(object sender, EventArgs e)
         {
@@ -362,22 +330,6 @@ namespace EppiReviewer4
             {
                 ScrollViewerCitationDetails.ScrollToVerticalOffset(0);
             }
-            //CslaDataProvider RevInfoProvider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
-            //if (RevInfoProvider != null && RevInfoProvider.Data != null)
-            //{
-            //    ReviewInfo rInfo = RevInfoProvider.Data as ReviewInfo;
-            //    //if (ri.ReviewId == 10951 || ri.ReviewId == 7 || ri.IsSiteAdmin)
-            //    if (rInfo.EnableArms) // || ri.IsSiteAdmin)
-            //    {
-            //        Arms.Visibility = Visibility.Visible;
-            //        Arms.IsEnabled = true;
-            //    }
-            //    else
-            //    {
-            //        Arms.Visibility = Visibility.Collapsed;
-            //        Arms.IsEnabled = false;
-            //    }
-            //}
         }
 
         public void BindTree(Item i)
@@ -2969,6 +2921,7 @@ Proceed?";
 
         private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
         {
+            this.IsEnabled = true;
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
             if (provider.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
@@ -3013,6 +2966,7 @@ Proceed?";
                     ia = tbArmDescriptor.DataContext as ItemArm;
                 }
                 ia.Title = tbNewArm.Text;
+                ia.Saved -= Ia_Saved;
                 ia.Saved += Ia_Saved;
                 ia.BeginEdit();
                 ia.ApplyEdit();
@@ -3024,6 +2978,8 @@ Proceed?";
 
         private void Ia_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
+            if (e.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
             CslaDataProvider_DataChanged_1(sender, e);
         }
 
@@ -3043,7 +2999,21 @@ Proceed?";
 
         private void cmdDeletearm_Click(object sender, RoutedEventArgs e)
         {
-
+            ItemArm Deleting = (sender as Button).DataContext as ItemArm;
+            if (Deleting == null) return;
+            WindowCheckArmDelete.StartChecking(Deleting);
+            WindowCheckArmDelete.ShowDialog();
+        }
+        private void WindowCheckArmDelete_cmdArmDeletedInWindow(object sender, RoutedEventArgs e)
+        {
+            this.IsEnabled = false;
+            WindowCheckArmDelete.Close();
+            ItemArm ia = sender as ItemArm;
+            if (ia == null) return;
+            ia.Saved -= Ia_Saved;
+            ia.Saved += Ia_Saved;
+            ia.BeginEdit();
+            ia.ApplyEdit();
         }
 
         public void UnHookMe()

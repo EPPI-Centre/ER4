@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription, Subject, } from 'rxjs';
+import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service';
@@ -16,6 +16,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
+import { armsComp } from '../arms/armsComp.component';
 
 
 @Component({
@@ -31,7 +32,7 @@ import { ArmsService } from '../services/arms.service';
             `]
 
 })
-export class ItemCodingComp implements OnInit, OnDestroy {
+export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService
@@ -44,25 +45,34 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         private armservice: ArmsService
     ) { }
    
+    @ViewChild('cmp')
+    private ArmsCompRef!: any;
+
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
+    private ItemArmsDataChanged: Subscription | null = null;
     public itemID: number = 0;
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
-    @Output() valueChange = new EventEmitter();
+    
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
-    public arms: arm[] = [];
+
+
+
 
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
-    };
+    }
+    ngAfterViewInit() {
+        // child is set
+    }
 
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
@@ -72,26 +82,30 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     ngOnInit() {
         //console.log('init!');
+        
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
         else {
+            this.ArmsCompRef.armChangedEE.subscribe((armId: number) => this.SetArmCoding(armId));
             this.subItemIDinPath = this.route.params.subscribe(params => {
-                this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-                    () => {
-                        if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                            console.log('data changed event caught');
-                            this.SetCoding();
-                        }
-                    }
-                );
                 this.itemString = params['itemId'];
                 this.GetItem();
             });
+            this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+                () => {
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
+                        console.log('data changed event caught');
+                        this.SetCoding();
+                    }
+                }
+            );
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
+
 
     }
     
@@ -110,15 +124,15 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         else {
             this.itemID = +this.itemString;
             this.item = this.ItemListService.getItem(this.itemID);
+
             this.IsScreening = false;
             this.GetItemCoding();
-           // this.ItemListService.eventChange(this.itemID);
-            console.log('fill in arms here');
-            //this.arms = this.armservice.Fetch(this.itemID);
+            //this.ItemListService.eventChange(this.itemID);
+            console.log('fill in arms here teseroo1');
+
         }
-        
-        
     }
+
     public HasPreviousScreening(): boolean{
         //console.log('CanMoveToPInScreening' + this.PriorityScreeningService.CurrentItemIndex);
         if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
@@ -145,15 +159,29 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         this.GetItemCoding();
     }
     private GetItemCoding() {
-
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
-        //this.arms = this.armservice.Fetch(this.itemID)
+        if (this.item) {
+            this.ArmsCompRef.CurrentItem = this.item;
+            this.armservice.FetchArms(this.item);
+        }
         this.ItemCodingService.Fetch(this.itemID);    
+
     }
     SetCoding() {
+        console.log('change something');
+        if (this.ItemCodingService.ItemCodingList.length == 0) {
+            this.ReviewSetsService.clearItemData();
+            console.log('change: clearonly');
+            return;
+        }
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
+    }
+    SetArmCoding(armId: number) {
+        console.log('change Arm');
+        this.ReviewSetsService.clearItemData();
+        this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }
     
     ShowHighlightsClicked() {
@@ -228,14 +256,22 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 
     }
     prevItem() {
+        
         this.WipeHighlights();
-        if (this.item) this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
-
+        if (this.item) {
+            console.log('inside previous coding item component part' + this.item.itemId);
+   
+            this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
+        }
     }
     nextItem() {
-        console.log('inside next coding item component part');
+        
         this.WipeHighlights();
-        if (this.item) this.goToItem(this.ItemListService.getNext(this.item.itemId));
+        if (this.item) {
+            this.goToItem(this.ItemListService.getNext(this.item.itemId));
+            console.log('inside next coding item component part' + this.item.itemId);
+            //this.valueChange.next(this.item.itemId);
+        }
     }
     lastItem() {
         this.WipeHighlights();
@@ -252,24 +288,16 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         }
     }
     goToItem(item: Item) {
-
-        
         this.WipeHighlights();
         this.clearItemData();
+        console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
-
-        console.log('what do you need me to do?' + this.itemID);
         this.item = item;
-        //console.log(this.item.title);
         if (this.item.itemId != this.itemID) {
-            //console.log('ouch');
+
             this.itemID = this.item.itemId;
         }
-        this.GetItemCoding();
-        this.ItemListService.eventChange(this.itemID);
-         //this.itemId.next(this.itemID);
-        //this.valueChange.emit(this.itemID);
-      
+        //this.GetItemCoding();
     }
     BackToMain() {
         this.clearItemData();
@@ -280,7 +308,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
         let SubSuccess: Subscription;
         let SubError: Subscription;//see https://medium.com/thecodecampus-knowledge/the-easiest-way-to-unsubscribe-from-observables-in-angular-5abde80a5ae3
         //console.log(data.AttId);
-        let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId, data.armId);
+        let attribute: SetAttribute | null = this.ReviewSetsService.FindAttributeById(data.AttId);
         
         if (!attribute) {
             //problem: we don't know what to code!
@@ -419,12 +447,7 @@ export class ItemCodingComp implements OnInit, OnDestroy {
 }
 
 
-export class arm {
 
-    itemId: number = 0;
-    title: string = '';
-    itemArmId: number = 0;
-}
 
 
 
