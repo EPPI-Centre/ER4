@@ -10,7 +10,7 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer, Subject, Subscription } from 'rxjs'; 
+import { timer, Subject, Subscription, Subscribable } from 'rxjs'; 
 import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
@@ -32,7 +32,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         //private ReviewInfoService: ReviewInfoService,
-        private ReviewSetsService: ReviewSetsService,
+        private reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
@@ -48,6 +48,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     public countDown: any | undefined;
     public count: number = 60;
     public isReviewPanelCollapsed = false;
+    private statsSub: Subscription = new Subscription();
 
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
@@ -79,23 +80,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 
-        this.ReviewSetsService.GetReviewSets();
+        this.reviewSetsService.GetReviewSets();
 
-        this.getCodesetStatistics();
+        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
 
-    }
+            () => {
 
-    test() {
+                this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
-        alert('testing emitters');
-    }
-
-    getCodesetStatistics() {
-
-             this.codesetStatsServ.GetReviewStatisticsCountsCommand();
-
-            this.codesetStatsServ.GetReviewSetsCodingCounts(true);
-
+                this.codesetStatsServ.GetReviewSetsCodingCounts(true);
+            }
+        );
     }
 
     Reload() {
@@ -105,7 +100,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
-        this.ReviewSetsService.Clear();
+        this.reviewSetsService.Clear();
+        this.statsSub.unsubscribe();
     }
    
     MyInfoMessage(): string {

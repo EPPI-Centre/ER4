@@ -70,7 +70,6 @@ export class ReviewSetsService {
              data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
                  this._IsBusy = false;
-
                  this.GetReviewStatsEmit.emit();
 
             },
