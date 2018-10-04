@@ -172,7 +172,7 @@ export class CodesetStatisticsService {
 
         for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
 
-            //console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
+            console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
 
             var tempSetName = this.reviewSetsService.ReviewSets[i].set_name;
             let index1: number = this._CompletedCodesets.findIndex(x => x.setName == tempSetName);
