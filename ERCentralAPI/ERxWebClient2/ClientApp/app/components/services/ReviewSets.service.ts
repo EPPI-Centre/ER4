@@ -21,10 +21,12 @@ import { ModalService } from './modal.service';
 
 export class ReviewSetsService {
     constructor(private router: Router, //private _http: Http, 
-        private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
+        private _httpC: HttpClient,
+        private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string) {    }
 
+    @Output() GetReviewStatsEmit = new EventEmitter();
     private _ReviewSets: ReviewSet[] = [];
     private _IsBusy: boolean = true;
     public get IsBusy(): boolean {
@@ -67,7 +69,10 @@ export class ReviewSetsService {
          this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
              data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
-                this._IsBusy = false;
+                 this._IsBusy = false;
+
+                 this.GetReviewStatsEmit.emit();
+
             },
             error => {
                 this.modalService.GenericError(error);

@@ -31,7 +31,7 @@ import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisti
 export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit {
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
-        private ReviewInfoService: ReviewInfoService,
+        //private ReviewInfoService: ReviewInfoService,
         private ReviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
@@ -75,7 +75,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     };
     subOpeningReview: Subscription | null = null;
 
-    async ngOnInit() {
+    ngOnInit() {
 
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 
@@ -85,9 +85,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     }
 
-    CompletedSetsChanged() {
+    test() {
 
-        alert('some emission happened');
+        alert('testing emitters');
     }
 
     getCodesetStatistics() {
