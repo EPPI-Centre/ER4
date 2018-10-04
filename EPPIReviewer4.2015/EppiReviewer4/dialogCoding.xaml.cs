@@ -169,6 +169,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdCancelDeleteDoc_Clicked +=new EventHandler<RoutedEventArgs>(cmdCancelDeleteDoc_Click);
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
+            WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
 
             //end hooking up radW events
 
@@ -184,8 +185,6 @@ namespace EppiReviewer4
             }
             RadUp.Filter = filefilt.Trim(';');
         }
-        
-        
         public void PrepareCodingOnly()
         {
             CodingOnlyMode = true;
@@ -2922,6 +2921,7 @@ Proceed?";
 
         private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
         {
+            this.IsEnabled = true;
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
             if (provider.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
@@ -2966,6 +2966,7 @@ Proceed?";
                     ia = tbArmDescriptor.DataContext as ItemArm;
                 }
                 ia.Title = tbNewArm.Text;
+                ia.Saved -= Ia_Saved;
                 ia.Saved += Ia_Saved;
                 ia.BeginEdit();
                 ia.ApplyEdit();
@@ -2977,6 +2978,8 @@ Proceed?";
 
         private void Ia_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
+            if (e.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
             CslaDataProvider_DataChanged_1(sender, e);
         }
 
@@ -2998,9 +3001,19 @@ Proceed?";
         {
             ItemArm Deleting = (sender as Button).DataContext as ItemArm;
             if (Deleting == null) return;
-
             WindowCheckArmDelete.StartChecking(Deleting);
             WindowCheckArmDelete.ShowDialog();
+        }
+        private void WindowCheckArmDelete_cmdArmDeletedInWindow(object sender, RoutedEventArgs e)
+        {
+            this.IsEnabled = false;
+            WindowCheckArmDelete.Close();
+            ItemArm ia = sender as ItemArm;
+            if (ia == null) return;
+            ia.Saved -= Ia_Saved;
+            ia.Saved += Ia_Saved;
+            ia.BeginEdit();
+            ia.ApplyEdit();
         }
 
         public void UnHookMe()

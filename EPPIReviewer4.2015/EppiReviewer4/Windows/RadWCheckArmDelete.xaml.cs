@@ -22,7 +22,7 @@ namespace EppiReviewer4
     
     public partial class RadWCheckArmDelete : RadWindow, INotifyPropertyChanged 
     {
-
+        public event EventHandler<RoutedEventArgs> cmdArmDeletedInWindow;
         public RadWCheckArmDelete()
         {
             InitializeComponent();
@@ -64,9 +64,9 @@ namespace EppiReviewer4
                     NotifyPropertyChanged("CanDeleteArm");
                     if (e2.Object.NumCodings > 0)
                     {
-                        TextBlockCheckDeleteArmDetails.Text = "Are you REALLY sure? Deleting this Arm will delete all codings associated with this Arm."
-                            + Environment.NewLine + "This Arm is associated with " + e2.Object.NumCodings.ToString() + " codes!"
-                            + Environment.NewLine + "Please type 'I confirm' in the box below if you are sure that deleting this data is OK.";
+                        TextBlockCheckDeleteArmDetails.Text = "Deleting an Arm is a permanent operation and will delete all coding associated with the Arm."
+                            + Environment.NewLine + "This Arm is associated with " + e2.Object.NumCodings.ToString() + " codes."
+                            + Environment.NewLine + "Please type 'I confirm' in the box below if you are sure you want to proceed.";
                         WarningBorder.Background = this.WarningBg;
                         txtBoxConfirm.Visibility = Visibility.Visible;
                     }
@@ -83,7 +83,8 @@ namespace EppiReviewer4
        
         private void cmdDeleteArm_Click(object sender, RoutedEventArgs e)
         {
-            
+            CurrentArm.Delete();
+            if (cmdArmDeletedInWindow != null) cmdArmDeletedInWindow.Invoke(this.CurrentArm, e);
         }
 
         private void cmdCancelDeleteArm_Click(object sender, RoutedEventArgs e)
