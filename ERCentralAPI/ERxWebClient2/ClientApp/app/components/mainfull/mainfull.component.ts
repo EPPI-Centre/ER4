@@ -81,34 +81,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         await this.ReviewSetsService.GetReviewSets();
 
-
-            //.then(
-
-
-            //(data) => {
-
-            //    this._ReviewSets = data;
-            //   // console.log(this._ReviewSets);
-            //}
-            
-            //);
-        
         await this.getCodesetStatisticsAsync();
 
-      
-        
-    }
-
-    test() {
-
-        this.codesetStatsServ.test();
     }
 
     async getCodesetStatisticsAsync() {
 
             await this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
-            // Below could be in one method but explicit in order to test local storage
             this.codesetStatsServ.GetReviewSetsCodingCounts(true);
 
     }

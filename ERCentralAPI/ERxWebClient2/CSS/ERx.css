@@ -22,3 +22,8 @@ body {
     height: 700px;
 }
 
+.thumbnail img {
+
+    height: 30px;
+
+}

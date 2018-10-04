@@ -4,7 +4,7 @@
 
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 m-3">
 
-            <div class="card col-md-9 row">
+            <div class="card col-md-8 row">
                 <div class="card-header font-weight-bold text-xl-left bg-primary">Review Stats</div>
                 <table class="table table-striped" *ngIf="codesetStatsServ.ReviewStats">
                     <thead>
@@ -26,18 +26,8 @@
                 </table>
             </div>
 
-            <!--<div class="card ReviewsBg mt-2 ">
-            <div>
-                <button type="button" class="btn btn-outline-primary col-md-6" (click)="toggleReviewPanel()"
-                        [attr.aria-expanded]="!isReviewPanelCollapsed">
-                    My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-                </button>
-            </div>
-            <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
-                             style="max-height: 520px;"></readonlyreviews>
-        </div>-->
 
-            <div class="col-md-9 row">
+            <div class="col-md-8 row">
                 <div class="card col-md-12  mt-2">
                     <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
                     <table class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
@@ -47,6 +37,7 @@
                             <th> Count Complete  </th>
                             <th> Count Incomplete</th>
                             <th> Action </th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -56,84 +47,17 @@
                             <td>
                                 {{ item.countIncomplete}}
                             </td>
-                            <td>
-                                <i class="fa fa-check-circle GreenIcon"></i>
+                            <td class="thumbnail" >
+                                <img src="../../../../wwwroot/dist/assets/CodingComplete.021b46d052f733d172173075d51240b7.png" onclick="alert('Do something')" />
+                            &nbsp;
+                                <img class="img-fluid" src="../../../../wwwroot/dist/assets/CodingNotComplete.7db387280369934345f4aa3854483cde.png"  onclick="alert('Do something else')"  />
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                    <!--<table class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
-        <thead>
-            <tr>
-                <th> CodeSet Name  </th>
-                <th> Count  </th>
-                <th> Details</th>
-                <th> Action </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of codesetStatsServ.CompletedCodesets">
-                <td>{{ item.title }}</td>
-                <td>{{item.numItems}}</td>
-                <td>
-                    <div class="GreenCustom" *ngFor="let subItem of item.reviewerStatistics">
-                        {{ subItem.title }}: {{ subItem.numItems }}
-                    </div>
-                </td>
-                <td>
-                    <i class="fa fa-check-circle GreenIcon"></i>
-                </td>
-            </tr>
-        </tbody>
-    </table>-->
-                </div>
-                <!--<div class="card col-md-5  mt-2">
-                    <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
-                    <table class="table table-striped alpha" *ngIf="codesetStatsServ.IncompleteCodesets">
-                        <thead>
-                            <tr>
-                                <th> CodeSet Name </th>
-                                <th> Count  </th>
-                                <th> Details</th>
-                                <th> Action </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
-
-                                <td>{{ item.title }}</td>
-                                <td>{{ item.numItems}}</td>
-                                <td>
-                                    <div *ngFor="let subItem of item.reviewerStatistics">
-                                        {{ subItem.title }} : {{ subItem.numItems }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <i class="fa fa-times-circle RedIcon"></i>
-                                   
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>-->
+                
             </div>
-                <!--<div class="card col-md-6  mt-2">
-                <div class="card-header font-weight-bold text-xl-left bg-primary">INCOMPLETE CODESET COUNTS</div>
-                <table class="table table-striped" *ngIf="codesetStatsServ.IncompleteCodesets">
-                    <thead>
-                        <tr>
-                            <th> CodeSet Name  </th>
-                            <th> Count  </th>
-                            <th> Details</th>
-                            <th> Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
-            </div>-->
-
+                </div>
                 <div class="card card-body bg-light mt-2">
                 {{MyInfoMessage()}}
                 <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
