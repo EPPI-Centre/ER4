@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, ChangeDetectorRef, OnDestroy, Renderer2, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -7,6 +7,7 @@ import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../servi
 import { ITreeOptions } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
+import { ArmsService } from '../services/arms.service';
 
 
 @Component({
@@ -32,8 +33,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
        private modalService: NgbModal,
-       private renderer: Renderer2,
-       private cd: ChangeDetectorRef
+       private armsService: ArmsService
     ) { }
     //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
@@ -116,9 +116,9 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
     CheckBoxClickedAfterCheck(event: any, data: singleNode) {
         let evdata: CheckBoxClickedEventData = new CheckBoxClickedEventData();
         evdata.event = event;
-        evdata.armId = data.armId;
+        evdata.armId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
         evdata.AttId = +data.id.replace('A', '');
-        //console.log('AttID: ' + evdata.AttId);
+        console.log('AttID: ' + evdata.AttId + ' armid = ' + evdata.armId);
         evdata.additionalText = data.additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }

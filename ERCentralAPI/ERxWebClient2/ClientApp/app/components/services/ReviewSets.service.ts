@@ -29,7 +29,7 @@ export class ReviewSetsService {
     private _IsBusy: boolean = true;
     private CurrentArmID: number = 0;
     public CanWriteCoding(attribute: singleNode): boolean {
-        console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
+        //console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
             //console.log('checking if i can write1');
             return false;
