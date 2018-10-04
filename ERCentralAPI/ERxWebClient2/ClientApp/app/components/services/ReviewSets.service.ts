@@ -61,11 +61,11 @@ export class ReviewSetsService {
         
     }
 
-    async GetReviewSets(): Promise<ReviewSet[]> {
-        //console.log('fetchReviewSets');
+     GetReviewSets(): ReviewSet[] {
+
         this._IsBusy = true;
-        await this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').toPromise().then(
-            async (data) => {
+         this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
+             data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
                 this._IsBusy = false;
             },

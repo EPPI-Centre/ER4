@@ -25,6 +25,9 @@ export class CodesetStatisticsService {
     public _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
     public _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
     public _tmpCodesets: StatsCompletion[] = [];
+    @Output() GetReviewStatsEmit: EventEmitter<any> = new EventEmitter<any>();
+    @Output() GetCompletedSetsEmit: EventEmitter<any> = new EventEmitter<any>();
+    @Output() GetIncompleteSetsEmit: EventEmitter<any> = new EventEmitter<any>();
 
     private _ReviewStats: ReviewStatisticsCountsCommand = {
         itemsIncluded: -1,
@@ -92,6 +95,7 @@ export class CodesetStatisticsService {
                
                this._ReviewStats = data;
                this.Save();
+               this.GetReviewStatsEmit.emit(data);
                return data;
             }
         );
@@ -108,6 +112,7 @@ export class CodesetStatisticsService {
                 this._CompletedCodesets = result;
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 this.SaveCompletedSets();
+                this.GetCompletedSetsEmit.emit(result);
 
                 await this.GetReviewSetsIncompleteCodingCounts(false);
 
@@ -117,15 +122,16 @@ export class CodesetStatisticsService {
 
     }
 
-    public async GetReviewSetsIncompleteCodingCounts(completed: boolean) {
+    public GetReviewSetsIncompleteCodingCounts(completed: boolean) {
 
         let body = JSON.stringify({ Value: completed });
-        await this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
+        this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
             body).subscribe(result => {
 
                 this._IncompleteCodesets = result;
                 //console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
                 this.SaveIncompleteSets();
+                this.GetIncompleteSetsEmit.emit(result);
 
                 this.formateSets();
 

@@ -27,43 +27,44 @@
             </div>
 
 
-            <div class="col-md-8 row">
-                <div class="card col-md-12  mt-2">
-                    <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
-                    <table class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
+           
+            <div class="card col-md-8  row">
+                <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
+                <table class="table table-striped alpha" (GetIncompleteSetsEmit)="CompletedSetsChanged($event.target.value)" *ngIf="codesetStatsServ.CompletedCodesets">
                     <thead>
                         <tr>
                             <th> CodeSet Name  </th>
                             <th> Count Complete  </th>
                             <th> Count Incomplete</th>
-                            <th> Action </th>
-                            <th></th>
+
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
                             <td>{{ item.setName }}</td>
-                            <td>{{ item.countCompleted}}</td>
+                            <td>
+                                {{ item.countCompleted}}
+                                &nbsp;  <img class="thumbnail" src="../../../../wwwroot/dist/assets/CodingComplete.021b46d052f733d172173075d51240b7.png" onclick="alert('Do something')" />
+                            </td>
                             <td>
                                 {{ item.countIncomplete}}
+                                &nbsp;
+                                <img class="thumbnail" src="../../../../wwwroot/dist/assets/CodingNotComplete.7db387280369934345f4aa3854483cde.png" onclick="alert('Do something else')" />
+
                             </td>
-                            <td class="thumbnail" >
-                                <img src="../../../../wwwroot/dist/assets/CodingComplete.021b46d052f733d172173075d51240b7.png" onclick="alert('Do something')" />
-                            &nbsp;
-                                <img class="img-fluid" src="../../../../wwwroot/dist/assets/CodingNotComplete.7db387280369934345f4aa3854483cde.png"  onclick="alert('Do something else')"  />
-                            </td>
+
                         </tr>
                     </tbody>
                 </table>
-                
+
+                <div class="card card-body bg-light mt-2">
+                    {{MyInfoMessage()}}
+                    <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
+        | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
+                </div>
+                <statusbar class="col-sm-12 card-body" resizable></statusbar>
             </div>
                 </div>
-                <div class="card card-body bg-light mt-2">
-                {{MyInfoMessage()}}
-                <!--Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-            | Current (shared) review expires on {{ReviewerIdentityServ.reviewerIdentity.reviewExpiration  | date:'shortDate' }}-->
-                </div>
-            <statusbar class="col-sm-12 card-body" resizable></statusbar>
-        </div>
+
     </div>
 </div>
