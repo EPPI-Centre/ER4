@@ -144,9 +144,11 @@ export class CodesetStatisticsService {
 
     formateSets(): any {
 
+        let ind: number = 0;
         for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
 
             //console.log(this.reviewSetsService.ReviewSets[i].set_name + '\n');
+            
 
             var tempSetName = this.reviewSetsService.ReviewSets[i].set_name;
             let index1: number = this._CompletedCodesets.findIndex(x => x.setName == tempSetName);
@@ -154,6 +156,7 @@ export class CodesetStatisticsService {
 
             if (index1 != -1 && index2 != -1) {
 
+                ind += 1;
                 let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
                 if (tmp) {
                         let tmpSet = new StatsCompletion();
@@ -162,7 +165,8 @@ export class CodesetStatisticsService {
                 
                         let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
 
-                        if (tmpI) {
+                    if (tmpI) {
+                        tmpSet.ID = ind;
                             tmpSet.countIncomplete = tmpI.numItems;
                             this._tmpCodesets.push(tmpSet);
                             continue;
@@ -172,11 +176,13 @@ export class CodesetStatisticsService {
             }
             if (index1 != -1) {
 
+                ind += 1;
                 let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
                 
                 if (tmp) {
-
                     let tmpSet = new StatsCompletion();
+
+                    tmpSet.ID = ind;
                     tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = tmp.numItems;
                     tmpSet.countIncomplete = 0;
@@ -187,11 +193,13 @@ export class CodesetStatisticsService {
             }
             if (index2 != -1) {
 
+                ind += 1;
                 //console.log('single find in incomplete');
                 let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
 
                 if (tmpI) {
                     let tmpSet = new StatsCompletion();
+                    tmpSet.ID = ind;
                     tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = 0;
                     tmpSet.countIncomplete = tmpI.numItems;
@@ -266,6 +274,7 @@ export interface ReviewStatisticsReviewer {
 
 export class StatsCompletion {
 
+    ID: number = 0;
     setName: string = '';
     countCompleted: number = 0;
     countIncomplete: number = 0;

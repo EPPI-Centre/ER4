@@ -14,7 +14,10 @@ const treeShakableModules = [
     '@angular/platform-browser-dynamic',
     '@angular/router',
     'zone.js',
+    "datatables.net",
+    "datatables.net-dt"
 ];
+
 const nonTreeShakableModules = [
     'bootstrap',
     'bootstrap/dist/css/bootstrap.css',
@@ -24,8 +27,11 @@ const nonTreeShakableModules = [
     'jquery',
     '.\\CSS\\ERx.css',
     'font-awesome/css/font-awesome.css',
-    'angular-tree-component/dist/angular-tree-component.css'
+    'angular-tree-component/dist/angular-tree-component.css',
+    "datatables.net-dt/css/jquery.dataTables.css"
+
 ];
+
 const allModules = treeShakableModules.concat(nonTreeShakableModules);
 
 module.exports = (env) => {

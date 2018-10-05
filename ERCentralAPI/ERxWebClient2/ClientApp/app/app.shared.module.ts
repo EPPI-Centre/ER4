@@ -22,6 +22,7 @@ import { HeaderComponent } from './components/commonComponents/header.component'
 import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
 import { armsComp } from './components/arms/armsComp.component';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { DataTablesModule } from 'angular-datatables';
 
 @NgModule({
     declarations: [
@@ -46,6 +47,7 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
     entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         AngularFontAwesomeModule,
+        DataTablesModule,
         CommonModule,
         NgbModule,
         HttpModule,

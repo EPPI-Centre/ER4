@@ -2,38 +2,38 @@
 
 
 
-            <p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
+<p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
 
-            <div class="table-responsive" style="max-height: 500px;">
-                <table class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
-                    <thead>
-                        <tr>
-                            <th>Full Reviewing</th>
-                            <th>ID</th>
-                            <th>Review</th>
-                            <th>Last Access:</th>
-                            <th data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">Coding Only</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
-                            <td>
-                                <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
-                                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                                    <button class="btn btn-info" data-placement="top" >Start Reviewing</button>
-                                </form>
-                            </td>
-                            <td>{{ roReview.reviewId }}</td>
-                            <td>{{ roReview.reviewName }}</td>
-                            <td>{{ FormatDate(roReview.lastAccess) }}</td>
-                            <td>
-                                <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
-                                    <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                                    <button data-toggle="tooltip" class="btn btn-outline-secondary" data-placement="top" title="Coding-Only Interface">GO</button>
-                                </form>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="table-responsive" style="max-height: 500px;">
+    <table id="user-table" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
+        <thead>
+            <tr>
+                <th>Full Reviewing</th>
+                <th>ID</th>
+                <th>Review</th>
+                <th>Last Access:</th>
+                <th data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">Coding Only</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
+                <td>
+                    <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+                        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+                        <button class="btn btn-info" data-placement="top">Start Reviewing</button>
+                    </form>
+                </td>
+                <td>{{ roReview.reviewId }}</td>
+                <td>{{ roReview.reviewName }}</td>
+                <td>{{ FormatDate(roReview.lastAccess) }}</td>
+                <td>
+                    <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+                        <button data-toggle="tooltip" class="btn btn-outline-secondary" data-placement="top" title="Coding-Only Interface">GO</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
