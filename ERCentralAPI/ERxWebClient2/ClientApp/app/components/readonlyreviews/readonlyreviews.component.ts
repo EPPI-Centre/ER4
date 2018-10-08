@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { Observable, Subject, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { readonlyreviewsService } from '../services/readonlyreviews.service';
+import { readonlyreviewsService, ReadOnlyReview } from '../services/readonlyreviews.service';
 import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
 import { take, map } from 'rxjs/operators';
 import { DataTableDirective } from 'angular-datatables';
@@ -34,6 +34,12 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
     //dtOptions: DataTables.Settings = {};
     //dtTrigger: Subject<any> = new Subject();
 
+    dtOptions: DataTables.Settings = {};
+    reviews: ReadOnlyReview[] = [];
+    // We use this trigger because fetching the list of persons can be quite long,
+    // thus we ensure the data is fetched before rendering
+    dtTrigger: Subject<any> = new Subject();
+
     FormatDate(DateSt: string): string {
         let date: Date = new Date(DateSt);
         return date.toLocaleDateString();
@@ -57,22 +63,30 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         //when we're not in a review, we want the fresh list! otherwise we're OK with the existing one
         if (this._readonlyreviewsService.ReadOnlyReviews.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
 
-            this._readonlyreviewsService.Fetch();
+            this._readonlyreviewsService.Fetch(this.dtTrigger);
              
                 //Complete
-                this.changeDetectorRef.detectChanges();
-                const table: any = $("#user-table").DataTable();
-                //this.dataTable = table.DataTable();
+                //this.changeDetectorRef.detectChanges();
+                //const table: any = $("#user-table").DataTable();
+                //table.DataTable();
             
         }
     }
 
     ngOnInit() {
 
+        //this.changeDetectorRef.detectChanges();
+        //const table: any = $("#user-table").DataTable();
+        
+        //table.DataTable();
 
         //this.chRef.detectChanges();
         //const table: any = $('table');
         //this.dataTable = table.DataTable(); 
+        this.dtOptions = {
+            pagingType: 'full_numbers',
+            //pageLength: 2
+        };
 
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             console.log('user is empty...');
@@ -82,13 +96,25 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
 
             //console.log("getting ReadOnlyReviews");
             //this.ReviewerIdentityServ.Report();
-            this.getReviews();
+
+            this._readonlyreviewsService.Fetch(this.dtTrigger);
 
         }
     }
     ngOnDestroy() {
         //console.log('killing ROR comp');
         //this._readonlyreviewsService.ReadOnlyReviews = [];
+        this.dtTrigger.unsubscribe();
     }
 
 }
+
+//export class WithOptionsComponent implements OnInit {
+//    dtOptions: DataTables.Settings = {};
+
+//    ngOnInit(): void {
+//        this.dtOptions = {
+//            pagingType: 'full_numbers'
+//        };
+//    }
+//}

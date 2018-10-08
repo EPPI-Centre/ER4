@@ -28,7 +28,8 @@ const nonTreeShakableModules = [
     '.\\CSS\\ERx.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
-    "datatables.net-dt/css/jquery.dataTables.css"
+    'datatables.net-dt/css/jquery.dataTables.css',
+    //'datatables.net-dt'
 
 ];
 

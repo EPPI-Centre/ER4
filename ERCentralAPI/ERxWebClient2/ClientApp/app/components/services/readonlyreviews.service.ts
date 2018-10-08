@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
@@ -44,14 +44,23 @@ export class readonlyreviewsService {
     }
     
         
-    public Fetch() {
+    public Fetch(dtTrigger: Subject<any>) {
 
-        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews').subscribe(result => {
-            this.ReadOnlyReviews = result;
+        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews')
+           
+            .subscribe(result => {
+
+                this.ReadOnlyReviews = result;
+
+                dtTrigger.next();
+                console.log(result);
+            
+          
         }, error => { this.modalService.GenericError(error); }
           
         );
     }
+
 
     public Save() {
         if (this._ReviewList.length > 0)
@@ -62,7 +71,7 @@ export class readonlyreviewsService {
 }
 
 export class ReadOnlyReview {
-    reviewId: number = 0;
+    reviewId: string = "0";
     reviewName: string = "";
     contactReviewRoles: string="";
     reviewOwner: string="";
