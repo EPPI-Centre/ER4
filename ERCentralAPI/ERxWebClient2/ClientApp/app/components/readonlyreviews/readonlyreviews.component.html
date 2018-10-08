@@ -21,7 +21,7 @@
                 </td>
                 <td>{{ roReview.reviewId }}</td>
                 <td>{{ roReview.reviewName }}</td>
-                <td>{{ FormatDate(roReview.lastAccess) | date: 'yyyy-MM-dd'}}</td>
+                <td>{{ FormatDate(roReview.lastAccess) | date: 'dd-mm-yyyy'}}</td>
                 <td>
                     <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                         <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
