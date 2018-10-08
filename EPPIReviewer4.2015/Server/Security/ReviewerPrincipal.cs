@@ -19,7 +19,7 @@ namespace BusinessLibrary.Security
     [Serializable]
     public class ReviewerPrincipal : CslaPrincipal
     {
-        private ReviewerPrincipal(IIdentity identity)
+        public ReviewerPrincipal(IIdentity identity)
             : base(identity)
         { }
 
@@ -73,30 +73,43 @@ namespace BusinessLibrary.Security
         });
     }
 
-#else
+#elif (!CSLA_NETCORE)
+        public static void Login(string username, string password, int reviewId, string roles, string LoginMode)
+        {
+            ReviewerIdentity.GetIdentity(username, password, reviewId, roles, LoginMode);
+        }
+#elif (CSLA_NETCORE)
         public static void Login(string username, string password, int reviewId, string roles, string LoginMode)
         {
             ReviewerIdentity.GetIdentity(username, password, reviewId, roles, LoginMode);
         }
 #endif
 
-    private static void SetPrincipal(Csla.Security.CslaIdentity identity)
+        private static void SetPrincipal(Csla.Security.CslaIdentity identity)
         {
             ReviewerPrincipal principal = new ReviewerPrincipal(identity);
             Csla.ApplicationContext.User = principal;
         }
-    private static void SetPrincipal(Csla.Security.UnauthenticatedIdentity identity)
-    {
-        ReviewerPrincipal principal = new ReviewerPrincipal(identity);
-        Csla.ApplicationContext.User = principal;
-    }
+        private static void SetPrincipal(Csla.Security.UnauthenticatedIdentity identity)
+        {
+            ReviewerPrincipal principal = new ReviewerPrincipal(identity);
+            Csla.ApplicationContext.User = principal;
+        }
+#if (!CSLA_NETCORE)
         public static void Logout()
         {
             Csla.Security.UnauthenticatedIdentity identity = ReviewerIdentity.UnauthenticatedIdentity();
             ReviewerPrincipal principal = new ReviewerPrincipal(identity);
             Csla.ApplicationContext.User = principal;
         }
-
+#else 
+        public static void Logout()
+        {
+            Csla.Security.UnauthenticatedIdentity identity = ReviewerIdentity.UnauthenticatedIdentity();
+            ReviewerPrincipal principal = new ReviewerPrincipal(identity);
+            Csla.ApplicationContext.User = principal;
+        }
+#endif
         public override bool IsInRole(string role)
         {
             return ((ICheckRoles)base.Identity).IsInRole(role);

@@ -3618,9 +3618,9 @@ on the right of the main screen");
                         if ((item.ContactId == comparison.ContactId1) && (item.IsCompleted == false))
                         {
                             if (Reviewer1 == "")
-                                Reviewer1 = item.AttributeName;
+                                Reviewer1 = item.AttributeNameWithArm4HTML;
                             else
-                                Reviewer1 += "<br><br>" + item.AttributeName;
+                                Reviewer1 += "<br><br>" + item.AttributeNameWithArm4HTML;
                             if (item.AdditionalText != "")
                                 Reviewer1 += "<br><i> " + item.AdditionalText + "</i>";
                         }
@@ -3629,9 +3629,9 @@ on the right of the main screen");
                             if ((item.ContactId == comparison.ContactId2) && (item.IsCompleted == false))
                             {
                                 if (Reviewer2 == "")
-                                    Reviewer2 = item.AttributeName;
+                                    Reviewer2 = item.AttributeNameWithArm4HTML;
                                 else
-                                    Reviewer2 += "<br><br>" + item.AttributeName;
+                                    Reviewer2 += "<br><br>" + item.AttributeNameWithArm4HTML;
                                 if (item.AdditionalText != "")
                                     Reviewer2 += "<br><i> " + item.AdditionalText + "</i>";
                             }
@@ -3640,9 +3640,9 @@ on the right of the main screen");
                                 if ((item.ContactId == comparison.ContactId3) && (item.IsCompleted == false))
                                 {
                                     if (Reviewer3 == "")
-                                        Reviewer3 = item.AttributeName;
+                                        Reviewer3 = item.AttributeNameWithArm4HTML;
                                     else
-                                        Reviewer3 += "<br><br>" + item.AttributeName;
+                                        Reviewer3 += "<br><br>" + item.AttributeNameWithArm4HTML;
                                     if (item.AdditionalText != "")
                                         Reviewer3 += "<br><i> " + item.AdditionalText + "</i>";
                                 }
@@ -3651,9 +3651,9 @@ on the right of the main screen");
                                     if (item.IsCompleted == true)
                                     {
                                         if (Agreed == "")
-                                            Agreed = item.AttributeName;
+                                            Agreed = item.AttributeNameWithArm4HTML;
                                         else
-                                            Agreed += "<br><br>" + item.AttributeName;
+                                            Agreed += "<br><br>" + item.AttributeNameWithArm4HTML;
                                         if (item.AdditionalText != "")
                                             Agreed += "<br><i> " + item.AdditionalText + "</i>";
                                     }

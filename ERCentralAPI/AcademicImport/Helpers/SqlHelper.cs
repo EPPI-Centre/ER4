@@ -19,7 +19,8 @@ namespace EPPIDataServices.Helpers
         // EPPILogger Logger;
         private readonly ILogger _logger;
 
-        public SQLHelper(IConfigurationRoot configuration, ILogger<EPPILogger> logger)
+        //public SQLHelper(IConfigurationRoot configuration, ILogger<EPPILogger> logger)
+        public SQLHelper(IConfigurationRoot configuration, ILogger logger)
         {
             //DatabaseName = configuration["AppSettings:DatabaseName"];
             //Logger = logger;

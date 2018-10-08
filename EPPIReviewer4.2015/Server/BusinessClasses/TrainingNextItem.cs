@@ -22,15 +22,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingNextItem : BusinessBase<TrainingNextItem>
     {
-#if SILVERLIGHT
     public TrainingNextItem() { }
 
-        
-#else
-        private TrainingNextItem() { }
-#endif
-
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -39,7 +33,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Item> ItemProperty = RegisterProperty<Item>(new PropertyInfo<Item>("Item", "Item"));
+        public static readonly PropertyInfo<Item> ItemProperty = RegisterProperty<Item>(new PropertyInfo<Item>("Item", "Item"));
         public Item Item
         {
             get
@@ -52,7 +46,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TrainingItemIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingItemId", "TrainingItemId"));
+        public static readonly PropertyInfo<int> TrainingItemIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingItemId", "TrainingItemId"));
         public int TrainingItemId
         {
             get
@@ -61,7 +55,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TrainingIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingId", "TrainingId"));
+        public static readonly PropertyInfo<int> TrainingIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingId", "TrainingId"));
         public int TrainingId
         {
             get
@@ -70,7 +64,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank"));
+        public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank"));
         public int Rank
         {
             get

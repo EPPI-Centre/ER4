@@ -32,7 +32,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public WorkAllocationContactList() { }
 #else
-        private WorkAllocationContactList() { }
+        public WorkAllocationContactList() { }
 #endif
 
 

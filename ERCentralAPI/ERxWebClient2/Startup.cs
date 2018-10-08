@@ -9,12 +9,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ERxWebClient2
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, ILogger<EPPILogger> logger)
+        public Startup(IConfiguration configuration, ILogger<Program> logger)
         {
             Configuration = configuration;
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
@@ -25,9 +29,34 @@ namespace ERxWebClient2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-        }
+            services
+                //.AddAuthorization()
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromMinutes(3),
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["AppSettings:EPPIApiUrl"],
+                        ValidAudience = Configuration["AppSettings:EPPIApiClientName"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:EPPIApiClientSecret"]))
+                    };
+                });
 
+            services.AddSingleton(Configuration);
+
+            services.AddMvc().AddJsonOptions(options =>
+            {//this is needed to allow serialising CSLA child objects:
+                //they all have a "Parent" field which creates a reference loop.
+                options.SerializerSettings.CheckAdditionalContent = true;
+                
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -44,7 +73,8 @@ namespace ERxWebClient2
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            app.UseAuthentication();
+            
             app.UseStaticFiles();
 
             app.UseMvc(routes =>

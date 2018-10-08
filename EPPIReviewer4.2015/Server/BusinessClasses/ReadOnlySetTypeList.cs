@@ -20,12 +20,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlySetTypeList : ReadOnlyListBase<ReadOnlySetTypeList, ReadOnlySetType>
     {
-#if SILVERLIGHT
-    public ReadOnlySetTypeList() { }
-#else
-        private ReadOnlySetTypeList() { }
-#endif
-
+        public ReadOnlySetTypeList() { }
         public static void GetSetTypeList(EventHandler<DataPortalResult<ReadOnlySetTypeList>> handler)
         {
             DataPortal<ReadOnlySetTypeList> dp = new DataPortal<ReadOnlySetTypeList>();

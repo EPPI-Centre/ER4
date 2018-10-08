@@ -1,0 +1,49 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWCheckArmDelete"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Delete Arm?"
+                   Width="310"
+                   CanClose="False"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+
+
+    <telerik:RadWindow.Resources>
+        <Button x:Name="isEn" IsEnabled="{Binding CanDeleteArm, Mode=OneWay}" ></Button>
+    </telerik:RadWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MinHeight="30" MaxHeight="70"></RowDefinition>
+            <RowDefinition MinHeight="30" MaxHeight="240"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock x:Name="TextBlockCheckDeleteArm" TextWrapping="Wrap" Text="Are you sure you want to delete this arm?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+        <cslaXAML:BusyAnimation x:Name="BusyCheckArmDelete" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,4,0"/>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Border x:Name="WarningBorder" Background="Transparent">
+                <TextBlock x:Name="TextBlockCheckDeleteArmDetails" TextWrapping="Wrap" Text="" Margin="6,6,6,6"></TextBlock>
+            </Border>
+            <TextBox x:Name="txtBoxConfirm" Visibility="Collapsed" TextChanged="txtBoxConfirm_TextChanged" Margin="20,6,20,2" MaxLength="20" />
+        </StackPanel>
+        <Button x:Name="cmdDeleteCode" Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Click="cmdDeleteArm_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+        <Button x:Name="cmdCancelDeleteCode"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelDeleteArm_Click"></Button>
+
+        <telerik:RadBusyIndicator x:Name="busyIndicatorDelete" Canvas.ZIndex="-1" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" />
+
+    </Grid>
+</telerik:RadWindow>

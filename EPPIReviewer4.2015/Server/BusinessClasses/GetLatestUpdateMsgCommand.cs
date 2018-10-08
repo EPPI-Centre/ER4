@@ -24,8 +24,15 @@ namespace BusinessLibrary.BusinessClasses
     {
 #if SILVERLIGHT
     public GetLatestUpdateMsgCommand(){}
+#elif (!CSLA_NETCORE)
+        public GetLatestUpdateMsgCommand(){}
 #else
-        protected GetLatestUpdateMsgCommand() { }
+        public GetLatestUpdateMsgCommand()
+        {
+            _Date = DateTime.Now.ToShortDateString();
+            _Description = "ERROR: could not communicate with DataBase." + Environment.NewLine + "This is usually due to some technical difficulty: logging-on may fail as a consequence."
+                        + Environment.NewLine + "Please try reloading this page in a few minutes. If the problem persists, please contact EPPISupport@ioe.ac.uk and/or check our Twitter feed (@EPPIReviewer).";
+        }
 #endif
 
         private string _Date;

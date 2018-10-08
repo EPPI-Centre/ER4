@@ -2,58 +2,73 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using EPPIDataServices.Helpers;
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
 using ERxWebClient2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
-    public class CodesetController : Controller
+    public class CodesetController : CSLAController
     {
 
         private readonly ILogger _logger;
-
-        public CodesetController(ILogger<EPPILogger> logger)
+        
+        public CodesetController(ILogger<CodesetController> logger)
         {
             _logger = logger;
         }
 
-        private static string[] Summaries = new[]
+        [HttpGet("[action]")]
+        public IActionResult CodesetsByReview()
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
-        [HttpPost("[action]"), HttpGet("[action]")]
-        public IEnumerable<ReviewSet> CodesetsByReview(int RevId)//should receive a reviewID!
-        {
-            //int RevId = 7;
-            if (RevId == null || RevId == 0) RevId = 7;
-            List<ReviewSet> res = new List<ReviewSet>();
-            using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
+            try
             {
-                SqlParameter RevID = new SqlParameter("@REVIEW_ID", RevId);
-                try
-                {
-                    using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_ReviewSets", RevID))
-                    {
-                        if (reader != null)
-                        {
-                            res = ReviewSet.GetReviewSets(conn, reader);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    SqlParameter[] sqlParams = new SqlParameter[1];
-                    sqlParams[0] = RevID;
-                    _logger.SQLActionFailed("Error fetching list of codesets", sqlParams, e);
-                }
+                SetCSLAUser();
+                DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                ReviewSetsList res = dp.Fetch();
+                return Ok(res);
             }
-            IEnumerable<ReviewSet> res2 = res as IEnumerable<ReviewSet>;
-            return (IEnumerable<ReviewSet>)res;
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error");
+                throw;
+            }
+
+
+            //not using CSLA object!! this needs revising
+            //SetCSLAUser();
+            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            //List<ReviewSet> res = new List<ReviewSet>();
+            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
+            //{
+            //    SqlParameter RevID = new SqlParameter("@REVIEW_ID", ri.ReviewId);
+            //    try
+            //    {
+            //        using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_ReviewSets", RevID))
+            //        {
+            //            if (reader != null)
+            //            {
+            //                res = ReviewSet.GetReviewSets(conn, reader);
+            //            }
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Program.Logger.LogSQLException(e, "Error fetching list of codesets", RevID);
+            //    }
+            //}
+            //return (IEnumerable<ReviewSet>)res;
         }
+
     }
 }

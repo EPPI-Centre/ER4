@@ -1,0 +1,240 @@
+<div class="container col-12 p-0">
+    <!--<HeaderComponent style="vertical-align:top;
+    margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
+     width:99.6%;"></HeaderComponent>-->
+    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;"></HeaderComponent>
+    <div class="h-100 mh-100 pr-0 ">
+        <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+            <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
+                <ArmsComp #cmp class="card-text"></ArmsComp>
+                <reviewsets class="bg-light"></reviewsets>
+            </div>
+            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end row">
+                <div class="row ml-1 mt-0 mr-0 w-100 d-flex">
+                    <div class="col-12 col-lg-6 pr-0 pl-0 col-md-12 col-xl-6 col-sm-12
+                                     order-lg-first
+                                     order-xl-first
+                                     order-md-last
+                                     order-sm-last
+                                     order-last">
+                        <div *ngIf="ItemListService.ItemList && !IsScreening"
+                             class=" pagination justify-content-start">
+                            <div>
+                                <button [ngClass]="{disabled:!hasPrevious()}"
+                                        [disabled]="!hasPrevious()"
+                                        class="page-link" (click)="firstItem()">
+                                    First
+                                </button>
+                            </div>
+                            <div>
+                                <button [ngClass]="{disabled:!hasPrevious()}"
+                                        [disabled]="!hasPrevious()"
+                                        class="page-link" (click)="prevItem()">
+                                    Previous
+                                </button>
+
+                            </div>
+                            <div>
+                                <button [ngClass]="{disabled:!hasNext()}"
+                                        [disabled]="!hasNext()" class="page-link" (click)="nextItem()">
+                                    Next
+                                </button>
+                            </div>
+                            <div>
+                                <button [ngClass]="{disabled:!hasNext()}"
+                                        [disabled]="!hasNext()" class="page-link" (click)="lastItem()">
+                                    Last
+                                </button>
+                            </div>
+                            <div class="m-1 small align-content-end mt-2">Item {{MyHumanIndex()}} of {{ItemListService.ItemList.items.length}}</div>
+
+                        </div>
+                        <ul *ngIf="IsScreening" class="pagination justify-content-start">
+                            <li>
+                                <button [ngClass]="{disabled:!HasPreviousScreening()}"
+                                        [disabled]="!HasPreviousScreening()"
+                                        class="page-link" (click)="prevScreeningItem()">
+                                    Previously Screened
+                                </button>
+
+                            </li>
+                            <li>
+                                <button [ngClass]="{disabled:!CanMoveToNextInScreening()}"
+                                        [disabled]="!CanMoveToNextInScreening()"
+                                        class="page-link" (click)="GetItem()">
+                                    Next In screening
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 col-12 col-md-12 col-xl-6 col-sm-12 pr-0 pl-0
+                                     order-lg-last
+                                     order-xl-last
+                                     order-md-first
+                                     order-sm-first
+                                     order-first
+                                     float-right
+                                      align-content-start pr-0">
+                        <div class="justify-content-end mt-0 mb-3 ml-0 mr-0 row w-100">
+                            <div class="row bg-info float-right mb-1 pb-1 ml-2 mr-1">
+                                <div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
+                                    Auto Advance?
+                                    <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+                                </div>
+                            </div>
+                            <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-1">
+                                <div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
+                                    Show terms?
+                                    <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+                                </div>
+                            </div>
+                            <button class="page-link pt-0 pb-1 mb-1" (click)="BackToMain()">
+                                Close/back
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                <div *ngIf="item" class="row col-12 card card-body bg-light ml-1">
+                    <div class="container">
+                        <div *ngIf="ShowHighlights" class="row col-12"><h4 [innerHTML]="HTitle"></h4></div>
+                        <div *ngIf="!ShowHighlights" class="row col-12"><h4>{{item.title}}</h4></div>
+                        <div *ngIf="ShowHighlights" class="row col-12 border-top border-info ml-0 pl-0"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
+                        <div *ngIf="!ShowHighlights" class="row col-12 border-top border-info ml-0 pl-0"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+                        <table class="table table-responsive col-12 p-0 justify-content-start">
+                            <tbody class="col-12" style="width:100%;">
+                                <tr>
+                                    <td colspan="12">
+                                        <b>Authors:&nbsp;</b> {{item.authors}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6">
+                                        <b *ngIf="item.parentTitle.length > 0 && item.typeName == 'Journal, Article'">
+                                            Journal:&nbsp;
+                                        </b>
+                                        <b *ngIf="item.parentTitle.length > 0 && item.typeName == 'Book, Chapter'">
+                                            Book title:&nbsp;
+                                        </b>
+                                        <b *ngIf="item.parentTitle.length > 0 && item.typeName != 'Book, Chapter' && item.typeName != 'Journal, Article'">
+                                            Parent title:&nbsp;
+                                        </b>
+                                        {{item.parentTitle}}
+                                    </td>
+                                    <td colspan="6">
+                                        <b>Short Title:&nbsp;</b> {{item.shortTitle}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4"><b>ID:&nbsp;</b>{{item.itemId}}</td>
+                                    <td colspan="4"><b>Type:&nbsp;</b>{{item.typeName}}</td>
+                                    <td colspan="4"><b>Year:&nbsp;</b> {{item.year}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        <b *ngIf="item.standardNumber.length > 0 && item.typeName == 'Journal, Article'">ISSN:&nbsp;</b>
+                                        <b *ngIf="item.standardNumber.length > 0 && (item.typeName == 'Book, Chapter' || item.typeName == 'Book, Whole')">
+                                            ISBN:&nbsp;
+                                        </b>
+                                        <b *ngIf="item.standardNumber.length > 0 && item.typeName != 'Book, Chapter' && item.typeName != 'Journal, Article' && item.typeName != 'Book, Whole'">
+                                            Standard N:&nbsp;
+                                        </b>
+                                        {{item.standardNumber}}
+                                    </td>
+                                    <td colspan="4">
+                                        <b>Volume:&nbsp;</b> {{item.volume}}
+                                    </td>
+                                    <td colspan="4">
+                                        <b>Pages:&nbsp;</b> {{item.pages}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        <b>Issue:&nbsp;</b>{{item.issue}}
+                                    </td>
+                                    <td colspan="4">
+                                        <b>Edition:&nbsp;</b>{{item.edition}}
+                                    </td>
+                                    <td colspan="4">
+                                        <b>Imported ID:&nbsp;</b>{{item.oldItemId}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6">
+                                        <b>DOI:&nbsp;</b> {{item.doi}}
+                                    </td>
+                                    <td colspan="6">
+                                        <b>URL:&nbsp;</b> {{item.url}}
+                                    </td>
+                                </tr>
+                                <tr *ngIf="item.keywords.length > 0 || item.comments.length > 0 ">
+                                    <td colspan="6">
+                                        <div *ngIf="item.keywords.length > 0">
+                                            <b>Keywords:</b><br />
+                                            <div style="max-height:120px; overflow-y:scroll;" [innerHTML]="toHTML(item.keywords)"></div>
+                                        </div>
+                                    </td>
+                                    <td colspan="6">
+                                        <div *ngIf="item.comments.length > 0">
+                                            <b>Comments:</b><br />
+                                            <div style="max-height:120px; overflow-y:scroll;" [innerHTML]="toHTML(item.comments)"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!--itemId: number = 0;
+            masterItemId: number = 0;
+            isDupilcate: boolean= false;
+            typeId: number = 0;
+
+                volume: string = "";
+            pages: string = "";
+            edition: string = "";
+            issue: string = "";
+
+            shortTitle: string = "";
+            dateCreated: string = "";
+            createdBy: string = "";
+            dateEdited: string = "";
+            editedBy: string = "";
+            year: string = "";
+            month: string = "";
+            standardNumber: string = "";
+            city: string = "";
+            country: string = "";
+            publisher: string = "";
+            institution: string = "";
+
+            isLocal: string = "";
+            availability: string = "";
+            uRL: string = "";
+            oldItemId: string = "";
+            abstract: string = "";
+            comments: string = "";
+            typeName: string = "";
+            authors: string = "";
+            parentAuthors: string = "";
+            dOI: string = "";
+            keywords: string = "";
+            attributeAdditionalText: string = "";
+            rank: number = 0;
+            isItemDeleted: boolean = false;
+            isIncluded: boolean = true;
+            isSelected: boolean = false;
+            itemStatus: string = "";
+            itemStatusTooltip: string = "";
+            arms: Arm[] = [];-->
+                    </div>
+                </div>
+                <div class="row col-12 mt-1 card card-body bg-light ml-1">
+                    <ItemDocListComp class="" [itemID]="itemID"></ItemDocListComp>
+                </div>
+            </div>
+
+        </div>
+        <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+    </div>
+</div>

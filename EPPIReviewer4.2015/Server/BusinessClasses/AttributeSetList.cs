@@ -142,16 +142,13 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-#if SILVERLIGHT
-        public AttributeSetList() { }
 
+        public AttributeSetList() { }
+#if SILVERLIGHT
     protected override void AddNewCore()
     {
         Add(AttributeSet.NewAttributeSet());
     }
-
-#else
-        private AttributeSetList() { }
 #endif
 
         internal static AttributeSetList NewAttributeSetList()

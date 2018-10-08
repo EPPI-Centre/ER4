@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if (CSLA_NETCORE)
+using System.Security.Claims;
+#endif
 using System.Text;
 using Csla;
 using Csla.Core;
@@ -20,6 +23,7 @@ namespace BusinessLibrary.Security
         private string _LoginMode;
         private string _ArchieState;
         private string _ArchieCode;
+        
         public string Username
         {
             get
@@ -64,6 +68,30 @@ namespace BusinessLibrary.Security
                 return _ArchieCode;
             }
         }
+        
+#if (CSLA_NETCORE)
+        private int _ContactId;
+        public int ContactId
+        {
+            get
+            {
+                return _ContactId;
+            }
+        }
+        private string _DisplayName;
+        public string DisplayName
+        {
+            get
+            {
+                return _DisplayName;
+            }
+        }
+        private ClaimsPrincipal _ClaimsP;
+        public ClaimsPrincipal ClaimsP
+        {
+            get { return _ClaimsP; }
+        }
+#endif
         public CredentialsCriteria(string username, string password, int reviewid)
         //: base(typeof(CredentialsCriteria))
         {
@@ -80,6 +108,21 @@ namespace BusinessLibrary.Security
             _reviewId = reviewid;
             _LoginMode = loginMode;
         }
+#if (CSLA_NETCORE)
+        public CredentialsCriteria(int contactID, int reviewid, string displayName, string loginMode)
+        {
+            _DisplayName = displayName;
+            _ContactId = contactID;
+            _reviewId = reviewid;
+            _LoginMode = loginMode;
+        }
+        public CredentialsCriteria(ClaimsPrincipal CP)
+        {//with this, we'll create a full RI based on the user logged on via its JWToken, without using the DB.
+            //should be fast as this is done every time a controller will use a CSLA object that needs the ReviewerIdentity
+            _ClaimsP = CP;
+            _LoginMode = "MVC";
+        }
+#endif
         public CredentialsCriteria(string ArchieCode, string Status, string loginMode, int reviewid)
         {
             _password = "";

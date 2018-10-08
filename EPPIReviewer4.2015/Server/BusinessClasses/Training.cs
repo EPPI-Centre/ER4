@@ -22,15 +22,12 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class Training : BusinessBase<Training>
     {
-#if SILVERLIGHT
+
     public Training() { }
 
-        
-#else
-        private Training() { }
-#endif
 
-        private static PropertyInfo<int> TrainingIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingId", "TrainingId"));
+
+        public static readonly PropertyInfo<int> TrainingIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingId", "TrainingId"));
         public int TrainingId
         {
             get
@@ -39,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -48,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<DateTime> StartTimeProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("StartTime", "StartTime"));
+        public static readonly PropertyInfo<DateTime> StartTimeProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("StartTime", "StartTime"));
         public DateTime StartTime
         {
             get
@@ -57,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<DateTime> EndTimeProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("EndTime", "EndTime"));
+        public static readonly PropertyInfo<DateTime> EndTimeProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("EndTime", "EndTime"));
         public DateTime EndTime
         {
             get
@@ -66,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> IterationProperty = RegisterProperty<int>(new PropertyInfo<int>("Iteration", "Iteration"));
+        public static readonly PropertyInfo<int> IterationProperty = RegisterProperty<int>(new PropertyInfo<int>("Iteration", "Iteration"));
         public int Iteration
         {
             get
@@ -75,7 +72,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> NTrainingItemsIncProperty = RegisterProperty<int>(new PropertyInfo<int>("NTrainingItemsInc", "NTrainingItemsInc"));
+        public static readonly PropertyInfo<int> NTrainingItemsIncProperty = RegisterProperty<int>(new PropertyInfo<int>("NTrainingItemsInc", "NTrainingItemsInc"));
         public int NTrainingItemsInc
         {
             get
@@ -84,7 +81,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> NTrainingItemsExcProperty = RegisterProperty<int>(new PropertyInfo<int>("NTrainingItemsExc", "NTrainingItemsExc"));
+        public static readonly PropertyInfo<int> NTrainingItemsExcProperty = RegisterProperty<int>(new PropertyInfo<int>("NTrainingItemsExc", "NTrainingItemsExc"));
         public int NTrainingItemsExc
         {
             get
@@ -93,7 +90,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
+        public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
         public string ContactName
         {
             get
@@ -102,7 +99,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> CProperty = RegisterProperty<double>(new PropertyInfo<double>("C", "C"));
+        public static readonly PropertyInfo<double> CProperty = RegisterProperty<double>(new PropertyInfo<double>("C", "C"));
         public double C
         {
             get
@@ -111,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> TPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TP", "TP"));
+        public static readonly PropertyInfo<Int32> TPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TP", "TP"));
         public double TP
         {
             get
@@ -120,7 +117,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> TNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TN", "TN"));
+        public static readonly PropertyInfo<Int32> TNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TN", "TN"));
         public double TN
         {
             get
@@ -129,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> FPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("FP", "FP"));
+        public static readonly PropertyInfo<Int32> FPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("FP", "FP"));
         public double FP
         {
             get
@@ -138,7 +135,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> FNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("FN", "FN"));
+        public static readonly PropertyInfo<Int32> FNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("FN", "FN"));
         public double FN
         {
             get
@@ -147,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> TotalNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalN", "TotalN"));
+        public static readonly PropertyInfo<Int32> TotalNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalN", "TotalN"));
         public double TotalN
         {
             get
@@ -156,7 +153,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> TotalIncludesProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalIncludes", "TotalIncludes"));
+        public static readonly PropertyInfo<Int32> TotalIncludesProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalIncludes", "TotalIncludes"));
         public double TotalIncludes
         {
             get
@@ -165,7 +162,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int32> TotalExcludesProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalExcludes", "TotalExcludes"));
+        public static readonly PropertyInfo<Int32> TotalExcludesProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalExcludes", "TotalExcludes"));
         public double TotalExcludes
         {
             get

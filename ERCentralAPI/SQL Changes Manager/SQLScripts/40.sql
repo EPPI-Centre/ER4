@@ -1,0 +1,170 @@
+﻿--Sergio make free text search SP recompile always - query plan seems to be a bad thing.
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_SearchFreeText]    Script Date: 9/24/2018 12:02:56 PM ******/
+SET ANSI_NULLS OFF
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[st_SearchFreeText]
+(
+      @SEARCH_ID int = null output
+,     @CONTACT_ID nvarchar(50) = null
+,     @REVIEW_ID nvarchar(50) = null
+,     @SEARCH_TITLE varchar(4000) = null
+,     @SEARCH_TEXT varchar(4000) = null
+,     @SEARCH_WHAT nvarchar(20) = null
+,     @INCLUDED BIT = NULL -- 'INCLUDED' OR 'EXCLUDED'
+,     @SEARCH_ITEM_ID BIGINT = NULL
+
+)
+with recompile
+AS
+      -- Step One: Insert record into tb_SEARCH
+      EXECUTE st_SearchInsert @REVIEW_ID, @CONTACT_ID, @SEARCH_TITLE, @SEARCH_TEXT, '', @NEW_SEARCH_ID = @SEARCH_ID OUTPUT
+
+      -- Step Two: Perform the search and get a hits count
+
+      IF (@SEARCH_WHAT = 'TitleAbstract')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE, ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+	  IF (@SEARCH_WHAT = 'Title')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (TITLE), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+	  IF (@SEARCH_WHAT = 'Abstract')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_REVIEW
+            INNER JOIN CONTAINSTABLE(TB_ITEM, (ABSTRACT), @SEARCH_TEXT) AS KEY_TBL ON KEY_TBL.[KEY] = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'PubYear')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_REVIEW.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_REVIEW
+            INNER JOIN TB_ITEM ON TB_ITEM.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+            AND TB_ITEM.[YEAR] LIKE '%' + @SEARCH_TEXT + '%'
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'AdditionalText')
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  TB_ITEM_ATTRIBUTE.ITEM_ID, @SEARCH_ID, RANK FROM TB_ITEM_ATTRIBUTE
+            INNER JOIN CONTAINSTABLE(TB_ITEM_ATTRIBUTE, ADDITIONAL_TEXT, @SEARCH_TEXT) AS KEY_TBL
+                  ON KEY_TBL.[KEY] =  TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID
+            INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID
+                  AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_SET.ITEM_ID = TB_ITEM_REVIEW.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'ItemId')
+      BEGIN
+            INSERT INTO TB_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT TB_ITEM.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM.ITEM_ID
+                  WHERE (TB_ITEM.ITEM_ID = @SEARCH_ITEM_ID 
+                        OR OLD_ITEM_ID LIKE ('%' + @SEARCH_TEXT + '%'))
+                        AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+                        AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE
+      IF (@SEARCH_WHAT = 'Authors')
+      BEGIN
+            INSERT INTO TB_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT TB_ITEM_AUTHOR.ITEM_ID, @SEARCH_ID, 0 FROM TB_ITEM_AUTHOR
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_AUTHOR.ITEM_ID
+            WHERE (TB_ITEM_AUTHOR.LAST LIKE '%' + @SEARCH_TEXT + '%'
+                  OR TB_ITEM_AUTHOR.FIRST LIKE '%' + @SEARCH_TEXT + '%'
+                  OR TB_ITEM_AUTHOR.SECOND LIKE '%' + @SEARCH_TEXT + '%')
+                  AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+                  AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      ELSE -- must be uploaded documents
+      BEGIN
+            INSERT INTO tb_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+            SELECT DISTINCT  tb_ITEM_DOCUMENT.ITEM_ID, @SEARCH_ID, RANK FROM tb_ITEM_DOCUMENT
+            INNER JOIN CONTAINSTABLE(TB_ITEM_DOCUMENT, DOCUMENT_TEXT, @SEARCH_TEXT) AS KEY_TBL 
+                  ON KEY_TBL.[KEY] = tb_ITEM_DOCUMENT.ITEM_DOCUMENT_ID
+            INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = tb_ITEM_DOCUMENT.ITEM_ID
+            WHERE REVIEW_ID = @REVIEW_ID AND IS_DELETED != 'true' AND TB_ITEM_REVIEW.IS_INCLUDED = @INCLUDED
+      END
+      
+      -- Step Three: Update the new search record in tb_SEARCH with the number of records added
+      UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
+
+GO
+
+
+--SERGIO: check before deleting an ARM
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 03/10/2018 15:46:33 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemArmDeleteWarning]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 03/10/2018 15:46:33 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+	@ITEM_ID BIGINT,
+	@ARM_ID BIGINT,
+	@NUM_CODINGS INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_CODINGS = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.ITEM_ID = @ITEM_ID
+		WHERE TB_ITEM_ATTRIBUTE.ITEM_ARM_ID = @ARM_ID
+SET NOCOUNT OFF
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 04/10/2018 10:47:26 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemArmDelete]
+(
+	@ITEM_ARM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	DELETE FROM TB_ITEM_ATTRIBUTE where ITEM_ARM_ID = @ITEM_ARM_ID
+	DELETE FROM TB_ITEM_ARM
+		WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+GO

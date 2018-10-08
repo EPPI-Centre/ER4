@@ -1,0 +1,74 @@
+2018-09-20 14:32:33.290 +01:00 [ERR] (node:9996) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 14:36:15.843 +01:00 [ERR] (node:16888) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 14:40:19.830 +01:00 [ERR] (node:1892) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 14:43:50.287 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 273b850d16112c522cec
+Version: webpack 4.16.2
+Time: 12508ms
+Built at: 2018-09-20 14:43:50
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.8de3a924788113294764.hot-update.js   5.19 KiB  main-client  [emitted]  main-client
+              8de3a924788113294764.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.8de3a924788113294764.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.8de3a924788113294764.hot-update.js main-client.js.map main-client.8de3a924788113294764.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:33:9 
+    TS2304: Cannot find name 'http'.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:33:23 
+    TS2304: Cannot find name 'baseUrl'.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:33:70 
+    TS7006: Parameter 'result' implicitly has an 'any' type.
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:39:12 
+    TS7006: Parameter 'error' implicitly has an 'any' type.
+2018-09-20 14:46:01.979 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 1a78f5defa3a02d8022c
+Version: webpack 4.16.2
+Time: 12336ms
+Built at: 2018-09-20 14:46:01
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.273b850d16112c522cec.hot-update.js   5.23 KiB  main-client  [emitted]  main-client
+              273b850d16112c522cec.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.273b850d16112c522cec.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.273b850d16112c522cec.hot-update.js main-client.js.map main-client.273b850d16112c522cec.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:34:37 
+    TS2304: Cannot find name '_baseUrl'.
+2018-09-20 14:50:59.666 +01:00 [ERR] (node:19208) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 14:54:55.165 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: f2e3967765fc7d8acca3
+Version: webpack 4.16.2
+Time: 12355ms
+Built at: 2018-09-20 14:54:55
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.5fde55a81467a691e254.hot-update.js   5.76 KiB  main-client  [emitted]  main-client
+              5fde55a81467a691e254.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.5fde55a81467a691e254.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.5fde55a81467a691e254.hot-update.js main-client.js.map main-client.5fde55a81467a691e254.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:51:62 
+    TS2339: Property 'armID' does not exist on type 'arm'.
+2018-09-20 15:01:04.135 +01:00 [ERR] (node:15228) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 15:07:09.821 +01:00 [ERR] ├ù ∩╜ówdm∩╜ú: Hash: 080d8ae89b415554169a
+Version: webpack 4.16.2
+Time: 12338ms
+Built at: 2018-09-20 15:07:09
+                                             Asset       Size       Chunks             Chunk Names
+                                    main-client.js    2.9 MiB  main-client  [emitted]  main-client
+    main-client.43dabe6f73d51a287d61.hot-update.js   6.72 KiB  main-client  [emitted]  main-client
+              43dabe6f73d51a287d61.hot-update.json   53 bytes               [emitted]  
+                                main-client.js.map   29.9 KiB  main-client  [emitted]  main-client
+main-client.43dabe6f73d51a287d61.hot-update.js.map  123 bytes  main-client  [emitted]  main-client
+Entrypoint main-client = main-client.js main-client.43dabe6f73d51a287d61.hot-update.js main-client.js.map main-client.43dabe6f73d51a287d61.hot-update.js.map
+
+ERROR in [at-loader] ./ClientApp/app/components/arms/armsComp.component.ts:54:62 
+    TS2551: Property 'itemArmID' does not exist on type 'arm'. Did you mean 'itemArmId'?
+2018-09-20 15:21:39.779 +01:00 [ERR] (node:18472) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 15:31:59.058 +01:00 [ERR] (node:12008) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 16:05:34.927 +01:00 [ERR] (node:16948) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead
+2018-09-20 16:17:49.420 +01:00 [ERR] (node:9608) DeprecationWarning: Tapable.plugin is deprecated. Use new API on `.hooks` instead

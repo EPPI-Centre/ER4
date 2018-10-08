@@ -32,11 +32,18 @@ namespace EppiReviewer4
 
             CslaDataProvider provider = App.Current.Resources["ReviewsData"] as CslaDataProvider;
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
+            CanCreateReview();
             if (ri.IsSiteAdmin)
             {
-                ExpRow.Height = new GridLength( 30);
+                ExpRow.Height = new GridLength( 60);
                 LogonToRevIDstackp.Visibility = System.Windows.Visibility.Visible;
                 LogonToRevIDBT.IsEnabled = true;
+            }
+            else 
+            {
+                ExpRow.Height = new GridLength(30);
+                LogonToRevIDstackp.Visibility = System.Windows.Visibility.Collapsed;
+                LogonToRevIDBT.IsEnabled = false;
             }
             if (provider.FactoryParameters == null || provider.FactoryParameters.Count < 1 || provider.FactoryParameters[0].ToString() != ri.UserId.ToString())
             {
@@ -77,14 +84,27 @@ namespace EppiReviewer4
             if (((Csla.Xaml.CslaDataProvider)sender).Error == null)
             {
                 Telerik.Windows.Controls.RadWindow w = ((Grid)Parent).Parent as Telerik.Windows.Controls.RadWindow;
-                if (w != null && GridViewReviewList.Items != null && ((Csla.Xaml.CslaDataProvider)sender).Data != null) w.ShowDialog();
+                Csla.Xaml.CslaDataProvider dp = (Csla.Xaml.CslaDataProvider)sender;
+                if (w != null && GridViewReviewList.Items != null && dp.Data != null)
+                {
+                    w.ShowDialog();
+                    ReadOnlyReviewList reviews = dp.Data as ReadOnlyReviewList;
+                    if (!dp.IsBusy && reviews != null)
+                    {
+                        if (reviews.Count == 0 && !ri.HasWriteRights())
+                        {
+                            ShowReadOnlyMessage.Visibility = Visibility.Visible;
+                            BlinkHostingWindow();
+                        }
+                    }
+                }
             }
         }
 
         private void ActionButton_Click(object sender, RoutedEventArgs e)
         {
             GridViewReviewList.IsEnabled = false;
-            TextBlockLoading.Visibility = Visibility.Visible;
+            //TextBlockLoading.Visibility = Visibility.Visible;
             string reviewName = "";
             CslaDataProvider provider = App.Current.Resources["ReviewsData"] as CslaDataProvider;
             foreach (ReadOnlyReview ror in provider.Data as ReadOnlyReviewList)
@@ -102,7 +122,7 @@ namespace EppiReviewer4
         private void btCodeOnly_Click(object sender, RoutedEventArgs e)
         {
             GridViewReviewList.IsEnabled = false;
-            TextBlockLoading.Visibility = Visibility.Visible;
+            //TextBlockLoading.Visibility = Visibility.Visible;
             string reviewName = "";
             CslaDataProvider provider = App.Current.Resources["ReviewsData"] as CslaDataProvider;
             foreach (ReadOnlyReview ror in provider.Data as ReadOnlyReviewList)
@@ -122,27 +142,28 @@ namespace EppiReviewer4
             if (provider != null)
             {
                 Telerik.Windows.Controls.RadWindow w = ((Grid)Parent).Parent as Telerik.Windows.Controls.RadWindow;
-                //w.SizeToContent = true;
-                w.WindowState = WindowState.Maximized;
-                w.UpdateLayout();
-                w.WindowState = WindowState.Normal;
-                w.UpdateLayout();
                 if ((provider.Data as ReadOnlyReviewList).Count == 0)
                 {
-                    
                     //ExpRow.Height = new GridLength(30);
                     //MainRow.Height = new GridLength(0);
                     //MainRow.MaxHeight = 0;
                     GridViewReviewList.Visibility = System.Windows.Visibility.Collapsed;
-                    createRevStack.Visibility = System.Windows.Visibility.Visible;
-
-                    
+                    //createRevStack.Visibility = System.Windows.Visibility.Visible;
                     if (w != null)
                         w.Header = "Create New Review";
                 }
             }
         }
-
+        private void BlinkHostingWindow()
+        {
+            Telerik.Windows.Controls.RadWindow w = ((Grid)Parent).Parent as Telerik.Windows.Controls.RadWindow;
+            //w.SizeToContent = true;
+            w.CanMove = true;
+            w.WindowState = WindowState.Maximized;
+            w.UpdateLayout();
+            w.WindowState = WindowState.Normal;
+            w.UpdateLayout();
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             NewRevBT.IsEnabled = false;
@@ -169,20 +190,33 @@ namespace EppiReviewer4
             }
             else
             {
-                NewRevBT.IsEnabled = true;
+                CanCreateReview();
                 Telerik.Windows.Controls.RadWindow.Alert("Please enter a name for your review");
             }
         }
 
         private void newReviewTB_TextChanged(object sender, TextChangedEventArgs e)
         {
-            NewRevBT.IsEnabled = true;
+            CanCreateReview();
         }
-
+        private void CanCreateReview()
+        {
+            if (ri != null && ri.HasWriteRights())
+            {
+                newReviewTB.IsEnabled = true;
+                if (newReviewTB.Text != null && newReviewTB.Text.Length > 0) NewRevBT.IsEnabled = true;
+                else NewRevBT.IsEnabled = false;
+            }
+            else
+            {
+                NewRevBT.IsEnabled = false;
+                newReviewTB.IsEnabled = false;
+            }
+        }
         private void LogonToRevIDBT_Click(object sender, RoutedEventArgs e)
         {
             GridViewReviewList.IsEnabled = false;
-            TextBlockLoading.Visibility = Visibility.Visible;
+            //TextBlockLoading.Visibility = Visibility.Visible;
             int revID;
             int.TryParse(LogonToRevIDTB.Text, out revID);
             if (revID >0 && ri.IsSiteAdmin)
@@ -473,6 +507,7 @@ namespace EppiReviewer4
                 double max = GridViewReviewList.ActualHeight > GridViewArchieReviewList.ActualHeight ? GridViewReviewList.ActualHeight : GridViewArchieReviewList.ActualHeight;
                 selrevG.MinHeight = max;
                 GridViewArchieReviewList.MinHeight = max;
+                BlinkHostingWindow();
             }
         }
 
@@ -482,7 +517,7 @@ namespace EppiReviewer4
             if (roar == null || roar.ReviewId < 1) return;//access to any review (for admins) is done via the other tab
             //GridViewReviewList.IsEnabled = false;
             //GridViewArchieReviewList.IsEnabled = false;
-            TextBlockLoading.Visibility = Visibility.Visible;
+            //TextBlockLoading.Visibility = Visibility.Visible;
            ReviewSelected.Invoke(this, new ReviewSelectedEventArgs(roar.ReviewId, roar.ReviewName));
         }
 
@@ -492,7 +527,7 @@ namespace EppiReviewer4
             if (roar == null || roar.ReviewId < 1) return;//access to any review (for admins) is done via the other tab
             //GridViewReviewList.IsEnabled = false;
             //GridViewArchieReviewList.IsEnabled = false;
-            TextBlockLoading.Visibility = Visibility.Visible;
+            //TextBlockLoading.Visibility = Visibility.Visible;
             ReviewSelected.Invoke(this, new ReviewSelectedEventArgs(roar.ReviewId, roar.ReviewName, "Coding only"));
         }
 

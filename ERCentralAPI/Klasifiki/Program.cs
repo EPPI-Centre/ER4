@@ -22,13 +22,20 @@ namespace Klasifiki
            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
            .Build();
 
+        private static string CreateLogFileName()
+        {
+            DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
+            string LogFilename = logDir.FullName + @"\" + "Klasifiki-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
+            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
+            return LogFilename;
+        }
         public static void Main(string[] args)
         {
             // Check the setting to setup for SQL logging entries or not
             if (Convert.ToBoolean(Configuration["AppSettings:UseDatabaseLogging"]))
             {
                 // This is a serilog configuration
-                Log.Logger = new LoggerConfiguration()
+                Log.Logger = new LoggerConfiguration().WriteTo.File(CreateLogFileName())
                .ReadFrom.Configuration(Configuration)
                .CreateLogger();
 
@@ -41,14 +48,20 @@ namespace Klasifiki
             else
             {
                 //Without logging to the Datbase
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.File(CreateLogFileName())
+                    .MinimumLevel.Error()
+                    .CreateLogger();
+               
+
                 BuildWebHost(args).Run();
             }
-
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
            WebHost.CreateDefaultBuilder(args)
                   .UseStartup<Startup>()
+                    .UseSerilog()//!!!!!!!!!!!!!!!!!!!
                   .UseConfiguration(Configuration)
                     .Build();
 

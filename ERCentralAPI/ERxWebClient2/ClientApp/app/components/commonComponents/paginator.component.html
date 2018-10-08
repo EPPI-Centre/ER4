@@ -1,0 +1,44 @@
+
+    <div *ngIf="ItemListService.ItemList && ItemListService.ItemList.items.length > 0" class="pagination justify-content-start d-flex flex-wrap col-12 mb-1">
+        <div class="m-0">
+            <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+                    [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
+                    class="page-link" (click)="firstPage()">
+                First
+            </button>
+        </div>
+        <div class="">
+            <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+                    [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
+                    class="page-link" (click)="prevPage()">
+                Previous
+            </button>
+
+        </div>
+        <div class="p-1 " style="width:160px; min-width:160px; white-space: nowrap;">
+            <span>Page:&nbsp;</span>
+            <input [attr.disabled]="ItemListService.ItemList.pagecount === 1 ? '' : null"
+                   [disabled]="ItemListService.ItemList.pagecount === 1"
+                   class="" #box (keyup.enter)="onEnter(box.value)"
+                   value="{{ItemListService.ItemList.pageindex + 1}}"
+                   style="width:75px; min-width:75px">
+            <span>&nbsp;of&nbsp;{{ItemListService.ItemList.pagecount}}</span>
+        </div>
+        <div class="">
+            <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}"
+                    [disabled]="ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount"
+                    class="page-link" (click)="nextPage()">
+                Next
+            </button>
+        </div>
+        <div class="">
+            <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}"
+                    [disabled]="ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount"
+                    class="page-link" (click)="lastPage()">
+                Last
+            </button>
+        </div>
+        <div class="m-1 small align-content-end mt-lg-2 mt-md-0 mt-sm-0" style="text-wrap:normal">Showing {{ItemListService.ItemList.items.length}} items of {{ItemListService.ItemList.totalItemCount}}</div>
+    </div>
+
+    

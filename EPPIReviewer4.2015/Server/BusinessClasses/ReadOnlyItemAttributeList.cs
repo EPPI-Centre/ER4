@@ -21,11 +21,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyItemAttributeList : ReadOnlyListBase<ReadOnlyItemAttributeList, ReadOnlyItemAttribute>
     {
-#if SILVERLIGHT
+
     public ReadOnlyItemAttributeList() { }
-#else
-        private ReadOnlyItemAttributeList() { }
-#endif
 
         
         //public static void GetItemAttributeList(int item_id, EventHandler<DataPortalResult<ReadOnlyItemAttributeList>> handler)
