@@ -50,6 +50,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     public isReviewPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
 
+    dtOptions: DataTables.Settings = {};
+    dtTrigger: Subject<any> = new Subject();
+
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';
@@ -78,6 +81,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     ngOnInit() {
 
+        this.dtOptions = {
+            pagingType: 'full_numbers',
+            //columnDefs: [
+            //    { "type": "num", "targets": 1 }
+            //]
+        };
+
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 
         this.reviewSetsService.GetReviewSets();
@@ -88,7 +98,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
                 this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 
-                this.codesetStatsServ.GetReviewSetsCodingCounts(true);
+                this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
+
+                
             }
         );
     }
@@ -101,6 +113,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.reviewSetsService.Clear();
+        //this.dtTrigger.unsubscribe();
         this.statsSub.unsubscribe();
     }
    

@@ -5,6 +5,7 @@ import { ModalService } from './modal.service';
 import { arm, Item } from './ItemList.service';
 import { filter } from 'rxjs/operators';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -25,6 +26,7 @@ export class CodesetStatisticsService {
     public _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
     public _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
     public _tmpCodesets: StatsCompletion[] = [];
+
 
     @Output() GetCompletedSetsEmit: EventEmitter<any> = new EventEmitter<any>();
     @Output() GetIncompleteSetsEmit: EventEmitter<any> = new EventEmitter<any>();
@@ -102,7 +104,7 @@ export class CodesetStatisticsService {
         );
     }
 
-    public GetReviewSetsCodingCounts(completed: boolean) {
+    public GetReviewSetsCodingCounts(completed: boolean, trigger: Subject<any>) {
 
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
@@ -115,7 +117,7 @@ export class CodesetStatisticsService {
                 this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);
                
-                this.GetReviewSetsIncompleteCodingCounts(false);
+                this.GetReviewSetsIncompleteCodingCounts(false, trigger);
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
 
@@ -123,7 +125,7 @@ export class CodesetStatisticsService {
 
     }
 
-    public GetReviewSetsIncompleteCodingCounts(completed: boolean) {
+    public GetReviewSetsIncompleteCodingCounts(completed: boolean, trigger: Subject<any>) {
 
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
@@ -133,8 +135,9 @@ export class CodesetStatisticsService {
                 //console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
                 this.SaveIncompleteSets();
                 this.GetIncompleteSetsEmit.emit(result);
-                
                 this.formateSets();
+                console.log(this._tmpCodesets);
+                trigger.next();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
@@ -166,7 +169,7 @@ export class CodesetStatisticsService {
                         let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
 
                     if (tmpI) {
-                        tmpSet.ID = ind;
+                
                             tmpSet.countIncomplete = tmpI.numItems;
                             this._tmpCodesets.push(tmpSet);
                             continue;
@@ -182,7 +185,7 @@ export class CodesetStatisticsService {
                 if (tmp) {
                     let tmpSet = new StatsCompletion();
 
-                    tmpSet.ID = ind;
+         
                     tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = tmp.numItems;
                     tmpSet.countIncomplete = 0;
@@ -199,7 +202,7 @@ export class CodesetStatisticsService {
 
                 if (tmpI) {
                     let tmpSet = new StatsCompletion();
-                    tmpSet.ID = ind;
+    
                     tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = 0;
                     tmpSet.countIncomplete = tmpI.numItems;
@@ -218,6 +221,7 @@ export class CodesetStatisticsService {
         }
 
         this.SaveFormattedSets();
+
     }
     
     private Save() {
@@ -274,7 +278,6 @@ export interface ReviewStatisticsReviewer {
 
 export class StatsCompletion {
 
-    ID: number = 0;
     setName: string = '';
     countCompleted: number = 0;
     countIncomplete: number = 0;

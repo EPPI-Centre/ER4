@@ -39,7 +39,21 @@ export class readonlyreviewsService {
     }
     
     public set ReadOnlyReviews(ror: ReadOnlyReview[]) {
+
+
+        //for (var i = 0; i < ror.length; i++) {
+
+        //    var temp = new ReadOnlyReview(ror[i].reviewId,
+        //        ror[i].reviewName,
+        //        ror[i].reviewOwner,
+        //        ror[i].contactReviewRoles,
+        //        ror[i].lastAccess);
+
+        //    this.ReadOnlyReviews[i] = temp;
+
+        //}
         this._ReviewList = ror;
+
         this.Save();
     }
     
@@ -50,11 +64,21 @@ export class readonlyreviewsService {
            
             .subscribe(result => {
 
-                this.ReadOnlyReviews = result;
+                //for (var i = 0; i < result.length; i++) {
 
+                //    var temp = new ReadOnlyReview(result[i].reviewId,
+                //        result[i].reviewName,
+                //        result[i].reviewOwner,
+                //         result[i].contactReviewRoles,
+                //        result[i].lastAccess);
+
+                //    this.ReadOnlyReviews[i] = temp;
+                  
+                //}
+                this.ReadOnlyReviews = result;
                 dtTrigger.next();
-                console.log(result);
-            
+                
+                console.log(this.ReadOnlyReviews);
           
         }, error => { this.modalService.GenericError(error); }
           
@@ -71,9 +95,24 @@ export class readonlyreviewsService {
 }
 
 export class ReadOnlyReview {
+
     reviewId: string = "0";
     reviewName: string = "";
     contactReviewRoles: string="";
     reviewOwner: string="";
     lastAccess: string = "";
+
+    //constructor(ReviewId: string,
+    //    ReviewName: string,
+    //    ContactReviewRoles: string,
+    //    ReviewOwner: string,
+    //    LastAccess: string, )
+    //{
+
+    //    this.reviewId = ReviewId.toString().trim();
+    //    this.reviewName = ReviewName;
+    //    this.contactReviewRoles = ContactReviewRoles;
+    //    this.reviewOwner = ReviewOwner;
+    //    this.lastAccess = LastAccess;
+    //}
 }

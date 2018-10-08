@@ -83,8 +83,12 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         //this.chRef.detectChanges();
         //const table: any = $('table');
         //this.dataTable = table.DataTable(); 
+
         this.dtOptions = {
             pagingType: 'full_numbers',
+            columnDefs: [
+                { "type": "num", "targets": 1 }
+            ]
             //pageLength: 2
         };
 

@@ -1,7 +1,7 @@
 <p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
 <div class="table-responsive" style="max-height: 500px;">
-    <table id="user-table" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" dt-column-defs="showCase.dtColumnDefs" class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
+    <table id="user-table" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
         <thead>
             <tr>
                 <th>Full Reviewing</th>

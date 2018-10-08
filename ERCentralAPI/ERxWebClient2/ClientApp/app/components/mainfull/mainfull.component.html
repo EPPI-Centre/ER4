@@ -30,10 +30,10 @@
            
             <div class="card col-md-8  row">
                 <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
-                <table datatable class="table table-striped alpha"  *ngIf="codesetStatsServ.CompletedCodesets">
+                <table id="user-table2" datatable="ng"  [dtTrigger]="dtTrigger" class="table table-striped alpha"  *ngIf="codesetStatsServ.CompletedCodesets">
                     <thead>
                         <tr>
-                            <th> ID </th>
+                            <!--<th> ID </th>-->
                             <th> CodeSet Name  </th>
                             <th> Count Complete  </th>
                             <th> Count Incomplete</th>
@@ -42,7 +42,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
-                            <td>{{item.ind}}</td>
+                            <!--<td>{{item.ind}}</td>-->
                             <td>{{ item.setName }}</td>
                             <td>
                                 {{ item.countCompleted}}
