@@ -144,12 +144,13 @@
 
         </telerikNavigation:RadToolBar>
 
-        <telerikNavigation:RadToolBar Grid.Row="1" HorizontalAlignment="Stretch"
-				                        VerticalAlignment="Top" x:Name="ArmsToolBar" Visibility="Collapsed">
-            <TextBlock>Codes apply to:</TextBlock>
-            <ComboBox Name="ComboArms" DisplayMemberPath="ArmTitle" SelectedValuePath="ItemArmId" Height="30" SelectionChanged="ComboArms_SelectionChanged" Visibility="Collapsed" />
-            
-        </telerikNavigation:RadToolBar>
+        <Border BorderBrush="CadetBlue" Margin="2,1,2,1" BorderThickness="1" Grid.Row="1" MaxHeight="34" x:Name="ArmsToolBar" Visibility="Collapsed" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Stretch" telerikNavigation:RadToolBar.OverflowMode="Never"
+				                        VerticalAlignment="Top" >
+                <TextBlock VerticalAlignment="Center" Margin="1">Codes apply to:</TextBlock>
+                <ComboBox Name="ComboArms" DisplayMemberPath="ArmTitle" SelectedValuePath="ItemArmId" Margin="1" Height="30" SelectionChanged="ComboArms_SelectionChanged" Visibility="Collapsed" />
+            </StackPanel>
+        </Border>
 
         <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="3" HorizontalAlignment="Stretch" IsRunning="{Binding Source={StaticResource CodeSetsData}, Path=IsBusy}" />
         <sdk:GridSplitter Grid.Row="4" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Opacity="00"

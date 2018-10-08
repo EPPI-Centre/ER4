@@ -87,7 +87,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.router.navigate(['home']);
         }
         else {
-            this.ArmsCompRef.armChangedEE.subscribe((armId: number) => this.SetArmCoding(armId));
+            this.ArmsCompRef.armChangedEE.subscribe(() => {
+                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+                else this.SetArmCoding(0);
+            });
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
                 this.GetItem();
@@ -176,7 +179,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         }
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
-        this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
+        if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
+        else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     SetArmCoding(armId: number) {
         console.log('change Arm');

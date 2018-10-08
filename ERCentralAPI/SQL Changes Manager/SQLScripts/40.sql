@@ -107,3 +107,64 @@ AS
       UPDATE tb_SEARCH SET HITS_NO = @@ROWCOUNT WHERE SEARCH_ID = @SEARCH_ID
 
 GO
+
+
+--SERGIO: check before deleting an ARM
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 03/10/2018 15:46:33 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemArmDeleteWarning]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 03/10/2018 15:46:33 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+	@ITEM_ID BIGINT,
+	@ARM_ID BIGINT,
+	@NUM_CODINGS INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_CODINGS = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.ITEM_ID = @ITEM_ID
+		WHERE TB_ITEM_ATTRIBUTE.ITEM_ARM_ID = @ARM_ID
+SET NOCOUNT OFF
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 04/10/2018 10:47:26 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemArmDelete]
+(
+	@ITEM_ARM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	DELETE FROM TB_ITEM_ATTRIBUTE where ITEM_ARM_ID = @ITEM_ARM_ID
+	DELETE FROM TB_ITEM_ARM
+		WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+GO

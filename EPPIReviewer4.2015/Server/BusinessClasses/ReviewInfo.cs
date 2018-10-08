@@ -275,18 +275,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_TXProperty, value);
             }
         }
-        public static readonly PropertyInfo<bool> EnableArmsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("EnableArms", "EnableArms Id", false));
-        public bool EnableArms
-        {
-            get
-            {
-                return GetProperty(EnableArmsProperty);
-            }
-            set
-            {
-                SetProperty(EnableArmsProperty, value);
-            }
-        }
+        
 
         //protected override void AddAuthorizationRules()
         //{
@@ -402,7 +391,6 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(ScreeningAutoExcludeProperty, reader.GetBoolean("SCREENING_AUTO_EXCLUDE"));
                             LoadProperty<bool>(ScreeningModelRunningProperty, reader.GetBoolean("SCREENING_MODEL_RUNNING"));
                             LoadProperty<bool>(ScreeningIndexedProperty, reader.GetBoolean("SCREENING_INDEXED"));
-                            //LoadProperty<bool>(EnableArmsProperty, reader.GetBoolean("ENABLE_ARMS"));
                             //LoadProperty<string>(ScreeningDataFileProperty, reader.GetString("SCREENING_DATA_FILE"));
 
                             LoadProperty<string>(BL_ACCOUNT_CODEProperty, reader.GetString("BL_ACCOUNT_CODE"));
