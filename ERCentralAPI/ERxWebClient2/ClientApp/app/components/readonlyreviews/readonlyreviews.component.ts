@@ -9,7 +9,7 @@ import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { readonlyreviewsService, ReadOnlyReview } from '../services/readonlyreviews.service';
 import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
 import { take, map } from 'rxjs/operators';
-import { DataTableDirective } from 'angular-datatables';
+import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 
 @Component({
     selector: 'readonlyreviews',

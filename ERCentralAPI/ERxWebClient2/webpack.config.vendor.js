@@ -13,24 +13,26 @@ const treeShakableModules = [
     '@angular/platform-browser',
     '@angular/platform-browser-dynamic',
     '@angular/router',
-    'zone.js',
-    "datatables.net",
-    "datatables.net-dt"
+    'zone.js'
 ];
 
 const nonTreeShakableModules = [
-    'bootstrap',
+    //'bootstrap',
     'bootstrap/dist/css/bootstrap.css',
-    'es6-promise',
-    'es6-shim',
-    'event-source-polyfill',
-    'jquery',
-    '.\\CSS\\ERx.css',
+    //'es6-promise',
+    //'es6-shim',
+    //'event-source-polyfill',
+    //'jquery',
+    './CSS/ERx.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
-    'datatables.net-dt/css/jquery.dataTables.css',
-    //'datatables.net-dt'
-
+    //'datatables.net-dt/css/jquery.dataTables.css',
+    //'datatables.net',
+    //'datatables.net-dt',
+    //'./node_modules/jquery/src/jquery.js',
+    //'./node_modules/datatables.net-dt/js/dataTables.dataTables.js',
+    './node_modules/datatables.net-dt/css/jquery.dataTables.css',
+    './node_modules/datatables.net/js/jquery.dataTables.js'
 ];
 
 const allModules = treeShakableModules.concat(nonTreeShakableModules);
@@ -40,7 +42,14 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
     const sharedConfig = {
         stats: { modules: false },
-        resolve: { extensions: [ '.js' ] },
+        resolve: {
+            extensions: ['.js']
+            , alias: {
+                //from: https://stackoverflow.com/questions/42919079/jquery-is-not-defined-in-angular-webpack-site
+                //Force all modules to use the same jquery version.
+                'jquery': path.join(__dirname, './node_modules/jquery/src/jquery')
+            }
+        },
         module: {
             rules: [
                 { test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/, use: 'url-loader?limit=100000' }

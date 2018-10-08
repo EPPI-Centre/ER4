@@ -24,6 +24,7 @@ import { armsComp } from './components/arms/armsComp.component';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { DataTablesModule } from 'angular-datatables';
 
+
 @NgModule({
     declarations: [
         AppComponent,
