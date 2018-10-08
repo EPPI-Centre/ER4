@@ -87,6 +87,14 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         this.dtOptions = {
             pagingType: 'full_numbers',
             columnDefs: [
+                {
+                    "targets": 0,
+                    "orderable": false
+                },
+                {
+                    "targets": 4,
+                    "orderable": false
+                },
                 { "type": "num", "targets": 1 }
             ]
             //pageLength: 2
