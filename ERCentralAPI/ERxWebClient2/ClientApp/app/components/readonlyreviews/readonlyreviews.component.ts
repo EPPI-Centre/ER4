@@ -86,6 +86,9 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
 
         this.dtOptions = {
             pagingType: 'full_numbers',
+            paging: false,
+            searching: true,
+            scrollY: "350px",
             columnDefs: [
                 {
                     "targets": 0,
@@ -99,7 +102,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
             ]
             //pageLength: 2
         };
-
+        
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             console.log('user is empty...');
             this.router.navigate(['home']);

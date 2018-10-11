@@ -1,72 +1,119 @@
 <div class="container-fluid " resizable>
-    <HeaderComponent></HeaderComponent>
-    <div class="row flex-row">
+    <HeaderComponent ></HeaderComponent>
+    <div class="mt-1">
+        <ngb-tabset #tabset="ngbTabset" type="pills">
+            <ngb-tab id="ReviewHomeTab">
+                <ng-template ngbTabTitle><b>Review</b> home</ng-template>
+                <ng-template ngbTabContent class="bg-success">
+                    <div class="row flex-row">
+                        <div class="col-sm-12 col-md-7 col-lg-7 col-xl-8 py-2">
+                            <div class=" card bg-primary">
+                                <h5>Icons for VIP functions here...</h5>
+                            </div>
+                            <div class="card bg-light mt-2 ">
+                                <div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 bg-info">Review Items</div>
+                                <div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
+                                    <div class="col-3 mb-2">
+                                        <b>
+                                            Included:
+                                            <span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="IncludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsIncluded}}</span>
+                                        </b>
+                                    </div>
+                                    <div class="col-3">
+                                        <b>
+                                            Excluded: <span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="ExcludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsExcluded}}</span>
+                                        </b>
+                                    </div>
+                                    <div class="col-3">Deleted: {{ codesetStatsServ.ReviewStats.itemsDeleted}}</div>
+                                    <div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
+                                </div>
+                                <!--<table class="table" *ngIf="codesetStatsServ.ReviewStats">
+            <thead>
+                <tr>
+                    <th> Included  </th>
+                    <th> Excluded  </th>
+                    <th> Deleted   </th>
+                    <th> Duplicates </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>   </td>
+                    <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   </td>
+                    <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    </td>
+                    <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  </td>
+                </tr>
+            </tbody>
+        </table>-->
+                            </div>
+                            <div class="card bg-light mt-2 mb-1">
+                                <div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 bg-primary">Progress so far</div>
+                                <table id="user-table2" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
+                                    <thead>
+                                        <tr>
+                                            <!--<th> ID </th>-->
+                                            <th> CodeSet Name  </th>
+                                            <th> Count Complete  </th>
+                                            <th> Count Incomplete</th>
 
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 m-3">
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
+                                            <!--<td>{{item.ind}}</td>-->
+                                            <td>{{ item.setName }}</td>
+                                            <td>
+                                                {{ item.countCompleted}}
+                                                &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                                            </td>
+                                            <td>
+                                                {{ item.countIncomplete}}
+                                                &nbsp;
+                                                <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                                            </td>
 
-            <div class="card col-md-8 row">
-                <div class="card-header font-weight-bold text-xl-left bg-primary">Review Stats</div>
-                <table  class="table table-striped"  *ngIf="codesetStatsServ.ReviewStats">
-                    <thead>
-                        <tr>
-                            <th> Included  </th>
-                            <th> Excluded  </th>
-                            <th> Deleted   </th>
-                            <th> Duplicates </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsIncluded}}   </td>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   </td>
-                            <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    </td>
-                            <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-5 col-lg-5 col-xl-4 py-2">
+                            <div class="card card-body bg-light mt-2">
+                                {{MyInfoMessage()}}
+                            </div>
+                            <div class="card card-body ReviewsBg  mt-2 ">
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+                                            [attr.aria-expanded]="!isReviewPanelCollapsed">
+                                        My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                                    </button>
+                                </div>
+                                <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+                                                 style="max-height: 520px;"></readonlyreviews>
 
+                            </div>
+                        </div>
+                    </div>
 
-           
-            <div class="card col-md-8  row">
-                <div class="card-header font-weight-bold text-xl-left bg-primary">CODESET COUNTS</div>
-                <table id="user-table2" datatable="ng"  [dtTrigger]="dtTrigger" class="table table-striped alpha"  *ngIf="codesetStatsServ.CompletedCodesets">
-                    <thead>
-                        <tr>
-                            <!--<th> ID </th>-->
-                            <th> CodeSet Name  </th>
-                            <th> Count Complete  </th>
-                            <th> Count Incomplete</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
-                            <!--<td>{{item.ind}}</td>-->
-                            <td>{{ item.setName }}</td>
-                            <td>
-                                {{ item.countCompleted}}
-                                &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
-                            </td>
-                            <td>
-                                {{ item.countIncomplete}}
-                                &nbsp;
-                                <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
-
-                            </td>
-
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="card card-body bg-light mt-2">
-                    {{MyInfoMessage()}}
-                  
-                </div>
-                <statusbar class="col-sm-12 card-body" resizable></statusbar>
-            </div>
-                </div>
-
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab id="ItemListTab" title="Items">
+                <ng-template ngbTabContent>
+                    <div class=" card bg-primary">
+                        <h5>Icons for various functions here... (see ER4) </h5>
+                    </div>
+                    <div class="card card-body bg-light">
+                        <ItemListComp Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                    </div>
+                </ng-template>
+            </ngb-tab>
+            <ngb-tab title="another tab">
+                <ng-template ngbTabContent>
+                    <p>Yes, I'm another tab.</p>
+                </ng-template>
+            </ngb-tab>
+        </ngb-tabset>
+        <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>
     </div>
 </div>
 

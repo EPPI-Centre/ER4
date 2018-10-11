@@ -146,7 +146,7 @@ export class CodesetStatisticsService {
     }
 
     formateSets(): any {
-
+        this._tmpCodesets = [];
         let ind: number = 0;
         for (var i = 0; i < this.reviewSetsService.ReviewSets.length; i++) {
 
@@ -154,8 +154,9 @@ export class CodesetStatisticsService {
             
 
             var tempSetName = this.reviewSetsService.ReviewSets[i].set_name;
-            let index1: number = this._CompletedCodesets.findIndex(x => x.setName == tempSetName);
-            let index2: number = this._IncompleteCodesets.findIndex(x => x.setName == tempSetName);
+            var tempSetId = this.reviewSetsService.ReviewSets[i].set_id;
+            let index1: number = this._CompletedCodesets.findIndex(x => x.setId == tempSetId);
+            let index2: number = this._IncompleteCodesets.findIndex(x => x.setId == tempSetId);
 
             if (index1 != -1 && index2 != -1) {
 
@@ -240,6 +241,7 @@ export class CodesetStatisticsService {
         else if (localStorage.getItem('IncompleteSets')) localStorage.removeItem('IncompleteSets');
     }
     private SaveFormattedSets() {
+        console.log('saving formatted sets')
         if (this._tmpCodesets != undefined && this._tmpCodesets != null)
             localStorage.setItem('tmpCodesets', JSON.stringify(this._tmpCodesets));
         else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');

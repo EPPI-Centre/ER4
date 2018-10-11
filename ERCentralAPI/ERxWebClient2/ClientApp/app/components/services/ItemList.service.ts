@@ -197,7 +197,9 @@ export class ItemListService {
     }
     public ListDescription: string = "";
     public FetchWithCrit(crit: Criteria, listDescription: string) {
+        console.log(crit.listType);
         this._Criteria = crit;
+        console.log(this._Criteria.listType);
         this.ListDescription = listDescription;
             this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {

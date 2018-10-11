@@ -15,6 +15,7 @@ import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
+import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'mainfull',
@@ -43,6 +44,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     @ViewChild(WorkAllocationContactListComp)
     private workAllocationsComp!: WorkAllocationContactListComp;
+    @ViewChild('tabset') tabset!: NgbTabset;
+
 
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
@@ -83,9 +86,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
         this.dtOptions = {
             pagingType: 'full_numbers',
-            //columnDefs: [
-            //    { "type": "num", "targets": 1 }
-            //]
+            paging: false,
+            searching: false,
+            scrollY: "350px"
         };
 
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
@@ -115,6 +118,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         this.reviewSetsService.Clear();
         //this.dtTrigger.unsubscribe();
         this.statsSub.unsubscribe();
+    }
+    IncludedItemsList() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        this.ItemListService.FetchWithCrit(cr, "Included Items");
+        this.tabset.select('ItemListTab');
+    }
+    ExcludedItemsList() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        cr.onlyIncluded = false;
+        this.ItemListService.FetchWithCrit(cr, "Excluded Items");
+        this.tabset.select('ItemListTab');
     }
    
     MyInfoMessage(): string {

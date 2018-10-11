@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -33,6 +33,8 @@ export class ItemListComp implements OnInit {
     //private sub: any;
     //@Output() loadDefault = new EventEmitter();
 
+    @Input() Context: string | undefined;
+
     value = 1;
     onEnter(value: number) {
         this.value = value ;
@@ -64,8 +66,9 @@ export class ItemListComp implements OnInit {
        
         console.log('opening one: ' + itemId);
         if (itemId > 0) {
-
-            this.router.navigate(['itemcoding', itemId]);
+            if (this.Context == 'FullUI') alert("Nope, can't do: not implemented yet");
+            else if (this.Context == 'CodingOnly') this.router.navigate(['itemcoding', itemId]);
+            else alert("Sorry, don't know where we are, can't send you anywhere...");
         } 
     }
     ngOnInit() {
@@ -78,7 +81,7 @@ export class ItemListComp implements OnInit {
         }
     }
     nextPage() {
-        console.log('tester');
+        //console.log('tester');
         this.ItemListService.FetchNextPage();
     }
     prevPage() {

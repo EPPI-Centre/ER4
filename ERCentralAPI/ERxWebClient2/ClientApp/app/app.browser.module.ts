@@ -6,7 +6,6 @@ import { ReviewerIdentityService } from './components/services/revieweridentity.
 import { JwtInterceptor } from './components/helpers/jwt.interceptor'
 import { HomeComponent } from './components/home/home.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import * as $ from 'jquery';  
 
 //import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 
