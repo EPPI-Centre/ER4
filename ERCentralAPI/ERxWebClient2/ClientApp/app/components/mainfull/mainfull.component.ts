@@ -42,22 +42,43 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         
     }
 
-    @ViewChild(WorkAllocationContactListComp)
-    private workAllocationsComp!: WorkAllocationContactListComp;
+    @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
-
+    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
     public isReviewPanelCollapsed = false;
+    public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
 
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();
 
+    ngOnInit() {
+
+        this.dtOptions = {
+            pagingType: 'full_numbers',
+            paging: false,
+            searching: false,
+            scrollY: "350px"
+        };
+        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+            () => this.GetStats()
+        );
+        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ._tmpCodesets.length == 0)
+        ) this.Reload();
+    }
+
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
+        else return '&darr;';
+    }
+    public get WorkAllocationsPanelTogglingSymbol(): string {
+        if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
     }
     ngAfterViewInit() {
@@ -66,6 +87,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     }
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+    }
+    toggleWorkAllocationsPanel() {
+        this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
     }
     getDaysLeftAccount() {
 
@@ -82,42 +106,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
     };
     subOpeningReview: Subscription | null = null;
 
-    ngOnInit() {
-
-        this.dtOptions = {
-            pagingType: 'full_numbers',
-            paging: false,
-            searching: false,
-            scrollY: "350px"
-        };
-
-        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
-
-        this.reviewSetsService.GetReviewSets();
-
-        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-
-            () => {
-
-                this.codesetStatsServ.GetReviewStatisticsCountsCommand();
-
-                this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
-
-                
-            }
-        );
-    }
+    
 
     Reload() {
         this.Clear();
-        this.workAllocationsComp.getWorkAllocationContactList();
+        this.reviewSetsService.GetReviewSets();
+        if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
+        else console.log("work allocs comp is undef :-(");
     }
-
+    GetStats() {
+        this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+        this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
+    }
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
+        //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         //this.dtTrigger.unsubscribe();
-        this.statsSub.unsubscribe();
+        if (this.statsSub) this.statsSub.unsubscribe();
+        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+            () => this.GetStats()
+        );
     }
     IncludedItemsList() {
         let cr: Criteria = new Criteria();
@@ -131,6 +140,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         cr.onlyIncluded = false;
         this.ItemListService.FetchWithCrit(cr, "Excluded Items");
         this.tabset.select('ItemListTab');
+    }
+    GoToItemList() {
+        this.tabset.select('ItemListTab');
+    }
+    LoadWorkAllocList(workAlloc: WorkAllocation) {
+        console.log('try to load a (default?) work alloc');
+        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+        else console.log('attempt failed');
     }
    
     MyInfoMessage(): string {

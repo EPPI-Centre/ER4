@@ -66,8 +66,8 @@ export class ItemListComp implements OnInit {
        
         console.log('opening one: ' + itemId);
         if (itemId > 0) {
-            if (this.Context == 'FullUI') alert("Nope, can't do: not implemented yet");
-            else if (this.Context == 'CodingOnly') this.router.navigate(['itemcoding', itemId]);
+            if (this.Context == 'FullUI') this.router.navigate(['itemcoding', itemId]);
+            else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', itemId]);
             else alert("Sorry, don't know where we are, can't send you anywhere...");
         } 
     }

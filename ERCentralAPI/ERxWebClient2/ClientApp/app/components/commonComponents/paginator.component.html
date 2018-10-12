@@ -15,14 +15,14 @@
             </button>
 
         </div>
-        <div class="p-1 " style="width:160px; min-width:160px; white-space: nowrap;">
+        <div class="p-1 " style="white-space: nowrap;">
             <span>Page:&nbsp;</span>
             <input [attr.disabled]="ItemListService.ItemList.pagecount === 1 ? '' : null"
                    [disabled]="ItemListService.ItemList.pagecount === 1"
                    class="" #box (keyup.enter)="onEnter(box.value)"
                    value="{{ItemListService.ItemList.pageindex + 1}}"
                    style="width:75px; min-width:75px">
-            <span>&nbsp;of&nbsp;{{ItemListService.ItemList.pagecount}}</span>
+            &nbsp;of&nbsp;{{ItemListService.ItemList.pagecount}}
         </div>
         <div class="">
             <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === ItemListService.ItemList.pagecount}"
@@ -38,7 +38,7 @@
                 Last
             </button>
         </div>
-        <div class="m-1 small align-content-end mt-lg-2 mt-md-0 mt-sm-0" style="text-wrap:normal">Showing {{ItemListService.ItemList.items.length}} items of {{ItemListService.ItemList.totalItemCount}}</div>
+        <div class="m-1 small align-content-end mt-lg-2 mt-md-2 mt-sm-2 mt-0" style="text-wrap:normal">Showing {{ItemListService.ItemList.items.length}} items of {{ItemListService.ItemList.totalItemCount}}</div>
     </div>
 
     

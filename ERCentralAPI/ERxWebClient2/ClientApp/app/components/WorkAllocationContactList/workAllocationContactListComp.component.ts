@@ -1,5 +1,5 @@
 /// <reference path="../services/itemlist.service.ts" />
-import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -31,8 +31,9 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     @Output() criteriaChange = new EventEmitter();
-    //@Output() dataChange = new EventEmitter();
+    @Output() AllocationClicked = new EventEmitter();
     private subWorkAllocationsLoaded: Subscription | null = null;
+    @Input() Context: string | undefined;
     public ListSubType: string = "GetItemWorkAllocationList";
 
     public get clickedIndex(): string {
@@ -63,8 +64,14 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
     //will pick the ItemList to load. If one was 
     LoadDefaultItemList() {
+        console.log(this.ItemListService.ListCriteria.workAllocationId + " | " + this.ItemListService.ListCriteria.listType);
         if (!this._workAllocationContactListService.workAllocations) return;
-        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
+        
+        if (this.ItemListService
+            && this.ItemListService.ListCriteria
+            && this.ItemListService.ListCriteria.workAllocationId != 0
+            && this.ItemListService.ListCriteria.listType.startsWith('GetItemWorkAllocation')
+        ) {
             //we want to reload this list, no matter what it is...
             // waStarted-921 :GetItemWorkAllocationListStarted
             //waRemaining-921:GetItemWorkAllocationListRemaining
@@ -81,6 +88,14 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             this.ItemListService.Refresh();
             return;
         }
+        if (this.ItemListService
+            && this.ItemListService.ListCriteria
+            && !this.ItemListService.ListCriteria.listType.startsWith('GetItemWorkAllocation')
+        ) {
+            console.log('returning');
+            return;
+        }//current list is not a work allocation: don't reload it (applies to main interface)
+        
         for (let workAll of this._workAllocationContactListService.workAllocations) {
             if (workAll.totalRemaining > 0) {
 
@@ -109,6 +124,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             if (workAll.workAllocationId == workAllocationId) {
                 this.ListSubType = subtype;
                 this.criteriaChange.emit(workAll);
+                this.AllocationClicked.emit();
                 return;
             }
         }
@@ -173,7 +189,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
     ContinueStartScreening() {
         if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
-        this.router.navigate(['itemcoding', 'PriorityScreening']);
+        if (this.Context == 'FullUI') this.router.navigate(['itemcoding', 'PriorityScreening']);
+        else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'PriorityScreening']);
     }
     ngOnDestroy() {
         //console.log('killing work alloc comp');

@@ -236,7 +236,15 @@ export class CodesetStatisticsService {
             localStorage.setItem('tmpCodesets', JSON.stringify(this._tmpCodesets));
         else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');
     }
-       
+    public Clear() {
+        this._ReviewStats = {
+            itemsIncluded: -1,
+            itemsExcluded: -1,
+            itemsDeleted: -1,
+            duplicateItems: -1
+        };
+        this._tmpCodesets = [];
+    }   
 }
 export interface ReviewStatisticsCountsCommand {
     itemsIncluded: number;

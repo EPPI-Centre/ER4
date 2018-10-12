@@ -1,12 +1,12 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
     <div class="mt-1">
-        <ngb-tabset #tabset="ngbTabset" type="pills">
+        <ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
             <ngb-tab id="ReviewHomeTab">
                 <ng-template ngbTabTitle><b>Review</b> home</ng-template>
-                <ng-template ngbTabContent class="bg-success">
+                <ng-template ngbTabContent>
                     <div class="row flex-row">
-                        <div class="col-sm-12 col-md-7 col-lg-7 col-xl-8 py-2">
+                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
                             <div class=" card bg-primary">
                                 <h5>Icons for VIP functions here...</h5>
                             </div>
@@ -27,24 +27,6 @@
                                     <div class="col-3">Deleted: {{ codesetStatsServ.ReviewStats.itemsDeleted}}</div>
                                     <div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
                                 </div>
-                                <!--<table class="table" *ngIf="codesetStatsServ.ReviewStats">
-            <thead>
-                <tr>
-                    <th> Included  </th>
-                    <th> Excluded  </th>
-                    <th> Deleted   </th>
-                    <th> Duplicates </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>   </td>
-                    <td>{{ codesetStatsServ.ReviewStats.itemsExcluded}}   </td>
-                    <td>{{ codesetStatsServ.ReviewStats.itemsDeleted}}    </td>
-                    <td>{{ codesetStatsServ.ReviewStats.duplicateItems}}  </td>
-                </tr>
-            </tbody>
-        </table>-->
                             </div>
                             <div class="card bg-light mt-2 mb-1 container" style="max-height:500px; overflow-y: auto;">
                                 <div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 bg-primary col-12">Progress so far</div>
@@ -67,41 +49,10 @@
                                         &nbsp;
                                         <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
                                     </div>
-                                </div>
-                                    <!--<table id="user-table2" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
-        <thead>
-            <tr>
-                <th> CodeSet Name  </th>
-                <th> Count Complete  </th>
-                <th> Count Incomplete</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
-                <td>
-                    <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                    <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                    <span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
-                                      'AdminSet' : item.subTypeName == 'Administration' }">
-                        {{ item.setName }} & {{item.subTypeName}} & {{item.order}}
-                    </span>
-                </td>
-                <td>
-                    {{ item.countCompleted}}
-                    &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
-                </td>
-                <td>
-                    {{ item.countIncomplete}}
-                    &nbsp;
-                    <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
-                </td>
-
-            </tr>
-        </tbody>
-    </table>-->
-                                </div>
+                                </div>   
+                            </div>
                         </div>
-                        <div class="col-sm-12 col-md-5 col-lg-5 col-xl-4 py-2">
+                        <div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
                             <div class="card card-body bg-light mt-2">
                                 {{MyInfoMessage()}}
                             </div>
@@ -116,6 +67,21 @@
                                                  style="max-height: 520px;"></readonlyreviews>
 
                             </div>
+                            <div class="card card-body ReviewsBg  mt-2 ">
+                                <div>
+                                    <button type="button" class="btn btn-outline-primary" (click)="toggleWorkAllocationsPanel()"
+                                            [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
+                                        My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
+                                    </button>
+                                </div>
+                                <WorkAllocationContactListComp  #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
+                                                               (AllocationClicked)="GoToItemList()"
+                                                               [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
+                                                               resizable r-directions="['right']" r-flex="true"
+                                                               class="mt-2"
+                                                               Context="FullUI"
+                                                               style="max-height: 420px;"></WorkAllocationContactListComp>
+                            </div>
                         </div>
                     </div>
 
@@ -127,7 +93,7 @@
                         <h5>Icons for various functions here... (see ER4) </h5>
                     </div>
                     <div class="card card-body bg-light">
-                        <ItemListComp Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                        <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                     </div>
                 </ng-template>
             </ngb-tab>

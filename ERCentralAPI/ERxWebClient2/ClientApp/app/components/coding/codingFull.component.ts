@@ -21,8 +21,8 @@ import { armsComp } from '../arms/armsComp.component';
 
 @Component({
    
-    selector: 'itemcoding',
-    templateUrl: './coding.component.html',
+    selector: 'itemcodingFull',
+    templateUrl: './codingFull.component.html',
     //providers: [ReviewerIdentityService]
     providers: [],
     styles: [`
@@ -32,7 +32,7 @@ import { armsComp } from '../arms/armsComp.component';
             `]
 
 })
-export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
+export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService
@@ -45,8 +45,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         private armservice: ArmsService
     ) { }
    
-    @ViewChild('cmp')
+    @ViewChild('ArmsCmp')
     private ArmsCompRef!: any;
+    @ViewChild('ItemDetailsCmp')
+    private ItemDetailsCompRef!: any;
 
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
@@ -60,10 +62,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
-    public HAbstract: string = "";
-    public HTitle: string = "";
-    @ViewChild('ItemDetailsCmp')
-    private ItemDetailsCompRef!: any;
+    
+
 
 
 
@@ -186,6 +186,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }
     
+    
+    
+    
     private _hasPrevious: boolean | null = null;
     hasPrevious(): boolean {
         
@@ -255,7 +258,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this.WipeHighlights();
         this.clearItemData();
         console.log('what do you need me to do?' + item.itemId);
-        this.router.navigate(['itemcodingOnly', item.itemId]);
+        this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
         if (this.item.itemId != this.itemID) {
 
@@ -265,7 +268,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     BackToMain() {
         this.clearItemData();
-        this.router.navigate(['main']);
+        this.router.navigate(['mainFullReview']);
     }
     ItemAttributeSave(data: CheckBoxClickedEventData) {
         
@@ -398,9 +401,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
-    toHTML(text: string): string {
-        return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    }
+    
     ngOnDestroy() {
         //console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();

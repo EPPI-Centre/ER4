@@ -6,7 +6,7 @@
     <div class="h-100 mh-100 pr-0 ">
         <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
             <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
-                <ArmsComp #cmp class="card-text"></ArmsComp>
+                <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
                 <reviewsets class="bg-light"></reviewsets>
             </div>
             <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end row">
@@ -95,7 +95,26 @@
                     </div>
 
                 </div>
-                <itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
+
+                <ngb-tabset type="pills">
+                    <ngb-tab title="Item Details">
+                        <ng-template ngbTabContent>
+                            <itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
+                        </ng-template>
+                    </ngb-tab>
+                    <ngb-tab title="Coding Record">
+                        <ng-template ngbTabContent>
+                            <p>
+                                coding record component goes here!
+                            </p>
+                        </ng-template>
+                    </ngb-tab>
+                    <ngb-tab title="PDF" [disabled]="true">
+                        <ng-template ngbTabContent>
+                            
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
             </div>
 
         </div>

@@ -23,6 +23,8 @@ import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.compo
 import { armsComp } from './components/arms/armsComp.component';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { DataTablesModule } from 'angular-datatables';
+import { ItemCodingFullComp } from './components/coding/codingFull.component';
+import { itemDetailsComp } from './components/itemDetails/itemDetails.component';
 
 
 @NgModule({
@@ -35,6 +37,8 @@ import { DataTablesModule } from 'angular-datatables';
         WorkAllocationContactListComp,
         ItemListComp,
         ItemCodingComp,
+        ItemCodingFullComp,
+        itemDetailsComp,
         paginatorComp,
         StatusBarComponent,
         InfoBoxModalContent,
@@ -62,7 +66,8 @@ import { DataTablesModule } from 'angular-datatables';
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'mainFullReview', component: MainFullReviewComponent }, 
             { path: 'main', component: MainComponent }, 
-            { path: 'itemcoding/:itemId', component: ItemCodingComp },
+            { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
+            { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }

@@ -11,7 +11,10 @@
                 <div class="card-body">
                     <h3 class="card-title">Work Allocation List</h3>
                     <p class="card-text">
-                        <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)' resizable r-directions="['right']" r-flex="true"></WorkAllocationContactListComp>
+                        <WorkAllocationContactListComp (criteriaChange)='LoadWorkAllocList($event)'
+                                                       Context="CodingOnly"
+                                                       resizable r-directions="['right']" r-flex="true">
+                        </WorkAllocationContactListComp>
                     </p>
                 </div>
             </div>
