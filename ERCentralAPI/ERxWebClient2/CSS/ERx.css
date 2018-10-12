@@ -23,7 +23,16 @@ body {
 }
 
 .thumbnail img {
-
     height: 30px;
-
 }
+.ScreeningSet {
+    color: #00BB00;
+}
+
+.AdminSet {
+    color: #0000DD;
+}
+
+.ExcludeCode {
+    color: #FF7777;
+} 

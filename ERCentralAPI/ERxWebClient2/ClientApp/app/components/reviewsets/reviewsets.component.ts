@@ -12,11 +12,7 @@ import { ArmsService } from '../services/arms.service';
 
 @Component({
     selector: 'reviewsets',
-    styles: [`
-                .ScreeningSet { color: #00BB00;} 
-                .AdminSet { color: #0000DD;} 
-                .ExcludeCode { color: #FF7777;} 
-                .bt-infoBox {    
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;

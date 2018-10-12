@@ -46,36 +46,60 @@
             </tbody>
         </table>-->
                             </div>
-                            <div class="card bg-light mt-2 mb-1">
-                                <div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 bg-primary">Progress so far</div>
-                                <table id="user-table2" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
-                                    <thead>
-                                        <tr>
-                                            <!--<th> ID </th>-->
-                                            <th> CodeSet Name  </th>
-                                            <th> Count Complete  </th>
-                                            <th> Count Incomplete</th>
+                            <div class="card bg-light mt-2 mb-1 container" style="max-height:500px; overflow-y: auto;">
+                                <div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 bg-primary col-12">Progress so far</div>
+                                <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 bg-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ._tmpCodesets">
+                                    <div class="bg-white col-6 mr-1 rounded">
+                                        <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                                        <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                                        <span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
+                                                     'AdminSet' : item.subTypeName == 'Administration' }"
+                                              class="font-weight-bold">
+                                            {{ item.setName }}
+                                        </span>
+                                    </div>
+                                    <div class="bg-white col-2 mr-1 rounded">
+                                        {{ item.countCompleted}}
+                                        &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                                    </div>
+                                    <div class="bg-white col-2 mr-1 rounded">
+                                        {{ item.countIncomplete}}
+                                        &nbsp;
+                                        <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                                    </div>
+                                </div>
+                                    <!--<table id="user-table2" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-striped alpha" *ngIf="codesetStatsServ.CompletedCodesets">
+        <thead>
+            <tr>
+                <th> CodeSet Name  </th>
+                <th> Count Complete  </th>
+                <th> Count Incomplete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
+                <td>
+                    <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                    <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                    <span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
+                                      'AdminSet' : item.subTypeName == 'Administration' }">
+                        {{ item.setName }} & {{item.subTypeName}} & {{item.order}}
+                    </span>
+                </td>
+                <td>
+                    {{ item.countCompleted}}
+                    &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                </td>
+                <td>
+                    {{ item.countIncomplete}}
+                    &nbsp;
+                    <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                </td>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let item of codesetStatsServ._tmpCodesets">
-                                            <!--<td>{{item.ind}}</td>-->
-                                            <td>{{ item.setName }}</td>
-                                            <td>
-                                                {{ item.countCompleted}}
-                                                &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
-                                            </td>
-                                            <td>
-                                                {{ item.countIncomplete}}
-                                                &nbsp;
-                                                <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
-                                            </td>
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+            </tr>
+        </tbody>
+    </table>-->
+                                </div>
                         </div>
                         <div class="col-sm-12 col-md-5 col-lg-5 col-xl-4 py-2">
                             <div class="card card-body bg-light mt-2">

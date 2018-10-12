@@ -157,18 +157,18 @@ export class CodesetStatisticsService {
             var tempSetId = this.reviewSetsService.ReviewSets[i].set_id;
             let index1: number = this._CompletedCodesets.findIndex(x => x.setId == tempSetId);
             let index2: number = this._IncompleteCodesets.findIndex(x => x.setId == tempSetId);
-
+            let tmpSet = new StatsCompletion();
+            tmpSet.codingIsFinal = this.reviewSetsService.ReviewSets[i].codingIsFinal;
+            tmpSet.order = this.reviewSetsService.ReviewSets[i].order;
+            tmpSet.subTypeName = this.reviewSetsService.ReviewSets[i].subTypeName;
+            tmpSet.setName = tempSetName;
             if (index1 != -1 && index2 != -1) {
 
                 ind += 1;
-                let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
+                let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setId == tempSetId);
                 if (tmp) {
-                        let tmpSet = new StatsCompletion();
-                        tmpSet.setName = tempSetName;
-                        tmpSet.countCompleted = tmp.numItems;
-                
-                        let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
-
+                    tmpSet.countCompleted = tmp.numItems;
+                    let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setId == tempSetId);
                     if (tmpI) {
                 
                             tmpSet.countIncomplete = tmpI.numItems;
@@ -184,10 +184,6 @@ export class CodesetStatisticsService {
                 let tmp: ReviewStatisticsCodeSet | undefined = this._CompletedCodesets.find(x => x.setName == tempSetName);
                 
                 if (tmp) {
-                    let tmpSet = new StatsCompletion();
-
-         
-                    tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = tmp.numItems;
                     tmpSet.countIncomplete = 0;
                     this._tmpCodesets.push(tmpSet);
@@ -202,9 +198,6 @@ export class CodesetStatisticsService {
                 let tmpI: ReviewStatisticsCodeSet | undefined = this._IncompleteCodesets.find(x => x.setName == tempSetName);
 
                 if (tmpI) {
-                    let tmpSet = new StatsCompletion();
-    
-                    tmpSet.setName = tempSetName;
                     tmpSet.countCompleted = 0;
                     tmpSet.countIncomplete = tmpI.numItems;
                     this._tmpCodesets.push(tmpSet);
@@ -212,15 +205,12 @@ export class CodesetStatisticsService {
                 }
                
             }
-
-            let tmpSet = new StatsCompletion();
-            tmpSet.setName = tempSetName;
             tmpSet.countCompleted = 0;
             tmpSet.countIncomplete = 0;
             this._tmpCodesets.push(tmpSet);
 
         }
-
+        this._tmpCodesets.sort(function (a, b) { return a.order - b.order });
         this.SaveFormattedSets();
 
     }
@@ -283,5 +273,7 @@ export class StatsCompletion {
     setName: string = '';
     countCompleted: number = 0;
     countIncomplete: number = 0;
-
+    public order: number = 0;
+    public subTypeName: string = '';//admin, standard or screening
+    codingIsFinal: boolean = true;//normal or comparison mode
 }
