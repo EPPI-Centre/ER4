@@ -69,7 +69,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
             () => this.GetStats()
         );
         if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ._tmpCodesets.length == 0)
+            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
     }
 
