@@ -13,7 +13,7 @@ ALTER ASSEMBLY UserFunctions
    WITH PERMISSION_SET = UNSAFE;
 go
 
-CREATE FUNCTION [dbo].[ToShortSearchText](@S1 [nvarchar](2000))
+CREATE FUNCTION [dbo].[ToShortSearchText](@S1 [nvarchar](2000)) 
 RETURNS [nvarchar](1000) WITH EXECUTE AS CALLER
 AS 
 EXTERNAL NAME [UserFunctions].[StoredFunctions].[ToShortSearchText]
