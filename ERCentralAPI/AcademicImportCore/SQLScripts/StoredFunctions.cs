@@ -99,14 +99,14 @@ public partial class StoredFunctions
     public static SqlString ToShortSearchText(SqlString s)
     {
         string ss = RemoveLanguageAndThesisText(s.Value.ToString());
-        SqlString r = ToSimpleText(RemoveDiacritics(ss))
+        SqlString r = Truncate(ToSimpleText(RemoveDiacritics(ss))
                 .Replace("a", "")
                 .Replace("e", "")
                 .Replace("i", "")
                 .Replace("o", "")
                 .Replace("u", "")
                 .Replace("ize", "")
-                .Replace("ise", "");
+                .Replace("ise", ""), 500);
         return r;
     }
 
@@ -145,6 +145,12 @@ public partial class StoredFunctions
             }
         }
         return s;
+    }
+
+    public static string Truncate(string value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
     }
 
     // **************************** END TOSHORTSEARCHTEXT ******************************
