@@ -41,13 +41,12 @@
                                         </span>
                                     </div>
                                     <div class="bg-white col-2 mr-1 rounded">
-                                        {{ item.countCompleted}}
-                                        &nbsp;  <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                                        <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                                        &nbsp;{{ item.countCompleted}}
                                     </div>
                                     <div class="bg-white col-2 mr-1 rounded">
-                                        {{ item.countIncomplete}}
-                                        &nbsp;
                                         <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                                        &nbsp; {{ item.countIncomplete}}
                                     </div>
                                 </div>   
                             </div>
