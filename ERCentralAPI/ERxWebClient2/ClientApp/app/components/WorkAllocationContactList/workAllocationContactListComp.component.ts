@@ -18,6 +18,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     providers: []
 })
+
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,

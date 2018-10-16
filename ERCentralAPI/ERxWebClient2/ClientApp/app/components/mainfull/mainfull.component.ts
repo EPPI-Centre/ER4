@@ -68,7 +68,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
         );
-        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+			|| (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
     }
@@ -82,7 +83,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         else return '&darr;';
     }
     ngAfterViewInit() {
-
 
     }
     toggleReviewPanel() {
