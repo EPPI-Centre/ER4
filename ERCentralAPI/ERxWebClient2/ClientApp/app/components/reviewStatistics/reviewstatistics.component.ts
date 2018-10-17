@@ -142,8 +142,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		cr.listType = 'StandardItemList';
 		cr.onlyIncluded = false;
 		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
-		console.log('selecting tab 2...');
-		this.tabset.select('ItemListTab');
+		this.tabSelectEvent.emit();
+		//this.tabset.select('ItemListTab');
 	}
 	GoToItemList() {
 		console.log('selecting tab 3...');

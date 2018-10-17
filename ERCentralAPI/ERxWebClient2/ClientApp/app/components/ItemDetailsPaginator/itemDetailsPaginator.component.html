@@ -34,8 +34,34 @@
 			</button>
 		</div>
 		<div class="m-1 small align-content-end mt-2">Item {{MyHumanIndex()}} of {{ItemListService.ItemList.items.length}}</div>
-
+		<div class="col-lg-6 col-12 col-md-12 col-xl-6 col-sm-12 pr-0 pl-0
+                                     order-lg-last
+                                     order-xl-last
+                                     order-md-first
+                                     order-sm-first
+                                     order-first
+                                     float-right
+                                      align-content-start pr-0 pull-right">
+			<div class="justify-content-end mt-0 mb-3 ml-0 mr-0 row w-100">
+				<div class="row bg-info float-right mb-1 pb-1 ml-2 mr-1">
+					<div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
+						Auto Advance?
+						<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+					</div>
+				</div>
+				<div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-1">
+					<div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
+						Show terms?
+						<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+					</div>
+				</div>
+				<button class="page-link pt-0 pb-1 mb-1" (click)="BackToMain()">
+					Close/back
+				</button>
+			</div>
+		</div>
 	</div>
+
 	<ul *ngIf="IsScreening" class="pagination justify-content-start">
 		<li>
 			<button [ngClass]="{disabled:!HasPreviousScreening()}"
