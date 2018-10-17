@@ -1,13 +1,13 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
     <div class="mt-1">
-        <ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
+        <ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills" >
             <ngb-tab id="ReviewHomeTab">
                 <ng-template ngbTabTitle><b>Review</b> home</ng-template>
                 <ng-template ngbTabContent>
 					<div class="row flex-row">
 							<div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
-								<reviewStatisticsComp></reviewStatisticsComp>
+								<reviewStatisticsComp (tabSelectEvent)="alertT()"></reviewStatisticsComp>
 							</div>
 							<div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
 								<div class="card card-body bg-light mt-2">
@@ -42,16 +42,17 @@
 							</div>
 						</div>
 
-</ng-template>
+			</ng-template>
             </ngb-tab>
             <ngb-tab id="ItemListTab" title="Items">
                 <ng-template ngbTabContent>
                     <div class=" card bg-primary">
                         <h5>Icons for various functions here... (see ER4) </h5>
                     </div>
-                    <div class="card card-body bg-light">
-                        <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
-                    </div>
+					<div class="card card-body bg-light">
+						<!---->
+						<ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+					</div>
                 </ng-template>
             </ngb-tab>
             <ngb-tab title="another tab">

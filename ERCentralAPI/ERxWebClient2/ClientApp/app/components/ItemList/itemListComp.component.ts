@@ -42,7 +42,7 @@ export class ItemListComp implements OnInit {
     }
     
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
-
+		console.log('in here 4');
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
@@ -59,7 +59,8 @@ export class ItemListComp implements OnInit {
         else {
             ListDescr = "work allocation (unknown)";
         }      
-        this.ItemListService.FetchWithCrit(crit, ListDescr);
+		this.ItemListService.FetchWithCrit(crit, ListDescr);
+		console.log('this is wierd');
     }
 
     OpenItem(itemId: number) {
@@ -78,6 +79,7 @@ export class ItemListComp implements OnInit {
         }
         else {
             //this.loadDefault.emit();
+			console.log('initiated item List: ' + this.ItemListService.currentItem);
         }
     }
     nextPage() {

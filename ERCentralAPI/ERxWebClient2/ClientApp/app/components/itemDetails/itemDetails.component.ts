@@ -25,7 +25,8 @@ export class itemDetailsComp implements OnInit {
     @Input() ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
-    ngOnInit() {
+	ngOnInit() {
+
     }
 
     public WipeHighlights() {

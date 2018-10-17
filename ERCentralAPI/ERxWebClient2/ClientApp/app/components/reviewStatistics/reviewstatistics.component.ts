@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import {  Subject, Subscription } from 'rxjs';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { MainFullReviewComponent } from '../mainfull/mainfull.component';
 
 
 @Component({
@@ -20,22 +21,24 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
     providers: []
 })
 
-export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
+export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	constructor(private router: Router,
 		public ReviewerIdentityServ: ReviewerIdentityService,
 		private reviewSetsService: ReviewSetsService,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private _httpC: HttpClient,
 		private ItemListService: ItemListService,
-		public codesetStatsServ: CodesetStatisticsService
+		public codesetStatsServ: CodesetStatisticsService,
+		private mainFullReviewComponent: MainFullReviewComponent
 	) {
 
 	}
-  
 
 	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
 	@ViewChild('tabset') tabset!: NgbTabset;
+	tabsInitialized: boolean = false;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+	@Output() tabSelectEvent = new EventEmitter();
 
 	public stats: ReviewStatisticsCountsCommand | null = null;
 	public countDown: any | undefined;
@@ -47,8 +50,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
 	dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 
+
+
 	ngOnInit() {
 
+		console.log('inititating stats');
 		this.dtOptions = {
 			pagingType: 'full_numbers',
 			paging: false,
@@ -57,8 +63,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
 		};
 		this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
 		this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-			() => this.GetStats()
-		);
+			
+			() => {
+				console.log('gettign the stats');
+				this.GetStats()
+			}
+				);
 		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
 			|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
 		) this.Reload();
@@ -72,10 +82,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
 		if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
 		else return '&darr;';
 	}
-	ngAfterViewInit() {
 
-
-	}
+	
 	toggleReviewPanel() {
 		this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
 	}
@@ -105,6 +113,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	GetStats() {
+		console.log('geting stats');
 		this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 		this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
 	}
@@ -119,20 +128,25 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy, AfterViewInit {
 			() => this.GetStats()
 		);
 	}
+
 	IncludedItemsList() {
 		let cr: Criteria = new Criteria();
 		cr.listType = 'StandardItemList';
 		this.ItemListService.FetchWithCrit(cr, "Included Items");
-		this.tabset.select('ItemListTab');
+		console.log('selecting tab...');
+		this.tabSelectEvent.emit();
+		//this.tabset.select('ItemListTab');
 	}
 	ExcludedItemsList() {
 		let cr: Criteria = new Criteria();
 		cr.listType = 'StandardItemList';
 		cr.onlyIncluded = false;
 		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
+		console.log('selecting tab 2...');
 		this.tabset.select('ItemListTab');
 	}
 	GoToItemList() {
+		console.log('selecting tab 3...');
 		this.tabset.select('ItemListTab');
 	}
 	LoadWorkAllocList(workAlloc: WorkAllocation) {

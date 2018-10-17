@@ -29,7 +29,7 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
      ,providers: []
 
 })
-export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit {
+export class MainFullReviewComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         //private ReviewInfoService: ReviewInfoService,
@@ -42,9 +42,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         
     }
 
-    @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+ //   @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
-    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
+ //   @ViewChild('ItemList') ItemListComponent!: ItemListComp;
+	//tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
@@ -55,15 +56,21 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();
-
+	alertT() {
+		alert('hello punks..');
+		this.tabset.select('ItemListTab');
+	}
     ngOnInit() {
+
+
 
         this.dtOptions = {
             pagingType: 'full_numbers',
             paging: false,
             searching: false,
             scrollY: "350px"
-        };
+		};
+		this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
@@ -82,9 +89,41 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
         if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
     }
-    ngAfterViewInit() {
+	//ngAfterViewInit() {
+	//	this.tabsInitialized = true;
+	//	console.log('tabs initialised');
+	//}
+	//IncludedItemsList() {
+	//	let cr: Criteria = new Criteria();
+	//	cr.listType = 'StandardItemList';
+	//	this.ItemListService.FetchWithCrit(cr, "Included Items");
+	//	console.log('selecting tab...');
+	//	this.tabset.select('ItemListTab');
+	//}
+	//ExcludedItemsList() {
+	//	let cr: Criteria = new Criteria();
+	//	cr.listType = 'StandardItemList';
+	//	cr.onlyIncluded = false;
+	//	this.ItemListService.FetchWithCrit(cr, "Excluded Items");
+	//	console.log('selecting tab 2...');
+	//	this.tabset.select('ItemListTab');
+	//}
+	//GoToItemList() {
+	//	console.log('selecting tab 3...');
+	//	this.tabset.select('ItemListTab');
+	//}
+	//LoadWorkAllocList(workAlloc: WorkAllocation) {
+	//	console.log('try to load a (default?) work alloc');
+	//	if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+	//	else console.log('attempt failed');
+	//}
+	//ngOnChanges() {
+	//	if (this.tabsInitialized) {
+	//		console.log('tabs experiment');
 
-    }
+	//		this.tabset.select('ItemListTab');
+	//	}
+	//}
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
     }
@@ -108,11 +147,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
 
     
 
-    Reload() {
+	Reload() {
+		console.log('should be getting review sets..');
         this.Clear();
         this.reviewSetsService.GetReviewSets();
-        if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
-        else console.log("work allocs comp is undef :-(");
+        //if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
+        //else console.log("work allocs comp is undef :-(");
     }
     GetStats() {
         this.codesetStatsServ.GetReviewStatisticsCountsCommand();
@@ -128,27 +168,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy, AfterViewInit
             () => this.GetStats()
         );
     }
-    IncludedItemsList() {
-        let cr: Criteria = new Criteria();
-        cr.listType = 'StandardItemList';
-        this.ItemListService.FetchWithCrit(cr, "Included Items");
-        this.tabset.select('ItemListTab');
-    }
-    ExcludedItemsList() {
-        let cr: Criteria = new Criteria();
-        cr.listType = 'StandardItemList';
-        cr.onlyIncluded = false;
-        this.ItemListService.FetchWithCrit(cr, "Excluded Items");
-        this.tabset.select('ItemListTab');
-    }
-    GoToItemList() {
-        this.tabset.select('ItemListTab');
-    }
-    LoadWorkAllocList(workAlloc: WorkAllocation) {
-        console.log('try to load a (default?) work alloc');
-        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
-        else console.log('attempt failed');
-    }
+    //IncludedItemsList() {
+    //    let cr: Criteria = new Criteria();
+    //    cr.listType = 'StandardItemList';
+    //    this.ItemListService.FetchWithCrit(cr, "Included Items");
+    //    this.tabset.select('ItemListTab');
+    //}
+    //ExcludedItemsList() {
+    //    let cr: Criteria = new Criteria();
+    //    cr.listType = 'StandardItemList';
+    //    cr.onlyIncluded = false;
+    //    this.ItemListService.FetchWithCrit(cr, "Excluded Items");
+    //    this.tabset.select('ItemListTab');
+    //}
+    //GoToItemList() {
+    //    this.tabset.select('ItemListTab');
+    //}
+    //LoadWorkAllocList(workAlloc: WorkAllocation) {
+    //    console.log('try to load a (default?) work alloc');
+    //    if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+    //    else console.log('attempt failed');
+    //}
    
     MyInfoMessage(): string {
         let msg: string  = "Your account expires on: ";

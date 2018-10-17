@@ -50,15 +50,18 @@ export class ItemListService {
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
-    public get ItemList(): ItemList {
-        if (this._ItemList.items.length == 0) {
+	public get ItemList(): ItemList {
+	
+		if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
+			//console.log('in here 2');
             const listJson = localStorage.getItem('ItemsList');
             let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-            if (list == undefined || list == null || list.items.length == 0) {
+			if (list == undefined || list == null || list.items.length == 0) {
+				//console.log('in here 3: ' + this._ItemList.items.length);
                 return this._ItemList;
             }
             else {
-                //console.log("Got ItemsList from LS");
+                console.log("Got ItemsList from LS");
                 this._ItemList = list;
             }
         }

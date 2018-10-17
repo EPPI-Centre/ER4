@@ -94,7 +94,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             });
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
-                this.GetItem();
+				this.GetItem();
+				console.log('coding kjkhjkhk: ' + this.itemID);
             });
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 

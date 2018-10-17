@@ -2,8 +2,6 @@ import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { arm, Item } from './ItemList.service';
-import { filter } from 'rxjs/operators';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
 import { Subject } from 'rxjs';
 
@@ -82,6 +80,7 @@ export class CodesetStatisticsService {
 	}
 
 	public get tmpCodesets(): StatsCompletion[] {
+
         if (this._tmpCodesets != null) {
             return this._tmpCodesets;
         }
@@ -95,7 +94,8 @@ export class CodesetStatisticsService {
             else {
 				this._tmpCodesets = tmpCodesets;
             }
-        }
+		}
+		console.log('blah ' + this._tmpCodesets);
 		return this._tmpCodesets;
     }
 
