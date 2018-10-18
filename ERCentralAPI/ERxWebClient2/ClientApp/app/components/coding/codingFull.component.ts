@@ -398,7 +398,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
-    
+    ItemChanged() {
+        this.WipeHighlights();
+        this.SetHighlights();
+    }
     ngOnDestroy() {
         //console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
@@ -413,7 +416,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
     }
     ShowHighlightsClicked() {
-        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked();
+        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
     }
 }
 

@@ -12,7 +12,6 @@ import {  Subject, Subscription } from 'rxjs';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { MainFullReviewComponent } from '../mainfull/mainfull.component';
 
 
 @Component({
@@ -28,15 +27,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
 		private _httpC: HttpClient,
 		private ItemListService: ItemListService,
-		public codesetStatsServ: CodesetStatisticsService,
-		private mainFullReviewComponent: MainFullReviewComponent
+		public codesetStatsServ: CodesetStatisticsService
 	) {
 
 	}
 
 	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
 	@ViewChild('tabset') tabset!: NgbTabset;
-	tabsInitialized: boolean = false;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 	@Output() tabSelectEvent = new EventEmitter();
 

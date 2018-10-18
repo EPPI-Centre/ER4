@@ -61,15 +61,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabset.select('ItemListTab');
 	}
     ngOnInit() {
-
-
-
         this.dtOptions = {
             pagingType: 'full_numbers',
             paging: false,
             searching: false,
             scrollY: "350px"
 		};
+        //console.log('init mainfull');
 		this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

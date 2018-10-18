@@ -41,69 +41,27 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		private armservice: ArmsService
 	) { }
 	
-
-	@ViewChild('ArmsCmp')
-	private ArmsCompRef!: any;
-	@ViewChild('ItemDetailsCmp')
-	private ItemDetailsCompRef!: any;
-
-	private subItemIDinPath: Subscription | null = null;
-	private subCodingCheckBoxClickedEvent: Subscription | null = null;
-	private ItemCodingServiceDataChanged: Subscription | null = null;
-	private ItemArmsDataChanged: Subscription | null = null;
-	public itemID: number = 0;
-	private itemString: string = '0';
 	//public item?: Item;
-
-	public itemId = new Subject<number>();
-
+	//public itemId = new Subject<number>();
+	public itemID: number = 0;
 	private subGotScreeningItem: Subscription | null = null;
-	public IsScreening: boolean = false;
-	//public ShowHighlights: boolean = false;
-
+    @Output() ItemChanged = new EventEmitter();
+    @Input() IsScreening: boolean = false;
     @Input() item: Item | undefined;
-    @Input() ShowHighlights: boolean = false;
-
-	public HAbstract: string = "";
-    public HTitle: string = "";
-
-	ngOnInit() {
-		console.log('testing if item is passed: ' + this.item);
-	}
+    @Input() Context: string = "CodingFull";
 	
 
-	public get HasTermList(): boolean {
-		if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
-		else return true;
+	ngOnInit() {
+        console.log('testing if item is passed: ' + this.item);
+        if (this.item) this.itemID = this.item.itemId;
 	}
+	
+	
 	ngAfterViewInit() {
 		// child is set
 	}
 
-	public CheckBoxAutoAdvanceVal: boolean = false;
-	onSubmit(f: string) {
-	}
-
-	private GetItem() {
-
-		this.WipeHighlights();
-		if (this.itemString == 'PriorityScreening') {
-			if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
-			this.IsScreening = true;
-			this.PriorityScreeningService.NextItem();
-		}
-		else {
-			this.itemID = +this.itemString;
-			this.item = this.ItemListService.getItem(this.itemID);
-
-			this.IsScreening = false;
-			this.GetItemCoding();
-			//this.ItemListService.eventChange(this.itemID);
-			console.log('fill in arms here teseroo1');
-
-		}
-	}
-
+	
 	public HasPreviousScreening(): boolean {
 
 		if (this.PriorityScreeningService.CurrentItemIndex > 0) return true;
@@ -118,47 +76,19 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		else return true;
 	}
 	public prevScreeningItem() {
-		this.WipeHighlights();
+		//this.WipeHighlights();
 		if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
 		this.IsScreening = true;
 		this.PriorityScreeningService.PreviousItem();
 	}
-	public GotScreeningItem() {
+	
+    public GotScreeningItem() {
 
-		this.item = this.PriorityScreeningService.CurrentItem;
-		this.itemID = this.item.itemId;
-		this.GetItemCoding();
-	}
-	private GetItemCoding() {
-
-		if (this.item) {
-			this.ArmsCompRef.CurrentItem = this.item;
-			this.armservice.FetchArms(this.item);
-		}
-		this.ItemCodingService.Fetch(this.itemID);
-
-	}
-	SetCoding() {
-		console.log('change something');
-		if (this.ItemCodingService.ItemCodingList.length == 0) {
-			this.ReviewSetsService.clearItemData();
-			console.log('change: clearonly');
-			return;
-		}
-		this.SetHighlights();
-		this.ReviewSetsService.clearItemData();
-		if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
-		else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
-	}
-	SetArmCoding(armId: number) {
-		console.log('change Arm');
-		this.ReviewSetsService.clearItemData();
-		this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
-	}
-
-
-
-
+        //this.item = this.PriorityScreeningService.CurrentItem;
+        //this.itemID = this.item.itemId;
+        //this.GetItemCoding();
+    }
+	
 	private _hasPrevious: boolean | null = null;
 	hasPrevious(): boolean {
 
@@ -186,14 +116,14 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		return this._hasNext;
 	}
 	firstItem() {
-		this.WipeHighlights();
+		//this.WipeHighlights();
 
 		if (this.item) this.goToItem(this.ItemListService.getFirst());
 
 	}
 	prevItem() {
 
-		this.WipeHighlights();
+		//this.WipeHighlights();
 		if (this.item) {
 			console.log('inside previous coding item component part' + this.item.itemId);
 
@@ -202,7 +132,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	}
 	nextItem() {
 
-		this.WipeHighlights();
+		//this.WipeHighlights();
 		if (this.item) {
 
 			this.goToItem(this.ItemListService.getNext(this.item.itemId));
@@ -211,51 +141,31 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		}
 	}
 	lastItem() {
-		this.WipeHighlights();
+		//this.WipeHighlights();
 		if (this.item) this.goToItem(this.ItemListService.getLast());
 	}
-	clearItemData() {
-		this._hasNext = null;
-		this._hasPrevious = null;
-		this.item = undefined;
-		this.itemID = -1;
-		this.ItemCodingService.ItemCodingList = [];
-		if (this.ReviewSetsService) {
-			this.ReviewSetsService.clearItemData();
-		}
-	}
+	
 	goToItem(item: Item) {
-		this.WipeHighlights();
-		this.clearItemData();
-		console.log('what do you need me to do?' + item.itemId);
-		this.router.navigate(['itemcoding', item.itemId]);
+		//this.WipeHighlights();
+        console.log('what do you need me to do?' + item.itemId);
+        if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
+        else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', item.itemId]);
 		this.item = item;
 		if (this.item.itemId != this.itemID) {
 
 			this.itemID = this.item.itemId;
-		}
+        }
+        console.log('emitting');
+        this.ItemChanged.emit();
 		//this.GetItemCoding();
 	}
 	BackToMain() {
-		this.clearItemData();
 		this.router.navigate(['mainFullReview']);
 	}
 	
 	ngOnDestroy() {
 		//console.log('killing coding comp');
-		if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
-		if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
-		if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
-		if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
-	}
-	WipeHighlights() {
-		if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
-	}
-	SetHighlights() {
-		if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
-	}
-	ShowHighlightsClicked() {
-		if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked();
+		
 	}
 }
 

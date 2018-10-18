@@ -402,6 +402,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     toHTML(text: string): string {
         return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
     }
+
+    ItemChanged() {
+        this.WipeHighlights();
+        this.SetHighlights();
+    }
+
     ngOnDestroy() {
         //console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
@@ -418,6 +424,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     ShowHighlightsClicked() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked();
     }
+
+
 }
 
 

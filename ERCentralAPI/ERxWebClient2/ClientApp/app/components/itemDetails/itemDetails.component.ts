@@ -30,6 +30,7 @@ export class itemDetailsComp implements OnInit {
     }
 
     public WipeHighlights() {
+        console.log('wipe highs');
         this.HAbstract = "";
         this.HTitle = "";
     }
@@ -39,6 +40,7 @@ export class itemDetailsComp implements OnInit {
         }
     }
     public SetHighlights() {
+        console.log('highs');
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
             this.HAbstract = this.item.abstract;
