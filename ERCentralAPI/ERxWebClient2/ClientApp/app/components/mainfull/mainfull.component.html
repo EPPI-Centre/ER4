@@ -1,72 +1,77 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
     <div class="mt-1">
-        <ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills" >
-            <ngb-tab id="ReviewHomeTab">
-                <ng-template ngbTabTitle><b>Review</b> home</ng-template>
-                <ng-template ngbTabContent>
+		<ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
+			<ngb-tab id="ReviewHomeTab">
+				<ng-template ngbTabTitle><b>Review</b> home</ng-template>
+				<ng-template ngbTabContent>
 					<div class="row flex-row">
-							<div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
-								<reviewStatisticsComp (tabSelectEvent)="alertT()"></reviewStatisticsComp>
+						<div class="col-sm-12 col-md-6 col-lg-6 col-xl-7 py-2">
+							<reviewStatisticsComp (tabSelectEvent)="alertT()"></reviewStatisticsComp>
+						</div>
+						<div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
+							<div class="card card-body bg-light mt-2">
+								{{MyInfoMessage()}}
 							</div>
-							<div class="col-sm-12 col-md-6 col-lg-6 col-xl-5 py-2">
-								<div class="card card-body bg-light mt-2">
-									{{MyInfoMessage()}}
+							<div class="card card-body ReviewsBg  mt-2 ">
+								<div>
+									<button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
+											[attr.aria-expanded]="!isReviewPanelCollapsed">
+										My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+									</button>
 								</div>
-								<div class="card card-body ReviewsBg  mt-2 ">
-									<div>
-										<button type="button" class="btn btn-outline-primary" (click)="toggleReviewPanel()"
-												[attr.aria-expanded]="!isReviewPanelCollapsed">
-											My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-										</button>
-									</div>
-									<readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
-													 style="max-height: 520px;"></readonlyreviews>
+								<readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed"
+												 style="max-height: 520px;"></readonlyreviews>
 
+							</div>
+							<div class="card card-body ReviewsBg  mt-2 ">
+								<div>
+									<button type="button" class="btn btn-outline-primary" (click)="toggleWorkAllocationsPanel()"
+											[attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
+										My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
+									</button>
 								</div>
-								<div class="card card-body ReviewsBg  mt-2 ">
-									<div>
-										<button type="button" class="btn btn-outline-primary" (click)="toggleWorkAllocationsPanel()"
-												[attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
-											My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
-										</button>
-									</div>
-									<WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
-																   (AllocationClicked)="GoToItemList()"
-																   [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
-																   resizable r-directions="['right']" r-flex="true"
-																   class="mt-2"
-																   Context="FullUI"
-																   style="max-height: 420px;"></WorkAllocationContactListComp>
-								</div>
+								<WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
+															   (AllocationClicked)="GoToItemList()"
+															   [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
+															   resizable r-directions="['right']" r-flex="true"
+															   class="mt-2"
+															   Context="FullUI"
+															   style="max-height: 420px;"></WorkAllocationContactListComp>
 							</div>
 						</div>
+					</div>
 
-			</ng-template>
-            </ngb-tab>
-            <ngb-tab id="ItemListTab" title="Items">
-                <ng-template ngbTabContent>
-                    <div class=" card bg-primary">
-                        <h5>Icons for various functions here... (see ER4) </h5>
-                    </div>
+				</ng-template>
+			</ngb-tab>
+			<ngb-tab id="ItemListTab" title="Items">
+				<ng-template ngbTabContent>
+					<div class=" card bg-primary">
+						<h5>Icons for various functions here... (see ER4) </h5>
+					</div>
 					<div class="card card-body bg-light">
 						<!---->
 						<ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
 					</div>
-                </ng-template>
-            </ngb-tab>
-            <ngb-tab title="another tab">
-                <ng-template ngbTabContent>
-                    <p>Yes, I'm another tab.</p>
-                </ng-template>
-            </ngb-tab>
-        </ngb-tabset>
+				</ng-template>
+			</ngb-tab>
+			<ngb-tab title="Frequencies">
+				<ng-template ngbTabContent>
+					<div class="card-body">
+						<button (click)="fetchFrequencies()" class="btn-light">Get Frequencies</button>
+						<frequencies></frequencies>
+					</div>
+				</ng-template>
+			</ngb-tab>
+			<ngb-tab title="another tab">
+				<ng-template ngbTabContent>
+					<p>Yes, I'm another tab.</p>
+				</ng-template>
+			</ngb-tab>
+		</ngb-tabset>
         <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>
     </div>
 </div>
-
-
-
 
 
 <!--<div class="container-fluid">

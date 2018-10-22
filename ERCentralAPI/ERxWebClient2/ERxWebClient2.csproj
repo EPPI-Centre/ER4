@@ -65,6 +65,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequency.cs" Link="Models\ReadOnlyItemAttributeChildFrequency.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequencyList.cs" Link="Models\ReadOnlyItemAttributeChildFrequencyList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeList.cs" Link="Models\ReadOnlyItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReview.cs" Link="Models\ReadOnlyReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />

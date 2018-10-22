@@ -1,0 +1,23 @@
+
+<p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
+<div *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
+	<tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 800px;"
+			   (activate)="NodeSelected($event.node.data)">
+		<ng-template #treeNodeTemplate let-node let-index="index">
+			
+			<input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
+				   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
+				   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
+			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
+                              'AdminSet' : node.data.subTypeName == 'Administration',
+                              'ExcludeCode' : node.data.subTypeName == 'Exclude'
+                                }">{{node.data.name}}</span>
+			<button *ngIf="node.data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
+		</ng-template>
+	</tree-root>
+</div>
+<div class="mt-2" *ngIf="SelectedCodeDescription != ''">
+	<div class="card card-title mb-0 font-weight-bold">Code description:</div>
+	<div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">
+	</div>
+</div>

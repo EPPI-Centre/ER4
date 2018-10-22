@@ -39,26 +39,27 @@
                         </div>
                     </div>
                 </div>
-                <ngb-tabset #tabset type="pills">
-                    <ngb-tab title="Item Details">
+				<ngb-tabset #tabset type="pills">
+					<ngb-tab title="Item Details">
 						<ng-template ngbTabContent>
 							<itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
 						</ng-template>
-                    </ngb-tab>
-                    <ngb-tab title="Coding Record">
-                        <ng-template ngbTabContent>
-                            <p>
-                                coding record component goes here!
-                            </p>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab title="PDF" [disabled]="true">
-                        <ng-template ngbTabContent>
-                            
-                        </ng-template>
-                    </ngb-tab>
-                </ngb-tabset>
-            </div>
+					</ngb-tab>
+					<ngb-tab title="Coding Record">
+						<ng-template ngbTabContent>
+							<p>
+								coding record component goes here!
+							</p>
+						</ng-template>
+					</ngb-tab>
+					<ngb-tab title="PDF" [disabled]="true">
+						<ng-template ngbTabContent>
+
+						</ng-template>
+					</ngb-tab>
+					
+				</ngb-tabset>
+			</div>
 
         </div>
         <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

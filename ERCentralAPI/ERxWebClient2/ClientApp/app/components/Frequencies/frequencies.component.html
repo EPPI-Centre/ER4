@@ -1,0 +1,31 @@
+<div class="container col-12 p-0">
+	<div class="h-100 mh-100 pr-0 ">
+			<div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+				<div class="card bg-light  col-md-8">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>Code</th>
+								<th>Count</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let item of frequenciesService.Frequencies">
+								<td>{{item.attribute}}</td>
+								<td>{{item.itemCount}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="card bg-primary  col-md-4">
+					<codesets></codesets>
+				</div>
+			</div>
+			<div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+				<!--NodeDataChange($event)-->
+				<label (codeSelectedChanged)="tester()">Selected Codeset:</label>
+				{{selectedNodeData}}
+			</div>
+			<!--<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>-->
+		</div>
+	</div>

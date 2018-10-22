@@ -24,7 +24,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyItemAttributeChildFrequencyList() { }
 #else
-        private ReadOnlyItemAttributeChildFrequencyList() { }
+        public ReadOnlyItemAttributeChildFrequencyList() { }
 #endif
 
         public static void GetItemAttributeChildFrequencyList(int set_id, Int64 attribute_id, bool isIncluded, Int64 filterAttributeId, EventHandler<DataPortalResult<ReadOnlyItemAttributeChildFrequencyList>> handler)

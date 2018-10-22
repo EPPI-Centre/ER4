@@ -27,11 +27,15 @@ import { ItemCodingFullComp } from './components/coding/codingFull.component';
 import { itemDetailsComp } from './components/itemDetails/itemDetails.component';
 import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatistics.component';
 import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
+import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
+import { frequenciesComp } from './components/Frequencies/frequencies.component';
 
 
 @NgModule({
     declarations: [
 		AppComponent,
+		CodesetTreeComponent,
+		frequenciesComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
         ReviewSetsComponent,

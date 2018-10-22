@@ -33,7 +33,8 @@ export class ReviewSetsService {
         return this._IsBusy;
     }
     private CurrentArmID: number = 0;
-    public CanWriteCoding(attribute: singleNode): boolean {
+	public CanWriteCoding(attribute: singleNode): boolean {
+
         //console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
             //console.log('checking if i can write1');
@@ -59,8 +60,8 @@ export class ReviewSetsService {
         //}
         
         //console.log('checking if i can write6');
-        return true;
-        
+        //return true;
+		return false;
     }
 
      GetReviewSets(): ReviewSet[] {
@@ -213,7 +214,7 @@ export class ReviewSetsService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet) {
                 let set_id: number = destSet.set_id;
-                destSet.itemSetIsLocked = itemset.isLocked;
+				destSet.itemSetIsLocked = itemset.isLocked;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
                     //console.log('.' + destSet.set_name);
@@ -236,7 +237,7 @@ export class ReviewSetsService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet && destSet.set_id) {
                 let set_id: number = destSet.set_id;
-                destSet.itemSetIsLocked = itemset.isLocked;
+				destSet.itemSetIsLocked = itemset.isLocked;
 
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {

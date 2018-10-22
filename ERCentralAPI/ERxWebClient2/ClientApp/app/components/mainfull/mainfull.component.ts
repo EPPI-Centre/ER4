@@ -1,6 +1,5 @@
 ﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationContactList.service'
@@ -8,14 +7,11 @@ import { Criteria, ItemList } from '../services/ItemList.service'
 import { WorkAllocationContactListComp } from '../WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
-import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
-import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer, Subject, Subscription, Subscribable } from 'rxjs'; 
-import { take, map, takeUntil } from 'rxjs/operators';
-import { forEach } from '@angular/router/src/utils/collection';
-import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
+import { timer, Subject, Subscription } from 'rxjs'; 
+import { ReviewSetsService } from '../services/ReviewSets.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { frequenciesService } from '../services/frequencies.service';
 
 @Component({
     selector: 'mainfull',
@@ -37,7 +33,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
-        private codesetStatsServ: CodesetStatisticsService
+		private codesetStatsServ: CodesetStatisticsService,
+		private frequenciesService: frequenciesService
     ) {
         
     }
@@ -78,6 +75,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
     }
+
+	fetchFrequencies() {
+
+		this.frequenciesService.Fetch();
+
+	}
 
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';

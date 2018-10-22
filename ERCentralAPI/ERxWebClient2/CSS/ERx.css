@@ -26,13 +26,29 @@ body {
     height: 30px;
 }
 .ScreeningSet {
-    color: #00BB00;
+	/*color: #00BB00;*/
+	color: red;
+	/*pointer-events: none;*/
 }
 
 .AdminSet {
-    color: #0000DD;
+    /*color: #0000DD;*/
+	color: yellow;
 }
 
 .ExcludeCode {
-    color: #FF7777;
-} 
+	/*color: #FF7777;*/
+	color: forestgreen;
+	/*pointer-events: none;*/
+}
+
+.tree-node {
+	color: black;
+	/*pointer-events: none;*/
+}
+
+.tree-node-disabled {
+	pointer-events: none;
+	color: black;
+}
+

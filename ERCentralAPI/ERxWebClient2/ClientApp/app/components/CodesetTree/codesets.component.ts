@@ -6,14 +6,11 @@ import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { ArmsService } from '../services/arms.service';
-import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
-import { TreeNode } from '@angular/router/src/utils/tree';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 
 @Component({
-    selector: 'reviewsets',
+    selector: 'codesets',
     styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
@@ -26,28 +23,29 @@ import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-    templateUrl: './reviewsets.component.html'
+    templateUrl: './codesets.component.html'
 })
-export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
        private modalService: NgbModal,
-       private armsService: ArmsService
+	   private armsService: ArmsService
+	   //,
+	   //private frequenciesService: frequenciesService
     ) { }
-    //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
-    public showManualModal: boolean = false;
+	public showManualModal: boolean = false;
+	
+
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
         else {
-            //console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
-            //let modalComp = this.modalService.open(InfoBoxModalContent);
-            //modalComp.close();
+
             this.GetReviewSets();
         }
 	}
@@ -56,8 +54,6 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
         childrenField: 'attributes', 
         displayField: 'name',
 		allowDrag: false,
-
-
 		
 	}
 	@ViewChild('tree') treeComponent!: TreeComponent;
@@ -65,20 +61,9 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	ngAfterViewInit() {
 
-		//if () {
-				
-		//const firstNode: TreeNode<singleNode> = treeModel.getFirstRoot();
-			
-		//}
-		//const firstNode: singleNode = treeModel.getFirstRoot();
-
-		//firstNode.setActiveAndVisible();
 	}
 
 	rootsCollect() {
-
-		// for now until clarification put in an array of nodes
-		
 
 		const treeModel: TreeModel = this.treeComponent.treeModel;
 		const firstNode: any = treeModel.getFirstRoot();
@@ -131,19 +116,13 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
 			//	console.log('A root: ' + this.treeComponent.treeModel.roots[i].doForAll(x => x.expand()))
 			//}
 		}
-		//this.treeComponent.treeModel.roots[0].setIsActive(true, true);
-		//this.treeComponent.treeModel.roots[1].setIsActive(true, true);
-		//this.treeComponent.treeModel.roots[2].setIsActive(true, true);
-		//this.treeComponent.treeModel.roots[3].setIsActive(true, true);
 	}
 
 	getNodeClass(node: ITreeNode): string {
 
 		if (node.data.subTypeName == 'Screening') {
-			//console.log('node disabled: ' + node.displayField);
 			return 'tree-node-disabled';
 		}
-		//console.log('node not disabled: ' + node.displayField);
 		return 'tree-node';
 	}
 
@@ -152,35 +131,22 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
 		node.itemSetIsLocked = true;
 		alert('hello');
 	}
-    //nodes: singleNode[] = [];
+
     get nodes(): singleNode[] | null {
         //console.log('Getting codetree nodes');
         if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) 
 		{
-			//for (var i = 0; i < this.ReviewSetsService.ReviewSets.length; i++) {
-
-			//	console.log('found my nodes: ' + this.ReviewSetsService.ReviewSets[i] + '\n');
-			//}
 			
             return this.ReviewSetsService.ReviewSets;
         }
         else {
-            //console.log('NO nodes');
             return null;
         }
     }
     GetReviewSets() {
         if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
         this.ReviewSetsService.GetReviewSets();
-            //.subscribe(
-            //result => {
-            //    this.ReviewSetsService.ReviewSets = result;
-            //    this.nodes = this.ReviewSetsService.ReviewSets;// as singleNode[];
-            //}, error => {
-            //    console.error(error);
-            //    this.router.navigate(['main']);
-            //}
-            //);
+
     }
     CheckBoxClicked(event: any, data: singleNode, ) {
         let checkPassed: boolean = true;
@@ -260,8 +226,9 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	NodeSelected(node: singleNode) {
 
-		//alert('in node: ' + node.name)
-        this.SelectedNodeData = node;
+		
+		this.SelectedNodeData = node;
+		//this. .codeSelectedChanged.emit(node);
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
         
     }
@@ -271,7 +238,6 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
         //console.log('killing reviewSets comp');
     }
 }
-
 
 //another class!!!
 export class CheckBoxClickedEventData {
