@@ -32,16 +32,11 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpGet("[action]")]
-        public IActionResult GetFrequencies(int set_id, Int64 attribute_id, bool isIncluded, Int64 filterAttributeId )
+        [HttpPost("[action]")]
+        public IActionResult GetFrequencies([FromBody] Criteria data)
         {
 
 			Type type = null;
-			set_id = 27;
-			attribute_id = 0;
-			isIncluded = true;
-			filterAttributeId = -1;
-
 
 			try
             {
@@ -50,7 +45,7 @@ namespace ERxWebClient2.Controllers
 
                 DataPortal<ReadOnlyItemAttributeChildFrequencyList> dp = new DataPortal<ReadOnlyItemAttributeChildFrequencyList>();
 
-				ItemAttributeChildFrequencySelectionCriteria criteria = new ItemAttributeChildFrequencySelectionCriteria(type, attribute_id, set_id, isIncluded, filterAttributeId);
+				ItemAttributeChildFrequencySelectionCriteria criteria = new ItemAttributeChildFrequencySelectionCriteria(type, data.AttributeId, data.SetId, data.Included, data.FilterAttributeId);
 				ReadOnlyItemAttributeChildFrequencyList result = dp.Fetch(criteria);
 
 
@@ -61,7 +56,19 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "GetFrequencies data portal error");
                 throw;
             }
-        }
+
+		}
                
     }
 }
+
+
+public class Criteria
+{
+	public int AttributeId { get; set; }
+	public int SetId { get; set; }
+	public bool Included { get; set; }
+	public int FilterAttributeId { get; set; } 
+	
+}
+

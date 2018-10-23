@@ -58,7 +58,12 @@
 			<ngb-tab title="Frequencies">
 				<ng-template ngbTabContent>
 					<div class="card-body">
-						<button (click)="fetchFrequencies()" class="btn-light">Get Frequencies</button>
+						<button (click)="fetchFrequencies(selectedNodeData)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
+						<div class="row d-flex flex-wrap-reverse ml-1 mr-1 bg-light fa-border ">
+							<!--NodeDataChange($event)-->
+							<label class="font-weight-bold">Selected Codeset: &nbsp;</label>
+							{{selectedNodeData?.set_name}}
+						</div>
 						<frequencies></frequencies>
 					</div>
 				</ng-template>

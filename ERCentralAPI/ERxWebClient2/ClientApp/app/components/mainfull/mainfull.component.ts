@@ -8,10 +8,13 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+
 
 @Component({
     selector: 'mainfull',
@@ -34,9 +37,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
-		private frequenciesService: frequenciesService
+		private _eventEmitter: EventEmitterService
+		,private frequenciesService: frequenciesService
     ) {
-        
+
     }
 
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
@@ -51,20 +55,34 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
 
+	public selectedNodeData: any | 'none'  ;
+
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();
 	alertT() {
-		//alert('hello punks..');
 		this.tabset.select('ItemListTab');
 	}
-    ngOnInit() {
+	tester() {
+		alert('hello');
+	}
+
+	ngOnInit() {
+
+		this._eventEmitter.dataStr.subscribe(
+
+			(data: any) => {
+				console.log(data);
+				this.selectedNodeData = data;
+			}
+		)
+		
         this.dtOptions = {
             pagingType: 'full_numbers',
             paging: false,
             searching: false,
             scrollY: "350px"
 		};
-        //console.log('init mainfull');
+
 		this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
@@ -76,20 +94,34 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) this.Reload();
     }
 
-	fetchFrequencies() {
+	fetchFrequencies(selectedNodeData: any) {
 
-		this.frequenciesService.Fetch();
+		console.log('got inside the fetch: ' + selectedNodeData);
+		if (!selectedNodeData || selectedNodeData == undefined) {
 
+			alert('Please select a code from the tree');
+
+		} else {
+
+			let test = JSON.stringify(selectedNodeData);
+
+			console.log(test);
+
+			this.frequenciesService.Fetch(selectedNodeData);
+		
+		}
 	}
 
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';
-    }
+	}
+
     public get WorkAllocationsPanelTogglingSymbol(): string {
         if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
-    }
+	}
+
 	ngAfterViewInit() {
 		this.tabsInitialized = true;
 		console.log('tabs initialised');
@@ -189,6 +221,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();
+			
         }
     }
 }

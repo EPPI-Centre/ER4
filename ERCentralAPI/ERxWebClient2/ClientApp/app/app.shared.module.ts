@@ -29,6 +29,8 @@ import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatis
 import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
 import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { EventEmitterService } from './components/services/EventEmitter.service';
+import { WebApiObservableService } from './components/services/httpQuery.service';
 
 
 @NgModule({
@@ -56,7 +58,8 @@ import { frequenciesComp } from './components/Frequencies/frequencies.component'
         HeaderComponent,
         MainFullReviewComponent,
         MainComponent
-    ],
+	],
+	providers: [EventEmitterService, WebApiObservableService ],
     entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         AngularFontAwesomeModule,

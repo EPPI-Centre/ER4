@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -8,6 +8,10 @@ import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ArmsService } from '../services/arms.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { frequenciesService } from '../services/frequencies.service';
+import { Injectable, EventEmitter } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'codesets',
@@ -32,20 +36,20 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
        private modalService: NgbModal,
-	   private armsService: ArmsService
-	   //,
-	   //private frequenciesService: frequenciesService
+	   private armsService: ArmsService,
+	   private frequenciesService: frequenciesService,
+	   private _eventEmitter: EventEmitterService
     ) { }
     @ViewChild('ManualModal') private ManualModal: any;
 	public showManualModal: boolean = false;
-	
+	sub: Subscription = new Subscription();
 
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
-        else {
-
+		else {
+			
             this.GetReviewSets();
         }
 	}
@@ -225,16 +229,15 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
-
 		
 		this.SelectedNodeData = node;
-		//this. .codeSelectedChanged.emit(node);
+		this._eventEmitter.sendMessage(node);
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
         
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
-        
+		this.sub.unsubscribe();
         //console.log('killing reviewSets comp');
     }
 }
