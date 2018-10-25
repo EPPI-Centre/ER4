@@ -355,7 +355,8 @@ export interface singleNode {
     showCheckBox: boolean;
     nodeType: string;//codeset or attribute?
     subTypeName: string;//screening, admin, normal; selectable, non selectable, etc.
-    description: string;
+	description: string;
+
 
     isSelected: boolean;
     additionalText: string;

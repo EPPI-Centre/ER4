@@ -45,7 +45,7 @@ namespace ERxWebClient2.Controllers
 
                 DataPortal<ReadOnlyItemAttributeChildFrequencyList> dp = new DataPortal<ReadOnlyItemAttributeChildFrequencyList>();
 
-				ItemAttributeChildFrequencySelectionCriteria criteria = new ItemAttributeChildFrequencySelectionCriteria(type, data.AttributeId, data.SetId, data.Included, data.FilterAttributeId);
+				ItemAttributeChildFrequencySelectionCriteria criteria = new ItemAttributeChildFrequencySelectionCriteria(type, Convert.ToInt64(data.AttributeId), Convert.ToInt32( data.SetId), data.Included, data.FilterAttributeId);
 				ReadOnlyItemAttributeChildFrequencyList result = dp.Fetch(criteria);
 
 
@@ -65,8 +65,8 @@ namespace ERxWebClient2.Controllers
 
 public class Criteria
 {
-	public int AttributeId { get; set; }
-	public int SetId { get; set; }
+	public string AttributeId { get; set; }
+	public string SetId { get; set; }
 	public bool Included { get; set; }
 	public int FilterAttributeId { get; set; } 
 	

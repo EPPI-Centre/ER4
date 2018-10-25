@@ -101,11 +101,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             LoadProperty(AttributeIdProperty, attributeId);
             LoadProperty(SetIdProperty, setId);
-            LoadProperty(IncludedProperty, isIncluded);
+			LoadProperty(IncludedProperty, isIncluded);
             LoadProperty(FilterAttributeIdProperty, filterAttributeId);
         }
-
-        public ItemAttributeChildFrequencySelectionCriteria() { }
-    }
+		public ItemAttributeChildFrequencySelectionCriteria() { }
+	}
     
 }

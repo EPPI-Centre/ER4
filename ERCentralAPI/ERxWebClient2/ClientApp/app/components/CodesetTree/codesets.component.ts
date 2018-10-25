@@ -229,7 +229,8 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
-		
+
+		console.log(node.name);
 		this.SelectedNodeData = node;
 		this._eventEmitter.sendMessage(node);
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');

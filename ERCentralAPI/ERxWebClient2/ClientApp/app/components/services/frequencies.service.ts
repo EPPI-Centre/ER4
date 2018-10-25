@@ -60,13 +60,31 @@ export class frequenciesService {
         //this.Save();
     }
 
-	public Fetch(selectedNodeData: singleNode) {
+	public Fetch(selectedNodeData: any) {
+
+		this.codeSelectedChanged.emit(selectedNodeData);
 
 		let crit: Criteria = new Criteria();
-		crit.AttributeId = 0;
-		crit.FilterAttributeId = -1;
-		crit.Included = true;
-		crit.SetId = 27;
+		console.log('stuff1' + selectedNodeData.id);
+		if (selectedNodeData.nodeType == 'ReviewSet') {
+
+			crit.AttributeId = '0';
+			crit.FilterAttributeId = -1;
+			//need to get this from the page
+			crit.Included = true;
+			crit.SetId = selectedNodeData.id.substr(2, selectedNodeData.id.length);
+			//console.log('stuff2' + crit.AttributeId + ' ' + crit.SetId);
+
+		} else {
+
+			crit.AttributeId = selectedNodeData.id.substr(1, selectedNodeData.id.length);
+			crit.FilterAttributeId = -1;
+			crit.Included = true;
+			crit.SetId = selectedNodeData.set_id;
+			//console.log('stuff3' + crit.AttributeId + ' ' + crit.SetId);
+		}
+
+		console.log('stuff4' + crit.AttributeId + ' ' + crit.SetId);
 
 		//this.webApiObservableService.getServiceWithComplexObjectAsQueryString(
 
@@ -127,18 +145,18 @@ export class frequenciesService {
 export class Frequency {
 
 	attributeId: number = 0;
-	itemCount: number = 0;
+	itemCount: string = "";
 	attribute: string="";
-	attributeSetId: number = 0;
-	setId: string = "";
-	filterAttributeId: number = 0;
+	attributeSetId: string = "";
+	setId: number = 0;
+	filterAttributeId: string = "";
 	isIncluded: boolean = false;
 }
 
 export class Criteria {
 	
-	AttributeId: number = 0;
-	SetId: number = 0;
+	AttributeId: string = '0';
+	SetId: string ='0';
 	Included: boolean = false;
 	FilterAttributeId: number = 0;
 	

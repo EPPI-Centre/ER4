@@ -56,6 +56,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private statsSub: Subscription = new Subscription();
 
 	public selectedNodeData: any | 'none'  ;
+	public radioData: any;
+
 
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();
@@ -68,11 +70,21 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {
 
+		this.radioData = 1;
+
 		this._eventEmitter.dataStr.subscribe(
 
 			(data: any) => {
-				console.log(data);
+				//console.log(data);
 				this.selectedNodeData = data;
+			}
+		)
+
+		this._eventEmitter.tabSelectEventf.subscribe(
+
+			(data: any) => {
+				console.log(data);
+				this.tabset.select('ItemListTab');
 			}
 		)
 		
@@ -178,7 +190,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     };
     subOpeningReview: Subscription | null = null;
 
-    
+	changeRadioValue() {
+		alert('Good!');
+	}
+	
 
 	Reload() {
 		console.log('should be getting review sets..');

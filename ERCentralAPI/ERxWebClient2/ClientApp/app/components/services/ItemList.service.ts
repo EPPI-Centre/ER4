@@ -332,7 +332,8 @@ export class Criteria {
     filterSetId: number = 0;
     filterAttributeId: number = 0;
     attributeSetIdList: string = "";
-    listType: string = "";
+	listType: string = "";
+	attributeid: number = 0;
 
     pageNumber: number = 0;
     pageSize: number = 100;
