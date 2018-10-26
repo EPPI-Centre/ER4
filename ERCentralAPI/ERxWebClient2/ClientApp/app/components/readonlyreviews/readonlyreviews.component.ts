@@ -25,8 +25,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
                 private ReviewerIdentityServ: ReviewerIdentityService,
         public _readonlyreviewsService: readonlyreviewsService,
         private changeDetectorRef: ChangeDetectorRef) {
-
-                //console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
+		
     }
 
     //@ViewChild(DataTableDirective)
@@ -104,12 +103,11 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         };
         
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            console.log('user is empty...');
+         
             this.router.navigate(['home']);
         }
         else {
-
-            //console.log("getting ReadOnlyReviews");
+			
             //this.ReviewerIdentityServ.Report();
 
             this._readonlyreviewsService.Fetch(this.dtTrigger);
@@ -117,19 +115,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
         }
     }
     ngOnDestroy() {
-        //console.log('killing ROR comp');
         //this._readonlyreviewsService.ReadOnlyReviews = [];
         this.dtTrigger.unsubscribe();
     }
 
 }
-
-//export class WithOptionsComponent implements OnInit {
-//    dtOptions: DataTables.Settings = {};
-
-//    ngOnInit(): void {
-//        this.dtOptions = {
-//            pagingType: 'full_numbers'
-//        };
-//    }
-//}

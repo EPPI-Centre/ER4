@@ -57,14 +57,6 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 
 	FrequencyNoneOfTheAboveItemsList(item: Frequency) {
 
-		//console.log('\n' + item.attributeId + 
-		//	'\n' + item.itemCount +
-		//	'\n' + item.attribute +
-		//	'\n' + item.attributeSetId +
-		//	'\n' + item.setId +
-		//	'\n' + item.filterAttributeId +
-		//	'\n' + item.isIncluded);
-
 		let cr: Criteria = new Criteria();
 	
 		cr.setId = item.setId; 
@@ -74,9 +66,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 		cr.filterAttributeId = -1;
 		cr.listType = 'StandardItemList';
 		cr.attributeSetIdList = item.attributeSetId;
-
-		console.log('test again: \n' + cr);
-
+		
 		this.ItemListService.FetchWithCrit(cr, "StandardItemList");
 		this._eventEmitter.selectTabItems();
 	}
@@ -96,7 +86,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 			this._eventEmitter.dataStr.subscribe(
 
 				(data: any) => {
-					//console.log(data);
+			
 					this.selectedNodeData = data;
 				}
 			)

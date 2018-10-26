@@ -52,7 +52,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 
 	ngOnInit() {
-        console.log('testing if item is passed: ' + this.item);
+		alert('testing' + this.MyHumanIndex());
         if (this.item) this.itemID = this.item.itemId;
 	}
 	
@@ -91,29 +91,20 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 	private _hasPrevious: boolean | null = null;
 	hasPrevious(): boolean {
-
-		if (!this.item || !this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.items || this.ItemListService.ItemList.items.length < 1) {
-			//console.log('NO!');
-			return false;
-		}
-		else if (this._hasPrevious === null) {
-			this._hasPrevious = this.ItemListService.hasPrevious(this.item.itemId);
-		}
-		//console.log('has prev? ' + this._hasPrevious);
-		return this._hasPrevious;
+		
+		return this.ItemListService.hasPrevious(this.itemID);
 	}
 	MyHumanIndex(): number {
-		return this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) + 1;
+		if (this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) == -1) {
+			return 1;
+		} else {
+			return this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) + 1;
+		}
 	}
 	private _hasNext: boolean | null = null;
 	hasNext(): boolean {
-		if (!this.item || !this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.items || this.ItemListService.ItemList.items.length < 1) {
-			return false;
-		}
-		else if (this._hasNext === null) {
-			this._hasNext = this.ItemListService.hasNext(this.item.itemId);
-		}
-		return this._hasNext;
+
+		return this.ItemListService.hasNext(this.itemID);
 	}
 	firstItem() {
 		//this.WipeHighlights();
@@ -125,7 +116,6 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 
 		//this.WipeHighlights();
 		if (this.item) {
-			console.log('inside previous coding item component part' + this.item.itemId);
 
 			this.goToItem(this.ItemListService.getPrevious(this.item.itemId));
 		}
@@ -136,7 +126,6 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		if (this.item) {
 
 			this.goToItem(this.ItemListService.getNext(this.item.itemId));
-			console.log('inside next coding item component part' + this.item.itemId);
 			//this.valueChange.next(this.item.itemId);
 		}
 	}
@@ -144,10 +133,18 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		//this.WipeHighlights();
 		if (this.item) this.goToItem(this.ItemListService.getLast());
 	}
+
+	lastPage() {
+		
+		this.ItemListService.FetchLastPage();
+	}
+
+	test() {
+		alert('hello');
+	}
 	
 	goToItem(item: Item) {
 		//this.WipeHighlights();
-        console.log('what do you need me to do?' + item.itemId);
         if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
         else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', item.itemId]);
 		this.item = item;
@@ -155,7 +152,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 
 			this.itemID = this.item.itemId;
         }
-        console.log('emitting');
+  
         this.ItemChanged.emit();
 		//this.GetItemCoding();
 	}

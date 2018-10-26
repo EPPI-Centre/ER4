@@ -7,29 +7,37 @@
 	<div *ngIf="ItemListService.ItemList && !IsScreening"
 		 class=" pagination justify-content-start">
 		<div>
-			<button [ngClass]="{disabled:!hasPrevious()}"
+			<!--[ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+			[disabled]="ItemListService.ItemList.pageindex + 1 === 1"-->
+			<button [ngClass]="{disabled: !hasPrevious()}"
 					[disabled]="!hasPrevious()"
-					class="page-link" (click)="firstItem()">
+					class="page-link" 
+					(click)="firstItem()">
 				First
 			</button>
 		</div>
 		<div>
-			<button [ngClass]="{disabled:!hasPrevious()}"
+			<button [ngClass]="{disabled: !hasPrevious()}"
 					[disabled]="!hasPrevious()"
-					class="page-link" (click)="prevItem()">
+					class="page-link" 
+					(click)="prevItem()">
 				Previous
 			</button>
 
 		</div>
 		<div>
-			<button [ngClass]="{disabled:!hasNext()}"
-					[disabled]="!hasNext()" class="page-link" (click)="nextItem()">
+			<button [ngClass]="{disabled: !hasNext()}"
+					[disabled]="!hasNext()" 
+					class="page-link" 
+					(click)="nextItem()">
 				Next
 			</button>
 		</div>
 		<div>
-			<button [ngClass]="{disabled:!hasNext()}"
-					[disabled]="!hasNext()" class="page-link" (click)="lastItem()">
+			<button [ngClass]="{disabled: !hasNext()}"
+					[disabled]="!hasNext()" 
+					class="page-link" 
+					(click)="lastItem()">
 				Last
 			</button>
 		</div>

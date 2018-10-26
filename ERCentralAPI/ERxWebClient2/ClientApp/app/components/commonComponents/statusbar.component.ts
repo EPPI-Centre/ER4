@@ -169,7 +169,7 @@ export class StatusBarComponent implements OnInit {
                 }else {
 
                     if (this.timerObj) this.killTrigger.next();
-                    console.log(success);
+                  
                     let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                             case "Expired":

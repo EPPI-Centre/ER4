@@ -30,7 +30,6 @@ export class itemDetailsComp implements OnInit {
     }
 
     public WipeHighlights() {
-        console.log('wipe highs');
         this.HAbstract = "";
         this.HTitle = "";
     }
@@ -40,19 +39,18 @@ export class itemDetailsComp implements OnInit {
         }
     }
     public SetHighlights() {
-        console.log('highs');
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
             this.HAbstract = this.item.abstract;
             for (let term of this.ReviewerTermsService.TermsList) {
                 if (term.reviewerTerm && term.reviewerTerm.length > 0) {
-                    //console.log(term.reviewerTerm);
+                   
                     let lFirst = term.reviewerTerm.substr(0, 1);
                     lFirst = lFirst.toLowerCase();
                     let uFirst = lFirst.toUpperCase();
                     let lTerm = lFirst + term.reviewerTerm.substr(1);
                     let uTerm = uFirst + term.reviewerTerm.substr(1);
-                    //console.log('uTerm:' + uTerm);
+                  
                     let reg = new RegExp(lTerm, "g");
                     let reg2 = new RegExp(uTerm, "g");
                     if (term.included) {

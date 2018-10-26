@@ -75,7 +75,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this._eventEmitter.dataStr.subscribe(
 
 			(data: any) => {
-				//console.log(data);
+			
 				this.selectedNodeData = data;
 			}
 		)
@@ -83,7 +83,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this._eventEmitter.tabSelectEventf.subscribe(
 
 			(data: any) => {
-				console.log(data);
+				
 				this.tabset.select('ItemListTab');
 			}
 		)
@@ -107,8 +107,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
 	fetchFrequencies(selectedNodeData: any) {
-
-		console.log('got inside the fetch: ' + selectedNodeData);
+		
 		if (!selectedNodeData || selectedNodeData == undefined) {
 
 			alert('Please select a code from the tree');
@@ -117,7 +116,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			let test = JSON.stringify(selectedNodeData);
 
-			console.log(test);
 
 			this.frequenciesService.Fetch(selectedNodeData);
 		
@@ -142,7 +140,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		let cr: Criteria = new Criteria();
 		cr.listType = 'StandardItemList';
 		this.ItemListService.FetchWithCrit(cr, "Included Items");
-		console.log('selecting tab...');
+	
 		this.tabset.select('ItemListTab');
 	}
 	ExcludedItemsList() {
@@ -154,11 +152,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabset.select('ItemListTab');
 	}
 	GoToItemList() {
-		console.log('selecting tab 3...');
 		this.tabset.select('ItemListTab');
 	}
 	LoadWorkAllocList(workAlloc: WorkAllocation) {
-		console.log('try to load a (default?) work alloc');
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 		else console.log('attempt failed');
 	}
@@ -196,7 +192,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	
 
 	Reload() {
-		console.log('should be getting review sets..');
         this.Clear();
         this.reviewSetsService.GetReviewSets();
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();

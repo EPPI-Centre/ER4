@@ -71,35 +71,35 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		) this.Reload();
 	}
 
-	public get ReviewPanelTogglingSymbol(): string {
-		if (this.isReviewPanelCollapsed) return '&uarr;';
-		else return '&darr;';
-	}
-	public get WorkAllocationsPanelTogglingSymbol(): string {
-		if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
-		else return '&darr;';
-	}
+	//public get ReviewPanelTogglingSymbol(): string {
+	//	if (this.isReviewPanelCollapsed) return '&uarr;';
+	//	else return '&darr;';
+	//}
+	//public get WorkAllocationsPanelTogglingSymbol(): string {
+	//	if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
+	//	else return '&darr;';
+	//}
 
 	
-	toggleReviewPanel() {
-		this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
-	}
-	toggleWorkAllocationsPanel() {
-		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
-	}
-	getDaysLeftAccount() {
+	//toggleReviewPanel() {
+	//	this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+	//}
+	//toggleWorkAllocationsPanel() {
+	//	this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
+	//}
+	//getDaysLeftAccount() {
 
-		return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
-	}
-	getDaysLeftReview() {
+	//	return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
+	//}
+	//getDaysLeftReview() {
 
-		return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
-	}
-	onLogin(u: string, p: string) {
+	//	return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
+	//}
+	//onLogin(u: string, p: string) {
 
-		this.ReviewerIdentityServ.LoginReq(u, p);
+	//	this.ReviewerIdentityServ.LoginReq(u, p);
 
-	};
+	//};
 	subOpeningReview: Subscription | null = null;
 	   
 	Reload() {
@@ -142,31 +142,31 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.tabSelectEvent.emit();
 		//this.tabset.select('ItemListTab');
 	}
-	GoToItemList() {
-		console.log('selecting tab 3...');
-		this.tabset.select('ItemListTab');
-	}
-	LoadWorkAllocList(workAlloc: WorkAllocation) {
-		console.log('try to load a (default?) work alloc');
-		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
-		else console.log('attempt failed');
-	}
+	//GoToItemList() {
+	//	console.log('selecting tab 3...');
+	//	this.tabset.select('ItemListTab');
+	//}
+	//LoadWorkAllocList(workAlloc: WorkAllocation) {
+	//	console.log('try to load a (default?) work alloc');
+	//	if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+	//	else console.log('attempt failed');
+	//}
 
-	MyInfoMessage(): string {
-		let msg: string = "Your account expires on: ";
-		let revPart: string = "";
-		let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
-		if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
-			revPart = " | Current review is private (does not expire).";
-		}
-		else {
-			let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-			revPart = " | Current(shared) review expires on " + RevExp + ".";
-		}
-		msg += AccExp + revPart;
-		return msg;
+	//MyInfoMessage(): string {
+	//	let msg: string = "Your account expires on: ";
+	//	let revPart: string = "";
+	//	let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+	//	if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
+	//		revPart = " | Current review is private (does not expire).";
+	//	}
+	//	else {
+	//		let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
+	//		revPart = " | Current(shared) review expires on " + RevExp + ".";
+	//	}
+	//	msg += AccExp + revPart;
+	//	return msg;
 
-	}
+	//}
 
 	ngOnDestroy() {
 		if (this.subOpeningReview) {

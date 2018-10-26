@@ -129,7 +129,7 @@ export class ItemListService {
         //}
         //else {
             let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-            if (ff != undefined && ff != null && ff > 0) {
+            if (ff != undefined && ff != null && ff > 0 && ff != -1) {
                 //console.log('Has prev (yes)' + ff);
                 return true;
             }
@@ -186,7 +186,7 @@ export class ItemListService {
             this.ChangingItem(new Item());
             return new Item();
         }
-    }
+	}
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
         if (ff != undefined && ff != null) {
