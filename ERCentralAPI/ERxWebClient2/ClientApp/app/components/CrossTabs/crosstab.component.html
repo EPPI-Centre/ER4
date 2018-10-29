@@ -1,0 +1,17 @@
+<div class="container p-0 ">
+					<table>
+						   class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th *ngFor="let item of crosstabService.testResult.xHeaders">
+								{{item}} 
+								</th>
+							</tr>
+						</thead>
+						<<tbody>
+							<tr *ngFor="let item of crosstabService.testResult.yRows">
+								<td> {{item}} </td>
+							</tr>
+						</tbody>
+					</table>
+				</div>

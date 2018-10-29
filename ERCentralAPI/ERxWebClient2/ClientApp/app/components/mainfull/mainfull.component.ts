@@ -14,6 +14,7 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { crosstabService } from '../services/crosstab.service';
 
 
 @Component({
@@ -38,7 +39,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
 		private _eventEmitter: EventEmitterService
-		,private frequenciesService: frequenciesService
+		, private frequenciesService: frequenciesService
+		, private crosstabService: crosstabService
     ) {
 
     }
@@ -54,8 +56,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
+	public crossTabResult: any | 'none';
 
-	public selectedNodeData: any | 'none'  ;
+	public selectedNodeData: any | 'none';
+	public selectedNodeDataX: any | 'none';
+	public selectedNodeDataY: any | 'none';
 	public radioData: any;
 
 
@@ -67,6 +72,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	tester() {
 		alert('hello');
 	}
+	setXaxis() {
+		this.selectedNodeDataX = this.selectedNodeData;
+	}
+	setYaxis() {
+		this.selectedNodeDataY = this.selectedNodeData;
+	}
 
 	ngOnInit() {
 
@@ -75,7 +86,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this._eventEmitter.dataStr.subscribe(
 
 			(data: any) => {
-			
+
+
 				this.selectedNodeData = data;
 			}
 		)
@@ -114,11 +126,33 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		} else {
 
-			let test = JSON.stringify(selectedNodeData);
 
 
 			this.frequenciesService.Fetch(selectedNodeData);
 		
+		}
+	}
+
+	fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any) {
+
+		if (!selectedNodeDataX || selectedNodeDataX == undefined || !selectedNodeDataY
+			|| selectedNodeDataY == undefined) {
+
+			alert('Please select both sets from the code tree');
+
+		} else {
+
+			//if (selectedNodeDataX.nodeType == 'ReviewSet') {
+			//	let test = JSON.stringify(selectedNodeDataX.attributes);
+			//	console.log('testing here1: ' + test);
+			//}
+			//if (selectedNodeDataY.nodeType == 'ReviewSet') {
+			//	let test2 = JSON.stringify(selectedNodeDataY.attributes);
+			//	console.log('testing here2: ' + test2);
+			//}			
+
+			this.crossTabResult  = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY);
+
 		}
 	}
 

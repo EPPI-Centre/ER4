@@ -24,7 +24,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyItemAttributeCrosstabList() { }
 #else
-        private ReadOnlyItemAttributeCrosstabList() { }
+        public ReadOnlyItemAttributeCrosstabList() { }
 #endif
 
         public static void GetItemAttributeChildCrosstabList(Int64 attributeIdXAxis, int setIdXAxis, Int64 attributeIdYAxis, int setIdYAxis,

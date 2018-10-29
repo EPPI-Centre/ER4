@@ -145,9 +145,97 @@
 					</div>
 				</ng-template>
 			</ngb-tab>
-			<ngb-tab title="another tab">
+			<ngb-tab title="CrossTabs">
 				<ng-template ngbTabContent>
-					<p>Yes, I'm another tab.</p>
+					<div >
+						<button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY)" class="btn-lg btn-info mb-lg-2">Get CrossTabs</button>
+						
+							<div class="row col-md-12">
+								<table class="table-striped table table-light col-md-8 card-body">
+									<thead>
+										<tr>
+											<th>Both Sets Documents</th>
+											<th>Included Documents</th>
+											<th>Excluded Documents</th>
+										</tr>
+
+									</thead>
+									<tbody>
+										<!--[checked]="idx === 0"-->
+										<tr>
+											<td>
+												<input type="radio" name="mode"
+													   (ngModelChange)="changeRadioValue()"
+													   [(ngModel)]="radioData"
+													   [value]="true">
+											</td>
+											<td>
+												<input type="radio" name="mode"
+													   (ngModelChange)="changeRadioValue()"
+													   [(ngModel)]="radioData"
+													   [value]="true">
+											</td>
+											<td>
+												<input type="radio" name="mode"
+													   [(ngModel)]="radioData"
+													   [value]="false">
+											</td>
+
+										</tr>
+									</tbody>
+								</table>
+								<div class="col-md-4 card-body bg-light">
+									<button (click)="setXaxis()" class="font-weight-bold btn btn-primary col-md-6">Set X-Axis Codeset: &nbsp;&nbsp;</button>
+									<b>&nbsp;{{selectedNodeDataX?.name}}</b>
+									<button (click)="setYaxis()" class="font-weight-bold btn btn-info col-md-6">Set Y-Axis Codeset: &nbsp;&nbsp;</button>
+									<b>&nbsp;{{selectedNodeDataY?.name}}</b>
+								</div>
+							</div>
+						<div class="row col-md-12">
+							
+								<table class="table-striped table table-light col-md-8 card-body">
+									<thead>
+										<tr>
+											<th>Show Table</th>
+											<th>Show pie chart</th>
+											<th>Show bar chart</th>
+											<th>Show the 'none of the above' category (charts)</th>
+										</tr>
+									</thead>
+									<tbody>
+
+										<tr>
+											<td>
+												<input type="radio" name="radioShowTable"
+													   [checked]="idx === 0"
+													   [value]="test2">
+											</td>
+											<td>
+												<input type="radio" name="radioShowPieChart"
+													   [checked]="idx === 0"
+													   [value]="test1">
+											</td>
+											<td>
+												<input type="radio" name="radioShowBarChart"
+													   [checked]="idx === 1"
+													   [value]="test2">
+											</td>
+											<td>
+												<input type="radio" name="radioCharts"
+													   [checked]="idx === 1"
+													   [value]="test2">
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							
+							<div class="card bg-light table-dark col-md-4">
+								<codesets></codesets>
+							</div>
+						</div>
+						<crosstab class="card-body bg-light col-md-8"></crosstab>
+					</div>
+					
 				</ng-template>
 			</ngb-tab>
 		</ngb-tabset>

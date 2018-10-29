@@ -31,6 +31,7 @@ import { CodesetTreeComponent } from './components/CodesetTree/codesets.componen
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { WebApiObservableService } from './components/services/httpQuery.service';
+import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 
 
 @NgModule({
@@ -38,6 +39,7 @@ import { WebApiObservableService } from './components/services/httpQuery.service
 		AppComponent,
 		CodesetTreeComponent,
 		frequenciesComp,
+		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
         ReviewSetsComponent,

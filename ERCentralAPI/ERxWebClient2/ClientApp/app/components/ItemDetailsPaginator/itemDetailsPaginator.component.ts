@@ -52,7 +52,6 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 
 	ngOnInit() {
-		alert('testing' + this.MyHumanIndex());
         if (this.item) this.itemID = this.item.itemId;
 	}
 	
