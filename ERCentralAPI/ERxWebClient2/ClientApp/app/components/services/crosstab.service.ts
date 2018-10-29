@@ -21,6 +21,8 @@ export class crosstabService {
 	private _CrossTabList: CrossTab[] = [];
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
+	public NXaxis: number = 0;
+	public fieldNames: string[] = [];
 
 	public get CrossTabs(): CrossTab[] {
 		if (this._CrossTabList.length == 0) {
@@ -45,89 +47,78 @@ export class crosstabService {
         //this.Save();
     }
 
-	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any, ) {
-		
+	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any ) {
 
-
-		let asX: SetAttribute = new SetAttribute();
-		let rsY: ReviewSet = new ReviewSet();
-		let asY: SetAttribute = new SetAttribute();
+		let crit: Criteria = new Criteria();
+		let AttributeIdXaxis: number = 0;
+		let xAxisAttributes: SetAttribute[] = [];
+		let SetIdXaxis: number = 0;
+		let AttributeIdYaxis: number = 0;
+		let SetIdYaxis: number = 0;
+		let yAxisAttributes: SetAttribute[] = [];
 
 		if (selectedNodeDataX.nodeType == 'ReviewSet') {
 
-			//let rsX: ReviewSet = new ReviewSet();
-
-			let AttributeIdXaxis: number = 0;
-			let SetIdXaxis: number = selectedNodeDataX.SetId;
-			let NXaxis: number = selectedNodeDataX.attributes.length;
-			let xAxisAttributes: SetAttribute[] = selectedNodeDataX.attributes;
-
+			AttributeIdXaxis = 0;
+			SetIdXaxis = selectedNodeDataX.set_id;
+			this.NXaxis = selectedNodeDataX.attributes.length;
+			xAxisAttributes = selectedNodeDataX.attributes;
 			this.testResult.xHeaders = xAxisAttributes.map(x => x.attribute_name);
 			this.testResult.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
 
-			//JSON.stringify(selectedNodeDataX.attributes);
 			console.log('crosstabcheck \n  ' + AttributeIdXaxis + ' \n  ' + SetIdXaxis + '\n  '
-				+ NXaxis + '\n ' + xAxisAttributes.map(x => x.attribute_name));
+				+ this.NXaxis + '\n ' + xAxisAttributes.map(x => x.attribute_name));
+
+		} else {
+
+			AttributeIdXaxis = selectedNodeDataX.attribute_id;
+			SetIdXaxis = selectedNodeDataX.set_id;
+			this.NXaxis = selectedNodeDataX.attributes.length;
+			xAxisAttributes = selectedNodeDataX.attributes;
+			this.testResult.xHeaders = xAxisAttributes.map(x => x.attribute_name);
+			this.testResult.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
 
 		}
 
 		if (selectedNodeDataY.nodeType == 'ReviewSet') {
 
-			let AttributeIdYaxis: number = 0;
-			let SetIdYaxis: number = selectedNodeDataY.SetId;
-			let NYaxis: number = selectedNodeDataY.attributes.length;
-			let yAxisAttributes: SetAttribute[] = selectedNodeDataY.attributes;
+			AttributeIdYaxis = 0;
+			SetIdYaxis = selectedNodeDataY.set_id;
+			yAxisAttributes = selectedNodeDataY.attributes;
 
+			//console.log('crosstabcheck \n  ' + AttributeIdYaxis + ' \n  ' + SetIdYaxis + '\n  '
+			//	+ NYaxis + '\n ' + yAxisAttributes.map(x => x.attribute_name));
 
+		} else {
 
-			//JSON.stringify(selectedNodeDataX.attributes);
-			console.log('crosstabcheck \n  ' + AttributeIdYaxis + ' \n  ' + SetIdYaxis + '\n  '
-				+ NYaxis + '\n ' + yAxisAttributes.map(x => x.attribute_name));
+			AttributeIdYaxis = selectedNodeDataY.attribute_id;
+			SetIdYaxis = selectedNodeDataY.set_id;
+			yAxisAttributes = selectedNodeDataY.attributes;
 
-			//let yAxisAttributes = JSON.stringify(selectedNodeDataY.attributes);
-			//console.log('testing here2: ' + test2);
 		}
 		
-		
-		//for (var i = 0; i < Math.min(NXaxis, 50); i++) {
-
-		//	ItemAttributeCrossTabColumns[i] = xAxisAttributes[i].AttributeName;
-
-		//}
-
-		alert('got in cross tab alerting' );
-
-		//this.codeSelectedChanged.emit(selectedNodeData);
-		//attributeIdXAxis = 0
-		//int setIdXAxis, 27
-		//Int64 attributeIdYAxis, 0
-		//int setIdYAxis, 58
-		//Int64 attributeIdFilter, 0
-		//int setIdFilter, 0
-		//int nxaxis, 10
-
-		let crit: Criteria = new Criteria();
-
-		crit.attributeIdXAxis = 0;
-		crit.setIdXAxis = 27;
-		crit.attributeIdYAxis = 0;
-		crit.setIdYAxis = 58;
+		crit.attributeIdXAxis = AttributeIdXaxis;
+		crit.setIdXAxis = SetIdXaxis;
+		crit.attributeIdYAxis = AttributeIdYaxis;
+		crit.setIdYAxis = SetIdYaxis;
 		crit.attributeIdFilter = 0;
 		crit.setIdFilter = 0;
-		crit.nxaxis = 10;
+		crit.nxaxis = this.NXaxis;
 		
 		return this._httpC.post<any[]>(this._baseUrl + 'api/CrossTab/GetCrossTabs',
 			crit).subscribe(result => {
 
-				//this.CrossTabs = result;
-
 					this.testResult.yRows = result;
 
-					console.log(this.testResult);
+					for (var i = 1; i <= Math.min(this.NXaxis, 50); i++)
+					{
+						this.fieldNames[i-1] = "field" + i;
+						
+					}
 
+					console.log(result);
 				}
 			);
-
     }
 
     //public Save() {
@@ -153,9 +144,7 @@ export class CrossTab {
 	
 	xHeaders: string[] = [];
 	xHeadersID: number[] = [];
-	yRows: any[] = [];
-
-	//yRowsID: string[] = [];
+	yRows: ReadOnlyItemAttributeCrosstab[] = [];
 
 
 }
@@ -170,4 +159,62 @@ export class Criteria {
 	setIdFilter: number = 0;
 	nxaxis: number = 0;
 	
+}
+
+
+export class ReadOnlyItemAttributeCrosstab {
+
+	AttributeId: number = 0;
+	AttributeName: string = '';
+	Field1: number = 0;
+	Field2: number = 0;
+	Field3: number = 0;
+	Field4: number = 0;
+	Field5: number = 0;
+	Field6: number = 0;
+	Field7: number = 0;
+	Field8: number = 0;
+	Field9: number = 0;
+	Field10: number = 0;
+	Field11: number = 0;
+	Field12: number = 0;
+	Field13: number = 0;
+	Field14: number = 0;
+	Field15: number = 0;
+	Field16: number = 0;
+	Field17: number = 0;
+	Field18: number = 0;
+	Field19: number = 0;
+	Field20: number = 0;
+	Field21: number = 0;
+	Field22: number = 0;
+	Field23: number = 0;
+	Field24: number = 0;
+	Field25: number = 0;
+	Field26: number = 0;
+	Field27: number = 0;
+	Field28: number = 0;
+	Field29: number = 0;
+	Field30: number = 0;
+	Field31: number = 0;
+	Field32: number = 0;
+	Field33: number = 0;
+	Field34: number = 0;
+	Field35: number = 0;
+	Field36: number = 0;
+	Field37: number = 0;
+	Field38: number = 0;
+	Field39: number = 0;
+	Field40: number = 0;
+	Field41: number = 0;
+	Field42: number = 0;
+	Field43: number = 0;
+	Field44: number = 0;
+	Field45: number = 0;
+	Field46: number = 0;
+	Field47: number = 0;
+	Field48: number = 0;
+	Field49: number = 0;
+	Field50: number = 0;
+
 }

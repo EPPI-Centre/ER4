@@ -48,10 +48,19 @@ namespace ERxWebClient2.Controllers
 				ItemAttributeCrosstabSelectionCriteria criteria = new ItemAttributeCrosstabSelectionCriteria(type, data.attributeIdXAxis, data.setIdXAxis, data.attributeIdYAxis, data.setIdYAxis,
 					data.attributeIdFilter, data.setIdFilter, data.nxaxis);
 				ReadOnlyItemAttributeCrosstabList result = dp.Fetch(criteria);
-				
+
+				//var info = typeof(ReadOnlyItemAttributeCrosstabList).GetProperties();
+
+				//for (int i = 0; i < info.Count(); i++)
+				//{
+				//	if (info[i].Name.Contains("Field")
+				//	{
+
+				//	}
+				//}
 
 
-                return Ok(result);
+				return Ok(result);
             }
             catch (Exception e)
             {

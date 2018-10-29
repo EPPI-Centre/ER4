@@ -1,6 +1,6 @@
 
 <p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
-<div *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
+<div class="bg-info" *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
 	<tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 800px;"
 			   (activate)="NodeSelected($event.node.data)">
 		<ng-template #treeNodeTemplate let-node let-index="index">

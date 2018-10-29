@@ -52,3 +52,20 @@ body {
 	color: black;
 }
 
+#container {
+	display: block;
+}
+
+#row {
+	display: table-row;
+}
+
+#left, #right, #middle {
+	display: table-cell;
+}
+
+#contentCT {
+	display: block;
+	width: 80%;
+	margin: auto;
+}
