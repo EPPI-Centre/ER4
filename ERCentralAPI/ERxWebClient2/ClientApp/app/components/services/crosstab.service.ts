@@ -18,33 +18,33 @@ export class crosstabService {
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
     
-	private _CrossTabList: CrossTab[] = [];
+	private _CrossTab: CrossTab = new CrossTab();
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
 	public NXaxis: number = 0;
 	public fieldNames: string[] = [];
 
-	public get CrossTabs(): CrossTab[] {
-		if (this._CrossTabList.length == 0) {
+	public get CrossTab(): CrossTab {
+		if (this._CrossTab == null) {
 
 			const CrossTabJson = localStorage.getItem('CrossTabs');
-			let CrossTabs: CrossTab[] = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
-			if (CrossTabs == undefined || CrossTabs == null || CrossTabs.length == 0) {
-				return this._CrossTabList;
+			let CrossTabs: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
+			if (CrossTabs == undefined || CrossTabs == null || CrossTab.length == 0) {
+				return this._CrossTab;
             }
             else {
-				this._CrossTabList = CrossTabs;
+				this._CrossTab = CrossTabs;
             }
         }
-		return this._CrossTabList;
+		return this._CrossTab;
 
     }
     
-	public set CrossTabs(cs: CrossTab[]) {
+	public set CrossTab(cs: CrossTab) {
 		
-		this._CrossTabList = cs;
+		this._CrossTab = cs;
 
-        //this.Save();
+        this.Save();
     }
 
 	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any ) {
@@ -115,18 +115,18 @@ export class crosstabService {
 						this.fieldNames[i-1] = "field" + i;
 						
 					}
-
+					this.Save();
 					console.log(result);
 				}
 			);
     }
 
-    //public Save() {
-    //    if (this._ReviewList.length > 0)
-    //        localStorage.setItem('ReadOnlyReviews', JSON.stringify(this._ReviewList));
-    //    else if (localStorage.getItem('ReadOnlyReviews'))//to be confirmed!! 
-    //        localStorage.removeItem('ReadOnlyReviews');
-    //}
+    public Save() {
+		if (this._CrossTab != null)
+			localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
+		else if (localStorage.getItem('CrossTab'))
+			localStorage.removeItem('CrossTab');
+    }
 }
 
 export class CrossTabCriteria {
