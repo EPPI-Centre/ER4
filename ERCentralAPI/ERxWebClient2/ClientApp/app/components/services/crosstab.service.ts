@@ -22,23 +22,57 @@ export class crosstabService {
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
 	public NXaxis: number = 0;
-	public fieldNames: string[] = [];
+
+	private _fieldNames: string[] = [];
 
 	public get CrossTab(): CrossTab {
-		if (this._CrossTab == null) {
+		
+		if (this._CrossTab ) {
 
-			const CrossTabJson = localStorage.getItem('CrossTabs');
-			let CrossTabs: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
-			if (CrossTabs == undefined || CrossTabs == null || CrossTab.length == 0) {
+			console.log('got in here 2');
+			const CrossTabJson = localStorage.getItem('CrossTab');
+
+			let CrossTab: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
+			if (CrossTab == undefined || CrossTab == null) {
+
+				console.log('got in here ct');
 				return this._CrossTab;
             }
-            else {
-				this._CrossTab = CrossTabs;
+			else {
+
+				console.log('got in here ct2');
+				this._CrossTab = CrossTab;
             }
         }
 		return this._CrossTab;
+	}
 
-    }
+	public get fieldNames(): string[] {
+
+
+		if (this._fieldNames.length == 0) {
+			console.log('got in here field');
+			const fieldNamesJson = localStorage.getItem('fieldNames');
+
+			let fieldNames: string[] = fieldNamesJson !== null ? JSON.parse(fieldNamesJson) : [];
+			if (fieldNames.length == 0 || fieldNames == null) {
+
+				return this._fieldNames;
+			}
+			else {
+				this._fieldNames = fieldNames;
+			}
+		}
+		return this._fieldNames;
+
+	}
+
+	public set fieldNames(fn: string[]) {
+
+		this._fieldNames = fn;
+
+		//this.Save();
+	}
     
 	public set CrossTab(cs: CrossTab) {
 		
@@ -105,10 +139,11 @@ export class crosstabService {
 		crit.setIdFilter = 0;
 		crit.nxaxis = this.NXaxis;
 		
-		return this._httpC.post<any[]>(this._baseUrl + 'api/CrossTab/GetCrossTabs',
+		return this._httpC.post<ReadOnlyItemAttributeCrosstab[]>(this._baseUrl + 'api/CrossTab/GetCrossTabs',
 			crit).subscribe(result => {
-
+									
 					this.testResult.yRows = result;
+					this.CrossTab = this.testResult;
 
 					for (var i = 1; i <= Math.min(this.NXaxis, 50); i++)
 					{
@@ -121,11 +156,18 @@ export class crosstabService {
 			);
     }
 
-    public Save() {
-		if (this._CrossTab != null)
+	public Save() {
+
+		if (this._CrossTab)
 			localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
+
 		else if (localStorage.getItem('CrossTab'))
 			localStorage.removeItem('CrossTab');
+
+		if (this._fieldNames != null)
+			localStorage.setItem('fieldNames', JSON.stringify(this._fieldNames));
+		else if (localStorage.getItem('fieldNames'))
+			localStorage.removeItem('fieldNames');
     }
 }
 

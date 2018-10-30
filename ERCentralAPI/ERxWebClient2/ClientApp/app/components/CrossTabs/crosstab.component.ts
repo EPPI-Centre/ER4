@@ -83,7 +83,8 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 			this._eventEmitter.dataStr.subscribe(
 
 				(data: any) => {
-			
+
+					console.log('this is being emitted CT');
 					this.selectedNodeData = data;
 				}
 			)

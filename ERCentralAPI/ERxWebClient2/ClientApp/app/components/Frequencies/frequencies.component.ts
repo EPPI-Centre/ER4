@@ -86,7 +86,8 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 			this._eventEmitter.dataStr.subscribe(
 
 				(data: any) => {
-			
+
+					console.log('this is being emitted freq');
 					this.selectedNodeData = data;
 				}
 			)
