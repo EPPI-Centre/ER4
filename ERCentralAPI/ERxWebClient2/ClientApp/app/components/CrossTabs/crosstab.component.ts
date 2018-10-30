@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { crosstabService, CrossTab, CrossTabCriteria } from '../services/crosstab.service';
+import { crosstabService, CrossTab, CrossTabCriteria, ReadOnlyItemAttributeCrosstab } from '../services/crosstab.service';
 import { singleNode } from '../services/ReviewSets.service';
 import { CodesetTreeComponent } from '../CodesetTree/codesets.component';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
@@ -56,22 +56,44 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 		this.selectedNodeData = nodeData;
 	}
 
-	CrossTabItemsList(item: CrossTabCriteria) {
+	CrossTabItemsList(item: CrossTab, attributeid: any, field: string) {
+
+
+		console.log('hello \n' + item.xHeadersID + '\n' + 
+
+			+ item.xHeadersID[Number(field.substr(field.length - 1, field.length)) - 1] + '\n'
+
+			+ Number(field.substr(field.length - 1, field.length)) + '\n'
+
+			+ attributeid + '\n ' 
+
+			//+ this.crosstabService.crit.nxaxis + '\n' +
+			//this.crosstabService.crit.attributeIdFilter + '\n' +
+			//this.crosstabService.crit.attributeIdXAxis + '\n' +
+			//this.crosstabService.crit.attributeIdYAxis + '\n' +
+			//this.crosstabService.crit.nxaxis + '\n' +
+			//this.crosstabService.crit.setIdFilter + '\n' +
+			//this.crosstabService.crit.setIdXAxis + '\n' +
+			//this.crosstabService.crit.setIdYAxis + '\n'
+		);
 
 		let cr: Criteria = new Criteria();
 	
-		cr.setId = item.setId; 
-		cr.attributeid = item.attributeId; 
+		cr.xAxisSetId = this.crosstabService.crit.setIdXAxis; 
+		cr.yAxisSetId = this.crosstabService.crit.setIdYAxis; 
+		cr.xAxisAttributeId = item.xHeadersID[Number(field.substr(field.length - 1, field.length))-1] ; 
+		cr.yAxisAttributeId = attributeid; 
 		// the below should get its value from the view radio buttons
-		cr.onlyIncluded = item.isIncluded;
-		cr.filterAttributeId = -1;
-		cr.listType = 'StandardItemList';
-		cr.attributeSetIdList = item.attributeSetId;
+		cr.onlyIncluded = this.crosstabService.crit.onlyIncluded;
+		cr.filterAttributeId = this.crosstabService.crit.filterAttributeId;
+		cr.listType = 'CrosstabsList';
+		cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
 		
-		this.ItemListService.FetchWithCrit(cr, "StandardItemList");
+		this.ItemListService.FetchWithCrit(cr, "CrosstabsList");
 		this._eventEmitter.selectTabItems();
 	}
 
+	
     ngOnInit() {
 
         
@@ -80,14 +102,14 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
         }
 		else
 		{
-			this._eventEmitter.dataStr.subscribe(
+			//this._eventEmitter.dataStr.subscribe(
 
-				(data: any) => {
+			//	(data: any) => {
 
-					console.log('this is being emitted CT');
-					this.selectedNodeData = data;
-				}
-			)
+			//		console.log('this is being emitted CT');
+			//		this.selectedNodeData = data;
+			//	}
+			//)
 		}
     }
     

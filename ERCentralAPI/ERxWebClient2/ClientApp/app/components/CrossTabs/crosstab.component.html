@@ -1,6 +1,5 @@
 <div class="row contentCT">
 		<table
-			
 			   class="table table-striped table-bordered mb-2">
 			<thead >
 				<tr>
@@ -11,10 +10,13 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr class="tr" *ngFor="let item of crosstabService.CrossTab.yRows">
-					<td>{{item.attributeName}}</td>
+				<tr *ngFor="let subitem of crosstabService.CrossTab.yRows">
+					<td>{{subitem.attributeName}}</td>
 					<td *ngFor="let name of crosstabService.fieldNames">
-						{{item[name]}}
+						<b (click)="CrossTabItemsList(crosstabService.CrossTab, subitem.attributeId, name)"
+						   class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
+							{{subitem[name]}}
+						</b>
 					</td>
 				</tr>
 			</tbody>

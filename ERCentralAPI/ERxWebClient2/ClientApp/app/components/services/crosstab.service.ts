@@ -22,12 +22,13 @@ export class crosstabService {
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
 	public NXaxis: number = 0;
+	public crit: Criteria = new Criteria();
 
 	private _fieldNames: string[] = [];
 
 	public get CrossTab(): CrossTab {
 		
-		if (this._CrossTab ) {
+		if (this._CrossTab.yRows == null || this._CrossTab.yRows == undefined || this._CrossTab.yRows.length == 0) {
 
 			console.log('got in here 2');
 			const CrossTabJson = localStorage.getItem('CrossTab');
@@ -43,14 +44,14 @@ export class crosstabService {
 				console.log('got in here ct2');
 				this._CrossTab = CrossTab;
             }
-        }
+		}
 		return this._CrossTab;
 	}
 
 	public get fieldNames(): string[] {
 
 
-		if (this._fieldNames.length == 0) {
+		if (this._fieldNames != null) {
 			console.log('got in here field');
 			const fieldNamesJson = localStorage.getItem('fieldNames');
 
@@ -83,7 +84,6 @@ export class crosstabService {
 
 	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any ) {
 
-		let crit: Criteria = new Criteria();
 		let AttributeIdXaxis: number = 0;
 		let xAxisAttributes: SetAttribute[] = [];
 		let SetIdXaxis: number = 0;
@@ -120,8 +120,7 @@ export class crosstabService {
 			SetIdYaxis = selectedNodeDataY.set_id;
 			yAxisAttributes = selectedNodeDataY.attributes;
 
-			//console.log('crosstabcheck \n  ' + AttributeIdYaxis + ' \n  ' + SetIdYaxis + '\n  '
-			//	+ NYaxis + '\n ' + yAxisAttributes.map(x => x.attribute_name));
+
 
 		} else {
 
@@ -130,18 +129,21 @@ export class crosstabService {
 			yAxisAttributes = selectedNodeDataY.attributes;
 
 		}
-		
-		crit.attributeIdXAxis = AttributeIdXaxis;
-		crit.setIdXAxis = SetIdXaxis;
-		crit.attributeIdYAxis = AttributeIdYaxis;
-		crit.setIdYAxis = SetIdYaxis;
-		crit.attributeIdFilter = 0;
-		crit.setIdFilter = 0;
-		crit.nxaxis = this.NXaxis;
+
+		this.crit.attributeIdYAxis = AttributeIdYaxis;
+		this.crit.setIdYAxis = SetIdYaxis;
+		this.crit.attributeIdXAxis = AttributeIdXaxis;
+		this.crit.setIdXAxis = SetIdXaxis;
+		this.crit.attributeIdFilter = 0;
+		this.crit.setIdFilter = 0;
+		this.crit.nxaxis = this.NXaxis;
+
+		console.log('crosstabcheck \n  ' + this.crit.attributeIdYAxis + ' \n  ' + this.crit.yAxisSetId + '\n  '
+			+ this.crit.xAxisAttributeId + ' \n ' + this.crit.xAxisSetId );
 		
 		return this._httpC.post<ReadOnlyItemAttributeCrosstab[]>(this._baseUrl + 'api/CrossTab/GetCrossTabs',
-			crit).subscribe(result => {
-									
+			this.crit).subscribe(result => {
+
 					this.testResult.yRows = result;
 					this.CrossTab = this.testResult;
 
@@ -158,9 +160,8 @@ export class crosstabService {
 
 	public Save() {
 
-		if (this._CrossTab)
+		if (this._CrossTab.yRows.length != 0)
 			localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
-
 		else if (localStorage.getItem('CrossTab'))
 			localStorage.removeItem('CrossTab');
 
@@ -200,7 +201,20 @@ export class Criteria {
 	attributeIdFilter: number = 0;
 	setIdFilter: number = 0;
 	nxaxis: number = 0;
-	
+	onlyIncluded: boolean = true;
+	showDeleted: boolean = false;
+	sourceId: number = 0;
+	searchId: number = 0;
+	xAxisSetId: number = 0;
+	xAxisAttributeId: number = 0;
+	yAxisSetId: number = 0;
+	yAxisAttributeId: number = 0;
+	filterSetId: number = 0;
+	filterAttributeId: number = 0;
+	attributeSetIdList: string = "";
+	listType: string = "";
+	attributeid: number = 0;
+
 }
 
 
