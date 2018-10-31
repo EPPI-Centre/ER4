@@ -64,21 +64,10 @@ export class readonlyreviewsService {
            
             .subscribe(result => {
 
-                //for (var i = 0; i < result.length; i++) {
-
-                //    var temp = new ReadOnlyReview(result[i].reviewId,
-                //        result[i].reviewName,
-                //        result[i].reviewOwner,
-                //         result[i].contactReviewRoles,
-                //        result[i].lastAccess);
-
-                //    this.ReadOnlyReviews[i] = temp;
-                  
-                //}
                 this.ReadOnlyReviews = result;
                 dtTrigger.next();
                 
-                console.log(this.ReadOnlyReviews);
+                //console.log(this.ReadOnlyReviews);
           
         }, error => { this.modalService.GenericError(error); }
           

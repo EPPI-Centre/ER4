@@ -35,32 +35,25 @@ export class ReviewSetsService {
     private CurrentArmID: number = 0;
 	public CanWriteCoding(attribute: singleNode): boolean {
 
-        //console.log('checking if i can write, is busy = ' + this.CurrentArmID + " " + attribute.id);
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
-            //console.log('checking if i can write1');
+ 
             return false;
         }
         else if ((this._IsBusy) || !this.ReviewerIdentityService.HasWriteRights) {
-            //console.log('checking if i can write2');
+
             return false;
         }
         else if (this.CurrentArmID > 0 && (attribute.subTypeName == 'Include' || attribute.subTypeName == 'Exclude'))
         {
-            //console.log('checking if i can write3');
+
             return false;
         }
         let FullAttribute: SetAttribute | null = this.FindAttributeById(+attribute.id.substring(1));
         if (FullAttribute) {
-            //console.log('checking if i can write5');
             let Set = this.FindSetById(FullAttribute.set_id);
             if (Set && Set.itemSetIsLocked) return false;
         }
-        //else if () {
-            
-        //}
-        
-        //console.log('checking if i can write6');
-        //return true;
+
 		return false;
     }
 
@@ -71,7 +64,7 @@ export class ReviewSetsService {
              data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
                  this._IsBusy = false;
-                 console.log('emitting GetReviewStatsEmit');
+
                  this.GetReviewStatsEmit.emit();
 
             },
@@ -86,12 +79,10 @@ export class ReviewSetsService {
     subOpeningReview: Subscription | null = null;
 
     public Clear() {
-        //console.log('Clearing Sets');
         this._ReviewSets = [];
         localStorage.removeItem('ReviewSets');
     }
     public get ReviewSets(): ReviewSet[] {
-        //console.log('getReviewSets');
         if (this._ReviewSets.length == 0) {
             //this._IsBusy = true;
             const ReviewSetsJson = localStorage.getItem('ReviewSets');
@@ -102,7 +93,6 @@ export class ReviewSetsService {
                 return this._ReviewSets;
             }
             else {
-                //console.log("Got ReviewSets from LS");
                 this._ReviewSets = ReviewSets;
             }
         }
@@ -122,9 +112,7 @@ export class ReviewSetsService {
     }
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
-        //console.log('digest JSON');
         for (let iItemset of data) {
-            //console.log('+');
             let newSet: ReviewSet = new ReviewSet();
             newSet.set_id = iItemset.setId;
             newSet.set_name = iItemset.setName;
@@ -140,9 +128,7 @@ export class ReviewSetsService {
     }
     public static digestLocalJSONarray(data: any[]): ReviewSet[] {
         let result: ReviewSet[] = [];
-        //console.log('digest local JSON');
         for (let Itemset of data) {
-            //console.log('+');
             let newSet: ReviewSet = new ReviewSet();
             newSet.set_id = Itemset.set_id;
             newSet.set_name = Itemset.set_name;
@@ -159,7 +145,6 @@ export class ReviewSetsService {
     public static childrenFromJSONarray(data: iAttributeSet[]): SetAttribute[] {
         let result: SetAttribute[] = [];
         for (let iAtt of data) {
-            //console.log('.');
             let newAtt: SetAttribute = new SetAttribute();
             newAtt.attribute_id = iAtt.attributeId;
             newAtt.attribute_name = iAtt.attributeName;
@@ -169,7 +154,6 @@ export class ReviewSetsService {
             newAtt.attribute_set_desc = iAtt.attributeSetDescription;
             newAtt.attribute_desc = iAtt.attributeDescription;
             newAtt.set_id = iAtt.setId;
-            //console.log(newAtt.isSelected);
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
             result.push(newAtt);
         }
@@ -180,7 +164,6 @@ export class ReviewSetsService {
         if (data && data != undefined) {
             
             for (let iAtt of data) {
-                //console.log('.');
                 let newAtt: SetAttribute = new SetAttribute();
                 newAtt.attribute_id = iAtt.attribute_id;
                 newAtt.attribute_name = iAtt.attribute_name;
@@ -190,7 +173,6 @@ export class ReviewSetsService {
                 newAtt.attribute_set_desc = iAtt.attribute_set_desc;
                 newAtt.attribute_desc = iAtt.attribute_desc;
                 newAtt.set_id = iAtt.set_id;
-                //console.log(newAtt.isSelected);
                 if (iAtt.attributes) newAtt.attributes = ReviewSetsService.childrenFromLocalJSONarray(iAtt.attributes);
                 else newAtt.attributes = []; 
                 result.push(newAtt);
@@ -217,18 +199,15 @@ export class ReviewSetsService {
 				destSet.itemSetIsLocked = itemset.isLocked;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 for (let itemAttribute of itemset.itemAttributesList) {
-                    //console.log('.' + destSet.set_name);
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
-                        //console.log('.');
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                             dest.isSelected = true;
                             dest.additionalText = itemAttribute.additionalText;
                             destSet.codingComplete = true;
-                            //console.log("found destination attr, id: " + itemAttribute.attributeId + "name: " + dest.attribute_name);
-                        }
+                             }
                     }
                 }
             }
@@ -245,13 +224,12 @@ export class ReviewSetsService {
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
-                        //console.log('.');
+
                         if (dest) {
                             UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
                             dest.additionalText = itemAttribute.additionalText;
-                            //console.log("found destination attr, id: " + itemAttribute.attributeId + "name: " + dest.attribute_name);
-                        }
+                             }
                     }
                 }
             }
@@ -283,7 +261,6 @@ export class ReviewSetsService {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
             if (result) break;
-            //console.log('Cand: ' + candidate.attribute_id + ' children: ' + candidate.attributes.length + ' Target: ' + AttributeId);
             if (AttributeId == candidate.attribute_id ) {
                 result = candidate;
                 break;
@@ -325,21 +302,21 @@ export class ReviewSetsService {
     @Output() ItemCodingCheckBoxClickedEvent: EventEmitter<CheckBoxClickedEventData> = new EventEmitter<CheckBoxClickedEventData>();
     public PassItemCodingCeckboxChangedEvent(evdata: CheckBoxClickedEventData) {
         this._IsBusy = true;
-        //console.log(this._IsBusy);
+
         this.ItemCodingCheckBoxClickedEvent.emit(evdata);
     }
     @Output() ItemCodingItemAttributeSaveCommandExecuted: EventEmitter<ItemAttributeSaveCommand> = new EventEmitter<ItemAttributeSaveCommand>();
     @Output() ItemCodingItemAttributeSaveCommandError: EventEmitter<any> = new EventEmitter<any>();
     public ExecuteItemAttributeSaveCommand(cmd: ItemAttributeSaveCommand, currentCoding: ItemSet[]) {
         this._IsBusy = true;
-        //console.log('ExecuteItemAttributeSaveCommand');
+
         this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
             data => {
-                //console.log('++ExecuteItemAttributeSaveCommand');
+
                 this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
                 //this._IsBusy = false;
             }, error => {
-                //console.log('ERROR!--ExecuteItemAttributeSaveCommand');
+
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
                 //this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
@@ -421,15 +398,7 @@ export class SetAttribute implements singleNode {
     allowEditingCodeset: boolean = false;//not used for attributes
     itemSetIsLocked: boolean = false;//not used for attributes
     nodeType: string = "SetAttribute";
-    //private _isSelected: boolean = false;
-    //public get isSelected(): boolean {
-    //    console.log(this._isSelected); 
-    //    return this._isSelected;
-    //}
-    //public set isSelected(val: boolean) {
-    //    console.log('setting is selected: [' + this._isSelected + '] to ' + val);
-    //    this._isSelected = val;
-    //}
+
     allowCodingEdits: boolean = false; 
     isSelected: boolean = false; 
     additionalText: string = "";

@@ -207,7 +207,7 @@ export class ItemListService {
             this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {
                 this._Criteria.totalItems = this.ItemList.totalItemCount;
-                //console.log('Got item list');
+
                 this.SaveItems(list, this._Criteria);
             }, error => { this.ModalService.GenericError(error);}
             );
@@ -219,7 +219,6 @@ export class ItemListService {
         }
     }
     public FetchNextPage() {
-        console.log('np');
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
@@ -227,7 +226,6 @@ export class ItemListService {
         this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
-        //console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex == 0 ) {
             return this.FetchWithCrit(this._Criteria, this.ListDescription);
         } else {

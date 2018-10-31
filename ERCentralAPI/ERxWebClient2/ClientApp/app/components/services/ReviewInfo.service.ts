@@ -23,22 +23,18 @@ export class ReviewInfoService {
 
     private _ReviewInfo: ReviewInfo;
     public get ReviewInfo(): ReviewInfo {
-        //console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
         if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
             return this._ReviewInfo;
         }
         else {
             const RevInfoJson = localStorage.getItem('ReviewInfo');
             let rev_Info: ReviewInfo = RevInfoJson !== null ? JSON.parse(RevInfoJson) : new ReviewInfo();
-            //let tmp: any = localStorage.getItem('currentErUser');
-            //console.log("after LS: " + this._platformId);
-            //let tmp2: ReviewerIdentity = tmp;
+  
             if (rev_Info == undefined || rev_Info == null || rev_Info.reviewId == 0) {
 
                 return this._ReviewInfo;
             }
             else {
-                //console.log("Got User from LS");
                 this._ReviewInfo = rev_Info;
             }
         }
@@ -46,11 +42,9 @@ export class ReviewInfoService {
     }
 
     public Fetch() {
-        //console.log('fetching revInfo');
         this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
             this._ReviewInfo = rI;
             this.Save();
-            //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
     }

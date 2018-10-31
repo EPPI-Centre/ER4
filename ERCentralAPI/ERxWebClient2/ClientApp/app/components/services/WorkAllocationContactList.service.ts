@@ -38,7 +38,7 @@ export class WorkAllocationContactListService {
                 return this._workAllocations;
             }
             else {
-                //console.log("Got workAllocations from LS");
+
                 this._workAllocations = workAllocations;
             }
         }

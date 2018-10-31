@@ -41,15 +41,12 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
 
             if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
-                //console.log('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
                 return 'waRemaining-' + this.ItemListService.ListCriteria.workAllocationId;
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
-                //console.log('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
                 return 'waStarted-' + this.ItemListService.ListCriteria.workAllocationId;
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
-                //console.log('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
                 return 'waAll-' + this.ItemListService.ListCriteria.workAllocationId;
             }
         }
@@ -93,7 +90,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             && this.ItemListService.ListCriteria
             && !this.ItemListService.ListCriteria.listType.startsWith('GetItemWorkAllocation')
         ) {
-            console.log('returning');
+
             return;
         }//current list is not a work allocation: don't reload it (applies to main interface)
         
@@ -137,24 +134,24 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     log(blah: string) {
-        console.log(blah);
+
     }
 
     ngOnInit() {
-        //console.log('initWorkAlloc');
+
         if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
             
             if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
-                //console.log('got inside1');
+
                 this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
                 this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
-                //console.log('got inside2');
+
             }
             else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
                 this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
-                //console.log('got inside3');
+
             }
         }
         
@@ -194,7 +191,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'PriorityScreening']);
     }
     ngOnDestroy() {
-        //console.log('killing work alloc comp');
+
         if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded.unsubscribe();
         //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }
