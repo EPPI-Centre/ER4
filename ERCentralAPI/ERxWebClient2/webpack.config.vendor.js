@@ -32,7 +32,8 @@ const nonTreeShakableModules = [
     //'./node_modules/jquery/src/jquery.js',
     //'./node_modules/datatables.net-dt/js/dataTables.dataTables.js',
     './node_modules/datatables.net-dt/css/jquery.dataTables.css',
-    './node_modules/datatables.net/js/jquery.dataTables.js'
+	'./node_modules/datatables.net/js/jquery.dataTables.js',
+	'./node_modules/chart.js/dist/Chart.min.js'
 ];
 
 const allModules = treeShakableModules.concat(nonTreeShakableModules);

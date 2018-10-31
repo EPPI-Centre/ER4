@@ -32,7 +32,7 @@ import { frequenciesComp } from './components/Frequencies/frequencies.component'
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
-
+import { ChartsModule } from 'ng2-charts'
 
 @NgModule({
     declarations: [
@@ -69,7 +69,8 @@ import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
         CommonModule,
         NgbModule,
         HttpModule,
-        FormsModule,
+		FormsModule,
+		ChartsModule,
         ReactiveFormsModule,
         TreeModule,
         RouterModule.forRoot([

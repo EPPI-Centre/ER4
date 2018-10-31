@@ -1,4 +1,4 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -9,6 +9,8 @@ import { frequenciesService, Frequency } from '../services/frequencies.service';
 import { singleNode } from '../services/ReviewSets.service';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 
 
 @Component({
@@ -27,7 +29,9 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
         public PriorityScreeningService: PriorityScreeningService,
 		public ItemDocsService: ItemDocsService,
 		private frequenciesService: frequenciesService,
-		private _eventEmitter: EventEmitterService
+		private _eventEmitter: EventEmitterService,
+		private httpService: HttpClient,
+		@Inject('BASE_URL') private _baseUrl: string
 
     ) { }
      
@@ -48,6 +52,35 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 	NodeDataChange(nodeData: singleNode) {
 
 		this.selectedNodeData = nodeData;
+	}
+
+	// ADD CHART OPTIONS. 
+	pieChartOptions = {
+		responsive: true
+	}
+
+	pieChartLabels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY'];
+
+	// CHART COLOR.
+	pieChartColor: any = [
+		{
+			backgroundColor: ['rgba(30, 169, 224, 0.8)',
+				'rgba(255,165,0,0.9)',
+				'rgba(139, 136, 136, 0.9)',
+				'rgba(255, 161, 181, 0.9)',
+				'rgba(255, 102, 0, 0.9)'
+			]
+		}
+	]
+
+	pieChartData: any = [
+		{
+			data: []
+		}
+	];
+
+	onChartClick(event: any) {
+		console.log(event);
 	}
 
 	FrequencyNoneOfTheAboveItemsList(item: Frequency) {
@@ -74,6 +107,20 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
         }
 		else
 		{
+			//this.httpService.get('./assets/sales.json', { responseType: 'json' }).subscribe(
+
+			//	data => {
+			//		this.pieChartData = data as any[];
+
+			//		console.log(this.pieChartData);
+			//		// FILL THE CHART ARRAY WITH DATA.
+			//	},
+			//	(err: HttpErrorResponse) => {
+			//		console.log(err.message);
+			//	}
+			//);
+
+			this.pieChartData = [{ "data": [47, 9, 28, 54, 77] }];
 
 			this._eventEmitter.dataStr.subscribe(
 

@@ -98,27 +98,18 @@
 											</tr>
 										</thead>
 										<tbody>
-
 											<tr>
 												<td>
-													<input type="radio" name="radioShowTable"
-														   [checked]="idx === 0"
-														   [value]="test2">
+													<input (click)="changeRadioValue(true)" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart">Show Table
 												</td>
 												<td>
-													<input type="radio" name="radioShowPieChart"
-														   [checked]="idx === 0"
-														   [value]="test1">
+													<input (click)="changeRadioValue(true)" type="radio" value="pie" name="IncEnc" [(ngModel)]="Chart">Show Pie chart
 												</td>
 												<td>
-													<input type="radio" name="radioShowBarChart"
-														   [checked]="idx === 1"
-														   [value]="test2">
+													<input (click)="changeRadioValue(true)" type="radio" value="bar" name="IncEnc" [(ngModel)]="Chart">Show Bar chart
 												</td>
 												<td>
-													<input type="radio" name="radioCharts"
-														   [checked]="idx === 1"
-														   [value]="test2">
+													<input (click)="changeRadioValue(true)" type="checkbox" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Show None something checkbox
 												</td>
 											</tr>
 										</tbody>

@@ -1,4 +1,17 @@
 
+
+<!--This could in fact be the chart of the users choice rather than the table dependent on the 
+radio buttons and checkbox selected-->
+<div>
+	<canvas baseChart
+			[chartType]="'pie'"
+			[datasets]="pieChartData"
+			[labels]="pieChartLabels"
+			[options]="pieChartOptions"
+			[legend]="true"
+			[colors]="pieChartColor"
+			(chartClick)="onChartClick($event)"></canvas>
+</div>
 <table
 	*ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 "
 			class="table table-bordered table-striped">

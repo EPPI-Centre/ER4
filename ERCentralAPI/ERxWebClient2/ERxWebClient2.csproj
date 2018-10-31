@@ -101,6 +101,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ClientApp\app\components\assets\sales.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="ClientApp\app\components\main\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
