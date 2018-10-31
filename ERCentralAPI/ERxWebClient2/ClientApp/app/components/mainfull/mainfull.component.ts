@@ -69,9 +69,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	alertT() {
 		this.tabset.select('ItemListTab');
 	}
-	tester() {
-		alert('hello');
-	}
 	setXaxis() {
 		this.selectedNodeDataX = this.selectedNodeData;
 	}
@@ -80,8 +77,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-
-		this.radioData = 1;
 
 		this._eventEmitter.dataStr.subscribe(
 
@@ -125,9 +120,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			alert('Please select a code from the tree');
 
 		} else {
-
-
-
+			
 			this.frequenciesService.Fetch(selectedNodeData);
 		
 		}
@@ -220,8 +213,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     };
     subOpeningReview: Subscription | null = null;
 
-	changeRadioValue() {
-		alert('Good!');
+	changeRadioValue(IncEnc: any) {
+
+		this.frequenciesService.crit.Included = IncEnc;
 	}
 	
 
@@ -268,4 +262,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			
         }
     }
+}
+
+export class RadioButtonComp {
+	IncEnc = true;
 }

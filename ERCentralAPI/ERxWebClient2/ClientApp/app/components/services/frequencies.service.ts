@@ -24,6 +24,7 @@ export class frequenciesService {
     
 	private _FrequencyList: Frequency[] = [];
 	@Output() codeSelectedChanged = new EventEmitter();
+	public crit: Criteria = new Criteria();
 
 	public get Frequencies(): Frequency[] {
         if (this._FrequencyList.length == 0) {
@@ -50,27 +51,26 @@ export class frequenciesService {
 	public Fetch(selectedNodeData: any) {
 
 		this.codeSelectedChanged.emit(selectedNodeData);
-
-		let crit: Criteria = new Criteria();
+				
 		console.log('stuff1' + selectedNodeData.id);
 		if (selectedNodeData.nodeType == 'ReviewSet') {
 
-			crit.AttributeId = '0';
-			crit.FilterAttributeId = -1;
+			this.crit.AttributeId = '0';
+			this.crit.FilterAttributeId = -1;
 			//need to get this from the page
-			crit.Included = true;
-			crit.SetId = selectedNodeData.id.substr(2, selectedNodeData.id.length);
+			//this.crit.Included = true;
+			this.crit.SetId = selectedNodeData.id.substr(2, selectedNodeData.id.length);
 
 		} else {
 
-			crit.AttributeId = selectedNodeData.id.substr(1, selectedNodeData.id.length);
-			crit.FilterAttributeId = -1;
-			crit.Included = true;
-			crit.SetId = selectedNodeData.set_id;
+			this.crit.AttributeId = selectedNodeData.id.substr(1, selectedNodeData.id.length);
+			this.crit.FilterAttributeId = -1;
+			//this.crit.Included = true;
+			this.crit.SetId = selectedNodeData.set_id;
 		}
 
 		this._httpC.post<Frequency[]>(this._baseUrl + 'api/Frequencies/GetFrequencies',
-			crit).subscribe(result => {
+			this.crit).subscribe(result => {
 
 				this.Frequencies = result;
 				this.Save()

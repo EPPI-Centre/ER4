@@ -1,28 +1,22 @@
-<div class="container p-0 ">
-	<!--<div class="h-100 mh-100 pr-0 ">
-			<div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
-				<div class="card bg-light  col-md-8">-->
-					<table
+
+<table
 	*ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 "
-						   class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th>Code</th>
-								<th>Count</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr *ngFor="let item of frequenciesService.Frequencies">
-								<td>{{item.attribute}}</td>
-								<td><b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
-							   (click)="FrequencyNoneOfTheAboveItemsList(item)">
-								{{item.itemCount}}
-							</b></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				
-			<!--</div>
-		</div>
-	</div>-->
+			class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>Code</th>
+				<th>Count</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let item of frequenciesService.Frequencies">
+				<td>{{item.attribute}}</td>
+				<td><b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
+				(click)="FrequencyNoneOfTheAboveItemsList(item)">
+				{{item.itemCount}}
+			</b></td>
+			</tr>
+		</tbody>
+</table>
+			
+

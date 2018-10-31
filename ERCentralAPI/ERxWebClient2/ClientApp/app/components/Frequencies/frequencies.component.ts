@@ -7,8 +7,6 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ItemDocsService } from '../services/itemdocs.service';
 import { frequenciesService, Frequency } from '../services/frequencies.service';
 import { singleNode } from '../services/ReviewSets.service';
-import { CodesetTreeComponent } from '../CodesetTree/codesets.component';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
@@ -36,7 +34,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         // child is set
 	}
-	//@ViewChild('tabset') tabset!: NgbTabset;
+
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
 
@@ -46,9 +44,6 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 	onSubmit(f: string) {
 
     }
-	tester() {
-		alert('hello');
-	}
 
 	NodeDataChange(nodeData: singleNode) {
 
@@ -79,10 +74,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
         }
 		else
 		{
-			//this.frequenciesService.codeSelectedChanged.subscribe(
 
-			//	(res: any) => { alert(res); }
-			//);
 			this._eventEmitter.dataStr.subscribe(
 
 				(data: any) => {

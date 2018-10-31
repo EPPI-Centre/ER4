@@ -57,90 +57,80 @@
 			</ngb-tab>
 			<ngb-tab title="Frequencies">
 				<ng-template ngbTabContent>
-					<div class="card-body">
-						<button (click)="fetchFrequencies(selectedNodeData)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
-						<div class="card d-flex flex-wrap-reverse bg-light fa-border">
-							<!--NodeDataChange($event)-->
-							<label class="font-weight-bold">Selected Codeset: &nbsp;</label>
-							{{selectedNodeData?.name}}
+					<button (click)="fetchFrequencies(selectedNodeData)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
+					<div class="card">
+						<!--<div class="row card d-flex flex-wrap-reverse bg-light fa-border  col-md-12">-->
+						<div class="col-md-3 table-striped table table-light card-body">
+							<span class="font-weight-bold">Selected Codeset: &nbsp;</span>
+							<b class="btn-warning">{{selectedNodeData?.name}}</b>
 						</div>
-
 						<div class="row">
 							<div class="col-md-8">
-								<table class=" table-striped table table-light">
-									<thead>
-										<tr>
-											<th>Both Sets Documents</th>
-											<th>Included Documents</th>
-											<th>Excluded Documents</th>
-										</tr>
+								<div class="col-md-12">
+									<form #f="ngForm">
+										<table class="table-striped table table-light card-body">
+											<thead>
+												<tr>
+													<th>Include Documents</th>
+													<th>Exclude Documents</th>
 
-									</thead>
-									<tbody>
-										<!--[checked]="idx === 0"-->
-										<tr>
-											<td>
-												<input type="radio" name="mode"
-													   (ngModelChange)="changeRadioValue()"
-													   [(ngModel)]="radioData"
-													   [value]="true">
-											</td>
-											<td>
-												<input type="radio" name="mode"
-													   (ngModelChange)="changeRadioValue()"
-													   [(ngModel)]="radioData"
-													   [value]="true">
-											</td>
-											<td>
-												<input type="radio" name="mode"
-													   [(ngModel)]="radioData"
-													   [value]="false">
-											</td>
-											
-										</tr>
-									</tbody>
-								</table>
-								<table class=" table-striped table table-light">
-									<thead>
-										<tr>
-											<th>Show Table</th>
-											<th>Show pie chart</th>
-											<th>Show bar chart</th>
-											<th>Show the 'none of the above' category (charts)</th>
-										</tr>
-									</thead>
-									<tbody>
-										
-										<tr>
-											<td>
-												<input type="radio" name="radioShowTable"
-													   [checked]="idx === 0"
-													   [value]="test2">
-											</td>
-											<td>
-												<input type="radio" name="radioShowPieChart"
-													   [checked]="idx === 0"
-													   [value]="test1">
-											</td>
-											<td>
-												<input type="radio" name="radioShowBarChart"
-													   [checked]="idx === 1"
-													   [value]="test2">
-											</td>
-											<td>
-												<input type="radio" name="radioCharts"
-													   [checked]="idx === 1"
-													   [value]="test2">
-											</td>
-										</tr>
-									</tbody>
-								</table>
-								<frequencies class="card bg-light "></frequencies>
-							</div>
-							<div class="card bg-light table-dark col-md-4">
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>
+														<input (click)="changeRadioValue(true)" type="radio" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Included
+													</td>
+													<td>
+														<input (click)="changeRadioValue(false)" type="radio" value="false" name="IncEnc" [(ngModel)]="IncEnc"> Excluded
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</form>
+									<table class=" table-striped table table-light card-body">
+										<thead>
+											<tr>
+												<th>Show Table</th>
+												<th>Show pie chart</th>
+												<th>Show bar chart</th>
+												<th>Show the 'none of the above' category (charts)</th>
+											</tr>
+										</thead>
+										<tbody>
+
+											<tr>
+												<td>
+													<input type="radio" name="radioShowTable"
+														   [checked]="idx === 0"
+														   [value]="test2">
+												</td>
+												<td>
+													<input type="radio" name="radioShowPieChart"
+														   [checked]="idx === 0"
+														   [value]="test1">
+												</td>
+												<td>
+													<input type="radio" name="radioShowBarChart"
+														   [checked]="idx === 1"
+														   [value]="test2">
+												</td>
+												<td>
+													<input type="radio" name="radioCharts"
+														   [checked]="idx === 1"
+														   [value]="test2">
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="col-md-12">
+									<frequencies></frequencies>
+									</div>
+								</div>
+							<div class="bg-light table-dark col-md-4">
 								<codesets></codesets>
 							</div>
-
 						</div>
 					</div>
 				</ng-template>
