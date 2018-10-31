@@ -59,6 +59,9 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 	CrossTabItemsList(item: CrossTab, attributeid: any, field: string) {
 
 
+		this.crosstabService.CrossTab.attributeIdXAxis = item.xHeadersID[Number(field.substr(field.length - 1, field.length)) - 1];
+		this.crosstabService.CrossTab.attributeIdYAxis = attributeid;
+
 		console.log('hello \n' + item.xHeadersID + '\n' + 
 
 			+ item.xHeadersID[Number(field.substr(field.length - 1, field.length)) - 1] + '\n'
@@ -67,30 +70,33 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 
 			+ attributeid + '\n ' 
 
-			//+ this.crosstabService.crit.nxaxis + '\n' +
-			//this.crosstabService.crit.attributeIdFilter + '\n' +
-			//this.crosstabService.crit.attributeIdXAxis + '\n' +
-			//this.crosstabService.crit.attributeIdYAxis + '\n' +
-			//this.crosstabService.crit.nxaxis + '\n' +
-			//this.crosstabService.crit.setIdFilter + '\n' +
-			//this.crosstabService.crit.setIdXAxis + '\n' +
-			//this.crosstabService.crit.setIdYAxis + '\n'
+			+ ' BLAH :  ' + 
+
+			' set x: ' + this.crosstabService.CrossTab.setIdXAxis + ' \n '
+
+			 + ' set y: ' +  this.crosstabService.CrossTab.setIdYAxis + ' \n '
+
+			+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdXAxis + ' \n '
+
+			+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdYAxis
+
 		);
 
 		let cr: Criteria = new Criteria();
 	
-		cr.xAxisSetId = this.crosstabService.crit.setIdXAxis; 
-		cr.yAxisSetId = this.crosstabService.crit.setIdYAxis; 
-		cr.xAxisAttributeId = item.xHeadersID[Number(field.substr(field.length - 1, field.length))-1] ; 
-		cr.yAxisAttributeId = attributeid; 
-		// the below should get its value from the view radio buttons
+		cr.xAxisSetId = this.crosstabService.CrossTab.setIdXAxis; 
+		cr.yAxisSetId = this.crosstabService.CrossTab.setIdYAxis; 
+		cr.xAxisAttributeId = this.crosstabService.CrossTab.attributeIdXAxis; 
+		cr.yAxisAttributeId = this.crosstabService.CrossTab.attributeIdYAxis ; 
+
 		cr.onlyIncluded = this.crosstabService.crit.onlyIncluded;
 		cr.filterAttributeId = this.crosstabService.crit.filterAttributeId;
 		cr.listType = 'CrosstabsList';
 		cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
-		
+
 		this.ItemListService.FetchWithCrit(cr, "CrosstabsList");
 		this._eventEmitter.selectTabItems();
+
 	}
 
 	

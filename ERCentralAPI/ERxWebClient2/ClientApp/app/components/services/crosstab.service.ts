@@ -22,7 +22,7 @@ export class crosstabService {
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
 	public NXaxis: number = 0;
-	public crit: Criteria = new Criteria();
+	private _Crit: Criteria = new Criteria();
 
 	private _fieldNames: string[] = [];
 
@@ -30,18 +30,18 @@ export class crosstabService {
 		
 		if (this._CrossTab.yRows == null || this._CrossTab.yRows == undefined || this._CrossTab.yRows.length == 0) {
 
-			console.log('got in here 2');
+
 			const CrossTabJson = localStorage.getItem('CrossTab');
 
 			let CrossTab: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
 			if (CrossTab == undefined || CrossTab == null) {
 
-				console.log('got in here ct');
+
 				return this._CrossTab;
             }
 			else {
 
-				console.log('got in here ct2');
+
 				this._CrossTab = CrossTab;
             }
 		}
@@ -51,8 +51,8 @@ export class crosstabService {
 	public get fieldNames(): string[] {
 
 
-		if (this._fieldNames != null) {
-			console.log('got in here field');
+		if (this._fieldNames == null || this._fieldNames == undefined || this._fieldNames.length == 0) {
+
 			const fieldNamesJson = localStorage.getItem('fieldNames');
 
 			let fieldNames: string[] = fieldNamesJson !== null ? JSON.parse(fieldNamesJson) : [];
@@ -68,11 +68,31 @@ export class crosstabService {
 
 	}
 
+	public get crit(): Criteria {
+
+
+		if (this._Crit == null) {
+
+			const CriteriaJson = localStorage.getItem('Criteria');
+
+			let Criteria: Criteria = CriteriaJson !== null ? JSON.parse(CriteriaJson) : [];
+			if (Criteria == undefined || Criteria == null) {
+
+				return this._Crit;
+			}
+			else {
+
+				this._Crit = Criteria;
+			}
+		}
+		return this._Crit;
+
+	}
+
 	public set fieldNames(fn: string[]) {
 
 		this._fieldNames = fn;
 
-		//this.Save();
 	}
     
 	public set CrossTab(cs: CrossTab) {
@@ -80,7 +100,13 @@ export class crosstabService {
 		this._CrossTab = cs;
 
         this.Save();
-    }
+	}
+
+	public set crit(cr: Criteria) {
+
+		this._Crit = cr;
+
+	}
 
 	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any ) {
 
@@ -130,6 +156,8 @@ export class crosstabService {
 
 		}
 
+		console.log('crosstabcheck2345 \n  ' + this.crit      + ' ewrt \n ' + this.crit.nxaxis);
+
 		this.crit.attributeIdYAxis = AttributeIdYaxis;
 		this.crit.setIdYAxis = SetIdYaxis;
 		this.crit.attributeIdXAxis = AttributeIdXaxis;
@@ -137,6 +165,7 @@ export class crosstabService {
 		this.crit.attributeIdFilter = 0;
 		this.crit.setIdFilter = 0;
 		this.crit.nxaxis = this.NXaxis;
+
 
 		console.log('crosstabcheck \n  ' + this.crit.attributeIdYAxis + ' \n  ' + this.crit.yAxisSetId + '\n  '
 			+ this.crit.xAxisAttributeId + ' \n ' + this.crit.xAxisSetId );
@@ -146,7 +175,10 @@ export class crosstabService {
 
 					this.testResult.yRows = result;
 					this.CrossTab = this.testResult;
-
+					this.CrossTab.attributeIdXAxis = this.crit.xAxisAttributeId;
+					this.CrossTab.attributeIdYAxis = this.crit.yAxisAttributeId;
+					this.CrossTab.setIdXAxis = this.crit.setIdXAxis;
+					this.CrossTab.setIdYAxis = this.crit.setIdYAxis;
 					for (var i = 1; i <= Math.min(this.NXaxis, 50); i++)
 					{
 						this.fieldNames[i-1] = "field" + i;
@@ -160,7 +192,7 @@ export class crosstabService {
 
 	public Save() {
 
-		if (this._CrossTab.yRows.length != 0)
+		if (this._CrossTab.yRows != undefined)
 			localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
 		else if (localStorage.getItem('CrossTab'))
 			localStorage.removeItem('CrossTab');
@@ -169,6 +201,11 @@ export class crosstabService {
 			localStorage.setItem('fieldNames', JSON.stringify(this._fieldNames));
 		else if (localStorage.getItem('fieldNames'))
 			localStorage.removeItem('fieldNames');
+
+		if (this._Crit != null)
+			localStorage.setItem('Criteria', JSON.stringify(this._Crit));
+		else if (localStorage.getItem('Criteria'))
+			localStorage.removeItem('Criteria');
     }
 }
 
@@ -188,7 +225,10 @@ export class CrossTab {
 	xHeaders: string[] = [];
 	xHeadersID: number[] = [];
 	yRows: ReadOnlyItemAttributeCrosstab[] = [];
-
+	attributeIdXAxis: number = 0;
+	setIdXAxis: number = 0;
+	attributeIdYAxis: number = 0;
+	setIdYAxis: number = 0;
 
 }
 
