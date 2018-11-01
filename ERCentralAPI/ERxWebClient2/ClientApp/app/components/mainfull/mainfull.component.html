@@ -100,13 +100,13 @@
 										<tbody>
 											<tr>
 												<td>
-													<input (click)="changeRadioValue(true)" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart">Show Table
+													<input (click)="show('table')" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart">Show Table
 												</td>
 												<td>
-													<input (click)="changeRadioValue(true)" type="radio" value="pie" name="IncEnc" [(ngModel)]="Chart">Show Pie chart
+													<input (click)="show('pie')" type="radio" value="pie" name="IncEnc" [(ngModel)]="Chart">Show Pie chart
 												</td>
 												<td>
-													<input (click)="changeRadioValue(true)" type="radio" value="bar" name="IncEnc" [(ngModel)]="Chart">Show Bar chart
+													<input (click)="show('bar')" type="radio" value="bar" name="IncEnc" [(ngModel)]="Chart">Show Bar chart
 												</td>
 												<td>
 													<input (click)="changeRadioValue(true)" type="checkbox" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Show None something checkbox

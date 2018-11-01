@@ -1,4 +1,4 @@
-﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -15,6 +15,7 @@ import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
+import { frequenciesComp } from '../Frequencies/frequencies.component';
 
 
 @Component({
@@ -47,7 +48,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
-    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
+	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+
+
 	tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
@@ -55,7 +58,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public count: number = 60;
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
-    private statsSub: Subscription = new Subscription();
+	private statsSub: Subscription = new Subscription();
 	public crossTabResult: any | 'none';
 
 	public selectedNodeData: any | 'none';
@@ -63,6 +66,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public selectedNodeDataY: any | 'none';
 	public radioData: any;
 
+	show(value: any) {
+
+		this._eventEmitter.showData(value);
+		
+	}
 
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();

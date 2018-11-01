@@ -1,9 +1,7 @@
-
-
-<!--This could in fact be the chart of the users choice rather than the table dependent on the 
+<!--This could in fact be the chart of the users choice rather than the table dependent on the
 radio buttons and checkbox selected-->
-<div>
-	<canvas baseChart
+<div *ngIf="show=='pie'">
+	<canvas #testChart='base-chart' baseChart
 			[chartType]="'pie'"
 			[datasets]="pieChartData"
 			[labels]="pieChartLabels"
@@ -12,24 +10,25 @@ radio buttons and checkbox selected-->
 			[colors]="pieChartColor"
 			(chartClick)="onChartClick($event)"></canvas>
 </div>
-<table
-	*ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 "
-			class="table table-bordered table-striped">
-		<thead>
-			<tr>
-				<th>Code</th>
-				<th>Count</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let item of frequenciesService.Frequencies">
-				<td>{{item.attribute}}</td>
-				<td><b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
-				(click)="FrequencyNoneOfTheAboveItemsList(item)">
-				{{item.itemCount}}
-			</b></td>
-			</tr>
-		</tbody>
+<table *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
+	   class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>Code</th>
+			<th>Count</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr *ngFor="let item of frequenciesService.Frequencies">
+			<td>{{item.attribute}}</td>
+			<td>
+				<b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
+				   (click)="FrequencyNoneOfTheAboveItemsList(item)">
+					{{item.itemCount}}
+				</b>
+			</td>
+		</tr>
+	</tbody>
 </table>
-			
+
 

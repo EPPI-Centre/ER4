@@ -1,4 +1,4 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild, Inject } from '@angular/core';
+import { Component,  OnInit,  OnDestroy, AfterViewInit, Output, EventEmitter, ViewChild, Inject, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -10,6 +10,7 @@ import { singleNode } from '../services/ReviewSets.service';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BaseChartDirective } from 'ng2-charts';
 
 
 
@@ -38,9 +39,16 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit() {
         // child is set
 	}
-
+	@ViewChild('testChart') testChart!: BaseChartDirective;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
+	public show: string = 'table';
+
+
+	test() {
+
+		alert('showing again...');
+	}
 
 	public CheckBoxAutoAdvanceVal: boolean = false;
 	public selectedNodeData: any | null = null;
@@ -48,6 +56,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 	onSubmit(f: string) {
 
     }
+
 
 	NodeDataChange(nodeData: singleNode) {
 
@@ -79,9 +88,39 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 		}
 	];
 
-	onChartClick(event: any) {
-		console.log(event);
-	}
+	//onChartClick(event: any) {
+
+	//	//this.testChart.labels = this.frequenciesService.Frequencies.map(
+
+	//	//	(x) => {
+
+	//	//		//console.log(x.attribute.toString());
+	//	//		return x.attribute;
+	//	//	}
+
+	//	//);
+
+	//	console.log(event);
+	//	console.log(this.testChart + '\n');
+
+	//	this.removeData(this.testChart);
+
+	//	//console.log(this.testChart.labels + '\n');
+	//	//console.log(this.testChart.data + '\n');
+	//	//console.log(this.testChart.datasets + '\n');
+	//}
+
+	//removeData(chart: any) {
+
+	//	chart.labels.pop();
+
+	//	chart.datasets.forEach((dataset: any) => {
+	//		dataset.data.pop();
+	//	});
+
+	//	this.testChart.getChartBuilder(this.testChart.ctx);
+	//}
+
 
 	FrequencyNoneOfTheAboveItemsList(item: Frequency) {
 
@@ -99,26 +138,23 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 		this._eventEmitter.selectTabItems();
 	}
 
-    ngOnInit() {
+	ngOnInit() {
 
-        
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-		else
-		{
-			//this.httpService.get('./assets/sales.json', { responseType: 'json' }).subscribe(
+		this._eventEmitter.showFreqView.subscribe(
 
-			//	data => {
-			//		this.pieChartData = data as any[];
+			(x: any) => {
+				alert(x);
+				this.show = x;
+			}
+		)
 
-			//		console.log(this.pieChartData);
-			//		// FILL THE CHART ARRAY WITH DATA.
-			//	},
-			//	(err: HttpErrorResponse) => {
-			//		console.log(err.message);
-			//	}
-			//);
+		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+
+			this.router.navigate(['home']);
+
+		}
+		else {
+
 
 			this.pieChartData = [{ "data": [47, 9, 28, 54, 77] }];
 
@@ -128,14 +164,38 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 
 					console.log('this is being emitted freq');
 					this.selectedNodeData = data;
+
 				}
 			)
+
+
+
+			//this.frequenciesService.frequenciesChanged.subscribe(
+
+			//	() => {
+
+			//		this.pieChartData = this.frequenciesService.Frequencies.map(
+
+			//			(y) => {
+							
+
+			//				return y.itemCount;
+			//			}
+
+			//		);
+			//		//this.pieChartLabels = this.frequenciesService.Frequencies.map(
+
+			//		//	(x) => { return x.attribute; }
+			//		//);
+
+			//	});
 		}
-    }
+	}
     
-    ngOnDestroy() {
+	ngOnDestroy() {
+
      
-    }
+	}
 
 }
 

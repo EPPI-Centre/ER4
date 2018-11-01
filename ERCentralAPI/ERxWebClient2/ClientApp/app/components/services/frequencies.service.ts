@@ -24,6 +24,7 @@ export class frequenciesService {
     
 	private _FrequencyList: Frequency[] = [];
 	@Output() codeSelectedChanged = new EventEmitter();
+	@Output() frequenciesChanged = new EventEmitter();
 	public crit: Criteria = new Criteria();
 
 	public get Frequencies(): Frequency[] {
@@ -72,13 +73,12 @@ export class frequenciesService {
 		this._httpC.post<Frequency[]>(this._baseUrl + 'api/Frequencies/GetFrequencies',
 			this.crit).subscribe(result => {
 
-				this.Frequencies = result;
-				this.Save()
+					this.Frequencies = result;
+					this.Save();
 					console.log(result);
-
+					this.frequenciesChanged.emit();
 				}
-			);
-
+		 );
     }
 
     public Save() {

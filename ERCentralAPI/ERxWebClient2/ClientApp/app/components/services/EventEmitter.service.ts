@@ -5,6 +5,8 @@ export class EventEmitterService {
 
 	dataStr = new EventEmitter();
 	tabSelectEventf = new EventEmitter();
+	showFreqView = new EventEmitter();
+
 
 	constructor() { }
 
@@ -15,4 +17,12 @@ export class EventEmitterService {
 	selectTabItems() {
 		this.tabSelectEventf.emit();
 	}
+
+	showData(value: any) {
+
+		this.showFreqView.emit(value);
+	}
+
+
+
 }
