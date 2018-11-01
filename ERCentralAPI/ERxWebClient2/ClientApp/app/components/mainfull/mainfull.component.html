@@ -69,45 +69,31 @@
 								<div class="col-md-12">
 									<form #f="ngForm">
 										<table class="table-striped table table-light card-body">
-											<thead>
-												<tr>
-													<th>Include Documents</th>
-													<th>Exclude Documents</th>
-
-												</tr>
-											</thead>
 											<tbody>
 												<tr>
 													<td>
-														<input (click)="changeRadioValue(true)" type="radio" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Included
-													</td>
+														<input (click)="changeRadioValue(true)" type="radio" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> <b>&nbsp;Included</b>
+</td>
 													<td>
-														<input (click)="changeRadioValue(false)" type="radio" value="false" name="IncEnc" [(ngModel)]="IncEnc"> Excluded
-													</td>
+														<input (click)="changeRadioValue(false)" type="radio" value="false" name="IncEnc" [(ngModel)]="IncEnc"><b>&nbsp; Excluded</b>
+</td>
 												</tr>
 											</tbody>
 										</table>
 									</form>
 									<table class=" table-striped table table-light card-body">
-										<thead>
-											<tr>
-												<th>Show Table</th>
-												<th>Show pie chart</th>
-												<th>Show bar chart</th>
-												<th>Show the 'none of the above' category (charts)</th>
-											</tr>
-										</thead>
+										
 										<tbody>
 											<tr>
 												<td>
-													<input (click)="show('table')" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart">Show Table
+													<input (click)="show('table')" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart"><b>&nbsp; Show Table</b>
 												</td>
 												<td>
-													<input (click)="show('pie')" type="radio" value="pie" name="IncEnc" [(ngModel)]="Chart">Show Pie chart
-												</td>
+													<input (click)="show('pie')" type="radio" value="pie" name="IncEnc" [(ngModel)]="Chart"><b>&nbsp; Show Pie chart</b>
+</td>
 												<td>
-													<input (click)="show('bar')" type="radio" value="bar" name="IncEnc" [(ngModel)]="Chart">Show Bar chart
-												</td>
+													<input (click)="show('bar')" type="radio" value="bar" name="IncEnc" [(ngModel)]="Chart"><b>&nbsp; Show Bar chart</b>
+</td>
 												<td>
 													<input (click)="changeRadioValue(true)" type="checkbox" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Show None something checkbox
 												</td>

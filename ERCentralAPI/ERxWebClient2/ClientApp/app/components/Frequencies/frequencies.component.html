@@ -1,9 +1,9 @@
 <!--This could in fact be the chart of the users choice rather than the table dependent on the
 radio buttons and checkbox selected-->
-<div *ngIf="show=='pie'">
+<div *ngIf="show=='pie' && pieChartData">
 	<canvas #testChart='base-chart' baseChart
 			[chartType]="'pie'"
-			[datasets]="pieChartData"
+			[datasets] ="pieChartData"
 			[labels]="pieChartLabels"
 			[options]="pieChartOptions"
 			[legend]="true"
