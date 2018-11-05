@@ -60,8 +60,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public isWorkAllocationsPanelCollapsed = false;
 	private statsSub: Subscription = new Subscription();
 	public crossTabResult: any | 'none';
-
 	public selectedNodeData: any | 'none';
+	public selectedAttributeSet: any | 'none';
 	public selectedNodeDataX: any | 'none';
 	public selectedNodeDataY: any | 'none';
 	public radioData: any;
@@ -71,7 +71,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this._eventEmitter.showData(value);
 		
 	}
-
+	test() {
+		alert('hello again');
+	}
+	clearReviewSet() {
+		this.selectedNodeData = null;
+	}
+	clearAttributeSet() {
+		this.selectedAttributeSet = null;
+	}
     dtOptions: DataTables.Settings = {};
     dtTrigger: Subject<any> = new Subject();
 	alertT() {
@@ -90,8 +98,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			(data: any) => {
 
+				if (data != null) {
 
-				this.selectedNodeData = data;
+					console.log(data.name + ' ====> ' + data.nodeType);
+					if (data.nodeType != 'ReviewSet') {
+
+						this.selectedAttributeSet = data;
+
+					} else {
+
+						this.selectedNodeData = data;
+					}
+				}
 			}
 		)
 

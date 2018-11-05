@@ -73,7 +73,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 		['January', 'February', 'March', 'April', 'May', 'June', 'July'];
 
 	// CHART COLOR.
-	pieChartColor: any = [
+	public pieChartColor: any = [
 		{
 			backgroundColor: ['rgba(30, 169, 224, 0.8)',
 				'rgba(255,165,0,0.9)',
@@ -94,22 +94,22 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 			var g = Math.floor(Math.random() * 255);
 			var b = Math.floor(Math.random() * 255);
 
-			this.chartColours[i] = 'rgba(' + r + ',' + + g + ',' + b + ', 0.9 )';
+			this.chartColours[i] = 'rgba(' + r + ', 100 ,' + b + ', 1)';
 
 		}
 		
 	};
 
-	public pieChartColors: Array<any> = [
-		{ // grey
-			backgroundColor: 'rgba(148,159,177,0.2)',
-			borderColor: 'rgba(148,159,177,1)',
-			pointBackgroundColor: 'rgba(148,159,177,1)',
-			pointBorderColor: '#fff',
-			pointHoverBackgroundColor: '#fff',
-			pointHoverBorderColor: 'rgba(148,159,177,0.8)'
-		}
-	];
+	//public pieChartColor: Array<any> = [
+	//	{ // grey
+	//		backgroundColor: 'rgba(148,159,177,0.2)',
+	//		borderColor: 'rgba(148,159,177,1)',
+	//		pointBackgroundColor: 'rgba(148,159,177,1)',
+	//		pointBorderColor: '#fff',
+	//		pointHoverBackgroundColor: '#fff',
+	//		pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+	//	}
+	//];
 
 	public pieChartLegend: boolean = true;
 	public pieChartType: string = 'pie';
@@ -197,28 +197,28 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 					(x: any) => {
 
 						//clear them and start again..
-						this.pieData = [];
-						this.pieLabel = [];
-						this.chartColours = [];
+						//this.pieData = [];
+						//this.pieLabel = [];
+						//this.chartColours = [];
 
-						//this.pieChartData.forEach((dataset: any) => {
-						//	console.log('do we get here...' + dataset.data);
-						//});
+						////this.pieChartData.forEach((dataset: any) => {
+						////	console.log('do we get here...' + dataset.data);
+						////});
 						
-						this.frequenciesService.Frequencies.forEach(
+						//this.frequenciesService.Frequencies.forEach(
 
-							(y, i) => {
+						//	(y, i) => {
 
-								this.pieData[i] = Number(y.itemCount);
-								this.pieLabel[i] = y.attribute;
+						//		this.pieData[i] = Number(y.itemCount);
+						//		this.pieLabel[i] = y.attribute;
 							
-							});
+						//	});
 
-						this.dynamicColours(this.frequenciesService.Frequencies.length);
-						this.pieChartColors = this.chartColours;
-						this.pieChartData = [{ "data": this.pieData }];
-						this.pieChartLabels = this.pieLabel ;
-						console.log('do we get here...' + this.pieData);
+						//this.dynamicColours(this.frequenciesService.Frequencies.length);
+						//this.pieChartColors = this.chartColours;
+						//this.pieChartData = [{ "data": this.pieData }];
+						//this.pieChartLabels = this.pieLabel ;
+						//console.log('do we get here...' + this.pieData);
 						this.show = x;
 					}
 				)						
@@ -237,17 +237,24 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 
 				() => {
 
-					//this.frequenciesService.Frequencies.forEach(
+					this.pieData = [];
+					this.pieLabel = [];
+					this.chartColours = [];
 
-					//	(y, i) => {
+					this.frequenciesService.Frequencies.forEach(
 
-					//		this.pieData[i] = Number(y.itemCount);
-					//		this.pieLabel[i] = y.attribute;
+						(y, i) => {
 
-					//	});
-					//this.dynamicColours(this.frequenciesService.Frequencies.length);
-					//this.pieChartData = [{ "data": this.pieData }];
-					//this.pieChartLabels = this.pieLabel;
+							this.pieData[i] = Number(y.itemCount);
+							this.pieLabel[i] = y.attribute;
+
+						});
+
+					this.dynamicColours(this.frequenciesService.Frequencies.length);
+					this.pieChartData = [{ "data": this.pieData }];
+					this.pieChartColor = [{ "backgroundColor": this.chartColours }];
+					this.pieChartLabels = this.pieLabel;
+					console.log('do we get here...' + this.chartColours);
 
 				});
 		}

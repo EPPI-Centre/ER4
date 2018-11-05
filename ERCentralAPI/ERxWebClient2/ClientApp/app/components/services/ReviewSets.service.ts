@@ -326,6 +326,7 @@ export class ReviewSetsService {
 }
 
 export interface singleNode {
+
     id: string;
     name: string;
     attributes: singleNode[];
@@ -333,7 +334,6 @@ export interface singleNode {
     nodeType: string;//codeset or attribute?
     subTypeName: string;//screening, admin, normal; selectable, non selectable, etc.
 	description: string;
-
 
     isSelected: boolean;
     additionalText: string;
