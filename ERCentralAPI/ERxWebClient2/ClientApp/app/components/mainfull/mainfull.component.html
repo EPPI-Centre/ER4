@@ -57,7 +57,7 @@
 			</ngb-tab>
 			<ngb-tab title="Frequencies">
 				<ng-template ngbTabContent>
-					<button (click)="fetchFrequencies(selectedNodeData)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
+					<button (click)="fetchFrequencies(selectedNodeData, selectedAttributeSet?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
 					<div class="card">
 						<!--<div class="row card d-flex flex-wrap-reverse bg-light fa-border  col-md-12">-->
 						<div class="col-md-4 table-striped table table-light card-body">

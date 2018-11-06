@@ -49,15 +49,23 @@ export class frequenciesService {
         this.Save();
     }
 
-	public Fetch(selectedNodeData: any) {
+	public Fetch(selectedNodeData: any, selectedFilter?: any) {
 
 		this.codeSelectedChanged.emit(selectedNodeData);
 				
-		console.log('stuff1' + selectedNodeData.id);
+		//console.log('Inside the service now: ' + selectedFilter);
+		if (selectedFilter != null) {
+
+			this.crit.FilterAttributeId = selectedFilter;
+		} else {
+
+			this.crit.FilterAttributeId = -1;
+		}
+
 		if (selectedNodeData.nodeType == 'ReviewSet') {
 
 			this.crit.AttributeId = '0';
-			this.crit.FilterAttributeId = -1;
+			//this.crit.FilterAttributeId = -1;
 			//need to get this from the page
 			//this.crit.Included = true;
 			this.crit.SetId = selectedNodeData.id.substr(2, selectedNodeData.id.length);
@@ -65,7 +73,7 @@ export class frequenciesService {
 		} else {
 
 			this.crit.AttributeId = selectedNodeData.id.substr(1, selectedNodeData.id.length);
-			this.crit.FilterAttributeId = -1;
+			//this.crit.FilterAttributeId = -1;
 			//this.crit.Included = true;
 			this.crit.SetId = selectedNodeData.set_id;
 		}

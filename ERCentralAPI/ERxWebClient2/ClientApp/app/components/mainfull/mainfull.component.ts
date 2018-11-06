@@ -100,10 +100,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 				if (data != null) {
 
-					console.log(data.name + ' ====> ' + data.nodeType);
+					//console.log(data.name + ' ====> ' + data.nodeType);
 					if (data.nodeType != 'ReviewSet') {
 
 						this.selectedAttributeSet = data;
+						console.log(data.attribute_id);
 
 					} else {
 
@@ -139,15 +140,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) this.Reload();
     }
 
-	fetchFrequencies(selectedNodeData: any) {
+	fetchFrequencies(selectedNodeData: any, selectedFilter: any) {
 		
 		if (!selectedNodeData || selectedNodeData == undefined) {
 
 			alert('Please select a code from the tree');
 
 		} else {
-			
-			this.frequenciesService.Fetch(selectedNodeData);
+
+			console.log(selectedNodeData.name);
+			// need to filter data before calling the below Fetch			
+			this.frequenciesService.Fetch(selectedNodeData, selectedFilter);
 		
 		}
 	}
