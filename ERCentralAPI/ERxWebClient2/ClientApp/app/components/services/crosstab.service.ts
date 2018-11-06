@@ -108,7 +108,7 @@ export class crosstabService {
 
 	}
 
-	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any ) {
+	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any ) {
 
 		let AttributeIdXaxis: number = 0;
 		let xAxisAttributes: SetAttribute[] = [];
@@ -162,7 +162,12 @@ export class crosstabService {
 		this.crit.setIdYAxis = SetIdYaxis;
 		this.crit.attributeIdXAxis = AttributeIdXaxis;
 		this.crit.setIdXAxis = SetIdXaxis;
-		this.crit.attributeIdFilter = 0;
+		if (selectedFilter != null) {
+			this.crit.attributeIdFilter = selectedFilter;
+		} else {
+			this.crit.attributeIdFilter = 0;
+		}
+		
 		this.crit.setIdFilter = 0;
 		this.crit.nxaxis = this.NXaxis;
 

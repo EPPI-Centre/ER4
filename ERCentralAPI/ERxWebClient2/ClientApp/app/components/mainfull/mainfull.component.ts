@@ -155,7 +155,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any) {
+	fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {
 
 		if (!selectedNodeDataX || selectedNodeDataX == undefined || !selectedNodeDataY
 			|| selectedNodeDataY == undefined) {
@@ -173,7 +173,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			//	console.log('testing here2: ' + test2);
 			//}			
 
-			this.crossTabResult  = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY);
+			this.crossTabResult = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY, selectedFilter);
 
 		}
 	}

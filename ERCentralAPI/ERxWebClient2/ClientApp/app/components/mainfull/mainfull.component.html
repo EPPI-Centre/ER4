@@ -129,7 +129,7 @@
 			<ngb-tab title="CrossTabs">
 				<ng-template ngbTabContent>
 					<div >
-						<button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY)" class="btn-lg btn-info mb-lg-2">Get CrossTabs</button>
+						<button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY, selectedAttributeSet?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get CrossTabs</button>
 						
 							<div class="row col-md-12">
 								<table class="table-striped table table-light col-md-8 card-body">
@@ -208,6 +208,16 @@
 										</tr>
 									</tbody>
 								</table>
+						<div class="col-md-4 table-striped table table-light card-body">
+							<table>
+								<tr>
+									<td class="col-md-1"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
+									<td class="col-md-1"><b class="btn-warning">{{selectedAttributeSet?.name}}&nbsp;</b></td>
+									<td class="col-md-1 "><button (click)="clearAttributeSet()" class="btn-primary"> Clear Review Set</button></td>
+								</tr>
+							</table>
+						</div>
+
 								<div class="card-body bg-light col-md-8">
 									<crosstab></crosstab>
 								</div>
@@ -215,6 +225,7 @@
 									<codesets></codesets>
 								</div>
 						</div>
+
 					</div>
 				</ng-template>
 			</ngb-tab>
