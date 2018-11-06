@@ -1,0 +1,29 @@
+<p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
+
+<div class="border-0 col-md-8">
+
+	<table datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"  class="table table-responsive"  *ngIf="_searchService.SearchList.length > 0">
+        <thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>Search ID</th>
+				<th>Search Title</th>
+				<th>Created By</th>
+				<th>Date</th>
+				<th>Hits</th>
+			</tr>
+        </thead>
+
+        <tbody>
+			<tr *ngFor="let searchItem of _searchService.SearchList">
+				<td><button class="btn btn-outline-primary btn-sm" (click)="OpenItems(searchItem.searchId)">GO</button><br />(Id:&nbsp;{{ searchItem.searchId }})</td>
+				<td>{{ searchItem.searchId }}</td>
+				<td>{{ searchItem.title }}</td>
+				<td>{{ searchItem.contactName }}</td>
+				<td>{{ searchItem.searchDate }}</td>
+				<td>{{ searchItem.hitsNo }}</td>
+			</tr>
+        </tbody>
+    </table>
+
+</div>

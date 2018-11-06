@@ -33,11 +33,13 @@ import { EventEmitterService } from './components/services/EventEmitter.service'
 import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
+import { SearchComp } from './components/Search/SearchComp.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		CodesetTreeComponent,
+		SearchComp,
 		frequenciesComp,
 		CrossTabsComp,
 		ReviewStatisticsComp,

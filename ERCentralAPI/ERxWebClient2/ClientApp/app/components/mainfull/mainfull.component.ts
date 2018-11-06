@@ -16,6 +16,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
 import { frequenciesComp } from '../Frequencies/frequencies.component';
+import { searchService } from '../services/search.service';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService
 		, private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
+		, private searchService: searchService
     ) {
 
     }
@@ -137,7 +139,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
 			|| (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-        ) this.Reload();
+		) this.Reload();
+		//this.searchService.Fetch();
     }
 
 	fetchFrequencies(selectedNodeData: any, selectedFilter: any) {
