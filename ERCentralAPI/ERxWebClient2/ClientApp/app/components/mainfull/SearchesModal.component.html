@@ -1,0 +1,112 @@
+
+
+    <div class="modal-header bg-primary">
+        <h3 id="modal-basic-title"><b>Searches</b></h3>
+        <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+	<div class="modal-body">
+		<div class="container-fluid">
+
+			<div class="row">
+				<div class="col-md-4 font-italic"><h5> Find Documents: </h5></div>
+				<div class="col-md-8">
+					<div ngbDropdown class="d-inline-block col-md-12">
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic1" ngbDropdownToggle>Find documents</button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+							<button (click)="nextDropDownList(1)" class="dropdown-item">With this code</button>
+							<button (click)="nextDropDownList(2)" class="dropdown-item">Without this code</button>
+							<button (click)="nextDropDownList(3)" class="dropdown-item">With these internal IDs (comma separated)</button>
+							<button (click)="nextDropDownList(4)" class="dropdown-item">With these imported IDs (comma separated)</button>
+							<button (click)="nextDropDownList(5)" class="dropdown-item">That have at least one code from this set</button>
+							<button (click)="nextDropDownList(6)" class="dropdown-item">That don't have any codes from this set</button>
+							<button (click)="nextDropDownList(7)" class="dropdown-item">Containing this text</button>
+							<button (click)="nextDropDownList(8)" class="dropdown-item">With at least one document uploaded</button>
+							<button (click)="nextDropDownList(9)" class="dropdown-item">Without any documents uploaded</button>
+							<button (click)="nextDropDownList(10)" class="dropdown-item">Without an abstract</button>
+						</div>
+					</div>
+					<div ngbDropdown class="d-inline-block col-md-12">
+						<button class="btn btn-info col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+							<div>
+								<div (click)="test()" class="dropdown-item" *ngFor="let item of reviewSetList">
+									&nbsp; {{item.name}}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--<div class="col-md-4 ml-auto"></div>-->
+			</div>
+
+			<!--<div class="row">
+			<div class="col-md-3 ml-auto">.col-md-3 .ml-auto</div>
+			<div class="col-md-2 ml-auto">.col-md-2 .ml-auto</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 ml-auto">.col-md-6 .ml-auto</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-9">
+				Level 1: .col-sm-9
+				<div class="row">
+					<div class="col-8 col-sm-6">
+						Level 2: .col-8 .col-sm-6
+					</div>
+					<div class="col-4 col-sm-6">
+						Level 2: .col-4 .col-sm-6
+					</div>
+				</div>
+			</div>
+		</div>-->
+		</div>
+
+
+		<!--<div ngbDropdown class="d-inline-block col-md-12">
+
+		<button class="btn btn-outline-primary col-md-8" id="dropdownBasic1" ngbDropdownToggle>Find documents</button>
+		<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+			<button class="dropdown-item">Action - 1</button>
+			<button class="dropdown-item">Another Action</button>
+			<button class="dropdown-item">Something else is here</button>
+		</div>
+	</div>-->
+		<!--<div class="col-md-8 card-body">
+		<div ngbDropdown class="d-inline-block col-md-12">
+
+			<button class="btn btn-outline-success col-md-8" id="dropdownBasic1" ngbDropdownToggle>Find documents 2</button>
+			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+				<button class="dropdown-item">Action - 1</button>
+				<button class="dropdown-item">Another Action</button>
+				<button class="dropdown-item">Something else is here</button>
+			</div>
+		</div>
+	</div>-->
+
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<table class="table table-responsive col-md-12">
+					<tr>
+						<td>
+							<input type="radio" value="Included" name="a" [(ngModel)]="search"><b>&nbsp; Included </b>
+						</td>
+						<td>
+							<input type="radio" value="Excluded" name="a" [(ngModel)]="search"><b>&nbsp; Excluded</b>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-md-4 ml-auto"></div>-
+		</div>
+
+
+	</div>
+    <div class="modal-footer bg-primary">
+        <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+        <button type="button" class="btn btn-secondary" 
+                (click)="test()">Search</button>
+    </div>
+

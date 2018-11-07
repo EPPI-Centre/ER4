@@ -75,13 +75,14 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         //this.changeDetectorRef.detectChanges();
-        //const table: any = $("#user-table").DataTable();
+        const table: any = $("#user-table").DataTable();
         
         //table.DataTable();
 
         //this.chRef.detectChanges();
         //const table: any = $('table');
         //this.dataTable = table.DataTable(); 
+			
 
         this.dtOptions = {
             pagingType: 'full_numbers',
@@ -91,7 +92,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
             columnDefs: [
                 {
                     "targets": 0,
-                    "orderable": false
+					"orderable": false
+
                 },
                 {
                     "targets": 4,

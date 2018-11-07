@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { MainFullReviewComponent } from './components/mainfull/mainfull.component';
+import { MainFullReviewComponent, SearchesModalContent } from './components/mainfull/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -55,7 +55,8 @@ import { SearchComp } from './components/Search/SearchComp.component';
         itemDetailsComp,
         paginatorComp,
         StatusBarComponent,
-        InfoBoxModalContent,
+		InfoBoxModalContent,
+		SearchesModalContent,
         ItemDocListComp,
         intropageComponent,
         ModalDialogComponent,
@@ -64,7 +65,7 @@ import { SearchComp } from './components/Search/SearchComp.component';
         MainComponent
 	],
 	providers: [EventEmitterService, WebApiObservableService ],
-    entryComponents: [InfoBoxModalContent, ModalDialogComponent],
+    entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent],
     imports: [
         AngularFontAwesomeModule,
         DataTablesModule,

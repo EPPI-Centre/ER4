@@ -234,26 +234,26 @@
 			</ngb-tab>
 			<ngb-tab id="SearchListTab" title="Search">
 				<ng-template ngbTabContent>
-					<div class="row card bg-primary">
+					<div class="row card bg-primary border-dark">
 						<!--<h5>Icons for various functions here... (see ER4) Search Component Icons</h5>-->
 						<table>
 							<tr>
 
-								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
-								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
-								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
-								<td class="btn border-info text-white bg-primary" (click)="test()"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
-								<td class="btn border-info text-white bg-primary">
+								<td class="btn  text-white bg-primary" (click)="openNewSearchModal()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
+								<td class="btn  text-white bg-primary" (click)="test()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
+								<td class="btn text-white bg-primary" (click)="test()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
+								<td class="btn  text-white bg-primary" (click)="test()"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
+								<td class="btn  text-white bg-primary">
 									<input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
 								</td>
-								<td class="btn border-info text-white bg-primary">
+								<td class="btn  text-white bg-primary">
 									<input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
 								</td>
-								<td class="btn border-info text-white bg-primary">
+								<td class="btn text-white bg-primary">
 									<input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
 								</td>
-								<td class="btn border-info text-white bg-primary">
-									<input type="radio" value="NOTNOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
+								<td class="btn text-white bg-primary">
+									<input type="radio" value="NOTR" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
 								</td>
 							</tr>
 						</table>

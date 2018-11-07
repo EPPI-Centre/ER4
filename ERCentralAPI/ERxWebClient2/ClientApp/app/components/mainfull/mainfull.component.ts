@@ -10,13 +10,14 @@ import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabset, NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { searchService } from '../services/search.service';
+import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
 
 
 @Component({
@@ -43,7 +44,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService
 		, private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-		, private searchService: searchService
+		, private searchService: searchService,
+		private modalService: NgbModal
     ) {
 
     }
@@ -92,6 +94,35 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	setYaxis() {
 		this.selectedNodeDataY = this.selectedNodeData;
+	}
+		
+
+	openNewSearchModal() {
+	
+
+		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
+	
+			modalComp.componentInstance.InfoBoxTextInput = 'tester';
+			modalComp.componentInstance.focus(null);
+
+			modalComp.result.then(() => {
+
+				//data.additionalText = infoTxt;
+				//if (!data.isSelected) {
+
+					
+				//	this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);
+				//}
+				//else {
+		
+				//	this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);
+				//}
+			},
+				() => {
+
+					alert('testing 123 correct');
+				}
+			);
 	}
 
 	ngOnInit() {
@@ -298,4 +329,91 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 export class RadioButtonComp {
 	IncEnc = true;
+}
+@Component({
+	selector: 'ngbd-SearchesModal-content',
+	templateUrl: './SearchesModal.component.html'
+})
+export class SearchesModalContent {
+
+	@ViewChild('SearchesModal')
+
+	//InfoBoxText!: ElementRef;
+
+	private canWrite: boolean = true;
+	public reviewSetList: any = null;
+
+	public get IsReadOnly(): boolean {
+
+		return this.canWrite;
+
+	}
+	constructor(public activeModal: NgbActiveModal,
+		private reviewSetsService: ReviewSetsService,
+		private EventEmitterService: EventEmitterService
+	) { }
+
+	test() {
+		alert('hello again');
+	}
+
+	public nextDropDownList(num: number) {
+
+		console.log('got here');
+		//this.EventEmitterService.dropDownSelect(num);
+
+		switch (num) {
+
+			case 1: {
+				alert('you hit 1!');
+				this.reviewSetList = this.reviewSetsService.ReviewSets;
+				break;
+			}
+			case 2: {
+				//statements; 
+				break;
+			}
+			case 3: {
+				//statements; 
+				break;
+			}
+			case 4: {
+				//statements; 
+				break;
+			}
+			case 5: {
+				//statements; 
+				break;
+			}
+			case 6: {
+				//statements; 
+				break;
+			}
+			case 7: {
+				//statements; 
+				break;
+			}
+			case 8: {
+				//statements; 
+				break;
+			}
+			case 9: {
+				//statements; 
+				break;
+			}
+			case 10: {
+				//statements; 
+				break;
+			}
+			default: {
+				//statements; 
+				break;
+			}
+		}
+	}
+
+	public focus(canWrite: boolean) {
+		this.canWrite = canWrite;
+		//this.InfoBoxText.nativeElement.focus();
+	}
 }

@@ -15,6 +15,7 @@ import { pipe } from 'rxjs'
 import { style } from '@angular/animations';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -38,32 +39,30 @@ export class SearchComp implements OnInit, OnDestroy {
 		
     @Input() Context: string | undefined;
 
+	public selectedAll: boolean = false;
+
     value = 1;
     onEnter(value: number) {
         this.value = value ;
         this.ItemListService.FetchParticularPage(value-1);
     }
-       
+
+	dataTable: any;
+
 
     ngOnInit() {
 
 		this.dtOptions = {
 			//pagingType: 'full_numbers',
 			//paging: true,
-			searching: true,
+			//searching: true,
 			//scrollY: "350px",
 			columnDefs: [
 				{
-					"targets": 0,
-					"orderable": false
+					"orderable": false,
+					"targets": 0
 				},
-				//{
-				//	"targets": 4,
-				//	"orderable": false
-				//},
-				//{ "type": "num", "targets": 1 }
 			]
-			//pageLength: 2
 		};
 
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -76,6 +75,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
         }
 	}
+	
 
 	OpenItems(item: number) {
 
@@ -94,13 +94,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.selectTabItems();
 	}
 
-
 	ngOnDestroy() {
 
-
 	}
-
-        
+   
 }
 
 

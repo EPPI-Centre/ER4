@@ -65,6 +65,7 @@ export class searchService {
 
 export class Search {
 
+	selected: boolean = false;
 	searchId: number = 0;
 	hitsNo: number = 0;
 	title: string = '';
