@@ -47,7 +47,7 @@
 			<ngb-tab id="ItemListTab" title="Items">
 				<ng-template ngbTabContent>
 					<div class=" card bg-primary">
-						<h5>Icons for various functions here... (see ER4) </h5>
+						<h5>Icons for various functions here... (see ER4) ITEMS</h5>
 					</div>
 					<div class="card card-body bg-light">
 						<!---->
@@ -67,10 +67,10 @@
 									<td class="col-md-1"><b class="btn-warning">{{selectedNodeData?.name}}&nbsp;</b></td>
 									<td class="col-md-1 "><button (click)="clearReviewSet()" class="btn-primary"> Clear Review Set</button></td>
 								</tr>
-							</table>
+							<!--</table>
 						</div>
 						<div class="col-md-4 table-striped table table-light card-body">
-							<table>
+							<table>-->
 								<tr>
 									<td class="col-md-1"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
 									<td class="col-md-1"><b class="btn-warning">{{selectedAttributeSet?.name}}&nbsp;</b></td>
@@ -78,10 +78,10 @@
 								</tr>
 							</table>
 						</div>
-						<div class="row">
-							<div class="col-md-8">
+						<div  class="row">
+							<div  class="col-md-8">
 								<div class="col-md-12">
-									<form #f="ngForm">
+									<!--<form #f="ngForm">-->
 										<table class="table-striped table table-light card-body">
 											<tbody>
 												<tr>
@@ -92,12 +92,12 @@
 														<input (click)="changeRadioValue(false)" type="radio" value="false" name="IncEnc" [(ngModel)]="IncEnc"><b>&nbsp; Excluded</b>
 													</td>
 												</tr>
-											</tbody>
+											<!--</tbody>
 										</table>
 									</form>
 									<table class=" table-striped table table-light card-body">
 
-										<tbody>
+										<tbody>-->
 											<tr>
 												<td>
 													<input (click)="show('table')" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart"><b>&nbsp; Show Table</b>
@@ -234,11 +234,38 @@
 			</ngb-tab>
 			<ngb-tab id="SearchListTab" title="Search">
 				<ng-template ngbTabContent>
-					<div class=" card bg-primary">
-						<h5>Icons for various functions here... (see ER4) </h5>
+					<div class="row card bg-primary">
+						<!--<h5>Icons for various functions here... (see ER4) Search Component Icons</h5>-->
+						<table>
+							<tr>
+
+								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
+								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
+								<td class="btn border-info text-white bg-primary" (click)="test()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
+								<td class="btn border-info text-white bg-primary" (click)="test()"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
+								<td class="btn border-info text-white bg-primary">
+									<input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
+								</td>
+								<td class="btn border-info text-white bg-primary">
+									<input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
+								</td>
+								<td class="btn border-info text-white bg-primary">
+									<input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
+								</td>
+								<td class="btn border-info text-white bg-primary">
+									<input type="radio" value="NOTNOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
+								</td>
+							</tr>
+						</table>
+
 					</div>
-					<div class="card card-body bg-light">
-						<SearchComp resizable r-directions="['right']" r-flex="true"></SearchComp>
+					<div class="row">
+						<div class="card card-body bg-light col-md-8">
+							<SearchComp resizable r-directions="['right']" r-flex="true"></SearchComp>
+						</div>
+						<div class="bg-light table-dark col-md-4">
+							<codesets></codesets>
+						</div>
 					</div>
 				</ng-template>
 			</ngb-tab>

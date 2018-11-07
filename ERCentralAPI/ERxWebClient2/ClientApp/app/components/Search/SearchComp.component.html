@@ -1,8 +1,8 @@
 <p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
 
-<div class="border-0 col-md-8">
+<div class="border-0">
 
-	<table datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"  class="table table-responsive"  *ngIf="_searchService.SearchList.length > 0">
+	<table style="max-height: 600px;" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"  class="table table-responsive"  *ngIf="_searchService.SearchList.length > 0">
         <thead>
 			<tr>
 				<th>&nbsp;</th>

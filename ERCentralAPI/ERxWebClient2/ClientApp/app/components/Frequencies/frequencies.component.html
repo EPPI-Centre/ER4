@@ -10,7 +10,7 @@ radio buttons and checkbox selected-->
 			[colors]="pieChartColor"
 			(chartClick)="onChartClick($event)"></canvas>
 </div>
-<table *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
+<table style="max-height: 500px;" *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
 	   class="table table-bordered table-striped">
 	<thead>
 		<tr>
