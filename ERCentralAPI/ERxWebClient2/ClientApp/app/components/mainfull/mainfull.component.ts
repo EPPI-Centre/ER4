@@ -121,8 +121,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	setTabSelected(tab: any) {
 
 		this.tabSelected = tab;
+		this._eventEmitter.tabSelected(tab);
 
-		//alert(JSON.stringify(tab.nextId));
+		alert(JSON.stringify(tab.nextId));
 		//alert(message);
 	}
 
@@ -415,6 +416,7 @@ export class SearchesModalContent {
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
 	public showDropDown2: boolean = true;
+	public selectedSearchDropDown: string = '';
 	public get IsReadOnly(): boolean {
 
 		return this.canWrite;
@@ -431,16 +433,17 @@ export class SearchesModalContent {
 
 	}
 
-	public nextDropDownList(num: number) {
+	public nextDropDownList(num: number, val: string) {
 
-		console.log('got here');
-		//this.EventEmitterService.dropDownSelect(num);
-
+		//console.log('got here');
+		this.selectedSearchDropDown = val;
 		switch (num) {
 
 			case 1: {
-				alert('you hit 1!');
-				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				//console.log(this.dropDownList)
+				//console.log();
+				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
 			}
@@ -505,7 +508,6 @@ export class SearchesModalContent {
 				break;
 			}
 		}
-
 	}
 
 	public focus(canWrite: boolean) {

@@ -6,7 +6,7 @@ export class EventEmitterService {
 	dataStr = new EventEmitter();
 	tabSelectEventf = new EventEmitter();
 	showFreqView = new EventEmitter();
-	dropDownChange = new EventEmitter();
+	tabChange = new EventEmitter();
 
 	constructor() { }
 
@@ -23,9 +23,8 @@ export class EventEmitterService {
 		this.showFreqView.emit(value);
 	}
 
-	dropDownSelect(value: any) {
-
-		this.dropDownChange.emit(value);
+	tabSelected(value: any) {
+		this.tabChange.emit(value);
 	}
 
 }

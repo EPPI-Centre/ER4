@@ -12,19 +12,23 @@
 				<div class="col-md-4 font-italic"><h5> Find Documents: </h5></div>
 				<div class="col-md-8">
 					<div ngbDropdown class="d-inline-block col-md-12">
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic1" ngbDropdownToggle>Find documents</button>
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-							<button (click)="nextDropDownList(1)" class="dropdown-item">With this code</button>
-							<button (click)="nextDropDownList(2)" class="dropdown-item">Without this code</button>
-							<button (click)="nextDropDownList(3)" class="dropdown-item">With these internal IDs (comma separated)</button>
-							<button (click)="nextDropDownList(4)" class="dropdown-item">With these imported IDs (comma separated)</button>
-							<button (click)="nextDropDownList(5)" class="dropdown-item">That have at least one code from this set</button>
-							<button (click)="nextDropDownList(6)" class="dropdown-item">That don't have any codes from this set</button>
-							<button (click)="nextDropDownList(7)" class="dropdown-item">Containing this text</button>
-							<button (click)="nextDropDownList(8)" class="dropdown-item">With at least one document uploaded</button>
-							<button (click)="nextDropDownList(9)" class="dropdown-item">Without any documents uploaded</button>
-							<button (click)="nextDropDownList(10)" class="dropdown-item">Without an abstract</button>
+							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+							<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+							<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+							<button (click)="nextDropDownList(5, 'That have at least one code from this set')" class="dropdown-item">That have at least one code from this set</button>
+							<button (click)="nextDropDownList(6, 'That dont have any codes from this set')" class="dropdown-item">That don't have any codes from this set</button>
+							<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+							<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+							<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+							<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
 						</div>
+					</div>
+
+					<div *ngIf="selectedSearchDropDown == 'With this code'">
+							<codesets class="col-md-8"></codesets>
 					</div>
 
 					<div *ngIf="showDropDown2" ngbDropdown class="d-inline-block col-md-12">
@@ -37,7 +41,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+					</div>
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div>
 						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>

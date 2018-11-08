@@ -1,16 +1,18 @@
 
 <p *ngIf="!nodes || nodes.length == 0"><em>Loading...</em></p>
-<div class="bg-info" *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
+<!--style="max-height: 800px; height:680px"-->
+<div *ngIf="nodes && nodes.length > 0" ng-style="smallTree == 'true' ? {'width':'250px'} : {'width':'500px'}">
 	<tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 800px;"
 			   (activate)="NodeSelected($event.node.data)">
 		<ng-template #treeNodeTemplate let-node let-index="index">
 			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
-                              'AdminSet' : node.data.subTypeName == 'Administration',
-                              'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                                }">{{node.data.name}}</span>
+                            'AdminSet' : node.data.subTypeName == 'Administration',
+                            'ExcludeCode' : node.data.subTypeName == 'Exclude'
+                            }">{{node.data.name}}</span>
 		</ng-template>
 	</tree-root>
 </div>
+
 <div class="mt-2" *ngIf="SelectedCodeDescription != ''">
 	<div class="card card-title mb-0 font-weight-bold">Code description:</div>
 	<div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">

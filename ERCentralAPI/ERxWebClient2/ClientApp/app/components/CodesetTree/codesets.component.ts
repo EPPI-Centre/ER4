@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
-import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ArmsService } from '../services/arms.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { frequenciesService } from '../services/frequencies.service';
@@ -40,16 +40,33 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	   private frequenciesService: frequenciesService,
 	   private _eventEmitter: EventEmitterService
     ) { }
-    @ViewChild('ManualModal') private ManualModal: any;
+	@ViewChild('ManualModal') private ManualModal: any;
+	//@ViewChild('tabset') tabset!: NgbTabset;
+
 	public showManualModal: boolean = false;
 	sub: Subscription = new Subscription();
+	public smallTree: string = '';
 
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
 		else {
-			
+
+			this._eventEmitter.tabChange.subscribe(
+
+				(res: any) => {
+
+					if (res.nextId == 'SearchListTab') {
+
+						this.smallTree = 'true';
+
+						alert(this.smallTree);
+					};
+				}
+
+			);
+
             this.GetReviewSets();
         }
 	}
@@ -104,6 +121,7 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		alert($event);
 
 	}
+
 	selectAllRoots() {
 
 		const treeModel: TreeModel = this.treeComponent.treeModel;
@@ -117,9 +135,9 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 				//.setIsActive(true, true);
 
 			//if (i == 0) {
-			//	console.log('A root: ' + this.treeComponent.treeModel.roots[i].doForAll(x => x.expand()))
 			//}
 		}
+		//console.log('A root: ' + this.treeComponent.treeModel.roots[0].doForAll(x => x.expand()))
 	}
 
 	getNodeClass(node: ITreeNode): string {
@@ -136,8 +154,9 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		alert('hello');
 	}
 
-    get nodes(): singleNode[] | null {
-        //console.log('Getting codetree nodes');
+	get nodes(): singleNode[] | null {
+
+		
         if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) 
 		{
 			

@@ -50,7 +50,6 @@
 						<h5>Icons for various functions here... (see ER4) ITEMS</h5>
 					</div>
 					<div class="card card-body bg-light">
-						<!---->
 						<ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
 					</div>
 				</ng-template>
@@ -59,7 +58,6 @@
 				<ng-template ngbTabContent>
 					<button (click)="fetchFrequencies(selectedNodeDataF, selectedAttributeSetF?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
 					<div class="card">
-						<!--<div class="row card d-flex flex-wrap-reverse bg-light fa-border  col-md-12">-->
 						<div class="col-md-6 table-striped table table-light card-body m-0 p-0">
 							<table>
 								<tr>
@@ -68,10 +66,6 @@
 									<td class="pull-right"><button (click)="SetCode1()" class="btn-primary m-0 p-1"> Set Code </button></td>
 									<td class="ml-auto"><button (click)="clearReviewSet()" class="btn-info m-0 p-1"> Clear Code Set</button></td>
 								</tr>
-							<!--</table>
-						</div>
-						<div class="col-md-4 table-striped table table-light card-body">
-							<table>-->
 								<tr>
 									<td class="col-md-2"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
 									<td class="col-md-1"><b [className]="Code2 == true ? 'btn-warning' : ''">{{selectedAttributeSetF?.name}}&nbsp;</b></td>
@@ -83,7 +77,6 @@
 						<div class="row">
 							<div  class="col-md-8">
 								<div class="col-md-12">
-									<!--<form #f="ngForm">-->
 										<table class="table-striped table table-light card-body">
 											<tbody>
 												<tr>
@@ -94,12 +87,6 @@
 														<input (click)="changeRadioValue(false)" type="radio" value="false" name="IncEnc" [(ngModel)]="IncEnc"><b>&nbsp; Excluded</b>
 													</td>
 												</tr>
-											<!--</tbody>
-										</table>
-									</form>
-									<table class=" table-striped table table-light card-body">
-
-										<tbody>-->
 											<tr>
 												<td>
 													<input (click)="show('table')" type="radio" value="Table" name="IncEnc" [(ngModel)]="Chart"><b>&nbsp; Show Table</b>
@@ -121,9 +108,7 @@
 								<div class="col-md-12">
 									<frequencies></frequencies>
 								</div>
-								
 							</div>			
-							
 							<div class="bg-light table-dark col-md-4">
 								<codesets></codesets>
 							</div>
@@ -276,81 +261,3 @@
     </div>
 </div>
 
-
-<!--<div class="container-fluid">
-
-
-    <table datatable class="row-border hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>First name</th>
-                <th>Last name</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Foo</td>
-                <td>Bar</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Someone</td>
-                <td>Youknow</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>Iamout</td>
-                <td>Ofinspiration</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>Yoda</td>
-                <td>Skywalker</td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>Patrick</td>
-                <td>Dupont</td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>Barack</td>
-                <td>Obama</td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>François</td>
-                <td>Holland</td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td>Michel</td>
-                <td>Popo</td>
-            </tr>
-            <tr>
-                <td>9</td>
-                <td>Chuck</td>
-                <td>Norris</td>
-            </tr>
-            <tr>
-                <td>10</td>
-                <td>Simon</td>
-                <td>Robin</td>
-            </tr>
-            <tr>
-                <td>11</td>
-                <td>Louis</td>
-                <td>Lin</td>
-            </tr>
-            <tr>
-                <td>12</td>
-                <td>Zelda</td>
-                <td>Link</td>
-            </tr>
-        </tbody>
-    </table>
-
-
-</div>-->
