@@ -60,25 +60,27 @@
 					<button (click)="fetchFrequencies(selectedNodeData, selectedAttributeSet?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
 					<div class="card">
 						<!--<div class="row card d-flex flex-wrap-reverse bg-light fa-border  col-md-12">-->
-						<div class="col-md-4 table-striped table table-light card-body">
+						<div class="col-md-6 table-striped table table-light card-body m-0 p-0">
 							<table>
 								<tr>
-									<td class="col-md-1"><span class="font-weight-bold">Selected Codeset: &nbsp;</span></td>
-									<td class="col-md-1"><b class="btn-warning">{{selectedNodeData?.name}}&nbsp;</b></td>
-									<td class="col-md-1 "><button (click)="clearReviewSet()" class="btn-primary"> Clear Review Set</button></td>
+									<td class="col-md-2"><span class="font-weight-bold">Selected Code: &nbsp;</span></td>
+									<td class="col-md-1"><b [className]="Code1 == true ? 'btn-warning' : ''">{{selectedNodeData?.name}}&nbsp;</b></td>
+									<td class="pull-right"><button (click)="SetCode1()" class="btn-primary m-0 p-1"> Set Code </button></td>
+									<td class="ml-auto"><button (click)="clearReviewSet()" class="btn-info m-0 p-1"> Clear Code Set</button></td>
 								</tr>
 							<!--</table>
 						</div>
 						<div class="col-md-4 table-striped table table-light card-body">
 							<table>-->
 								<tr>
-									<td class="col-md-1"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
-									<td class="col-md-1"><b class="btn-warning">{{selectedAttributeSet?.name}}&nbsp;</b></td>
-									<td class="col-md-1 "><button (click)="clearAttributeSet()" class="btn-primary"> Clear Review Set</button></td>
+									<td class="col-md-2"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
+									<td class="col-md-1"><b [className]="Code2 == true ? 'btn-warning' : ''">{{selectedAttributeSet?.name}}&nbsp;</b></td>
+									<td class="pull-right"><button (click)="SetCode2()" class="btn-primary m-0 p-1"> Set Code</button></td>
+									<td class="ml-auto"><button (click)="clearAttributeSet()" class="btn-info m-0 p-1"> Clear Code Set</button></td>
 								</tr>
 							</table>
 						</div>
-						<div  class="row">
+						<div class="row">
 							<div  class="col-md-8">
 								<div class="col-md-12">
 									<!--<form #f="ngForm">-->

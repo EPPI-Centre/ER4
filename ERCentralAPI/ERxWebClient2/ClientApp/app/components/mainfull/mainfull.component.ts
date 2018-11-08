@@ -79,9 +79,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		alert('hello again');
 	}
 	clearReviewSet() {
+
+		this.Code1 = false;
 		this.selectedNodeData = null;
 	}
 	clearAttributeSet() {
+
+		this.Code2 = false;
 		this.selectedAttributeSet = null;
 	}
     dtOptions: DataTables.Settings = {};
@@ -125,6 +129,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			);
 	}
 
+	public Code1: boolean = false;
+
+	SetCode1() {
+		this.Code1 = true;
+	}
+	public Code2: boolean = false;
+
+	SetCode2() {
+
+		this.Code2 = true;
+	}
+
 	ngOnInit() {
 
 		this._eventEmitter.dataStr.subscribe(
@@ -133,16 +149,32 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 				if (data != null) {
 
-					//console.log(data.name + ' ====> ' + data.nodeType);
-					if (data.nodeType != 'ReviewSet') {
+					if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
 
 						this.selectedAttributeSet = data;
-						console.log(data.attribute_id);
 
-					} else {
+					} else if (this.Code2 == true && this.Code1 == false) {
+
+						this.selectedNodeData = data;
+
+					} else if (this.Code2 == true && this.Code1 == true) {
+
+						// nothing
+					} else if (this.Code2 == false && this.Code1 == false) {
 
 						this.selectedNodeData = data;
 					}
+
+					//console.log(data.name + ' ====> ' + data.nodeType);
+					//if (data.nodeType != 'ReviewSet') {
+
+					//	this.selectedAttributeSet = data;
+					//	console.log(data.attribute_id);
+
+					//} else {
+
+					//	this.selectedNodeData = data;
+					//}
 				}
 			}
 		)
@@ -341,8 +373,9 @@ export class SearchesModalContent {
 	//InfoBoxText!: ElementRef;
 
 	private canWrite: boolean = true;
-	public reviewSetList: any = null;
-
+	public dropDownList: any = null;
+	public showTextBox: boolean = false;
+	public showDropDown2: boolean = true;
 	public get IsReadOnly(): boolean {
 
 		return this.canWrite;
@@ -354,7 +387,9 @@ export class SearchesModalContent {
 	) { }
 
 	test() {
+
 		alert('hello again');
+
 	}
 
 	public nextDropDownList(num: number) {
@@ -366,43 +401,64 @@ export class SearchesModalContent {
 
 			case 1: {
 				alert('you hit 1!');
-				this.reviewSetList = this.reviewSetsService.ReviewSets;
+				this.showDropDown2 = true;
+				this.showTextBox = false;
 				break;
 			}
 			case 2: {
 				//statements; 
+				this.showDropDown2 = true;
+				this.showTextBox = false;
 				break;
 			}
 			case 3: {
-				//statements; 
+				//With these internal IDs (comma separated) show text box
+				this.showDropDown2 = false;
+				this.showTextBox = true;
 				break;
 			}
 			case 4: {
 				//statements; 
+				this.showDropDown2 = true;
+				this.showTextBox = true;
 				break;
 			}
 			case 5: {
-				//statements; 
+				//that have at least one code from this set
+				this.showTextBox = false;
+				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 6: {
-				//statements; 
+				//that don't have any codes from this set
+				this.showTextBox = false;
+				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 7: {
 				//statements; 
+				this.showDropDown2 = true;
+				this.showTextBox = false;
 				break;
 			}
 			case 8: {
 				//statements; 
+				this.showDropDown2 = false;
+				this.showTextBox = false;
 				break;
 			}
 			case 9: {
 				//statements; 
+				this.showDropDown2 = false;
+				this.showTextBox = false;
 				break;
 			}
 			case 10: {
 				//statements; 
+				this.showDropDown2 = false;
+				this.showTextBox = false;
 				break;
 			}
 			default: {
@@ -410,10 +466,12 @@ export class SearchesModalContent {
 				break;
 			}
 		}
+
 	}
 
 	public focus(canWrite: boolean) {
 		this.canWrite = canWrite;
 		//this.InfoBoxText.nativeElement.focus();
 	}
+
 }

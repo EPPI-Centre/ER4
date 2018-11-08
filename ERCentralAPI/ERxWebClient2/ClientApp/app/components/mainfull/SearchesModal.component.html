@@ -8,7 +8,6 @@
     </div>
 	<div class="modal-body">
 		<div class="container-fluid">
-
 			<div class="row">
 				<div class="col-md-4 font-italic"><h5> Find Documents: </h5></div>
 				<div class="col-md-8">
@@ -27,64 +26,26 @@
 							<button (click)="nextDropDownList(10)" class="dropdown-item">Without an abstract</button>
 						</div>
 					</div>
-					<div ngbDropdown class="d-inline-block col-md-12">
+
+					<div *ngIf="showDropDown2" ngbDropdown class="d-inline-block col-md-12">
 						<button class="btn btn-info col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 							<div>
-								<div (click)="test()" class="dropdown-item" *ngFor="let item of reviewSetList">
+								<div (click)="test()" class="dropdown-item" *ngFor="let item of dropDownList">
 									&nbsp; {{item.name}}
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<!--<div class="col-md-4 ml-auto"></div>-->
-			</div>
-
-			<!--<div class="row">
-			<div class="col-md-3 ml-auto">.col-md-3 .ml-auto</div>
-			<div class="col-md-2 ml-auto">.col-md-2 .ml-auto</div>
-		</div>
-		<div class="row">
-			<div class="col-md-6 ml-auto">.col-md-6 .ml-auto</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-9">
-				Level 1: .col-sm-9
-				<div class="row">
-					<div class="col-8 col-sm-6">
-						Level 2: .col-8 .col-sm-6
-					</div>
-					<div class="col-4 col-sm-6">
-						Level 2: .col-4 .col-sm-6
+				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
+					<div>
+						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
+						<input class="col-md-8 bg-light border-dark" type="text" name="CommaIDs"><br>
 					</div>
 				</div>
 			</div>
-		</div>-->
 		</div>
-
-
-		<!--<div ngbDropdown class="d-inline-block col-md-12">
-
-		<button class="btn btn-outline-primary col-md-8" id="dropdownBasic1" ngbDropdownToggle>Find documents</button>
-		<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-			<button class="dropdown-item">Action - 1</button>
-			<button class="dropdown-item">Another Action</button>
-			<button class="dropdown-item">Something else is here</button>
-		</div>
-	</div>-->
-		<!--<div class="col-md-8 card-body">
-		<div ngbDropdown class="d-inline-block col-md-12">
-
-			<button class="btn btn-outline-success col-md-8" id="dropdownBasic1" ngbDropdownToggle>Find documents 2</button>
-			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button class="dropdown-item">Action - 1</button>
-				<button class="dropdown-item">Another Action</button>
-				<button class="dropdown-item">Something else is here</button>
-			</div>
-		</div>
-	</div>-->
-
 		<div class="row">
 			<div class="col-md-4"></div>
 			<div class="col-md-4">
@@ -101,8 +62,6 @@
 			</div>
 			<div class="col-md-4 ml-auto"></div>-
 		</div>
-
-
 	</div>
     <div class="modal-footer bg-primary">
         <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
