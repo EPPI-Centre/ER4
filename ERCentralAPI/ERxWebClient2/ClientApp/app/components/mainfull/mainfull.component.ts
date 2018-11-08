@@ -65,7 +65,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	private statsSub: Subscription = new Subscription();
 	public crossTabResult: any | 'none';
 	public selectedNodeData: any | 'none';
+	public selectedNodeDataF: any | 'none';
+	public selectedAttributeSetF: any | 'none';
 	public selectedAttributeSet: any | 'none';
+	public selectedAttributeSetX: any | 'none';
 	public selectedNodeDataX: any | 'none';
 	public selectedNodeDataY: any | 'none';
 	public radioData: any;
@@ -81,25 +84,47 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	clearReviewSet() {
 
 		this.Code1 = false;
-		this.selectedNodeData = null;
+		this.selectedNodeDataF = null;
 	}
 	clearAttributeSet() {
 
 		this.Code2 = false;
-		this.selectedAttributeSet = null;
+		this.selectedAttributeSetF = null;
 	}
+
     dtOptions: DataTables.Settings = {};
-    dtTrigger: Subject<any> = new Subject();
+	dtTrigger: Subject<any> = new Subject();
+	tabSelected: any = null;
 	alertT() {
 		this.tabset.select('ItemListTab');
 	}
 	setXaxis() {
+		if (this.selectedNodeData != null )
 		this.selectedNodeDataX = this.selectedNodeData;
 	}
 	setYaxis() {
+		if (this.selectedNodeData != null )
 		this.selectedNodeDataY = this.selectedNodeData;
+
 	}
-		
+	setXFilter() {
+
+		if (this.selectedNodeData != null && this.selectedNodeData.nodeType != 'ReviewSet') {
+
+			this.selectedAttributeSetX = this.selectedNodeData;
+		}
+	}
+	clearXFilter() {
+
+		this.selectedAttributeSetX = null;
+	}
+	setTabSelected(tab: any) {
+
+		this.tabSelected = tab;
+
+		//alert(JSON.stringify(tab.nextId));
+		//alert(message);
+	}
 
 	openNewSearchModal() {
 	
@@ -147,34 +172,48 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			(data: any) => {
 
-				if (data != null) {
+				if (this.tabSelected.nextId == 'FrequenciesTab') {
 
-					if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
+					if (data != null) {
 
-						this.selectedAttributeSet = data;
+						if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
 
-					} else if (this.Code2 == true && this.Code1 == false) {
+							this.selectedAttributeSetF = data;
 
-						this.selectedNodeData = data;
+						} else if (this.Code2 == true && this.Code1 == false) {
 
-					} else if (this.Code2 == true && this.Code1 == true) {
+							this.selectedNodeDataF = data;
 
-						// nothing
-					} else if (this.Code2 == false && this.Code1 == false) {
+						} else if (this.Code2 == true && this.Code1 == true) {
 
-						this.selectedNodeData = data;
+							// nothing
+						} else if (this.Code2 == false && this.Code1 == false) {
+
+							this.selectedNodeDataF = data;
+						}
+
+						//console.log(data.name + ' ====> ' + data.nodeType);
+						//if (data.nodeType != 'ReviewSet') {
+
+						//	this.selectedAttributeSet = data;
+						//	console.log(data.attribute_id);
+
+						//} else {
+
+						//	this.selectedNodeData = data;
+						//}
 					}
 
-					//console.log(data.name + ' ====> ' + data.nodeType);
-					//if (data.nodeType != 'ReviewSet') {
+				} else if (this.tabSelected.nextId == 'CrossTabsTab') {
 
-					//	this.selectedAttributeSet = data;
-					//	console.log(data.attribute_id);
+					this.selectedNodeData = data;
 
-					//} else {
+					//if (this.selectedNodeDataX != null && this.selectedNodeDataY != null ) {
 
-					//	this.selectedNodeData = data;
-					//}
+					//	this.selectedAttributeSetX = data;
+
+					//} 
+
 				}
 			}
 		)
@@ -206,17 +245,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		//this.searchService.Fetch();
     }
 
-	fetchFrequencies(selectedNodeData: any, selectedFilter: any) {
+	fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
 		
-		if (!selectedNodeData || selectedNodeData == undefined) {
+		if (!selectedNodeDataF || selectedNodeDataF == undefined) {
 
 			alert('Please select a code from the tree');
 
 		} else {
 
-			console.log(selectedNodeData.name);
+			console.log(selectedNodeDataF.name);
 			// need to filter data before calling the below Fetch			
-			this.frequenciesService.Fetch(selectedNodeData, selectedFilter);
+			this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
 		
 		}
 	}

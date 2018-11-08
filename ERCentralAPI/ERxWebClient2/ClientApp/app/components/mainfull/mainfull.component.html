@@ -1,7 +1,7 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
     <div class="mt-1">
-		<ngb-tabset #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
+		<ngb-tabset (tabChange)="setTabSelected($event)" #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
 			<ngb-tab id="ReviewHomeTab">
 				<ng-template ngbTabTitle><b>Review</b> home</ng-template>
 				<ng-template ngbTabContent>
@@ -55,16 +55,16 @@
 					</div>
 				</ng-template>
 			</ngb-tab>
-			<ngb-tab title="Frequencies">
+			<ngb-tab id="FrequenciesTab" title="Frequencies">
 				<ng-template ngbTabContent>
-					<button (click)="fetchFrequencies(selectedNodeData, selectedAttributeSet?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
+					<button (click)="fetchFrequencies(selectedNodeDataF, selectedAttributeSetF?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
 					<div class="card">
 						<!--<div class="row card d-flex flex-wrap-reverse bg-light fa-border  col-md-12">-->
 						<div class="col-md-6 table-striped table table-light card-body m-0 p-0">
 							<table>
 								<tr>
 									<td class="col-md-2"><span class="font-weight-bold">Selected Code: &nbsp;</span></td>
-									<td class="col-md-1"><b [className]="Code1 == true ? 'btn-warning' : ''">{{selectedNodeData?.name}}&nbsp;</b></td>
+									<td class="col-md-1"><b [className]="Code1 == true ? 'btn-warning' : ''">{{selectedNodeDataF?.name}}&nbsp;</b></td>
 									<td class="pull-right"><button (click)="SetCode1()" class="btn-primary m-0 p-1"> Set Code </button></td>
 									<td class="ml-auto"><button (click)="clearReviewSet()" class="btn-info m-0 p-1"> Clear Code Set</button></td>
 								</tr>
@@ -74,7 +74,7 @@
 							<table>-->
 								<tr>
 									<td class="col-md-2"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
-									<td class="col-md-1"><b [className]="Code2 == true ? 'btn-warning' : ''">{{selectedAttributeSet?.name}}&nbsp;</b></td>
+									<td class="col-md-1"><b [className]="Code2 == true ? 'btn-warning' : ''">{{selectedAttributeSetF?.name}}&nbsp;</b></td>
 									<td class="pull-right"><button (click)="SetCode2()" class="btn-primary m-0 p-1"> Set Code</button></td>
 									<td class="ml-auto"><button (click)="clearAttributeSet()" class="btn-info m-0 p-1"> Clear Code Set</button></td>
 								</tr>
@@ -131,10 +131,10 @@
 					</div>
 				</ng-template>
 			</ngb-tab>
-			<ngb-tab title="CrossTabs">
+			<ngb-tab id="CrossTabsTab"  (click)="testing($event)" title="CrossTabs">
 				<ng-template ngbTabContent>
 					<div >
-						<button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY, selectedAttributeSet?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get CrossTabs</button>
+						<button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY, selectedAttributeSetX?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get CrossTabs</button>
 						
 							<div class="row col-md-12">
 								<table class="table-striped table table-light col-md-8 card-body">
@@ -214,14 +214,14 @@
 									</tbody>
 								</table>
 						<div class="col-md-4 table-striped table table-light card-body">
-							<table>
-								<tr>
-									<td class="col-md-1"><span class="font-weight-bold">Selected Filter Attribute: &nbsp;</span></td>
-									<td class="col-md-1"><b class="btn-warning">{{selectedAttributeSet?.name}}&nbsp;</b></td>
-									<td class="col-md-1 "><button (click)="clearAttributeSet()" class="btn-primary"> Clear Review Set</button></td>
-								</tr>
-							</table>
-						</div>
+							<div class="col-md-12 card-body bg-light">
+								<span class="font-weight-bold col-md-12">Selected Filter Attribute: &nbsp;</span>
+								<b class="col-md-12" [className]="selectedAttributeSetX != null ? 'btn-warning' : ''">{{selectedAttributeSetX?.name}}&nbsp;</b>
+								<div class="col-md-12 ml-auto"></div>
+								<button (click)="setXFilter()" class="font-weight-bold btn btn-primary col-md-6 ml-auto">Set Filter&nbsp;&nbsp;</button>
+								<button (click)="clearXFilter()" class="font-weight-bold btn btn-dark col-md-6"> Clear Filter</button>
+							</div>
+							</div>
 
 								<div class="card-body bg-light col-md-8">
 									<crosstab></crosstab>
