@@ -69,3 +69,21 @@ body {
 	width: 80%;
 	margin: auto;
 }
+
+/*.bodycontainer {
+	max-height: 450px;
+	width: 100%;
+	margin: 0;
+	overflow-y: auto;
+}
+
+.table-scrollable {
+	margin: 0;
+	padding: 0;
+}
+
+tbody {
+	height: 100px !important;
+	overflow: scroll;
+	display: block;
+}*/

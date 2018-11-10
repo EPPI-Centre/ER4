@@ -1,4 +1,4 @@
-﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, EventEmitter, Output } from '@angular/core';
+﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -53,8 +53,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
-
-
+	
 	tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
@@ -66,6 +65,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public crossTabResult: any | 'none';
 	public selectedNodeData: any | 'none';
 	public selectedNodeDataF: any | 'none';
+	public selectedNodeDataS: any | 'none';
 	public selectedAttributeSetF: any | 'none';
 	public selectedAttributeSet: any | 'none';
 	public selectedAttributeSetX: any | 'none';
@@ -118,12 +118,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		this.selectedAttributeSetX = null;
 	}
+	
 	setTabSelected(tab: any) {
 
 		this.tabSelected = tab;
 		this._eventEmitter.tabSelected(tab);
 
-		alert(JSON.stringify(tab.nextId));
+		//alert(JSON.stringify(tab));
 		//alert(message);
 	}
 
@@ -193,28 +194,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 							this.selectedNodeDataF = data;
 						}
 
-						//console.log(data.name + ' ====> ' + data.nodeType);
-						//if (data.nodeType != 'ReviewSet') {
-
-						//	this.selectedAttributeSet = data;
-						//	console.log(data.attribute_id);
-
-						//} else {
-
-						//	this.selectedNodeData = data;
-						//}
 					}
 
 				} else if (this.tabSelected.nextId == 'CrossTabsTab') {
 
 					this.selectedNodeData = data;
 
-					//if (this.selectedNodeDataX != null && this.selectedNodeDataY != null ) {
+				} else if (this.tabSelected.nextId == 'SearchListTab') {
 
-					//	this.selectedAttributeSetX = data;
-
-					//} 
-
+					//alert('Search Tab: ' + this.tabSelected.nextId);
+					
 				}
 			}
 		)
@@ -417,6 +406,9 @@ export class SearchesModalContent {
 	public showTextBox: boolean = false;
 	public showDropDown2: boolean = true;
 	public selectedSearchDropDown: string = '';
+	public nodeSelected: boolean = false;
+	public selectedNodeDataName: string = '';
+
 	public get IsReadOnly(): boolean {
 
 		return this.canWrite;
@@ -424,7 +416,7 @@ export class SearchesModalContent {
 	}
 	constructor(public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService,
-		private EventEmitterService: EventEmitterService
+		private _eventEmitter: EventEmitterService
 	) { }
 
 	test() {
@@ -436,37 +428,41 @@ export class SearchesModalContent {
 	public nextDropDownList(num: number, val: string) {
 
 		//console.log('got here');
+		this.showDropDown2 = true;
+		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
 		switch (num) {
 
 			case 1: {
 				this.dropDownList = this.reviewSetsService.ReviewSets;
-				//console.log(this.dropDownList)
-				//console.log();
 				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
 			}
 			case 2: {
 				//statements; 
-				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
 			}
 			case 3: {
 				//With these internal IDs (comma separated) show text box
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
 				this.showTextBox = true;
 				break;
 			}
 			case 4: {
 				//statements; 
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = true;
 				this.showTextBox = true;
 				break;
 			}
 			case 5: {
 				//that have at least one code from this set
+				this._eventEmitter.nodeSelected = false;
 				this.showTextBox = false;
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
@@ -474,6 +470,7 @@ export class SearchesModalContent {
 			}
 			case 6: {
 				//that don't have any codes from this set
+				this._eventEmitter.nodeSelected = false;
 				this.showTextBox = false;
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
@@ -481,24 +478,28 @@ export class SearchesModalContent {
 			}
 			case 7: {
 				//statements; 
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = true;
 				this.showTextBox = false;
 				break;
 			}
 			case 8: {
 				//statements; 
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
 			}
 			case 9: {
-				//statements; 
+				//statements;
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
 			}
 			case 10: {
 				//statements; 
+				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
 				this.showTextBox = false;
 				break;
@@ -514,5 +515,5 @@ export class SearchesModalContent {
 		this.canWrite = canWrite;
 		//this.InfoBoxText.nativeElement.focus();
 	}
-
 }
+

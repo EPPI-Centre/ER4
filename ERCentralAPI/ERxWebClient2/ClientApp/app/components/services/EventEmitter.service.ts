@@ -8,6 +8,10 @@ export class EventEmitterService {
 	showFreqView = new EventEmitter();
 	tabChange = new EventEmitter();
 
+	public codingTreeVar: boolean = false;
+	public nodeSelected: boolean = false;
+	public nodeName: string = '';
+
 	constructor() { }
 
 	sendMessage(data: any) {
@@ -24,6 +28,10 @@ export class EventEmitterService {
 	}
 
 	tabSelected(value: any) {
+
+		if (value.nextId != 'SearchListTab') {
+			this.codingTreeVar = false;
+		}
 		this.tabChange.emit(value);
 	}
 

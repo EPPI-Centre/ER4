@@ -1,7 +1,7 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
     <div class="mt-1">
-		<ngb-tabset (tabChange)="setTabSelected($event)" #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
+		<ngb-tabset  (tabChange)="setTabSelected($event)" #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
 			<ngb-tab id="ReviewHomeTab">
 				<ng-template ngbTabTitle><b>Review</b> home</ng-template>
 				<ng-template ngbTabContent>
@@ -208,7 +208,7 @@
 							</div>
 							</div>
 
-								<div class="card-body bg-light col-md-8">
+								<div class="card-body bg-light col-md-8" >
 									<crosstab></crosstab>
 								</div>
 								<div class="card bg-light table-dark col-md-4">
@@ -250,7 +250,7 @@
 						<div class="card card-body bg-light col-md-8">
 							<SearchComp resizable r-directions="['right']" r-flex="true"></SearchComp>
 						</div>
-						<div class="bg-light table-dark col-md-4">
+						<div  class="bg-light table-dark col-md-4">
 							<codesets></codesets>
 						</div>
 					</div>

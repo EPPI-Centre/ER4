@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,7 +12,6 @@ import { frequenciesService } from '../services/frequencies.service';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
-
 @Component({
     selector: 'codesets',
     styles: [`.bt-infoBox {    
@@ -41,13 +40,21 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	   private _eventEmitter: EventEmitterService
     ) { }
 	@ViewChild('ManualModal') private ManualModal: any;
-	//@ViewChild('tabset') tabset!: NgbTabset;
+
+	@Input() tabSelected: string = '';
+
+	@ViewChild('tabset') tabset!: NgbTabset;
+
+	//@ViewChild(NgbTabset) set content(content: ViewContainerRef) {
+	//	this.tabSet = content;
+	//};
 
 	public showManualModal: boolean = false;
 	sub: Subscription = new Subscription();
 	public smallTree: string = '';
 
-    ngOnInit() {
+	ngOnInit() {
+
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
@@ -60,13 +67,14 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 					if (res.nextId == 'SearchListTab') {
 
 						this.smallTree = 'true';
+						this._eventEmitter.codingTreeVar = true;
 
-						alert(this.smallTree);
 					};
 				}
 
 			);
-
+			//alert('initiate: ' + this._eventEmitter.codingTreeVar );
+			
             this.GetReviewSets();
         }
 	}
@@ -82,6 +90,8 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	ngAfterViewInit() {
 
+		//alert(this.tabSet);
+		
 	}
 
 	rootsCollect() {
@@ -249,11 +259,27 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	NodeSelected(node: singleNode) {
 
-		console.log(node.name + ' =====> ' +  node.nodeType);
-		this.SelectedNodeData = node;
-		this._eventEmitter.sendMessage(node);
-        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        
+		if (this._eventEmitter.codingTreeVar == true) {
+
+			if (node.nodeType != 'ReviewSet') {
+
+				this._eventEmitter.nodeSelected = true;
+				this.SelectedNodeData = node;
+				this._eventEmitter.nodeName = node.name;
+				//alert('this has the correct number: ' + this._eventEmitter.nodeName);
+				this._eventEmitter.sendMessage(node);
+				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+			}
+			
+		} else {
+
+			console.log(node.name + ' =====> ' + node.nodeType + ' blah ' + this.smallTree);
+			this.SelectedNodeData = node;
+			this._eventEmitter.sendMessage(node);
+			this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+
+		}
+ 
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
