@@ -54,7 +54,7 @@ export class ReviewSetsService {
             if (Set && Set.itemSetIsLocked) return false;
         }
 
-		return false;
+		return true;
     }
 
      GetReviewSets(): ReviewSet[] {
