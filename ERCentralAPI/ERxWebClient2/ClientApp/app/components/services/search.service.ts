@@ -1,5 +1,6 @@
 import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
 
@@ -40,19 +41,24 @@ export class searchService {
         this.Save();
     }
 
-	public Fetch() {
+	Fetch(): Observable<Search[]> {
 
-		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
-			this.crit).subscribe(result => {
+		return this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
+			this.crit)
 
-					console.log('got inside');
-					this.SearchList = result;
-					console.log(this._SearchList.length);
-					this.Save();
-					console.log(result);
-					this.searchesChanged.emit();
-				}
-		 );
+			//.subscribe(result => {
+
+			//		console.log('got inside');
+			//		this.SearchList = result;
+			//		console.log(this._SearchList.length);
+			//		this.Save();
+			//		console.log(result);
+			//		this.searchesChanged.emit();
+
+			//	return result;
+
+				//}
+		 //);
     }
 
     public Save() {

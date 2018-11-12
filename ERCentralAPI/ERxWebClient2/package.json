@@ -6,7 +6,7 @@
     "wbp": "webpack"
   },
   "devDependencies": {
-    "@angular/animations": "6.1.0",
+    "@angular/animations": "^6.1.0",
     "@angular/common": "6.1.0",
     "@angular/compiler": "6.1.0",
     "@angular/compiler-cli": "6.1.0",
@@ -63,6 +63,8 @@
     "zone.js": "0.8.26"
   },
   "dependencies": {
+    "@angular/cdk": "^7.0.3",
+    "@angular/material": "^7.0.3",
     "@ng-bootstrap/ng-bootstrap": "^3.1.0",
     "@ngx-translate/core": "^10.0.2",
     "@ngx-translate/http-loader": "^3.0.1",
@@ -70,6 +72,7 @@
     "angular-datatables": "^6.0.1",
     "angular-font-awesome": "^3.1.2",
     "angular-tree-component": "^7.2.1",
+    "angular4-table": "0.0.0",
     "bower": "^1.8.4",
     "chart.js": "^2.7.3",
     "datatables.net": "^1.10.19",

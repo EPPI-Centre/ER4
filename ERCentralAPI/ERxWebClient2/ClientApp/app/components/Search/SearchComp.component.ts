@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -15,7 +15,10 @@ import { pipe } from 'rxjs'
 import { style } from '@angular/animations';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { MatInputModule, MatTableModule, MatToolbarModule, MatTableDataSource } from '@angular/material';
+import {  ViewChild } from '@angular/core';
+import { MatSort } from '@angular/material';
+import { DataSource } from '@angular/cdk/table';
 
 @Component({
 	selector: 'SearchComp',
@@ -35,11 +38,14 @@ export class SearchComp implements OnInit, OnDestroy {
     onSubmit(f: string) {
 
     }
-	dtOptions: DataTables.Settings = {};
 		
     @Input() Context: string | undefined;
 
 	public selectedAll: boolean = false;
+	dataSource: any | undefined;
+	displayedColumns: string [] | undefined;
+
+	@ViewChild(MatSort) sort!: MatSort;
 
     value = 1;
     onEnter(value: number) {
@@ -49,33 +55,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	dataTable: any;
 
-
-    ngOnInit() {
-
-		this.dtOptions = {
-			//pagingType: 'full_numbers',
-			//paging: true,
-			//searching: true,
-			//scrollY: "350px",
-			columnDefs: [
-				{
-					"orderable": false,
-					"targets": 0
-				},
-			]
-		};
-
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-        else {
-
-			console.log('called this...');
-			this._searchService.Fetch();
-
-        }
-	}
-	
 
 	OpenItems(item: number) {
 
@@ -97,10 +76,106 @@ export class SearchComp implements OnInit, OnDestroy {
 	ngOnDestroy() {
 
 	}
-   
+
+	public tableArr: Search[] = [];
+
+	public columnNames = [
+	{
+
+		id: "selected",
+		value: "Selected"
+
+	},
+	{
+
+		id: "searchId",
+		value: "SearchId"
+
+	},
+	{
+		id: "title",
+		value: "Title"
+	},
+	{
+		id: "contactName",
+		value: "ContactName"
+	},
+	{
+		id: "searchDate",
+		value: "SearchDate"
+	},
+	{
+		id: "hitsNo",
+		value: "HitsNo"
+
+	}];
+
+	createTable() {
+
+		this.dataSource = new MatTableDataSource(this.tableArr);
+		this.dataSource.sort = this.sort;
+	}
+
+
+	ngOnInit() {
+				
+		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+			this.router.navigate(['home']);
+		}
+		else {
+
+
+			 this._searchService.Fetch().toPromise().then(
+				 
+				 (res) => {
+
+					 this.displayedColumns = this.columnNames.map(
+						 (x) => {
+
+							 if (x != undefined) {
+								 return x.id;
+							 } else {
+								 return '';
+							 }
+						 }
+					 );
+
+
+					 this.tableArr = res;
+					 this.createTable();
+				 }
+
+			);
+
+
+				//.map(
+
+				//	(res) => {
+
+
+				//		this.displayedColumns = this.columnNames.map(
+
+				//			(x) => {
+
+				//				if (x != undefined) {
+				//					return x.id;
+				//				} else {
+				//					return '';
+				//				}
+				//			}
+				//		);
+
+				//		this.tableArr.forEach(y => y = res);
+				//		console.log('testing here: ' + res);
+				//		this.createTable();
+				//	}
+
+				//);
+
+		}
+	}
+
 }
-
-
 
 
 
