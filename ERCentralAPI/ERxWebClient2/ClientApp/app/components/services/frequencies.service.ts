@@ -102,9 +102,9 @@ export class Frequency {
 	attributeId: number = 0;
 	itemCount: string = "";
 	attribute: string="";
-	attributeSetId: string = "";
+	attributeSetId: number = 0;
 	setId: number = 0;
-	filterAttributeId: string = "";
+	filterAttributeId: number = 0;
 	isIncluded: boolean = false;
 }
 

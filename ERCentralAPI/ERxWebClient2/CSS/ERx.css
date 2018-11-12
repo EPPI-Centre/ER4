@@ -26,14 +26,14 @@ body {
     height: 30px;
 }
 .ScreeningSet {
-	/*color: #00BB00;*/
-	color: red;
+	color: #00BB00;
+	/*color: red;*/
 	/*pointer-events: none;*/
 }
 
 .AdminSet {
-    /*color: #0000DD;*/
-	color: yellow;
+    color: #0000DD;
+	/*color: yellow;*/
 }
 
 .ExcludeCode {
