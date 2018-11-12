@@ -6,7 +6,7 @@ import { ItemListService, Criteria } from '../services/ItemList.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { frequenciesService, Frequency } from '../services/frequencies.service';
-import { singleNode } from '../services/ReviewSets.service';
+import { singleNode, ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -28,7 +28,7 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemListService: ItemListService,
 		private route: ActivatedRoute,
         public PriorityScreeningService: PriorityScreeningService,
-		public ItemDocsService: ItemDocsService,
+        private ReviewSetsService: ReviewSetsService,
 		private frequenciesService: frequenciesService,
 		private _eventEmitter: EventEmitterService,
 		private httpService: HttpClient,
@@ -162,19 +162,44 @@ export class frequenciesComp implements OnInit, OnDestroy, AfterViewInit {
 	//}
 
 
-	FrequencyNoneOfTheAboveItemsList(item: Frequency) {
+    FrequencyGetItemList(freq: Frequency) {
 
-		let cr: Criteria = new Criteria();
-	
-		cr.setId = item.setId; 
-		cr.attributeid = item.attributeId; 
-		// the below should get its value from the view radio buttons
-		cr.onlyIncluded = item.isIncluded;
-		cr.filterAttributeId = -1;
-		cr.listType = 'StandardItemList';
-		cr.attributeSetIdList = item.attributeSetId;
-		
-		this.ItemListService.FetchWithCrit(cr, "StandardItemList");
+        let cr: Criteria = new Criteria();
+        cr.onlyIncluded = freq.isIncluded;
+        cr.showDeleted = false;
+        cr.pageNumber = 0;
+        let ListDescription: string = "";
+        let attributeFilter: SetAttribute | null = this.ReviewSetsService.FindAttributeById(freq.filterAttributeId);
+        if (freq.attribute == "None of the codes above" && freq.attributeSetId < 0) {
+            //CASE: the special one for getting everything else (not listed in freq results)
+            console.log('FrequencyNoneOfTheAbove, freq.attributeSetId = ' + freq.attributeSetId);
+            ListDescription = "Frequencies '" + freq.attribute + "'" + (freq.filterAttributeId > 0 && attributeFilter ? " (filtered by: " + attributeFilter.attribute_name + ")." : ".");
+            cr.listType = "FrequencyNoneOfTheAbove";
+            cr.xAxisAttributeId = - freq.attributeId;
+            cr.sourceId = 0;
+            cr.setId = freq.setId;
+            cr.filterAttributeId = freq.filterAttributeId;
+        }
+        else {
+            if (freq.filterAttributeId < 1 || !attributeFilter) {
+                //CASE2: we don't have a filter by "items with this code"
+                ListDescription = freq.attribute + ".";
+                cr.attributeid = freq.attributeId;
+                cr.sourceId = 0;
+                cr.listType = "StandardItemList";
+                cr.attributeSetIdList = freq.attributeSetId.toString();
+            }
+            else {
+                //CASE3: we do have the filter
+                ListDescription = freq.attribute + "; filtered by: " + attributeFilter.attribute_name + ".";
+                cr.listType = "FrequencyWithFilter";
+                cr.xAxisAttributeId = freq.attributeId;
+                cr.filterAttributeId = freq.filterAttributeId;
+                cr.setId = freq.setId;
+
+            }
+        }
+        this.ItemListService.FetchWithCrit(cr, ListDescription);
 		this._eventEmitter.selectTabItems();
 	}
 
