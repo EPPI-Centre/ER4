@@ -3,33 +3,13 @@
 
 <mat-table [dataSource]="dataSource" matSort>
 
-	<!--<ng-container matColumnDef="{{column.id}}" *ngFor="let column of columnNames">
-
-
-		<mat-header-cell *matHeaderCellDef mat-sort-header> {{column.value}} </mat-header-cell>
-		<mat-cell *ngIf="{{column.id}}== selected">
-			<mat-checkbox [(ngModel)]="search.selected"></mat-checkbox>
-		</mat-cell>
-
-		<mat-cell *matCellDef="let search" >
-			{{search[column.id]}}
-		</mat-cell>
-
-	</ng-container>
-
-	<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-	<mat-row *matRowDef="let row; columns: displayedColumns;"
-			 [ngClass]="{highlighted: row.highlighted}"
-			 (click)="row.selected = !row.selected"
-			 >
-	</mat-row>-->
-
 	<ng-container matColumnDef="selected" >
-		<mat-header-cell *matHeaderCellDef>Selected
-			<mat-checkbox (change)="updateCheck()" ></mat-checkbox>
+		<mat-header-cell *matHeaderCellDef class="text-dark">Selected
+			<mat-checkbox 
+						  (change)="updateCheck()" ></mat-checkbox>
 		</mat-header-cell>
-		<mat-cell *matCellDef="let search">
-			<mat-checkbox [(ngModel)]="search.selected"></mat-checkbox>
+		<mat-cell *matCellDef="let search" class="md-default-theme">
+			<mat-checkbox (change)="alert()" [(ngModel)]="search.selected"></mat-checkbox>
 		</mat-cell>
 	</ng-container>
 

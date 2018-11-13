@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SearchDeleteCommand(){}
 #else
-        protected SearchDeleteCommand() { }
+        public SearchDeleteCommand() { }
 #endif
 
         private string _searches;

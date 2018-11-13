@@ -23,7 +23,8 @@ const nonTreeShakableModules = [
     //'es6-shim',
     //'event-source-polyfill',
     //'jquery',
-    './CSS/ERx.css',
+    //'./CSS/ERx.css',
+	'@angular/material/prebuilt-themes/deeppurple-amber.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
     //'datatables.net-dt/css/jquery.dataTables.css',
@@ -31,8 +32,8 @@ const nonTreeShakableModules = [
     //'datatables.net-dt',
     //'./node_modules/jquery/src/jquery.js',
     //'./node_modules/datatables.net-dt/js/dataTables.dataTables.js',
-    './node_modules/datatables.net-dt/css/jquery.dataTables.css',
-	'./node_modules/datatables.net/js/jquery.dataTables.js',
+    //'./node_modules/datatables.net-dt/css/jquery.dataTables.css',
+	//'./node_modules/datatables.net/js/jquery.dataTables.js',
 	'./node_modules/chart.js/dist/Chart.min.js'
 ];
 

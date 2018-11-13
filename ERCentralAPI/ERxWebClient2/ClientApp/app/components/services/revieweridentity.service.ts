@@ -162,7 +162,8 @@ export class ReviewerIdentityService {
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
-                    this.OpeningNewReview.emit();
+					this.OpeningNewReview.emit();
+		
                     this.router.navigate(['mainFullReview']);
                 }
             }

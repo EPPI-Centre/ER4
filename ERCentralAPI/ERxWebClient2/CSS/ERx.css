@@ -1,3 +1,34 @@
+body {
+	font-family: Roboto, Arial, sans-serif;
+	margin: 0;
+}
+
+.basic-container {
+	padding: 5px;
+}
+
+.version-info {
+	font-size: 8pt;
+	float: right;
+}
+
+.mat-row.hovered {
+	background: #eee;
+}
+
+.mat-row.highlighted {
+	background: #999;
+}
+
+/*
+  This is a work around for checkbox bug in material row
+  https://github.com/angular/material2/issues/8600
+*/
+mat-cell.mat-cell, mat-header-cell.mat-header-cell {
+	overflow: visible;
+}
+
+
 .table.alpha tr {
     height: 75px;
 }
@@ -85,3 +116,9 @@ body {
 mat-cell.mat-cell, mat-header-cell.mat-header-cell {
 	overflow: visible;
 }
+
+
+.hidden-item {
+	display: none;
+}
+

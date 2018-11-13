@@ -1,34 +1,79 @@
 <p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
 
+<!--<div class="table-responsive" style="max-height: 500px;">
+
+
+<table id="user-table" class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
+			<thead>
+				<tr>
+					<th>Full Reviewing</th>
+					<th>ID</th>
+					<th>Review</th>
+					<th class="dataTables_wrapper">Last Access:</th>
+					<th data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">Coding Only</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
+					<td>
+						<form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+							<input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+							<button class="btn btn-info" data-placement="top">Main</button>
+						</form>
+					</td>
+					<td>{{ roReview.reviewId }}</td>
+					<td>{{ roReview.reviewName }}</td>
+					<td>{{ FormatDate(roReview.lastAccess) }}</td>
+					<td>
+						<form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+							<input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
+							<button data-toggle="tooltip" class="btn btn-outline-secondary" data-placement="top" title="Coding-Only Interface">GO</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+	</div>-->
+
+
 <div class="table-responsive" style="max-height: 500px;">
-    <table id="user-table" datatable="ng" [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table" *ngIf="_readonlyreviewsService.ReadOnlyReviews">
-        <thead>
-            <tr>
-                <th>Full Reviewing</th>
-                <th>ID</th>
-                <th>Review</th>
-                <th class="dataTables_wrapper">Last Access:</th>
-                <th data-toggle="tooltip" data-placement="top" title="Coding-Only Interface">Coding Only</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let roReview of _readonlyreviewsService.ReadOnlyReviews">
-                <td>
-                    <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
-                        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                        <button class="btn btn-info" data-placement="top">Main</button>
-                    </form>
-                </td>
-                <td>{{ roReview.reviewId }}</td>
-                <td>{{ roReview.reviewName }}</td>
-                <td>{{ FormatDate(roReview.lastAccess) }}</td>
-                <td>
-                    <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
-                        <input type="hidden" #r_id name="review_id" value="{{ roReview.reviewId }}">
-                        <button data-toggle="tooltip" class="btn btn-outline-secondary" data-placement="top" title="Coding-Only Interface">GO</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+	<mat-table class="reviews-table mat-elevation-z8" [dataSource]="dataSource" matSort>
+
+
+		<ng-container matColumnDef="Full Reviewing">
+			<mat-header-cell *matHeaderCellDef>
+				Full Reviewing
+			</mat-header-cell>
+			<mat-cell *matCellDef="let review">
+				<form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+					<input type="hidden" #r_id name="review_id" value="{{ review.reviewId }}">
+					<button class="btn btn-info" data-placement="top">Main</button>
+				</form>
+
+			</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="reviewId">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>reviewId</mat-header-cell>
+			<mat-cell *matCellDef="let review">{{review.reviewId}}</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="reviewName">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>reviewName</mat-header-cell>
+			<mat-cell class="description-cell"
+					  *matCellDef="let review">{{review.reviewName}}</mat-cell>
+		</ng-container>
+
+		<ng-container matColumnDef="lastAccess">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>lastAccess</mat-header-cell>
+			<mat-cell class="duration-cell"
+					  *matCellDef="let review">{{review.lastAccess}}</mat-cell>
+		</ng-container>
+
+		<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		<mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+
+	</mat-table>
 </div>

@@ -58,20 +58,10 @@ export class readonlyreviewsService {
     }
     
         
-    public Fetch(dtTrigger: Subject<any>) {
+    public Fetch() {
 
-        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews')
-           
-            .subscribe(result => {
-
-                this.ReadOnlyReviews = result;
-                dtTrigger.next();
-                
-                //console.log(this.ReadOnlyReviews);
+		return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews');
           
-        }, error => { this.modalService.GenericError(error); }
-          
-        );
     }
 
 

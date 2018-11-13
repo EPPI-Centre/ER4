@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -24,7 +24,8 @@ import { SelectionModel } from '@angular/cdk/collections';
 @Component({
 	selector: 'SearchComp',
 	templateUrl: './SearchComp.component.html',
-    providers: []
+	providers: [],
+	encapsulation: ViewEncapsulation.None
 })
 
 export class SearchComp implements OnInit, OnDestroy {
@@ -78,25 +79,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
-	//isAllSelected() {
-
-	//	const numSelected = this.selection.selected.length;
-	//	const numRows = this.dataSource.data.length;
-	//	return numSelected == numRows;
-	//}
-
-	///** Selects all rows if they are not all selected; otherwise clear selection. */
-	//masterToggle() {
-
-	//	this.isAllSelected() ?
-	//		this.selection.clear() :
-	//		this.dataSource.forEach((row: any) => { this.selection.select(row) });
-
-	//}
-
-	//highlight(element: Search) {
-	//	element.highlighted = !element.highlighted;
-	//}
 
 	public tableArr: Search[] = [];
 	public testArr: Search[] = [];
@@ -194,7 +176,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						 this.tableArr[i].searchId = this.testArr[i].searchId;
 						 this.tableArr[i].selected = false;
 
-						 console.log(this.tableArr[i]);
+						// console.log(this.tableArr[i]);
 
 					 }
 
