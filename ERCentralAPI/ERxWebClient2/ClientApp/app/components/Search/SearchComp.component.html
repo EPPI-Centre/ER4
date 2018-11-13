@@ -24,36 +24,38 @@
 			 >
 	</mat-row>-->
 
-	<ng-container matColumnDef="selected">
-		<mat-header-cell *matHeaderCellDef>Selected</mat-header-cell>
+	<ng-container matColumnDef="selected" >
+		<mat-header-cell *matHeaderCellDef>Selected
+			<mat-checkbox (change)="updateCheck()" ></mat-checkbox>
+		</mat-header-cell>
 		<mat-cell *matCellDef="let search">
-			<mat-checkbox (change)="updateCheck()" [(ngModel)]="search.selected"></mat-checkbox>
+			<mat-checkbox [(ngModel)]="search.selected"></mat-checkbox>
 		</mat-cell>
 	</ng-container>
 
 	<ng-container matColumnDef="searchId">
-		<mat-header-cell *matHeaderCellDef>searchId </mat-header-cell>
+		<mat-header-cell *matHeaderCellDef mat-sort-header>searchId </mat-header-cell>
 		<mat-cell *matCellDef="let search"> {{search.searchId}} </mat-cell>
 	</ng-container>
 
 	<ng-container matColumnDef="title">
-		<mat-header-cell *matHeaderCellDef> title </mat-header-cell>
+		<mat-header-cell *matHeaderCellDef mat-sort-header> title </mat-header-cell>
 		<mat-cell *matCellDef="let search"> {{search.title}} </mat-cell>
 	</ng-container>
 
 	<ng-container matColumnDef="contactName">
-		<mat-header-cell *matHeaderCellDef> contactName </mat-header-cell>
+		<mat-header-cell *matHeaderCellDef mat-sort-header> contactName </mat-header-cell>
 		<mat-cell *matCellDef="let search"> {{search.contactName}} </mat-cell>
 	</ng-container>
 
 	<ng-container matColumnDef="searchDate">
-		<mat-header-cell *matHeaderCellDef> searchDate </mat-header-cell>
+		<mat-header-cell *matHeaderCellDef mat-sort-header> searchDate </mat-header-cell>
 		<mat-cell *matCellDef="let search"> {{search.searchDate}} </mat-cell>
 	</ng-container>
 
 
 	<ng-container matColumnDef="hitsNo">
-		<mat-header-cell *matHeaderCellDef> hitsNo </mat-header-cell>
+		<mat-header-cell *matHeaderCellDef mat-sort-header> hitsNo </mat-header-cell>
 		<mat-cell *matCellDef="let search"> {{search.hitsNo}} </mat-cell>
 	</ng-container>
 

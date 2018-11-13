@@ -136,15 +136,18 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	updateCheck() {
 
-		console.log(this.selectAll);
+		
+
 		if (this.selectAll === true) {
+			this.selectAll = false;
 			this.tableArr.map((r) => {
-				r.selected = true;
+				r.selected = false;
 			});
 
 		} else {
+			this.selectAll = true;
 			this.tableArr.map((r) => {
-				r.selected = false;
+				r.selected = true;
 			});
 		}
 	}
