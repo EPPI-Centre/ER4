@@ -34,7 +34,7 @@ import { WebApiObservableService } from './components/services/httpQuery.service
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
 import { SearchComp } from './components/Search/SearchComp.component';
-import { MatTableModule, MatSortModule } from '@angular/material';
+import { MatTableModule, MatSortModule, MatCheckboxModule, MatSelectModule } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -81,6 +81,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 		BrowserAnimationsModule,
 		MatTableModule,
 		MatSortModule,
+		MatSelectModule,
+		MatCheckboxModule,
 		ChartsModule,
         ReactiveFormsModule,
         TreeModule,
@@ -100,4 +102,5 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ]
 })
 export class AppModuleShared {
+
 }

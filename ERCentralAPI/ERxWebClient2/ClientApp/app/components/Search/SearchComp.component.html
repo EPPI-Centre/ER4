@@ -1,15 +1,70 @@
 <p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
 
 
-<mat-table  [dataSource]="dataSource" matSort>
+<mat-table [dataSource]="dataSource" matSort>
 
-	<ng-container matColumnDef="{{column.id}}" *ngFor="let column of columnNames">
+	<!--<ng-container matColumnDef="{{column.id}}" *ngFor="let column of columnNames">
+
+
 		<mat-header-cell *matHeaderCellDef mat-sort-header> {{column.value}} </mat-header-cell>
-		<mat-cell *matCellDef="let search"> {{search[column.id]}} </mat-cell>
+		<mat-cell *ngIf="{{column.id}}== selected">
+			<mat-checkbox [(ngModel)]="search.selected"></mat-checkbox>
+		</mat-cell>
+
+		<mat-cell *matCellDef="let search" >
+			{{search[column.id]}}
+		</mat-cell>
+
 	</ng-container>
 
 	<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-	<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+	<mat-row *matRowDef="let row; columns: displayedColumns;"
+			 [ngClass]="{highlighted: row.highlighted}"
+			 (click)="row.selected = !row.selected"
+			 >
+	</mat-row>-->
+
+	<ng-container matColumnDef="selected">
+		<mat-header-cell *matHeaderCellDef>Selected</mat-header-cell>
+		<mat-cell *matCellDef="let search">
+			<mat-checkbox (change)="updateCheck()" [(ngModel)]="search.selected"></mat-checkbox>
+		</mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="searchId">
+		<mat-header-cell *matHeaderCellDef>searchId </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.searchId}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="title">
+		<mat-header-cell *matHeaderCellDef> title </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.title}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="contactName">
+		<mat-header-cell *matHeaderCellDef> contactName </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.contactName}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="searchDate">
+		<mat-header-cell *matHeaderCellDef> searchDate </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.searchDate}} </mat-cell>
+	</ng-container>
+
+
+	<ng-container matColumnDef="hitsNo">
+		<mat-header-cell *matHeaderCellDef> hitsNo </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.hitsNo}} </mat-cell>
+	</ng-container>
+
+
+	<mat-header-row *matHeaderRowDef="displayedColumns">
+
+	</mat-header-row>
+	<mat-row *matRowDef="let row; columns: displayedColumns;"
+			  [ngClass]="{selected: row.selected}"
+			 (click)="row.selected = !row.selected">
+	</mat-row>
 
 </mat-table>
 

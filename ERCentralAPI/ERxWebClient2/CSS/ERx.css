@@ -70,20 +70,18 @@ body {
 	margin: auto;
 }
 
-/*.bodycontainer {
-	max-height: 450px;
-	width: 100%;
-	margin: 0;
-	overflow-y: auto;
+.mat-row.hovered {
+	background: #eee;
 }
 
-.table-scrollable {
-	margin: 0;
-	padding: 0;
+.mat-row.selected {
+	background: #999;
 }
 
-tbody {
-	height: 100px !important;
-	overflow: scroll;
-	display: block;
-}*/
+/*
+  This is a work around for checkbox bug in material row
+  https://github.com/angular/material2/issues/8600
+*/
+mat-cell.mat-cell, mat-header-cell.mat-header-cell {
+	overflow: visible;
+}

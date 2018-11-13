@@ -19,6 +19,7 @@ import { MatInputModule, MatTableModule, MatToolbarModule, MatTableDataSource } 
 import {  ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
+import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
 	selector: 'SearchComp',
@@ -27,7 +28,7 @@ import { DataSource } from '@angular/cdk/table';
 })
 
 export class SearchComp implements OnInit, OnDestroy {
-
+	displayedColumns = ['selected', 'searchId', 'title', 'contactName', 'searchDate', 'hitsNo'];
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
@@ -43,7 +44,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public selectedAll: boolean = false;
 	dataSource: any | undefined;
-	displayedColumns: string [] | undefined;
+	//displayedColumns: string [] | undefined;
 
 	@ViewChild(MatSort) sort!: MatSort;
 
@@ -77,20 +78,42 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
+	//isAllSelected() {
+
+	//	const numSelected = this.selection.selected.length;
+	//	const numRows = this.dataSource.data.length;
+	//	return numSelected == numRows;
+	//}
+
+	///** Selects all rows if they are not all selected; otherwise clear selection. */
+	//masterToggle() {
+
+	//	this.isAllSelected() ?
+	//		this.selection.clear() :
+	//		this.dataSource.forEach((row: any) => { this.selection.select(row) });
+
+	//}
+
+	//highlight(element: Search) {
+	//	element.highlighted = !element.highlighted;
+	//}
+
 	public tableArr: Search[] = [];
+	public testArr: Search[] = [];
+	public selectAll: boolean =false;
+
+	public initialSelection = [];
+	public allowMultiSelect = true;
+	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
 
 	public columnNames = [
 	{
-
 		id: "selected",
 		value: "Selected"
-
 	},
 	{
-
 		id: "searchId",
 		value: "SearchId"
-
 	},
 	{
 		id: "title",
@@ -108,7 +131,23 @@ export class SearchComp implements OnInit, OnDestroy {
 		id: "hitsNo",
 		value: "HitsNo"
 
-	}];
+		}];
+
+
+	updateCheck() {
+
+		console.log(this.selectAll);
+		if (this.selectAll === true) {
+			this.tableArr.map((r) => {
+				r.selected = true;
+			});
+
+		} else {
+			this.tableArr.map((r) => {
+				r.selected = false;
+			});
+		}
+	}
 
 	createTable() {
 
@@ -140,6 +179,21 @@ export class SearchComp implements OnInit, OnDestroy {
 						 }
 					 );
 
+					 this.testArr = res;
+					 this.tableArr = res;
+
+					 for (var i = 0; i < res.length; i++) {
+
+						 this.tableArr[i].contactName = this.testArr[i].contactName;
+						 this.tableArr[i].hitsNo = this.testArr[i].hitsNo;
+						 this.tableArr[i].title = this.testArr[i].title;
+						 this.tableArr[i].searchDate = this.testArr[i].searchDate;
+						 this.tableArr[i].searchId = this.testArr[i].searchId;
+						 this.tableArr[i].selected = false;
+
+						 console.log(this.tableArr[i]);
+
+					 }
 
 					 this.tableArr = res;
 					 this.createTable();
