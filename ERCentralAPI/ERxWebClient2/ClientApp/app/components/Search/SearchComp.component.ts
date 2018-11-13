@@ -113,8 +113,12 @@ export class SearchComp implements OnInit, OnDestroy {
 		id: "hitsNo",
 		value: "HitsNo"
 
-		}];
+	}];
 
+	testAlert() {
+
+		alert('Not implemented');
+	}
 
 	updateCheck() {
 

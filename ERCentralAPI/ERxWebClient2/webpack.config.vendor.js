@@ -23,7 +23,7 @@ const nonTreeShakableModules = [
     //'es6-shim',
     //'event-source-polyfill',
     //'jquery',
-    //'./CSS/ERx.css',
+    './CSS/ERx.css',
 	'@angular/material/prebuilt-themes/deeppurple-amber.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',

@@ -9,7 +9,7 @@
 						  (change)="updateCheck()" ></mat-checkbox>
 		</mat-header-cell>
 		<mat-cell *matCellDef="let search" class="md-default-theme">
-			<mat-checkbox (change)="alert()" [(ngModel)]="search.selected"></mat-checkbox>
+			<mat-checkbox (click)="row.selected = !row.selected" [(ngModel)]="search.selected"></mat-checkbox>
 		</mat-cell>
 	</ng-container>
 
@@ -45,7 +45,7 @@
 	</mat-header-row>
 	<mat-row *matRowDef="let row; columns: displayedColumns;"
 			  [ngClass]="{selected: row.selected}"
-			 (click)="row.selected = !row.selected">
+			 >
 	</mat-row>
 
 </mat-table>
