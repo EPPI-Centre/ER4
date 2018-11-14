@@ -80,18 +80,4 @@ export class ReadOnlyReview {
     contactReviewRoles: string="";
     reviewOwner: string="";
     lastAccess: string = "";
-
-    //constructor(ReviewId: string,
-    //    ReviewName: string,
-    //    ContactReviewRoles: string,
-    //    ReviewOwner: string,
-    //    LastAccess: string, )
-    //{
-
-    //    this.reviewId = ReviewId.toString().trim();
-    //    this.reviewName = ReviewName;
-    //    this.contactReviewRoles = ContactReviewRoles;
-    //    this.reviewOwner = ReviewOwner;
-    //    this.lastAccess = LastAccess;
-    //}
 }

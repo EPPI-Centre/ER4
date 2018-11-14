@@ -1,7 +1,7 @@
 <p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
 
-
-<mat-table [dataSource]="dataSource" matSort>
+<button (click)="RemoveOneLocalSource()">Click me</button>
+<mat-table [dataSource]="dataSource" (matSort)="sort">
 
 	<ng-container matColumnDef="selected" >
 		<mat-header-cell *matHeaderCellDef class="text-dark">Selected

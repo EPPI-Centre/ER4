@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { crosstabService, CrossTab, CrossTabCriteria, ReadOnlyItemAttributeCrosstab } from '../services/crosstab.service';
+import { crosstabService, CrossTab, ReadOnlyItemAttributeCrosstab } from '../services/crosstab.service';
 import { singleNode } from '../services/ReviewSets.service';
 import { CodesetTreeComponent } from '../CodesetTree/codesets.component';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
