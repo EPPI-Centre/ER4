@@ -13,7 +13,9 @@ export class searchService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+	) {
+		
+	}
     
 	private _SearchList: Search[] = [];
 	@Output() searchesChanged = new EventEmitter();
@@ -41,7 +43,7 @@ export class searchService {
         this.Save();
     }
 
-	Fetch(): Observable<Search[]> {
+	Fetch() : Observable<Search[]>{
 
 		return this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
 			this.crit)
@@ -55,9 +57,9 @@ export class searchService {
 			//		console.log(result);
 			//		this.searchesChanged.emit();
 
-			//	return result;
+			//	//return result;
 
-				//}
+			//	}
 		 //);
     }
 
