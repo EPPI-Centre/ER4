@@ -13,13 +13,11 @@ export class searchService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
-	) {
-		
-	}
+        ) { }
     
 	private _SearchList: Search[] = [];
 	@Output() searchesChanged = new EventEmitter();
-	public crit: Criteria = new Criteria();
+    public crit: CriteriaSearch = new CriteriaSearch();
 
 	public get SearchList(): Search[] {
 		if (this._SearchList.length == 0) {
@@ -38,29 +36,29 @@ export class searchService {
     }
     
 	public set SearchList(searches: Search[]) {
-
 		this._SearchList = searches;
         this.Save();
+        this.searchesChanged.emit();
     }
 
-	Fetch() : Observable<Search[]>{
+	Fetch() {
 
-		return this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
+		 this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
 			this.crit)
 
-			//.subscribe(result => {
+			.subscribe(result => {
 
-			//		console.log('got inside');
-			//		this.SearchList = result;
-			//		console.log(this._SearchList.length);
-			//		this.Save();
-			//		console.log(result);
-			//		this.searchesChanged.emit();
+					console.log('got inside');
+					this.SearchList = result;
+					console.log(this._SearchList.length);
+					this.Save();
+					console.log(result);
+					this.searchesChanged.emit();
 
-			//	//return result;
+				//return result;
 
-			//	}
-		 //);
+				}
+		 );
     }
 
     public Save() {
@@ -81,7 +79,7 @@ export class Search {
 	contactName: string = '';
 }
 
-export class Criteria {
+export class CriteriaSearch {
 	
 	AttributeId: string = '0';
 	SetId: string ='0';

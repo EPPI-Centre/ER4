@@ -25,7 +25,7 @@ export class frequenciesService {
 	private _FrequencyList: Frequency[] = [];
 	@Output() codeSelectedChanged = new EventEmitter();
 	@Output() frequenciesChanged = new EventEmitter();
-	public crit: Criteria = new Criteria();
+	public crit: CriteriaFrequency = new CriteriaFrequency();
 
 	public get Frequencies(): Frequency[] {
         if (this._FrequencyList.length == 0) {
@@ -108,7 +108,7 @@ export class Frequency {
 	isIncluded: boolean = false;
 }
 
-export class Criteria {
+export class CriteriaFrequency {
 	
 	AttributeId: string = '0';
 	SetId: string ='0';

@@ -1,13 +1,12 @@
 <p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
 
-<button (click)="removeStuff()">Click Me</button>
-<mat-table [dataSource]="dataSource" matSort>
+<button (click)="RemoveOneLocalSource()">Click me</button>
+<mat-table [dataSource]="dataSource" (matSort)="sort">
 
-
-	<ng-container matColumnDef="selected">
-		<mat-header-cell *matHeaderCellDef class="text-dark">
-			<mat-card-title>Selected</mat-card-title>
-			<mat-checkbox (change)="updateCheck()"></mat-checkbox>
+	<ng-container matColumnDef="selected" >
+		<mat-header-cell *matHeaderCellDef class="text-dark">Selected
+			<mat-checkbox 
+						  (change)="updateCheck()" ></mat-checkbox>
 		</mat-header-cell>
 		<mat-cell *matCellDef="let search" class="md-default-theme">
 			<mat-checkbox (click)="row.selected = !row.selected" [(ngModel)]="search.selected"></mat-checkbox>
@@ -45,7 +44,8 @@
 
 	</mat-header-row>
 	<mat-row *matRowDef="let row; columns: displayedColumns;"
-			 [ngClass]="{selected: row.selected}">
+			  [ngClass]="{selected: row.selected}"
+			 >
 	</mat-row>
 
 </mat-table>

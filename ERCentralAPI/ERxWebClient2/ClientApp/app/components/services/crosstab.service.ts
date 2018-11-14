@@ -22,7 +22,7 @@ export class crosstabService {
 	@Output() codeSelectedChanged = new EventEmitter();
 	public testResult: CrossTab = new CrossTab();
 	public NXaxis: number = 0;
-	private _Crit: Criteria = new Criteria();
+    private _Crit: CriteriaCrosstab = new CriteriaCrosstab();
 
 	private _fieldNames: string[] = [];
 
@@ -68,14 +68,14 @@ export class crosstabService {
 
 	}
 
-	public get crit(): Criteria {
+    public get crit(): CriteriaCrosstab {
 
 
 		if (this._Crit == null) {
 
 			const CriteriaJson = localStorage.getItem('Criteria');
 
-			let Criteria: Criteria = CriteriaJson !== null ? JSON.parse(CriteriaJson) : [];
+            let Criteria: CriteriaCrosstab = CriteriaJson !== null ? JSON.parse(CriteriaJson) : [];
 			if (Criteria == undefined || Criteria == null) {
 
 				return this._Crit;
@@ -102,7 +102,7 @@ export class crosstabService {
         this.Save();
 	}
 
-	public set crit(cr: Criteria) {
+    public set crit(cr: CriteriaCrosstab) {
 
 		this._Crit = cr;
 
@@ -214,16 +214,7 @@ export class crosstabService {
     }
 }
 
-export class CrossTabCriteria {
 
-	attributeId: number = 0;
-	itemCount: string = "";
-	attribute: string="";
-	attributeSetId: string = "";
-	setId: number = 0;
-	filterAttributeId: string = "";
-	isIncluded: boolean = false;
-}
 
 export class CrossTab {
 	
@@ -237,7 +228,7 @@ export class CrossTab {
 
 }
 
-export class Criteria {
+export class CriteriaCrosstab {
 
 	attributeIdXAxis: number = 0;
 	setIdXAxis: number = 0;
