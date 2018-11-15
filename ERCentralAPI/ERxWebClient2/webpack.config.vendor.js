@@ -27,6 +27,7 @@ const nonTreeShakableModules = [
 	'@angular/material/prebuilt-themes/deeppurple-amber.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
+    '@progress/kendo-theme-bootstrap/dist/all.css',
     //'datatables.net-dt/css/jquery.dataTables.css',
     //'datatables.net',
     //'datatables.net-dt',
