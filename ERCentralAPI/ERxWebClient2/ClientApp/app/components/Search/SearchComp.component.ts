@@ -182,7 +182,8 @@ export class SearchComp implements OnInit, OnDestroy {
                     }
                 }
             );
-            this._searchService.Fetch();
+			this._searchService.Fetch();
+
 			// this._searchService.Fetch().toPromise().then(
 				 
 			//	 (res) => {

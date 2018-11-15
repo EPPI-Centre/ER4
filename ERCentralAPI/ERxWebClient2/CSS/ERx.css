@@ -122,3 +122,12 @@ mat-cell.mat-cell, mat-header-cell.mat-header-cell {
 	display: none;
 }
 
+.tab-content {
+
+	width: 100%;
+}
+
+/*.tab-content > .active {
+
+	width: 1000px;
+}*/
