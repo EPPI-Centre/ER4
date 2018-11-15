@@ -37,8 +37,9 @@ import { SearchComp } from './components/Search/SearchComp.component';
 import { MatTableModule, MatSortModule,  MatSelectModule, MatInputModule, MatCardModule } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button'
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { GridModule } from '@progress/kendo-angular-grid';
 
 @NgModule({
     declarations: [
@@ -90,6 +91,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 		ChartsModule,
         ReactiveFormsModule,
         TreeModule,
+        GridModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },

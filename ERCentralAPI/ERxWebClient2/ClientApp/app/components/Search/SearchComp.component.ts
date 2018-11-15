@@ -20,10 +20,16 @@ import {  ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
 import { SelectionModel } from '@angular/cdk/collections';
+import { RowClassArgs, GridDataResult } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Component({
 	selector: 'SearchComp',
-	templateUrl: './SearchComp.component.html',
+    templateUrl: './SearchComp.component.html',
+    styles: [`
+       .k-grid tr.even { background-color: white; }
+       .k-grid tr.odd { background-color: light-grey; }
+   `],
 	providers: [],
 	encapsulation: ViewEncapsulation.None
 })
@@ -33,7 +39,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
-		private _searchService: searchService,
+		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService
 	) { }
 
@@ -44,23 +50,28 @@ export class SearchComp implements OnInit, OnDestroy {
     @Input() Context: string | undefined;
 
     public selectedAll: boolean = false;
-	private _dataSource: MatTableDataSource<any> | null = null;
-
-    public get dataSource(): MatTableDataSource<any>  {
-        console.log('Getting searches data for table');
-        if (this._dataSource == null) {
-            this._dataSource = new MatTableDataSource(this._searchService.SearchList);
-            this._dataSource.sort = this.sort;
-            console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
-        }
-        return this._dataSource;
-    } 
-    @ViewChild(MatSort) sort!: MatSort;
+    //private _dataSource: MatTableDataSource<any> | null = null;
+    //public get dataSource(): MatTableDataSource<any>  {
+    //    console.log('Getting searches data for table');
+    //    if (this._dataSource == null) {
+    //        this._dataSource = new MatTableDataSource(this._searchService.SearchList);
+    //        this._dataSource.sort = this.sort;
+    //        console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
+    //    }
+    //    return this._dataSource;
+    //} 
+    public get DataSource(): GridDataResult {
+        return {
+            data: orderBy(this._searchService.SearchList, this.sort),
+            total: this._searchService.SearchList.length
+        };
+    }
+    //@ViewChild(MatSort) sort!: MatSort;
     private SearchesChanged: Subscription = new Subscription();
     public RebuildDataTableSource() {
-        this._dataSource = new MatTableDataSource(this._searchService.SearchList);
-        this._dataSource.sort = this.sort;
-        console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
+        //this._dataSource = new MatTableDataSource(this._searchService.SearchList);
+        //this._dataSource.sort = this.sort;
+        //console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
     }
 	//displayedColumns: string [] | undefined;
     RemoveOneLocalSource() {
@@ -68,8 +79,22 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.SearchList = this._searchService.SearchList.slice(3);
         console.log(' Searchlist length: ' + this._searchService.SearchList.length);
     }
-	
-
+    public rowCallback(context: RowClassArgs) {
+        const isEven = context.index % 2 == 0;
+        return {
+            even: isEven,
+            odd: !isEven
+        };
+    }
+    public sort: SortDescriptor[] = [{
+        field: 'hitsNo',
+        dir: 'desc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting?' + this.sort[0].field + " ");
+        //this.loadProducts();
+    }
     value = 1;
     onEnter(value: number) {
         this.value = value ;
@@ -183,8 +208,7 @@ export class SearchComp implements OnInit, OnDestroy {
                     }
                 }
             );
-			this._searchService.Fetch();
-
+            this._searchService.Fetch();
 			// this._searchService.Fetch().toPromise().then(
 				 
 			//	 (res) => {
