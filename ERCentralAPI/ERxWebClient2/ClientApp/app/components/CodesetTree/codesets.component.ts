@@ -181,7 +181,8 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ReviewSetsService.GetReviewSets();
 
     }
-    CheckBoxClicked(event: any, data: singleNode, ) {
+	CheckBoxClicked(event: any, data: singleNode, ) {
+
         let checkPassed: boolean = true;
         if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
         if (!checkPassed) {

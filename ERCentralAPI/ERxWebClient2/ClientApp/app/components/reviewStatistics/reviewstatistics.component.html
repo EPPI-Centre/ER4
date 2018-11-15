@@ -1,10 +1,10 @@
 <p *ngIf="!codesetStatsServ.ReviewStats"><em>Loading...</em></p>
 
 
-	<div class=" card bg-primary">
+	<div class=" card bg-primary col-md-12">
 		<h5>Icons for VIP functions here...</h5>
 	</div>
-	<div class="card bg-light mt-2 ">
+	<div class="card bg-light mt-2 col-md-12">
 		<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 bg-info">Review Items</div>
 		<div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
 			<div class="col-3 mb-2">
@@ -22,7 +22,7 @@
 			<div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
 		</div>
 	</div>
-	<div class="card bg-light mt-2 mb-1 container" style="max-height:500px; overflow-y: auto;">
+	<div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
 		<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 bg-primary col-12">Progress so far</div>
 		<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 bg-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ.tmpCodesets">
 			<div class="bg-white col-6 mr-1 rounded">
