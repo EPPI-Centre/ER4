@@ -1,7 +1,7 @@
-import { Component, Inject, Injectable, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, Injectable } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
@@ -17,10 +17,10 @@ export class readonlyreviewsService {
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
-    
+    ) { }
+
     private _ReviewList: ReadOnlyReview[] = [];
-    
+
     public get ReadOnlyReviews(): ReadOnlyReview[] {
         if (this._ReviewList.length == 0) {
 
@@ -37,33 +37,20 @@ export class readonlyreviewsService {
         return this._ReviewList;
 
     }
-    
+
     public set ReadOnlyReviews(ror: ReadOnlyReview[]) {
-
-
-        //for (var i = 0; i < ror.length; i++) {
-
-        //    var temp = new ReadOnlyReview(ror[i].reviewId,
-        //        ror[i].reviewName,
-        //        ror[i].reviewOwner,
-        //        ror[i].contactReviewRoles,
-        //        ror[i].lastAccess);
-
-        //    this.ReadOnlyReviews[i] = temp;
-
-        //}
         this._ReviewList = ror;
-
         this.Save();
     }
-    
-        
+
+
     public Fetch() {
 
-		return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews');
-          
+        return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews').subscribe(result => {
+            this.ReadOnlyReviews = result;
+        }, error => { this.modalService.GenericError(error); }
+        );
     }
-
 
     public Save() {
         if (this._ReviewList.length > 0)
@@ -74,10 +61,9 @@ export class readonlyreviewsService {
 }
 
 export class ReadOnlyReview {
-
-    reviewId: string = "0";
+    reviewId: number = 0;
     reviewName: string = "";
-    contactReviewRoles: string="";
-    reviewOwner: string="";
+    contactReviewRoles: string = "";
+    reviewOwner: string = "";
     lastAccess: string = "";
 }

@@ -34,11 +34,8 @@ import { WebApiObservableService } from './components/services/httpQuery.service
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
 import { SearchComp } from './components/Search/SearchComp.component';
-import { MatTableModule, MatSortModule,  MatSelectModule, MatInputModule, MatCardModule } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { GridModule } from '@progress/kendo-angular-grid';
 
 @NgModule({
@@ -81,13 +78,6 @@ import { GridModule } from '@progress/kendo-angular-grid';
 		FormsModule,
 		BrowserModule,
 		BrowserAnimationsModule,
-		MatTableModule,
-		MatSortModule,
-		MatSelectModule,
-		MatCheckboxModule,
-		MatButtonModule,
-		MatInputModule,
-		MatCardModule,
 		ChartsModule,
         ReactiveFormsModule,
         TreeModule,

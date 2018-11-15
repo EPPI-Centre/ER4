@@ -65,7 +65,6 @@
   },
   "dependencies": {
     "@angular/cdk": "6.4.7",
-    "@angular/material": "6.4.7",
     "@ng-bootstrap/ng-bootstrap": "^3.1.0",
     "@ngx-translate/core": "^10.0.2",
     "@ngx-translate/http-loader": "^3.0.1",
