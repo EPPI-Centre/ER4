@@ -1,7 +1,5 @@
 import { Component, Inject, OnInit, Output, EventEmitter, OnDestroy, ViewChild, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
-import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject, BehaviorSubject, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,7 +10,8 @@ import { take, map } from 'rxjs/operators';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { ModalService } from '../services/modal.service';
-import { MatTableDataSource, MatSort } from '@angular/material';
+import { GridDataResult } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Component({
     selector: 'readonlyreviews',
@@ -25,10 +24,9 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	dataSource: any | undefined;
 	displayedColumns = ["Full Reviewing", "reviewId", "reviewName", "lastAccess"];
     constructor(private router: Router,
-                private _httpC: HttpClient,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
-		public _readonlyreviewsService: readonlyreviewsService,
+		private _readonlyreviewsService: readonlyreviewsService,
 		private modalService: ModalService
 
 	) {
@@ -36,14 +34,24 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     }
 
 
-	@ViewChild(MatSort) sort1!: MatSort;
+	//@ViewChild(MatSort) sort1!: MatSort;
 
    // dtOptions: DataTables.Settings = {};
-    reviews: ReadOnlyReview[] = [];
-    // We use this trigger because fetching the list of persons can be quite long,
-    // thus we ensure the data is fetched before rendering
-    //dtTrigger: Subject<any> = new Subject();
+    //reviews: ReadOnlyReview[] = [];
 
+    public get DataSource(): GridDataResult {
+        return {
+            data: orderBy(this._readonlyreviewsService.ReadOnlyReviews, this.sort),
+            total: this._readonlyreviewsService.ReadOnlyReviews.length
+        };
+    }
+    public sort: SortDescriptor[] = [{
+        field: 'lastAccess',
+        dir: 'desc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+    }
     FormatDate(DateSt: string): string {
         let date: Date = new Date(DateSt);
         return date.toLocaleDateString();
@@ -73,26 +81,26 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
             
         }
 	}
-	loadReviews() {
+	//loadReviews() {
 
-		this._readonlyreviewsService.Fetch().toPromise().then(
+	//	this._readonlyreviewsService.Fetch().toPromise().then(
 
-				(result) => {
+	//			(result) => {
 
-					this._readonlyreviewsService.ReadOnlyReviews = result;
-					this.createTable();
+	//				this._readonlyreviewsService.ReadOnlyReviews = result;
+	//				this.createTable();
 
-				}, error => {
-					this.modalService.GenericError(error);
+	//			}, error => {
+	//				this.modalService.GenericError(error);
 
-				}
+	//			}
 
-			);
-	}
-	createTable() {
-		this.dataSource = new MatTableDataSource(this._readonlyreviewsService.ReadOnlyReviews);
-		this.dataSource.sort = this.sort1;
-	}
+	//		);
+	//}
+	//createTable() {
+	//	this.dataSource = new MatTableDataSource(this._readonlyreviewsService.ReadOnlyReviews);
+	//	this.dataSource.sort = this.sort1;
+	//}
     ngOnInit() {
 
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -101,9 +109,10 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         }
         else {
 
-			this.loadReviews();
+			//this.loadReviews();
             //this._readonlyreviewsService.Fetch(this.dtTrigger);
-
+            console.log('fetching reviews');
+            this._readonlyreviewsService.Fetch();
         }
 	}
 

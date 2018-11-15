@@ -1,24 +1,13 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input, OnDestroy, AfterViewInit, ViewEncapsulation } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Component, OnInit, Input, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
-import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation, WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
-import { FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule  } from '@angular/forms';
-import { Subject } from 'rxjs/index';
 import { debounceTime, startWith, merge, switchMap, share  } from 'rxjs/operators/index';
 import { pipe } from 'rxjs'
 import { style } from '@angular/animations';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MatInputModule, MatTableModule, MatToolbarModule, MatTableDataSource } from '@angular/material';
-import {  ViewChild } from '@angular/core';
-import { MatSort } from '@angular/material';
-import { DataSource } from '@angular/cdk/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { RowClassArgs, GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
@@ -47,7 +36,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     }
 		
-    @Input() Context: string | undefined;
+   
 
     public selectedAll: boolean = false;
     //private _dataSource: MatTableDataSource<any> | null = null;
@@ -67,7 +56,7 @@ export class SearchComp implements OnInit, OnDestroy {
         };
     }
     //@ViewChild(MatSort) sort!: MatSort;
-    private SearchesChanged: Subscription = new Subscription();
+    //private SearchesChanged: Subscription = new Subscription();
     public RebuildDataTableSource() {
         //this._dataSource = new MatTableDataSource(this._searchService.SearchList);
         //this._dataSource.sort = this.sort;
@@ -122,7 +111,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-        if (this.SearchesChanged) this.SearchesChanged.unsubscribe();
+        //if (this.SearchesChanged) this.SearchesChanged.unsubscribe();
 	}
 
 
@@ -197,17 +186,17 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.router.navigate(['home']);
 		}
 		else {
-            this.SearchesChanged = this._searchService.searchesChanged.subscribe(() => this.RebuildDataTableSource());
-            this.displayedColumns = this.columnNames.map(
-                (x) => {
+            //this.SearchesChanged = this._searchService.searchesChanged.subscribe(() => this.RebuildDataTableSource());
+            //this.displayedColumns = this.columnNames.map(
+            //    (x) => {
 
-                    if (x != undefined) {
-                        return x.id;
-                    } else {
-                        return '';
-                    }
-                }
-            );
+            //        if (x != undefined) {
+            //            return x.id;
+            //        } else {
+            //            return '';
+            //        }
+            //    }
+            //);
             this._searchService.Fetch();
 			// this._searchService.Fetch().toPromise().then(
 				 
