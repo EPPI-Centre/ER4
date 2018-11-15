@@ -29,9 +29,22 @@ mat-cell.mat-cell, mat-header-cell.mat-header-cell {
 }
 
 
-.table.alpha tr {
+/*.table.alpha tr {
     height: 75px;
+}*/
+
+table.table-fit {
+	width: auto !important;
+	table-layout: auto !important;
 }
+
+	table.table-fit thead th, table.table-fit tfoot th {
+		width: auto !important;
+	}
+
+	table.table-fit tbody td, table.table-fit tfoot td {
+		width: auto !important;
+	}
 
 .GreenIcon {
     color: green;

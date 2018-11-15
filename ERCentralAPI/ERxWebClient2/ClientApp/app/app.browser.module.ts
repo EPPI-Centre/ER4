@@ -7,8 +7,6 @@ import { JwtInterceptor } from './components/helpers/jwt.interceptor'
 import { HomeComponent } from './components/home/home.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
-//import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
-
 @NgModule({
     bootstrap: [AppComponent
         

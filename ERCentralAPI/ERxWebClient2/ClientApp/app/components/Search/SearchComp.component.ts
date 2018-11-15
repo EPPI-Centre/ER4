@@ -44,7 +44,8 @@ export class SearchComp implements OnInit, OnDestroy {
     @Input() Context: string | undefined;
 
     public selectedAll: boolean = false;
-    private _dataSource: MatTableDataSource<any> | null = null;
+	private _dataSource: MatTableDataSource<any> | null = null;
+
     public get dataSource(): MatTableDataSource<any>  {
         console.log('Getting searches data for table');
         if (this._dataSource == null) {
