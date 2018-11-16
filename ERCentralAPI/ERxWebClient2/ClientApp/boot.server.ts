@@ -6,13 +6,25 @@
 //import { platformDynamicServer, PlatformState, INITIAL_CONFIG } from '@angular/platform-server';
 //import { createServerRenderer, RenderResult } from 'aspnet-prerendering';
 //import { AppModule } from './app/app.server.module';
+//import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 
-//enableProdMode();
+//if (module.hot) {
+//	module.hot.accept();
+//	module.hot.dispose(() => {
+//		// Before restarting the app, we create a new root element and dispose the old one
+//		const oldRootElem = document.querySelector('app');
+//		const newRootElem = document.createElement('app');
+//		oldRootElem!.parentNode!.insertBefore(newRootElem, oldRootElem);
+//		modulePromise.then((appModule: any) => appModule.destroy());
+//	});
+//} else {
+//	enableProdMode();
+//}
 
 //export default createServerRenderer(params => {
 //    const providers = [
-//        { provide: INITIAL_CONFIG, useValue: { document: '<app></app>', url: params.url } },
+//        //{ provide: INITIAL_CONFIG, useValue: { document: '<app></app>', url: params.url } },
 //        { provide: APP_BASE_HREF, useValue: params.baseUrl },
 //        { provide: 'BASE_URL', useValue: params.origin + params.baseUrl },
 //    ];
@@ -37,3 +49,4 @@
 //        });
 //    });
 //});
+//const modulePromise = platformDynamicServer().bootstrapModule(AppModule);
