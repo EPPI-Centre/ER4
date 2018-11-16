@@ -24,7 +24,7 @@ import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
     selector: 'mainfull',
     templateUrl: './mainfull.component.html'
     ,styles: [`
-                
+                .pane-content { padding: 0em 1em; margin: 1;}
                .ReviewsBg {
                     background-color:#f1f1f8 !important; 
                 }

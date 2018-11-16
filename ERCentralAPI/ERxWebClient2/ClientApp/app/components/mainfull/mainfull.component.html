@@ -1,14 +1,14 @@
 <div class="container-fluid " resizable>
     <HeaderComponent ></HeaderComponent>
 	<div class="mt-1 ">
-		<div class="row">
-			<div class=" col-md-8">
+		<kendo-splitter orientation="horizontal">
+			<kendo-splitter-pane [collapsible]="false" class="">
 				<ngb-tabset (tabChange)="setTabSelected($event)" #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
-					<ngb-tab id="ReviewHomeTab" class="row col-md-8">
+					<ngb-tab id="ReviewHomeTab" class="mt-1">
 						<ng-template ngbTabTitle><b>Review</b> home</ng-template>
 						<ng-template ngbTabContent>
-							<div class="row">
-								<div class="col-md-7 p-0">
+							<div class="row m-1">
+								<div class="col-md-7 p-0 pr-1">
 									<reviewStatisticsComp (tabSelectEvent)="alertT()" (tabSelectEventf)="alertT()"></reviewStatisticsComp>
 								</div>
 								<div class="col-md-5 p-0">
@@ -75,7 +75,7 @@
 										</tr>
 									</table>
 								</div>
-								<div class="row">
+								<div class="row m-0">
 									<div class="col-md-8">
 										<div class="col-md-12">
 											<table class="table-striped table table-light card-body">
@@ -222,7 +222,7 @@
 					</ngb-tab>
 					<ngb-tab id="SearchListTab" title="Search">
 						<ng-template ngbTabContent>
-							<div class="row card bg-primary border-dark">
+							<div class="row card bg-primary border-dark m-0">
 								<!--<h5>Icons for various functions here... (see ER4) Search Component Icons</h5>-->
 								<table>
 									<tr>
@@ -247,7 +247,7 @@
 								</table>
 
 							</div>
-							<div class="row">
+							<div class="row m-0">
 								<div class="card card-body bg-light col-md-8">
 									<SearchComp resizable r-directions="['right']" r-flex="true"></SearchComp>
 								</div>
@@ -258,11 +258,11 @@
 						</ng-template>
 					</ngb-tab>
 				</ngb-tabset>
-			</div>
-			<div class="card bg-light col-md-4 pull-right">
+			</kendo-splitter-pane>
+			<kendo-splitter-pane [collapsible]="true" size="30%" class="bg-light">
 				<codesets></codesets>
-			</div>
-		</div>
+			</kendo-splitter-pane>
+		</kendo-splitter>
 		<statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>
 	</div>
 </div>
