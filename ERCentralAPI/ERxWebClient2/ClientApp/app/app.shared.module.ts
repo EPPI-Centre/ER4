@@ -37,6 +37,7 @@ import { SearchComp } from './components/Search/SearchComp.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule } from '@progress/kendo-angular-grid';
+import { LayoutModule } from '@progress/kendo-angular-layout';
 
 @NgModule({
     declarations: [
@@ -82,6 +83,7 @@ import { GridModule } from '@progress/kendo-angular-grid';
         ReactiveFormsModule,
         TreeModule,
         GridModule,
+        LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
