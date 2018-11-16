@@ -271,6 +271,10 @@ export class CodesetStatisticsService {
             duplicateItems: -1
         };
         this._tmpCodesets = [];
+        localStorage.removeItem('tmpCodesets');
+        localStorage.removeItem('CompletedSets');
+        localStorage.removeItem('IncompleteCodesets');
+        localStorage.removeItem('ReviewStats');
     }   
 }
 export interface ReviewStatisticsCountsCommand {

@@ -223,7 +223,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             scrollY: "350px"
 		};
 
-		this.reviewSetsService.GetReviewSets();
+        //this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
@@ -345,23 +345,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	Reload() {
         this.Clear();
+        console.log('get rev sets in mainfull');
         this.reviewSetsService.GetReviewSets();
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         else console.log("work allocs comp is undef :-(");
     }
     GetStats() {
+        console.log('getting stats (mainfull)');
         this.codesetStatsServ.GetReviewStatisticsCountsCommand();
         this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
     }
     Clear() {
+        console.log('Clear in mainfull');
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
+        this.codesetStatsServ.Clear();
         //this.dtTrigger.unsubscribe();
-        if (this.statsSub) this.statsSub.unsubscribe();
-        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-            () => this.GetStats()
-        );
+        //if (this.statsSub) this.statsSub.unsubscribe();
+        //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+        //    () => this.GetStats()
+        //);
     }
   
     MyInfoMessage(): string {
@@ -381,10 +385,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.Clear();
         if (this.subOpeningReview) {
-            this.subOpeningReview.unsubscribe();
-			
+            this.subOpeningReview.unsubscribe();			
         }
+        if (this.statsSub) this.statsSub.unsubscribe();
     }
 }
 

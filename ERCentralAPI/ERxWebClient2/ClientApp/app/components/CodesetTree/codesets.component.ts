@@ -73,9 +73,6 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 				}
 
 			);
-			//alert('initiate: ' + this._eventEmitter.codingTreeVar );
-			
-            this.GetReviewSets();
         }
 	}
 	
@@ -176,11 +173,11 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
             return null;
         }
     }
-    GetReviewSets() {
-        if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
-        this.ReviewSetsService.GetReviewSets();
+    //GetReviewSets() {
+    //    if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
+    //    this.ReviewSetsService.GetReviewSets();
 
-    }
+    //}
 	CheckBoxClicked(event: any, data: singleNode, ) {
 
         let checkPassed: boolean = true;
