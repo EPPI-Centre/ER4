@@ -67,6 +67,7 @@ import { GridModule } from '@progress/kendo-angular-grid';
         MainFullReviewComponent,
         MainComponent
 	],
+
 	providers: [EventEmitterService, WebApiObservableService ],
     entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent],
     imports: [

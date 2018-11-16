@@ -16,7 +16,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
 import { frequenciesComp } from '../Frequencies/frequencies.component';
-import { searchService } from '../services/search.service';
+import { searchService, SearchCodeCommand } from '../services/search.service';
 import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
 
 
@@ -395,7 +395,7 @@ export class RadioButtonComp {
 	selector: 'ngbd-SearchesModal-content',
 	templateUrl: './SearchesModal.component.html'
 })
-export class SearchesModalContent {
+export class SearchesModalContent implements SearchCodeCommand {
 
 	@ViewChild('SearchesModal')
 
@@ -409,6 +409,12 @@ export class SearchesModalContent {
 	public nodeSelected: boolean = false;
 	public selectedNodeDataName: string = '';
 
+	_title: string = '';
+	_answers: string = '';
+	_included: boolean = false;
+	_withCodes: boolean = false;;
+	_searchId: number = 0;
+
 	public get IsReadOnly(): boolean {
 
 		return this.canWrite;
@@ -416,12 +422,35 @@ export class SearchesModalContent {
 	}
 	constructor(public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService,
-		private _eventEmitter: EventEmitterService
+		private _eventEmitter: EventEmitterService,
+		private _searchService: searchService
 	) { }
 
 	test() {
 
 		alert('hello again');
+
+	}
+
+	public cmdSearches: SearchCodeCommand = {
+
+		_title : '',
+		_answers : '',
+		_included : false,
+		_withCodes : false,
+		_searchId : 0
+	};
+
+	callSearches() {
+
+		// api call to SearchListController for the SearchCodes
+		this.cmdSearches._title = 'Not coded with: control (comparison TP)';
+		this.cmdSearches._answers = '83962';
+		this.cmdSearches._included = true;
+		this.cmdSearches._withCodes = false;
+		this.cmdSearches._searchId = 0;
+
+		this._searchService.FetchSearchCodes(this.cmdSearches);
 
 	}
 

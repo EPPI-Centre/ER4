@@ -59,7 +59,29 @@ export class searchService {
 
 				}
 		 );
-    }
+	}
+
+	FetchSearchCodes(cmd: SearchCodeCommand) {
+
+		
+		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchCodes',
+			cmd)
+
+			.subscribe(result => {
+
+				console.log('got inside: '+ result);
+				
+				//this.SearchList = result;
+				//console.log(this._SearchList.length);
+				//this.Save();
+				//console.log(result);
+				//this.searchesChanged.emit();
+
+				//return result;
+
+			}
+		);
+	}
 
     public Save() {
 		if (this._SearchList.length > 0)
@@ -86,4 +108,14 @@ export class CriteriaSearch {
 	Included: boolean = false;
 	FilterAttributeId: number = 0;
 	
+}
+
+export interface SearchCodeCommand {
+
+	_title: string;
+	_answers: string ;
+	_included: boolean ;
+	_withCodes: boolean ;
+	_searchId: number ;
+
 }

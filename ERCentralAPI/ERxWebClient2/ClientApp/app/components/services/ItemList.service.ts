@@ -45,7 +45,9 @@ export class ItemListService {
     public set IsInScreeningMode(state: boolean) {
         this._IsInScreeningMode = state;
         this.Save();
-    }
+	}
+
+
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
@@ -318,6 +320,7 @@ export class Item {
     itemStatusTooltip: string = "";
     arms: arm[] = [];
 }
+
 export class Criteria {
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
