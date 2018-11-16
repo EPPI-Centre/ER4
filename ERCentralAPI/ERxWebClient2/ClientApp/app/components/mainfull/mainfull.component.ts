@@ -36,7 +36,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         //private ReviewInfoService: ReviewInfoService,
-        private reviewSetsService: ReviewSetsService,
+        public reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
@@ -61,7 +61,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public count: number = 60;
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
-	private statsSub: Subscription = new Subscription();
+    private statsSub: Subscription = new Subscription();
+    
 	public crossTabResult: any | 'none';
 	public selectedNodeData: any | 'none';
 	public selectedNodeDataF: any | 'none';
@@ -71,7 +72,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public selectedAttributeSetX: any | 'none';
 	public selectedNodeDataX: any | 'none';
 	public selectedNodeDataY: any | 'none';
-	public radioData: any;
+    public radioData: any;
+    public freqIncEx: string = 'true';
+    public FreqShowWhat: string = 'Table';
 
 	show(value: any) {
 
@@ -157,56 +160,62 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
 	public Code1: boolean = false;
-
+    canSetCode(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.attributes 
+            && this.reviewSetsService.selectedNode.attributes.length > 0) return true;
+        return false;
+    }
 	SetCode1() {
-		this.Code1 = true;
+        this.Code1 = true;
+        this.selectedNodeDataF = this.reviewSetsService.selectedNode;
 	}
 	public Code2: boolean = false;
 
 	SetCode2() {
-
-		this.Code2 = true;
+        this.Code2 = true;
+        this.selectedAttributeSetF = this.reviewSetsService.selectedNode;
 	}
 
 	ngOnInit() {
 
-		this._eventEmitter.dataStr.subscribe(
+		//this._eventEmitter.dataStr.subscribe(
 
-			(data: any) => {
+		//	(data: any) => {
 
-				if (this.tabSelected.nextId == 'FrequenciesTab') {
+		//		if (this.tabSelected.nextId == 'FrequenciesTab') {
+  //                  console.log('happening');
+		//			if (data != null) {
 
-					if (data != null) {
+		//				if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
 
-						if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
+		//					this.selectedAttributeSetF = data;
 
-							this.selectedAttributeSetF = data;
+		//				} else if (this.Code2 == true && this.Code1 == false) {
 
-						} else if (this.Code2 == true && this.Code1 == false) {
+		//					this.selectedNodeDataF = data;
 
-							this.selectedNodeDataF = data;
+		//				} else if (this.Code2 == true && this.Code1 == true) {
 
-						} else if (this.Code2 == true && this.Code1 == true) {
+		//					// nothing
+		//				} else if (this.Code2 == false && this.Code1 == false) {
 
-							// nothing
-						} else if (this.Code2 == false && this.Code1 == false) {
+		//					this.selectedNodeDataF = data;
+		//				}
 
-							this.selectedNodeDataF = data;
-						}
+		//			}
 
-					}
+		//		} else if (this.tabSelected.nextId == 'CrossTabsTab') {
 
-				} else if (this.tabSelected.nextId == 'CrossTabsTab') {
+		//			this.selectedNodeData = data;
 
-					this.selectedNodeData = data;
+		//		} else if (this.tabSelected.nextId == 'SearchListTab') {
 
-				} else if (this.tabSelected.nextId == 'SearchListTab') {
-
-					//alert('Search Tab: ' + this.tabSelected.nextId);
+		//			//alert('Search Tab: ' + this.tabSelected.nextId);
 					
-				}
-			}
-		)
+		//		}
+		//	}
+		//)
 
 		this._eventEmitter.tabSelectEventf.subscribe(
 
@@ -244,7 +253,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		} else {
 
 			console.log(selectedNodeDataF.name);
-			// need to filter data before calling the below Fetch			
+			// need to filter data before calling the below Fetch	
+            this.frequenciesService.crit.Included = this.freqIncEx == 'true';
 			this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
 		
 		}
@@ -337,10 +347,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     };
     subOpeningReview: Subscription | null = null;
 
-	changeRadioValue(IncEnc: any) {
-
-		this.frequenciesService.crit.Included = IncEnc;
-	}
+	
 	
 
 	Reload() {
