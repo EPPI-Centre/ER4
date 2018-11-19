@@ -171,6 +171,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     GetReviewSets() {
         if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
+        console.log('Get reviesets in revsets comp');
         this.ReviewSetsService.GetReviewSets();
             //.subscribe(
             //result => {

@@ -52,23 +52,18 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	ngOnInit() {
 
 		console.log('inititating stats');
-		this.dtOptions = {
-			pagingType: 'full_numbers',
-			paging: false,
-			searching: false,
-			scrollY: "350px"
-		};
-		this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
-		this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+		
+		//this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+		//this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
 			
-			() => {
-				console.log('gettign the stats');
-				this.GetStats()
-			}
-				);
-		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-			|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-		) this.Reload();
+		//	() => {
+		//		console.log('gettign the stats');
+		//		this.GetStats()
+		//	}
+		//		);
+		//if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+		//	|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
+		//) this.Reload();
 	}
 
 	//public get ReviewPanelTogglingSymbol(): string {
@@ -104,15 +99,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	   
 	Reload() {
 		this.Clear();
-		this.reviewSetsService.GetReviewSets();
-		if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
-		else console.log("work allocs comp is undef :-(");
+		//this.reviewSetsService.GetReviewSets();
+		//if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
+		//else console.log("work allocs comp is undef :-(");
 	}
 
 	GetStats() {
-		console.log('geting stats');
-		this.codesetStatsServ.GetReviewStatisticsCountsCommand();
-		this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
+		//console.log('getting stats...');
+		//this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+		//this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
 	}
 
 	Clear() {
@@ -120,10 +115,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 		this.reviewSetsService.Clear();
 
-		if (this.statsSub) this.statsSub.unsubscribe();
-		this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-			() => this.GetStats()
-		);
+		//if (this.statsSub) this.statsSub.unsubscribe();
+		//this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+		//	() => this.GetStats()
+		//);
 	}
 
 	IncludedItemsList() {

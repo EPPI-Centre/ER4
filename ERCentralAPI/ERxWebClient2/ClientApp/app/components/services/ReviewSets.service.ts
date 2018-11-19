@@ -9,6 +9,7 @@ import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo } from './ReviewInfo.service';
 import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { ModalService } from './modal.service';
+import { Node } from '@angular/compiler/src/render3/r3_ast';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -33,6 +34,7 @@ export class ReviewSetsService {
         return this._IsBusy;
     }
     private CurrentArmID: number = 0;
+    public selectedNode: singleNode | null = null;
 	public CanWriteCoding(attribute: singleNode): boolean {
 
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
@@ -79,6 +81,7 @@ export class ReviewSetsService {
     subOpeningReview: Subscription | null = null;
 
     public Clear() {
+        this.selectedNode = null;
         this._ReviewSets = [];
         localStorage.removeItem('ReviewSets');
     }
