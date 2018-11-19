@@ -1,0 +1,34 @@
+<!--This could in fact be the chart of the users choice rather than the table dependent on the
+radio buttons and checkbox selected-->
+<div *ngIf="show=='pie' && pieChartData">
+	<canvas #testChart='base-chart' baseChart
+			[chartType]="'pie'"
+			[datasets] ="pieChartData"
+			[labels]="pieChartLabels"
+			[options]="pieChartOptions"
+			[legend]="true"
+			[colors]="pieChartColor"
+			(chartClick)="onChartClick($event)"></canvas>
+</div>
+<table style="max-height: 500px;" *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
+	   class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>Code</th>
+			<th>Count</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr *ngFor="let freq of frequenciesService.Frequencies">
+            <td>{{freq.attribute}}</td>
+			<td>
+                <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
+                   (click)="FrequencyGetItemList(freq)">
+                    {{freq.itemCount}}
+                </b>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+

@@ -28,7 +28,7 @@ import { itemDetailsComp } from './components/itemDetails/itemDetails.component'
 import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatistics.component';
 import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
 import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
-import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
@@ -38,13 +38,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
+import { frequenciesComp } from './components/Frequencies/frequencies.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		CodesetTreeComponent,
-		SearchComp,
-		frequenciesComp,
+        SearchComp,
+        frequenciesComp,
+		frequenciesResultsComp,
 		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,

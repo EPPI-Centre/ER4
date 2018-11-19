@@ -57,68 +57,7 @@
 					</ngb-tab>
 					<ngb-tab id="FrequenciesTab" title="Frequencies">
                         <ng-template ngbTabContent>
-                            <div class="row m-1 p-0">
-                                <button (click)="fetchFrequencies(selectedNodeDataF, selectedAttributeSetF?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
-                                <span> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
-                            </div>
-                            <div class="row m-1 p-0">
-                                <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Code: &nbsp;</span></div>
-                                <div class="col-4 border"><b [className]="Code1 == true ? 'btn-warning' : ''">{{selectedNodeDataF?.name}}&nbsp;</b></div>
-                                <div class="col-4">
-                                    <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn-primary m-0 p-1"> Set Code </button>
-                                    <button (click)="clearReviewSet()" class="btn-info m-0 p-1"> Clear Code</button>
-                                </div>
-                            </div>
-                            <div class="row m-1 p-0">
-                                <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter Attribute: &nbsp;</span></div>
-                                <div class="col-4 border"><b [className]="Code2 == true ? 'btn-warning' : ''">{{selectedAttributeSetF?.name}}&nbsp;</b></div>
-                                <div class="col-4">
-                                    <button (click)="SetCode2()" class="btn-primary m-0 p-1"> Set Code</button>
-                                    <button (click)="clearAttributeSet()" class="btn-info m-0 p-1"> Clear Code</button>
-                                </div>
-
-                            </div>
-                            <div class="row m-1 p-0">
-                                <div class="row m-0">
-                                    <div class="col-md-8">
-                                        <div class="col-md-12">
-                                            <table class="table-striped table table-light card-body">
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="freqIncEx"> <b>&nbsp;Included</b>
-                                                        </td>
-                                                        <td>
-                                                            <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="freqIncEx"><b>&nbsp; Excluded</b>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <input (click)="show('table')" type="radio" value="Table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Table</b>
-                                                        </td>
-                                                        <td>
-                                                            <input (click)="show('pie')" type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Pie chart</b>
-                                                        </td>
-                                                        <td>
-                                                            <input (click)="show('bar')" type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Bar chart</b>
-                                                        </td>
-                                                        <td>
-
-                                                            <input (click)="changeRadioValue(true)" type="checkbox" value="true" name="IncEnc" [(ngModel)]="IncEnc" checked="checked"> Show None something checkbox
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <frequencies></frequencies>
-                                        </div>
-                                    </div>
-                                    <!--<div class="bg-light table-dark col-md-4">
-                <codesets></codesets>
-            </div>-->
-                                </div>
-                            </div>
+                            <frequencies></frequencies>
                         </ng-template>
 					</ngb-tab>
 					<ngb-tab id="CrossTabsTab" (click)="testing($event)" title="CrossTabs">

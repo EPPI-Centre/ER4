@@ -1,34 +1,59 @@
-<!--This could in fact be the chart of the users choice rather than the table dependent on the
-radio buttons and checkbox selected-->
-<div *ngIf="show=='pie' && pieChartData">
-	<canvas #testChart='base-chart' baseChart
-			[chartType]="'pie'"
-			[datasets] ="pieChartData"
-			[labels]="pieChartLabels"
-			[options]="pieChartOptions"
-			[legend]="true"
-			[colors]="pieChartColor"
-			(chartClick)="onChartClick($event)"></canvas>
+<div class="row m-1 p-0">
+    <button (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
+    <span> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
 </div>
-<table style="max-height: 500px;" *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
-	   class="table table-bordered table-striped">
-	<thead>
-		<tr>
-			<th>Code</th>
-			<th>Count</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr *ngFor="let freq of frequenciesService.Frequencies">
-            <td>{{freq.attribute}}</td>
-			<td>
-                <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
-                   (click)="FrequencyGetItemList(freq)">
-                    {{freq.itemCount}}
-                </b>
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="row m-1 p-0">
+    <div style="width:200px;"><span class="font-weight-bold mt-1">Selected (parent) Code: &nbsp;</span></div>
+    <div class="col-4 border"><b [className]="chosenNode != null ? 'btn-warning' : ''">{{chosenNode?.name}}&nbsp;</b></div>
+    <div class="col-4">
+        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn-primary m-0 p-1">Set</button>
+        <button (click)="clearChosenNode()" class="btn-info m-0 p-1">Clear</button>
+    </div>
+</div>
+<div class="row m-1 p-0">
+    <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
+    <div class="col-4 border"><b [className]="chosenFilter != null ? 'btn-warning' : ''">{{chosenFilter?.name}}&nbsp;</b></div>
+    <div class="col-4">
+        <button (click)="SetFilter()" class="btn-primary m-0 p-1"> Set Code</button>
+        <button (click)="clearChosenFilter()" class="btn-info m-0 p-1"> Clear Code</button>
+    </div>
 
+</div>
+<div class="row m-1 p-0">
+    <div class="row m-0">
+        <div class="col-md-8">
+            <div class="col-md-12">
+                <table class="table-striped table table-light card-body">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="freqIncEx"> <b>&nbsp;Included</b>
+                            </td>
+                            <td>
+                                <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="freqIncEx"><b>&nbsp; Excluded</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input (click)="show('table')" type="radio" value="Table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Table</b>
+                            </td>
+                            <td>
+                                <input (click)="show('pie')" type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Pie chart</b>
+                            </td>
+                            <td>
+                                <input (click)="show('bar')" type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Bar chart</b>
+                            </td>
+                            <td>
 
+                                <input (click)="changeRadioValue(true)" type="checkbox" value="true" name="ShowNoneOfTheAbove" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show None something checkbox
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12">
+                <frequenciesResults></frequenciesResults>
+            </div>
+        </div>
+    </div>
+</div>

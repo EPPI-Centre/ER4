@@ -15,7 +15,6 @@ import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
-import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { searchService, SearchCodeCommand } from '../services/search.service';
 import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
 
@@ -64,36 +63,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private statsSub: Subscription = new Subscription();
     
 	public crossTabResult: any | 'none';
-	public selectedNodeData: any | 'none';
-	public selectedNodeDataF: any | 'none';
-	public selectedNodeDataS: any | 'none';
-	public selectedAttributeSetF: any | 'none';
-	public selectedAttributeSet: any | 'none';
+	//public selectedAttributeSetF: any | 'none';
 	public selectedAttributeSetX: any | 'none';
 	public selectedNodeDataX: any | 'none';
 	public selectedNodeDataY: any | 'none';
-    public radioData: any;
-    public freqIncEx: string = 'true';
-    public FreqShowWhat: string = 'Table';
-
-	show(value: any) {
-
-		this._eventEmitter.showData(value);
-		
-	}
-	test() {
-		alert('hello again');
-	}
-	clearReviewSet() {
-
-		this.Code1 = false;
-		this.selectedNodeDataF = null;
-	}
-	clearAttributeSet() {
-
-		this.Code2 = false;
-		this.selectedAttributeSetF = null;
-	}
+    
+	
+	
 
     dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
@@ -102,20 +78,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabset.select('ItemListTab');
 	}
 	setXaxis() {
-		if (this.selectedNodeData != null )
-		this.selectedNodeDataX = this.selectedNodeData;
+		//if (this.selectedNodeData != null )
+		//this.selectedNodeDataX = this.selectedNodeData;
 	}
 	setYaxis() {
-		if (this.selectedNodeData != null )
-		this.selectedNodeDataY = this.selectedNodeData;
+		//if (this.selectedNodeData != null )
+		//this.selectedNodeDataY = this.selectedNodeData;
 
 	}
 	setXFilter() {
 
-		if (this.selectedNodeData != null && this.selectedNodeData.nodeType != 'ReviewSet') {
+		//if (this.selectedNodeData != null && this.selectedNodeData.nodeType != 'ReviewSet') {
 
-			this.selectedAttributeSetX = this.selectedNodeData;
-		}
+		//	this.selectedAttributeSetX = this.selectedNodeData;
+		//}
 	}
 	clearXFilter() {
 
@@ -159,63 +135,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			);
 	}
 
-	public Code1: boolean = false;
-    canSetCode(): boolean {
-        if (this.reviewSetsService.selectedNode
-            && this.reviewSetsService.selectedNode.attributes 
-            && this.reviewSetsService.selectedNode.attributes.length > 0) return true;
-        return false;
-    }
-	SetCode1() {
-        this.Code1 = true;
-        this.selectedNodeDataF = this.reviewSetsService.selectedNode;
-	}
-	public Code2: boolean = false;
-
-	SetCode2() {
-        this.Code2 = true;
-        this.selectedAttributeSetF = this.reviewSetsService.selectedNode;
-	}
+	
+	
 
 	ngOnInit() {
 
-		//this._eventEmitter.dataStr.subscribe(
-
-		//	(data: any) => {
-
-		//		if (this.tabSelected.nextId == 'FrequenciesTab') {
-  //                  console.log('happening');
-		//			if (data != null) {
-
-		//				if (this.Code1 == true && this.Code2 == false && data.nodeType != 'ReviewSet') {
-
-		//					this.selectedAttributeSetF = data;
-
-		//				} else if (this.Code2 == true && this.Code1 == false) {
-
-		//					this.selectedNodeDataF = data;
-
-		//				} else if (this.Code2 == true && this.Code1 == true) {
-
-		//					// nothing
-		//				} else if (this.Code2 == false && this.Code1 == false) {
-
-		//					this.selectedNodeDataF = data;
-		//				}
-
-		//			}
-
-		//		} else if (this.tabSelected.nextId == 'CrossTabsTab') {
-
-		//			this.selectedNodeData = data;
-
-		//		} else if (this.tabSelected.nextId == 'SearchListTab') {
-
-		//			//alert('Search Tab: ' + this.tabSelected.nextId);
-					
-		//		}
-		//	}
-		//)
+		
 
 		this._eventEmitter.tabSelectEventf.subscribe(
 
@@ -244,21 +169,21 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		//this.searchService.Fetch();
     }
 
-	fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
+	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
 		
-		if (!selectedNodeDataF || selectedNodeDataF == undefined) {
+	//	if (!selectedNodeDataF || selectedNodeDataF == undefined) {
 
-			alert('Please select a code from the tree');
+	//		alert('Please select a code from the tree');
 
-		} else {
+	//	} else {
 
-			console.log(selectedNodeDataF.name);
-			// need to filter data before calling the below Fetch	
-            this.frequenciesService.crit.Included = this.freqIncEx == 'true';
-			this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
+	//		console.log(selectedNodeDataF.name);
+	//		// need to filter data before calling the below Fetch	
+ //           this.frequenciesService.crit.Included = this.freqIncEx == 'true';
+	//		this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
 		
-		}
-	}
+	//	}
+	//}
 
 	fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {
 
