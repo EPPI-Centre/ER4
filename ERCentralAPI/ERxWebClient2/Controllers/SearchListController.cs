@@ -58,7 +58,7 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult SearchCodes(CodeCommand cmdIn)
+		public IActionResult SearchCodes([FromBody] CodeCommand cmdIn)
 		{
 
 
@@ -69,7 +69,7 @@ namespace ERxWebClient2.Controllers
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 			
 				SearchCodesCommand cmd = new SearchCodesCommand(
-					cmdIn.title, cmdIn.answers, cmdIn.included, cmdIn.withCodes
+					cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
 					);
 				DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
 				cmd = dp.Execute(cmd);
@@ -88,11 +88,11 @@ namespace ERxWebClient2.Controllers
 
 	public class CodeCommand
 	{
-		public string title = "";
-		public string answers = "";
-		public bool included = false;
-		public bool withCodes = false;
-		public int searchId = 0;
+		public string _title = "";
+		public string _answers = "";
+		public bool _included = false;
+		public bool _withCodes = false;
+		public int _searchId = 0;
 	}
 }
 

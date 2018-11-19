@@ -63,7 +63,7 @@ export class searchService {
 
 	FetchSearchCodes(cmd: SearchCodeCommand) {
 
-		
+		console.log(cmd);
 		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchCodes',
 			cmd)
 
