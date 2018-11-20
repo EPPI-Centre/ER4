@@ -39,6 +39,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { ChartModule } from '@progress/kendo-angular-charts';
 
 @NgModule({
     declarations: [
@@ -86,6 +87,7 @@ import { frequenciesComp } from './components/Frequencies/frequencies.component'
         ReactiveFormsModule,
         TreeModule,
         GridModule,
+        ChartModule,
         LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },

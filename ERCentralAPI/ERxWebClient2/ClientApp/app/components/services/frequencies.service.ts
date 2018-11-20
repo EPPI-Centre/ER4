@@ -1,11 +1,6 @@
 import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { ITreeNode, TreeNode } from 'angular-tree-component/dist/defs/api';
-import { singleNode } from './ReviewSets.service';
-import { Observable } from 'rxjs';
-import { RequestOptions } from '@angular/http';
-import { WebApiObservableService } from './httpQuery.service';
 
 @Injectable({
 
@@ -18,7 +13,6 @@ export class frequenciesService {
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
-		private webApiObservableService: WebApiObservableService,
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
     
@@ -78,17 +72,17 @@ export class frequenciesService {
 			this.crit.SetId = selectedNodeData.set_id;
 		}
 
-		this._httpC.post<Frequency[]>(this._baseUrl + 'api/Frequencies/GetFrequencies',
-			this.crit).subscribe(result => {
-
-					this.Frequencies = result;
-					this.Save();
-					console.log(result);
-					this.frequenciesChanged.emit();
+		 this._httpC.post<Frequency[]>(this._baseUrl + 'api/Frequencies/GetFrequencies',
+             this.crit)
+             .subscribe(result => {
+                 this.Frequencies = result;
+                 this.Save();
+                 //console.log(result);
+                 this.frequenciesChanged.emit();
 				}
 		 );
     }
-
+    
     public Save() {
 		if (this._FrequencyList.length > 0)
 			localStorage.setItem('Frequencies', JSON.stringify(this._FrequencyList));

@@ -1811,6 +1811,18 @@
         "tslib": "^1.7.0"
       }
     },
+    "@progress/kendo-angular-charts": {
+      "version": "3.5.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-charts/-/kendo-angular-charts-3.5.0.tgz",
+      "integrity": "sha512-0rTyEyVAzpQ+Mn2NaviIfFlxtKjVVwsSsNE4zRjxxrszWmQPUeeTrvI/DdAHdYpKDBHLlRhl4T3MELA8B5dqXQ==",
+      "requires": {
+        "@progress/kendo-angular-popup": "^2.0.0",
+        "@progress/kendo-angular-resize-sensor": "^3.0.0",
+        "@progress/kendo-charts": "^1.12.1",
+        "@progress/kendo-schematics": "^0.2.0",
+        "tslib": "^1.7.0"
+      }
+    },
     "@progress/kendo-angular-dateinputs": {
       "version": "3.5.1",
       "resolved": "https://registry.npmjs.org/@progress/kendo-angular-dateinputs/-/kendo-angular-dateinputs-3.5.1.tgz",
@@ -1924,6 +1936,11 @@
       "requires": {
         "tslib": "^1.7.0"
       }
+    },
+    "@progress/kendo-charts": {
+      "version": "1.12.1",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-charts/-/kendo-charts-1.12.1.tgz",
+      "integrity": "sha512-fEQH1qpJcEXUUa3HIVThQGQJ+pi6n+6d9gXXC+gqY5fxRpQWHFw4apBCDw9dgNh/so7GW9JG/Y7WIuIS/ipVkQ=="
     },
     "@progress/kendo-common": {
       "version": "0.1.1",
@@ -7087,6 +7104,11 @@
       "version": "4.1.11",
       "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.11.tgz",
       "integrity": "sha1-Dovf5NHduIVNZOBOp8AOKgJuVlg="
+    },
+    "hammerjs": {
+      "version": "2.0.8",
+      "resolved": "https://registry.npmjs.org/hammerjs/-/hammerjs-2.0.8.tgz",
+      "integrity": "sha1-BO93hiz/K7edMPdpIJWTAiK/YPE="
     },
     "har-schema": {
       "version": "2.0.0",

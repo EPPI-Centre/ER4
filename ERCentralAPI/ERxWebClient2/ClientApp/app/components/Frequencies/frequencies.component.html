@@ -6,7 +6,7 @@
     <div style="width:200px;"><span class="font-weight-bold mt-1">Selected (parent) Code: &nbsp;</span></div>
     <div class="col-4 border"><b [className]="chosenNode != null ? 'btn-warning' : ''">{{chosenNode?.name}}&nbsp;</b></div>
     <div class="col-4">
-        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn-primary m-0 p-1">Set</button>
+        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn-primary m-0 p-1">Set</button>&nbsp;
         <button (click)="clearChosenNode()" class="btn-info m-0 p-1">Clear</button>
     </div>
 </div>
@@ -14,46 +14,48 @@
     <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
     <div class="col-4 border"><b [className]="chosenFilter != null ? 'btn-warning' : ''">{{chosenFilter?.name}}&nbsp;</b></div>
     <div class="col-4">
-        <button (click)="SetFilter()" class="btn-primary m-0 p-1"> Set Code</button>
-        <button (click)="clearChosenFilter()" class="btn-info m-0 p-1"> Clear Code</button>
+        <button (click)="SetFilter()" class="btn-primary m-0 p-1"> Set Filter</button>&nbsp;
+        <button (click)="clearChosenFilter()" class="btn-info m-0 p-1"> Clear Filter</button>
     </div>
 
 </div>
 <div class="row m-1 p-0">
-    <div class="row m-0">
-        <div class="col-md-8">
-            <div class="col-md-12">
-                <table class="table-striped table table-light card-body">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="freqIncEx"> <b>&nbsp;Included</b>
-                            </td>
-                            <td>
-                                <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="freqIncEx"><b>&nbsp; Excluded</b>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input (click)="show('table')" type="radio" value="Table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Table</b>
-                            </td>
-                            <td>
-                                <input (click)="show('pie')" type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Pie chart</b>
-                            </td>
-                            <td>
-                                <input (click)="show('bar')" type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp; Show Bar chart</b>
-                            </td>
-                            <td>
-
-                                <input (click)="changeRadioValue(true)" type="checkbox" value="true" name="ShowNoneOfTheAbove" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show None something checkbox
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-12">
-                <frequenciesResults></frequenciesResults>
-            </div>
-        </div>
+    <div class="col-md-12">
+        <table class="table-striped table table-light card-body">
+            <tbody>
+                <tr>
+                    <td>
+                        <b>Get frequencies for Items that are:</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="freqIncEx"> <b>&nbsp;Included</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="freqIncEx"><b>&nbsp; Excluded</b>
+                    </td>
+                    <td colspan="2">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Show results as:</b>
+                    </td>
+                    <td>
+                        <input (click)="show('table')" type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Table</b>
+                    </td>
+                    <td>
+                        <input (click)="show('pie')" type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Pie chart</b>
+                    </td>
+                    <td>
+                        <input (click)="show('bar')" type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Bar chart</b>
+                    </td>
+                    <td>
+                        <input type="checkbox" value="true" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show None something checkbox
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12">
+        <frequenciesResults [ChartType]="FreqShowWhat" [ShowNoneOfTheAbove]="NoneOfTheAboveCB"></frequenciesResults>
     </div>
 </div>
