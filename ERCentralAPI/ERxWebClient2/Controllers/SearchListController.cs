@@ -74,7 +74,7 @@ namespace ERxWebClient2.Controllers
 				DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
 				cmd = dp.Execute(cmd);
 
-				return Ok(cmd);
+				return Ok(cmd.SearchId);
 			}
 			catch (Exception e)
 			{

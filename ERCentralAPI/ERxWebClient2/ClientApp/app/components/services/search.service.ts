@@ -48,11 +48,11 @@ export class searchService {
 
 			.subscribe(result => {
 
-					console.log('got inside');
+					console.log('AAAAgot inside searches: ' + this.crit.SetId);
 					this.SearchList = result;
 					console.log(this._SearchList.length);
 					this.Save();
-					console.log(result);
+				
 					this.searchesChanged.emit();
 
 				//return result;
@@ -60,6 +60,28 @@ export class searchService {
 				}
 		 );
 	}
+
+	Delete(_searches: string) {
+
+
+		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/DeleteSearch',
+			_searches)
+
+			.subscribe(result => {
+
+				//console.log('AAAAgot inside searches: ' + this.crit.SetId);
+				//this.SearchList = result;
+				//console.log(this._SearchList.length);
+				//this.Save();
+
+				//this.searchesChanged.emit();
+
+				////return result;
+
+				}
+			);
+	}
+
 
 	FetchSearchCodes(cmd: SearchCodeCommand) {
 
@@ -69,8 +91,15 @@ export class searchService {
 
 			.subscribe(result => {
 
-				console.log('got inside: '+ result);
-				
+				console.log('silly call to the server again: ' + JSON.stringify(result));
+
+				//this.crit.AttributeId = result;
+				//this.crit.FilterAttributeId = result;
+				//this.crit.Included = result;
+				//this.crit.SetId = result;
+
+				this.Fetch();
+
 				//this.SearchList = result;
 				//console.log(this._SearchList.length);
 				//this.Save();

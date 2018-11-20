@@ -2,25 +2,41 @@
 
 <button (click)="RemoveOneLocalSource()">Click me</button>
 
-<kendo-grid [data]="DataSource" [height]="410" 
-            [rowClass]="rowCallback"
-            [sortable]="{
+<kendo-grid [data]="DataSource" [height]="410"
+			[rowClass]="rowCallback"
+			[sortable]="{
             allowUnsort: allowUnsort,
             mode: 'single'
             }"
-            [sort]="sort"
-            (sortChange)="sortChange($event)"
-            >
-    <kendo-grid-column field="searchId" title="ID" width="140">
-    </kendo-grid-column>
-    <kendo-grid-column field="title" title="Name" width="250">
-    </kendo-grid-column>
-    <kendo-grid-column field="contactName" title="Created By" width="140">
-    </kendo-grid-column>
-    <kendo-grid-column field="searchDate" title="Date" width="120">
-    </kendo-grid-column>
-    <kendo-grid-column field="hitsNo" title="Hits" width="80">
-    </kendo-grid-column>
+			[sort]="sort"
+			(sortChange)="sortChange($event)"
+			[selectable]="{enabled: true, checkboxOnly: true}">
+
+	<kendo-grid-checkbox-column [selectable]="selectableSettings" 
+								field="checked" title=""
+								width="50" [headerStyle]="{'text-align': 'center'}"
+								[style]="{'text-align': 'center'}">
+
+	</kendo-grid-checkbox-column>
+
+	<!--<kendo-grid-checkbox-column>
+		<ng-template kendoGridHeaderTemplate let-dataItem>
+			<input type="checkbox"
+				   name="selectAll"
+				   (change)="selectAllRows($event)"
+				   [checked]="allRowsSelected" />
+		</ng-template>
+	</kendo-grid-checkbox-column>-->
+	<kendo-grid-column field="searchId" title="ID" width="140">
+	</kendo-grid-column>
+	<kendo-grid-column field="title" title="Name" width="250">
+	</kendo-grid-column>
+	<kendo-grid-column field="contactName" title="Created By" width="140">
+	</kendo-grid-column>
+	<kendo-grid-column field="searchDate" title="Date" width="120">
+	</kendo-grid-column>
+	<kendo-grid-column field="hitsNo" title="Hits" width="80">
+	</kendo-grid-column>
 </kendo-grid>
 
 

@@ -378,17 +378,21 @@ export class SearchesModalContent implements SearchCodeCommand {
 		_searchId : 0
 	};
 
-	callSearches() {
+	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
 
 		// api call to SearchListController for the SearchCodes
-		this.cmdSearches._title = 'Not coded with: control (comparison TP)';
-		this.cmdSearches._answers = '83962';
-		this.cmdSearches._included = true;
+		this.cmdSearches._title = selectedSearchDropDown
+			//'Not coded with: control (comparison TP)';
+		this.cmdSearches._answers = ''; //'83962';
+		this.cmdSearches._included =  Boolean(searchBool);
 		this.cmdSearches._withCodes = false;
 		this.cmdSearches._searchId = 0;
 
+		console.log('variables: ' + selectedSearchDropDown + ', ' + searchBool);
+
 		this._searchService.FetchSearchCodes(this.cmdSearches);
 
+		this.activeModal.dismiss();
 	}
 
 	public nextDropDownList(num: number, val: string) {

@@ -9,7 +9,7 @@ import { style } from '@angular/animations';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectionModel } from '@angular/cdk/collections';
-import { RowClassArgs, GridDataResult } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Component({
@@ -30,13 +30,26 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService
-	) { }
+	) {
+		this.setSelectableSettings();
+	}
 
     onSubmit(f: string) {
 
     }
-		
-   
+	public checkboxOnly = false;
+	public mode = 'multiple';
+	public selectableSettings: SelectableSettings | null | undefined;
+
+
+	public setSelectableSettings(): void {
+
+		this.selectableSettings = {
+
+			checkboxOnly: this.checkboxOnly,
+			mode: 'multiple'
+		};
+	}
 
     public selectedAll: boolean = false;
     //private _dataSource: MatTableDataSource<any> | null = null;
@@ -49,6 +62,26 @@ export class SearchComp implements OnInit, OnDestroy {
     //    }
     //    return this._dataSource;
     //} 
+	private rowsSelected: number[] = [];
+
+	private rowsSelectedKeys(context: RowArgs): number {
+		return context.dataItem.id;
+	}
+
+	private selectAllRows(e: any): void {
+
+		if (e.target.checked) {
+
+			this.selectedAll = true;
+			this.rowsSelected = this._searchService.SearchList.map(o => o.searchId);
+
+		} else {
+
+			this.selectedAll = false;
+			this.rowsSelected = [];
+		}
+	}
+
     public get DataSource(): GridDataResult {
         return {
             data: orderBy(this._searchService.SearchList, this.sort),
