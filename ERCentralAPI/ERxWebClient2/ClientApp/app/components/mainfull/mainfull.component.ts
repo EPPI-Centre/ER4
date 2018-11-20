@@ -45,10 +45,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		, private crosstabService: crosstabService
 		, private searchService: searchService,
 		private modalService: NgbModal
-    ) {
-
-    }
-
+    ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;

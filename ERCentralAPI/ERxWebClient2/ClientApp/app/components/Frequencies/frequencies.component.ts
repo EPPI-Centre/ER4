@@ -29,6 +29,7 @@ export class frequenciesComp implements OnInit {
     ngOnInit() { }
 
     public freqIncEx: string = 'true';
+    public FreqShowWhat: string = 'table';
     public NoneOfTheAboveCB: boolean = true;
     public get selectedNode(): singleNode | null {
         return this.reviewSetsService.selectedNode;
@@ -37,7 +38,7 @@ export class frequenciesComp implements OnInit {
     public chosenFilter: singleNode | null = null;
 
     fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
-        console.log('NoneOfTheAboveCB:' + this.NoneOfTheAboveCB);
+        //console.log('NoneOfTheAboveCB:' + this.NoneOfTheAboveCB);
         if (!selectedNodeDataF || selectedNodeDataF == undefined) {
 
             alert('Please select a code from the tree');

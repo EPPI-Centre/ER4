@@ -1,34 +1,42 @@
-<!--This could in fact be the chart of the users choice rather than the table dependent on the
-radio buttons and checkbox selected-->
-<div *ngIf="show=='pie' && pieChartData">
-	<canvas #testChart='base-chart' baseChart
-			[chartType]="'pie'"
-			[datasets] ="pieChartData"
-			[labels]="pieChartLabels"
-			[options]="pieChartOptions"
-			[legend]="true"
-			[colors]="pieChartColor"
-			(chartClick)="onChartClick($event)"></canvas>
+<kendo-chart *ngIf="FrequenciesData && FrequenciesData.length > 0 && ChartType=='bar'">
+    <kendo-chart-series>
+        <kendo-chart-category-axis>
+            <kendo-chart-category-axis-item >
+                <kendo-chart-category-axis-item-labels rotation="auto">
+                </kendo-chart-category-axis-item-labels>
+            </kendo-chart-category-axis-item>
+        </kendo-chart-category-axis>
+        <kendo-chart-series-item type="column" [data]="FrequenciesData"
+                                 field="itemCount" categoryField="attribute">
+        </kendo-chart-series-item>
+    </kendo-chart-series>
+</kendo-chart>
+<kendo-chart *ngIf="FrequenciesData && FrequenciesData.length > 0 && ChartType=='pie'">
+    <kendo-chart-series>
+        <kendo-chart-series-item type="pie" [data]="FrequenciesData"
+                                 field="itemCount" categoryField="attribute">
+        </kendo-chart-series-item>
+    </kendo-chart-series>
+</kendo-chart>
+<div style=" height:400px; overflow:auto;" *ngIf="FrequenciesData && FrequenciesData.length > 0 && ChartType=='table'">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let freq of FrequenciesData">
+                <td>{{freq.attribute}}</td>
+                <td>
+                    <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
+                       (click)="FrequencyGetItemList(freq)">
+                        {{freq.itemCount}}
+                    </b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
-<table style="max-height: 500px;" *ngIf="frequenciesService.Frequencies && frequenciesService.Frequencies.length > 0 && show=='table'"
-	   class="table table-bordered table-striped">
-	<thead>
-		<tr>
-			<th>Code</th>
-			<th>Count</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr *ngFor="let freq of frequenciesService.Frequencies">
-            <td>{{freq.attribute}}</td>
-			<td>
-                <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
-                   (click)="FrequencyGetItemList(freq)">
-                    {{freq.itemCount}}
-                </b>
-			</td>
-		</tr>
-	</tbody>
-</table>
-
 
