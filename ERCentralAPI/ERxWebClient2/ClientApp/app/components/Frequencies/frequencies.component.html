@@ -1,21 +1,21 @@
-<div class="row m-1 p-0">
-    <button (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" class="btn-lg btn-info mb-lg-2">Get Frequencies</button>
-    <span> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
+<div class="row m-1 p-0 d-flex justify-content-between">
+    <button class="btn btn-primary" (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" >Get Frequencies</button>
+    <div *ngIf="reviewSetsService.selectedNode" class="align-self-center small"> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</div>
 </div>
 <div class="row m-1 p-0">
     <div style="width:200px;"><span class="font-weight-bold mt-1">Selected (parent) Code: &nbsp;</span></div>
-    <div class="col-4 border"><b [className]="chosenNode != null ? 'btn-warning' : ''">{{chosenNode?.name}}&nbsp;</b></div>
+    <div class="col-4 border"><b [className]="chosenNode != null ? 'somekindofBackground' : ''">{{chosenNode?.name}}&nbsp;</b></div>
     <div class="col-4">
-        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn-primary m-0 p-1">Set</button>&nbsp;
-        <button (click)="clearChosenNode()" class="btn-info m-0 p-1">Clear</button>
+        <button (click)="SetCode1()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
+        <button (click)="clearChosenNode()" class="collapse btn btn-outline-info btn-sm">Clear</button>
     </div>
 </div>
 <div class="row m-1 p-0">
     <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
-    <div class="col-4 border"><b [className]="chosenFilter != null ? 'btn-warning' : ''">{{chosenFilter?.name}}&nbsp;</b></div>
+    <div class="col-4 border"><b [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{chosenFilter?.name}}&nbsp;</b></div>
     <div class="col-4">
-        <button (click)="SetFilter()" class="btn-primary m-0 p-1"> Set Filter</button>&nbsp;
-        <button (click)="clearChosenFilter()" class="btn-info m-0 p-1"> Clear Filter</button>
+        <button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+        <button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
     </div>
 
 </div>
@@ -25,7 +25,7 @@
             <tbody>
                 <tr>
                     <td>
-                        <b>Get frequencies for Items that are:</b>
+                        <b>Get frequencies for</b>
                     </td>
                     <td>
                         <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="freqIncEx"> <b>&nbsp;Included</b>
@@ -33,20 +33,20 @@
                     <td>
                         <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="freqIncEx"><b>&nbsp; Excluded</b>
                     </td>
-                    <td colspan="2">&nbsp;</td>
+                    <td colspan="2"> <b class="align-self-end">&nbsp; Items</b></td>
                 </tr>
                 <tr>
                     <td>
                         <b>Show results as:</b>
                     </td>
                     <td>
-                        <input (click)="show('table')" type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Table</b>
+                        <input type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Table</b>
                     </td>
                     <td>
-                        <input (click)="show('pie')" type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Pie chart</b>
+                        <input type="radio" value="pie" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Pie chart</b>
                     </td>
                     <td>
-                        <input (click)="show('bar')" type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Bar chart</b>
+                        <input type="radio" value="bar" name="FreqShowWhatN" [(ngModel)]="FreqShowWhat"><b>&nbsp;Bar chart</b>
                     </td>
                     <td>
                         <input type="checkbox" value="true" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show 'None of the codes above'

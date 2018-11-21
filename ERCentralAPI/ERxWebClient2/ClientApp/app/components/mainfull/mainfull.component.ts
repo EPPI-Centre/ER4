@@ -63,35 +63,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     
 	public crossTabResult: any | 'none';
 	//public selectedAttributeSetF: any | 'none';
-	public selectedAttributeSetX: any | 'none';
-	public selectedNodeDataX: any | 'none';
-	public selectedNodeDataY: any | 'none';
+	
     	
     dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
 	alertT() {
 		this.tabset.select('ItemListTab');
-	}
-	setXaxis() {
-		//if (this.selectedNodeData != null )
-		//this.selectedNodeDataX = this.selectedNodeData;
-	}
-	setYaxis() {
-		//if (this.selectedNodeData != null )
-		//this.selectedNodeDataY = this.selectedNodeData;
-
-	}
-	setXFilter() {
-
-		//if (this.selectedNodeData != null && this.selectedNodeData.nodeType != 'ReviewSet') {
-
-		//	this.selectedAttributeSetX = this.selectedNodeData;
-		//}
-	}
-	clearXFilter() {
-
-		this.selectedAttributeSetX = null;
 	}
 	
 	setTabSelected(tab: any) {
@@ -192,29 +170,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	//	}
 	//}
 
-	fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {
-
-		if (!selectedNodeDataX || selectedNodeDataX == undefined || !selectedNodeDataY
-			|| selectedNodeDataY == undefined) {
-
-			alert('Please select both sets from the code tree');
-
-		} else {
-
-			//if (selectedNodeDataX.nodeType == 'ReviewSet') {
-			//	let test = JSON.stringify(selectedNodeDataX.attributes);
-			//	console.log('testing here1: ' + test);
-			//}
-			//if (selectedNodeDataY.nodeType == 'ReviewSet') {
-			//	let test2 = JSON.stringify(selectedNodeDataY.attributes);
-			//	console.log('testing here2: ' + test2);
-			//}			
-
-			this.crossTabResult = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY, selectedFilter);
-
-		}
-	}
-
+	
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';

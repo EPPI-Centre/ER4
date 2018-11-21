@@ -58,6 +58,11 @@ export class frequenciesComp implements OnInit {
             && this.reviewSetsService.selectedNode.attributes.length > 0) return true;
         return false;
     }
+    canSetFilter(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
+        return false;
+    }
     //public Code1: boolean = false;
 
     SetCode1() {
