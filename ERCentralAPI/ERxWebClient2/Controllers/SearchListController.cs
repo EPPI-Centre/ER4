@@ -27,7 +27,7 @@ namespace ERxWebClient2.Controllers
         private readonly ILogger _logger;
 		private SearchCodesCommand cmd;
 
-		public SearchListController(ILogger<ReviewController> logger)
+		public SearchListController(ILogger<SearchListController> logger)
         {
 
             _logger = logger;
@@ -61,8 +61,6 @@ namespace ERxWebClient2.Controllers
 		public IActionResult SearchCodes([FromBody] CodeCommand cmdIn)
 		{
 
-
-
 			try
 			{
 				SetCSLAUser();
@@ -86,14 +84,14 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteSearch([FromBody] string searchId)
+		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
 		{
 			
 			try
 			{
 				if (SetCSLAUser4Writing())
 				{
-					SearchDeleteCommand cmd = new SearchDeleteCommand(searchId);
+					SearchDeleteCommand cmd = new SearchDeleteCommand(_searches.Value);
 					DataPortal<SearchDeleteCommand> dp = new DataPortal<SearchDeleteCommand>();
 					cmd = dp.Execute(cmd);
 					return Ok(cmd);
@@ -106,9 +104,7 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "GetSearches data portal error");
 				throw;
 			}
-
 		}
-
 	}
 
 	public class CodeCommand

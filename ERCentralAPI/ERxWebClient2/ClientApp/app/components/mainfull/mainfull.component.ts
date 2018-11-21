@@ -130,24 +130,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			);
 	}
 
-	refreshSearches() {
 
-		this._searchService.Fetch();
-	}
-
-
-	DeleteSearchSelected() {
-
-		let searchId: number = Number(this._searchService.searchToBeDeleted);
-		console.log('Inside delete search selected: ' + searchId);
-		let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == searchId);
-		console.log('Inside delete search selected: ' + dataItem.searchId);
-		if (dataItem != null) {
-			console.log('dataitem not equal to null');
-			this._searchService.removeHandler(dataItem);
-		}
-	}
-		
 
 	ngOnInit() {
 
