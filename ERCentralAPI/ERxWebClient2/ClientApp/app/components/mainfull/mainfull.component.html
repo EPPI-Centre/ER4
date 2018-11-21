@@ -171,24 +171,24 @@
                                 <table>
                                     <tr>
 
-                                        <td class="btn  text-white bg-primary" (click)="openNewSearchModal()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
-                                        <td class="btn  text-white bg-primary" (click)="test()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
-                                        <td class="btn text-white bg-primary" (click)="test()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
-                                        <td class="btn  text-white bg-primary" (click)="test()"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
-                                        <td class="btn  text-white bg-primary">
-                                            <input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
-                                        </td>
-                                        <td class="btn  text-white bg-primary">
-                                            <input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
-                                        </td>
-                                        <td class="btn text-white bg-primary">
-                                            <input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
-                                        </td>
-                                        <td class="btn text-white bg-primary">
-                                            <input type="radio" value="NOTR" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
-                                        </td>
-                                    </tr>
-                                </table>
+										<td class="btn  text-white bg-primary" (click)="openNewSearchModal()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
+										<td class="btn  text-white bg-primary" (click)="refreshSearches()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
+										<td class="btn text-white bg-primary" (click)="DeleteSearchSelected()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
+										<td class="btn  text-white bg-primary" (click)="alert('blah')"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
+										<td class="btn  text-white bg-primary">
+											<input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
+										</td>
+										<td class="btn  text-white bg-primary">
+											<input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
+										</td>
+										<td class="btn text-white bg-primary">
+											<input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
+										</td>
+										<td class="btn text-white bg-primary">
+											<input type="radio" value="NOTR" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
+										</td>
+									</tr>
+								</table>
 
                             </div>
                             <div class="row m-0">

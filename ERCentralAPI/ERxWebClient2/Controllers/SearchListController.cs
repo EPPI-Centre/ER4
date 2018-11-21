@@ -74,7 +74,32 @@ namespace ERxWebClient2.Controllers
 				DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
 				cmd = dp.Execute(cmd);
 
-				return Ok(cmd);
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult DeleteSearch([FromBody] string searchId)
+		{
+			
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					SearchDeleteCommand cmd = new SearchDeleteCommand(searchId);
+					DataPortal<SearchDeleteCommand> dp = new DataPortal<SearchDeleteCommand>();
+					cmd = dp.Execute(cmd);
+					return Ok(cmd);
+				}
+				else return Forbid();
+				
 			}
 			catch (Exception e)
 			{

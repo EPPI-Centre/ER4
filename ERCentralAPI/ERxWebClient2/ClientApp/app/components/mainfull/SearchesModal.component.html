@@ -66,10 +66,10 @@
 				<table class="table table-responsive  table-striped table-light card-body">
 					<tr>
 						<td>
-							<input type="radio" value="Included" name="a" [(ngModel)]="search"><b>&nbsp; Included </b>
+							<input type="radio" value="true" name="a" [(ngModel)]="searchBool"><b>&nbsp; Included </b>
 						</td>
 						<td>
-							<input type="radio" value="Excluded" name="a" [(ngModel)]="search"><b>&nbsp; Excluded</b>
+							<input type="radio" value="false" name="a" [(ngModel)]="searchBool"><b>&nbsp; Excluded</b>
 						</td>
 					</tr>
 				</table>
@@ -80,6 +80,6 @@
     <div class="modal-footer bg-primary">
         <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
         <button type="button" class="btn btn-secondary" 
-                (click)="callSearches()">Search</button>
+                (click)="callSearches(selectedSearchDropDown, searchBool)">Search</button>
     </div>
 
