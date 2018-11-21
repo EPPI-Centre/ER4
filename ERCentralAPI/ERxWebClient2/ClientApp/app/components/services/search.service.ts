@@ -18,6 +18,7 @@ export class searchService {
 	private _SearchList: Search[] = [];
 	@Output() searchesChanged = new EventEmitter();
     public crit: CriteriaSearch = new CriteriaSearch();
+	public searchToBeDeleted: string = '';
 
 	public get SearchList(): Search[] {
 		if (this._SearchList.length == 0) {
@@ -61,22 +62,28 @@ export class searchService {
 		 );
 	}
 
+	public removeHandler({ sender, dataItem }: { sender: any, dataItem: any}) {
+		
+		let searchId: string = this.searchToBeDeleted;
+		if (searchId != '') {
+			this.Delete(searchId);
+		}
+		sender.cancelCell();
+
+	}
+
+
 	Delete(_searches: string) {
 
-
-		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/DeleteSearch',
+		this._httpC.post<number>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			_searches)
 
 			.subscribe(result => {
 
-				//console.log('AAAAgot inside searches: ' + this.crit.SetId);
-				//this.SearchList = result;
-				//console.log(this._SearchList.length);
-				//this.Save();
-
-				//this.searchesChanged.emit();
-
-				////return result;
+					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
+					this.SearchList.splice(tmpIndex, 1);
+					console.log(this._SearchList.length);
+					this.Save();
 
 				}
 			);

@@ -84,6 +84,32 @@ namespace ERxWebClient2.Controllers
 
 		}
 
+
+		[HttpPost("[action]")]
+		public IActionResult DeleteSearch([FromBody] string searchId)
+		{
+
+
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchDeleteCommand cmd = new SearchDeleteCommand(searchId);
+				DataPortal<SearchDeleteCommand> dp = new DataPortal<SearchDeleteCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
 	}
 
 	public class CodeCommand

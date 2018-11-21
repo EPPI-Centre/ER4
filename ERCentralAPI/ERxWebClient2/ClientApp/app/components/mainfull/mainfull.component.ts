@@ -15,8 +15,9 @@ import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
-import { searchService, SearchCodeCommand } from '../services/search.service';
+import { searchService, SearchCodeCommand, Search } from '../services/search.service';
 import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
+import { GridComponent, GridModule } from '@progress/kendo-angular-grid';
 
 
 @Component({
@@ -43,12 +44,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService
 		, private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-		, private searchService: searchService,
+		, private _searchService: searchService,
 		private modalService: NgbModal
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+
 	
 	tabsInitialized: boolean = false;
 
@@ -64,10 +66,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public selectedAttributeSetX: any | 'none';
 	public selectedNodeDataX: any | 'none';
 	public selectedNodeDataY: any | 'none';
-    
-	
-	
-
+    	
     dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
@@ -106,7 +105,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	openNewSearchModal() {
 	
-
 		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
 	
 			modalComp.componentInstance.InfoBoxTextInput = 'tester';
@@ -132,12 +130,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			);
 	}
 
-	
-	
+	refreshSearches() {
+
+		this._searchService.Fetch();
+	}
+
+
+	DeleteSearchSelected() {
+
+		let searchId: number = Number(this._searchService.searchToBeDeleted);
+		console.log('Inside delete search selected: ' + searchId);
+		let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == searchId);
+		console.log('Inside delete search selected: ' + dataItem.searchId);
+		if (dataItem != null) {
+			console.log('dataitem not equal to null');
+			this._searchService.removeHandler(dataItem);
+		}
+	}
+		
 
 	ngOnInit() {
-
-		
 
 		this._eventEmitter.tabSelectEventf.subscribe(
 
@@ -391,6 +403,8 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 		this.activeModal.dismiss();
 	}
+
+
 
 	public nextDropDownList(num: number, val: string) {
 

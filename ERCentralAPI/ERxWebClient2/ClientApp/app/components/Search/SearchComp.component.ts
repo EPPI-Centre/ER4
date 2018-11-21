@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -9,8 +9,8 @@ import { style } from '@angular/animations';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectionModel } from '@angular/cdk/collections';
-import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings  } from '@progress/kendo-angular-grid';
-import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings, GridModule, GridComponent  } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 
 @Component({
 	selector: 'SearchComp',
@@ -31,27 +31,31 @@ export class SearchComp implements OnInit, OnDestroy {
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService
 	) {
-		this.setSelectableSettings();
+		//this.setSelectableSettings();
 	}
+
+	@ViewChild('testKendoGrid') searchesGrid!: GridComponent;
 
     onSubmit(f: string) {
 
-    }
-	public checkboxOnly = false;
-	public mode = 'multiple';
-	public selectableSettings: SelectableSettings | null | undefined;
-
-
-	public setSelectableSettings(): void {
-
-		this.selectableSettings = {
-
-			checkboxOnly: this.checkboxOnly,
-			mode: 'multiple'
-		};
 	}
 
+	//public checkboxOnly = false;
+	//public mode = 'multiple';
+	//public selectableSettings: SelectableSettings | null | undefined;
+
+
+	//public setSelectableSettings(): void {
+
+	//	this.selectableSettings = {
+
+	//		checkboxOnly: this.checkboxOnly,
+	//		mode: 'multiple'
+	//	};
+	//}
+
     public selectedAll: boolean = false;
+
     //private _dataSource: MatTableDataSource<any> | null = null;
     //public get dataSource(): MatTableDataSource<any>  {
     //    console.log('Getting searches data for table');
@@ -62,44 +66,75 @@ export class SearchComp implements OnInit, OnDestroy {
     //    }
     //    return this._dataSource;
     //} 
-	private rowsSelected: number[] = [];
 
-	private rowsSelectedKeys(context: RowArgs): number {
-		return context.dataItem.id;
-	}
+	allSearchesSelected: boolean = false;
+	// bound to header checkbox
 
-	private selectAllRows(e: any): void {
+	stateAdd: State = {
+		// will hold grid state
+		skip: 0,
+		take: 2
+	};
 
+	selectAllSearchesChange(e: any): void {
+		
 		if (e.target.checked) {
-
-			this.selectedAll = true;
-			this.rowsSelected = this._searchService.SearchList.map(o => o.searchId);
-
+			this.allSearchesSelected = true;
+			
+			for (let i = 0; i < this.DataSource.data.length; i++) {
+				
+				this.DataSource.data[i].add = true;
+			}
 		} else {
+			this.allSearchesSelected = false;
+			
+			for (let i = 0; i < this.DataSource.data.length; i++) {
 
-			this.selectedAll = false;
-			this.rowsSelected = [];
+				this.DataSource.data[i].add = false;
+			}
 		}
 	}
 
-    public get DataSource(): GridDataResult {
-        return {
-            data: orderBy(this._searchService.SearchList, this.sort),
-            total: this._searchService.SearchList.length
+	public get DataSource(): GridDataResult {
+		return {
+			data: orderBy(this._searchService.SearchList, this.sort),
+			total: this._searchService.SearchList.length,
         };
-    }
+	}
+
+	public checkboxClicked(dataItem: any) {
+
+		//alert('bllaaaahhh: ' + this.searchesGrid.columns.length);
+		//alert(JSON.stringify(dataItem));
+		//alert(dataItem.searchId);
+
+		dataItem.add = !dataItem.add;
+		//alert(dataItem.add);
+		if (dataItem.add == true) {
+			this._searchService.searchToBeDeleted = dataItem.searchId;
+		} else {
+			this._searchService.searchToBeDeleted = '';
+		}
+		//this._searchService.removeHandler(dataItem);
+		console.log(this._searchService.searchToBeDeleted );
+	};
+	   
+
     //@ViewChild(MatSort) sort!: MatSort;
     //private SearchesChanged: Subscription = new Subscription();
     public RebuildDataTableSource() {
         //this._dataSource = new MatTableDataSource(this._searchService.SearchList);
         //this._dataSource.sort = this.sort;
         //console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
-    }
+	}
+
 	//displayedColumns: string [] | undefined;
-    RemoveOneLocalSource() {
+	RemoveOneLocalSource() {
+
         console.log(' Searchlist length: ' + this._searchService.SearchList.length);
         this._searchService.SearchList = this._searchService.SearchList.slice(3);
-        console.log(' Searchlist length: ' + this._searchService.SearchList.length);
+		console.log(' Searchlist length: ' + this._searchService.SearchList.length);
+
     }
     public rowCallback(context: RowClassArgs) {
         const isEven = context.index % 2 == 0;
@@ -107,7 +142,8 @@ export class SearchComp implements OnInit, OnDestroy {
             even: isEven,
             odd: !isEven
         };
-    }
+	}
+
     public sort: SortDescriptor[] = [{
         field: 'hitsNo',
         dir: 'desc'
@@ -206,6 +242,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 
+	
 	createTable() {
 
 		//this.dataSource = new MatTableDataSource(this.tableArr);
