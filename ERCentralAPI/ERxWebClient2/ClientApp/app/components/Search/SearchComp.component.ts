@@ -107,7 +107,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		//cr.attributeSetIdList = item.attributeSetId;
 		console.log('searchid is: ' + item);
 		this.ItemListService.FetchWithCrit(cr, "GetItemSearchList");
-		this._eventEmitter.selectTabItems();
+        this._eventEmitter.PleaseSelectItemsListTab.emit();
 	}
 
 	ngOnDestroy() {

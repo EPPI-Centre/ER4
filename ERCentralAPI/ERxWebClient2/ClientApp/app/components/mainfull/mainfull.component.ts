@@ -97,8 +97,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	
 	setTabSelected(tab: any) {
 
-		this.tabSelected = tab;
-		this._eventEmitter.tabSelected(tab);
+		//this.tabSelected = tab;
+		//this._eventEmitter.tabSelected(tab);
 
 		//alert(JSON.stringify(tab));
 		//alert(message);
@@ -139,11 +139,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		
 
-		this._eventEmitter.tabSelectEventf.subscribe(
-
-			(data: any) => {
-				
-				this.tabset.select('ItemListTab');
+        this._eventEmitter.PleaseSelectItemsListTab.subscribe(
+            () => {
+                this.tabset.select('ItemListTab');
 			}
 		)
 		

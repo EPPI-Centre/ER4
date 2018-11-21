@@ -88,7 +88,6 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
     }
 
     FrequencyGetItemList(freq: Frequency) {
-
         let cr: Criteria = new Criteria();
         cr.onlyIncluded = freq.isIncluded;
         cr.showDeleted = false;
@@ -125,7 +124,7 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
             }
         }
         this.ItemListService.FetchWithCrit(cr, ListDescription);
-		this._eventEmitter.selectTabItems();
+        this._eventEmitter.PleaseSelectItemsListTab.emit();
 	}
     
 	ngOnDestroy() {

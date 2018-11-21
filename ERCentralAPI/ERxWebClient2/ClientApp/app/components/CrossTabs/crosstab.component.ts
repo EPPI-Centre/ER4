@@ -95,7 +95,7 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 		cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
 
 		this.ItemListService.FetchWithCrit(cr, "CrosstabsList");
-		this._eventEmitter.selectTabItems();
+        this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
 
