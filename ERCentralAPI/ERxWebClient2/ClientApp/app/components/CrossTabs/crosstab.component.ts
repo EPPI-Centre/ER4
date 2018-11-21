@@ -6,8 +6,7 @@ import { ItemListService, Criteria } from '../services/ItemList.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { crosstabService, CrossTab, ReadOnlyItemAttributeCrosstab } from '../services/crosstab.service';
-import { singleNode } from '../services/ReviewSets.service';
-import { CodesetTreeComponent } from '../CodesetTree/codesets.component';
+import { singleNode, ReviewSetsService } from '../services/ReviewSets.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -25,31 +24,48 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
-		private route: ActivatedRoute,
-        public PriorityScreeningService: PriorityScreeningService,
-		public ItemDocsService: ItemDocsService,
+        private route: ActivatedRoute,
+        private reviewSetsService: ReviewSetsService,
 		private crosstabService: crosstabService,
 		private _eventEmitter: EventEmitterService
 
     ) { }
+
+    ngOnInit() {
+
+
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+            //this._eventEmitter.dataStr.subscribe(
+
+            //	(data: any) => {
+
+            //		console.log('this is being emitted CT');
+            //		this.selectedNodeData = data;
+            //	}
+            //)
+        }
+    }
      
     ngAfterViewInit() {
-
 		this.crossTabResult = this.crosstabService.testResult;
 	}
-
-	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    
 	public crossTabResult: any | null;
+    public lookAtIncludeExclude: string = 'included';
+    public selectedFilterAttribute: any | 'none';
+    public selectedNodeDataX: any | 'none';
+    public selectedNodeDataY: any | 'none';
 
-	public CheckBoxAutoAdvanceVal: boolean = false;
+
 	public selectedNodeData: any | null = null;
 
 	onSubmit(f: string) {
 
     }
-	tester() {
-		alert('hello');
-	}
+	
 
 	NodeDataChange(nodeData: singleNode) {
 
@@ -95,30 +111,58 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 		cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
 
 		this.ItemListService.FetchWithCrit(cr, "CrosstabsList");
-		this._eventEmitter.selectTabItems();
+        this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
 
 	
-    ngOnInit() {
-
-        
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-		else
-		{
-			//this._eventEmitter.dataStr.subscribe(
-
-			//	(data: any) => {
-
-			//		console.log('this is being emitted CT');
-			//		this.selectedNodeData = data;
-			//	}
-			//)
-		}
+    setXaxis() {
+        if (
+            this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.attributes
+            && this.reviewSetsService.selectedNode.attributes.length > 0
+        ) this.selectedNodeDataX = this.reviewSetsService.selectedNode;
     }
-    
+    setYaxis() {
+        if (
+            this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.attributes
+            && this.reviewSetsService.selectedNode.attributes.length > 0
+        ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
+    }
+
+    setXFilter() {
+        if (
+            this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.nodeType == "SetAttribute"
+        ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
+    }
+    clearXFilter() {
+        this.selectedFilterAttribute = null;
+    }
+    fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {
+
+        if (!selectedNodeDataX || selectedNodeDataX == undefined || !selectedNodeDataY
+            || selectedNodeDataY == undefined) {
+
+            alert('Please select both sets from the code tree');
+
+        } else {
+
+            //if (selectedNodeDataX.nodeType == 'ReviewSet') {
+            //	let test = JSON.stringify(selectedNodeDataX.attributes);
+            //	console.log('testing here1: ' + test);
+            //}
+            //if (selectedNodeDataY.nodeType == 'ReviewSet') {
+            //	let test2 = JSON.stringify(selectedNodeDataY.attributes);
+            //	console.log('testing here2: ' + test2);
+            //}			
+
+            this.crossTabResult = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY, selectedFilter);
+
+        }
+    }
+
     ngOnDestroy() {
      
     }

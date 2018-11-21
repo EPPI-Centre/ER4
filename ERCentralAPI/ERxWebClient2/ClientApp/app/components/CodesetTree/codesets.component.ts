@@ -60,19 +60,19 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 		else {
 
-			this._eventEmitter.tabChange.subscribe(
+			//this._eventEmitter.tabChange.subscribe(
 
-				(res: any) => {
+			//	(res: any) => {
 
-					if (res.nextId == 'SearchListTab') {
+			//		if (res.nextId == 'SearchListTab') {
 
-						this.smallTree = 'true';
-						this._eventEmitter.codingTreeVar = true;
+			//			this.smallTree = 'true';
+			//			this._eventEmitter.codingTreeVar = true;
 
-					};
-				}
+			//		};
+			//	}
 
-			);
+			//);
         }
 	}
 	
@@ -175,29 +175,30 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	NodeSelected(node: singleNode) {
 
-		if (this._eventEmitter.codingTreeVar == true) {
+		//if (this._eventEmitter.codingTreeVar == true) {
 
-			if (node.nodeType != 'ReviewSet') {
+		//	if (node.nodeType != 'ReviewSet') {
 
-				//this._eventEmitter.nodeSelected = true;
-				//this.SelectedNodeData = node;
-				//this._eventEmitter.nodeName = node.name;
-				//alert('this has the correct number: ' + this._eventEmitter.nodeName);
-				//this._eventEmitter.sendMessage(node);
-                this.ReviewSetsService.selectedNode = node;
-				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-			}
+		//		//this._eventEmitter.nodeSelected = true;
+		//		//this.SelectedNodeData = node;
+		//		//this._eventEmitter.nodeName = node.name;
+		//		//alert('this has the correct number: ' + this._eventEmitter.nodeName);
+		//		//this._eventEmitter.sendMessage(node);
+  //              this.ReviewSetsService.selectedNode = node;
+		//		this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+		//	}
 			
-		} else {
+		//} else {
 
-			console.log(node.name + ' =====> ' + node.nodeType + ' blah ' + this.smallTree);
-			//this.SelectedNodeData = node;
-			//this._eventEmitter.sendMessage(node);
-            this.ReviewSetsService.selectedNode = node;
-			this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+		//	console.log(node.name + ' =====> ' + node.nodeType + ' blah ' + this.smallTree);
+		//	//this.SelectedNodeData = node;
+		//	//this._eventEmitter.sendMessage(node);
+        //  this.ReviewSetsService.selectedNode = node;
+		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 
-		}
- 
+		//}
+        this.ReviewSetsService.selectedNode = node;
+        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
