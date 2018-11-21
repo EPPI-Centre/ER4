@@ -88,19 +88,18 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] string searchId)
 		{
-
-
-
+			
 			try
 			{
-				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-				SearchDeleteCommand cmd = new SearchDeleteCommand(searchId);
-				DataPortal<SearchDeleteCommand> dp = new DataPortal<SearchDeleteCommand>();
-				cmd = dp.Execute(cmd);
-
-				return Ok(cmd);
+				if (SetCSLAUser4Writing())
+				{
+					SearchDeleteCommand cmd = new SearchDeleteCommand(searchId);
+					DataPortal<SearchDeleteCommand> dp = new DataPortal<SearchDeleteCommand>();
+					cmd = dp.Execute(cmd);
+					return Ok(cmd);
+				}
+				else return Forbid();
+				
 			}
 			catch (Exception e)
 			{
