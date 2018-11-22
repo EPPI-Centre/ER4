@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
+
 namespace MapDatabase.Pages
 {
     public class AboutModel : PageModel
@@ -18,6 +19,8 @@ namespace MapDatabase.Pages
         }
 
         public string Message { get; set; }
+        public string Message2 { get; set; }
+        public string btnText { get; set; }
 
         public void OnGet()
         {
@@ -42,10 +45,26 @@ namespace MapDatabase.Pages
 
             }
 
+            // testing
+
             //_logger. .LogInformation("hello Patrick");
             _logger.LogError(null, "logging test #2");
 
             Message = "Your application description page.";
+            Message2 = "Your application description page.";
+            btnText = "My button text";
         }
+
+        protected void cmdSearch_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
     }
+
+
+
+
+
 }

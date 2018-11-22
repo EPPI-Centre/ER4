@@ -102,6 +102,46 @@ export class SearchComp implements OnInit, OnDestroy {
         };
 	}
 
+	refreshSearches() {
+
+		this._searchService.Fetch();
+	}
+
+
+	DeleteSearchSelected() {
+
+		let tmp: number = 0;
+		let lstStrSearchIds = '';
+		// check which rows have been selected already
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+
+			if (this.DataSource.data[i].add == true) {
+
+				//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == this.DataSource.data[i].searchId);
+				//if (dataItem != null) {
+				//	console.log('dataitem not equal to null');
+				//	this._searchService.removeHandler(dataItem);
+				//}
+				tmp += 1;
+				lstStrSearchIds += this.DataSource.data[i].searchId + ',' ;
+			}
+		}
+		console.log(lstStrSearchIds);
+		this._searchService.Delete(lstStrSearchIds);
+
+		//alert('This many rows have been selected: ' + tmp);
+		//alert('These are the search ids that have been selected: ' + lstStrSearchIds);
+		//let searchId: number = Number(this._searchService.searchToBeDeleted);
+		//console.log('Inside delete search selected: ' + searchId);
+		//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == searchId);
+		//console.log('Inside delete search selected: ' + dataItem.searchId);
+		//if (dataItem != null) {
+		//	console.log('dataitem not equal to null');
+		//	this._searchService.removeHandler(dataItem);
+		//}
+	}
+
+
 	public checkboxClicked(dataItem: any) {
 
 		//alert('bllaaaahhh: ' + this.searchesGrid.columns.length);

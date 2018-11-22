@@ -7,3 +7,33 @@
 <h3>@Model.Message</h3>
 
 <p>Use this area to provide additional information.</p>
+
+
+<button ID="cmdWarning" class="btn btn-danger">@Model.btnText</button>
+
+<a class="btn btn-info" target="_blank" href="https://eppi.ioe.ac.uk">
+    EPPI-Centre
+</a>
+
+
+
+<p></p>
+@Model.Message2
+<p></p>
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Another action</a>
+        <a class="dropdown-item" href="#">Something else here</a>
+    </div>
+</div>
+
+<p></p>
+
+@Html.CheckBox("hello");
+
+<asp:Button ID="cmdSearch" class="btn btn-primary"  runat="server" Text="Search"
+            OnClick="cmdSearch_Click" >test test</asp:Button>

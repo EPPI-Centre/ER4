@@ -69,42 +69,52 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMServerUrl"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMServerUrl"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMServerUrl"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string UCLWPMServerUrl
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMServerUrl"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMServerUrl"];
+            if (tmp != null) return tmp;
+            else return "";
+            //return System.Configuration.ConfigurationManager.AppSettings["UCLWPMServerUrl"];
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMServerUrl"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string WPMCallBackURL
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMCallBackURL"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMCallBackURL"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMCallBackURL"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     //style.css
@@ -112,14 +122,17 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMstyle"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMstyle"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMstyle"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     //clientID
@@ -127,70 +140,85 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMclientID"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMclientID"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMclientID"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string UCLWPMclientID
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMclientID"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMclientID"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMclientID"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string ProxyURL
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["ProxyURL"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["ProxyURL"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["ProxyURL"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static bool USEproxyOUT
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["USEproxyOUT"];
-                if (customSetting != null && customSetting.Value == "1")
-                    return true;
-            }
-            return false;
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["USEproxyOUT"];
+            if (tmp != null && tmp == "1") return true;
+            else return false;
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["USEproxyOUT"];
+            //    if (customSetting != null && customSetting.Value == "1")
+            //        return true;
+            //}
+            //return false;
         }
     }
     public static bool USEproxyIN
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["USEproxyIN"];
-                if (customSetting != null && customSetting.Value == "1")
-                    return true;
-            }
-            return false;
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["USEproxyIN"];
+            if (tmp != null && tmp == "1") return true;
+            else return false;
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["USEproxyIN"];
+            //    if (customSetting != null && customSetting.Value == "1")
+            //        return true;
+            //}
+            //return false;
         }
     }
     //pathwayid
@@ -198,28 +226,34 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMpathwayid"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMpathwayid"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMpathwayid"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string UCLWPMpathwayid
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMpathwayid"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMpathwayid"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMpathwayid"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     //departmentid
@@ -227,28 +261,34 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMdepartmentid"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMdepartmentid"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMdepartmentid"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string UCLWPMdepartmentid
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMdepartmentid"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMdepartmentid"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMdepartmentid"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     //live
@@ -256,42 +296,51 @@ public class Utils
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMisLive"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["WPMisLive"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["WPMisLive"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string UCLWPMisLive
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMisLive"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["UCLWPMisLive"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["UCLWPMisLive"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     public static string SMTP
     {
         get
         {
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
-                if (customSetting != null)
-                    return customSetting.Value;
-            }
-            return "";
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["SMTP"];
+            if (tmp != null) return tmp;
+            else return "";
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/ER4Manager_1");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
+            //    if (customSetting != null)
+            //        return customSetting.Value;
+            //}
+            //return "";
         }
     }
     private static SmtpClient smtpClient()

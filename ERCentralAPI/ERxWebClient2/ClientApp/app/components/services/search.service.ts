@@ -73,10 +73,14 @@ export class searchService {
 	}
 
 
-	Delete(_searches: string) {
+	Delete(value: string) {
 
-		this._httpC.post<number>(this._baseUrl + 'api/SearchList/DeleteSearch',
-			_searches)
+		value = value.substr(1, value.length - 2);
+		alert(value);
+		let body = JSON.stringify({ Value: value });
+		//alert(body);
+		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
+			body)
 
 			.subscribe(result => {
 
