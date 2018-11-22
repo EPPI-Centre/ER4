@@ -45,20 +45,25 @@ export class ItemListService {
     public set IsInScreeningMode(state: boolean) {
         this._IsInScreeningMode = state;
         this.Save();
-    }
+	}
+
+
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
-    public get ItemList(): ItemList {
-        if (this._ItemList.items.length == 0) {
+	public get ItemList(): ItemList {
+	
+		if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
+			//console.log('in here 2');
             const listJson = localStorage.getItem('ItemsList');
             let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-            if (list == undefined || list == null || list.items.length == 0) {
+			if (list == undefined || list == null || list.items.length == 0) {
+				//console.log('in here 3: ' + this._ItemList.items.length);
                 return this._ItemList;
             }
             else {
-                //console.log("Got ItemsList from LS");
+                console.log("Got ItemsList from LS");
                 this._ItemList = list;
             }
         }
@@ -126,7 +131,7 @@ export class ItemListService {
         //}
         //else {
             let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-            if (ff != undefined && ff != null && ff > 0) {
+            if (ff != undefined && ff != null && ff > 0 && ff != -1) {
                 //console.log('Has prev (yes)' + ff);
                 return true;
             }
@@ -183,7 +188,7 @@ export class ItemListService {
             this.ChangingItem(new Item());
             return new Item();
         }
-    }
+	}
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
         if (ff != undefined && ff != null) {
@@ -204,7 +209,7 @@ export class ItemListService {
             this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(list => {
                 this._Criteria.totalItems = this.ItemList.totalItemCount;
-                //console.log('Got item list');
+
                 this.SaveItems(list, this._Criteria);
             }, error => { this.ModalService.GenericError(error);}
             );
@@ -216,7 +221,6 @@ export class ItemListService {
         }
     }
     public FetchNextPage() {
-        console.log('np');
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
@@ -224,7 +228,6 @@ export class ItemListService {
         this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
-        //console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex == 0 ) {
             return this.FetchWithCrit(this._Criteria, this.ListDescription);
         } else {
@@ -317,6 +320,7 @@ export class Item {
     itemStatusTooltip: string = "";
     arms: arm[] = [];
 }
+
 export class Criteria {
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
@@ -329,7 +333,8 @@ export class Criteria {
     filterSetId: number = 0;
     filterAttributeId: number = 0;
     attributeSetIdList: string = "";
-    listType: string = "";
+	listType: string = "";
+	attributeid: number = 0;
 
     pageNumber: number = 0;
     pageSize: number = 100;

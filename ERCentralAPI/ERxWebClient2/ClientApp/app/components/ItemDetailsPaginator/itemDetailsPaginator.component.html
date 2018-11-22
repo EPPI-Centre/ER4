@@ -1,0 +1,64 @@
+<div class="col-12 col-lg-6 pr-0 pl-0 col-md-12 col-xl-6 col-sm-12
+                                     order-lg-first
+                                     order-xl-first
+                                     order-md-last
+                                     order-sm-last
+                                     order-last">
+	<div *ngIf="ItemListService.ItemList && !IsScreening"
+		 class=" pagination justify-content-start">
+		<div>
+			<!--[ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+			[disabled]="ItemListService.ItemList.pageindex + 1 === 1"-->
+			<button [ngClass]="{disabled: !hasPrevious()}"
+					[disabled]="!hasPrevious()"
+					class="page-link" 
+					(click)="firstItem()">
+				First
+			</button>
+		</div>
+		<div>
+			<button [ngClass]="{disabled: !hasPrevious()}"
+					[disabled]="!hasPrevious()"
+					class="page-link" 
+					(click)="prevItem()">
+				Previous
+			</button>
+
+		</div>
+		<div>
+			<button [ngClass]="{disabled: !hasNext()}"
+					[disabled]="!hasNext()" 
+					class="page-link" 
+					(click)="nextItem()">
+				Next
+			</button>
+		</div>
+		<div>
+			<button [ngClass]="{disabled: !hasNext()}"
+					[disabled]="!hasNext()" 
+					class="page-link" 
+					(click)="lastItem()">
+				Last
+			</button>
+		</div>
+		<div class="m-1 small align-content-end mt-2">Item {{MyHumanIndex()}} of {{ItemListService.ItemList.items.length}}</div>
+	</div>
+
+	<ul *ngIf="IsScreening" class="pagination justify-content-start">
+		<li>
+			<button [ngClass]="{disabled:!HasPreviousScreening()}"
+					[disabled]="!HasPreviousScreening()"
+					class="page-link" (click)="prevScreeningItem()">
+				Previously Screened
+			</button>
+
+		</li>
+		<li>
+			<button [ngClass]="{disabled:!CanMoveToNextInScreening()}"
+					[disabled]="!CanMoveToNextInScreening()"
+					class="page-link" (click)="GetItem()">
+				Next In screening
+			</button>
+		</li>
+	</ul>
+</div>

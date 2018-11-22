@@ -78,7 +78,7 @@ export class ReviewerIdentityService {
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
-                //console.log('sub LoginReq used!');
+
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0) {
@@ -94,54 +94,6 @@ export class ReviewerIdentityService {
             );
 
     }
-    
-    //openMsg(content: any) {
-    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
-
-    //        //alert('Simulate application returning to logon page: ' + res);
-
-    //    },
-    //        (res) => {
-    //            //alert('Continue for debugging purposes: ' + res)
-    //            if (!this.isMoreButtonVisible == true) {
-    //                this.router.navigate(['home']);
-    //            }
-    //        }
-    //    );
-    //}
-
-    //public handleError(error: any) {
-
-    //    let httpErrorCode = error;
-
-    //    switch (httpErrorCode) {
-    //        case 401:
-    //            console.log('got inside the reviewerIdentity part for 401...');
-    //            this.modalMsg = 'got inside the reviewerIdentity part for a 401...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 403:
-    //            console.log('got inside the reviewerIdentity part for 403...');
-    //            this.modalMsg = 'got inside the reviewerIdentity part for a 403...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 400:
-    //            console.log('got inside the reviewerIdentity part for 400...');
-    //            this.modalMsg = 'got inside the reviewerIdentity part for a 400...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        case 404:
-    //            console.log('got inside the reviewerIdentity part for 404...');
-    //            this.modalMsg = 'got inside the reviewerIdentity part for a 404...';
-    //            this.openMsg(this.content);
-    //            break;
-    //        default:
-    //            console.log('got inside the reviewerIdentity part for default...');
-    //            this.modalMsg = 'got inside the reviewerIdentity part for a default...';
-    //            this.openMsg(this.content);
-
-    //    }
-    //}
 
     public UpdateStatus(msg: string) {
 
@@ -169,19 +121,15 @@ export class ReviewerIdentityService {
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {
-        //data: JSON.stringify({ FilterName: "Dirty Deeds" })
-        //this.ReviewSetsService.Clear();
-        //console.log('Opening a review');
         
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
-                //if (localStorage.getItem('currentErUser')) localStorage.removeItem('currentErUser');
-                //console.log('sub LoginToReview used!');
+
                 this.reviewerIdentity = ri;
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    //console.log('got into it');
+ 
                     this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
@@ -214,7 +162,8 @@ export class ReviewerIdentityService {
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
-                    this.OpeningNewReview.emit();
+					this.OpeningNewReview.emit();
+		
                     this.router.navigate(['mainFullReview']);
                 }
             }

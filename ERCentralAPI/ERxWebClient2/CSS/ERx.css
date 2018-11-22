@@ -1,6 +1,50 @@
-.table.alpha tr {
-    height: 75px;
+body {
+	font-family: Roboto, Arial, sans-serif;
+	margin: 0;
 }
+
+.basic-container {
+	padding: 5px;
+}
+
+.version-info {
+	font-size: 8pt;
+	float: right;
+}
+
+.mat-row.hovered {
+	background: #eee;
+}
+
+.mat-row.highlighted {
+	background: #999;
+}
+
+/*
+  This is a work around for checkbox bug in material row
+  https://github.com/angular/material2/issues/8600
+*/
+mat-cell.mat-cell, mat-header-cell.mat-header-cell {
+	overflow: visible;
+}
+
+
+/*.table.alpha tr {
+    height: 75px;
+}*/
+
+table.table-fit {
+	width: auto !important;
+	table-layout: auto !important;
+}
+
+	table.table-fit thead th, table.table-fit tfoot th {
+		width: auto !important;
+	}
+
+	table.table-fit tbody td, table.table-fit tfoot td {
+		width: auto !important;
+	}
 
 .GreenIcon {
     color: green;
@@ -26,13 +70,77 @@ body {
     height: 30px;
 }
 .ScreeningSet {
-    color: #00BB00;
+	color: #00BB00;
+	/*color: red;*/
+	/*pointer-events: none;*/
 }
 
 .AdminSet {
     color: #0000DD;
+	/*color: yellow;*/
 }
 
 .ExcludeCode {
-    color: #FF7777;
-} 
+	/*color: #FF7777;*/
+	color: forestgreen;
+	/*pointer-events: none;*/
+}
+
+.tree-node {
+	color: black;
+	/*pointer-events: none;*/
+}
+
+.tree-node-disabled {
+	pointer-events: none;
+	color: black;
+}
+
+#container {
+	display: block;
+}
+
+#row {
+	display: table-row;
+}
+
+#left, #right, #middle {
+	display: table-cell;
+}
+
+#contentCT {
+	display: block;
+	width: 80%;
+	margin: auto;
+}
+
+.mat-row.hovered {
+	background: #eee;
+}
+
+.mat-row.selected {
+	background: #999;
+}
+
+/*
+  This is a work around for checkbox bug in material row
+  https://github.com/angular/material2/issues/8600
+*/
+mat-cell.mat-cell, mat-header-cell.mat-header-cell {
+	overflow: visible;
+}
+
+
+.hidden-item {
+	display: none;
+}
+
+.tab-content {
+
+	width: 100%;
+}
+
+/*.tab-content > .active {
+
+	width: 1000px;
+}*/

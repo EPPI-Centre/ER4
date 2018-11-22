@@ -1,14 +1,16 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
-import { ITreeOptions } from 'angular-tree-component';
+import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { ArmsService } from '../services/arms.service';
-
+import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
+import { TreeNode } from '@angular/router/src/utils/tree';
+import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 
 @Component({
     selector: 'reviewsets',
@@ -19,10 +21,14 @@ import { ArmsService } from '../services/arms.service';
                     line-height: 1.2;
                     border-radius: .2rem;
                 }
+			.no-select{    
+				-webkit-user-select: none;
+				cursor:not-allowed; /*makes it even more obvious*/
+				}
         `],
     templateUrl: './reviewsets.component.html'
 })
-export class ReviewSetsComponent implements OnInit, OnDestroy {
+export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -44,18 +50,118 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
             //modalComp.close();
             this.GetReviewSets();
         }
-    }
-    options: ITreeOptions = {
+	}
+	
+	options: ITreeOptions = {
         childrenField: 'attributes', 
         displayField: 'name',
-        allowDrag: false,
-    }
+		allowDrag: false,
+
+
+		
+	}
+	@ViewChild('tree') treeComponent!: TreeComponent;
+
+
+	ngAfterViewInit() {
+
+		//if () {
+				
+		//const firstNode: TreeNode<singleNode> = treeModel.getFirstRoot();
+			
+		//}
+		//const firstNode: singleNode = treeModel.getFirstRoot();
+
+		//firstNode.setActiveAndVisible();
+	}
+
+	rootsCollect() {
+
+		// for now until clarification put in an array of nodes
+		
+
+		const treeModel: TreeModel = this.treeComponent.treeModel;
+		const firstNode: any = treeModel.getFirstRoot();
+
+		var rootsArr: Array<ITreeNode> = [];
+
+		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+
+			rootsArr[i] = this.treeComponent.treeModel.roots[i];
+			console.log(rootsArr[i]);
+		}
+
+	}
+
+	nodesNotRootsCollect(node: ITreeNode) {
+
+		const treeModel: TreeModel = this.treeComponent.treeModel;
+		const firstNode: any = treeModel.getFirstRoot();
+
+		var childrenArr: Array<any> = [];
+
+		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+
+			var test = this.treeComponent.treeModel.roots[i];
+
+			childrenArr[i] = test.getVisibleChildren();
+			console.log(childrenArr[i]);
+			
+		}
+	}
+
+	onEvent($event: any) {
+
+		alert($event);
+
+	}
+	selectAllRoots() {
+
+		const treeModel: TreeModel = this.treeComponent.treeModel;
+
+		const firstNode: any = treeModel.getFirstRoot();
+
+		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+
+			this.treeComponent.treeModel.roots[i].setIsActive(false, true);
+
+				//.setIsActive(true, true);
+
+			//if (i == 0) {
+			//	console.log('A root: ' + this.treeComponent.treeModel.roots[i].doForAll(x => x.expand()))
+			//}
+		}
+		//this.treeComponent.treeModel.roots[0].setIsActive(true, true);
+		//this.treeComponent.treeModel.roots[1].setIsActive(true, true);
+		//this.treeComponent.treeModel.roots[2].setIsActive(true, true);
+		//this.treeComponent.treeModel.roots[3].setIsActive(true, true);
+	}
+
+	getNodeClass(node: ITreeNode): string {
+
+		if (node.data.subTypeName == 'Screening') {
+			//console.log('node disabled: ' + node.displayField);
+			return 'tree-node-disabled';
+		}
+		//console.log('node not disabled: ' + node.displayField);
+		return 'tree-node';
+	}
+
+	test(node: singleNode) {
+
+		node.itemSetIsLocked = true;
+		alert('hello');
+	}
     //nodes: singleNode[] = [];
     get nodes(): singleNode[] | null {
         //console.log('Getting codetree nodes');
         if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) 
-        {
-            //console.log('found my nodes');
+		{
+			//for (var i = 0; i < this.ReviewSetsService.ReviewSets.length; i++) {
+
+			//	console.log('found my nodes: ' + this.ReviewSetsService.ReviewSets[i] + '\n');
+			//}
+			
             return this.ReviewSetsService.ReviewSets;
         }
         else {
@@ -65,6 +171,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
     }
     GetReviewSets() {
         if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
+        console.log('Get reviesets in revsets comp');
         this.ReviewSetsService.GetReviewSets();
             //.subscribe(
             //result => {
@@ -150,11 +257,14 @@ export class ReviewSetsComponent implements OnInit, OnDestroy {
 
     }
     public SelectedNodeData: singleNode | null = null;
-    public SelectedCodeDescription: string = "";
-    NodeSelected(node: singleNode) {
+	public SelectedCodeDescription: string = "";
+
+	NodeSelected(node: singleNode) {
+
+		//alert('in node: ' + node.name)
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        //console.log(node.description)
+        
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();

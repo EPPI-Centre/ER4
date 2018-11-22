@@ -32,7 +32,7 @@ import { armsComp } from '../arms/armsComp.component';
             `]
 
 })
-export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
+export class ItemCodingFullComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService
@@ -62,18 +62,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
-    
-
-
-
+ 
 
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
     }
-    ngAfterViewInit() {
-        // child is set
-    }
+
 
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
@@ -94,7 +89,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
             });
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
-                this.GetItem();
+				this.GetItem();
+				console.log('coding full sajdhfkjasfdh: ' + this.itemID);
             });
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
@@ -131,7 +127,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
             //this.ItemListService.eventChange(this.itemID);
             console.log('fill in arms here teseroo1');
 
-        }
+		}
+		console.log('this is item: ' + this.item);
     }
 
     public HasPreviousScreening(): boolean{
@@ -401,7 +398,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
         //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
-    
+    ItemChanged() {
+        this.WipeHighlights();
+        this.SetHighlights();
+    }
     ngOnDestroy() {
         //console.log('killing coding comp');
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
@@ -416,7 +416,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
     }
     ShowHighlightsClicked() {
-        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked();
+        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
     }
 }
 

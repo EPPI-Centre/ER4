@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private Search() { }
+        public Search() { }
 #endif
 
         public override string ToString()
@@ -35,7 +35,7 @@ namespace BusinessLibrary.BusinessClasses
             return Title;
         }
 
-        private static PropertyInfo<int> SearchIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SearchId", "SearchId"));
+        public static readonly PropertyInfo<int> SearchIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SearchId", "SearchId"));
         public int SearchId
         {
             get
@@ -44,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
+		public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
         public int ReviewId
         {
             get
@@ -53,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+		public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
+		public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
         public string ContactName
         {
             get
@@ -71,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+		public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -84,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SearchNoProperty = RegisterProperty<int>(new PropertyInfo<int>("SearchNo", "SearchNo"));
+		public static readonly PropertyInfo<int> SearchNoProperty = RegisterProperty<int>(new PropertyInfo<int>("SearchNo", "SearchNo"));
         public int SearchNo
         {
             get
@@ -93,7 +93,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AnswersProperty = RegisterProperty<string>(new PropertyInfo<string>("Answers", "Answers", string.Empty));
+		public static readonly PropertyInfo<string> AnswersProperty = RegisterProperty<string>(new PropertyInfo<string>("Answers", "Answers", string.Empty));
         public string Answers
         {
             get
@@ -106,7 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> HitsNoProperty = RegisterProperty<int>(new PropertyInfo<int>("HitsNo", "HitsNo"));
+		public static readonly PropertyInfo<int> HitsNoProperty = RegisterProperty<int>(new PropertyInfo<int>("HitsNo", "HitsNo"));
         public int HitsNo
         {
             get
@@ -115,7 +115,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsClassifierResultProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsClassifierResult", "IsClassifierResult", false));
+		public static readonly PropertyInfo<bool> IsClassifierResultProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsClassifierResult", "IsClassifierResult", false));
         public bool IsClassifierResult
         {
             get
@@ -124,7 +124,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<SmartDate> SearchDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("SearchDate", "SearchDate"));
+		public static readonly PropertyInfo<SmartDate> SearchDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("SearchDate", "SearchDate"));
         public SmartDate SearchDate
         {
             get

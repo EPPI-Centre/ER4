@@ -42,7 +42,7 @@ export class ItemListComp implements OnInit {
     }
     
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
-
+	
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
@@ -59,12 +59,12 @@ export class ItemListComp implements OnInit {
         else {
             ListDescr = "work allocation (unknown)";
         }      
-        this.ItemListService.FetchWithCrit(crit, ListDescr);
+		this.ItemListService.FetchWithCrit(crit, ListDescr);
+
     }
 
     OpenItem(itemId: number) {
        
-        console.log('opening one: ' + itemId);
         if (itemId > 0) {
             if (this.Context == 'FullUI') this.router.navigate(['itemcoding', itemId]);
             else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', itemId]);
@@ -81,7 +81,7 @@ export class ItemListComp implements OnInit {
         }
     }
     nextPage() {
-        //console.log('tester');
+    
         this.ItemListService.FetchNextPage();
     }
     prevPage() {

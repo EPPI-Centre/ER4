@@ -1,0 +1,380 @@
+import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
+import { forEach } from '@angular/router/src/utils/collection';
+import { Router } from '@angular/router';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
+import { debounceTime, startWith, merge, switchMap, share  } from 'rxjs/operators/index';
+import { pipe } from 'rxjs'
+import { style } from '@angular/animations';
+import { searchService, Search } from '../services/search.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { SelectionModel } from '@angular/cdk/collections';
+import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings, GridModule, GridComponent  } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
+
+@Component({
+	selector: 'SearchComp',
+    templateUrl: './SearchComp.component.html',
+    styles: [`
+       .k-grid tr.even { background-color: white; }
+       .k-grid tr.odd { background-color: light-grey; }
+   `],
+	providers: [],
+	encapsulation: ViewEncapsulation.None
+})
+
+export class SearchComp implements OnInit, OnDestroy {
+	displayedColumns = ['selected', 'searchId', 'title', 'contactName', 'searchDate', 'hitsNo'];
+	constructor(private router: Router,
+		private ReviewerIdentityServ: ReviewerIdentityService,
+        public ItemListService: ItemListService,
+		public _searchService: searchService,
+		private _eventEmitter: EventEmitterService
+	) {
+		//this.setSelectableSettings();
+	}
+
+	@ViewChild('testKendoGrid') searchesGrid!: GridComponent;
+
+    onSubmit(f: string) {
+
+	}
+
+	//public checkboxOnly = false;
+	//public mode = 'multiple';
+	//public selectableSettings: SelectableSettings | null | undefined;
+
+
+	//public setSelectableSettings(): void {
+
+	//	this.selectableSettings = {
+
+	//		checkboxOnly: this.checkboxOnly,
+	//		mode: 'multiple'
+	//	};
+	//}
+
+    public selectedAll: boolean = false;
+
+    //private _dataSource: MatTableDataSource<any> | null = null;
+    //public get dataSource(): MatTableDataSource<any>  {
+    //    console.log('Getting searches data for table');
+    //    if (this._dataSource == null) {
+    //        this._dataSource = new MatTableDataSource(this._searchService.SearchList);
+    //        this._dataSource.sort = this.sort;
+    //        console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
+    //    }
+    //    return this._dataSource;
+    //} 
+
+	allSearchesSelected: boolean = false;
+	// bound to header checkbox
+
+	stateAdd: State = {
+		// will hold grid state
+		skip: 0,
+		take: 2
+	};
+
+	selectAllSearchesChange(e: any): void {
+		
+		if (e.target.checked) {
+			this.allSearchesSelected = true;
+			
+			for (let i = 0; i < this.DataSource.data.length; i++) {
+				
+				this.DataSource.data[i].add = true;
+			}
+		} else {
+			this.allSearchesSelected = false;
+			
+			for (let i = 0; i < this.DataSource.data.length; i++) {
+
+				this.DataSource.data[i].add = false;
+			}
+		}
+	}
+
+	public get DataSource(): GridDataResult {
+		return {
+			data: orderBy(this._searchService.SearchList, this.sort),
+			total: this._searchService.SearchList.length,
+        };
+	}
+
+	refreshSearches() {
+
+		this._searchService.Fetch();
+	}
+
+
+	DeleteSearchSelected() {
+
+		let tmp: number = 0;
+		let lstStrSearchIds = '';
+		// check which rows have been selected already
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+
+			if (this.DataSource.data[i].add == true) {
+
+				//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == this.DataSource.data[i].searchId);
+				//if (dataItem != null) {
+				//	console.log('dataitem not equal to null');
+				//	this._searchService.removeHandler(dataItem);
+				//}
+				tmp += 1;
+				lstStrSearchIds += this.DataSource.data[i].searchId + ',' ;
+			}
+		}
+		console.log(lstStrSearchIds);
+		this._searchService.Delete(lstStrSearchIds);
+
+		//alert('This many rows have been selected: ' + tmp);
+		//alert('These are the search ids that have been selected: ' + lstStrSearchIds);
+		//let searchId: number = Number(this._searchService.searchToBeDeleted);
+		//console.log('Inside delete search selected: ' + searchId);
+		//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == searchId);
+		//console.log('Inside delete search selected: ' + dataItem.searchId);
+		//if (dataItem != null) {
+		//	console.log('dataitem not equal to null');
+		//	this._searchService.removeHandler(dataItem);
+		//}
+	}
+
+
+	public checkboxClicked(dataItem: any) {
+
+		//alert('bllaaaahhh: ' + this.searchesGrid.columns.length);
+		//alert(JSON.stringify(dataItem));
+		//alert(dataItem.searchId);
+
+		dataItem.add = !dataItem.add;
+		//alert(dataItem.add);
+		if (dataItem.add == true) {
+			this._searchService.searchToBeDeleted = dataItem.searchId;
+		} else {
+			this._searchService.searchToBeDeleted = '';
+		}
+		//this._searchService.removeHandler(dataItem);
+		console.log(this._searchService.searchToBeDeleted );
+	};
+	   
+
+    //@ViewChild(MatSort) sort!: MatSort;
+    //private SearchesChanged: Subscription = new Subscription();
+    public RebuildDataTableSource() {
+        //this._dataSource = new MatTableDataSource(this._searchService.SearchList);
+        //this._dataSource.sort = this.sort;
+        //console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
+	}
+
+	//displayedColumns: string [] | undefined;
+	RemoveOneLocalSource() {
+
+        console.log(' Searchlist length: ' + this._searchService.SearchList.length);
+        this._searchService.SearchList = this._searchService.SearchList.slice(3);
+		console.log(' Searchlist length: ' + this._searchService.SearchList.length);
+
+    }
+    public rowCallback(context: RowClassArgs) {
+        const isEven = context.index % 2 == 0;
+        return {
+            even: isEven,
+            odd: !isEven
+        };
+	}
+
+    public sort: SortDescriptor[] = [{
+        field: 'hitsNo',
+        dir: 'desc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting?' + this.sort[0].field + " ");
+        //this.loadProducts();
+    }
+    value = 1;
+    onEnter(value: number) {
+        this.value = value ;
+        this.ItemListService.FetchParticularPage(value-1);
+    }
+    
+	dataTable: any;
+
+
+	OpenItems(item: number) {
+
+		let cr: Criteria = new Criteria();
+
+		//cr.setId = item.setId;
+		//cr.attributeid = item.attributeId;
+		//// the below should get its value from the view radio buttons
+		//cr.onlyIncluded = item.isIncluded;
+		cr.filterAttributeId = -1;
+		cr.searchId = item;
+		cr.listType = 'GetItemSearchList';
+		//cr.attributeSetIdList = item.attributeSetId;
+		console.log('searchid is: ' + item);
+		this.ItemListService.FetchWithCrit(cr, "GetItemSearchList");
+        this._eventEmitter.PleaseSelectItemsListTab.emit();
+	}
+
+	ngOnDestroy() {
+        //if (this.SearchesChanged) this.SearchesChanged.unsubscribe();
+	}
+
+
+	public tableArr: Search[] = this._searchService.SearchList;
+	public testArr: Search[] = [];
+	public selectAll: boolean =false;
+
+	public initialSelection = [];
+	public allowMultiSelect = true;
+	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
+
+	public columnNames = [
+	{
+		id: "selected",
+		value: "Selected"
+	},
+	{
+		id: "searchId",
+		value: "SearchId"
+	},
+	{
+		id: "title",
+		value: "Title"
+	},
+	{
+		id: "contactName",
+		value: "ContactName"
+	},
+	{
+		id: "searchDate",
+		value: "SearchDate"
+	},
+	{
+		id: "hitsNo",
+		value: "HitsNo"
+
+	}];
+
+	testAlert() {
+
+		alert('Not implemented');
+	}
+
+	updateCheck() {
+
+		
+
+		if (this.selectAll === true) {
+			this.selectAll = false;
+			this.tableArr.map((r) => {
+				r.selected = false;
+			});
+
+		} else {
+			this.selectAll = true;
+			this.tableArr.map((r) => {
+				r.selected = true;
+			});
+		}
+	}
+
+	
+	createTable() {
+
+		//this.dataSource = new MatTableDataSource(this.tableArr);
+		//this.dataSource.sort = this.sort;
+	}
+
+
+	ngOnInit() {
+				
+		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+			this.router.navigate(['home']);
+		}
+		else {
+            //this.SearchesChanged = this._searchService.searchesChanged.subscribe(() => this.RebuildDataTableSource());
+            //this.displayedColumns = this.columnNames.map(
+            //    (x) => {
+
+            //        if (x != undefined) {
+            //            return x.id;
+            //        } else {
+            //            return '';
+            //        }
+            //    }
+            //);
+            this._searchService.Fetch();
+			// this._searchService.Fetch().toPromise().then(
+				 
+			//	 (res) => {
+
+			//		 this.displayedColumns = this.columnNames.map(
+			//			 (x) => {
+
+			//				 if (x != undefined) {
+			//					 return x.id;
+			//				 } else {
+			//					 return '';
+			//				 }
+			//			 }
+			//		 );
+
+			//		 //this.testArr = res;
+			//		 this.tableArr = res;
+
+			//		 //for (var i = 0; i < res.length; i++) {
+
+			//			// this.tableArr[i].contactName = this.testArr[i].contactName;
+			//			// this.tableArr[i].hitsNo = this.testArr[i].hitsNo;
+			//			// this.tableArr[i].title = this.testArr[i].title;
+			//			// this.tableArr[i].searchDate = this.testArr[i].searchDate;
+			//			// this.tableArr[i].searchId = this.testArr[i].searchId;
+			//			// this.tableArr[i].selected = false;
+
+			//			//// console.log(this.tableArr[i]);
+
+			//		 //}
+
+			//		 //this.tableArr = res;
+			//		 this.createTable();
+			//	 }
+
+			//);
+
+
+				//.map(
+
+				//	(res) => {
+
+
+				//		this.displayedColumns = this.columnNames.map(
+
+				//			(x) => {
+
+				//				if (x != undefined) {
+				//					return x.id;
+				//				} else {
+				//					return '';
+				//				}
+				//			}
+				//		);
+
+				//		this.tableArr.forEach(y => y = res);
+				//		console.log('testing here: ' + res);
+				//		this.createTable();
+				//	}
+
+				//);
+
+		}
+	}
+
+}
+
+
+
+

@@ -26,13 +26,14 @@ const nonTreeShakableModules = [
     './CSS/ERx.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
+    '@progress/kendo-theme-bootstrap/dist/all.css'
     //'datatables.net-dt/css/jquery.dataTables.css',
     //'datatables.net',
     //'datatables.net-dt',
     //'./node_modules/jquery/src/jquery.js',
     //'./node_modules/datatables.net-dt/js/dataTables.dataTables.js',
-    './node_modules/datatables.net-dt/css/jquery.dataTables.css',
-    './node_modules/datatables.net/js/jquery.dataTables.js'
+    //'./node_modules/datatables.net-dt/css/jquery.dataTables.css',
+	//'./node_modules/datatables.net/js/jquery.dataTables.js',
 ];
 
 const allModules = treeShakableModules.concat(nonTreeShakableModules);

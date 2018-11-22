@@ -8,7 +8,6 @@ namespace ERxWebClient2.Models
 {
     public class ReviewSet2
     {
-        
         public ReviewSet2()
         {
             children = new List<SetAttribute>();

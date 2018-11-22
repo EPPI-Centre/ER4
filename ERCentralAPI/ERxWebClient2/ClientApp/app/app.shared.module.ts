@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { MainFullReviewComponent } from './components/mainfull/mainfull.component';
+import { MainFullReviewComponent, SearchesModalContent } from './components/mainfull/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -26,12 +26,31 @@ import { DataTablesModule } from 'angular-datatables';
 import { ItemCodingFullComp } from './components/coding/codingFull.component';
 import { itemDetailsComp } from './components/itemDetails/itemDetails.component';
 import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatistics.component';
-
+import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
+import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
+import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
+import { EventEmitterService } from './components/services/EventEmitter.service';
+import { WebApiObservableService } from './components/services/httpQuery.service';
+import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
+import { ChartsModule } from 'ng2-charts'
+import { SearchComp } from './components/Search/SearchComp.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
+import { LayoutModule } from '@progress/kendo-angular-layout';
+import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { ChartModule } from '@progress/kendo-angular-charts';
 
 @NgModule({
     declarations: [
 		AppComponent,
+		CodesetTreeComponent,
+        SearchComp,
+        frequenciesComp,
+		frequenciesResultsComp,
+		CrossTabsComp,
 		ReviewStatisticsComp,
+		itemDetailsPaginatorComp,
         ReviewSetsComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
@@ -43,24 +62,33 @@ import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatis
         itemDetailsComp,
         paginatorComp,
         StatusBarComponent,
-        InfoBoxModalContent,
+		InfoBoxModalContent,
+		SearchesModalContent,
         ItemDocListComp,
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
         MainFullReviewComponent,
         MainComponent
-    ],
-    entryComponents: [InfoBoxModalContent, ModalDialogComponent],
+	],
+
+	providers: [EventEmitterService, WebApiObservableService ],
+    entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent],
     imports: [
         AngularFontAwesomeModule,
-        DataTablesModule,
+		DataTablesModule,
         CommonModule,
         NgbModule,
         HttpModule,
-        FormsModule,
+		FormsModule,
+		BrowserModule,
+		BrowserAnimationsModule,
+		ChartsModule,
         ReactiveFormsModule,
         TreeModule,
+        GridModule,
+        ChartModule,
+        LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
@@ -77,4 +105,5 @@ import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatis
     ]
 })
 export class AppModuleShared {
+
 }

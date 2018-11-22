@@ -25,7 +25,8 @@ export class itemDetailsComp implements OnInit {
     @Input() ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
-    ngOnInit() {
+	ngOnInit() {
+
     }
 
     public WipeHighlights() {
@@ -43,13 +44,13 @@ export class itemDetailsComp implements OnInit {
             this.HAbstract = this.item.abstract;
             for (let term of this.ReviewerTermsService.TermsList) {
                 if (term.reviewerTerm && term.reviewerTerm.length > 0) {
-                    //console.log(term.reviewerTerm);
+                   
                     let lFirst = term.reviewerTerm.substr(0, 1);
                     lFirst = lFirst.toLowerCase();
                     let uFirst = lFirst.toUpperCase();
                     let lTerm = lFirst + term.reviewerTerm.substr(1);
                     let uTerm = uFirst + term.reviewerTerm.substr(1);
-                    //console.log('uTerm:' + uTerm);
+                  
                     let reg = new RegExp(lTerm, "g");
                     let reg2 = new RegExp(uTerm, "g");
                     if (term.included) {

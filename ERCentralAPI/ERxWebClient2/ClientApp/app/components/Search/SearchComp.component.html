@@ -1,0 +1,114 @@
+<p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
+
+<table>
+	<tr>
+
+		<td class="btn  text-white bg-primary" (click)="openNewSearchModal()"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
+		<td class="btn  text-white bg-primary" (click)="refreshSearches()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
+		<td class="btn text-white bg-primary" (click)="DeleteSearchSelected()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
+		<td class="btn  text-white bg-primary" (click)="alert('blah')"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
+		<td class="btn  text-white bg-primary">
+			<input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
+		</td>
+		<td class="btn  text-white bg-primary">
+			<input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
+		</td>
+		<td class="btn text-white bg-primary">
+			<input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
+		</td>
+		<td class="btn text-white bg-primary">
+			<input type="radio" value="NOTR" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
+		</td>
+	</tr>
+</table>
+
+<button (click)="RemoveOneLocalSource()">Click me</button>
+
+<kendo-grid id="testKendoGrid" [data]="DataSource" [height]="410"
+			[rowClass]="rowCallback"
+			[sortable]="{
+            allowUnsort: allowUnsort,
+            mode: 'single'
+            }"
+			[sort]="sort"
+			(sortChange)="sortChange($event)"
+			(remove)="removeHandler($event)">
+
+	<kendo-grid-column [sortable]="false" field="add" width="50"
+					   [headerStyle]="{'text-align': 'center'}"
+					   [style]="{'text-align': 'center'}">
+		<ng-template kendoGridHeaderTemplate let-dataItem>
+			<input style="zoom: 1.2;"
+				   type="checkbox"
+				   name="selectAll"
+				   (change)="selectAllSearchesChange($event)"
+				   [checked]="allSearchesSelected" />
+		</ng-template>
+		<ng-template kendoGridCellTemplate let-dataItem>
+			<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+				   type="checkbox"
+				   field="selected"
+				   [checked]="dataItem.add" />
+		</ng-template>
+	</kendo-grid-column>
+
+	<kendo-grid-column field="searchId" title="ID" width="140">
+	</kendo-grid-column>
+	<kendo-grid-column field="title" title="Name" width="250">
+	</kendo-grid-column>
+	<kendo-grid-column field="contactName" title="Created By" width="140">
+	</kendo-grid-column>
+	<kendo-grid-column field="searchDate" title="Date" width="120">
+	</kendo-grid-column>
+	<kendo-grid-column field="hitsNo" title="Hits" width="80">
+	</kendo-grid-column>
+</kendo-grid>
+
+<!--<mat-table [dataSource]="dataSource" (matSort)="sort">
+
+	<ng-container matColumnDef="selected" >
+		<mat-header-cell *matHeaderCellDef class="text-dark">Selected
+			<mat-checkbox
+						  (change)="updateCheck()" ></mat-checkbox>
+		</mat-header-cell>
+		<mat-cell *matCellDef="let search" class="md-default-theme">
+			<mat-checkbox (click)="row.selected = !row.selected" [(ngModel)]="search.selected"></mat-checkbox>
+		</mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="searchId">
+		<mat-header-cell *matHeaderCellDef mat-sort-header>searchId </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.searchId}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="title">
+		<mat-header-cell *matHeaderCellDef mat-sort-header> title </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.title}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="contactName">
+		<mat-header-cell *matHeaderCellDef mat-sort-header> contactName </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.contactName}} </mat-cell>
+	</ng-container>
+
+	<ng-container matColumnDef="searchDate">
+		<mat-header-cell *matHeaderCellDef mat-sort-header> searchDate </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.searchDate}} </mat-cell>
+	</ng-container>
+
+
+	<ng-container matColumnDef="hitsNo">
+		<mat-header-cell *matHeaderCellDef mat-sort-header> hitsNo </mat-header-cell>
+		<mat-cell *matCellDef="let search"> {{search.hitsNo}} </mat-cell>
+	</ng-container>
+
+
+	<mat-header-row *matHeaderRowDef="displayedColumns">
+
+	</mat-header-row>
+	<mat-row *matRowDef="let row; columns: displayedColumns;"
+			  [ngClass]="{selected: row.selected}"
+			 >
+	</mat-row>
+
+</mat-table>-->
