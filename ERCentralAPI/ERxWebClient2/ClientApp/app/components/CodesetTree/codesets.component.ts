@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ArmsService } from '../services/arms.service';
@@ -12,6 +12,7 @@ import { frequenciesService } from '../services/frequencies.service';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
+
 @Component({
     selector: 'codesets',
     styles: [`.bt-infoBox {    
@@ -28,17 +29,16 @@ import { EventEmitterService } from '../services/EventEmitter.service';
         `],
     templateUrl: './codesets.component.html'
 })
+
 export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
-       private modalService: NgbModal,
-	   private armsService: ArmsService,
-	   private frequenciesService: frequenciesService,
-	   private _eventEmitter: EventEmitterService
-    ) { }
+
+	) { }
+	
 	//@ViewChild('ManualModal') private ManualModal: any;
 
 	@Input() tabSelected: string = '';
@@ -50,7 +50,9 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	//};
 
 	public showManualModal: boolean = false;
+
 	sub: Subscription = new Subscription();
+
 	public smallTree: string = '';
 
 	ngOnInit() {
@@ -82,9 +84,9 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		allowDrag: false,
 		
 	}
+
 	@ViewChild('tree') treeComponent!: TreeComponent;
-
-
+	
 	ngAfterViewInit() {
 
 		//alert(this.tabSet);
@@ -158,22 +160,14 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 		//console.log('A root: ' + this.treeComponent.treeModel.roots[0].doForAll(x => x.expand()))
 	}
-
-	
-
-	
-
-	
-	
-    
-    
-    
-    
-    
+	    
     public SelectedNodeData: singleNode | null = null;
 	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
+
+		//alert(JSON.stringify(stuff));
+		console.log(JSON.stringify(node));
 
 		//if (this._eventEmitter.codingTreeVar == true) {
 
@@ -197,9 +191,11 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 
 		//}
-        this.ReviewSetsService.selectedNode = node;
+
+       this.ReviewSetsService.selectedNode = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    }
+	}
+
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
 		this.sub.unsubscribe();

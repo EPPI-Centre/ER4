@@ -26,7 +26,7 @@ namespace ERxWebClient2.Controllers
 
         private readonly ILogger _logger;
 
-        public FrequenciesController(ILogger<ReviewController> logger)
+        public FrequenciesController(ILogger<FrequenciesController> logger)
         {
 
             _logger = logger;

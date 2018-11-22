@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { MainFullReviewComponent, SearchesModalContent } from './components/mainfull/mainfull.component';
+import { MainFullReviewComponent } from './components/mainfull/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -33,7 +33,7 @@ import { EventEmitterService } from './components/services/EventEmitter.service'
 import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
-import { SearchComp } from './components/Search/SearchComp.component';
+import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
@@ -61,9 +61,9 @@ import { ChartModule } from '@progress/kendo-angular-charts';
         ItemCodingFullComp,
         itemDetailsComp,
         paginatorComp,
-        StatusBarComponent,
-		InfoBoxModalContent,
+		StatusBarComponent,
 		SearchesModalContent,
+		InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
         ModalDialogComponent,
@@ -72,8 +72,8 @@ import { ChartModule } from '@progress/kendo-angular-charts';
         MainComponent
 	],
 
-	providers: [EventEmitterService, WebApiObservableService ],
-    entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent],
+	providers: [EventEmitterService, WebApiObservableService, SearchesModalContent],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent ],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
