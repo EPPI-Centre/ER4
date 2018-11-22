@@ -5,6 +5,9 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
+using System.Data;
+using System.Xml.Linq;
+
 public partial class ReturnFromPayment : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
@@ -43,7 +46,6 @@ public partial class ReturnFromPayment : System.Web.UI.Page
                         Utils.ExecuteSP(true, Server, "st_BillMarkAsCancelled", Utils.GetSessionString("Contact_ID"), Utils.GetSessionString("Draft_Bill_ID"));
                     else Server.Transfer("Error.aspx");
                 }
-                
             }
             else
             {
@@ -73,4 +75,5 @@ public partial class ReturnFromPayment : System.Web.UI.Page
         if (!cs.IsStartupScriptRegistered("Startup"))
             cs.RegisterStartupScript(cstype, "Startup", scriptString);
     }
+
 }
