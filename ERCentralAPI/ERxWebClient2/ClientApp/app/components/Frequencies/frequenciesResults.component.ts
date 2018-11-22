@@ -43,10 +43,7 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
     ngAfterViewInit() {
         // child is set
 	}
-	@ViewChild('testChart') testChart!: BaseChartDirective;
-    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
-    
-
+	
     @Input() ChartType: string | undefined;
     
     private _ShowNoneOfTheAbove: boolean | undefined;

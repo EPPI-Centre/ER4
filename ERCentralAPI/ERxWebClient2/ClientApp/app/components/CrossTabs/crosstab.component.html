@@ -7,92 +7,64 @@
         <span> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
     </div>
 
-    <div class="row col-md-12">
-        <table class="table-striped table table-light col-7 card-body">
-            <thead>
-                <tr>
-                    <th class="collapse">Both Sets Documents</th>
-                    <th>Included Documents</th>
-                    <th>Excluded Documents</th>
-                </tr>
 
-            </thead>
-            <tbody>
-                <!--[checked]="idx === 0"-->
-                <tr>
-                    <td class="collapse">
-                        >
-                        <input type="radio" name="mode"
-                               [(ngModel)]="lookAtIncludeExclude"
-                               value="both">
-                    </td>
-                    <td>
-                        <input type="radio" name="mode"
-                               [(ngModel)]="lookAtIncludeExclude"
-                               value="included">
-                    </td>
-                    <td>
-                        <input type="radio" name="mode"
-                               [(ngModel)]="lookAtIncludeExclude"
-                               value="excluded">
-                    </td>
-
-                </tr>
-            </tbody>
-        </table>
-        <div class="card-body col-5 bg-light">
-            <button (click)="setXaxis()" class="font-weight-bold btn btn-primary col-md-6">Set X-Axis Code &nbsp;&nbsp;</button>
-            <b>&nbsp;{{selectedNodeDataX?.name}}</b>
-            <button (click)="setYaxis()" class="font-weight-bold btn btn-info col-md-6">Set Y-Axis Code &nbsp;&nbsp;</button>
-            <b>&nbsp;{{selectedNodeDataY?.name}}</b>
+    <div class="row m-1 p-0">
+        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected X-Axis Code: &nbsp;</span></div>
+        <div class="col-4 border"><b [className]="selectedNodeDataX != null ? 'somekindofBackground' : ''">{{selectedNodeDataX?.name}}&nbsp;</b></div>
+        <div class="col-4">
+            <button (click)="setXaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
         </div>
     </div>
-    <div class="row col-md-12">
-        <table class="table-striped table table-light col-md-8 card-body">
-            <thead>
-                <tr>
-                    <th>Show Table</th>
-                    <th>Show pie chart</th>
-                    <th>Show bar chart</th>
-                    <th>Show the 'none of the above' category (charts)</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div class="row m-1 p-0">
+        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Y-Axis Code: &nbsp;</span></div>
+        <div class="col-4 border"><b [className]="selectedNodeDataY != null ? 'somekindofBackground' : ''">{{selectedNodeDataY?.name}}&nbsp;</b></div>
+        <div class="col-4">
+            <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
+        </div>
+    </div>
+    <div class="row m-1 p-0">
+        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
+        <div class="col-4 border"><b [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{selectedFilterAttribute?.name}}&nbsp;</b></div>
+        <div class="col-4">
+            <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+            <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+        </div>
 
+    </div>
+
+    <div class="row col-md-12">
+        <table class="table-striped table table-light card-body">
+            <tbody>
                 <tr>
                     <td>
-                        <input type="radio" name="radioShowTable"
-                               [checked]="idx === 0"
-                               [value]="test2">
+                        <b>Get frequencies for</b>
                     </td>
                     <td>
-                        <input type="radio" name="radioShowPieChart"
-                               [checked]="idx === 0"
-                               [value]="test1">
+                        <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="crosstbIncEx"> <b>&nbsp;Included</b>
                     </td>
                     <td>
-                        <input type="radio" name="radioShowBarChart"
-                               [checked]="idx === 1"
-                               [value]="test2">
+                        <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="crosstbIncEx"><b>&nbsp; Excluded</b>
+                    </td>
+                    <td colspan="1"> <b class="align-self-end">&nbsp; Items</b></td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Show results as:</b>
                     </td>
                     <td>
-                        <input type="radio" name="radioCharts"
-                               [checked]="idx === 1"
-                               [value]="test2">
+                        <input type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Table</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="pie" disabled name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Pie chart</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="bar" disabled name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Bar chart</b>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div class="col-md-4 table-striped table table-light card-body">
-            <div class="col-md-12 card-body bg-light">
-                <span class="font-weight-bold col-md-12">Selected Filter Attribute: &nbsp;</span>
-                <b class="col-md-12" [className]="selectedAttributeSetX != null ? 'btn-warning' : ''">{{selectedFilterAttribute?.name}}&nbsp;</b>
-                <div class="col-md-12 ml-auto"></div>
-                <button (click)="setXFilter()" class="font-weight-bold btn btn-primary col-md-6 ml-auto">Set Filter&nbsp;&nbsp;</button>
-                <button (click)="clearXFilter()" class="font-weight-bold btn btn-dark col-md-6"> Clear Filter</button>
-            </div>
-        </div>
-
+    </div>
+    <div class="row col-md-12">
         <div class="card-body bg-light col-md-8">
             <div class="row contentCT col-md-12">
                 <table class="table table-striped table-bordered table-condensed mb-2 w-75 table-fit">
