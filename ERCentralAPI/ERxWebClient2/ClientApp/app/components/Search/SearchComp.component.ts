@@ -12,7 +12,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings, GridModule, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -32,7 +32,8 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: NgbModal
+		private modalService: NgbModal,
+		private reviewSetService: ReviewSetsService
 	) {
 	}
 
@@ -226,9 +227,11 @@ export class SearchComp implements OnInit, OnDestroy {
 		cr.filterAttributeId = -1;
 		cr.searchId = item;
 		cr.listType = 'GetItemSearchList';
+		cr.pageNumber = 0;
 		//cr.attributeSetIdList = item.attributeSetId;
-		console.log('searchid is: ' + item);
-		this.ItemListService.FetchWithCrit(cr, "GetItemSearchList");
+		alert('cr.listType: ' + cr.listType);
+
+		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
         this._eventEmitter.PleaseSelectItemsListTab.emit();
 	}
 
@@ -244,6 +247,52 @@ export class SearchComp implements OnInit, OnDestroy {
 	public allowMultiSelect = true;
 	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
 
+	SearchGetItemList(dataItem: Search) {
+
+		//alert('kjhg: ' + dataItem.searchId);
+
+		let search: Search = new Search();
+		let cr: Criteria = new Criteria();
+		cr.onlyIncluded = dataItem.selected;
+		cr.showDeleted = false;
+		cr.pageNumber = 0;
+		cr.searchId = dataItem.searchId;
+		let ListDescription: string = "GetItemSearchList";
+		cr.listType = ListDescription;
+
+		//if (freq.attribute == "None of the codes above" && freq.attributeSetId < 0) {
+		//	//CASE: the special one for getting everything else (not listed in freq results)
+		//	console.log('FrequencyNoneOfTheAbove, freq.attributeSetId = ' + freq.attributeSetId);
+		//	ListDescription = "Frequencies '" + freq.attribute + "'" + (freq.filterAttributeId > 0 && attributeFilter ? " (filtered by: " + attributeFilter.attribute_name + ")." : ".");
+		//	cr.listType = "FrequencyNoneOfTheAbove";
+		//	cr.xAxisAttributeId = - freq.attributeId;
+		//	cr.sourceId = 0;
+		//	cr.setId = freq.setId;
+		//	cr.filterAttributeId = freq.filterAttributeId;
+		//}
+		//else {
+		//	if (freq.filterAttributeId < 1 || !attributeFilter) {
+		//		//CASE2: we don't have a filter by "items with this code"
+		//		ListDescription = freq.attribute + ".";
+		//		cr.attributeid = freq.attributeId;
+		//		cr.sourceId = 0;
+		//		cr.listType = "StandardItemList";
+		//		cr.attributeSetIdList = freq.attributeSetId.toString();
+		//	}
+		//	else {
+		//		//CASE3: we do have the filter
+		//		ListDescription = freq.attribute + "; filtered by: " + attributeFilter.attribute_name + ".";
+		//		cr.listType = "FrequencyWithFilter";
+		//		cr.xAxisAttributeId = freq.attributeId;
+		//		cr.filterAttributeId = freq.filterAttributeId;
+		//		cr.setId = freq.setId;
+
+		//	}
+		//}
+		this.ItemListService.FetchWithCrit(cr, ListDescription);
+		this._eventEmitter.PleaseSelectItemsListTab.emit();
+
+	}
 	//public columnNames = [
 	//{
 	//	id: "selected",
@@ -370,17 +419,23 @@ export class SearchesModalContent implements SearchCodeCommand {
 	}
 
 
+	
 	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
 
-
-		//alert(selectedSearchDropDown + '    asd ...==>>' + searchBool + ' ' + JSON.stringify(this.reviewSetsService.selectedNode ));
-
 		let searchTitle: string = '';
+		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
+		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
 
 		// Need to pull in here the attributeIDs and attributeNames
-		if (selectedSearchDropDown.search('With this code') != -1) {
+		if (firstNum == true || secNum == true ) {
 
-			this.withCode = true
+			if (firstNum) {
+
+				this.withCode = true;
+			} else {
+
+				this.withCode = false;
+			}			
 
 			if (this.reviewSetsService.selectedNode != undefined) {
 
@@ -389,8 +444,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.cmdSearches._answers = String(tmpID);
 				alert(this.reviewSetsService.selectedNode);
 			
-
-			searchTitle = this.withCode == true ?
+				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 			}
 		}
