@@ -380,6 +380,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	_included: boolean = false;
 	_withCodes: boolean = false;;
 	_searchId: number = 0;
+	_IDs: string = '';
 
 	public get IsReadOnly(): boolean {
 
@@ -400,6 +401,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	public cmdSearches: SearchCodeCommand = {
 
+		_IDs: '',
 		_title: '',
 		_answers: '',
 		_included: false,
@@ -409,6 +411,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	public withCode: boolean = false;
 	public attributeNames: string = '';
+	public commaIDs: string = '';
 
 	options = [1, 2, 3];
 	optionSelected: any;
@@ -449,14 +452,34 @@ export class SearchesModalContent implements SearchCodeCommand {
 			}
 		}
 
-		this.cmdSearches._title = searchTitle;
-		this.cmdSearches._included = Boolean(searchBool);
-		this.cmdSearches._withCodes = this.withCode;
-		this.cmdSearches._searchId = 0;
+		if (this.commaIDs != '') {
 
-		alert(JSON.stringify(this.cmdSearches));
+			this.cmdSearches._IDs = this.commaIDs;
+			this.cmdSearches._title = this.commaIDs;
+			this.cmdSearches._included = Boolean(searchBool);
+			this.cmdSearches._withCodes = this.withCode;
+			this.cmdSearches._searchId = 0;
 
-		this._searchService.FetchSearchCodes(this.cmdSearches);
+			alert(JSON.stringify(this.cmdSearches));
+
+			this._searchService.FetchSearchIDs(this.cmdSearches);
+
+		} else {
+
+			this.cmdSearches._title = searchTitle;
+			this.cmdSearches._included = Boolean(searchBool);
+			this.cmdSearches._withCodes = this.withCode;
+			this.cmdSearches._searchId = 0;
+
+			alert(JSON.stringify(this.cmdSearches));
+
+			this._searchService.FetchSearchCodes(this.cmdSearches);
+		}
+
+
+		//alert(JSON.stringify(this.cmdSearches));
+
+		//this._searchService.FetchSearchCodes(this.cmdSearches);
 
 		this.activeModal.dismiss();
 

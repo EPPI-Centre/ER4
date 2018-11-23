@@ -53,7 +53,7 @@
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div>
 						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
-						<input class="col-md-8 bg-light border-dark" type="text" name="CommaIDs"><br>
+						<input [(ngModel)]="commaIDs" class="col-md-8 bg-light border-dark" type="text" name="CommaIDs"><br>
 					</div>
 				</div>
 			</div>

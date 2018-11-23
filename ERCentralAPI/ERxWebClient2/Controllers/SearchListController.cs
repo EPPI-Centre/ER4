@@ -56,6 +56,31 @@ namespace ERxWebClient2.Controllers
 
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult SearchIDs([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchIDsCommand cmd = new SearchIDsCommand(
+					cmdIn._title, cmdIn._included
+					);
+				DataPortal<SearchIDsCommand> dp = new DataPortal<SearchIDsCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
 
 		[HttpPost("[action]")]
 		public IActionResult SearchCodes([FromBody] CodeCommand cmdIn)

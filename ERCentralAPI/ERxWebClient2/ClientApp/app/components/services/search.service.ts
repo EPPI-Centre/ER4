@@ -90,7 +90,22 @@ export class searchService {
 		);
 		
 	}
-	
+
+	FetchSearchIDs(cmd: SearchCodeCommand) {
+
+		console.log(cmd);
+		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchIDs',
+			cmd)
+
+			.subscribe(result => {
+
+				console.log('call to the server again: ' + JSON.stringify(result));
+
+				this.Fetch();
+			}
+			);
+	}
+
 	FetchSearchCodes(cmd: SearchCodeCommand) {
 
 		console.log(cmd);
@@ -135,6 +150,7 @@ export class CriteriaSearch {
 
 export interface SearchCodeCommand {
 
+	_IDs: string;
 	_title: string;
 	_answers: string ;
 	_included: boolean ;
