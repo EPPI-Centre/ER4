@@ -1,11 +1,9 @@
-<div>
-    <div class="row m-1 p-0">
-        <button (click)="fetchCrossTabs(selectedNodeDataX, selectedNodeDataY, selectedFilterAttribute?.attribute_id)"
-                class="btn-lg btn-info mb-lg-2">
-            Get CrossTabs
-        </button>
-        <span> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
-    </div>
+<div class="row m-1 p-0 d-flex justify-content-between">
+    <button class="btn btn-primary" (click)="fetchCrossTabs()">
+        Get CrossTabs
+    </button>
+    <div *ngIf="reviewSetsService.selectedNode" class="align-self-center small"> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</div>
+</div>
 
 
     <div class="row m-1 p-0">
@@ -35,60 +33,69 @@
     <div class="row col-md-12">
         <table class="table-striped table table-light card-body">
             <tbody>
-                <tr>
+                <tr class="collapse">
                     <td>
                         <b>Get frequencies for</b>
                     </td>
                     <td>
-                        <input type="radio" value="true" name="IncludeOrExclude" [(ngModel)]="crosstbIncEx"> <b>&nbsp;Included</b>
+                        <input type="radio" value="true" name="cxTabIncludeOrExclude" [(ngModel)]="crosstbIncEx"> <b>&nbsp;Included</b>
                     </td>
                     <td>
-                        <input type="radio" value="false" name="IncludeOrExclude" [(ngModel)]="crosstbIncEx"><b>&nbsp; Excluded</b>
+                        <input type="radio" value="false" name="cxTabIncludeOrExclude" [(ngModel)]="crosstbIncEx"><b>&nbsp; Excluded</b>
                     </td>
-                    <td colspan="1"> <b class="align-self-end">&nbsp; Items</b></td>
+                    <td colspan="2"> <b class="align-self-end">&nbsp; Items</b></td>
                 </tr>
-                <tr>
+                <tr class="collapse">
                     <td>
                         <b>Show results as:</b>
                     </td>
                     <td>
-                        <input type="radio" value="table" name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Table</b>
+                        <input type="radio" value="table" name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Table</b>
                     </td>
                     <td>
-                        <input type="radio" value="pie" disabled name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Pie chart</b>
+                        <input type="radio" value="bar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Bar chart</b>
                     </td>
                     <td>
-                        <input type="radio" value="bar" disabled name="FreqShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Bar chart</b>
+                        <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart</b>
+                    </td>
+                    <td>
+                        <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart (%)</b>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-    <div class="row col-md-12">
-        <div class="card-body bg-light col-md-8">
-            <div class="row contentCT col-md-12">
-                <table class="table table-striped table-bordered table-condensed mb-2 w-75 table-fit">
-                    <thead>
-                        <tr>
-                            <td> &nbsp;</td>
-                            <td class="font-weight-bold" *ngFor="let item of crosstabService.CrossTab.xHeaders">
-                                {{item}}
-                            </td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let subitem of crosstabService.CrossTab.yRows">
-                            <td>{{subitem.attributeName}}</td>
-                            <td *ngFor="let name of crosstabService.fieldNames">
-                                <b (click)="CrossTabItemsList(crosstabService.CrossTab, subitem.attributeId, name)"
-                                   class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
-                                    {{subitem[name]}}
-                                </b>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    
+    <div *ngIf="crosstabService && crosstabService.CrossTab && crosstabService.CrossTab.yRows && crosstabService.CrossTab.yRows.length > 0 && crosstbShowWhat=='table'"
+         class="row contentCT col-md-12" style="height:460px; overflow:auto;">
+        <table 
+               class="table table-striped table-bordered table-condensed mb-2">
+            <thead>
+                <tr>
+                    <td> &nbsp;</td>
+                    <td class="font-weight-bold" *ngFor="let item of crosstabService.CrossTab.xHeaders">
+                        {{item}}
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let subitem of crosstabService.CrossTab.yRows">
+                    <td class="font-weight-bold">{{subitem.attributeName}}</td>
+                    <td *ngFor="let fieldname of crosstabService.fieldNames">
+                        <b (click)="CrossTabItemsList(crosstabService.CrossTab, subitem.attributeId, subitem.attributeName, fieldname)"
+                           class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
+                            {{subitem[fieldname]}}
+                        </b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div *ngIf="!crosstabService.CrossTab || !crosstabService.CrossTab.yRows || crosstabService.CrossTab.yRows.length == 0" 
+         class="justify-content-center row m-0">
+        <div class="p-2 font-weight-bold" style="color:#17a2b8;">
+        No Crosstab data (yet) or Current crosstab is empty.
         </div>
     </div>
-</div>
+        
+    
