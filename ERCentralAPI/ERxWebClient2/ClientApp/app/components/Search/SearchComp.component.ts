@@ -43,32 +43,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
-	//public checkboxOnly = false;
-	//public mode = 'multiple';
-	//public selectableSettings: SelectableSettings | null | undefined;
-
-
-	//public setSelectableSettings(): void {
-
-	//	this.selectableSettings = {
-
-	//		checkboxOnly: this.checkboxOnly,
-	//		mode: 'multiple'
-	//	};
-	//}
 
     public selectedAll: boolean = false;
-
-    //private _dataSource: MatTableDataSource<any> | null = null;
-    //public get dataSource(): MatTableDataSource<any>  {
-    //    console.log('Getting searches data for table');
-    //    if (this._dataSource == null) {
-    //        this._dataSource = new MatTableDataSource(this._searchService.SearchList);
-    //        this._dataSource.sort = this.sort;
-    //        console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
-    //    }
-    //    return this._dataSource;
-    //} 
 
 	allSearchesSelected: boolean = false;
 	// bound to header checkbox
@@ -158,10 +134,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public checkboxClicked(dataItem: any) {
 
-		//alert('bllaaaahhh: ' + this.searchesGrid.columns.length);
-		//alert(JSON.stringify(dataItem));
-		//alert(dataItem.searchId);
-
 		dataItem.add = !dataItem.add;
 		//alert(dataItem.add);
 		if (dataItem.add == true) {
@@ -220,15 +192,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		let cr: Criteria = new Criteria();
 
-		//cr.setId = item.setId;
-		//cr.attributeid = item.attributeId;
-		//// the below should get its value from the view radio buttons
-		//cr.onlyIncluded = item.isIncluded;
 		cr.filterAttributeId = -1;
 		cr.searchId = item;
 		cr.listType = 'GetItemSearchList';
 		cr.pageNumber = 0;
-		//cr.attributeSetIdList = item.attributeSetId;
 		alert('cr.listType: ' + cr.listType);
 
 		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
@@ -236,7 +203,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-        //if (this.SearchesChanged) this.SearchesChanged.unsubscribe();
 	}
 	
 	public tableArr: Search[] = this._searchService.SearchList;
@@ -249,8 +215,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	SearchGetItemList(dataItem: Search) {
 
-		//alert('kjhg: ' + dataItem.searchId);
-
 		let search: Search = new Search();
 		let cr: Criteria = new Criteria();
 		cr.onlyIncluded = dataItem.selected;
@@ -260,87 +224,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		let ListDescription: string = "GetItemSearchList";
 		cr.listType = ListDescription;
 
-		//if (freq.attribute == "None of the codes above" && freq.attributeSetId < 0) {
-		//	//CASE: the special one for getting everything else (not listed in freq results)
-		//	console.log('FrequencyNoneOfTheAbove, freq.attributeSetId = ' + freq.attributeSetId);
-		//	ListDescription = "Frequencies '" + freq.attribute + "'" + (freq.filterAttributeId > 0 && attributeFilter ? " (filtered by: " + attributeFilter.attribute_name + ")." : ".");
-		//	cr.listType = "FrequencyNoneOfTheAbove";
-		//	cr.xAxisAttributeId = - freq.attributeId;
-		//	cr.sourceId = 0;
-		//	cr.setId = freq.setId;
-		//	cr.filterAttributeId = freq.filterAttributeId;
-		//}
-		//else {
-		//	if (freq.filterAttributeId < 1 || !attributeFilter) {
-		//		//CASE2: we don't have a filter by "items with this code"
-		//		ListDescription = freq.attribute + ".";
-		//		cr.attributeid = freq.attributeId;
-		//		cr.sourceId = 0;
-		//		cr.listType = "StandardItemList";
-		//		cr.attributeSetIdList = freq.attributeSetId.toString();
-		//	}
-		//	else {
-		//		//CASE3: we do have the filter
-		//		ListDescription = freq.attribute + "; filtered by: " + attributeFilter.attribute_name + ".";
-		//		cr.listType = "FrequencyWithFilter";
-		//		cr.xAxisAttributeId = freq.attributeId;
-		//		cr.filterAttributeId = freq.filterAttributeId;
-		//		cr.setId = freq.setId;
-
-		//	}
-		//}
 		this.ItemListService.FetchWithCrit(cr, ListDescription);
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-	//public columnNames = [
-	//{
-	//	id: "selected",
-	//	value: "Selected"
-	//},
-	//{
-	//	id: "searchId",
-	//	value: "SearchId"
-	//},
-	//{
-	//	id: "title",
-	//	value: "Title"
-	//},
-	//{
-	//	id: "contactName",
-	//	value: "ContactName"
-	//},
-	//{
-	//	id: "searchDate",
-	//	value: "SearchDate"
-	//},
-	//{
-	//	id: "hitsNo",
-	//	value: "HitsNo"
-
-	//}];
-
-	//testAlert() {
-
-	//	alert('Not implemented');
-	//}
-
-	//updateCheck() {
-
-	//	if (this.selectAll === true) {
-	//		this.selectAll = false;
-	//		this.tableArr.map((r) => {
-	//			r.selected = false;
-	//		});
-
-	//	} else {
-	//		this.selectAll = true;
-	//		this.tableArr.map((r) => {
-	//			r.selected = true;
-	//		});
-	//	}
-	//}
-
 
 	ngOnInit() {
 				
@@ -430,10 +317,12 @@ export class SearchesModalContent implements SearchCodeCommand {
 		let searchTitle: string = '';
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
 		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+		this.cmdSearches._included = Boolean(searchBool);
+		this.cmdSearches._withCodes = this.withCode;
+		this.cmdSearches._searchId = 0;
 
 		alert(selectedSearchDropDown);
 
-		// Need to pull in here the attributeIDs and attributeNames
 		if (firstNum == true || secNum == true ) {
 
 			if (firstNum) {
@@ -456,13 +345,10 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 
 				this.cmdSearches._title = searchTitle;
-				this.cmdSearches._included = Boolean(searchBool);
 				this.cmdSearches._withCodes = this.withCode;
-				this.cmdSearches._searchId = 0;
 
-				alert(JSON.stringify(this.cmdSearches));
 				this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodes');
-				//this._searchService.FetchSearchCodes(this.cmdSearches);
+	
 			}
 		}
 
@@ -470,26 +356,17 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
-			this.cmdSearches._included = Boolean(searchBool);
-			this.cmdSearches._withCodes = this.withCode;
-			this.cmdSearches._searchId = 0;
-
-			alert(JSON.stringify(this.cmdSearches));
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchIDs');
-			//this._searchService.FetchSearchIDs(this.cmdSearches);
+		
 
 		}
-	if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+		if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
-			this.cmdSearches._included = Boolean(searchBool);
-			this.cmdSearches._withCodes = this.withCode;
-			this.cmdSearches._searchId = 0;
 
-			alert(JSON.stringify(this.cmdSearches));
-		this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
-			//this._searchService.FetchSearchIDs(this.cmdSearches);
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
+		
 
 		}
 		if (selectedSearchDropDown == 'Containing this text') {
@@ -509,39 +386,24 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = searchTitle;
-			this.cmdSearches._included = Boolean(searchBool);
-			this.cmdSearches._withCodes = this.withCode;
-			this.cmdSearches._searchId = 0;
-
-			alert(JSON.stringify(this.cmdSearches));
-
+			
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoAbstract');
-			//this._searchService.FetchSearchNoAbstract(this.cmdSearches);
+		
 		}
 
 		if (selectedSearchDropDown == 'Without any documents uploaded') {
 
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = 'Without any documents uploaded';
-			this.cmdSearches._included = Boolean(searchBool);
-			this.cmdSearches._withCodes = this.withCode;
-			this.cmdSearches._searchId = 0;
 
-			alert(JSON.stringify(this.cmdSearches));
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoFiles');
-			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+			
 		}
 		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
-			alert(selectedSearchDropDown);
 			this.cmdSearches._title = 'With at least one document uploaded.';
-			this.cmdSearches._included = Boolean(searchBool);
-			this.cmdSearches._withCodes = this.withCode;
-			this.cmdSearches._searchId = 0;
-
-			alert(JSON.stringify(this.cmdSearches));
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
-			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+			
 		}
 
 
@@ -555,81 +417,64 @@ export class SearchesModalContent implements SearchCodeCommand {
 		this.showDropDown2 = true;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
+		this._eventEmitter.nodeSelected = false;
+
 		switch (num) {
 
 			case 1: {
+				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				this.showDropDown2 = false;
-				this.showTextBox = false;
 				break;
 			}
 			case 2: {
 				//statements; 
+				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				this.showDropDown2 = false;
-				this.showTextBox = false;
 				break;
 			}
 			case 3: {
 				//With these internal IDs (comma separated) show text box
-				this._eventEmitter.nodeSelected = false;
+				
 				this.showDropDown2 = false;
 				this.showTextBox = true;
 				break;
 			}
 			case 4: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = true;
 				this.showTextBox = true;
 				break;
 			}
 			case 5: {
-				//that have at least one code from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 6: {
-				//that don't have any codes from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 7: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = true;
-				this.showTextBox = false;
 				break;
 			}
 			case 8: {
 				//statements; 
 				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
-				this.showTextBox = false;
 				break;
 			}
 			case 9: {
-				//statements;
-				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
-				this.showTextBox = false;
 				break;
 			}
 			case 10: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
 				this.showDropDown2 = false;
-				this.showTextBox = false;
 				break;
 			}
 			default: {
-				//statements; 
 				break;
 			}
 		}
