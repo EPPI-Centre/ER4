@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SearchNullAbstractCommand(){}
 #else
-        protected SearchNullAbstractCommand() { }
+        public SearchNullAbstractCommand() { }
 #endif
         
         public SearchNullAbstractCommand(bool Included)

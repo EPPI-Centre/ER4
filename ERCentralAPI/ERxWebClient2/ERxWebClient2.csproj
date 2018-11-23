@@ -85,8 +85,12 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Search.cs" Link="Models\Search.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchCodesCommand.cs" Link="Models\SearchCodesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchDeleteCommand.cs" Link="Models\SearchDeleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchForUploadedFilesCommand.cs" Link="Models\SearchForUploadedFilesCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchFreeTextCommand.cs" Link="Models\SearchFreeTextCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchIDsCommand.cs" Link="Models\SearchIDsCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchImportedIDsCommand.cs" Link="Models\SearchImportedIDsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchList.cs" Link="Models\SearchList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchNullAbstract.cs" Link="Models\SearchNullAbstract.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Training.cs" Link="Models\Training.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingList.cs" Link="Models\TrainingList.cs" />

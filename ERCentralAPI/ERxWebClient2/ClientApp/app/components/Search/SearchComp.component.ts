@@ -425,9 +425,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 	
 	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
 
+		
+
 		let searchTitle: string = '';
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
 		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+
+		alert(selectedSearchDropDown);
 
 		// Need to pull in here the attributeIDs and attributeNames
 		if (firstNum == true || secNum == true ) {
@@ -449,10 +453,20 @@ export class SearchesModalContent implements SearchCodeCommand {
 			
 				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
+
+
+				this.cmdSearches._title = searchTitle;
+				this.cmdSearches._included = Boolean(searchBool);
+				this.cmdSearches._withCodes = this.withCode;
+				this.cmdSearches._searchId = 0;
+
+				alert(JSON.stringify(this.cmdSearches));
+				this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodes');
+				//this._searchService.FetchSearchCodes(this.cmdSearches);
 			}
 		}
 
-		if (this.commaIDs != '') {
+		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
@@ -461,11 +475,39 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._searchId = 0;
 
 			alert(JSON.stringify(this.cmdSearches));
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchIDs');
+			//this._searchService.FetchSearchIDs(this.cmdSearches);
 
-			this._searchService.FetchSearchIDs(this.cmdSearches);
+		}
+	if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
-		} else {
+			this.cmdSearches._IDs = this.commaIDs;
+			this.cmdSearches._title = this.commaIDs;
+			this.cmdSearches._included = Boolean(searchBool);
+			this.cmdSearches._withCodes = this.withCode;
+			this.cmdSearches._searchId = 0;
 
+			alert(JSON.stringify(this.cmdSearches));
+		this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
+			//this._searchService.FetchSearchIDs(this.cmdSearches);
+
+		}
+		if (selectedSearchDropDown == 'Containing this text') {
+
+			//alert(selectedSearchDropDown);
+			//this.cmdSearches._title = 'With at least one document uploaded.';
+			//this.cmdSearches._included = Boolean(searchBool);
+			//this.cmdSearches._withCodes = this.withCode;
+			//this.cmdSearches._searchId = 0;
+
+			//alert(JSON.stringify(this.cmdSearches));
+			//this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+		}
+
+		if (selectedSearchDropDown == 'Without an abstract') {
+
+			alert(selectedSearchDropDown);
 			this.cmdSearches._title = searchTitle;
 			this.cmdSearches._included = Boolean(searchBool);
 			this.cmdSearches._withCodes = this.withCode;
@@ -473,13 +515,35 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			alert(JSON.stringify(this.cmdSearches));
 
-			this._searchService.FetchSearchCodes(this.cmdSearches);
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoAbstract');
+			//this._searchService.FetchSearchNoAbstract(this.cmdSearches);
 		}
 
+		if (selectedSearchDropDown == 'Without any documents uploaded') {
 
-		//alert(JSON.stringify(this.cmdSearches));
+			alert(selectedSearchDropDown);
+			this.cmdSearches._title = 'Without any documents uploaded';
+			this.cmdSearches._included = Boolean(searchBool);
+			this.cmdSearches._withCodes = this.withCode;
+			this.cmdSearches._searchId = 0;
 
-		//this._searchService.FetchSearchCodes(this.cmdSearches);
+			alert(JSON.stringify(this.cmdSearches));
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoFiles');
+			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+		}
+		if (selectedSearchDropDown == 'With at least one document uploaded') {
+
+			alert(selectedSearchDropDown);
+			this.cmdSearches._title = 'With at least one document uploaded.';
+			this.cmdSearches._included = Boolean(searchBool);
+			this.cmdSearches._withCodes = this.withCode;
+			this.cmdSearches._searchId = 0;
+
+			alert(JSON.stringify(this.cmdSearches));
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+		}
+
 
 		this.activeModal.dismiss();
 

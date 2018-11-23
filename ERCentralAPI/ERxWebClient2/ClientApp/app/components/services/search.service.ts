@@ -106,6 +106,37 @@ export class searchService {
 			);
 	}
 
+	FetchSearchNoAbstract(cmd: SearchCodeCommand) {
+
+		console.log(cmd);
+		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchNoAbstract',
+			cmd)
+
+			.subscribe(result => {
+
+				//console.log('call to the server again: ' + JSON.stringify(result));
+
+				this.Fetch();
+			}
+			);
+	}
+
+	FetchSearchGeneric(cmd: SearchCodeCommand, apiStr: string) {
+
+		apiStr = 'api/SearchList/' + apiStr;
+		console.log(cmd);
+		this._httpC.post<Search[]>(this._baseUrl + apiStr,
+			cmd)
+
+			.subscribe(result => {
+
+				//console.log('call to the server again: ' + JSON.stringify(result));
+
+				this.Fetch();
+			}
+			);
+	}
+
 	FetchSearchCodes(cmd: SearchCodeCommand) {
 
 		console.log(cmd);

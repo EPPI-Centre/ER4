@@ -83,6 +83,57 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
+		public IActionResult SearchImportedIDs([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
+					cmdIn._title, cmdIn._included
+					);
+				DataPortal<SearchImportedIDsCommand> dp = new DataPortal<SearchImportedIDsCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchNoAbstract([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
+					cmdIn._included
+				);
+				DataPortal<SearchNullAbstractCommand> dp = new DataPortal<SearchNullAbstractCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
 		public IActionResult SearchCodes([FromBody] CodeCommand cmdIn)
 		{
 
@@ -107,6 +158,57 @@ namespace ERxWebClient2.Controllers
 
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult SearchNoFiles([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+					cmdIn._title,
+					cmdIn._included,
+					false
+					);
+				DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchOneFile([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+					cmdIn._title,
+					cmdIn._included,
+					true
+					);
+				DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+		}
 
 		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
@@ -134,6 +236,7 @@ namespace ERxWebClient2.Controllers
 
 	public class CodeCommand
 	{
+		public string _IDs = "";
 		public string _title = "";
 		public string _answers = "";
 		public bool _included = false;
