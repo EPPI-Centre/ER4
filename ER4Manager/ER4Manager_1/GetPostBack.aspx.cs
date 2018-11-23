@@ -82,7 +82,7 @@ public partial class GetPostBack : System.Web.UI.Page
             if (!idr.Read()) return false;//if no bill is found, return insuccess
             double tot = Math.Round(double.Parse(idr["DUE_PRICE"].ToString()), 2) + Math.Round(double.Parse(idr["VAT"].ToString()), 2);
             idr.Close();
-            if (msgid != Utils.getMD5Hash(Utils.WPMclientID + billID + tot.ToString("F2"))) return false;
+            if (msgid != Utils.getMD5HashUCL(Utils.UCLWPMclientID + billID + tot.ToString("F2"))) return false;
             //third, match bill with postback
             XElement X2 = Xe.Element("transaction");
             double wpmPaid = double.Parse(X2.Element("totalpaid").Value);

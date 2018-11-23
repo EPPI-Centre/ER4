@@ -53,11 +53,12 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 		this.crossTabResult = this.crosstabService.testResult;
 	}
     
+    public crosstbShowWhat: string = 'table';
 	public crossTabResult: any | null;
-    public lookAtIncludeExclude: string = 'included';
-    public selectedFilterAttribute: any | 'none';
-    public selectedNodeDataX: any | 'none';
-    public selectedNodeDataY: any | 'none';
+    public crosstbIncEx: string = 'true';
+    public selectedFilterAttribute: singleNode | null = null;
+    public selectedNodeDataX: singleNode | null = null;
+    public selectedNodeDataY: singleNode | null = null;
 
 
 	public selectedNodeData: any | null = null;
@@ -65,7 +66,20 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 	onSubmit(f: string) {
 
     }
-	
+
+    canSetCode(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.attributes
+            && this.reviewSetsService.selectedNode.attributes.length > 0) return true;
+        return false;
+    }
+    canSetFilter(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
+        return false;
+    }
+
+
 
 	NodeDataChange(nodeData: singleNode) {
 
@@ -131,13 +145,13 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
         ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
     }
 
-    setXFilter() {
+    setFilter() {
         if (
             this.reviewSetsService.selectedNode
             && this.reviewSetsService.selectedNode.nodeType == "SetAttribute"
-        ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
+        ) this.selectedFilterAttribute = this.reviewSetsService.selectedNode;
     }
-    clearXFilter() {
+    clearFilter() {
         this.selectedFilterAttribute = null;
     }
     fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {

@@ -232,7 +232,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.Clear();
+        //this.Clear();
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();			
         }
