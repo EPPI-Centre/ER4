@@ -44,6 +44,8 @@ export class searchService {
 
 	Fetch() {
 
+		console.log(JSON.stringify(this.crit));
+
 		 this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
 			this.crit)
 
@@ -56,7 +58,7 @@ export class searchService {
 				
 					this.searchesChanged.emit();
 
-				//return result;
+					//return result;
 
 				}
 		 );
@@ -71,57 +73,42 @@ export class searchService {
 		sender.cancelCell();
 
 	}
-
-
+	
 	Delete(value: string) {
 
-		value = value.substr(1, value.length - 2);
-		alert(value);
 		let body = JSON.stringify({ Value: value });
-		//alert(body);
 		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			body)
-
 			.subscribe(result => {
 
 					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
 					this.SearchList.splice(tmpIndex, 1);
 					console.log(this._SearchList.length);
 					this.Save();
-
+					this.Fetch();
 				}
-			);
+		);
+		
 	}
 
 
-	FetchSearchCodes(cmd: SearchCodeCommand) {
+	FetchSearchGeneric(cmd: SearchCodeCommand, apiStr: string) {
 
+		apiStr = 'api/SearchList/' + apiStr;
 		console.log(cmd);
-		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchCodes',
+		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
 
 			.subscribe(result => {
 
-				console.log('silly call to the server again: ' + JSON.stringify(result));
-
-				//this.crit.AttributeId = result;
-				//this.crit.FilterAttributeId = result;
-				//this.crit.Included = result;
-				//this.crit.SetId = result;
+				//console.log('call to the server again: ' + JSON.stringify(result));
 
 				this.Fetch();
-
-				//this.SearchList = result;
-				//console.log(this._SearchList.length);
-				//this.Save();
-				//console.log(result);
-				//this.searchesChanged.emit();
-
-				//return result;
-
 			}
-		);
+			);
 	}
+
+	
 
     public Save() {
 		if (this._SearchList.length > 0)
@@ -152,6 +139,7 @@ export class CriteriaSearch {
 
 export interface SearchCodeCommand {
 
+	_IDs: string;
 	_title: string;
 	_answers: string ;
 	_included: boolean ;

@@ -8,16 +8,14 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
-import { NgbTabset, NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
-import { searchService, SearchCodeCommand, Search } from '../services/search.service';
-import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
-import { GridComponent, GridModule } from '@progress/kendo-angular-grid';
+import { searchService } from '../services/search.service';
+
 
 
 @Component({
@@ -44,8 +42,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService
 		, private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-		, private _searchService: searchService,
-		private modalService: NgbModal
+		, private _searchService: searchService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
@@ -80,34 +77,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		//alert(JSON.stringify(tab));
 		//alert(message);
 	}
-
-	openNewSearchModal() {
-	
-		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
-	
-			modalComp.componentInstance.InfoBoxTextInput = 'tester';
-			modalComp.componentInstance.focus(null);
-
-			modalComp.result.then(() => {
-
-				//data.additionalText = infoTxt;
-				//if (!data.isSelected) {
-
-					
-				//	this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);
-				//}
-				//else {
-		
-				//	this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);
-				//}
-			},
-				() => {
-
-					alert('testing 123 correct');
-				}
-			);
-	}
-
 
 
 	ngOnInit() {
@@ -274,164 +243,5 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 export class RadioButtonComp {
 	IncEnc = true;
 }
-@Component({
-	selector: 'ngbd-SearchesModal-content',
-	templateUrl: './SearchesModal.component.html'
-})
-export class SearchesModalContent implements SearchCodeCommand {
 
-	@ViewChild('SearchesModal')
-
-	//InfoBoxText!: ElementRef;
-
-	private canWrite: boolean = true;
-	public dropDownList: any = null;
-	public showTextBox: boolean = false;
-	public showDropDown2: boolean = true;
-	public selectedSearchDropDown: string = '';
-	public nodeSelected: boolean = false;
-	public selectedNodeDataName: string = '';
-
-	_title: string = '';
-	_answers: string = '';
-	_included: boolean = false;
-	_withCodes: boolean = false;;
-	_searchId: number = 0;
-
-	public get IsReadOnly(): boolean {
-
-		return this.canWrite;
-
-	}
-	constructor(public activeModal: NgbActiveModal,
-		private reviewSetsService: ReviewSetsService,
-		private _eventEmitter: EventEmitterService,
-		private _searchService: searchService
-	) { }
-
-	test() {
-
-		alert('hello again');
-
-	}
-
-	public cmdSearches: SearchCodeCommand = {
-
-		_title : '',
-		_answers : '',
-		_included : false,
-		_withCodes : false,
-		_searchId : 0
-	};
-
-	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
-
-		// api call to SearchListController for the SearchCodes
-		this.cmdSearches._title = selectedSearchDropDown
-			//'Not coded with: control (comparison TP)';
-		this.cmdSearches._answers = ''; //'83962';
-		this.cmdSearches._included =  Boolean(searchBool);
-		this.cmdSearches._withCodes = false;
-		this.cmdSearches._searchId = 0;
-
-		console.log('variables: ' + selectedSearchDropDown + ', ' + searchBool);
-
-		this._searchService.FetchSearchCodes(this.cmdSearches);
-
-		this.activeModal.dismiss();
-	}
-
-
-
-	public nextDropDownList(num: number, val: string) {
-
-		//console.log('got here');
-		this.showDropDown2 = true;
-		this.showTextBox = false;
-		this.selectedSearchDropDown = val;
-		switch (num) {
-
-			case 1: {
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 2: {
-				//statements; 
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 3: {
-				//With these internal IDs (comma separated) show text box
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = true;
-				break;
-			}
-			case 4: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = true;
-				this.showTextBox = true;
-				break;
-			}
-			case 5: {
-				//that have at least one code from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
-				this.showDropDown2 = true;
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				break;
-			}
-			case 6: {
-				//that don't have any codes from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
-				this.showDropDown2 = true;
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				break;
-			}
-			case 7: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = true;
-				this.showTextBox = false;
-				break;
-			}
-			case 8: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 9: {
-				//statements;
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 10: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			default: {
-				//statements; 
-				break;
-			}
-		}
-	}
-
-	public focus(canWrite: boolean) {
-		this.canWrite = canWrite;
-		//this.InfoBoxText.nativeElement.focus();
-	}
-}
 

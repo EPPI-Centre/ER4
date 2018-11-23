@@ -200,9 +200,11 @@ export class ItemListService {
             return new Item();
         }
     }
-    public ListDescription: string = "";
-    public FetchWithCrit(crit: Criteria, listDescription: string) {
-        console.log(crit.listType);
+	public ListDescription: string = "";
+
+	public FetchWithCrit(crit: Criteria, listDescription: string) {
+
+        //alert(crit.listType);
         this._Criteria = crit;
         console.log(this._Criteria.listType);
         this.ListDescription = listDescription;

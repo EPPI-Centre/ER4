@@ -6,11 +6,13 @@ import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.
 import { debounceTime, startWith, merge, switchMap, share  } from 'rxjs/operators/index';
 import { pipe } from 'rxjs'
 import { style } from '@angular/animations';
-import { searchService, Search } from '../services/search.service';
+import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings, GridModule, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
+import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -29,9 +31,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
 		public _searchService: searchService,
-		private _eventEmitter: EventEmitterService
+		private _eventEmitter: EventEmitterService,
+		private modalService: NgbModal,
+		private reviewSetService: ReviewSetsService
 	) {
-		//this.setSelectableSettings();
 	}
 
 	@ViewChild('testKendoGrid') searchesGrid!: GridComponent;
@@ -40,32 +43,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
-	//public checkboxOnly = false;
-	//public mode = 'multiple';
-	//public selectableSettings: SelectableSettings | null | undefined;
-
-
-	//public setSelectableSettings(): void {
-
-	//	this.selectableSettings = {
-
-	//		checkboxOnly: this.checkboxOnly,
-	//		mode: 'multiple'
-	//	};
-	//}
 
     public selectedAll: boolean = false;
-
-    //private _dataSource: MatTableDataSource<any> | null = null;
-    //public get dataSource(): MatTableDataSource<any>  {
-    //    console.log('Getting searches data for table');
-    //    if (this._dataSource == null) {
-    //        this._dataSource = new MatTableDataSource(this._searchService.SearchList);
-    //        this._dataSource.sort = this.sort;
-    //        console.log('table length: ' + this._dataSource.data.length + ' Searchlist length: ' + this._searchService.SearchList.length);
-    //    }
-    //    return this._dataSource;
-    //} 
 
 	allSearchesSelected: boolean = false;
 	// bound to header checkbox
@@ -110,43 +89,50 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	DeleteSearchSelected() {
 
-		let tmp: number = 0;
+		//let tmp: number = 0;
 		let lstStrSearchIds = '';
 		// check which rows have been selected already
 		for (var i = 0; i < this.DataSource.data.length; i++) {
 
 			if (this.DataSource.data[i].add == true) {
-
-				//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == this.DataSource.data[i].searchId);
-				//if (dataItem != null) {
-				//	console.log('dataitem not equal to null');
-				//	this._searchService.removeHandler(dataItem);
-				//}
-				tmp += 1;
+			//	tmp += 1;
 				lstStrSearchIds += this.DataSource.data[i].searchId + ',' ;
 			}
 		}
 		console.log(lstStrSearchIds);
 		this._searchService.Delete(lstStrSearchIds);
 
-		//alert('This many rows have been selected: ' + tmp);
-		//alert('These are the search ids that have been selected: ' + lstStrSearchIds);
-		//let searchId: number = Number(this._searchService.searchToBeDeleted);
-		//console.log('Inside delete search selected: ' + searchId);
-		//let dataItem: any | undefined = this._searchService.SearchList.find(x => x.searchId == searchId);
-		//console.log('Inside delete search selected: ' + dataItem.searchId);
-		//if (dataItem != null) {
-		//	console.log('dataitem not equal to null');
-		//	this._searchService.removeHandler(dataItem);
-		//}
+	}
+
+	openNewSearchModal() {
+
+		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
+
+		modalComp.componentInstance.InfoBoxTextInput = 'tester';
+		modalComp.componentInstance.focus(null);
+
+		modalComp.result.then(() => {
+
+			//data.additionalText = infoTxt;
+			//if (!data.isSelected) {
+
+
+			//	this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);
+			//}
+			//else {
+
+			//	this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);
+			//}
+		},
+			() => {
+
+				alert('testing 123 correct');
+			}
+		);
 	}
 
 
 	public checkboxClicked(dataItem: any) {
-
-		//alert('bllaaaahhh: ' + this.searchesGrid.columns.length);
-		//alert(JSON.stringify(dataItem));
-		//alert(dataItem.searchId);
 
 		dataItem.add = !dataItem.add;
 		//alert(dataItem.add);
@@ -206,24 +192,19 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		let cr: Criteria = new Criteria();
 
-		//cr.setId = item.setId;
-		//cr.attributeid = item.attributeId;
-		//// the below should get its value from the view radio buttons
-		//cr.onlyIncluded = item.isIncluded;
 		cr.filterAttributeId = -1;
 		cr.searchId = item;
 		cr.listType = 'GetItemSearchList';
-		//cr.attributeSetIdList = item.attributeSetId;
-		console.log('searchid is: ' + item);
-		this.ItemListService.FetchWithCrit(cr, "GetItemSearchList");
+		cr.pageNumber = 0;
+		alert('cr.listType: ' + cr.listType);
+
+		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
         this._eventEmitter.PleaseSelectItemsListTab.emit();
 	}
 
 	ngOnDestroy() {
-        //if (this.SearchesChanged) this.SearchesChanged.unsubscribe();
 	}
-
-
+	
 	public tableArr: Search[] = this._searchService.SearchList;
 	public testArr: Search[] = [];
 	public selectAll: boolean =false;
@@ -232,63 +213,21 @@ export class SearchComp implements OnInit, OnDestroy {
 	public allowMultiSelect = true;
 	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
 
-	public columnNames = [
-	{
-		id: "selected",
-		value: "Selected"
-	},
-	{
-		id: "searchId",
-		value: "SearchId"
-	},
-	{
-		id: "title",
-		value: "Title"
-	},
-	{
-		id: "contactName",
-		value: "ContactName"
-	},
-	{
-		id: "searchDate",
-		value: "SearchDate"
-	},
-	{
-		id: "hitsNo",
-		value: "HitsNo"
+	SearchGetItemList(dataItem: Search) {
 
-	}];
+		let search: Search = new Search();
+		let cr: Criteria = new Criteria();
+		cr.onlyIncluded = dataItem.selected;
+		cr.showDeleted = false;
+		cr.pageNumber = 0;
+		cr.searchId = dataItem.searchId;
+		let ListDescription: string = "GetItemSearchList";
+		cr.listType = ListDescription;
 
-	testAlert() {
+		this.ItemListService.FetchWithCrit(cr, ListDescription);
+		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
-		alert('Not implemented');
 	}
-
-	updateCheck() {
-
-		
-
-		if (this.selectAll === true) {
-			this.selectAll = false;
-			this.tableArr.map((r) => {
-				r.selected = false;
-			});
-
-		} else {
-			this.selectAll = true;
-			this.tableArr.map((r) => {
-				r.selected = true;
-			});
-		}
-	}
-
-	
-	createTable() {
-
-		//this.dataSource = new MatTableDataSource(this.tableArr);
-		//this.dataSource.sort = this.sort;
-	}
-
 
 	ngOnInit() {
 				
@@ -296,79 +235,8 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.router.navigate(['home']);
 		}
 		else {
-            //this.SearchesChanged = this._searchService.searchesChanged.subscribe(() => this.RebuildDataTableSource());
-            //this.displayedColumns = this.columnNames.map(
-            //    (x) => {
 
-            //        if (x != undefined) {
-            //            return x.id;
-            //        } else {
-            //            return '';
-            //        }
-            //    }
-            //);
             this._searchService.Fetch();
-			// this._searchService.Fetch().toPromise().then(
-				 
-			//	 (res) => {
-
-			//		 this.displayedColumns = this.columnNames.map(
-			//			 (x) => {
-
-			//				 if (x != undefined) {
-			//					 return x.id;
-			//				 } else {
-			//					 return '';
-			//				 }
-			//			 }
-			//		 );
-
-			//		 //this.testArr = res;
-			//		 this.tableArr = res;
-
-			//		 //for (var i = 0; i < res.length; i++) {
-
-			//			// this.tableArr[i].contactName = this.testArr[i].contactName;
-			//			// this.tableArr[i].hitsNo = this.testArr[i].hitsNo;
-			//			// this.tableArr[i].title = this.testArr[i].title;
-			//			// this.tableArr[i].searchDate = this.testArr[i].searchDate;
-			//			// this.tableArr[i].searchId = this.testArr[i].searchId;
-			//			// this.tableArr[i].selected = false;
-
-			//			//// console.log(this.tableArr[i]);
-
-			//		 //}
-
-			//		 //this.tableArr = res;
-			//		 this.createTable();
-			//	 }
-
-			//);
-
-
-				//.map(
-
-				//	(res) => {
-
-
-				//		this.displayedColumns = this.columnNames.map(
-
-				//			(x) => {
-
-				//				if (x != undefined) {
-				//					return x.id;
-				//				} else {
-				//					return '';
-				//				}
-				//			}
-				//		);
-
-				//		this.tableArr.forEach(y => y = res);
-				//		console.log('testing here: ' + res);
-				//		this.createTable();
-				//	}
-
-				//);
 
 		}
 	}
@@ -376,5 +244,244 @@ export class SearchComp implements OnInit, OnDestroy {
 }
 
 
+@Component({
+	selector: 'ngbd-SearchesModal-content',
+	templateUrl: './SearchesModal.component.html'
+})
+export class SearchesModalContent implements SearchCodeCommand {
+
+	@ViewChild('SearchesModal')
+
+	//InfoBoxText!: ElementRef;
+
+	private canWrite: boolean = true;
+	public dropDownList: any = null;
+	public showTextBox: boolean = false;
+	public showDropDown2: boolean = true;
+	public selectedSearchDropDown: string = '';
+	public nodeSelected: boolean = false;
+	public selectedNodeDataName: string = '';
+
+	_title: string = '';
+	_answers: string = '';
+	_included: boolean = false;
+	_withCodes: boolean = false;;
+	_searchId: number = 0;
+	_IDs: string = '';
+
+	public get IsReadOnly(): boolean {
+
+		return this.canWrite;
+
+	}
+	constructor(public activeModal: NgbActiveModal,
+		private reviewSetsService: ReviewSetsService,
+		private _eventEmitter: EventEmitterService,
+		private _searchService: searchService
+	) { }
+
+	test() {
+
+		alert('hello again');
+
+	}
+
+	public cmdSearches: SearchCodeCommand = {
+
+		_IDs: '',
+		_title: '',
+		_answers: '',
+		_included: false,
+		_withCodes: false,
+		_searchId: 0
+	};
+
+	public withCode: boolean = false;
+	public attributeNames: string = '';
+	public commaIDs: string = '';
+
+	options = [1, 2, 3];
+	optionSelected: any;
+
+	onOptionSelected(event: any) {
+
+		console.log(event); //option value will be sent as event
+	}
 
 
+	
+	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
+
+		
+
+		let searchTitle: string = '';
+		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
+		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+		this.cmdSearches._included = Boolean(searchBool);
+		this.cmdSearches._withCodes = this.withCode;
+		this.cmdSearches._searchId = 0;
+
+		alert(selectedSearchDropDown);
+
+		if (firstNum == true || secNum == true ) {
+
+			if (firstNum) {
+
+				this.withCode = true;
+			} else {
+
+				this.withCode = false;
+			}			
+
+			if (this.reviewSetsService.selectedNode != undefined) {
+
+				let tmpID: number = this.reviewSetsService.selectedNode.attributeSetId;
+				this.attributeNames = this.reviewSetsService.selectedNode.name;
+				this.cmdSearches._answers = String(tmpID);
+				alert(this.reviewSetsService.selectedNode);
+			
+				searchTitle = this.withCode == true ?
+					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
+
+
+				this.cmdSearches._title = searchTitle;
+				this.cmdSearches._withCodes = this.withCode;
+
+				this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodes');
+	
+			}
+		}
+
+		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+
+			this.cmdSearches._IDs = this.commaIDs;
+			this.cmdSearches._title = this.commaIDs;
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchIDs');
+		
+
+		}
+		if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+
+			this.cmdSearches._IDs = this.commaIDs;
+			this.cmdSearches._title = this.commaIDs;
+
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
+		
+
+		}
+		if (selectedSearchDropDown == 'Containing this text') {
+
+			//alert(selectedSearchDropDown);
+			//this.cmdSearches._title = 'With at least one document uploaded.';
+			//this.cmdSearches._included = Boolean(searchBool);
+			//this.cmdSearches._withCodes = this.withCode;
+			//this.cmdSearches._searchId = 0;
+
+			//alert(JSON.stringify(this.cmdSearches));
+			//this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+		}
+
+		if (selectedSearchDropDown == 'Without an abstract') {
+
+			alert(selectedSearchDropDown);
+			this.cmdSearches._title = searchTitle;
+			
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoAbstract');
+		
+		}
+
+		if (selectedSearchDropDown == 'Without any documents uploaded') {
+
+			alert(selectedSearchDropDown);
+			this.cmdSearches._title = 'Without any documents uploaded';
+
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoFiles');
+			
+		}
+		if (selectedSearchDropDown == 'With at least one document uploaded') {
+
+			this.cmdSearches._title = 'With at least one document uploaded.';
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			
+		}
+
+
+		this.activeModal.dismiss();
+
+	}
+	
+	public nextDropDownList(num: number, val: string) {
+
+		//console.log('got here');
+		this.showDropDown2 = true;
+		this.showTextBox = false;
+		this.selectedSearchDropDown = val;
+		this._eventEmitter.nodeSelected = false;
+
+		switch (num) {
+
+			case 1: {
+				this._eventEmitter.nodeSelected = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.showDropDown2 = false;
+				break;
+			}
+			case 2: {
+				//statements; 
+				this._eventEmitter.nodeSelected = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.showDropDown2 = false;
+				break;
+			}
+			case 3: {
+				//With these internal IDs (comma separated) show text box
+				
+				this.showDropDown2 = false;
+				this.showTextBox = true;
+				break;
+			}
+			case 4: {
+				this.showDropDown2 = true;
+				this.showTextBox = true;
+				break;
+			}
+			case 5: {
+				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				break;
+			}
+			case 6: {
+				this.showDropDown2 = true;
+				this.dropDownList = this.reviewSetsService.ReviewSets;
+				break;
+			}
+			case 7: {
+				this.showDropDown2 = true;
+				break;
+			}
+			case 8: {
+				//statements; 
+				this._eventEmitter.nodeSelected = false;
+				this.showDropDown2 = false;
+				break;
+			}
+			case 9: {
+				this.showDropDown2 = false;
+				break;
+			}
+			case 10: {
+				this.showDropDown2 = false;
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	}
+
+	public focus(canWrite: boolean) {
+		this.canWrite = canWrite;
+		//this.InfoBoxText.nativeElement.focus();
+	}
+}
