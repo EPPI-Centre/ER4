@@ -62,7 +62,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	//public selectedAttributeSetF: any | 'none';
 	
     	
-    dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
 	alertT() {
@@ -87,12 +86,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			}
 		)
 		
-        this.dtOptions = {
-            pagingType: 'full_numbers',
-            paging: false,
-            searching: false,
-            scrollY: "350px"
-		};
 
         //this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
@@ -138,12 +131,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		console.log('tabs initialised');
 	}
 	IncludedItemsList() {
-		let cr: Criteria = new Criteria();
-		cr.listType = 'StandardItemList';
-		this.ItemListService.FetchWithCrit(cr, "Included Items");
-	
+        this.IncludedItemsListNoTabChange();
 		this.tabset.select('ItemListTab');
-	}
+    }
+    IncludedItemsListNoTabChange() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        this.ItemListService.FetchWithCrit(cr, "Included Items");
+    }
+
 	ExcludedItemsList() {
 		let cr: Criteria = new Criteria();
 		cr.listType = 'StandardItemList';
@@ -196,6 +192,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.reviewSetsService.GetReviewSets();
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         else console.log("work allocs comp is undef :-(");
+        if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
+            this.IncludedItemsListNoTabChange();
     }
     GetStats() {
         console.log('getting stats (mainfull)');
