@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable, EventEmitter, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouteReuseStrategy } from '@angular/router';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
@@ -14,6 +14,7 @@ import { error } from '@angular/compiler/src/util';
 import { ReviewerTermsService } from './ReviewerTerms.service';
 import { ModalService } from './modal.service';
 import { take } from 'lodash';
+import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
 
 
 @Injectable({
@@ -25,8 +26,8 @@ export class ReviewerIdentityService {
     constructor(private router: Router, 
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
-        @Inject('BASE_URL') private _baseUrl: string
-        , @Inject(PLATFORM_ID) private _platformId: Object,
+        @Inject('BASE_URL') private _baseUrl: string,
+        private customRouteReuseStrategy: RouteReuseStrategy  ,
         private ReviewerTermsService: ReviewerTermsService,
         private modalService: ModalService
     ) { }
@@ -74,7 +75,7 @@ export class ReviewerIdentityService {
     }
     @Output() LoginFailed = new EventEmitter();  
     public LoginReq(u: string, p: string) {
-
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
@@ -121,7 +122,7 @@ export class ReviewerIdentityService {
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {
-        
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
@@ -149,7 +150,7 @@ export class ReviewerIdentityService {
 
     public LoginToFullReview(RevId: number) {
 
-
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
