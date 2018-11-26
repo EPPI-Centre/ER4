@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ERxWebClient2", "ERxWebClie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcademicImportCore", "AcademicImportCore\AcademicImportCore.csproj", "{2A2164A1-4F4E-4042-AFD4-BEE668C14C84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapDatabase", "MapDatabase\MapDatabase.csproj", "{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapDatabase", "MapDatabase\MapDatabase.csproj", "{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

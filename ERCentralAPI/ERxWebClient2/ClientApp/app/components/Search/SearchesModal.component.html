@@ -38,24 +38,56 @@
 							{{_eventEmitter.nodeName}}
 						</b>
 					</div>
-			
-					<!--<div *ngIf="showDropDown2"  class="d-inline-block col-md-12">
-						<button class="btn btn-info col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
-						<div >
-							<select class='select-option col-md-12' [(ngModel)]='optionSelected' 
-									(ngModelChange)='onOptionsSelected($event)'>
-								<option class='option' *ngFor='let item of dropdownlist' 
-										>{{item.name}}</option>
-							</select>
-						</div>
-					</div>-->
+
+										<!--<div *ngIf="showDropDown2"  class="d-inline-block col-md-12">
+								<button class="btn btn-info col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
+								<div >
+									<select class='select-option col-md-12' [(ngModel)]='optionSelected'
+											(ngModelChange)='onOptionsSelected($event)'>
+										<option class='option' *ngFor='let item of dropdownlist'
+												>{{item.name}}</option>
+									</select>
+								</div>
+							</div>-->
 				</div>
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div>
 						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
-						<input [(ngModel)]="commaIDs" class="col-md-8 bg-light border-dark" type="text" name="CommaIDs"><br>
+						<input [(ngModel)]="commaIDs" 
+							   class="col-md-8 bg-light border-dark form-control" 
+							   type="text" name="CommaIDs"
+							    placeholder="IDs"><br>
 					</div>
 				</div>
+				<div class="col-md-12">
+					<div class="row">
+						<div class="col-md-4"></div>
+						<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
+							 class="col-md-8">
+							<div>
+								<input [(ngModel)]="SearchText"
+									   class="col-md-11 m-3 pull-right form-control"
+									   type="text" name="SearchText" placeholder="search text"><br>
+
+								<h3 class="col-md-12 font-italic text-center">IN</h3>
+
+								<div ngbDropdown class="d-inline-block col-md-12">
+									<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+									<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+										<button (click)="test()" class="dropdown-item">With this code</button>
+										<button class="dropdown-item">Title and abstract</button>
+										<button class="dropdown-item">Abstract only</button>
+										<button class="dropdown-item">Additional text</button>
+										<button class="dropdown-item">Uploaded documents</button>
+										<button class="dropdown-item">Authors</button>
+										<button class="dropdown-item">Publication year</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+					</div>
 			</div>
 		</div>
 		<div class="row">

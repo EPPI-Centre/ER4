@@ -259,9 +259,11 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public showTextBox: boolean = false;
 	public showDropDown2: boolean = true;
 	public selectedSearchDropDown: string = '';
+	public selectedSearchTextDropDown: string = '';
 	public nodeSelected: boolean = false;
 	public selectedNodeDataName: string = '';
 
+	_searchText: string = '';
 	_title: string = '';
 	_answers: string = '';
 	_included: boolean = false;
@@ -288,6 +290,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	public cmdSearches: SearchCodeCommand = {
 
+		_searchText: '',
 		_IDs: '',
 		_title: '',
 		_answers: '',
@@ -299,6 +302,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public withCode: boolean = false;
 	public attributeNames: string = '';
 	public commaIDs: string = '';
+	public SearchText: string = '';
 
 	options = [1, 2, 3];
 	optionSelected: any;
@@ -311,8 +315,6 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	
 	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
-
-		
 
 		let searchTitle: string = '';
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
@@ -371,15 +373,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 		}
 		if (selectedSearchDropDown == 'Containing this text') {
 
-			//alert(selectedSearchDropDown);
-			//this.cmdSearches._title = 'With at least one document uploaded.';
-			//this.cmdSearches._included = Boolean(searchBool);
-			//this.cmdSearches._withCodes = this.withCode;
-			//this.cmdSearches._searchId = 0;
-
-			//alert(JSON.stringify(this.cmdSearches));
-			//this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
-			//this._searchService.FetchSearchNoFiles(this.cmdSearches);
+			alert('Along the write lines...');
+			this.cmdSearches._searchText = this.SearchText;
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
 
 		if (selectedSearchDropDown == 'Without an abstract') {

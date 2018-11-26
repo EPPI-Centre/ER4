@@ -211,6 +211,31 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
+		public IActionResult SearchText([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchFreeTextCommand cmd = new SearchFreeTextCommand(
+					cmdIn._title, cmdIn._included, cmdIn._searchText
+					);
+				DataPortal<SearchFreeTextCommand> dp = new DataPortal<SearchFreeTextCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
+		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
 		{
 			
@@ -236,6 +261,7 @@ namespace ERxWebClient2.Controllers
 
 	public class CodeCommand
 	{
+		public string _searchText = "";
 		public string _IDs = "";
 		public string _title = "";
 		public string _answers = "";
