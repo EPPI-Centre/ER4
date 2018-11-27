@@ -250,18 +250,10 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public attributeNames: string = '';
 	public commaIDs: string = '';
 	public searchText: string = '';
-
-	options = [1, 2, 3];
-	optionSelected: any;
-
-	onOptionSelected(event: any) {
-
-		console.log(event); //option value will be sent as event
-	}
-
 	
-	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
+	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
+		this.selectedSearchTextDropDown = selectedSearchTextDropDown;
 		let searchTitle: string = '';
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
 		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
@@ -460,6 +452,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	public setSearchTextDropDown(heading: string) {
 
+		this.selectedSearchTextDropDown = heading;
 		this.cmdSearches._searchText = heading;
 	}
 

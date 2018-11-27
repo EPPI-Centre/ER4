@@ -37,6 +37,7 @@ export class searchService {
 
 			.subscribe(result => {
 
+					console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
 					this.searchesChanged.emit();
 				}
@@ -83,6 +84,7 @@ export class searchService {
 
 export class Search {
 
+	searchNo: number = 0;
 	selected: boolean = false;
 	searchId: number = 0;
 	hitsNo: number = 0;

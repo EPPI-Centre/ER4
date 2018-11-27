@@ -26,16 +26,14 @@
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'With this code' )
-						 ||  
-						 (selectedSearchDropDown == 'Without this code'	)">
+						 ||   (selectedSearchDropDown == 'Without this code' )">
 						<codesets class="col-md-8"></codesets>
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 						 ||		selectedSearchDropDown == 'That dont have any codes from this set') "
 						 ngbDropdown class="d-inline-block col-md-12">
-
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 							<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
@@ -84,10 +82,10 @@
 		<div class="row">
 			<div class="col-md-4"></div>
 			<div class="col-md-12">
-				<table class="table table-responsive  table-striped table-light card-body">
+				<table class="table table-responsive table-striped table-light card-body">
 					<tr>
 						<td>
-							<input [checked]='true' type="radio" value=true name="a" [(ngModel)]="searchBool"><b>&nbsp; Included </b>
+							<input [checked]="true" type="radio" value=true name="a" [(ngModel)]="searchBool"><b>&nbsp; Included </b>
 						</td>
 						<td>
 							<input type="radio" value="false" name="a" [(ngModel)]="searchBool"><b>&nbsp; Excluded</b>
@@ -101,6 +99,6 @@
     <div class="modal-footer bg-primary">
         <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
         <button type="button" class="btn btn-secondary" 
-                (click)="callSearches(selectedSearchDropDown, searchBool)">Search</button>
+                (click)="callSearches(selectedSearchDropDown,selectedSearchTextDropDown , searchBool)">Search</button>
     </div>
 
