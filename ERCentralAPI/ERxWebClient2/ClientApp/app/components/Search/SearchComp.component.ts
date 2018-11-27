@@ -179,13 +179,7 @@ export class SearchComp implements OnInit, OnDestroy {
         console.log('sorting?' + this.sort[0].field + " ");
         //this.loadProducts();
     }
-    value = 1;
-    onEnter(value: number) {
-        this.value = value ;
-        this.ItemListService.FetchParticularPage(value-1);
-    }
     
-	dataTable: any;
 
 
 	OpenItems(item: number) {

@@ -47,7 +47,11 @@ export class ItemListService {
         //this.Save();
 	}
 
-
+    private _isBusy: boolean = false;
+    public get isBusy(): boolean {
+        console.log('Item list, isbusy? ' + this._isBusy);
+        return this._isBusy;
+    }
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
@@ -205,15 +209,18 @@ export class ItemListService {
 	public FetchWithCrit(crit: Criteria, listDescription: string) {
 
         //alert(crit.listType);
+        this._isBusy = true;
         this._Criteria = crit;
         console.log(this._Criteria.listType);
         this.ListDescription = listDescription;
-            this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(list => {
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(
+                list => {
                 this._Criteria.totalItems = this.ItemList.totalItemCount;
 
                 this.SaveItems(list, this._Criteria);
-            }, error => { this.ModalService.GenericError(error);}
+                }, error => { this.ModalService.GenericError(error); }
+                ,() => { this._isBusy = false; }
             );
     }
     public Refresh() {

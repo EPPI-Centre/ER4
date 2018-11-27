@@ -1,18 +1,10 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forEach } from '@angular/router/src/utils/collection';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
-import { FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule  } from '@angular/forms';
-import { Subject } from 'rxjs/index';
-import { debounceTime, startWith, merge, switchMap, share  } from 'rxjs/operators/index';
-import { pipe } from 'rxjs'
-import { style } from '@angular/animations';
+import { GridDataResult } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Component({
     selector: 'ItemListComp',
@@ -34,12 +26,27 @@ export class ItemListComp implements OnInit {
     //@Output() loadDefault = new EventEmitter();
 
     @Input() Context: string | undefined;
-
-    value = 1;
-    onEnter(value: number) {
-        this.value = value ;
-        this.ItemListService.FetchParticularPage(value-1);
+    public get DataSource(): GridDataResult {
+        //console.log('UI read itemList', this.sort);
+        //if (this.ItemListService.ItemList.items[0]) 
+        //console.log("AAA", (orderBy(this.ItemListService.ItemList.items, this.sort)[0] as Item).itemId
+        //, this.ItemListService.ItemList.items.length);
+        return {
+            data: orderBy(this.ItemListService.ItemList.items, this.sort),
+            total: this.ItemListService.ItemList.items.length 
+        };
     }
+    public sort: SortDescriptor[] = [{
+        field: 'shortTitle',
+        dir: 'asc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+
+        this.sort = sort;
+        console.log('sorting items by ' + this.sort[0].field + " ");
+        //this.loadProducts();
+    }
+
     
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
 	

@@ -1,8 +1,5 @@
 /// <reference path="../services/itemlist.service.ts" />
 import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forEach } from '@angular/router/src/utils/collection';
-import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
