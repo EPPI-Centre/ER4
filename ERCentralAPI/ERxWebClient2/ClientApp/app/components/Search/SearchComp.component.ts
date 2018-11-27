@@ -12,7 +12,8 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { RowClassArgs, GridDataResult, RowArgs, SelectableSettings, GridModule, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
+import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
 
 @Component({
 	selector: 'SearchComp',
@@ -42,8 +43,7 @@ export class SearchComp implements OnInit, OnDestroy {
     onSubmit(f: string) {
 
 	}
-
-
+	
     public selectedAll: boolean = false;
 
 	allSearchesSelected: boolean = false;
@@ -262,6 +262,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public selectedSearchTextDropDown: string = '';
 	public nodeSelected: boolean = false;
 	public selectedNodeDataName: string = '';
+	public CodeSets: any[] = [];
 
 	_searchText: string = '';
 	_title: string = '';
@@ -302,7 +303,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public withCode: boolean = false;
 	public attributeNames: string = '';
 	public commaIDs: string = '';
-	public SearchText: string = '';
+	public searchText: string = '';
 
 	options = [1, 2, 3];
 	optionSelected: any;
@@ -322,9 +323,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 		this.cmdSearches._included = Boolean(searchBool);
 		this.cmdSearches._withCodes = this.withCode;
 		this.cmdSearches._searchId = 0;
-
-		alert(selectedSearchDropDown);
-
+		
 		if (firstNum == true || secNum == true ) {
 
 			if (firstNum) {
@@ -374,7 +373,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 		if (selectedSearchDropDown == 'Containing this text') {
 
 			alert('Along the write lines...');
-			this.cmdSearches._searchText = this.SearchText;
+			this.cmdSearches._title = this.searchText;
+			this.cmdSearches._searchText = this.selectedSearchTextDropDown;
+			this.cmdSearches._included = Boolean(searchBool);
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
 
@@ -443,6 +444,11 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 			case 5: {
+				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+					.map(
+
+					(y: ReviewSet) => { return y.name;}
+					);
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
@@ -453,6 +459,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 			case 7: {
+
 				this.showDropDown2 = true;
 				break;
 			}
@@ -474,6 +481,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 		}
+	}
+
+
+	public setSearchTextDropDown(balh: any) {
+
+		this.selectedSearchTextDropDown = balh;
+		alert('okay');
 	}
 
 	public focus(canWrite: boolean) {
