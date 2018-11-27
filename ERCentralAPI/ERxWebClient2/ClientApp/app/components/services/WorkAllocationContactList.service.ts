@@ -20,8 +20,8 @@ export class WorkAllocationContactListService {
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
-            localStorage.removeItem('WorkAllocationContactList');
+        //if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
+        //    localStorage.removeItem('WorkAllocationContactList');
     }
 
     public _workAllocations: WorkAllocation[] = [];
@@ -30,18 +30,18 @@ export class WorkAllocationContactListService {
     public CurrentlyLoadedWorkAllocationSublist: WorkAllocationSublist = new WorkAllocationSublist();
 
     public get workAllocations(): WorkAllocation[] {
-        if (this._workAllocations.length == 0) {
+        //if (this._workAllocations.length == 0) {
 
-            const workAllocationsJson = localStorage.getItem('WorkAllocationContactList');
-            let workAllocations: WorkAllocation[] = workAllocationsJson !== null ? JSON.parse(workAllocationsJson) : [];
-            if (workAllocations == undefined || workAllocations == null || workAllocations.length == 0) {
-                return this._workAllocations;
-            }
-            else {
+        //    const workAllocationsJson = localStorage.getItem('WorkAllocationContactList');
+        //    let workAllocations: WorkAllocation[] = workAllocationsJson !== null ? JSON.parse(workAllocationsJson) : [];
+        //    if (workAllocations == undefined || workAllocations == null || workAllocations.length == 0) {
+        //        return this._workAllocations;
+        //    }
+        //    else {
 
-                this._workAllocations = workAllocations;
-            }
-        }
+        //        this._workAllocations = workAllocations;
+        //    }
+        //}
         return this._workAllocations;
 
     }
@@ -49,7 +49,7 @@ export class WorkAllocationContactListService {
 
     public set workAllocations(wa: WorkAllocation[]) {
         this._workAllocations = wa;
-        this.Save();
+        //this.Save();
     }
    
     
@@ -65,12 +65,12 @@ export class WorkAllocationContactListService {
     }
 
 
-    public Save() {
-        if (this._workAllocations.length > 0)
-            localStorage.setItem('WorkAllocationContactList', JSON.stringify(this._workAllocations));
-        else if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
-            localStorage.removeItem('WorkAllocationContactList');
-    }
+    //public Save() {
+    //    if (this._workAllocations.length > 0)
+    //        localStorage.setItem('WorkAllocationContactList', JSON.stringify(this._workAllocations));
+    //    else if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
+    //        localStorage.removeItem('WorkAllocationContactList');
+    //}
 }
 
 export class WorkAllocation {
