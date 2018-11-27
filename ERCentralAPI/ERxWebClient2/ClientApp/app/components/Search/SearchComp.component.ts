@@ -33,8 +33,7 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: NgbModal,
-		private reviewSetService: ReviewSetsService
+		private modalService: NgbModal
 	) {
 	}
 
@@ -263,12 +262,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public nodeSelected: boolean = false;
 	public selectedNodeDataName: string = '';
 	public CodeSets: any[] = [];
+	//public searchBool: boolean = true;
 
 	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
 	_answers: string = '';
-	_included: boolean = false;
+	_included: boolean = true;
 	_withCodes: boolean = false;;
 	_searchId: number = 0;
 	_IDs: string = '';
