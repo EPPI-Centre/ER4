@@ -52,7 +52,7 @@ export class ReviewerIdentityService {
         //        this._reviewerIdentity = currentUser;
         //    }
         //}
-        
+        console.log('getting ri', this._reviewerIdentity);
         return this._reviewerIdentity;
     }
 
