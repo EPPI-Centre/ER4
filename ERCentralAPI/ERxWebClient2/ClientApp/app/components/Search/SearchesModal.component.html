@@ -25,10 +25,9 @@
 						</div>
 					</div>
 
-					<div *ngIf="(selectedSearchDropDown == 'With this code'
-						 && _eventEmitter.nodeSelected == false)
-						 ||  (selectedSearchDropDown == 'Without this code'
-						 && _eventEmitter.nodeSelected == false)">
+					<div *ngIf="(selectedSearchDropDown == 'With this code' )
+						 ||  
+						 (selectedSearchDropDown == 'Without this code'	)">
 						<codesets class="col-md-8"></codesets>
 					</div>
 
@@ -39,15 +38,18 @@
 						</b>
 					</div>
 
-					<!--<div ngbDropdown class="d-inline-block col-md-12">
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{CodeSets}}</button>
-						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-							<button class="dropdown-item"></button>
+					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
+						 ||		selectedSearchDropDown == 'That dont have any codes from this set') "
+						 ngbDropdown class="d-inline-block col-md-12">
+
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+							<button *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
-					</div>-->
+					</div>
 				</div>
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
-					<div class="row">
+			
 						<div>
 							<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
 							<input [(ngModel)]="commaIDs"
@@ -55,10 +57,10 @@
 								   type="text" name="CommaIDs"
 								   placeholder="IDs"><br>
 						</div>
-					</div>
+			
 				</div>
 				<div class="col-md-12">
-					<div class="row">
+
 						<div class="col-md-4"></div>
 						<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
 							 class="col-md-8">
@@ -87,7 +89,7 @@
 							</div>
 						</div>
 					</div>
-					</div>
+			
 			</div>
 		</div>
 		<div class="row">
