@@ -36,37 +36,37 @@ export class CodesetStatisticsService {
         duplicateItems: -1
     };
     public get ReviewStats(): ReviewStatisticsCountsCommand {
-        if (this._ReviewStats.itemsIncluded != -1 ) {
-            return this._ReviewStats;
-        }
-        else {
-            const ReviewStatsJson = localStorage.getItem('ReviewStats');
-            let rev_Stats: ReviewStatisticsCountsCommand = ReviewStatsJson !== null ? JSON.parse(ReviewStatsJson) : null;
-            if (rev_Stats == undefined || rev_Stats == null || rev_Stats.itemsIncluded == -1) {
+        //if (this._ReviewStats.itemsIncluded != -1 ) {
+        //    return this._ReviewStats;
+        //}
+        //else {
+        //    const ReviewStatsJson = localStorage.getItem('ReviewStats');
+        //    let rev_Stats: ReviewStatisticsCountsCommand = ReviewStatsJson !== null ? JSON.parse(ReviewStatsJson) : null;
+        //    if (rev_Stats == undefined || rev_Stats == null || rev_Stats.itemsIncluded == -1) {
 
-                return this._ReviewStats;
-            }
-            else {
-                this._ReviewStats = rev_Stats;
-            }
-        }
+        //        return this._ReviewStats;
+        //    }
+        //    else {
+        //        this._ReviewStats = rev_Stats;
+        //    }
+        //}
         return this._ReviewStats;
     }
     public get CompletedCodesets(): ReviewStatisticsCodeSet[]  {
-        if (this._CompletedCodesets != null ) {
-            return this._CompletedCodesets;
-        }
-        else {
-            const CompletedCodesetsJson = localStorage.getItem('CompletedCodesets');
-            let CompletedSets: ReviewStatisticsCodeSet[]  = CompletedCodesetsJson !== null ? JSON.parse(CompletedCodesetsJson) : null;
-            if (CompletedSets == undefined || CompletedSets == null  ) {
+        //if (this._CompletedCodesets != null ) {
+        //    return this._CompletedCodesets;
+        //}
+        //else {
+        //    const CompletedCodesetsJson = localStorage.getItem('CompletedCodesets');
+        //    let CompletedSets: ReviewStatisticsCodeSet[]  = CompletedCodesetsJson !== null ? JSON.parse(CompletedCodesetsJson) : null;
+        //    if (CompletedSets == undefined || CompletedSets == null  ) {
 
-                return this._CompletedCodesets;
-            }
-            else {
-                this._CompletedCodesets = CompletedSets;
-            }
-        }
+        //        return this._CompletedCodesets;
+        //    }
+        //    else {
+        //        this._CompletedCodesets = CompletedSets;
+        //    }
+        //}
         return this._CompletedCodesets;
 	}
 	public set CompletedCodesets(CompletedCodesets: ReviewStatisticsCodeSet[]) {
@@ -81,39 +81,39 @@ export class CodesetStatisticsService {
 
 	public get tmpCodesets(): StatsCompletion[] {
 
-        if (this._tmpCodesets != null) {
-            return this._tmpCodesets;
-        }
-        else {
-			const tmpCodesetsJson = localStorage.getItem('tmpCodesets');
-			let tmpCodesets: StatsCompletion[] = tmpCodesetsJson !== null ? JSON.parse(tmpCodesetsJson) : null;
-			if (tmpCodesets == undefined || tmpCodesets == null) {
+  //      if (this._tmpCodesets != null) {
+  //          return this._tmpCodesets;
+  //      }
+  //      else {
+		//	const tmpCodesetsJson = localStorage.getItem('tmpCodesets');
+		//	let tmpCodesets: StatsCompletion[] = tmpCodesetsJson !== null ? JSON.parse(tmpCodesetsJson) : null;
+		//	if (tmpCodesets == undefined || tmpCodesets == null) {
 
-                return this._tmpCodesets;
-            }
-            else {
-				this._tmpCodesets = tmpCodesets;
-            }
-		}
-		console.log('blah ' + this._tmpCodesets);
+  //              return this._tmpCodesets;
+  //          }
+  //          else {
+		//		this._tmpCodesets = tmpCodesets;
+  //          }
+		//}
+		//console.log('blah ' + this._tmpCodesets);
 		return this._tmpCodesets;
     }
 
 	public get IncompleteCodesets(): ReviewStatisticsCodeSet[] {
-		if (this._IncompleteCodesets != null) {
-			return this._IncompleteCodesets;
-		}
-		else {
-			const IncompleteCodesetsJson = localStorage.getItem('IncompleteCodesets');
-			let IncompleteSets: ReviewStatisticsCodeSet[] = IncompleteCodesetsJson !== null ? JSON.parse(IncompleteCodesetsJson) : null;
-			if (IncompleteSets == undefined || IncompleteSets == null) {
+		//if (this._IncompleteCodesets != null) {
+		//	return this._IncompleteCodesets;
+		//}
+		//else {
+		//	const IncompleteCodesetsJson = localStorage.getItem('IncompleteCodesets');
+		//	let IncompleteSets: ReviewStatisticsCodeSet[] = IncompleteCodesetsJson !== null ? JSON.parse(IncompleteCodesetsJson) : null;
+		//	if (IncompleteSets == undefined || IncompleteSets == null) {
 
-				return this._IncompleteCodesets;
-			}
-			else {
-				this._IncompleteCodesets = IncompleteSets;
-			}
-		}
+		//		return this._IncompleteCodesets;
+		//	}
+		//	else {
+		//		this._IncompleteCodesets = IncompleteSets;
+		//	}
+		//}
 		return this._IncompleteCodesets;
 	}
 
@@ -123,7 +123,7 @@ export class CodesetStatisticsService {
            data => {    
                
                this._ReviewStats = data;
-               this.Save();
+               //this.Save();
                this.GetCompletedSetsEmit.emit(data);
                
                return data;
@@ -141,7 +141,7 @@ export class CodesetStatisticsService {
 
                 this.CompletedCodesets = result;
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
-                this.SaveCompletedSets();
+                //this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);
                
                 this.GetReviewSetsIncompleteCodingCounts(false, trigger);
@@ -160,7 +160,7 @@ export class CodesetStatisticsService {
 
                 this.IncompleteCodesets = result;
                 //console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
-                this.SaveIncompleteSets();
+                //this.SaveIncompleteSets();
                 this.GetIncompleteSetsEmit.emit(result);
                 this.formateSets();
                 console.log(this._tmpCodesets);
@@ -238,31 +238,31 @@ export class CodesetStatisticsService {
 
         }
         this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
-        this.SaveFormattedSets();
+        //this.SaveFormattedSets();
 
     }
     
-    private Save() {
-        if (this.ReviewStats != undefined && this.ReviewStats != null )
-            localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
-        else if (localStorage.getItem('ReviewStats')) localStorage.removeItem('ReviewStats');
-    }
-    private SaveCompletedSets() {
-        if (this._CompletedCodesets != undefined && this._CompletedCodesets != null) 
-            localStorage.setItem('CompletedSets', JSON.stringify(this._CompletedCodesets));
-        else if (localStorage.getItem('CompletedSets')) localStorage.removeItem('CompletedSets');
-    }
-    private SaveIncompleteSets() {
-        if (this._IncompleteCodesets != undefined && this._IncompleteCodesets != null) 
-            localStorage.setItem('IncompleteSets', JSON.stringify(this._IncompleteCodesets));
-        else if (localStorage.getItem('IncompleteSets')) localStorage.removeItem('IncompleteSets');
-    }
-    private SaveFormattedSets() {
-        console.log('saving formatted sets')
-        if (this._tmpCodesets != undefined && this._tmpCodesets != null)
-            localStorage.setItem('tmpCodesets', JSON.stringify(this._tmpCodesets));
-        else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');
-    }
+    //private Save() {
+    //    if (this.ReviewStats != undefined && this.ReviewStats != null )
+    //        localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
+    //    else if (localStorage.getItem('ReviewStats')) localStorage.removeItem('ReviewStats');
+    //}
+    //private SaveCompletedSets() {
+    //    if (this._CompletedCodesets != undefined && this._CompletedCodesets != null) 
+    //        localStorage.setItem('CompletedSets', JSON.stringify(this._CompletedCodesets));
+    //    else if (localStorage.getItem('CompletedSets')) localStorage.removeItem('CompletedSets');
+    //}
+    //private SaveIncompleteSets() {
+    //    if (this._IncompleteCodesets != undefined && this._IncompleteCodesets != null) 
+    //        localStorage.setItem('IncompleteSets', JSON.stringify(this._IncompleteCodesets));
+    //    else if (localStorage.getItem('IncompleteSets')) localStorage.removeItem('IncompleteSets');
+    //}
+    //private SaveFormattedSets() {
+    //    console.log('saving formatted sets')
+    //    if (this._tmpCodesets != undefined && this._tmpCodesets != null)
+    //        localStorage.setItem('tmpCodesets', JSON.stringify(this._tmpCodesets));
+    //    else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');
+    //}
     public Clear() {
         this._ReviewStats = {
             itemsIncluded: -1,
@@ -271,10 +271,10 @@ export class CodesetStatisticsService {
             duplicateItems: -1
         };
         this._tmpCodesets = [];
-        localStorage.removeItem('tmpCodesets');
-        localStorage.removeItem('CompletedSets');
-        localStorage.removeItem('IncompleteCodesets');
-        localStorage.removeItem('ReviewStats');
+        //localStorage.removeItem('tmpCodesets');
+        //localStorage.removeItem('CompletedSets');
+        //localStorage.removeItem('IncompleteCodesets');
+        //localStorage.removeItem('ReviewStats');
     }   
 }
 export interface ReviewStatisticsCountsCommand {

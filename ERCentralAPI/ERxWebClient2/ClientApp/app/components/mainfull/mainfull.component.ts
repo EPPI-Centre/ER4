@@ -188,7 +188,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	Reload() {
         this.Clear();
-        console.log('get rev sets in mainfull');
+        //console.log('get rev sets in mainfull');
         this.reviewSetsService.GetReviewSets();
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         else console.log("work allocs comp is undef :-(");

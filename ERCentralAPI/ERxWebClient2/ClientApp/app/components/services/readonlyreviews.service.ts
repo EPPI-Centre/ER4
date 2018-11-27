@@ -22,25 +22,25 @@ export class readonlyreviewsService {
     private _ReviewList: ReadOnlyReview[] = [];
 
     public get ReadOnlyReviews(): ReadOnlyReview[] {
-        if (this._ReviewList.length == 0) {
+        //if (this._ReviewList.length == 0) {
 
-            const ReadOnlyReviewsJson = localStorage.getItem('ReadOnlyReviews');
-            let ReadOnlyReviews: ReadOnlyReview[] = ReadOnlyReviewsJson !== null ? JSON.parse(ReadOnlyReviewsJson) : [];
-            if (ReadOnlyReviews == undefined || ReadOnlyReviews == null || ReadOnlyReviews.length == 0) {
-                return this._ReviewList;
-            }
-            else {
-                //console.log("Got workAllocations from LS");
-                this._ReviewList = ReadOnlyReviews;
-            }
-        }
+        //    const ReadOnlyReviewsJson = localStorage.getItem('ReadOnlyReviews');
+        //    let ReadOnlyReviews: ReadOnlyReview[] = ReadOnlyReviewsJson !== null ? JSON.parse(ReadOnlyReviewsJson) : [];
+        //    if (ReadOnlyReviews == undefined || ReadOnlyReviews == null || ReadOnlyReviews.length == 0) {
+        //        return this._ReviewList;
+        //    }
+        //    else {
+        //        //console.log("Got workAllocations from LS");
+        //        this._ReviewList = ReadOnlyReviews;
+        //    }
+        //}
         return this._ReviewList;
 
     }
 
     public set ReadOnlyReviews(ror: ReadOnlyReview[]) {
         this._ReviewList = ror;
-        this.Save();
+        //this.Save();
     }
 
 
@@ -52,12 +52,12 @@ export class readonlyreviewsService {
         );
     }
 
-    public Save() {
-        if (this._ReviewList.length > 0)
-            localStorage.setItem('ReadOnlyReviews', JSON.stringify(this._ReviewList));
-        else if (localStorage.getItem('ReadOnlyReviews'))//to be confirmed!! 
-            localStorage.removeItem('ReadOnlyReviews');
-    }
+    //public Save() {
+    //    if (this._ReviewList.length > 0)
+    //        localStorage.setItem('ReadOnlyReviews', JSON.stringify(this._ReviewList));
+    //    else if (localStorage.getItem('ReadOnlyReviews'))//to be confirmed!! 
+    //        localStorage.removeItem('ReadOnlyReviews');
+    //}
 }
 
 export class ReadOnlyReview {

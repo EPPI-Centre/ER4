@@ -21,24 +21,24 @@ export class searchService {
 	public searchToBeDeleted: string = '';
 
 	public get SearchList(): Search[] {
-		if (this._SearchList.length == 0) {
+		//if (this._SearchList.length == 0) {
 
-			const SearchListJson = localStorage.getItem('SearchList');
-			let SearchList: Search[] = SearchListJson !== null ? JSON.parse(SearchListJson) : [];
-			if (SearchList == undefined || SearchList == null || SearchList.length == 0) {
-				return this._SearchList;
-            }
-            else {
-				this._SearchList = SearchList;
-            }
-        }
+		//	const SearchListJson = localStorage.getItem('SearchList');
+		//	let SearchList: Search[] = SearchListJson !== null ? JSON.parse(SearchListJson) : [];
+		//	if (SearchList == undefined || SearchList == null || SearchList.length == 0) {
+		//		return this._SearchList;
+  //          }
+  //          else {
+		//		this._SearchList = SearchList;
+  //          }
+  //      }
 		return this._SearchList;
 
     }
     
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
-        this.Save();
+        //this.Save();
         this.searchesChanged.emit();
     }
 
@@ -54,7 +54,7 @@ export class searchService {
 					console.log('AAAAgot inside searches: ' + this.crit.SetId);
 					this.SearchList = result;
 					console.log(this._SearchList.length);
-					this.Save();
+					//this.Save();
 				
 					this.searchesChanged.emit();
 
@@ -84,7 +84,7 @@ export class searchService {
 					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
 					this.SearchList.splice(tmpIndex, 1);
 					console.log(this._SearchList.length);
-					this.Save();
+					//this.Save();
 					this.Fetch();
 				}
 		);
@@ -110,12 +110,12 @@ export class searchService {
 
 	
 
-    public Save() {
-		if (this._SearchList.length > 0)
-			localStorage.setItem('SearchList', JSON.stringify(this._SearchList));
-		else if (localStorage.getItem('SearchList'))
-			localStorage.removeItem('SearchList');
-    }
+  //  public Save() {
+		//if (this._SearchList.length > 0)
+		//	localStorage.setItem('SearchList', JSON.stringify(this._SearchList));
+		//else if (localStorage.getItem('SearchList'))
+		//	localStorage.removeItem('SearchList');
+  //  }
 }
 
 export class Search {

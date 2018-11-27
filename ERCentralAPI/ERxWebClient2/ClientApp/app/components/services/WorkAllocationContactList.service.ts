@@ -25,8 +25,7 @@ export class WorkAllocationContactListService {
     }
 
     public _workAllocations: WorkAllocation[] = [];
-
-    
+        
     public CurrentlyLoadedWorkAllocationSublist: WorkAllocationSublist = new WorkAllocationSublist();
 
     public get workAllocations(): WorkAllocation[] {

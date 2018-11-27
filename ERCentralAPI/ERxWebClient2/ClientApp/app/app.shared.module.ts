@@ -30,7 +30,6 @@ import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/item
 import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
 import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
-import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
 import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
@@ -75,7 +74,6 @@ import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseS
 
     providers: [
         EventEmitterService,
-        WebApiObservableService,
         { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
         SearchesModalContent
     ],

@@ -115,7 +115,11 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     getWorkAllocationContactList() {
-
+        if (!this.reviewInfoService.ReviewInfo || this.reviewInfoService.ReviewInfo.reviewId < 1) {
+            //we have reloaded the whole app and need to get the missing info
+            //this happens here because both coding only and main UI will call this method on reload and similar conditions.
+            this.reviewInfoService.Fetch();
+        }
         this._workAllocationContactListService.Fetch();
 
     }
