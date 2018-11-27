@@ -126,7 +126,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		},
 			() => {
 
-				alert('testing 123 correct');
+	
 			}
 		);
 	}
@@ -374,9 +374,8 @@ export class SearchesModalContent implements SearchCodeCommand {
 		}
 		if (selectedSearchDropDown == 'Containing this text') {
 
-			alert('Along the write lines...');
 			this.cmdSearches._title = this.searchText;
-			this.cmdSearches._searchText = this.selectedSearchTextDropDown;
+			//this.cmdSearches._searchText = this.selectedSearchTextDropDown;
 			this.cmdSearches._included = Boolean(searchBool);
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
@@ -509,7 +508,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 	}
 
 
-	public setSearchTextDropDown(blah: string) {
+	public setSearchCodeSetDropDown(blah: string) {
+
+
 
 		this.selectedSearchTextDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == blah)
 			.map(
@@ -523,6 +524,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 				)[0];
 
 		//alert('okay');
+	}
+
+	public setSearchTextDropDown(blah: string) {
+
+
+		this.cmdSearches._searchText = blah;
+
 	}
 
 	public focus(canWrite: boolean) {

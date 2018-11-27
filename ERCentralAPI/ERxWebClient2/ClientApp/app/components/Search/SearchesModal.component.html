@@ -44,7 +44,7 @@
 
 						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-							<button (click)="setSearchTextDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+							<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
 					</div>
 				</div>
@@ -57,7 +57,6 @@
 								   type="text" name="CommaIDs"
 								   placeholder="IDs"><br>
 						</div>
-			
 				</div>
 				<div class="col-md-12">
 
@@ -72,24 +71,21 @@
 										   placeholder="search text"><br>
 								</div>
 								<h3 class="col-md-12 font-italic text-center">IN</h3>
-
 								<div ngbDropdown class="d-inline-block col-md-12">
 									<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 									<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-										<button (click)="setSearchTextDropDown('With this code')" class="dropdown-item">With this code</button>
-										<button class="dropdown-item">Title and abstract</button>
-										<button class="dropdown-item">Abstract only</button>
-										<button class="dropdown-item">Additional text</button>
-										<button class="dropdown-item">Uploaded documents</button>
-										<button class="dropdown-item">Authors</button>
-										<button class="dropdown-item">Publication year</button>
+										<button (click)="setSearchTextDropDown('TitleAbstract')" class="dropdown-item">Title and abstract</button>
+										<button (click)="setSearchTextDropDown('Title')" class="dropdown-item">Title only</button>
+										<button (click)="setSearchTextDropDown('Abstract')" class="dropdown-item">Abstract only</button>
+										<button (click)="setSearchTextDropDown('AdditionalText')" class="dropdown-item">Additional text</button>
+										<button (click)="setSearchTextDropDown('UploadedDocs')" class="dropdown-item">Uploaded documents</button>
+										<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+										<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
 									</div>
 								</div>
-
 							</div>
 						</div>
 					</div>
-			
 			</div>
 		</div>
 		<div class="row">
