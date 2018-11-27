@@ -1,6 +1,5 @@
 import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 @Injectable({
 
@@ -21,45 +20,26 @@ export class searchService {
 	public searchToBeDeleted: string = '';
 
 	public get SearchList(): Search[] {
-		//if (this._SearchList.length == 0) {
 
-		//	const SearchListJson = localStorage.getItem('SearchList');
-		//	let SearchList: Search[] = SearchListJson !== null ? JSON.parse(SearchListJson) : [];
-		//	if (SearchList == undefined || SearchList == null || SearchList.length == 0) {
-		//		return this._SearchList;
-  //          }
-  //          else {
-		//		this._SearchList = SearchList;
-  //          }
-  //      }
 		return this._SearchList;
 
     }
     
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
-        //this.Save();
         this.searchesChanged.emit();
     }
 
 	Fetch() {
-
-		console.log(JSON.stringify(this.crit));
 
 		 this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
 			this.crit)
 
 			.subscribe(result => {
 
-					console.log('AAAAgot inside searches: ' + this.crit.SetId);
+					console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
-					console.log(this._SearchList.length);
-					//this.Save();
-				
 					this.searchesChanged.emit();
-
-					//return result;
-
 				}
 		 );
 	}
@@ -83,43 +63,28 @@ export class searchService {
 
 					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
 					this.SearchList.splice(tmpIndex, 1);
-					console.log(this._SearchList.length);
-					//this.Save();
 					this.Fetch();
 				}
 		);
-		
 	}
-
 
 	FetchSearchGeneric(cmd: SearchCodeCommand, apiStr: string) {
 
 		apiStr = 'api/SearchList/' + apiStr;
-		console.log(cmd);
 		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
 
 			.subscribe(result => {
-
-				//console.log('call to the server again: ' + JSON.stringify(result));
-
-				this.Fetch();
-			}
+					this.Fetch();
+				}
 			);
 	}
 
-	
-
-  //  public Save() {
-		//if (this._SearchList.length > 0)
-		//	localStorage.setItem('SearchList', JSON.stringify(this._SearchList));
-		//else if (localStorage.getItem('SearchList'))
-		//	localStorage.removeItem('SearchList');
-  //  }
 }
 
 export class Search {
 
+	searchNo: number = 0;
 	selected: boolean = false;
 	searchId: number = 0;
 	hitsNo: number = 0;
@@ -139,6 +104,7 @@ export class CriteriaSearch {
 
 export interface SearchCodeCommand {
 
+	_setID: number;
 	_searchText: string;
 	_IDs: string;
 	_title: string;

@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SearchCodeSetCheckCommand(){}
 #else
-        protected SearchCodeSetCheckCommand() { }
+        public SearchCodeSetCheckCommand() { }
 #endif
 
         private int _setId;

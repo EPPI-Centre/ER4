@@ -26,25 +26,16 @@
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'With this code' )
-						 ||  
-						 (selectedSearchDropDown == 'Without this code'	)">
+						 ||   (selectedSearchDropDown == 'Without this code' )">
 						<codesets class="col-md-8"></codesets>
-					</div>
-
-					<div *ngIf="_eventEmitter.nodeSelected" class="btn-warning col-md-12 h-50"
-						 style=" text-align: center">
-						<b class="font-italic">
-							{{_eventEmitter.nodeName}}
-						</b>
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 						 ||		selectedSearchDropDown == 'That dont have any codes from this set') "
 						 ngbDropdown class="d-inline-block col-md-12">
-
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-							<button *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+							<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
 					</div>
 				</div>
@@ -53,17 +44,16 @@
 						<div>
 							<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
 							<input [(ngModel)]="commaIDs"
-								   class="col-md-8 bg-light border-dark form-control"
+								   class="col-md-8 bg-light border-dark form-control pull-right"
 								   type="text" name="CommaIDs"
 								   placeholder="IDs"><br>
 						</div>
-			
 				</div>
 				<div class="col-md-12">
 
 						<div class="col-md-4"></div>
 						<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-							 class="col-md-8">
+							 class="col-md-8  pull-right">
 							<div>
 								<div>
 									<input [(ngModel)]="searchText"
@@ -72,33 +62,30 @@
 										   placeholder="search text"><br>
 								</div>
 								<h3 class="col-md-12 font-italic text-center">IN</h3>
-
 								<div ngbDropdown class="d-inline-block col-md-12">
 									<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 									<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-										<button (click)="setSearchTextDropDown('With this code')" class="dropdown-item">With this code</button>
-										<button class="dropdown-item">Title and abstract</button>
-										<button class="dropdown-item">Abstract only</button>
-										<button class="dropdown-item">Additional text</button>
-										<button class="dropdown-item">Uploaded documents</button>
-										<button class="dropdown-item">Authors</button>
-										<button class="dropdown-item">Publication year</button>
+										<button (click)="setSearchTextDropDown('TitleAbstract')" class="dropdown-item">Title and abstract</button>
+										<button (click)="setSearchTextDropDown('Title')" class="dropdown-item">Title only</button>
+										<button (click)="setSearchTextDropDown('Abstract')" class="dropdown-item">Abstract only</button>
+										<button (click)="setSearchTextDropDown('AdditionalText')" class="dropdown-item">Additional text</button>
+										<button (click)="setSearchTextDropDown('UploadedDocs')" class="dropdown-item">Uploaded documents</button>
+										<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+										<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
 									</div>
 								</div>
-
 							</div>
 						</div>
 					</div>
-			
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-4"></div>
 			<div class="col-md-12">
-				<table class="table table-responsive  table-striped table-light card-body">
+				<table class="table table-responsive table-striped table-light card-body">
 					<tr>
 						<td>
-							<input type="radio" value="true" name="a" [(ngModel)]="searchBool"><b>&nbsp; Included </b>
+							<input [checked]="true" type="radio" value=true name="a" [(ngModel)]="searchBool"><b>&nbsp; Included </b>
 						</td>
 						<td>
 							<input type="radio" value="false" name="a" [(ngModel)]="searchBool"><b>&nbsp; Excluded</b>
@@ -112,6 +99,6 @@
     <div class="modal-footer bg-primary">
         <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
         <button type="button" class="btn btn-secondary" 
-                (click)="callSearches(selectedSearchDropDown, searchBool)">Search</button>
+                (click)="callSearches(selectedSearchDropDown,selectedSearchTextDropDown , searchBool)">Search</button>
     </div>
 
