@@ -264,6 +264,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public selectedNodeDataName: string = '';
 	public CodeSets: any[] = [];
 
+	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
 	_answers: string = '';
@@ -291,6 +292,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	public cmdSearches: SearchCodeCommand = {
 
+		_setID: 0,
 		_searchText: '',
 		_IDs: '',
 		_title: '',
@@ -378,7 +380,21 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._included = Boolean(searchBool);
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
+		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
+			this.cmdSearches._withCodes = true;
+			this.cmdSearches._title = this.selectedSearchTextDropDown;
+
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+
+		}
+		if (selectedSearchDropDown == 'That dont have any codes from this set') {
+
+			this.cmdSearches._withCodes = false;
+			this.cmdSearches._title = this.selectedSearchTextDropDown;
+			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+
+		}
 		if (selectedSearchDropDown == 'Without an abstract') {
 
 			alert(selectedSearchDropDown);
@@ -403,14 +419,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 			
 		}
 
-
 		this.activeModal.dismiss();
 
 	}
 	
 	public nextDropDownList(num: number, val: string) {
 
-		//console.log('got here');
+		
 		this.showDropDown2 = true;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
@@ -444,16 +459,26 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 			case 5: {
+
 				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 					.map(
 
-					(y: ReviewSet) => { return y.name;}
+						(y: ReviewSet) => {
+							return y.name;
+						}
 					);
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 6: {
+				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+					.map(
+
+						(y: ReviewSet) => {
+							return y.name;
+						}
+					);
 				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
@@ -484,10 +509,20 @@ export class SearchesModalContent implements SearchCodeCommand {
 	}
 
 
-	public setSearchTextDropDown(balh: any) {
+	public setSearchTextDropDown(blah: string) {
 
-		this.selectedSearchTextDropDown = balh;
-		alert('okay');
+		this.selectedSearchTextDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == blah)
+			.map(
+				(y: ReviewSet) => {
+
+						//alert(JSON.stringify(y));
+						this.cmdSearches._setID = y.set_id;
+
+						return y.name;
+					}
+				)[0];
+
+		//alert('okay');
 	}
 
 	public focus(canWrite: boolean) {

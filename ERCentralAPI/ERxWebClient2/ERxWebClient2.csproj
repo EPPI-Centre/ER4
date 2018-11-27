@@ -84,6 +84,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsReviewerList.cs" Link="Models\ReviewStatisticsReviewerList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Search.cs" Link="Models\Search.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchCodesCommand.cs" Link="Models\SearchCodesCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchCodeSetCheckCommand.cs" Link="Models\SearchCodeSetCheckCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchDeleteCommand.cs" Link="Models\SearchDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchForUploadedFilesCommand.cs" Link="Models\SearchForUploadedFilesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchFreeTextCommand.cs" Link="Models\SearchFreeTextCommand.cs" />

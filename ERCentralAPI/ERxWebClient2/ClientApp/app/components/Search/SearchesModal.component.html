@@ -31,12 +31,12 @@
 						<codesets class="col-md-8"></codesets>
 					</div>
 
-					<div *ngIf="_eventEmitter.nodeSelected" class="btn-warning col-md-12 h-50"
+					<!--<div *ngIf="_eventEmitter.nodeSelected" class="btn-warning col-md-12 h-50"
 						 style=" text-align: center">
 						<b class="font-italic">
 							{{_eventEmitter.nodeName}}
 						</b>
-					</div>
+					</div>-->
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 						 ||		selectedSearchDropDown == 'That dont have any codes from this set') "
@@ -44,7 +44,7 @@
 
 						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle></button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-							<button *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+							<button (click)="setSearchTextDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
 					</div>
 				</div>

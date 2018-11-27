@@ -139,6 +139,7 @@ export class CriteriaSearch {
 
 export interface SearchCodeCommand {
 
+	_setID: number;
 	_searchText: string;
 	_IDs: string;
 	_title: string;

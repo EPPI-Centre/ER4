@@ -235,6 +235,35 @@ namespace ERxWebClient2.Controllers
 
 		}
 
+
+		[HttpPost("[action]")]
+		public IActionResult SearchCodeSetCheck([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
+					cmdIn._setID,
+					cmdIn._included,
+					cmdIn._withCodes,
+					cmdIn._title
+					);
+				DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd.SearchId);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "GetSearches data portal error");
+				throw;
+			}
+
+		}
+
 		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
 		{
@@ -261,6 +290,7 @@ namespace ERxWebClient2.Controllers
 
 	public class CodeCommand
 	{
+		public int _setID = 0;
 		public string _searchText = "";
 		public string _IDs = "";
 		public string _title = "";
