@@ -20,14 +20,14 @@ import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
 @Injectable({
     providedIn: 'root',
 })
-    
+
 export class ReviewerIdentityService {
 
-    constructor(private router: Router, 
+    constructor(private router: Router,
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string,
-        private customRouteReuseStrategy: RouteReuseStrategy  ,
+        private customRouteReuseStrategy: RouteReuseStrategy,
         private ReviewerTermsService: ReviewerTermsService,
         private modalService: ModalService
     ) { }
@@ -38,21 +38,21 @@ export class ReviewerIdentityService {
     public modalMsg: string = '';
 
     public get reviewerIdentity(): ReviewerIdentity {
-        
-        //if (this._reviewerIdentity.userId == 0) {
-        //    const userJson = localStorage.getItem('currentErUser');
-        //    let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
 
-        //    if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
+        if (this._reviewerIdentity.userId == 0) {
+            const userJson = localStorage.getItem('currentErUser');
+            let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
 
-        //        return this._reviewerIdentity;
-        //    }
-        //    else {
+            if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
-        //        this._reviewerIdentity = currentUser;
-        //    }
-        //}
-        console.log('getting ri', this._reviewerIdentity);
+                return this._reviewerIdentity;
+            }
+            else {
+
+                this._reviewerIdentity = currentUser;
+            }
+        }
+
         return this._reviewerIdentity;
     }
 
@@ -66,14 +66,14 @@ export class ReviewerIdentityService {
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
     }
-    public Report()  {
+    public Report() {
         console.log('Reporting Cid: ' + this.reviewerIdentity.userId);
         console.log('NAME: ' + this.reviewerIdentity.name);
         console.log('Token: ' + this.reviewerIdentity.token);
         console.log('Ticket: ' + this.reviewerIdentity.ticket);
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
-    @Output() LoginFailed = new EventEmitter();  
+    @Output() LoginFailed = new EventEmitter();
     public LoginReq(u: string, p: string) {
         (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new LoginCreds(u, p);
@@ -83,7 +83,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0) {
-                    //this.Save();
+                    this.Save();
                     this.router.navigate(['intropage']);
                 }
             }, error => {
@@ -91,7 +91,7 @@ export class ReviewerIdentityService {
                 //if (error = 401) this.SendBackHome();
 
                 this.LoginFailed.emit();
-                }
+            }
             );
 
     }
@@ -101,7 +101,7 @@ export class ReviewerIdentityService {
         this.currentStatus = msg;
 
     }
-    
+
     public FetchCurrentTicket() {
 
         return this._reviewerIdentity.ticket;
@@ -118,7 +118,7 @@ export class ReviewerIdentityService {
         return this._httpC.post<any>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).toPromise();
     }
-       
+
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {
@@ -128,23 +128,23 @@ export class ReviewerIdentityService {
             body).subscribe(ri => {
 
                 this.reviewerIdentity = ri;
-      
+
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
- 
-                    //this.Save();
+
+                    this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
-                    }
+                }
             }
-            , error => {
-                console.log(error);
-                this.modalService.SendBackHomeWithError(error);
-            }
+                , error => {
+                    console.log(error);
+                    this.modalService.SendBackHomeWithError(error);
+                }
             );
-      
+
     }
 
 
@@ -159,12 +159,12 @@ export class ReviewerIdentityService {
 
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
 
-                    //this.Save();
+                    this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
-					this.OpeningNewReview.emit();
-		
+                    this.OpeningNewReview.emit();
+
                     this.router.navigate(['mainFullReview']);
                 }
             }
@@ -176,17 +176,17 @@ export class ReviewerIdentityService {
 
     }
 
-    //public Save() {
-    //    //if (isPlatformBrowser(this._platformId)) {
+    public Save() {
+        //if (isPlatformBrowser(this._platformId)) {
 
-    //    if (this._reviewerIdentity.userId != 0) {
-    //        localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
-    //    }
-    //    else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
-    //    {
-    //        localStorage.removeItem('currentErUser');
-    //    }
-    //}
+        if (this._reviewerIdentity.userId != 0) {
+            localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
+        }
+        else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
+        {
+            localStorage.removeItem('currentErUser');
+        }
+    }
     getDaysLeftAccount() {
         return this.reviewerIdentity.daysLeftAccount;
     }

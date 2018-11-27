@@ -133,7 +133,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
 
     Clear() {
         this._workAllocationContactListService.workAllocations = [];
-        this._workAllocationContactListService.Save();
+        //this._workAllocationContactListService.Save();
     }
 
     log(blah: string) {
