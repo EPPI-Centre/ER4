@@ -39,19 +39,19 @@ export class ReviewerIdentityService {
 
     public get reviewerIdentity(): ReviewerIdentity {
         
-        if (this._reviewerIdentity.userId == 0) {
-            const userJson = localStorage.getItem('currentErUser');
-            let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
+        //if (this._reviewerIdentity.userId == 0) {
+        //    const userJson = localStorage.getItem('currentErUser');
+        //    let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
 
-            if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
+        //    if (currentUser == undefined || currentUser == null || currentUser.userId == 0) {
 
-                return this._reviewerIdentity;
-            }
-            else {
+        //        return this._reviewerIdentity;
+        //    }
+        //    else {
 
-                this._reviewerIdentity = currentUser;
-            }
-        }
+        //        this._reviewerIdentity = currentUser;
+        //    }
+        //}
         
         return this._reviewerIdentity;
     }
@@ -83,7 +83,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0) {
-                    this.Save();
+                    //this.Save();
                     this.router.navigate(['intropage']);
                 }
             }, error => {
@@ -131,7 +131,7 @@ export class ReviewerIdentityService {
       
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
  
-                    this.Save();
+                    //this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
@@ -159,7 +159,7 @@ export class ReviewerIdentityService {
 
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
 
-                    this.Save();
+                    //this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
@@ -176,17 +176,17 @@ export class ReviewerIdentityService {
 
     }
 
-    public Save() {
-        //if (isPlatformBrowser(this._platformId)) {
+    //public Save() {
+    //    //if (isPlatformBrowser(this._platformId)) {
 
-        if (this._reviewerIdentity.userId != 0) {
-            localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
-        }
-        else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
-        {
-            localStorage.removeItem('currentErUser');
-        }
-    }
+    //    if (this._reviewerIdentity.userId != 0) {
+    //        localStorage.setItem('currentErUser', JSON.stringify(this._reviewerIdentity));
+    //    }
+    //    else if (localStorage.getItem('currentErUser'))//to be confirmed!! 
+    //    {
+    //        localStorage.removeItem('currentErUser');
+    //    }
+    //}
     getDaysLeftAccount() {
         return this.reviewerIdentity.daysLeftAccount;
     }
