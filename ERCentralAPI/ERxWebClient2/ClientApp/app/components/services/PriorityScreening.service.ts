@@ -33,21 +33,21 @@ export class PriorityScreeningService {
     public CurrentItemIndex: number = 0;
     private _TrainingList: Training[] = [];
     public get TrainingList(): Training[]{
-        if (this._TrainingList && this.TrainingList.length > 0) {
-            return this._TrainingList;
-        }
-        else {
-            const TrainingListJson = localStorage.getItem('TrainingList');
-            let tTrainingList: Training[] = TrainingListJson !== null ? JSON.parse(TrainingListJson) : [];
+        //if (this._TrainingList && this.TrainingList.length > 0) {
+        //    return this._TrainingList;
+        //}
+        //else {
+        //    const TrainingListJson = localStorage.getItem('TrainingList');
+        //    let tTrainingList: Training[] = TrainingListJson !== null ? JSON.parse(TrainingListJson) : [];
             
-            if (tTrainingList == undefined || tTrainingList == null || tTrainingList.length == 0) {
-                return this._TrainingList;
-            }
-            else {
-                //console.log("Got User from LS");
-                this._TrainingList = tTrainingList;
-            }
-        }
+        //    if (tTrainingList == undefined || tTrainingList == null || tTrainingList.length == 0) {
+        //        return this._TrainingList;
+        //    }
+        //    else {
+        //        //console.log("Got User from LS");
+        //        this._TrainingList = tTrainingList;
+        //    }
+        //}
         return this._TrainingList;
     }
 
@@ -59,7 +59,7 @@ export class PriorityScreeningService {
         }
         this.subtrainingList = this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
             this._TrainingList = tL;
-            this.Save();
+            //this.Save();
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
         return this.subtrainingList;
@@ -72,12 +72,12 @@ export class PriorityScreeningService {
         }, waitSeconds * 1000);
         
     }
-    public Save() {
-        if (this._TrainingList && this._TrainingList.length > 0)
-            localStorage.setItem('TrainingList', JSON.stringify(this._TrainingList));
-        else if (localStorage.getItem('TrainingList'))//to be confirmed!! 
-            localStorage.removeItem('TrainingList');
-    }
+    //public Save() {
+    //    if (this._TrainingList && this._TrainingList.length > 0)
+    //        localStorage.setItem('TrainingList', JSON.stringify(this._TrainingList));
+    //    else if (localStorage.getItem('TrainingList'))//to be confirmed!! 
+    //        localStorage.removeItem('TrainingList');
+    //}
     //private _NextItem: Item = new Item();
     public NextItem() {
         //Logic: if we are within the list of already seen items, find who's next and fetch it,

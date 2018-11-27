@@ -22,17 +22,17 @@ export class frequenciesService {
 	public crit: CriteriaFrequency = new CriteriaFrequency();
 
 	public get Frequencies(): Frequency[] {
-        if (this._FrequencyList.length == 0) {
+   //     if (this._FrequencyList.length == 0) {
 
-			const FrequenciesJson = localStorage.getItem('Frequencies');
-			let Frequencies: Frequency[] = FrequenciesJson !== null ? JSON.parse(FrequenciesJson) : [];
-			if (Frequencies == undefined || Frequencies == null || Frequencies.length == 0) {
-                return this._FrequencyList;
-            }
-            else {
-				this._FrequencyList = Frequencies;
-            }
-        }
+			//const FrequenciesJson = localStorage.getItem('Frequencies');
+			//let Frequencies: Frequency[] = FrequenciesJson !== null ? JSON.parse(FrequenciesJson) : [];
+			//if (Frequencies == undefined || Frequencies == null || Frequencies.length == 0) {
+   //             return this._FrequencyList;
+   //         }
+   //         else {
+			//	this._FrequencyList = Frequencies;
+   //         }
+   //     }
 		return this._FrequencyList;
 
     }
@@ -40,7 +40,7 @@ export class frequenciesService {
 	public set Frequencies(freq: Frequency[]) {
 
         this._FrequencyList = freq;
-        this.Save();
+        //this.Save();
     }
 
 	public Fetch(selectedNodeData: any, selectedFilter?: any) {
@@ -76,19 +76,19 @@ export class frequenciesService {
              this.crit)
              .subscribe(result => {
                  this.Frequencies = result;
-                 this.Save();
+                 //this.Save();
                  //console.log(result);
                  this.frequenciesChanged.emit();
 				}
 		 );
     }
     
-    public Save() {
-		if (this._FrequencyList.length > 0)
-			localStorage.setItem('Frequencies', JSON.stringify(this._FrequencyList));
-		else if (localStorage.getItem('Frequencies'))
-			localStorage.removeItem('Frequencies');
-    }
+  //  public Save() {
+		//if (this._FrequencyList.length > 0)
+		//	localStorage.setItem('Frequencies', JSON.stringify(this._FrequencyList));
+		//else if (localStorage.getItem('Frequencies'))
+		//	localStorage.removeItem('Frequencies');
+  //  }
 }
 
 export class Frequency {

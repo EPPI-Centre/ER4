@@ -28,23 +28,23 @@ export class ItemListService {
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
-        if (this._IsInScreeningMode === null) {
-            const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
-            let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
-            if (iism === null ) {
-                return false;
-            }
-            else {
-                //console.log("Got ItemsList from LS");
-                this.IsInScreeningMode = iism;
-            }
-        }
+        //if (this._IsInScreeningMode === null) {
+        //    const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
+        //    let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
+        //    if (iism === null ) {
+        //        return false;
+        //    }
+        //    else {
+        //        //console.log("Got ItemsList from LS");
+        //        this.IsInScreeningMode = iism;
+        //    }
+        //}
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
         else return false;
     }
     public set IsInScreeningMode(state: boolean) {
         this._IsInScreeningMode = state;
-        this.Save();
+        //this.Save();
 	}
 
 
@@ -54,62 +54,62 @@ export class ItemListService {
     @Output() ItemChanged = new EventEmitter();
 	public get ItemList(): ItemList {
 	
-		if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
-			//console.log('in here 2');
-            const listJson = localStorage.getItem('ItemsList');
-            let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-			if (list == undefined || list == null || list.items.length == 0) {
-				//console.log('in here 3: ' + this._ItemList.items.length);
-                return this._ItemList;
-            }
-            else {
-                console.log("Got ItemsList from LS");
-                this._ItemList = list;
-            }
-        }
+		//if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
+		//	//console.log('in here 2');
+  //          const listJson = localStorage.getItem('ItemsList');
+  //          let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
+		//	if (list == undefined || list == null || list.items.length == 0) {
+		//		//console.log('in here 3: ' + this._ItemList.items.length);
+  //              return this._ItemList;
+  //          }
+  //          else {
+  //              console.log("Got ItemsList from LS");
+  //              this._ItemList = list;
+  //          }
+  //      }
         return this._ItemList;
     }
     public get ListCriteria(): Criteria {
-        if (this._Criteria.listType == "") {
-            const critJson = localStorage.getItem('ItemsListCriteria');
-            let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
-            if (crit == undefined || crit == null) {
-                return this._Criteria;
-            }
-            else {
-                //console.log("Got Criteria from LS");
-                this._Criteria = crit;
-            }
-        }
+        //if (this._Criteria.listType == "") {
+        //    const critJson = localStorage.getItem('ItemsListCriteria');
+        //    let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
+        //    if (crit == undefined || crit == null) {
+        //        return this._Criteria;
+        //    }
+        //    else {
+        //        //console.log("Got Criteria from LS");
+        //        this._Criteria = crit;
+        //    }
+        //}
         return this._Criteria;
     }
     public get currentItem(): Item {
-        if (this._currentItem) return this._currentItem;
-        else {
-            const currentItemJson = localStorage.getItem('currentItem');
-            this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
-        }
+        //if (this._currentItem) return this._currentItem;
+        //else {
+        //    const currentItemJson = localStorage.getItem('currentItem');
+        //    this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
+        //}
         return this._currentItem;
     }
-    private SaveCurrentItem() {
-        if (this._currentItem) {
-            localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
-        }
-        else if (localStorage.getItem('currentItem')) {
-            localStorage.removeItem('currentItem');
-        }
-    }
+    //private SaveCurrentItem() {
+    //    if (this._currentItem) {
+    //        localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
+    //    }
+    //    else if (localStorage.getItem('currentItem')) {
+    //        localStorage.removeItem('currentItem');
+    //    }
+    //}
 
    
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         this._ItemList = items;
         this._Criteria = crit;
-        this.Save();
+        //this.Save();
     }
     private ChangingItem(newItem: Item) {
         this._currentItem = newItem;
-        this.SaveCurrentItem();
+        //this.SaveCurrentItem();
         this.ItemChanged.emit();
     }
     public getItem(itemId: number): Item {
@@ -249,25 +249,25 @@ export class ItemListService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    public Save() {
-        if (this._ItemList.items.length > 0) {
-            localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
-        }
-        else if (localStorage.getItem('ItemsList')) {
-            localStorage.removeItem('ItemsList');
-        }
-        if (this._Criteria.listType != "") {
-            localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
-        }
-        else if (localStorage.getItem('ItemsListCriteria')) {
-            localStorage.removeItem('ItemsListCriteria');
-        }
-        if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
-        else if (localStorage.getItem('ItemListIsInScreeningMode')) {
-            localStorage.removeItem('ItemListIsInScreeningMode');
-        }
-        this.SaveCurrentItem();
-    }
+    //public Save() {
+    //    if (this._ItemList.items.length > 0) {
+    //        localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
+    //    }
+    //    else if (localStorage.getItem('ItemsList')) {
+    //        localStorage.removeItem('ItemsList');
+    //    }
+    //    if (this._Criteria.listType != "") {
+    //        localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
+    //    }
+    //    else if (localStorage.getItem('ItemsListCriteria')) {
+    //        localStorage.removeItem('ItemsListCriteria');
+    //    }
+    //    if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
+    //    else if (localStorage.getItem('ItemListIsInScreeningMode')) {
+    //        localStorage.removeItem('ItemListIsInScreeningMode');
+    //    }
+    //    this.SaveCurrentItem();
+    //}
 
 }
 

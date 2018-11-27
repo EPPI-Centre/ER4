@@ -28,16 +28,16 @@ export class ItemCodingService  {
 
 
     public get ItemCodingList(): ItemSet[] {
-        if (this._ItemCodingList.length == 0) {
-            const ItemSetsJson = localStorage.getItem('ItemCodingList');
-            let ReadOnlyReviews: ItemSet[] = ItemSetsJson !== null ? JSON.parse(ItemSetsJson) : [];
-            if (ReadOnlyReviews == undefined || ReadOnlyReviews == null || ReadOnlyReviews.length == 0) {
-                return this._ItemCodingList;
-            }
-            else {
-                //not sure we should do anything here
-            }
-        }
+        //if (this._ItemCodingList.length == 0) {
+        //    const ItemSetsJson = localStorage.getItem('ItemCodingList');
+        //    let ReadOnlyReviews: ItemSet[] = ItemSetsJson !== null ? JSON.parse(ItemSetsJson) : [];
+        //    if (ReadOnlyReviews == undefined || ReadOnlyReviews == null || ReadOnlyReviews.length == 0) {
+        //        return this._ItemCodingList;
+        //    }
+        //    else {
+        //        //not sure we should do anything here
+        //    }
+        //}
         return this._ItemCodingList;
     }
     

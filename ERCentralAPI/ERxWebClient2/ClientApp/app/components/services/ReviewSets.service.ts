@@ -83,36 +83,36 @@ export class ReviewSetsService {
     public Clear() {
         this.selectedNode = null;
         this._ReviewSets = [];
-        localStorage.removeItem('ReviewSets');
+        //localStorage.removeItem('ReviewSets');
     }
     public get ReviewSets(): ReviewSet[] {
-        if (this._ReviewSets.length == 0) {
-            //this._IsBusy = true;
-            const ReviewSetsJson = localStorage.getItem('ReviewSets');
-            let ReviewSets: ReviewSet[] = ReviewSetsJson !== null ? ReviewSetsService.digestLocalJSONarray(JSON.parse(ReviewSetsJson)) : [];
-            if (ReviewSets == undefined || ReviewSets == null || ReviewSets.length == 0) {
+        //if (this._ReviewSets.length == 0) {
+        //    //this._IsBusy = true;
+        //    const ReviewSetsJson = localStorage.getItem('ReviewSets');
+        //    let ReviewSets: ReviewSet[] = ReviewSetsJson !== null ? ReviewSetsService.digestLocalJSONarray(JSON.parse(ReviewSetsJson)) : [];
+        //    if (ReviewSets == undefined || ReviewSets == null || ReviewSets.length == 0) {
 
-                //this._IsBusy = false;
-                return this._ReviewSets;
-            }
-            else {
-                this._ReviewSets = ReviewSets;
-            }
-        }
+        //        //this._IsBusy = false;
+        //        return this._ReviewSets;
+        //    }
+        //    else {
+        //        this._ReviewSets = ReviewSets;
+        //    }
+        //}
         //this._IsBusy = false;
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
         //this._IsBusy = true;
         this._ReviewSets = sets;
-        this.Save();
+        //this.Save();
         this._IsBusy = false;
     }
-    private Save() {
-        if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
-            localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
-        else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
-    }
+    //private Save() {
+    //    if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
+    //        localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
+    //    else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
+    //}
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         for (let iItemset of data) {
