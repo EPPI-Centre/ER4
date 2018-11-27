@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
 import { AppComponent } from './components/app/app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -40,6 +40,7 @@ import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { ChartModule } from '@progress/kendo-angular-charts';
+import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 
 @NgModule({
     declarations: [
@@ -72,7 +73,12 @@ import { ChartModule } from '@progress/kendo-angular-charts';
         MainComponent
 	],
 
-	providers: [EventEmitterService, WebApiObservableService, SearchesModalContent],
+    providers: [
+        EventEmitterService,
+        WebApiObservableService,
+        { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
+        SearchesModalContent
+    ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent ],
     imports: [
         AngularFontAwesomeModule,

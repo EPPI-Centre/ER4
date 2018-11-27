@@ -42,8 +42,7 @@ export class SearchComp implements OnInit, OnDestroy {
     onSubmit(f: string) {
 
 	}
-
-
+	
     public selectedAll: boolean = false;
 
 	allSearchesSelected: boolean = false;
@@ -302,7 +301,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public withCode: boolean = false;
 	public attributeNames: string = '';
 	public commaIDs: string = '';
-	public SearchText: string = '';
+	public searchText: string = '';
 
 	options = [1, 2, 3];
 	optionSelected: any;
@@ -374,7 +373,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 		if (selectedSearchDropDown == 'Containing this text') {
 
 			alert('Along the write lines...');
-			this.cmdSearches._searchText = this.SearchText;
+			this.cmdSearches._searchText = this.searchText;
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
 
