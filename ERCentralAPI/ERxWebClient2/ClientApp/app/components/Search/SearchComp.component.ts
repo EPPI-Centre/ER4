@@ -445,11 +445,10 @@ export class SearchesModalContent implements SearchCodeCommand {
 			}
 		}
 	}
+	
+	public setSearchCodeSetDropDown(codeSetName: string) {
 
-
-	public setSearchCodeSetDropDown(blah: string) {
-
-		this.selectedSearchTextDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == blah)
+		this.selectedSearchTextDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
 			.map(
 				(y: ReviewSet) => {
 
@@ -459,13 +458,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 				)[0];
 	}
 
-	public setSearchTextDropDown(blah: string) {
+	public setSearchTextDropDown(heading: string) {
 
-		this.cmdSearches._searchText = blah;
-
+		this.cmdSearches._searchText = heading;
 	}
 
 	public focus(canWrite: boolean) {
 		this.canWrite = canWrite;
 	}
+
 }
