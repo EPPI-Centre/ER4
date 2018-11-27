@@ -322,7 +322,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 		this.cmdSearches._withCodes = this.withCode;
 		this.cmdSearches._searchId = 0;
 
-		alert(selectedSearchDropDown);
+		alert(selectedSearchDropDown + ' '  + searchBool);
 
 		if (firstNum == true || secNum == true ) {
 
@@ -373,7 +373,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 		if (selectedSearchDropDown == 'Containing this text') {
 
 			alert('Along the write lines...');
-			this.cmdSearches._searchText = this.searchText;
+			this.cmdSearches._title = this.searchText;
+			this.cmdSearches._searchText = this.selectedSearchTextDropDown;
+			this.cmdSearches._included = Boolean(searchBool);
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
 		}
 
@@ -452,6 +454,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 			case 7: {
+
 				this.showDropDown2 = true;
 				break;
 			}
@@ -473,6 +476,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 				break;
 			}
 		}
+	}
+
+
+	public setSearchTextDropDown(balh: any) {
+
+		this.selectedSearchTextDropDown = balh;
+		alert('okay');
 	}
 
 	public focus(canWrite: boolean) {

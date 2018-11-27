@@ -39,12 +39,12 @@
 						</b>
 					</div>
 
-					<div ngbDropdown class="d-inline-block col-md-12">
+					<!--<div ngbDropdown class="d-inline-block col-md-12">
 						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{CodeSets}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 							<button class="dropdown-item"></button>
 						</div>
-					</div>
+					</div>-->
 				</div>
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div class="row">
@@ -74,7 +74,7 @@
 								<div ngbDropdown class="d-inline-block col-md-12">
 									<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 									<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-										<button (click)="test()" class="dropdown-item">With this code</button>
+										<button (click)="setSearchTextDropDown('With this code')" class="dropdown-item">With this code</button>
 										<button class="dropdown-item">Title and abstract</button>
 										<button class="dropdown-item">Abstract only</button>
 										<button class="dropdown-item">Additional text</button>
