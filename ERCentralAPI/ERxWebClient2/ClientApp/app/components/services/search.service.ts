@@ -28,7 +28,13 @@ export class searchService {
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
         this.searchesChanged.emit();
-    }
+	}
+
+	private _isBusy: boolean = false;
+	public get isBusy(): boolean {
+		console.log('Search list, isbusy? ' + this._isBusy);
+		return this._isBusy;
+	}
 
 	Fetch() {
 

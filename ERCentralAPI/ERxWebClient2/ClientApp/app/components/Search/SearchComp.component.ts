@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { SelectionModel } from '@angular/cdk/collections';
+import { SelectionModel, DataSource } from '@angular/cdk/collections';
 import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -32,11 +32,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	) {
 	}
 
-	@ViewChild('testKendoGrid') searchesGrid!: GridComponent;
+	@ViewChild('testKendoGrid') searchesGridRes!: GridComponent;
 
- //   onSubmit(f: string) {
 
-	//}
 	
     public selectedAll: boolean = false;
 
@@ -48,6 +46,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		skip: 0,
 		take: 2
 	};
+
+	//public gridData: GridDataResult = process(this.DataSource.data, this.stateAdd);
 
 	selectAllSearchesChange(e: any): void {
 		
@@ -78,6 +78,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 
 		this._searchService.Fetch();
+		//this.gridData = process(this.DataSource.data, this.stateAdd);
 	}
 	
 	DeleteSearchSelected() {
@@ -116,12 +117,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	};
 
-	//RemoveOneLocalSource() {
-
- //       this._searchService.SearchList = this._searchService.SearchList.slice(3);
-		
-	//}
-
     public rowCallback(context: RowClassArgs) {
         const isEven = context.index % 2 == 0;
         return {
@@ -139,7 +134,6 @@ export class SearchComp implements OnInit, OnDestroy {
         console.log('sorting?' + this.sort[0].field + " ");
     }
     
-
 	OpenItems(item: number) {
 
 		let cr: Criteria = new Criteria();

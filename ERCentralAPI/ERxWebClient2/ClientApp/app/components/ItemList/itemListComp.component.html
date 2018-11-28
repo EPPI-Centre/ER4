@@ -6,26 +6,6 @@
         <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
     </div>
 
-
-    <!--<table class="table table-responsive mt-0 mb-0 pt-0 pt-0 " style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
-        <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th>Short Title</th>
-                <th>Title</th>
-                <th>Year</th>
-
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of ItemListService.ItemList.items">
-                <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br />(Id:&nbsp;{{ item.itemId }})</td>
-                <td>{{ item.shortTitle }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.year }}</td>
-            </tr>
-        </tbody>
-    </table>-->
     <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.isBusy"
                 id="testKendoGrid" [data]="DataSource" [height]="610"
                 [sortable]="{
@@ -34,24 +14,6 @@
             }"
                 [sort]="sort"
                 (sortChange)="sortChange($event)">
-
-        <!--<kendo-grid-column [sortable]="false" field="add" width="50"
-                           [headerStyle]="{'text-align': 'center'}"
-                           [style]="{'text-align': 'center'}">
-            <ng-template kendoGridHeaderTemplate let-dataItem>
-                <input style="zoom: 1.2;"
-                       type="checkbox"
-                       name="selectAll"
-                       (change)="selectAllSearchesChange($event)"
-                       [checked]="allSearchesSelected" />
-            </ng-template>
-            <ng-template kendoGridCellTemplate let-dataItem>
-                <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-                       type="checkbox"
-                       field="selected"
-                       [checked]="dataItem.add" />
-            </ng-template>
-        </kendo-grid-column>-->
 
         <kendo-grid-column field="searchId" title="ID" width="72">
             <ng-template kendoGridCellTemplate let-dataItem>

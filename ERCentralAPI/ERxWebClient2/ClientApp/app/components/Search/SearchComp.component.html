@@ -1,4 +1,4 @@
-<p *ngIf="!_searchService == undefined"><em>Loading...</em></p>
+<!--<p *ngIf="!_searchService == undefined"><em>Loading...</em></p>-->
 
 <table class="table table-responsive">
 	<tr class="col-md-12">
@@ -21,17 +21,17 @@
 	</tr>
 </table>
 
-<kendo-grid id="testKendoGrid" [data]="DataSource" [height]="410"
-			[rowClass]="rowCallback"
-			[sortable]="{
-            allowUnsort: allowUnsort,
-            mode: 'single'
-            }"
-			[sort]="sort"
-			(sortChange)="sortChange($event)"
-			(remove)="removeHandler($event)"
-			>
-
+<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.isBusy"
+	id="testKendoGrid" [data]="DataSource" [height]="410"
+	[rowClass]="rowCallback"
+	[sortable]="{
+	allowUnsort: allowUnsort,
+	mode: 'single'
+	}"
+	[sort]="sort"
+	(sortChange)="sortChange($event)"
+	(remove)="removeHandler($event)">
+	
 	<kendo-grid-column [sortable]="false" field="add" width="50"
 					   [headerStyle]="{'text-align': 'center'}"
 					   [style]="{'text-align': 'center'}">
@@ -61,9 +61,10 @@
 	<kendo-grid-column class="btn btn-link font-weight-bold"
 					   field="hitsNo" title="Hits" width="80">
 		<ng-template kendoGridCellTemplate let-dataItem>
-			<div  (click)="SearchGetItemList(dataItem)">
+			<div (click)="SearchGetItemList(dataItem)">
 				{{dataItem.hitsNo}}
 			</div>
 		</ng-template>
 	</kendo-grid-column>
 </kendo-grid>
+<div *ngIf="_searchService && _searchService.SearchList && _searchService.isBusy">Loading items...</div>
