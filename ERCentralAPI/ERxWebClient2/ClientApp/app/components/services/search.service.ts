@@ -69,6 +69,7 @@ export class searchService {
 	
 	Delete(value: string) {
 
+		this._isBusy = true;
 		let body = JSON.stringify({ Value: value });
 		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			body)
@@ -77,23 +78,29 @@ export class searchService {
 					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
 					this.SearchList.splice(tmpIndex, 1);
 					this.Fetch();
-				}
+			}, error => { this.modalService.GenericError(error); }
+			, () => { this._isBusy = false; }
+			
 		);
+
 	}
 
 	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
 
+		this._isBusy = true;
 		apiStr = 'api/SearchList/' + apiStr;
 		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
 
 			.subscribe(result => {
-					this.Fetch();
-				}
+				this.Fetch();
+			}, error => { this.modalService.GenericError(error); }
+				, () => { this._isBusy = false; }
+
 			);
 	}
-
 }
+
 
 export class Search {
 
@@ -105,7 +112,6 @@ export class Search {
 	searchDate: string = '';
 	contactName: string = '';
 }
-
 
 
 export interface SearchCodeCommand {

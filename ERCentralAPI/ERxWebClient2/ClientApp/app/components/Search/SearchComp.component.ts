@@ -136,30 +136,10 @@ export class SearchComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
     }
-    
-	OpenItems(item: number) {
-
-		let cr: Criteria = new Criteria();
-
-		cr.filterAttributeId = -1;
-		cr.searchId = item;
-		cr.listType = 'GetItemSearchList';
-		cr.pageNumber = 0;
-
-		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
-        this._eventEmitter.PleaseSelectItemsListTab.emit();
-	}
 
 	ngOnDestroy() {
 	}
 	
-	public tableArr: Search[] = this._searchService.SearchList;
-	public testArr: Search[] = [];
-	public selectAll: boolean =false;
-
-	public initialSelection = [];
-	public allowMultiSelect = true;
-	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
 
 	SearchGetItemList(dataItem: Search) {
 
@@ -178,9 +158,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-
-
-		
 
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
@@ -211,19 +188,18 @@ export class SearchesModalContent implements SearchCodeCommand {
     public set searchInclOrExcl(value: string) {
         if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
         else console.log("I'm not doing it :-P ", value);
-    }
+	}
+
+
 	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
-	public showDropDown2: boolean = true;
 	public selectedSearchDropDown: string = '';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
-	public nodeSelected: boolean = false;
-	public selectedNodeDataName: string = '';
-	public CodeSets: any[] = [];
 
-	
+	public CodeSets: any[] = [];
+		
 	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
@@ -239,7 +215,6 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	constructor(public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService,
-		private _eventEmitter: EventEmitterService,
 		private _searchService: searchService
 	) { }
 
@@ -248,7 +223,6 @@ export class SearchesModalContent implements SearchCodeCommand {
 	}
 
 	public cmdSearches: SearchCodeCommand = {
-
 		_setID: 0,
 		_searchText: '',
 		_IDs: '',
@@ -371,35 +345,24 @@ export class SearchesModalContent implements SearchCodeCommand {
 	
 	public nextDropDownList(num: number, val: string) {
 
-		this.showDropDown2 = true;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
-		this._eventEmitter.nodeSelected = false;
 
 		switch (num) {
 
 			case 1: {
-				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 2: {
-				//statements; 
-				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 3: {
-				//With these internal IDs (comma separated) show text box
-				
-				this.showDropDown2 = false;
 				this.showTextBox = true;
 				break;
 			}
 			case 4: {
-				this.showDropDown2 = true;
 				this.showTextBox = true;
 				break;
 			}
@@ -411,7 +374,6 @@ export class SearchesModalContent implements SearchCodeCommand {
 							return y.name;
 						}
 					);
-				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
@@ -422,27 +384,19 @@ export class SearchesModalContent implements SearchCodeCommand {
 							return y.name;
 						}
 					);
-				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 7: {
-
-				this.showDropDown2 = true;
 				break;
 			}
 			case 8: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 9: {
-				this.showDropDown2 = false;
 				break;
 			}
 			case 10: {
-				this.showDropDown2 = false;
 				break;
 			}
 			default: {
