@@ -138,9 +138,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
     }
-	value = 1;
     
-	dataTable: any;
 
 	OpenItems(item: number) {
 
