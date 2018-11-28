@@ -203,7 +203,15 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	@ViewChild('SearchesModal')
 
-	//public searchBool: boolean = true;
+    private _searchInclOrExcl: string = 'true';
+    public get searchInclOrExcl(): string {
+        console.log('I get it', this._searchInclOrExcl);
+        return this._searchInclOrExcl;
+    }
+    public set searchInclOrExcl(value: string) {
+        if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
+        else console.log("I'm not doing it :-P ", value);
+    }
 	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
@@ -236,7 +244,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	) { }
 
 	ngOnInit() {
-		
+        this._searchInclOrExcl = 'true';
 	}
 
 	public cmdSearches: SearchCodeCommand = {
@@ -290,7 +298,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.cmdSearches._title = searchTitle;
 				this.cmdSearches._withCodes = this.withCode;
 
-				this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodes');
+				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
 	
 			}
 		}
@@ -299,7 +307,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchIDs');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
 		
 
 		}
@@ -308,7 +316,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
 		
 
 		}
@@ -316,21 +324,21 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			this.cmdSearches._title = this.searchText;
 			this.cmdSearches._included = Boolean(searchBool);
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchText');
 		}
 		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
 			this.cmdSearches._withCodes = true;
 			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'That dont have any codes from this set') {
 
 			this.cmdSearches._withCodes = false;
 			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'Without an abstract') {
@@ -338,7 +346,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = searchTitle;
 			
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoAbstract');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
 		
 		}
 
@@ -347,13 +355,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = 'Without any documents uploaded';
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoFiles');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
 			
 		}
 		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
 			this.cmdSearches._title = 'With at least one document uploaded.';
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
 			
 		}
 

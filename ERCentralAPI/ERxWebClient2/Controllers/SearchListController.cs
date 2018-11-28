@@ -33,11 +33,9 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         public IActionResult GetSearches()
         {
-
-		
 			try
             {
                 SetCSLAUser();

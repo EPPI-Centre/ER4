@@ -1,5 +1,6 @@
 import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
+import { ModalService } from './modal.service';
 
 @Injectable({
 
@@ -11,13 +12,14 @@ export class searchService {
 
     constructor(
         private _httpC: HttpClient,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
     
 	private _SearchList: Search[] = [];
 	//@Output() searchesChanged = new EventEmitter();
-    public crit: CriteriaSearch = new CriteriaSearch();
-	public searchToBeDeleted: string = '';
+    //public crit: CriteriaSearch = new CriteriaSearch();
+	public searchToBeDeleted: string = '';//WHY string?
 
 	public get SearchList(): Search[] {
 
@@ -32,24 +34,29 @@ export class searchService {
 
 	private _isBusy: boolean = false;
 	public get isBusy(): boolean {
-		console.log('Search list, isbusy? ' + this._isBusy);
+		//console.log('Search list, isbusy? ' + this._isBusy);
 		return this._isBusy;
 	}
 
-	Fetch() {
-
-		 this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
-			this.crit)
-
+    Fetch() {
+        this._isBusy = true;
+		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
 			.subscribe(result => {
-
 					console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
 					//this.searchesChanged.emit();
-				}
+             },
+             error => {
+                 this.modalService.GenericError(error);
+                 this.Clear();
+             }
+             , () => { this._isBusy = false;}
 		 );
 	}
-
+    private Clear() {
+        //this.crit = new CriteriaSearch();
+        this._isBusy = false;
+    }
 	public removeHandler({ sender, dataItem }: { sender: any, dataItem: any}) {
 		
 		let searchId: string = this.searchToBeDeleted;
@@ -74,7 +81,7 @@ export class searchService {
 		);
 	}
 
-	FetchSearchGeneric(cmd: SearchCodeCommand, apiStr: string) {
+	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
 
 		apiStr = 'api/SearchList/' + apiStr;
 		this._httpC.post<Search[]>(this._baseUrl + apiStr,
@@ -99,14 +106,7 @@ export class Search {
 	contactName: string = '';
 }
 
-export class CriteriaSearch {
-	
-	AttributeId: string = '0';
-	SetId: string ='0';
-	Included: boolean = false;
-	FilterAttributeId: number = 0;
-	
-}
+
 
 export interface SearchCodeCommand {
 
