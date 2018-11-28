@@ -15,7 +15,7 @@ export class searchService {
         ) { }
     
 	private _SearchList: Search[] = [];
-	@Output() searchesChanged = new EventEmitter();
+	//@Output() searchesChanged = new EventEmitter();
     public crit: CriteriaSearch = new CriteriaSearch();
 	public searchToBeDeleted: string = '';
 
@@ -27,7 +27,7 @@ export class searchService {
     
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
-        this.searchesChanged.emit();
+        //this.searchesChanged.emit();
 	}
 
 	private _isBusy: boolean = false;
@@ -45,7 +45,7 @@ export class searchService {
 
 					console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
-					this.searchesChanged.emit();
+					//this.searchesChanged.emit();
 				}
 		 );
 	}

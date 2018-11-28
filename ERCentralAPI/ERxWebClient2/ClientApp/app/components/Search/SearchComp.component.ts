@@ -5,7 +5,7 @@ import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectionModel, DataSource } from '@angular/cdk/collections';
-import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, GridComponent, GridModule  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
@@ -34,7 +34,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	@ViewChild('testKendoGrid') searchesGridRes!: GridComponent;
 
-
+	
 	
     public selectedAll: boolean = false;
 
@@ -48,6 +48,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	};
 
 	//public gridData: GridDataResult = process(this.DataSource.data, this.stateAdd);
+
+
 
 	selectAllSearchesChange(e: any): void {
 		
@@ -76,8 +78,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	refreshSearches() {
-
+		
 		this._searchService.Fetch();
+
 		//this.gridData = process(this.DataSource.data, this.stateAdd);
 	}
 	
@@ -318,7 +321,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
 			this.cmdSearches._withCodes = true;
-			this.cmdSearches._title = this.selectedSearchTextDropDown;
+			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
 
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
 
@@ -326,7 +329,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 		if (selectedSearchDropDown == 'That dont have any codes from this set') {
 
 			this.cmdSearches._withCodes = false;
-			this.cmdSearches._title = this.selectedSearchTextDropDown;
+			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
 			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
 
 		}
