@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -122,13 +122,13 @@ export class SearchComp implements OnInit, OnDestroy {
 		
 	//}
 
- //   public rowCallback(context: RowClassArgs) {
- //       const isEven = context.index % 2 == 0;
- //       return {
- //           even: isEven,
- //           odd: !isEven
- //       };
-	//}
+    public rowCallback(context: RowClassArgs) {
+        const isEven = context.index % 2 == 0;
+        return {
+            even: isEven,
+            odd: !isEven
+        };
+	}
 
     public sort: SortDescriptor[] = [{
         field: 'hitsNo',
@@ -181,7 +181,10 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-				
+
+
+		
+
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
 		}
@@ -203,6 +206,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	@ViewChild('SearchesModal')
 
+	//public searchBool: boolean = true;
 	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
@@ -214,6 +218,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public selectedNodeDataName: string = '';
 	public CodeSets: any[] = [];
 
+	
 	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
@@ -232,6 +237,10 @@ export class SearchesModalContent implements SearchCodeCommand {
 		private _eventEmitter: EventEmitterService,
 		private _searchService: searchService
 	) { }
+
+	ngOnInit() {
+		
+	}
 
 	public cmdSearches: SearchCodeCommand = {
 
