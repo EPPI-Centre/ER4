@@ -33,7 +33,7 @@
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 						 ||		selectedSearchDropDown == 'That dont have any codes from this set') "
 						 ngbDropdown class="d-inline-block col-md-12">
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 							<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 						</div>
@@ -99,6 +99,6 @@
     <div class="modal-footer bg-primary">
         <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
         <button type="button" class="btn btn-secondary" 
-                (click)="callSearches(selectedSearchDropDown,selectedSearchTextDropDown , searchBool)">Search</button>
+                (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown , searchBool)">Search</button>
     </div>
 

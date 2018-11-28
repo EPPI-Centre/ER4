@@ -34,9 +34,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	@ViewChild('testKendoGrid') searchesGrid!: GridComponent;
 
-    onSubmit(f: string) {
+ //   onSubmit(f: string) {
 
-	}
+	//}
 	
     public selectedAll: boolean = false;
 
@@ -105,8 +105,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 		);
 	}
-
-
+	
 	public checkboxClicked(dataItem: any) {
 
 		dataItem.add = !dataItem.add;
@@ -117,18 +116,19 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	};
 
-	RemoveOneLocalSource() {
+	//RemoveOneLocalSource() {
 
-        this._searchService.SearchList = this._searchService.SearchList.slice(3);
+ //       this._searchService.SearchList = this._searchService.SearchList.slice(3);
 		
-    }
-    public rowCallback(context: RowClassArgs) {
-        const isEven = context.index % 2 == 0;
-        return {
-            even: isEven,
-            odd: !isEven
-        };
-	}
+	//}
+
+ //   public rowCallback(context: RowClassArgs) {
+ //       const isEven = context.index % 2 == 0;
+ //       return {
+ //           even: isEven,
+ //           odd: !isEven
+ //       };
+	//}
 
     public sort: SortDescriptor[] = [{
         field: 'hitsNo',
@@ -150,7 +150,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		cr.searchId = item;
 		cr.listType = 'GetItemSearchList';
 		cr.pageNumber = 0;
-		//alert('cr.listType: ' + cr.listType);
 
 		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
         this._eventEmitter.PleaseSelectItemsListTab.emit();
@@ -212,6 +211,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public showDropDown2: boolean = true;
 	public selectedSearchDropDown: string = '';
 	public selectedSearchTextDropDown: string = '';
+	public selectedSearchCodeSetDropDown: string = '';
 	public nodeSelected: boolean = false;
 	public selectedNodeDataName: string = '';
 	public CodeSets: any[] = [];
@@ -228,6 +228,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public get IsReadOnly(): boolean {
 		return this.canWrite;
 	}
+
 	constructor(public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService,
 		private _eventEmitter: EventEmitterService,
@@ -440,7 +441,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	
 	public setSearchCodeSetDropDown(codeSetName: string) {
 
-		this.selectedSearchTextDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
+		this.selectedSearchCodeSetDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
 			.map(
 				(y: ReviewSet) => {
 
