@@ -136,30 +136,10 @@ export class SearchComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
     }
-    
-	OpenItems(item: number) {
-
-		let cr: Criteria = new Criteria();
-
-		cr.filterAttributeId = -1;
-		cr.searchId = item;
-		cr.listType = 'GetItemSearchList';
-		cr.pageNumber = 0;
-
-		this.ItemListService.FetchWithCrit(cr, 'GetItemSearchList');
-        this._eventEmitter.PleaseSelectItemsListTab.emit();
-	}
 
 	ngOnDestroy() {
 	}
 	
-	public tableArr: Search[] = this._searchService.SearchList;
-	public testArr: Search[] = [];
-	public selectAll: boolean =false;
-
-	public initialSelection = [];
-	public allowMultiSelect = true;
-	public selection = new SelectionModel<Search>(this.allowMultiSelect, this.initialSelection);
 
 	SearchGetItemList(dataItem: Search) {
 
@@ -178,9 +158,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-
-
-		
 
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
@@ -203,19 +180,26 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	@ViewChild('SearchesModal')
 
-	//public searchBool: boolean = true;
+    private _searchInclOrExcl: string = 'true';
+    public get searchInclOrExcl(): string {
+        console.log('I get it', this._searchInclOrExcl);
+        return this._searchInclOrExcl;
+    }
+    public set searchInclOrExcl(value: string) {
+        if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
+        else console.log("I'm not doing it :-P ", value);
+	}
+
+
 	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
-	public showDropDown2: boolean = true;
 	public selectedSearchDropDown: string = '';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
-	public nodeSelected: boolean = false;
-	public selectedNodeDataName: string = '';
-	public CodeSets: any[] = [];
 
-	
+	public CodeSets: any[] = [];
+		
 	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
@@ -231,16 +215,14 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 	constructor(public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService,
-		private _eventEmitter: EventEmitterService,
 		private _searchService: searchService
 	) { }
 
 	ngOnInit() {
-		
+        this._searchInclOrExcl = 'true';
 	}
 
 	public cmdSearches: SearchCodeCommand = {
-
 		_setID: 0,
 		_searchText: '',
 		_IDs: '',
@@ -290,7 +272,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.cmdSearches._title = searchTitle;
 				this.cmdSearches._withCodes = this.withCode;
 
-				this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodes');
+				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
 	
 			}
 		}
@@ -299,7 +281,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchIDs');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
 		
 
 		}
@@ -308,7 +290,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchImportedIDs');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
 		
 
 		}
@@ -316,21 +298,21 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			this.cmdSearches._title = this.searchText;
 			this.cmdSearches._included = Boolean(searchBool);
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchText');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchText');
 		}
 		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
 			this.cmdSearches._withCodes = true;
 			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'That dont have any codes from this set') {
 
 			this.cmdSearches._withCodes = false;
 			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'Without an abstract') {
@@ -338,7 +320,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = searchTitle;
 			
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoAbstract');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
 		
 		}
 
@@ -347,13 +329,13 @@ export class SearchesModalContent implements SearchCodeCommand {
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = 'Without any documents uploaded';
 
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchNoFiles');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
 			
 		}
 		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
 			this.cmdSearches._title = 'With at least one document uploaded.';
-			this._searchService.FetchSearchGeneric(this.cmdSearches, 'SearchOneFile');
+			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
 			
 		}
 
@@ -363,35 +345,24 @@ export class SearchesModalContent implements SearchCodeCommand {
 	
 	public nextDropDownList(num: number, val: string) {
 
-		this.showDropDown2 = true;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
-		this._eventEmitter.nodeSelected = false;
 
 		switch (num) {
 
 			case 1: {
-				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 2: {
-				//statements; 
-				this._eventEmitter.nodeSelected = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 3: {
-				//With these internal IDs (comma separated) show text box
-				
-				this.showDropDown2 = false;
 				this.showTextBox = true;
 				break;
 			}
 			case 4: {
-				this.showDropDown2 = true;
 				this.showTextBox = true;
 				break;
 			}
@@ -403,7 +374,6 @@ export class SearchesModalContent implements SearchCodeCommand {
 							return y.name;
 						}
 					);
-				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
@@ -414,27 +384,19 @@ export class SearchesModalContent implements SearchCodeCommand {
 							return y.name;
 						}
 					);
-				this.showDropDown2 = true;
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
 			case 7: {
-
-				this.showDropDown2 = true;
 				break;
 			}
 			case 8: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
 				break;
 			}
 			case 9: {
-				this.showDropDown2 = false;
 				break;
 			}
 			case 10: {
-				this.showDropDown2 = false;
 				break;
 			}
 			default: {

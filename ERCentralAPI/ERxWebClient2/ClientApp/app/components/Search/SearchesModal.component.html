@@ -85,24 +85,23 @@
 			<table class="table table-responsive table-striped table-light card-body">
 				<tr>
 					<td>
-						<input  name="options" type="radio" [value]="true" [(ngModel)]="searchBool"><br />
+						<input  name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl"><br />
 
 						<b>&nbsp; Included </b>
 					</td>
 					<td>
-						<input name="options" type="radio" [value]="false" [(ngModel)]="searchBool"><br />
+						<input name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl"><br />
 
 						<b>&nbsp; Excluded</b>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<div class="col-md-4 ml-auto"></div>-
 	</div>
 	</div>
 <div class="modal-footer bg-primary">
     <button type="button" class="btn btn-dark" (click)="activeModal.dismiss('Cancel click')">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
     <button type="button" class="btn btn-secondary" 
-            (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchBool)">Search</button>
+            (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl)">Search</button>
 </div>
 

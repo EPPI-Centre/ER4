@@ -49,7 +49,7 @@ export class ItemListService {
 
     private _isBusy: boolean = false;
     public get isBusy(): boolean {
-        console.log('Item list, isbusy? ' + this._isBusy);
+        //console.log('Item list, isbusy? ' + this._isBusy);
         return this._isBusy;
     }
     private _ItemList: ItemList = new ItemList();
