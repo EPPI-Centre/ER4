@@ -1413,10 +1413,10 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             int review_ID = ri.ReviewId, AuthorsN = 0;
             if (review_ID == 0) return;
             //declare variables
-            Int64 Items_S ;
-            Int64 Author_S ;
-            Int64 Item_Source_S;
-            Int64 Item_Review_S;
+            Int64 Items_S = 0;
+            Int64 Author_S = 0;
+            Int64 Item_Source_S = 0;
+            Int64 Item_Review_S = 0;
             //BusinessLibrary.BusinessClasses.TestDataSet TDS = new BusinessLibrary.BusinessClasses.TestDataSet();
             Data.ImportItemsDataset TDS = new Data.ImportItemsDataset();
             foreach (ItemIncomingData item in IncomingItems)
@@ -1425,66 +1425,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             } 
             if (IsFirst && IsLast) //old method save all in one go
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand cmd = new SqlCommand("st_ItemImportPrepare", connection))
-                    {
-                        //prepare all tables
-                        cmd.Parameters.Add("@Source_Seed", SqlDbType.Int);
-                        cmd.Parameters["@Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@Items_Number", IncomingItems.Count));
-                        cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsN));
-                        cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Item_Source_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Item_Review_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Review_Seed"].Direction = ParameterDirection.Output;
-                        cmd.ExecuteNonQuery();
-
-                        //get seeds values
-                        Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                        Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                        Item_Source_S = (Int64)cmd.Parameters["@Item_Source_Seed"].Value;
-                        Item_Review_S = (Int64)cmd.Parameters["@Item_Review_Seed"].Value;
-                        if (SourceID == 0 & IsNew == true) Source_S = (int)cmd.Parameters["@Source_Seed"].Value;//check this!
-                    }
-                }
-                //set local tables and seeds
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementSeed = Items_S + 1;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrement = true;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementSeed = Items_S + 1;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementStep = 1;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrement = true;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementSeed = Source_S + 1;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrement = true;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementSeed = Source_S + 1;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementStep = 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrement = true;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementSeed = Item_Source_S + 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementSeed = Item_Source_S + 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementStep = 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementSeed = Author_S + 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementSeed = Author_S + 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementStep = 1;
-                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrement = true;
-                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrementSeed = Item_Review_S + 1;
-                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrementSeed = Item_Review_S + 1;
-                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrementStep = 1;
+                SeedTables(TDS, AuthorsN, Items_S, Author_S, Item_Source_S, Item_Review_S, ref Source_S);
                 //start putting data is: declare rows
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow ItemR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow AuthorR;
@@ -1499,126 +1440,28 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 DataRow ItemReviewR;
 
                 //put data in the source table
+                
+
                 //SourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_SOURCERow)TDS.TB_SOURCE.NewRow();
                 SourceR = TDS.TB_SOURCE.NewRow();
-                //SourceR.REVIEW_ID = review_ID;
-                //SourceR.SOURCE_NAME = SourceName;
-                //SourceR.DATE_OF_IMPORT = DateOfImport;
-                //SourceR.DATE_OF_SEARCH = DateOfSearch;
-                //SourceR.SOURCE_DATABASE = SourceDB;
-                //SourceR.SEARCH_DESCRIPTION = SearchDescr;
-                //SourceR.SEARCH_STRING = SearchStr;
-                //SourceR.NOTES = Notes;
-                //SourceR.IMPORT_FILTER_ID = FilterID;
-                SourceR["REVIEW_ID"] = review_ID;
-                SourceR["SOURCE_NAME"] = SourceName;
-                SourceR["DATE_OF_IMPORT"] = DateOfImport;
-                SourceR["DATE_OF_SEARCH"] = DateOfSearch;
-                SourceR["SOURCE_DATABASE"] = SourceDB;
-                SourceR["SEARCH_DESCRIPTION"] = SearchDescr;
-                SourceR["SEARCH_STRING"] = SearchStr;
-                SourceR["NOTES"] = Notes;
-                SourceR["IMPORT_FILTER_ID"] = FilterID;
-
-                TDS.TB_SOURCE.Rows.Add(SourceR);
+                FillSourceTB(TDS, SourceR, review_ID);
+                
                 //put data in the item tables, tb_item, tb_item_review, tb_item_source and TB_ITEM_AUTHOR
                 foreach (ItemIncomingData item in IncomingItems)
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    //ItemR.ABSTRACT = item.Abstract;
-                    //ItemR.AVAILABILITY = item.Availability;
-                    //ItemR.CITY = item.City;
-                    //ItemR.COMMENTS = item.Comments;
-                    //ItemR.COUNTRY = item.Country;
-                    //ItemR.CREATED_BY = ri.Name;
-                    //ItemR.DATE_CREATED = System.DateTime.Now;
-                    //ItemR.DATE_EDITED = System.DateTime.Now;
-                    //ItemR.EDITED_BY = ri.Name;
-                    //ItemR.EDITION = item.Edition;
-                    //ItemR.INSTITUTION = item.Institution;
-                    //ItemR.IS_LOCAL = false;
-                    //ItemR.ISSUE = item.Issue;
-                    //ItemR.MONTH = item.Month;
-                    //ItemR.OLD_ITEM_ID = item.OldItemId;
-                    //ItemR.PAGES = item.Pages;
-                    //ItemR.PARENT_TITLE = item.Parent_title;
-                    //ItemR.PUBLISHER = item.Publisher;
-                    //ItemR.SHORT_TITLE = item.Short_title;
-                    //ItemR.STANDARD_NUMBER = item.Standard_number;
-                    //ItemR.TITLE = item.Title;
-                    //ItemR.TYPE_ID = (byte)item.Type_id;
-                    //ItemR.URL = item.Url;
-                    //ItemR.VOLUME = item.Volume;
-                    //ItemR.YEAR = item.Year;
-                    //ItemR.DOI = item.DOI;
-                    //ItemR.KEYWORDS = item.Keywords;
-                    //TDS.tb_ITEM.Rows.Add(ItemR);
-                    ItemR["ABSTRACT"] = item.Abstract;
-                    ItemR["AVAILABILITY"] = item.Availability;
-                    ItemR["CITY"] = item.City;
-                    ItemR["COMMENTS"] = item.Comments;
-                    ItemR["COUNTRY"] = item.Country;
-                    ItemR["CREATED_BY"] = ri.Name;
-                    ItemR["DATE_CREATED"] = System.DateTime.Now;
-                    ItemR["DATE_EDITED"] = System.DateTime.Now;
-                    ItemR["EDITED_BY"] = ri.Name;
-                    ItemR["EDITION"] = item.Edition;
-                    ItemR["INSTITUTION"] = item.Institution;
-                    ItemR["IS_LOCAL"] = false;
-                    ItemR["ISSUE"] = item.Issue;
-                    ItemR["MONTH"] = item.Month;
-                    ItemR["OLD_ITEM_ID"] = item.OldItemId;
-                    ItemR["PAGES"] = item.Pages;
-                    ItemR["PARENT_TITLE"] = item.Parent_title;
-                    ItemR["PUBLISHER"] = item.Publisher;
-                    ItemR["SHORT_TITLE"] = item.Short_title;
-                    ItemR["STANDARD_NUMBER"] = item.Standard_number;
-                    ItemR["TITLE"] = item.Title;
-                    ItemR["TYPE_ID"] = (byte)item.Type_id;
-                    ItemR["URL"] = item.Url;
-                    ItemR["VOLUME"] = item.Volume;
-                    ItemR["YEAR"] = item.Year;
-                    ItemR["DOI"] = item.DOI;
-                    ItemR["KEYWORDS"] = item.Keywords;
-                    TDS.TB_ITEM.Rows.Add(ItemR);
+                    FillItemTB(TDS, ItemR, item, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
                     foreach (AutH Auth in item.pAuthorsLi)
                     {
-                        //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
                     //ItemReviewR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_REVIEWRow)TDS.TB_ITEM_REVIEW.NewRow();
                     ItemReviewR = TDS.TB_ITEM_REVIEW.NewRow();
@@ -1641,176 +1484,13 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     TDS.TB_ITEM_SOURCE.Rows.Add(ItemSourceR);
                     int cippa = TDS.TB_ITEM_SOURCE.Rows.Count;
                 }
-                DateTime startTime = DateTime.Now;
-                using (SqlBulkCopy sbc = new SqlBulkCopy(DataConnection.ConnectionString, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints))
-                {
-                    if (SourceID == 0 & IsNew == true)
-                    {
-                        sbc.DestinationTableName = "TB_SOURCE";
-                        // Number of records to be processed in one go
-                        sbc.BatchSize = 1;
-                        // Map the Source Column from DataTabel to the Destination Columns in SQL Server 2005 Person Table
-                        sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
-                        sbc.ColumnMappings.Add("SOURCE_NAME", "SOURCE_NAME");
-                        sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-                        sbc.ColumnMappings.Add("DATE_OF_SEARCH", "DATE_OF_SEARCH");
-                        sbc.ColumnMappings.Add("DATE_OF_IMPORT", "DATE_OF_IMPORT");
-                        sbc.ColumnMappings.Add("SOURCE_DATABASE", "SOURCE_DATABASE");
-                        sbc.ColumnMappings.Add("SEARCH_DESCRIPTION", "SEARCH_DESCRIPTION");
-                        sbc.ColumnMappings.Add("SEARCH_STRING", "SEARCH_STRING");
-                        sbc.ColumnMappings.Add("NOTES", "NOTES");
-                        sbc.ColumnMappings.Add("IMPORT_FILTER_ID", "IMPORT_FILTER_ID");
-                        // Number of records after which client has to be notified about its status
-                        sbc.NotifyAfter = TDS.TB_SOURCE.Rows.Count;
-                        // Event that gets fired when NotifyAfter number of records are processed.
-                        //sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
-                        // Finally write to server
-                        sbc.WriteToServer(TDS.TB_SOURCE);
-                    }
-
-                    //As above, but on TB_ITEM
-                    sbc.DestinationTableName = "TB_ITEM";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("TYPE_ID", "TYPE_ID");
-                    sbc.ColumnMappings.Add("TITLE", "TITLE");
-                    sbc.ColumnMappings.Add("PARENT_TITLE", "PARENT_TITLE");
-                    sbc.ColumnMappings.Add("SHORT_TITLE", "SHORT_TITLE");
-                    sbc.ColumnMappings.Add("DATE_CREATED", "DATE_CREATED");
-                    sbc.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
-                    sbc.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
-                    sbc.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
-                    sbc.ColumnMappings.Add("YEAR", "YEAR");
-                    sbc.ColumnMappings.Add("MONTH", "MONTH");
-                    sbc.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
-                    sbc.ColumnMappings.Add("CITY", "CITY");
-                    sbc.ColumnMappings.Add("COUNTRY", "COUNTRY");
-                    sbc.ColumnMappings.Add("PUBLISHER", "PUBLISHER");
-                    sbc.ColumnMappings.Add("INSTITUTION", "INSTITUTION");
-                    sbc.ColumnMappings.Add("VOLUME", "VOLUME");
-                    sbc.ColumnMappings.Add("PAGES", "PAGES");
-                    sbc.ColumnMappings.Add("ISSUE", "ISSUE");
-                    sbc.ColumnMappings.Add("IS_LOCAL", "IS_LOCAL");
-                    sbc.ColumnMappings.Add("AVAILABILITY", "AVAILABILITY");
-                    sbc.ColumnMappings.Add("URL", "URL");
-                    sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
-                    sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
-                    sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
-                    sbc.ColumnMappings.Add("DOI", "DOI");
-                    sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
-
-                    sbc.BatchSize = 1000;
-                    //sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM);
-                    sbc.NotifyAfter = TDS.TB_ITEM.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM);
-
-                    //Write tb_ITEM_AUTHOR
-                    sbc.DestinationTableName = "tb_ITEM_AUTHOR";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_AUTHOR_ID", "ITEM_AUTHOR_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("LAST", "LAST");
-                    sbc.ColumnMappings.Add("FIRST", "FIRST");
-                    sbc.ColumnMappings.Add("SECOND", "SECOND");
-                    sbc.ColumnMappings.Add("ROLE", "ROLE");
-                    sbc.ColumnMappings.Add("RANK", "RANK");
-
-                    //sbc.NotifyAfter = TDS.tb_ITEM_AUTHOR.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM_AUTHOR);
-                    sbc.NotifyAfter = TDS.TB_ITEM_AUTHOR.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM_AUTHOR);
-
-                    //Write TB_ITEM_REVIEW
-                    sbc.DestinationTableName = "TB_ITEM_REVIEW";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_REVIEW_ID", "ITEM_REVIEW_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-                    sbc.ColumnMappings.Add("IS_INCLUDED", "IS_INCLUDED");
-                    sbc.ColumnMappings.Add("MASTER_ITEM_ID", "MASTER_ITEM_ID");
-                    sbc.ColumnMappings.Add("IS_DELETED", "IS_DELETED");
-
-                    sbc.NotifyAfter = TDS.TB_ITEM_REVIEW.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM_REVIEW);
-
-
-                    //write TB_ITEM_SOURCE
-                    sbc.DestinationTableName = "TB_ITEM_SOURCE";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_SOURCE_ID", "ITEM_SOURCE_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
-                    sbc.NotifyAfter = TDS.TB_ITEM_SOURCE.Rows.Count;
-                    sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
-                    sbc.WriteToServer(TDS.TB_ITEM_SOURCE);
-                    sbc.Close();
-                    if (savedAll == true)
-                    {
-                        TimeSpan time = DateTime.Now - startTime;
-                        this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
-                        this.IncomingItems.Clear();
-                        this.SourceID = Source_S + 1;
-                    }
-                }
+                BulkUpload(TDS, Source_S);
             }
             else if (IsFirst && !IsLast)//this is the first batch of a series
             {
                 //prepare tb_source, tb_item, tb_item_source and tb_item_authors
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand cmd = new SqlCommand("st_ItemImportPrepareBatch", connection))
-                    {
-                        //prepare all tables
-                        cmd.Parameters.Add("@Source_Seed", SqlDbType.Int);
-                        cmd.Parameters["@Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@Items_Number", IncomingItems.Count));
-                        cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsN));
-                        cmd.Parameters.Add(new SqlParameter("@Source_Id", SourceID));//if 0 is a new source, will get a source seed in this case
-                        cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Item_Source_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.ExecuteNonQuery();
+                SeedTables(TDS, AuthorsN, Items_S, Author_S, Item_Source_S, Item_Review_S, ref Source_S);
 
-                        //get seeds values
-                        Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                        Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                        Item_Source_S = (Int64)cmd.Parameters["@Item_Source_Seed"].Value;
-                        //Item_Review_S = (Int64)cmd.Parameters["@Item_Review_Seed"].Value;
-                        if (SourceID == 0 & IsNew == true) Source_S = (int)cmd.Parameters["@Source_Seed"].Value;//check this!
-                    }
-                }
-                //set local tables and seeds
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementSeed = Items_S + 1;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementStep = 1;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrement = true;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementSeed = Source_S + 1;
-                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementStep = 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrement = true;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementSeed = Item_Source_S + 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementStep = 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementSeed = Author_S + 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementStep = 1;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrement = true;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementSeed = Items_S + 1;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementStep = 1;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrement = true;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementSeed = Source_S + 1;
-                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementStep = 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementSeed = Item_Source_S + 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementStep = 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementSeed = Author_S + 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementStep = 1;
-                
                 //start putting data is: declare rows
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow ItemR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow AuthorR;
@@ -1823,126 +1503,26 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 DataRow SourceR;
 
                 //put data in the source table
-                //SourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_SOURCERow)TDS.TB_SOURCE.NewRow();
-                //SourceR.REVIEW_ID = review_ID;
-                //SourceR.SOURCE_NAME = SourceName;
-                //SourceR.DATE_OF_IMPORT = DateOfImport;
-                //SourceR.DATE_OF_SEARCH = DateOfSearch;
-                //SourceR.SOURCE_DATABASE = SourceDB;
-                //SourceR.SEARCH_DESCRIPTION = SearchDescr;
-                //SourceR.SEARCH_STRING = SearchStr;
-                //SourceR.NOTES = Notes;
-                //SourceR.IMPORT_FILTER_ID = FilterID;
                 SourceR = TDS.TB_SOURCE.NewRow();
-                SourceR["REVIEW_ID"] = review_ID;
-                SourceR["SOURCE_NAME"] = SourceName;
-                SourceR["DATE_OF_IMPORT"] = DateOfImport;
-                SourceR["DATE_OF_SEARCH"] = DateOfSearch;
-                SourceR["SOURCE_DATABASE"] = SourceDB;
-                SourceR["SEARCH_DESCRIPTION"] = SearchDescr;
-                SourceR["SEARCH_STRING"] = SearchStr;
-                SourceR["NOTES"] = Notes;
-                SourceR["IMPORT_FILTER_ID"] = FilterID;
-                TDS.TB_SOURCE.Rows.Add(SourceR);
+                FillSourceTB(TDS, SourceR, review_ID);
+               
                 //put data in the item tables, tb_item, tb_item_source and TB_ITEM_AUTHOR
                 foreach (ItemIncomingData item in IncomingItems)
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
-                    //ItemR.ABSTRACT = item.Abstract;
-                    //ItemR.AVAILABILITY = item.Availability;
-                    //ItemR.CITY = item.City;
-                    //ItemR.COMMENTS = item.Comments;
-                    //ItemR.COUNTRY = item.Country;
-                    //ItemR.CREATED_BY = ri.Name;
-                    //ItemR.DATE_CREATED = System.DateTime.Now;
-                    //ItemR.DATE_EDITED = System.DateTime.Now;
-                    //ItemR.EDITED_BY = ri.Name;
-                    //ItemR.EDITION = item.Edition;
-                    //ItemR.INSTITUTION = item.Institution;
-                    //ItemR.IS_LOCAL = false;
-                    //ItemR.ISSUE = item.Issue;
-                    //ItemR.MONTH = item.Month;
-                    //ItemR.OLD_ITEM_ID = item.OldItemId;
-                    //ItemR.PAGES = item.Pages;
-                    //ItemR.PARENT_TITLE = item.Parent_title;
-                    //ItemR.PUBLISHER = item.Publisher;
-                    //ItemR.SHORT_TITLE = item.Short_title;
-                    //ItemR.STANDARD_NUMBER = item.Standard_number;
-                    //ItemR.TITLE = item.Title;
-                    //ItemR.TYPE_ID = (byte)item.Type_id;
-                    //ItemR.URL = item.Url;
-                    //ItemR.VOLUME = item.Volume;
-                    //ItemR.YEAR = item.Year;
-                    //ItemR.DOI = item.DOI;
-                    //ItemR.KEYWORDS = item.Keywords;
-                    //TDS.tb_ITEM.Rows.Add(ItemR);
-                    //ItemR = TDS.TB_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    ItemR["ABSTRACT"] = item.Abstract;
-                    ItemR["AVAILABILITY"] = item.Availability;
-                    ItemR["CITY"] = item.City;
-                    ItemR["COMMENTS"] = item.Comments;
-                    ItemR["COUNTRY"] = item.Country;
-                    ItemR["CREATED_BY"] = ri.Name;
-                    ItemR["DATE_CREATED"] = System.DateTime.Now;
-                    ItemR["DATE_EDITED"] = System.DateTime.Now;
-                    ItemR["EDITED_BY"] = ri.Name;
-                    ItemR["EDITION"] = item.Edition;
-                    ItemR["INSTITUTION"] = item.Institution;
-                    ItemR["IS_LOCAL"] = false;
-                    ItemR["ISSUE"] = item.Issue;
-                    ItemR["MONTH"] = item.Month;
-                    ItemR["OLD_ITEM_ID"] = item.OldItemId;
-                    ItemR["PAGES"] = item.Pages;
-                    ItemR["PARENT_TITLE"] = item.Parent_title;
-                    ItemR["PUBLISHER"] = item.Publisher;
-                    ItemR["SHORT_TITLE"] = item.Short_title;
-                    ItemR["STANDARD_NUMBER"] = item.Standard_number;
-                    ItemR["TITLE"] = item.Title;
-                    ItemR["TYPE_ID"] = (byte)item.Type_id;
-                    ItemR["URL"] = item.Url;
-                    ItemR["VOLUME"] = item.Volume;
-                    ItemR["YEAR"] = item.Year;
-                    ItemR["DOI"] = item.DOI;
-                    ItemR["KEYWORDS"] = item.Keywords;
-                    TDS.TB_ITEM.Rows.Add(ItemR);
+                    FillItemTB(TDS, ItemR, item, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
                     foreach (AutH Auth in item.pAuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
 
                     //ItemSourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow)TDS.TB_ITEM_SOURCE.NewRow();
@@ -1955,105 +1535,8 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     int cippa = TDS.TB_ITEM_SOURCE.Rows.Count;
 
                 }
-                DateTime startTime = DateTime.Now;
-                using (SqlBulkCopy sbc = new SqlBulkCopy(DataConnection.ConnectionString, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints))
-                {
-                    if (SourceID == 0 & IsNew == true)
-                    {
-                        sbc.DestinationTableName = "TB_SOURCE";
-                        // Number of records to be processed in one go
-                        sbc.BatchSize = 1;
-                        // Map the Source Column from DataTabel to the Destination Columns in SQL Server 2005 Person Table
-                        sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
-                        sbc.ColumnMappings.Add("SOURCE_NAME", "SOURCE_NAME");
-                        sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-                        sbc.ColumnMappings.Add("DATE_OF_SEARCH", "DATE_OF_SEARCH");
-                        sbc.ColumnMappings.Add("DATE_OF_IMPORT", "DATE_OF_IMPORT");
-                        sbc.ColumnMappings.Add("SOURCE_DATABASE", "SOURCE_DATABASE");
-                        sbc.ColumnMappings.Add("SEARCH_DESCRIPTION", "SEARCH_DESCRIPTION");
-                        sbc.ColumnMappings.Add("SEARCH_STRING", "SEARCH_STRING");
-                        sbc.ColumnMappings.Add("NOTES", "NOTES");
-                        sbc.ColumnMappings.Add("IMPORT_FILTER_ID", "IMPORT_FILTER_ID");
-                        // Number of records after which client has to be notified about its status
-                        sbc.NotifyAfter = TDS.TB_SOURCE.Rows.Count;
-                        // Event that gets fired when NotifyAfter number of records are processed.
-                        //sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
-                        // Finally write to server
-                        sbc.WriteToServer(TDS.TB_SOURCE);
-                    }
-
-                    //As above, but on TB_ITEM
-                    sbc.DestinationTableName = "TB_ITEM";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("TYPE_ID", "TYPE_ID");
-                    sbc.ColumnMappings.Add("TITLE", "TITLE");
-                    sbc.ColumnMappings.Add("PARENT_TITLE", "PARENT_TITLE");
-                    sbc.ColumnMappings.Add("SHORT_TITLE", "SHORT_TITLE");
-                    sbc.ColumnMappings.Add("DATE_CREATED", "DATE_CREATED");
-                    sbc.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
-                    sbc.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
-                    sbc.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
-                    sbc.ColumnMappings.Add("YEAR", "YEAR");
-                    sbc.ColumnMappings.Add("MONTH", "MONTH");
-                    sbc.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
-                    sbc.ColumnMappings.Add("CITY", "CITY");
-                    sbc.ColumnMappings.Add("COUNTRY", "COUNTRY");
-                    sbc.ColumnMappings.Add("PUBLISHER", "PUBLISHER");
-                    sbc.ColumnMappings.Add("INSTITUTION", "INSTITUTION");
-                    sbc.ColumnMappings.Add("VOLUME", "VOLUME");
-                    sbc.ColumnMappings.Add("PAGES", "PAGES");
-                    sbc.ColumnMappings.Add("ISSUE", "ISSUE");
-                    sbc.ColumnMappings.Add("IS_LOCAL", "IS_LOCAL");
-                    sbc.ColumnMappings.Add("AVAILABILITY", "AVAILABILITY");
-                    sbc.ColumnMappings.Add("URL", "URL");
-                    sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
-                    sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
-                    sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
-                    sbc.ColumnMappings.Add("DOI", "DOI");
-                    sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
-
-                    sbc.BatchSize = 1000;
-                    //sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM);
-                    sbc.NotifyAfter = TDS.TB_ITEM.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM);
-
-                    //Write tb_ITEM_AUTHOR
-                    sbc.DestinationTableName = "tb_ITEM_AUTHOR";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_AUTHOR_ID", "ITEM_AUTHOR_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("LAST", "LAST");
-                    sbc.ColumnMappings.Add("FIRST", "FIRST");
-                    sbc.ColumnMappings.Add("SECOND", "SECOND");
-                    sbc.ColumnMappings.Add("ROLE", "ROLE");
-                    sbc.ColumnMappings.Add("RANK", "RANK");
-
-                    //sbc.NotifyAfter = TDS.tb_ITEM_AUTHOR.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM_AUTHOR);
-                    sbc.NotifyAfter = TDS.TB_ITEM_AUTHOR.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM_AUTHOR);
-
-                    //write TB_ITEM_SOURCE
-                    sbc.DestinationTableName = "TB_ITEM_SOURCE";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_SOURCE_ID", "ITEM_SOURCE_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
-                    sbc.NotifyAfter = TDS.TB_ITEM_SOURCE.Rows.Count;
-                    sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
-                    sbc.WriteToServer(TDS.TB_ITEM_SOURCE);
-                    sbc.Close();
-                    if (savedAll == true)
-                    {
-                        TimeSpan time = DateTime.Now - startTime;
-                        this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
-                        this.IncomingItems.Clear();
-                        this.SourceID = Source_S + 1;
-                    }
-                }
-                //add source ID to result
+                BulkUpload(TDS, Source_S);
+                
             }
             else //this is one of a batch but not the first 
             {
@@ -2062,56 +1545,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 //add lines to local tables,
 
                 //bulk add into tb_item, tb_item_source and tb_item_authors
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand cmd = new SqlCommand("st_ItemImportPrepareBatch", connection))
-                    {
-                        //prepare all tables
-                        cmd.Parameters.Add("@Source_Seed", SqlDbType.Int);
-                        cmd.Parameters["@Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@Items_Number", IncomingItems.Count));
-                        cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsN));
-                        cmd.Parameters.Add(new SqlParameter("@Source_Id", SourceID));//if 0 is a new source, will get a source seed in this case
-                        cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add("@Item_Source_Seed", SqlDbType.BigInt);
-                        cmd.Parameters["@Item_Source_Seed"].Direction = ParameterDirection.Output;
-                        cmd.ExecuteNonQuery();
-
-                        //get seeds values
-                        Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
-                        Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
-                        Item_Source_S = (Int64)cmd.Parameters["@Item_Source_Seed"].Value;
-                        
-                    }
-                }
-                //set local tables and seeds
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementSeed = Items_S + 1;
-                //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementStep = 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrement = true;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementSeed = Item_Source_S + 1;
-                //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementStep = 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrement = true;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementSeed = Author_S + 1;
-                //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementStep = 1;
-               
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrement = true;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementSeed = Items_S + 1;
-                TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementStep = 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementSeed = Item_Source_S + 1;
-                TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementStep = 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrement = true;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementSeed = Author_S + 1;
-                TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementStep = 1;
-
-
-
+                SeedTables(TDS, AuthorsN, Items_S, Author_S, Item_Source_S, Item_Review_S, ref Source_S);
                 //start putting data is: declare rows
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow ItemR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow AuthorR;
@@ -2126,100 +1560,18 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    //ItemR.ABSTRACT = item.Abstract;
-                    //ItemR.AVAILABILITY = item.Availability;
-                    //ItemR.CITY = item.City;
-                    //ItemR.COMMENTS = item.Comments;
-                    //ItemR.COUNTRY = item.Country;
-                    //ItemR.CREATED_BY = ri.Name;
-                    //ItemR.DATE_CREATED = System.DateTime.Now;
-                    //ItemR.DATE_EDITED = System.DateTime.Now;
-                    //ItemR.EDITED_BY = ri.Name;
-                    //ItemR.EDITION = item.Edition;
-                    //ItemR.INSTITUTION = item.Institution;
-                    //ItemR.IS_LOCAL = false;
-                    //ItemR.ISSUE = item.Issue;
-                    //ItemR.MONTH = item.Month;
-                    //ItemR.OLD_ITEM_ID = item.OldItemId;
-                    //ItemR.PAGES = item.Pages;
-                    //ItemR.PARENT_TITLE = item.Parent_title;
-                    //ItemR.PUBLISHER = item.Publisher;
-                    //ItemR.SHORT_TITLE = item.Short_title;
-                    //ItemR.STANDARD_NUMBER = item.Standard_number;
-                    //ItemR.TITLE = item.Title;
-                    //ItemR.TYPE_ID = (byte)item.Type_id;
-                    //ItemR.URL = item.Url;
-                    //ItemR.VOLUME = item.Volume;
-                    //ItemR.YEAR = item.Year;
-                    //ItemR.DOI = item.DOI;
-                    //ItemR.KEYWORDS = item.Keywords;
-                    //TDS.tb_ITEM.Rows.Add(ItemR);
-                    ItemR["ABSTRACT"] = item.Abstract;
-                    ItemR["AVAILABILITY"] = item.Availability;
-                    ItemR["CITY"] = item.City;
-                    ItemR["COMMENTS"] = item.Comments;
-                    ItemR["COUNTRY"] = item.Country;
-                    ItemR["CREATED_BY"] = ri.Name;
-                    ItemR["DATE_CREATED"] = System.DateTime.Now;
-                    ItemR["DATE_EDITED"] = System.DateTime.Now;
-                    ItemR["EDITED_BY"] = ri.Name;
-                    ItemR["EDITION"] = item.Edition;
-                    ItemR["INSTITUTION"] = item.Institution;
-                    ItemR["IS_LOCAL"] = false;
-                    ItemR["ISSUE"] = item.Issue;
-                    ItemR["MONTH"] = item.Month;
-                    ItemR["OLD_ITEM_ID"] = item.OldItemId;
-                    ItemR["PAGES"] = item.Pages;
-                    ItemR["PARENT_TITLE"] = item.Parent_title;
-                    ItemR["PUBLISHER"] = item.Publisher;
-                    ItemR["SHORT_TITLE"] = item.Short_title;
-                    ItemR["STANDARD_NUMBER"] = item.Standard_number;
-                    ItemR["TITLE"] = item.Title;
-                    ItemR["TYPE_ID"] = (byte)item.Type_id;
-                    ItemR["URL"] = item.Url;
-                    ItemR["VOLUME"] = item.Volume;
-                    ItemR["YEAR"] = item.Year;
-                    ItemR["DOI"] = item.DOI;
-                    ItemR["KEYWORDS"] = item.Keywords;
-                    //TDS.tb_ITEM.Rows.Add(ItemR);
-                    TDS.TB_ITEM.Rows.Add(ItemR);
+                    FillItemTB(TDS, ItemR, item, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
                     foreach (AutH Auth in item.pAuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
                         AuthorR = TDS.TB_ITEM_AUTHOR.NewRow();
-                        //AuthorR.ITEM_ID = ItemR.ITEM_ID;
-                        //AuthorR.FIRST = Auth.FirstName;
-                        //AuthorR.SECOND = Auth.MiddleName;
-                        //AuthorR.LAST = Auth.LastName;
-                        //AuthorR.RANK = (byte)Auth.Rank;
-                        //AuthorR.ROLE = (byte)Auth.Role;
-                        AuthorR["ITEM_ID"] = ItemR["ITEM_ID"];
-                        AuthorR["FIRST"] = Auth.FirstName;
-                        AuthorR["SECOND"] = Auth.MiddleName;
-                        AuthorR["LAST"] = Auth.LastName;
-                        AuthorR["RANK"] = (byte)Auth.Rank;
-                        AuthorR["ROLE"] = (byte)Auth.Role;
-                        //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
-                        TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+                        fillAuthorsTB(TDS, AuthorR, Auth, ItemR["ITEM_ID"]);
                     }
                     //ItemSourceR = (BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow)TDS.TB_ITEM_SOURCE.NewRow();
                     //ItemSourceR.ITEM_ID = ItemR.ITEM_ID;
@@ -2231,81 +1583,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     TDS.TB_ITEM_SOURCE.Rows.Add(ItemSourceR);
                     int cippa = TDS.TB_ITEM_SOURCE.Rows.Count;
                 }
-                DateTime startTime = DateTime.Now;
-                using (SqlBulkCopy sbc = new SqlBulkCopy(DataConnection.ConnectionString, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints))
-                {
-
-                    // on TB_ITEM
-                    sbc.DestinationTableName = "TB_ITEM";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("TYPE_ID", "TYPE_ID");
-                    sbc.ColumnMappings.Add("TITLE", "TITLE");
-                    sbc.ColumnMappings.Add("PARENT_TITLE", "PARENT_TITLE");
-                    sbc.ColumnMappings.Add("SHORT_TITLE", "SHORT_TITLE");
-                    sbc.ColumnMappings.Add("DATE_CREATED", "DATE_CREATED");
-                    sbc.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
-                    sbc.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
-                    sbc.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
-                    sbc.ColumnMappings.Add("YEAR", "YEAR");
-                    sbc.ColumnMappings.Add("MONTH", "MONTH");
-                    sbc.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
-                    sbc.ColumnMappings.Add("CITY", "CITY");
-                    sbc.ColumnMappings.Add("COUNTRY", "COUNTRY");
-                    sbc.ColumnMappings.Add("PUBLISHER", "PUBLISHER");
-                    sbc.ColumnMappings.Add("INSTITUTION", "INSTITUTION");
-                    sbc.ColumnMappings.Add("VOLUME", "VOLUME");
-                    sbc.ColumnMappings.Add("PAGES", "PAGES");
-                    sbc.ColumnMappings.Add("ISSUE", "ISSUE");
-                    sbc.ColumnMappings.Add("IS_LOCAL", "IS_LOCAL");
-                    sbc.ColumnMappings.Add("AVAILABILITY", "AVAILABILITY");
-                    sbc.ColumnMappings.Add("URL", "URL");
-                    sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
-                    sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
-                    sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
-                    sbc.ColumnMappings.Add("DOI", "DOI");
-                    sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
-
-                    sbc.BatchSize = 1000;
-                    //sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM);
-                    sbc.NotifyAfter = TDS.TB_ITEM.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM);
-
-                    //Write tb_ITEM_AUTHOR
-                    sbc.DestinationTableName = "tb_ITEM_AUTHOR";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_AUTHOR_ID", "ITEM_AUTHOR_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("LAST", "LAST");
-                    sbc.ColumnMappings.Add("FIRST", "FIRST");
-                    sbc.ColumnMappings.Add("SECOND", "SECOND");
-                    sbc.ColumnMappings.Add("ROLE", "ROLE");
-                    sbc.ColumnMappings.Add("RANK", "RANK");
-
-                    //sbc.NotifyAfter = TDS.tb_ITEM_AUTHOR.Rows.Count;
-                    //sbc.WriteToServer(TDS.tb_ITEM_AUTHOR);
-                    sbc.NotifyAfter = TDS.TB_ITEM_AUTHOR.Rows.Count;
-                    sbc.WriteToServer(TDS.TB_ITEM_AUTHOR);
-
-                    //write TB_ITEM_SOURCE
-                    sbc.DestinationTableName = "TB_ITEM_SOURCE";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("ITEM_SOURCE_ID", "ITEM_SOURCE_ID");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
-                    sbc.NotifyAfter = TDS.TB_ITEM_SOURCE.Rows.Count;
-                    sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
-                    sbc.WriteToServer(TDS.TB_ITEM_SOURCE);
-                    sbc.Close();
-                    if (savedAll == true)
-                    {
-                        TimeSpan time = DateTime.Now - startTime;
-                        this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
-                        this.IncomingItems.Clear();
-                    }
-                }
-                
+                BulkUpload(TDS, Source_S);
                 if (IsLast)//this is the last in the batch, create lines in tb_item_review
                 {
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -2322,19 +1600,321 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     }
                 }
             }
-            //SqlCommand cmd;
-            //if (SourceID == 0 & IsNew == true)
-            //{
-            //    cmd = new SqlCommand("st_ItemImportPrepare", connection);
-            //    cmd.Parameters.Add("@Source_Seed", SqlDbType.Int);
-            //    cmd.Parameters["@Source_Seed"].Direction = ParameterDirection.Output;
-            //}
-            //else
-            //{
-            //    cmd = new SqlCommand("st_ItemImportPrepareAddItemsToSource", connection);
-            //    Source_S = SourceID - 1;
-            //}
         }
+
+        private void SeedTables(Data.ImportItemsDataset TDS, int AuthorsN
+            , long Items_S, long Author_S, long Item_Source_S, long Item_Review_S, ref int Source_S)
+        {
+            //there are three cases:
+            //1. if (IsFirst && IsLast): all 5 tables are filled in one go.
+            //2. if (IsFirst && !IsLast): first batch in a series. Only TB_ITEM_REVIEW is ignored.
+            //3. ELSE: a batch in a series, but not the first one: source record already exist, Ignore TB_SOURCE and TB_ITEM_REVIEW
+            //in this last case, a SP will create the records in tb_ITEM_REVIEW after uploading the data (based on SOURCE).
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                string SPname = "";
+                if (IsFirst && IsLast) SPname = "st_ItemImportPrepare";
+                else SPname = "st_ItemImportPrepareBatch";
+                connection.Open();
+                using (SqlCommand cmd = new SqlCommand(SPname, connection))
+                {
+                    //prepare all tables
+                    cmd.Parameters.Add("@Source_Seed", SqlDbType.Int);
+                    cmd.Parameters["@Source_Seed"].Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@Items_Number", IncomingItems.Count));
+                    cmd.Parameters.Add(new SqlParameter("@Authors_Number", AuthorsN));
+                    if (SPname == "st_ItemImportPrepareBatch") cmd.Parameters.Add(new SqlParameter("@Source_Id", SourceID));//if 0 is a new source, will get a source seed such cases
+                    cmd.Parameters.Add("@Item_Seed", SqlDbType.BigInt);
+                    cmd.Parameters["@Item_Seed"].Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("@Author_Seed", SqlDbType.BigInt);
+                    cmd.Parameters["@Author_Seed"].Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("@Item_Source_Seed", SqlDbType.BigInt);
+                    cmd.Parameters["@Item_Source_Seed"].Direction = ParameterDirection.Output;
+                    if (SPname == "st_ItemImportPrepare")
+                    {//TB_ITEM_Review gets filled in this way only if import is done all in one go.
+                        cmd.Parameters.Add("@Item_Review_Seed", SqlDbType.BigInt);
+                        cmd.Parameters["@Item_Review_Seed"].Direction = ParameterDirection.Output;
+                    }
+                    cmd.ExecuteNonQuery();
+
+                    //get seeds values
+                    Items_S = (Int64)cmd.Parameters["@Item_Seed"].Value;
+                    Author_S = (Int64)cmd.Parameters["@Author_Seed"].Value;
+                    Item_Source_S = (Int64)cmd.Parameters["@Item_Source_Seed"].Value;
+                    if (SPname == "st_ItemImportPrepare")
+                    {//TB_ITEM_Review gets filled in this way only if import is done all in one go.
+                        Item_Review_S = (Int64)cmd.Parameters["@Item_Review_Seed"].Value;
+                    }
+                    if (SourceID == 0 & IsNew == true) Source_S = (int)cmd.Parameters["@Source_Seed"].Value;//check this!
+                }
+            }
+            //set local tables and seeds
+            //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrement = true;
+            //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementSeed = Items_S + 1;
+            //TDS.tb_ITEM.ITEM_IDColumn.AutoIncrementStep = 1;
+            //TB_ITEM, TB_ITEM_SOURCE & TB_ITEM_AUTHOR are filled in all 3 cases.
+            TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrement = true;
+            TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementSeed = Items_S + 1;
+            TDS.TB_ITEM.Columns["ITEM_ID"].AutoIncrementStep = 1;
+            //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrement = true;
+            //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementSeed = Item_Source_S + 1;
+            //TDS.TB_ITEM_SOURCE.ITEM_SOURCE_IDColumn.AutoIncrementStep = 1;
+            TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrement = true;
+            TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementSeed = Item_Source_S + 1;
+            TDS.TB_ITEM_SOURCE.Columns["ITEM_SOURCE_ID"].AutoIncrementStep = 1;
+            //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrement = true;
+            //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementSeed = Author_S + 1;
+            //TDS.tb_ITEM_AUTHOR.ITEM_AUTHOR_IDColumn.AutoIncrementStep = 1;
+            TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrement = true;
+            TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementSeed = Author_S + 1;
+            TDS.TB_ITEM_AUTHOR.Columns["ITEM_AUTHOR_ID"].AutoIncrementStep = 1;
+            if (SourceID == 0 & IsNew == true)//either all in one go, OR first batch in a series.
+            {
+                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrement = true;
+                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementSeed = Source_S + 1;
+                //TDS.TB_SOURCE.SOURCE_IDColumn.AutoIncrementStep = 1;
+                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrement = true;
+                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementSeed = Source_S + 1;
+                TDS.TB_SOURCE.Columns["SOURCE_ID"].AutoIncrementStep = 1;
+                
+            }
+            if (IsFirst && IsLast)
+            {//ALL in one go, do also TB_ITEM_REVIEW
+                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrement = true;
+                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrementSeed = Item_Review_S + 1;
+                //TDS.TB_ITEM_REVIEW.ITEM_REVIEW_IDColumn.AutoIncrementStep = 1;
+                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrement = true;
+                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrementSeed = Item_Review_S + 1;
+                TDS.TB_ITEM_REVIEW.Columns["ITEM_REVIEW_ID"].AutoIncrementStep = 1;
+            }
+        }
+
+        private void FillSourceTB(Data.ImportItemsDataset TDS, DataRow SourceR, int review_ID)
+        {
+            //SourceR = TDS.TB_SOURCE.NewRow();
+            //SourceR.REVIEW_ID = review_ID;
+            //SourceR.SOURCE_NAME = SourceName;
+            //SourceR.DATE_OF_IMPORT = DateOfImport;
+            //SourceR.DATE_OF_SEARCH = DateOfSearch;
+            //SourceR.SOURCE_DATABASE = SourceDB;
+            //SourceR.SEARCH_DESCRIPTION = SearchDescr;
+            //SourceR.SEARCH_STRING = SearchStr;
+            //SourceR.NOTES = Notes;
+            //SourceR.IMPORT_FILTER_ID = FilterID;
+            SourceR["REVIEW_ID"] = review_ID;
+            SourceR["SOURCE_NAME"] = SourceName;
+            SourceR["DATE_OF_IMPORT"] = DateOfImport;
+            SourceR["DATE_OF_SEARCH"] = DateOfSearch;
+            SourceR["SOURCE_DATABASE"] = SourceDB;
+            SourceR["SEARCH_DESCRIPTION"] = SearchDescr;
+            SourceR["SEARCH_STRING"] = SearchStr;
+            SourceR["NOTES"] = Notes;
+            SourceR["IMPORT_FILTER_ID"] = FilterID;
+
+            TDS.TB_SOURCE.Rows.Add(SourceR);
+        }
+        private void fillAuthorsTB(Data.ImportItemsDataset TDS, DataRow AuthorR, AutH Auth, object ItemID)
+        {
+            //AuthorR.ITEM_ID = ItemR.ITEM_ID;
+            //AuthorR.FIRST = Auth.FirstName;
+            //AuthorR.SECOND = Auth.MiddleName;
+            //AuthorR.LAST = Auth.LastName;
+            //AuthorR.RANK = (byte)Auth.Rank;
+            //AuthorR.ROLE = (byte)Auth.Role;
+            AuthorR["ITEM_ID"] = ItemID;
+            AuthorR["FIRST"] = Auth.FirstName;
+            AuthorR["SECOND"] = Auth.MiddleName;
+            AuthorR["LAST"] = Auth.LastName;
+            AuthorR["RANK"] = (byte)Auth.Rank;
+            AuthorR["ROLE"] = (byte)Auth.Role;
+            //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
+            TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
+        }
+        private void FillItemTB(Data.ImportItemsDataset TDS, DataRow ItemR, ItemIncomingData item, ReviewerIdentity ri)
+        {
+            //ItemR.ABSTRACT = item.Abstract;
+            //ItemR.AVAILABILITY = item.Availability;
+            //ItemR.CITY = item.City;
+            //ItemR.COMMENTS = item.Comments;
+            //ItemR.COUNTRY = item.Country;
+            //ItemR.CREATED_BY = ri.Name;
+            //ItemR.DATE_CREATED = System.DateTime.Now;
+            //ItemR.DATE_EDITED = System.DateTime.Now;
+            //ItemR.EDITED_BY = ri.Name;
+            //ItemR.EDITION = item.Edition;
+            //ItemR.INSTITUTION = item.Institution;
+            //ItemR.IS_LOCAL = false;
+            //ItemR.ISSUE = item.Issue;
+            //ItemR.MONTH = item.Month;
+            //ItemR.OLD_ITEM_ID = item.OldItemId;
+            //ItemR.PAGES = item.Pages;
+            //ItemR.PARENT_TITLE = item.Parent_title;
+            //ItemR.PUBLISHER = item.Publisher;
+            //ItemR.SHORT_TITLE = item.Short_title;
+            //ItemR.STANDARD_NUMBER = item.Standard_number;
+            //ItemR.TITLE = item.Title;
+            //ItemR.TYPE_ID = (byte)item.Type_id;
+            //ItemR.URL = item.Url;
+            //ItemR.VOLUME = item.Volume;
+            //ItemR.YEAR = item.Year;
+            //ItemR.DOI = item.DOI;
+            //ItemR.KEYWORDS = item.Keywords;
+            //TDS.tb_ITEM.Rows.Add(ItemR);
+            ItemR["ABSTRACT"] = item.Abstract;
+            ItemR["AVAILABILITY"] = item.Availability;
+            ItemR["CITY"] = item.City;
+            ItemR["COMMENTS"] = item.Comments;
+            ItemR["COUNTRY"] = item.Country;
+            ItemR["CREATED_BY"] = ri.Name;
+            ItemR["DATE_CREATED"] = System.DateTime.Now;
+            ItemR["DATE_EDITED"] = System.DateTime.Now;
+            ItemR["EDITED_BY"] = ri.Name;
+            ItemR["EDITION"] = item.Edition;
+            ItemR["INSTITUTION"] = item.Institution;
+            ItemR["IS_LOCAL"] = false;
+            ItemR["ISSUE"] = item.Issue;
+            ItemR["MONTH"] = item.Month;
+            ItemR["OLD_ITEM_ID"] = item.OldItemId;
+            ItemR["PAGES"] = item.Pages;
+            ItemR["PARENT_TITLE"] = item.Parent_title;
+            ItemR["PUBLISHER"] = item.Publisher;
+            ItemR["SHORT_TITLE"] = item.Short_title;
+            ItemR["STANDARD_NUMBER"] = item.Standard_number;
+            ItemR["TITLE"] = item.Title;
+            ItemR["TYPE_ID"] = (byte)item.Type_id;
+            ItemR["URL"] = item.Url;
+            ItemR["VOLUME"] = item.Volume;
+            ItemR["YEAR"] = item.Year;
+            ItemR["DOI"] = item.DOI;
+            ItemR["KEYWORDS"] = item.Keywords;
+            TDS.TB_ITEM.Rows.Add(ItemR);
+        }
+        private void BulkUpload(Data.ImportItemsDataset TDS, int Source_S)
+        {
+            //three cases also here:
+            //1. do all tables
+            //2. Avoid TB_ITEM_REVIEW (first batch in a series)
+            //3. Avoid TB_ITEM_REVIEW and TB_SOURCE (a batch in a series, but not the first one)
+            DateTime startTime = DateTime.Now;
+            using (SqlBulkCopy sbc = new SqlBulkCopy(DataConnection.ConnectionString, SqlBulkCopyOptions.KeepIdentity | SqlBulkCopyOptions.CheckConstraints))
+            {
+                if (SourceID == 0 & IsNew == true)
+                {//cases 1 and 2
+                    sbc.DestinationTableName = "TB_SOURCE";
+                    // Number of records to be processed in one go
+                    sbc.BatchSize = 1;
+                    // Map the Source Column from DataTabel to the Destination Columns in SQL Server 2005 Person Table
+                    sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
+                    sbc.ColumnMappings.Add("SOURCE_NAME", "SOURCE_NAME");
+                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+                    sbc.ColumnMappings.Add("DATE_OF_SEARCH", "DATE_OF_SEARCH");
+                    sbc.ColumnMappings.Add("DATE_OF_IMPORT", "DATE_OF_IMPORT");
+                    sbc.ColumnMappings.Add("SOURCE_DATABASE", "SOURCE_DATABASE");
+                    sbc.ColumnMappings.Add("SEARCH_DESCRIPTION", "SEARCH_DESCRIPTION");
+                    sbc.ColumnMappings.Add("SEARCH_STRING", "SEARCH_STRING");
+                    sbc.ColumnMappings.Add("NOTES", "NOTES");
+                    sbc.ColumnMappings.Add("IMPORT_FILTER_ID", "IMPORT_FILTER_ID");
+                    // Number of records after which client has to be notified about its status
+                    sbc.NotifyAfter = TDS.TB_SOURCE.Rows.Count;
+                    // Event that gets fired when NotifyAfter number of records are processed.
+                    //sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
+                    // Finally write to server
+                    sbc.WriteToServer(TDS.TB_SOURCE);
+                }
+
+                //As above, but on TB_ITEM
+                sbc.DestinationTableName = "TB_ITEM";
+                sbc.ColumnMappings.Clear();
+                sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                sbc.ColumnMappings.Add("TYPE_ID", "TYPE_ID");
+                sbc.ColumnMappings.Add("TITLE", "TITLE");
+                sbc.ColumnMappings.Add("PARENT_TITLE", "PARENT_TITLE");
+                sbc.ColumnMappings.Add("SHORT_TITLE", "SHORT_TITLE");
+                sbc.ColumnMappings.Add("DATE_CREATED", "DATE_CREATED");
+                sbc.ColumnMappings.Add("CREATED_BY", "CREATED_BY");
+                sbc.ColumnMappings.Add("DATE_EDITED", "DATE_EDITED");
+                sbc.ColumnMappings.Add("EDITED_BY", "EDITED_BY");
+                sbc.ColumnMappings.Add("YEAR", "YEAR");
+                sbc.ColumnMappings.Add("MONTH", "MONTH");
+                sbc.ColumnMappings.Add("STANDARD_NUMBER", "STANDARD_NUMBER");
+                sbc.ColumnMappings.Add("CITY", "CITY");
+                sbc.ColumnMappings.Add("COUNTRY", "COUNTRY");
+                sbc.ColumnMappings.Add("PUBLISHER", "PUBLISHER");
+                sbc.ColumnMappings.Add("INSTITUTION", "INSTITUTION");
+                sbc.ColumnMappings.Add("VOLUME", "VOLUME");
+                sbc.ColumnMappings.Add("PAGES", "PAGES");
+                sbc.ColumnMappings.Add("ISSUE", "ISSUE");
+                sbc.ColumnMappings.Add("IS_LOCAL", "IS_LOCAL");
+                sbc.ColumnMappings.Add("AVAILABILITY", "AVAILABILITY");
+                sbc.ColumnMappings.Add("URL", "URL");
+                sbc.ColumnMappings.Add("OLD_ITEM_ID", "OLD_ITEM_ID");
+                sbc.ColumnMappings.Add("ABSTRACT", "ABSTRACT");
+                sbc.ColumnMappings.Add("COMMENTS", "COMMENTS");
+                sbc.ColumnMappings.Add("DOI", "DOI");
+                sbc.ColumnMappings.Add("KEYWORDS", "KEYWORDS");
+
+                sbc.BatchSize = 1000;
+                //sbc.NotifyAfter = TDS.tb_ITEM.Rows.Count;
+                //sbc.WriteToServer(TDS.tb_ITEM);
+                sbc.NotifyAfter = TDS.TB_ITEM.Rows.Count;
+                sbc.WriteToServer(TDS.TB_ITEM);
+
+                //Write tb_ITEM_AUTHOR
+                sbc.DestinationTableName = "tb_ITEM_AUTHOR";
+                sbc.ColumnMappings.Clear();
+                sbc.ColumnMappings.Add("ITEM_AUTHOR_ID", "ITEM_AUTHOR_ID");
+                sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                sbc.ColumnMappings.Add("LAST", "LAST");
+                sbc.ColumnMappings.Add("FIRST", "FIRST");
+                sbc.ColumnMappings.Add("SECOND", "SECOND");
+                sbc.ColumnMappings.Add("ROLE", "ROLE");
+                sbc.ColumnMappings.Add("RANK", "RANK");
+
+                //sbc.NotifyAfter = TDS.tb_ITEM_AUTHOR.Rows.Count;
+                //sbc.WriteToServer(TDS.tb_ITEM_AUTHOR);
+                sbc.NotifyAfter = TDS.TB_ITEM_AUTHOR.Rows.Count;
+                sbc.WriteToServer(TDS.TB_ITEM_AUTHOR);
+
+                if (IsFirst && IsLast)
+                {//CASE 1 only
+                    //Write TB_ITEM_REVIEW
+                    sbc.DestinationTableName = "TB_ITEM_REVIEW";
+                    sbc.ColumnMappings.Clear();
+                    sbc.ColumnMappings.Add("ITEM_REVIEW_ID", "ITEM_REVIEW_ID");
+                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+                    sbc.ColumnMappings.Add("IS_INCLUDED", "IS_INCLUDED");
+                    sbc.ColumnMappings.Add("MASTER_ITEM_ID", "MASTER_ITEM_ID");
+                    sbc.ColumnMappings.Add("IS_DELETED", "IS_DELETED");
+
+                    sbc.NotifyAfter = TDS.TB_ITEM_REVIEW.Rows.Count;
+                    sbc.WriteToServer(TDS.TB_ITEM_REVIEW);
+                }
+
+                //write TB_ITEM_SOURCE
+                sbc.DestinationTableName = "TB_ITEM_SOURCE";
+                sbc.ColumnMappings.Clear();
+                sbc.ColumnMappings.Add("ITEM_SOURCE_ID", "ITEM_SOURCE_ID");
+                sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                sbc.ColumnMappings.Add("SOURCE_ID", "SOURCE_ID");
+                sbc.NotifyAfter = TDS.TB_ITEM_SOURCE.Rows.Count;
+                sbc.SqlRowsCopied += new SqlRowsCopiedEventHandler(sbc_SqlRowsCopied);
+                sbc.WriteToServer(TDS.TB_ITEM_SOURCE);
+                sbc.Close();
+                if (savedAll == true)// this is only true if we've saved to TB_ITEM_SOURCE
+                {
+                    TimeSpan time = DateTime.Now - startTime;
+                    this.SourceName = "Server Saved it in (ms): " + time.TotalMilliseconds;
+                    this.IncomingItems.Clear();
+                    if (SourceID == 0 & IsNew == true)
+                    {//CASES 1 & 2, we want to keep the ID of the new source.
+                        this.SourceID = Source_S + 1;
+                    }
+                }
+            }
+        }
+
         protected override void DataPortal_Update()
         {
             DataPortal_Insert();
