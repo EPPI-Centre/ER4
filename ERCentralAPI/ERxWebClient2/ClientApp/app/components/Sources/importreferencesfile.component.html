@@ -1,0 +1,24 @@
+<div class="">
+    <div *ngIf="WizPhase==1">
+        Phase 1: Upload file (for checking)...<br />
+        <input type="file" #file style="display: none" (change)="onFilesAdded()"
+               accept=".txt,.ris"/>
+        <button (click)="addFile()">Select File</button>
+    </div>
+    <div *ngIf="WizPhase==1.5">
+        Phase 1.5: uploading
+    </div>
+    <div *ngIf="WizPhase==2">
+        Phase 2: see if the file pareses as expected:<br />
+        <button (click)="back()">back</button>
+        <div *ngIf="DataToCheck">
+            Results:<br />
+            Total references = {{DataToCheck.totalReferences}}
+            <ul>
+                <li *ngFor="let item of DataToCheck.incomingItems">
+                    Title = {{item.title}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

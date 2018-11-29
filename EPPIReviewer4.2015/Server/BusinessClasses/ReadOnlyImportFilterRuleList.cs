@@ -21,13 +21,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyImportFilterRuleList : ReadOnlyListBase<ReadOnlyImportFilterRuleList, ReadOnlyImportFilterRule>
     {
-        
-
-#if SILVERLIGHT
         public ReadOnlyImportFilterRuleList() { }
-#else
-        private ReadOnlyImportFilterRuleList() { }
-#endif
 
         internal static ReadOnlyImportFilterRuleList NewReadOnlyImportFilterRuleList()
         {

@@ -40,6 +40,7 @@ import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
+import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
 
 @NgModule({
     declarations: [
@@ -68,6 +69,7 @@ import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseS
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
+        ImportReferencesFileComponent,
         MainFullReviewComponent,
         MainComponent
 	],
