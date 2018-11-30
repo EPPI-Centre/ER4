@@ -22,14 +22,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class Source : BusinessBase<Source>
     {
-
-#if SILVERLIGHT
     public Source() { }
-#else
-        private Source() { }
-#endif
 #region properties
-        private static PropertyInfo<string> Source_NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Source_Name", "Source_Name"));
+        public static readonly PropertyInfo<string> Source_NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Source_Name", "Source_Name"));
         public string Source_Name
         {
             get
@@ -42,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(Source_NameProperty, value);
             }
         }
-        private static PropertyInfo<DateTime> DateOfSerachProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfSerach", "DateOfSerach"));
+        public static readonly PropertyInfo<DateTime> DateOfSerachProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfSerach", "DateOfSerach"));
         public DateTime DateOfSerach
         {
             get
@@ -55,7 +50,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(DateOfSerachProperty, value);
             }
         }
-        private static PropertyInfo<DateTime> DateOfImportProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfImport", "DateOfImport"));
+        public static readonly PropertyInfo<DateTime> DateOfImportProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfImport", "DateOfImport"));
         public DateTime DateOfImport
         {
             get
@@ -68,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(DateOfImportProperty, value);
             }
         }
-        private static PropertyInfo<string> SourceDataBaseProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceDataBase", "SourceDataBase"));
+        public static readonly PropertyInfo<string> SourceDataBaseProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceDataBase", "SourceDataBase"));
         public string SourceDataBase
         {
             get
@@ -81,7 +76,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(SourceDataBaseProperty, value);
             }
         }
-        private static PropertyInfo<string> SearchDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchDescription", "SearchDescription"));
+        public static readonly PropertyInfo<string> SearchDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchDescription", "SearchDescription"));
         public string SearchDescription
         {
             get
@@ -94,7 +89,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(SearchDescriptionProperty, value);
             }
         }
-        private static PropertyInfo<string> SearchStringProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchString", "SearchString"));
+        public static readonly PropertyInfo<string> SearchStringProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchString", "SearchString"));
         public string SearchString
         {
             get
@@ -106,7 +101,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SearchStringProperty, value);
             }
         }
-        private static PropertyInfo<string> NotesProperty = RegisterProperty<string>(new PropertyInfo<string>("Notes", "Notes"));
+        public static readonly PropertyInfo<string> NotesProperty = RegisterProperty<string>(new PropertyInfo<string>("Notes", "Notes"));
         public string Notes
         {
             get
@@ -119,7 +114,7 @@ namespace BusinessLibrary.BusinessClasses
                 else SetProperty(NotesProperty, value);
             }
         }
-        private static PropertyInfo<string> ImportFilterProperty = RegisterProperty<string>(new PropertyInfo<string>("ImportFilter", "ImportFilter"));
+        public static readonly PropertyInfo<string> ImportFilterProperty = RegisterProperty<string>(new PropertyInfo<string>("ImportFilter", "ImportFilter"));
         public string ImportFilter
         {
             get
@@ -127,7 +122,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ImportFilterProperty);
             }
         }
-        private static PropertyInfo<int> Total_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Total_Items", "Total_Items"));
+        public static readonly PropertyInfo<int> Total_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Total_Items", "Total_Items"));
         public int Total_Items
         {
             get
@@ -135,7 +130,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Total_ItemsProperty);
             }
         }
-        private static PropertyInfo<int> Deleted_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Deleted_Items", "Deleted_Items"));
+        public static readonly PropertyInfo<int> Deleted_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Deleted_Items", "Deleted_Items"));
         public int Deleted_Items
         {
             get
@@ -143,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Deleted_ItemsProperty);
             }
         }
-        private static PropertyInfo<int> Source_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("Source_ID", "Source_ID"));
+        public static readonly PropertyInfo<int> Source_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("Source_ID", "Source_ID"));
         public int Source_ID
         {
             get
@@ -151,7 +146,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Source_IDProperty);
             }
         }
-        private static PropertyInfo<bool> IsFlagDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFlagDeleted", "IsFlagDeleted"));
+        public static readonly PropertyInfo<bool> IsFlagDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFlagDeleted", "IsFlagDeleted"));
         public bool IsFlagDeleted
         {
             get
@@ -160,7 +155,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<int> CodesProperty = RegisterProperty<int>(new PropertyInfo<int>("Codes", "Codes"));
+        public static readonly PropertyInfo<int> CodesProperty = RegisterProperty<int>(new PropertyInfo<int>("Codes", "Codes"));
         public int Codes
         {
             get
@@ -168,7 +163,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(CodesProperty);
             }
         }
-        private static PropertyInfo<int> InductiveCodesProperty = RegisterProperty<int>(new PropertyInfo<int>("InductiveCodes", "InductiveCodes"));
+        public static readonly PropertyInfo<int> InductiveCodesProperty = RegisterProperty<int>(new PropertyInfo<int>("InductiveCodes", "InductiveCodes"));
         public int InductiveCodes
         {
             get
@@ -176,7 +171,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(InductiveCodesProperty);
             }
         }
-        private static PropertyInfo<int> AttachedFilesProperty = RegisterProperty<int>(new PropertyInfo<int>("AttachedFiles", "AttachedFiles"));
+        public static readonly PropertyInfo<int> AttachedFilesProperty = RegisterProperty<int>(new PropertyInfo<int>("AttachedFiles", "AttachedFiles"));
         public int AttachedFiles
         {
             get
@@ -184,7 +179,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AttachedFilesProperty);
             }
         }
-        private static PropertyInfo<int> DuplicatesProperty = RegisterProperty<int>(new PropertyInfo<int>("Duplicates", "Duplicates"));
+        public static readonly PropertyInfo<int> DuplicatesProperty = RegisterProperty<int>(new PropertyInfo<int>("Duplicates", "Duplicates"));
         public int Duplicates
         {
             get
@@ -192,7 +187,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(DuplicatesProperty);
             }
         }
-        private static PropertyInfo<int> isMasterOfProperty = RegisterProperty<int>(new PropertyInfo<int>("isMasterOf", "isMasterOf"));
+        public static readonly PropertyInfo<int> isMasterOfProperty = RegisterProperty<int>(new PropertyInfo<int>("isMasterOf", "isMasterOf"));
         public int isMasterOf
         {
             get
@@ -200,7 +195,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(isMasterOfProperty);
             }
         }
-        private static PropertyInfo<int> OutcomesProperty = RegisterProperty<int>(new PropertyInfo<int>("Outcomes", "Outcomes"));
+        public static readonly PropertyInfo<int> OutcomesProperty = RegisterProperty<int>(new PropertyInfo<int>("Outcomes", "Outcomes"));
         public int Outcomes
         {
             get

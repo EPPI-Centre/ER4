@@ -15,6 +15,7 @@ import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { crosstabService } from '../services/crosstab.service';
 import { searchService } from '../services/search.service';
+import { SourcesService } from '../services/sources.service';
 
 
 
@@ -42,7 +43,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService
 		, private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-		, private _searchService: searchService
+        , private _searchService: searchService
+        , private SourcesService: SourcesService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabset') tabset!: NgbTabset;
@@ -69,12 +71,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	
 	setTabSelected(tab: any) {
-
 		//this.tabSelected = tab;
 		//this._eventEmitter.tabSelected(tab);
 
 		//alert(JSON.stringify(tab));
 		//alert(message);
+        console.log('tabselect:', tab);
+        if (tab.nextId === "UploadTab") this.SourcesTabSelected();
 	}
 
 
@@ -228,7 +231,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return msg;
        
     }
-
+    SourcesTabSelected() {
+        this.SourcesService.FetchSources();
+    }
     ngOnDestroy() {
         //this.Clear();
         if (this.subOpeningReview) {
