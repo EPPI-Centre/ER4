@@ -15,7 +15,10 @@ export class searchService {
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
-    
+
+
+	public cmdSearchesTest: SearchCodeCommand | undefined;
+
 	private _SearchList: Search[] = [];
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
@@ -42,7 +45,7 @@ export class searchService {
         this._isBusy = true;
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
 			.subscribe(result => {
-					console.log('alkjshdf askljdfh' + JSON.stringify(result));
+					//console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
 					//this.searchesChanged.emit();
              },

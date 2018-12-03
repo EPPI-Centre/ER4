@@ -32,7 +32,7 @@ import { frequenciesResultsComp } from './components/Frequencies/frequenciesResu
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
-import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
+//import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
@@ -40,12 +40,14 @@ import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
+import { NgbdModalComponent, NgbdModalContent } from './components/NgbdModal/NgbdModal.component';
+import { SearchesModalContent } from './components/Search/SearchComp.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		CodesetTreeComponent,
-        SearchComp,
+		//SearchComp,
         frequenciesComp,
 		frequenciesResultsComp,
 		CrossTabsComp,
@@ -63,6 +65,8 @@ import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseS
         paginatorComp,
 		StatusBarComponent,
 		SearchesModalContent,
+		NgbdModalComponent,
+		NgbdModalContent,
 		InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
@@ -71,13 +75,13 @@ import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseS
         MainFullReviewComponent,
         MainComponent
 	],
-
     providers: [
         EventEmitterService,
-        { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
-        SearchesModalContent
+		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
+		, SearchesModalContent
     ],
-	entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent ],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent
+		, SearchesModalContent, NgbdModalContent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
@@ -89,7 +93,7 @@ import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseS
 		BrowserAnimationsModule,
 		ChartsModule,
         ReactiveFormsModule,
-        TreeModule,
+		TreeModule,
         GridModule,
         ChartModule,
         LayoutModule,

@@ -4,10 +4,9 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { SelectionModel, DataSource } from '@angular/cdk/collections';
-import { RowClassArgs, GridDataResult, GridComponent, GridModule  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 
 @Component({
@@ -23,18 +22,23 @@ import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 
 export class SearchComp implements OnInit, OnDestroy {
 	displayedColumns = ['selected', 'searchId', 'title', 'contactName', 'searchDate', 'hitsNo'];
+
+
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: NgbModal
+		private modalService: NgbModal,
+		//public activeModal: NgbActiveModal,
+		private reviewSetsService: ReviewSetsService
 	) {
 	}
 
 	@ViewChild('testKendoGrid') searchesGridRes!: GridComponent;
 
-	
+	//public _searchesModalContent: SearchesModalContent = new
+	//	SearchesModalContent(this.activeModal, this.reviewSetsService, this._searchService);
 	
     public selectedAll: boolean = false;
 
@@ -96,16 +100,26 @@ export class SearchComp implements OnInit, OnDestroy {
 		console.log(lstStrSearchIds);
 		this._searchService.Delete(lstStrSearchIds);
 	}
+	
 
 	openNewSearchModal() {
+				
 
-		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
-		modalComp.componentInstance.InfoBoxTextInput = 'tester';
-		modalComp.componentInstance.focus(null);
+		let modalNew = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
+		modalNew.componentInstance.InfoBoxTextInput = 'tester';
+		modalNew.componentInstance.focus(null);
 
-		modalComp.result.then(() => {
-		},
-			() => {
+		modalNew.result.then(
+
+			//called if search button is pressed
+			(result) => {
+
+				console.log('pressed okay: ' + JSON.stringify(result));
+
+			},
+			//called if modal is cancelled
+			(result) => {
+				console.log('cancelled: ' + JSON.stringify(result));
 			}
 		);
 	}
@@ -197,9 +211,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public selectedSearchDropDown: string = '';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
-
 	public CodeSets: any[] = [];
-		
+
+	
 	_setID: number = 0;
 	_searchText: string = '';
 	_title: string = '';
@@ -213,10 +227,12 @@ export class SearchesModalContent implements SearchCodeCommand {
 		return this.canWrite;
 	}
 
-	constructor(public activeModal: NgbActiveModal,
-		private reviewSetsService: ReviewSetsService,
-		private _searchService: searchService
-	) { }
+	constructor(public _activeModal: NgbActiveModal,
+		private _reviewSetsService: ReviewSetsService,
+		private _searchService: searchService,
+	) {
+
+	}
 
 	ngOnInit() {
         this._searchInclOrExcl = 'true';
@@ -258,12 +274,12 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.withCode = false;
 			}			
 
-			if (this.reviewSetsService.selectedNode != undefined) {
+			if (this._reviewSetsService.selectedNode != undefined) {
 
-				let tmpID: number = this.reviewSetsService.selectedNode.attributeSetId;
-				this.attributeNames = this.reviewSetsService.selectedNode.name;
+				let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
+				this.attributeNames = this._reviewSetsService.selectedNode.name;
 				this.cmdSearches._answers = String(tmpID);
-				alert(this.reviewSetsService.selectedNode);
+				alert(this._reviewSetsService.selectedNode);
 			
 				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
@@ -338,8 +354,8 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
 			
 		}
-
-		this.activeModal.dismiss();
+		alert('got to end of return of BO from CSLA');
+		this._activeModal.close('testData');
 
 	}
 	
@@ -351,11 +367,11 @@ export class SearchesModalContent implements SearchCodeCommand {
 		switch (num) {
 
 			case 1: {
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			case 2: {
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			case 3: {
@@ -368,23 +384,23 @@ export class SearchesModalContent implements SearchCodeCommand {
 			}
 			case 5: {
 
-				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 					.map(
 						(y: ReviewSet) => {
 							return y.name;
 						}
 					);
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			case 6: {
-				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 					.map(
 						(y: ReviewSet) => {
 							return y.name;
 						}
 					);
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			case 7: {
@@ -407,7 +423,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	
 	public setSearchCodeSetDropDown(codeSetName: string) {
 
-		this.selectedSearchCodeSetDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
+		this.selectedSearchCodeSetDropDown = this._reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
 			.map(
 				(y: ReviewSet) => {
 
