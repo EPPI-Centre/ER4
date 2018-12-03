@@ -60,7 +60,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchIDsCommand cmd = new SearchIDsCommand(
@@ -86,7 +86,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
@@ -111,7 +111,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
@@ -137,7 +137,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 			
 				SearchCodesCommand cmd = new SearchCodesCommand(
@@ -162,7 +162,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
@@ -188,7 +188,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
@@ -214,7 +214,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchFreeTextCommand cmd = new SearchFreeTextCommand(
@@ -240,7 +240,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
+                SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(

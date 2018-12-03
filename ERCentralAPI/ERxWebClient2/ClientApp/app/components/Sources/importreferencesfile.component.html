@@ -1,0 +1,60 @@
+<div class="">
+    <div class="card bg-light mt-2 col-md-12 mb-2">
+        <div *ngIf="WizPhase==1">
+            Phase 1: Upload file (for checking)...<br />
+            <select *ngIf="ImportFilters" class="col-md-6" (change)="FilterChanged($event.target.value)">
+                <option *ngFor="let filter of ImportFilters" [value]="filter.ruleName" [selected]="filter.ruleName == currentFilterName">
+                    {{filter.ruleName}}
+                </option>
+            </select>
+            <input type="file" #file style="display: none" (change)="onFilesAdded()"
+                   accept=".txt,.ris" />
+            <button (click)="addFile()">Select File</button>
+        </div>
+        <div *ngIf="WizPhase==1.5">
+            Phase 1.5: uploading <button (click)="back()">back/cancel</button> <br />
+        </div>
+        <div *ngIf="WizPhase==2">
+            Phase 2: see if the file parses as expected:<br />
+            <button (click)="back()">back</button> <br />
+            <button (click)="Upload()">upload!</button>
+            <div *ngIf="DataToCheck">
+                Results:<br />
+                Total references = {{DataToCheck.totalReferences}}
+                <ul>
+                    <li *ngFor="let item of DataToCheck.incomingItems">
+                        Title = {{item.title}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    <div class="m-1" style="max-height: 350px; overflow-y:scroll;">
+        <div>SOURCES in Review:</div>
+        <div *ngIf="ReviewSources.length == 0">
+            No Sources in review.
+        </div>
+        <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small" >
+            <tbody>
+                <tr>
+                    <th class="p-0" width="50"></th>
+                    <th class="p-0" style="min-width:100px;">Name</th>
+                    <th class="p-0" width="50">Items</th>
+                    <th class="p-0" width="60">Deleted</th>
+                    <th class="p-0" width="70">Duplicates</th>
+                </tr>
+                <tr *ngFor="let ROsource of ReviewSources" class="p-0">
+                    <td class="p-0 align-middle justify-content-center">
+                        <button *ngIf="ROsource.isDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-primary btn-sm p-1"> Restore </button>
+                        <button *ngIf="!ROsource.isDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-outline-info btn-sm p-1 ml-1"> Delete </button>
+                    </td>
+                    <td class="p-1 align-middle"><div class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div></td>
+                    <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.duplicates}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

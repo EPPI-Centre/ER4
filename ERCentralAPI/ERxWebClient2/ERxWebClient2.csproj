@@ -65,6 +65,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRuleList.cs" Link="Models\ReadOnlyImportFilterRuleList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequency.cs" Link="Models\ReadOnlyItemAttributeChildFrequency.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequencyList.cs" Link="Models\ReadOnlyItemAttributeChildFrequencyList.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyReviewList.cs" Link="Models\ReadOnlyReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetType.cs" Link="Models\ReadOnlySetType.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetTypeList.cs" Link="Models\ReadOnlySetTypeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySource.cs" Link="Models\ReadOnlySource.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySourceList.cs" Link="Models\ReadOnlySourceList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
@@ -93,6 +97,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchImportedIDsCommand.cs" Link="Models\SearchImportedIDsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchList.cs" Link="Models\SearchList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchNullAbstract.cs" Link="Models\SearchNullAbstract.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Source.cs" Link="Models\Source.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SourceDeleteCommand.cs" Link="Models\SourceDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Training.cs" Link="Models\Training.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingList.cs" Link="Models\TrainingList.cs" />
@@ -119,6 +125,7 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\app\components\main\" />
+    <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />

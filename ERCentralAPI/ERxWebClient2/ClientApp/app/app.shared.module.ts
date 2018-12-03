@@ -42,6 +42,7 @@ import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { NgbdModalComponent, NgbdModalContent } from './components/NgbdModal/NgbdModal.component';
 import { SearchesModalContent } from './components/Search/SearchComp.component';
+import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
 
 @NgModule({
     declarations: [
@@ -72,6 +73,7 @@ import { SearchesModalContent } from './components/Search/SearchComp.component';
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
+        ImportReferencesFileComponent,
         MainFullReviewComponent,
         MainComponent
 	],
