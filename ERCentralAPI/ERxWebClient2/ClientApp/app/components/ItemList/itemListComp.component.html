@@ -6,26 +6,28 @@
         <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
     </div>
 
+    <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.isBusy"
+                id="testKendoGrid" [data]="DataSource" [height]="610"
+                [sortable]="{
+            allowUnsort: allowUnsort,
+            mode: 'single'
+            }"
+                [sort]="sort"
+                (sortChange)="sortChange($event)">
 
-    <table class="table table-responsive mt-0 mb-0 pt-0 pt-0 " style="max-height: 775px;" *ngIf="ItemListService.ItemList.items.length > 0">
-        <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th>Short Title</th>
-                <th>Title</th>
-                <th>Year</th>
-
-            </tr>
-        </thead>
-        <!--(click)="OpenItem(item.itemId)"-->
-        <tbody>
-            <tr *ngFor="let item of ItemListService.ItemList.items">
-                <td><button class="btn btn-outline-primary btn-sm" (click)="OpenItem(item.itemId)">GO</button><br />(Id:&nbsp;{{ item.itemId }})</td>
-                <td>{{ item.shortTitle }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.year }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <kendo-grid-column field="searchId" title="ID" width="72">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button><br />(Id:&nbsp;{{ dataItem.itemId }})
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="shortTitle" title="Short Title" width="108">
+        </kendo-grid-column>
+        <kendo-grid-column field="title" title="Title" width="288">
+        </kendo-grid-column>
+        <kendo-grid-column field="year" title="Year" width="36">
+        </kendo-grid-column>
+    </kendo-grid>
+    <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.isBusy">Loading items...</div>
+    <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.isBusy">Items list is empty...</div>
     <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
 </div>

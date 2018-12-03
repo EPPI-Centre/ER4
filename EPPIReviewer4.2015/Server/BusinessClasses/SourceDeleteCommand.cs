@@ -23,15 +23,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class SourceDeleteCommand : CommandBase<SourceDeleteCommand>
     {
-#if SILVERLIGHT
     public SourceDeleteCommand(){}
-#else
-        protected SourceDeleteCommand() { }
-#endif
 
         private int _SourceId;
-
-
+        
         public int SourceId
         {
             get { return _SourceId; }

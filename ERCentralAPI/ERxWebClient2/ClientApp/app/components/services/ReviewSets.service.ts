@@ -83,36 +83,36 @@ export class ReviewSetsService {
     public Clear() {
         this.selectedNode = null;
         this._ReviewSets = [];
-        localStorage.removeItem('ReviewSets');
+        //localStorage.removeItem('ReviewSets');
     }
     public get ReviewSets(): ReviewSet[] {
-        if (this._ReviewSets.length == 0) {
-            //this._IsBusy = true;
-            const ReviewSetsJson = localStorage.getItem('ReviewSets');
-            let ReviewSets: ReviewSet[] = ReviewSetsJson !== null ? ReviewSetsService.digestLocalJSONarray(JSON.parse(ReviewSetsJson)) : [];
-            if (ReviewSets == undefined || ReviewSets == null || ReviewSets.length == 0) {
+        //if (this._ReviewSets.length == 0) {
+        //    //this._IsBusy = true;
+        //    const ReviewSetsJson = localStorage.getItem('ReviewSets');
+        //    let ReviewSets: ReviewSet[] = ReviewSetsJson !== null ? ReviewSetsService.digestLocalJSONarray(JSON.parse(ReviewSetsJson)) : [];
+        //    if (ReviewSets == undefined || ReviewSets == null || ReviewSets.length == 0) {
 
-                //this._IsBusy = false;
-                return this._ReviewSets;
-            }
-            else {
-                this._ReviewSets = ReviewSets;
-            }
-        }
+        //        //this._IsBusy = false;
+        //        return this._ReviewSets;
+        //    }
+        //    else {
+        //        this._ReviewSets = ReviewSets;
+        //    }
+        //}
         //this._IsBusy = false;
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
         //this._IsBusy = true;
         this._ReviewSets = sets;
-        this.Save();
+        //this.Save();
         this._IsBusy = false;
     }
-    private Save() {
-        if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
-            localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
-        else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
-    }
+    //private Save() {
+    //    if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
+    //        localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
+    //    else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
+    //}
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         for (let iItemset of data) {
@@ -154,7 +154,8 @@ export class ReviewSetsService {
             newAtt.order = iAtt.attributeOrder;
             newAtt.attribute_type = iAtt.attributeType;
             newAtt.attribute_type_id = iAtt.AttributeTypeId;
-            newAtt.attribute_set_desc = iAtt.attributeSetDescription;
+			newAtt.attribute_set_desc = iAtt.attributeSetDescription;
+			newAtt.attributeSetId = iAtt.attributeSetId;
             newAtt.attribute_desc = iAtt.attributeDescription;
             newAtt.set_id = iAtt.setId;
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
@@ -172,7 +173,8 @@ export class ReviewSetsService {
                 newAtt.attribute_name = iAtt.attribute_name;
                 newAtt.order = iAtt.order;
                 newAtt.attribute_type = iAtt.attribute_type;
-                newAtt.attribute_type_id = iAtt.attribute_type_id;
+				newAtt.attribute_type_id = iAtt.attribute_type_id;
+				newAtt.attributeSetId = iAtt.attributeSetId;
                 newAtt.attribute_set_desc = iAtt.attribute_set_desc;
                 newAtt.attribute_desc = iAtt.attribute_desc;
                 newAtt.set_id = iAtt.set_id;
@@ -337,6 +339,7 @@ export interface singleNode {
     nodeType: string;//codeset or attribute?
     subTypeName: string;//screening, admin, normal; selectable, non selectable, etc.
 	description: string;
+	attributeSetId: number;
 
     isSelected: boolean;
     additionalText: string;
@@ -367,7 +370,8 @@ export class ReviewSet implements singleNode {
     codingIsFinal: boolean = true;
     allowEditingCodeset: boolean = false;
     itemSetIsLocked: boolean = false;
-    
+
+	attributeSetId: number = -1;
     isSelected: boolean = false;
     additionalText: string = "";
     armId: number = 0;
@@ -379,7 +383,8 @@ export class SetAttribute implements singleNode {
     public get id(): string { return "A" + this.attribute_id; };
     attribute_name: string = "";
     public get name(): string { return this.attribute_name; };
-    attribute_order: number = -1;
+	attribute_order: number = -1;
+	attributeSetId: number = -1;
     attribute_type: string = "";
     attribute_set_desc: string = "";
     attribute_desc: string = "";

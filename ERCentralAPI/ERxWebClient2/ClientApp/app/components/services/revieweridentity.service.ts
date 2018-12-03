@@ -1,6 +1,6 @@
 import { Component, Inject, Injectable, EventEmitter, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouteReuseStrategy } from '@angular/router';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
@@ -14,19 +14,20 @@ import { error } from '@angular/compiler/src/util';
 import { ReviewerTermsService } from './ReviewerTerms.service';
 import { ModalService } from './modal.service';
 import { take } from 'lodash';
+import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
 
 
 @Injectable({
     providedIn: 'root',
 })
-    
+
 export class ReviewerIdentityService {
 
-    constructor(private router: Router, 
+    constructor(private router: Router,
         private _httpC: HttpClient,
         private ReviewInfoService: ReviewInfoService,
-        @Inject('BASE_URL') private _baseUrl: string
-        , @Inject(PLATFORM_ID) private _platformId: Object,
+        @Inject('BASE_URL') private _baseUrl: string,
+        private customRouteReuseStrategy: RouteReuseStrategy,
         private ReviewerTermsService: ReviewerTermsService,
         private modalService: ModalService
     ) { }
@@ -37,7 +38,7 @@ export class ReviewerIdentityService {
     public modalMsg: string = '';
 
     public get reviewerIdentity(): ReviewerIdentity {
-        
+
         if (this._reviewerIdentity.userId == 0) {
             const userJson = localStorage.getItem('currentErUser');
             let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
@@ -51,7 +52,7 @@ export class ReviewerIdentityService {
                 this._reviewerIdentity = currentUser;
             }
         }
-        
+
         return this._reviewerIdentity;
     }
 
@@ -65,16 +66,16 @@ export class ReviewerIdentityService {
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
     }
-    public Report()  {
+    public Report() {
         console.log('Reporting Cid: ' + this.reviewerIdentity.userId);
         console.log('NAME: ' + this.reviewerIdentity.name);
         console.log('Token: ' + this.reviewerIdentity.token);
         console.log('Ticket: ' + this.reviewerIdentity.ticket);
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
-    @Output() LoginFailed = new EventEmitter();  
+    @Output() LoginFailed = new EventEmitter();
     public LoginReq(u: string, p: string) {
-
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
@@ -90,7 +91,7 @@ export class ReviewerIdentityService {
                 //if (error = 401) this.SendBackHome();
 
                 this.LoginFailed.emit();
-                }
+            }
             );
 
     }
@@ -100,7 +101,7 @@ export class ReviewerIdentityService {
         this.currentStatus = msg;
 
     }
-    
+
     public FetchCurrentTicket() {
 
         return this._reviewerIdentity.ticket;
@@ -117,39 +118,39 @@ export class ReviewerIdentityService {
         return this._httpC.post<any>(this._baseUrl + 'api/LogonTicketCheck/ExcecuteCheckTicketExpirationCommand',
             LgtC).toPromise();
     }
-       
+
 
     @Output() OpeningNewReview = new EventEmitter();
     public LoginToReview(RevId: number) {
-        
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
 
                 this.reviewerIdentity = ri;
-      
+
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
- 
+
                     this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
                     this.router.navigate(['main']);
-                    }
+                }
             }
-            , error => {
-                console.log(error);
-                this.modalService.SendBackHomeWithError(error);
-            }
+                , error => {
+                    console.log(error);
+                    this.modalService.SendBackHomeWithError(error);
+                }
             );
-      
+
     }
 
 
     public LoginToFullReview(RevId: number) {
 
-
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
@@ -162,8 +163,8 @@ export class ReviewerIdentityService {
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
-					this.OpeningNewReview.emit();
-		
+                    this.OpeningNewReview.emit();
+
                     this.router.navigate(['mainFullReview']);
                 }
             }

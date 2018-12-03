@@ -50,14 +50,15 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
     }
      
     ngAfterViewInit() {
-		this.crossTabResult = this.crosstabService.testResult;
+		//this.crossTabResult = this.crosstabService.Result;
 	}
     
-	public crossTabResult: any | null;
-    public lookAtIncludeExclude: string = 'included';
-    public selectedFilterAttribute: any | 'none';
-    public selectedNodeDataX: any | 'none';
-    public selectedNodeDataY: any | 'none';
+    public crosstbShowWhat: string = 'table';
+    //public crossTabResult = this.crosstabService.Result;
+    public crosstbIncEx: string = 'true';
+    public selectedFilterAttribute: singleNode | null = null;
+    public selectedNodeDataX: singleNode | null = null;
+    public selectedNodeDataY: singleNode | null = null;
 
 
 	public selectedNodeData: any | null = null;
@@ -65,52 +66,65 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 	onSubmit(f: string) {
 
     }
-	
+
+    canSetCode(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.attributes
+            && this.reviewSetsService.selectedNode.attributes.length > 0) return true;
+        return false;
+    }
+    canSetFilter(): boolean {
+        if (this.reviewSetsService.selectedNode
+            && this.reviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
+        return false;
+    }
+
+
 
 	NodeDataChange(nodeData: singleNode) {
 
 		this.selectedNodeData = nodeData;
 	}
 
-	CrossTabItemsList(item: CrossTab, attributeid: any, field: string) {
+	CrossTabItemsList(item: CrossTab, attributeidY: number, attributenameY: string, field: string) {
 
+        console.log("1: " + item + " 2: " + attributeidY + " 3: " + attributenameY + " 4: " + field);
+		//this.crosstabService.CrossTab.attributeIdXAxis = item.xHeadersID[Number(field.substr(5)) - 1];
+		//this.crosstabService.CrossTab.attributeIdYAxis = attributeid;
 
-		this.crosstabService.CrossTab.attributeIdXAxis = item.xHeadersID[Number(field.substr(field.length - 1, field.length)) - 1];
-		this.crosstabService.CrossTab.attributeIdYAxis = attributeid;
-
-		console.log('hello \n' + item.xHeadersID + '\n' + 
-
-			+ item.xHeadersID[Number(field.substr(field.length - 1, field.length)) - 1] + '\n'
-
-			+ Number(field.substr(field.length - 1, field.length)) + '\n'
-
-			+ attributeid + '\n ' 
-
-			+ ' BLAH :  ' + 
-
-			' set x: ' + this.crosstabService.CrossTab.setIdXAxis + ' \n '
-
-			 + ' set y: ' +  this.crosstabService.CrossTab.setIdYAxis + ' \n '
-
-			+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdXAxis + ' \n '
-
-			+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdYAxis
-
-		);
+		//console.log('hello \n' + item.xHeadersID + '\n' + field + '\n'
+		//	+ item.xHeadersID[Number(field.substr(5)) - 1] + '\n'
+		//	+ Number(field.substr(field.length - 1, field.length)) + '\n'
+		//	+ attributeid + '\n ' 
+		//	+ ' BLAH :  ' + 
+		//	' set x: ' + this.crosstabService.CrossTab.setIdXAxis + ' \n '
+        //	 + ' set y: ' +  this.crosstabService.CrossTab.setIdYAxis + ' \n '
+		//	+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdXAxis + ' \n '
+		//	+ ' att x: ' +  this.crosstabService.CrossTab.attributeIdYAxis
+		//);
 
 		let cr: Criteria = new Criteria();
 	
 		cr.xAxisSetId = this.crosstabService.CrossTab.setIdXAxis; 
-		cr.yAxisSetId = this.crosstabService.CrossTab.setIdYAxis; 
-		cr.xAxisAttributeId = this.crosstabService.CrossTab.attributeIdXAxis; 
-		cr.yAxisAttributeId = this.crosstabService.CrossTab.attributeIdYAxis ; 
+        cr.yAxisSetId = this.crosstabService.CrossTab.setIdYAxis; 
+        cr.xAxisAttributeId = item.xHeadersID[Number(field.substr(5)) - 1]; 
+        cr.yAxisAttributeId = attributeidY ; 
+        cr.onlyIncluded = true;
 
-		cr.onlyIncluded = this.crosstabService.crit.onlyIncluded;
-		cr.filterAttributeId = this.crosstabService.crit.filterAttributeId;
+        if (this.crosstabService.crit.attributeIdFilter > 0) {
+            cr.filterSetId = this.crosstabService.filterSetId;
+            cr.filterAttributeId = this.crosstabService.crit.attributeIdFilter;
+        }
+
+		//cr.onlyIncluded = this.crosstabService.crit.onlyIncluded;
+        
 		cr.listType = 'CrosstabsList';
-		cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
-
-		this.ItemListService.FetchWithCrit(cr, "CrosstabsList");
+		//cr.attributeSetIdList = this.crosstabService.crit.attributeSetIdList;
+        let descr: string = "Crosstab of '" + item.xHeaders[Number(field.substr(5)) - 1] + "' against '" + attributenameY + "'";
+        if (cr.filterSetId > 0) {
+            descr += ". Filtered by '" + this.crosstabService.filterName + "'";
+        }
+        this.ItemListService.FetchWithCrit(cr, descr);
         this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
@@ -131,19 +145,19 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
         ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
     }
 
-    setXFilter() {
+    setFilter() {
         if (
             this.reviewSetsService.selectedNode
             && this.reviewSetsService.selectedNode.nodeType == "SetAttribute"
-        ) this.selectedNodeDataY = this.reviewSetsService.selectedNode;
+        ) this.selectedFilterAttribute = this.reviewSetsService.selectedNode;
     }
-    clearXFilter() {
+    clearFilter() {
         this.selectedFilterAttribute = null;
     }
-    fetchCrossTabs(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any) {
+    fetchCrossTabs() {
 
-        if (!selectedNodeDataX || selectedNodeDataX == undefined || !selectedNodeDataY
-            || selectedNodeDataY == undefined) {
+        if (!this.selectedNodeDataX || this.selectedNodeDataX == undefined || !this.selectedNodeDataY
+            || this.selectedNodeDataY == undefined) {
 
             alert('Please select both sets from the code tree');
 
@@ -156,9 +170,12 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
             //if (selectedNodeDataY.nodeType == 'ReviewSet') {
             //	let test2 = JSON.stringify(selectedNodeDataY.attributes);
             //	console.log('testing here2: ' + test2);
-            //}			
-
-            this.crossTabResult = this.crosstabService.Fetch(selectedNodeDataX, selectedNodeDataY, selectedFilter);
+            //}		
+            //console.log('hmmm');
+            //console.log(this.selectedNodeDataX);
+            //console.log(this.selectedNodeDataY);
+            //console.log(this.selectedFilterAttribute);
+            this.crosstabService.Fetch(this.selectedNodeDataX, this.selectedNodeDataY, this.selectedFilterAttribute);
 
         }
     }

@@ -256,7 +256,7 @@ namespace BusinessLibrary.BusinessClasses
             RProject blac = rUser.createProject(options);
             //end of first block
 
-            //SECOND block prepare code: James needs to work on this!!
+            //SECOND block prepare code: James sets this bit up
             //step 1 is to decide how to represent the options and add the corresponding property (or properties) to this object,
             //step 2 in dialogMetaAnalysisSetup is to populate the "options" properties according to user choice.
             //step 3 is back here: write the correct R-Code based on the properties
@@ -311,7 +311,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     GraphsList = new MobileList<byte[]>();//we always populate this on server side
                     if (GraphsTitles == null)
-                    {//we may be populating this on client side, not sure, and may not even use it!
+                    {// it's possible we could populate this on the client side / not use the data anyway
                         //could be useful to populate on client side, filling the titles of the expected plots, and thus specifying how many plots we expect
                         GraphsTitles = new MobileList<string>();
                     }
@@ -342,30 +342,6 @@ namespace BusinessLibrary.BusinessClasses
                     //    }
                     //}
                 }
-                //List<RProjectResult> results = exec.listResults();
-                //if (results != null && results.Count > 0)
-                //{//this needs to change to handle multiple plots, when needed!!
-
-                //    GraphsList = new MobileList<byte[]>();//we always populate this on server side
-                //    if (GraphsTitles == null)
-                //    {//we may be populating this on client side, not sure, and may not even use it!
-                //        //could be useful to populate on client side, filling the titles of the expected plots, and thus specifying how many plots we expect
-                //        GraphsTitles = new MobileList<string>();
-                //    }
-
-                //    for (int i = 0; i < GraphsTitles.Count; i++)
-                //    {
-                //        RProjectResult plot = results[i];
-                //        using (WebClient wc = new WebClient())
-                //        {
-                //            byte[] data = wc.DownloadData(plot.about().url.Replace(":7400", ""));
-                //            GraphsList.Add(data);
-                //        }
-                //    }
-                //}
-
-
-
             }
             finally
             {
@@ -384,36 +360,7 @@ namespace BusinessLibrary.BusinessClasses
             return "";
         }
 
-        //private string GetMetaScript(MetaAnalysis ma)
-        //{
-        //    RCode = "if (!require(meta))"
-        //                    + Environment.NewLine + "{"
-        //                    + Environment.NewLine + "library(meta, lib.loc=\".\", verbose=TRUE)"
-        //                    + Environment.NewLine + "}";
-
-        //    if (ma.GetMetaAnalysisTypeText() == "OR" || ma.GetMetaAnalysisTypeText() == "RR")
-        //    {
-        //        // take log of yi 
-        //        /*
-        //        RCode += Environment.NewLine + "res <- rma(log(yi), sei*sei, data=dat" + mods +
-        //                    measure + knha + slab +
-        //                    sigLevel + decPlace + verboseOutput +
-        //                    model + ")" + Environment.NewLine + "Main_Summary <- capture.output(res)";
-        //         */
-        //    }
-        //    else
-        //    {
-        //        // just the same as before
-        //        RCode += Environment.NewLine + "res <- metagen(dat$TE, dat$seTE, sm='" + ma.GetMetaAnalysisTypeText() + "')" +
-        //            Environment.NewLine + "Main_Summary <- capture.output(res)";
-        //        RCode += Environment.NewLine + "forest(res)";
-        //    }
-        //    ResultsLabels.Add("Main Summary");
-        //    GraphsTitles.Add("Forest plot");
-
-        //    return RCode;
-        //}
-
+        
         private string GetMetaforScript(MetaAnalysis ma, int OutcomesCount)
         {
             RCode = "if (!require(metafor))"
