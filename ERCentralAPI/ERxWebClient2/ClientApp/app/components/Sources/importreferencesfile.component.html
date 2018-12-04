@@ -1,15 +1,17 @@
 <div class="">
     <div class="card bg-light mt-2 col-md-12 mb-2">
         <div *ngIf="WizPhase==1">
-            Phase 1: Upload file (for checking)...<br />
-            <select *ngIf="ImportFilters" class="col-md-6" (change)="FilterChanged($event.target.value)">
+            <h4>Phase 1: Select File format (filter) and Upload file</h4>
+            <h5>Filter:</h5>
+            <select *ngIf="ImportFilters" class="col-md-6 form-control" (change)="FilterChanged($event.target.value)">
                 <option *ngFor="let filter of ImportFilters" [value]="filter.ruleName" [selected]="filter.ruleName == currentFilterName">
                     {{filter.ruleName}}
                 </option>
             </select>
+            <h5>Pick the file to upload:</h5>
             <input type="file" #file style="display: none" (change)="onFilesAdded()"
                    accept=".txt,.ris" />
-            <button (click)="addFile()">Select File</button>
+            <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
         </div>
         <div *ngIf="WizPhase==1.5">
             Phase 1.5: uploading <button (click)="back()">back/cancel</button> <br />

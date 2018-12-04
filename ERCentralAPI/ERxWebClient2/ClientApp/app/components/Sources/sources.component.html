@@ -1,0 +1,33 @@
+<HeaderComponent></HeaderComponent>
+<kendo-splitter orientation="horizontal">
+    <kendo-splitter-pane>
+        <div class="flex-row">
+            <div class="col-9 h3 float-left">Import Items:</div>
+            <button class="page-link pt-0 pb-1 mb-1 float-right" (click)="BackToMain()">
+                Close/back
+            </button>
+            <ImportReferencesFile></ImportReferencesFile>
+        </div>
+    </kendo-splitter-pane>
+    <kendo-splitter-pane size="30%">
+        <div class="pane-content">
+            
+            <div>SOURCES in Review:</div>
+            <div *ngIf="ReviewSources.length == 0">
+                No Sources in review.
+            </div>
+            <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small">
+                <tbody>
+                    <tr>
+                        <th class="p-0" style="min-width:100px;">Name</th>
+                    </tr>
+                    <tr *ngFor="let ROsource of ReviewSources" class="p-0"
+                        [hidden]="HideManuallyCreatedItems(ROsource)">
+                        <td class="p-1 align-middle"><div class="btn btn-link btn-sm p-0 ml-2" (click)="SelectSource(ROsource)">{{ROsource.source_Name}}</div></td>                        
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </kendo-splitter-pane>
+</kendo-splitter>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

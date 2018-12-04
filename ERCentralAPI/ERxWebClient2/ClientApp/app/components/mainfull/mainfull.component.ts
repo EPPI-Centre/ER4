@@ -24,8 +24,16 @@ import { SourcesService } from '../services/sources.service';
     templateUrl: './mainfull.component.html'
     ,styles: [`
                 .pane-content { padding: 0em 1em; margin: 1;}
-               .ReviewsBg {
+                .ReviewsBg {
                     background-color:#f1f1f8 !important; 
+                }
+                .k-toolbar {
+                    background-color: #f5f6fa;
+                }
+                .k-button {
+                    border-color: #04070b;
+                    color: #212529;
+                    background-color: #e1e4eb;
                 }
         `]
      ,providers: []
@@ -244,6 +252,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     SourcesTabSelected() {
         if (this.SourcesService.ReviewSources.length == 0) this.SourcesService.FetchSources();
+    }
+    GoToSources() {
+        this.router.navigate(['sources']);
     }
     ngOnDestroy() {
         //this.Clear();

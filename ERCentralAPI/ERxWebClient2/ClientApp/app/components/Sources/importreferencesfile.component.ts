@@ -102,6 +102,10 @@ export class ImportReferencesFileComponent implements OnInit {
         if (this.SourcesService.ImportFilters && this.SourcesService.ImportFilters.length > 0) return this.SourcesService.ImportFilters;
         else return null;
     }
+    get DefaultFilter(): ImportFilter | null {
+        if (this.SourcesService.ImportFilters && this.SourcesService.ImportFilters.length > 0) return this.SourcesService.ImportFilters[0];
+        else return null;
+    }
     get ReviewSources(): ReadOnlySource[] {
         return this.SourcesService.ReviewSources;
     }

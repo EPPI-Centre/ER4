@@ -1835,14 +1835,24 @@
       }
     },
     "@progress/kendo-angular-dropdowns": {
-      "version": "3.3.0",
-      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-dropdowns/-/kendo-angular-dropdowns-3.3.0.tgz",
-      "integrity": "sha512-1NLRWf98OwVSAAkvH4ICLfaOPBgUOz//rjOs0KZAxSaGPWX/sIJBaSZrhf+hOyDFxougd1il0xi573r5WrC9Ww==",
+      "version": "3.4.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-dropdowns/-/kendo-angular-dropdowns-3.4.0.tgz",
+      "integrity": "sha512-ZM0Qc2iP5emEHPHNvrNoHh4k642gi9c7aZ8R9bBeibfRUvbHrARkLBiPvWahJsjnGCAXaKXgV6DVxQXlnV38ig==",
       "requires": {
         "@progress/kendo-angular-popup": "^2.0.0",
-        "@progress/kendo-angular-resize-sensor": "^3.0.0",
+        "@progress/kendo-angular-resize-sensor": "^3.1.2",
         "@progress/kendo-schematics": "^0.2.0",
         "tslib": "^1.7.0"
+      },
+      "dependencies": {
+        "@progress/kendo-angular-resize-sensor": {
+          "version": "3.1.2",
+          "resolved": "https://registry.npmjs.org/@progress/kendo-angular-resize-sensor/-/kendo-angular-resize-sensor-3.1.2.tgz",
+          "integrity": "sha512-Wf9HS6zSGGo19dJBYin6PGYs87pqqpgFjDHKSCj+qZqAQRcnTHfGZMz1JvRNOZIVyS7mUFIbRZxP486e9vvTSA==",
+          "requires": {
+            "tslib": "^1.7.0"
+          }
+        }
       }
     },
     "@progress/kendo-angular-excel-export": {
@@ -1935,6 +1945,28 @@
       "integrity": "sha512-++jgvVLAYNCV4lczsJvJCmW9oEhNQwMGqDXT17aLX3NjYq4AJPc/NFXrCfd037kNrVFs0LABJt6TPHPTlPcqNg==",
       "requires": {
         "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-toolbar": {
+      "version": "0.3.1",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-toolbar/-/kendo-angular-toolbar-0.3.1.tgz",
+      "integrity": "sha512-/YcO0zGhPi79oUpV2+J2/jlRi5ltfrp/7uPn1LP9MRyrHCbw5ZhmhQav01/pkiL8ZrQJIlgaqEiQhdfm8+Ls7g==",
+      "requires": {
+        "@progress/kendo-angular-buttons": "^4.1.0",
+        "@progress/kendo-angular-popup": "^2.0.1",
+        "@progress/kendo-angular-resize-sensor": "^3.1.2",
+        "@progress/kendo-schematics": "^0.2.0",
+        "tslib": "^1.7.0"
+      },
+      "dependencies": {
+        "@progress/kendo-angular-resize-sensor": {
+          "version": "3.1.2",
+          "resolved": "https://registry.npmjs.org/@progress/kendo-angular-resize-sensor/-/kendo-angular-resize-sensor-3.1.2.tgz",
+          "integrity": "sha512-Wf9HS6zSGGo19dJBYin6PGYs87pqqpgFjDHKSCj+qZqAQRcnTHfGZMz1JvRNOZIVyS7mUFIbRZxP486e9vvTSA==",
+          "requires": {
+            "tslib": "^1.7.0"
+          }
+        }
       }
     },
     "@progress/kendo-charts": {
@@ -8230,7 +8262,7 @@
     },
     "jsesc": {
       "version": "0.5.0",
-      "resolved": "http://registry.npmjs.org/jsesc/-/jsesc-0.5.0.tgz",
+      "resolved": "https://registry.npmjs.org/jsesc/-/jsesc-0.5.0.tgz",
       "integrity": "sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=",
       "dev": true
     },
@@ -13050,13 +13082,13 @@
     },
     "regjsgen": {
       "version": "0.2.0",
-      "resolved": "http://registry.npmjs.org/regjsgen/-/regjsgen-0.2.0.tgz",
+      "resolved": "https://registry.npmjs.org/regjsgen/-/regjsgen-0.2.0.tgz",
       "integrity": "sha1-bAFq3qxVT3WCP+N6wFuS1aTtsfc=",
       "dev": true
     },
     "regjsparser": {
       "version": "0.1.5",
-      "resolved": "http://registry.npmjs.org/regjsparser/-/regjsparser-0.1.5.tgz",
+      "resolved": "https://registry.npmjs.org/regjsparser/-/regjsparser-0.1.5.tgz",
       "integrity": "sha1-fuj4Tcb6eS0/0K4ijSS9lJ6tIFw=",
       "dev": true,
       "requires": {

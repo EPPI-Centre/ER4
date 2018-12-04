@@ -39,10 +39,12 @@ import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { ChartModule } from '@progress/kendo-angular-charts';
+import { ToolBarModule } from '@progress/kendo-angular-toolbar';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
 import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
 import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
+import { SourcesComponent } from './components/Sources/sources.component';
 
 
 @NgModule({
@@ -68,6 +70,7 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 		StatusBarComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
+        SourcesComponent,
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
@@ -95,6 +98,7 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 		TreeModule,
         GridModule,
         ChartModule,
+        ToolBarModule,
         DatePickerModule,
         LayoutModule,
         RouterModule.forRoot([
@@ -104,6 +108,7 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'mainFullReview', component: MainFullReviewComponent }, 
             { path: 'main', component: MainComponent }, 
+            { path: 'sources', component: SourcesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage
