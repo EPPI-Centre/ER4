@@ -1,4 +1,4 @@
-import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
+import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 
