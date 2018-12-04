@@ -134,9 +134,10 @@
         </telerik:RadGridView>
         <local:codesSelectControl x:Name="codesSelectControlClassifyTo" Grid.Row="10" Grid.Column="5" Margin="3,1,5,7" ToolTipService.ToolTip="Select the code that you have used to define the items you want to be classified" IsEnabled="False"/>
         <RadioButton x:Name="rbApplySelectedModel" Grid.Column="4" Grid.Row="8" Content="Apply above selected model" GroupName="ApplyWhat" IsChecked="true"  Margin="5,5,5,5"></RadioButton>
-        <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="9" Content="Apply RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+        <RadioButton x:Name="rbApplyNewRCTModel" Grid.Column="4" Grid.Row="9" Content="Apply Cochrane RCT Classifier" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" />
         <RadioButton x:Name="rbApplyDAREModel" Grid.Column="4" Grid.Row="10" Content="Apply systematic review model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" />
         <RadioButton x:Name="rbApplyNHSEEDModel" Grid.Column="4" Grid.Row="11" Content="Apply economic evaluation model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" />
+        <RadioButton x:Name="rbApplyRCTModel" Grid.Column="4" Grid.Row="12" Content="Apply original RCT model" GroupName="ApplyWhat" IsChecked="false" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
         <RadioButton x:Name="rbApplyToAll" Grid.Column="5" Grid.Row="8" Content="Apply to all items in review" GroupName="ApplyTo" IsChecked="true"  Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToAll"></RadioButton>
         <RadioButton x:Name="rbApplyToSelected" Grid.Column="5" Grid.Row="9" Content="Apply to items with this code" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSelected"/>
         <RadioButton x:Name="rbApplyToSource" Grid.Column="5" Grid.Row="11" Content="Apply to items from this source" GroupName="ApplyTo" IsChecked="false" Margin="5,5,5,5" Click="rbApplyToAll_Click" Tag="ApplyToSource"/>

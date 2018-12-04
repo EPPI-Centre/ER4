@@ -66,8 +66,8 @@
             <StackPanel Orientation="Vertical"  Grid.Column="0" Grid.Row="2" Margin="20,0,0,0">
                 <TextBlock Text="Using terms identified by:" Margin="6,6,6,6"></TextBlock>
                 <RadioButton x:Name="RadioTfidf" Content="TF*IDF" IsChecked="true" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>
-                <RadioButton x:Name="RadioTermine" Content="TerMine (NaCTeM)" IsChecked="false" IsEnabled="False" GroupName="TermExtractionType" Margin="10,3,3,3" Click="RadioTermine_Click"></RadioButton>
-                <RadioButton x:Name="RadioZemanta" Content="Zemanta" IsChecked="false" IsEnabled="False" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>
+                <RadioButton x:Name="RadioTermine" Content="TerMine (NaCTeM) - [not currently available]" IsChecked="false" IsEnabled="False" GroupName="TermExtractionType" Margin="10,3,3,3" Click="RadioTermine_Click"></RadioButton>
+                <RadioButton x:Name="RadioZemanta" Content="Zemanta - [not available]" IsChecked="false" IsEnabled="False" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>
                 <!--<RadioButton x:Name="RadioYahoo" Content="Yahoo" IsChecked="false" GroupName="TermExtractionType" Margin="10,3,3,3"></RadioButton>-->
             </StackPanel>
 

@@ -417,9 +417,8 @@ namespace BusinessLibrary.BusinessClasses
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
                 CloudBlockBlob blockBlobData;
-                
-                blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
-                //blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
+
+                blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv");
                 using (var fileStream = System.IO.File.OpenRead(fileName))
                 {
                     blockBlobData.UploadFromStream(fileStream);
@@ -429,82 +428,109 @@ namespace BusinessLibrary.BusinessClasses
 
                 await InvokeBatchExecutionService(RevInfo, "ScoreModel", modelId);
 
-                CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container2 = blobClient2.GetContainerReference("attributemodels");
-                CloudBlockBlob blockBlob = container2.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
-                byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-                MemoryStream ms = new MemoryStream(myFile);
-
-                DataTable dt = new DataTable("Scores");
-                dt.Columns.Add("SCORE");
-                dt.Columns.Add("ITEM_ID");
-                dt.Columns.Add("REVIEW_ID");
-
-                using (TextFieldParser csvReader = new TextFieldParser(ms))
+                if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
                 {
-                    csvReader.SetDelimiters(new string[] { "," });
-                    csvReader.HasFieldsEnclosedInQuotes = false;
-                    while (!csvReader.EndOfData)
-                    {
-                        string[] data = csvReader.ReadFields();
-                        if (data.Length == 3)
-                        {
-                            if (data[0] == "1")
-                            {
-                                data[0] = "0.999999";
-                            }
-                            else if (data[0] == "0")
-                            {
-                                data[0] = "0.000001";
-                            }
-                            else if (data[0].Length > 2 && data[0].Contains("E"))
-                            {
-                                double dbl = 0;
-                                double.TryParse(data[0], out dbl);
-                                //if (dbl == 0.0) throw new Exception("Gotcha!");
-                                data[0] = dbl.ToString("F10");
-                            }
-                            dt.Rows.Add(data);
-                        }
+                    // load RCTs
+                    DataTable RCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
+                    _title = "Cochrane RCT Classifier: may be RCTs";
+                    LoadResultsIntoDatabase(RCTs, connection, ri);
 
-                        //var data1 = csvReader.ReadFields();
-                        //for (var i = 0; i < data1.Length; i++)
-                        //{
-                        //    if (data1[i] == "")
-                        //    {
-                        //        data1[i] = null;
-                        //    }
-                        //}
-                        //dt.Rows.Add(data);
-                    }
+                    // load non-RCTs
+                    DataTable nRCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
+                    _title = "Cochrane RCT Classifier: unlikely to be RCTs";
+                    LoadResultsIntoDatabase(nRCTs, connection, ri);
                 }
-                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                else
                 {
-                    sbc.DestinationTableName = "TB_CLASSIFIER_ITEM_TEMP";
-                    sbc.ColumnMappings.Clear();
-                    sbc.ColumnMappings.Add("SCORE", "SCORE");
-                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
-                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
-                    sbc.BatchSize = 1000;
-                    sbc.WriteToServer(dt);
+                    DataTable Scores = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+                    LoadResultsIntoDatabase(Scores, connection, ri);
                 }
-
-                // Create a new search to 'hold' the results
-                int searchId = 0;
-                using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.CommandTimeout = 300;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
-                    command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
-                    command.Parameters.Add(new SqlParameter("@NEW_SEARCH_ID", 0));
-                    command.Parameters["@NEW_SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    //searchId = Convert.ToInt32(command.Parameters["@NEW_SEARCH_ID"].Value); not sure we need this any more
-                }
+                
                 connection.Close();
+            }
+        }
+
+        private DataTable DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
+        {
+            CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container2 = blobClient2.GetContainerReference(container);
+            CloudBlockBlob blockBlob = container2.GetBlockBlobReference(filename);
+            byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
+            MemoryStream ms = new MemoryStream(myFile);
+
+            DataTable dt = new DataTable("Scores");
+            dt.Columns.Add("SCORE");
+            dt.Columns.Add("ITEM_ID");
+            dt.Columns.Add("REVIEW_ID");
+
+            using (TextFieldParser csvReader = new TextFieldParser(ms))
+            {
+                csvReader.SetDelimiters(new string[] { "," });
+                csvReader.HasFieldsEnclosedInQuotes = false;
+                while (!csvReader.EndOfData)
+                {
+                    string[] data = csvReader.ReadFields();
+                    if (data.Length == 3)
+                    {
+                        if (data[0] == "1")
+                        {
+                            data[0] = "0.999999";
+                        }
+                        else if (data[0] == "0")
+                        {
+                            data[0] = "0.000001";
+                        }
+                        else if (data[0].Length > 2 && data[0].Contains("E"))
+                        {
+                            double dbl = 0;
+                            double.TryParse(data[0], out dbl);
+                            //if (dbl == 0.0) throw new Exception("Gotcha!");
+                            data[0] = dbl.ToString("F10");
+                        }
+                        dt.Rows.Add(data);
+                    }
+
+                    //var data1 = csvReader.ReadFields();
+                    //for (var i = 0; i < data1.Length; i++)
+                    //{
+                    //    if (data1[i] == "")
+                    //    {
+                    //        data1[i] = null;
+                    //    }
+                    //}
+                    //dt.Rows.Add(data);
+                }
+            }
+            return dt;
+        }
+
+        private void LoadResultsIntoDatabase(DataTable dt, SqlConnection connection, ReviewerIdentity ri)
+        {
+            using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+            {
+                sbc.DestinationTableName = "TB_CLASSIFIER_ITEM_TEMP";
+                sbc.ColumnMappings.Clear();
+                sbc.ColumnMappings.Add("SCORE", "SCORE");
+                sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+                sbc.BatchSize = 1000;
+                sbc.WriteToServer(dt);
+            }
+
+            // Create a new search to 'hold' the results
+            //int searchId = 0;
+            using (SqlCommand command = new SqlCommand("st_ClassifierCreateSearchList", connection))
+            {
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.CommandTimeout = 300;
+                command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+                command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", "Items classified according to model: " + _title));
+                command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
+                command.Parameters.Add(new SqlParameter("@NEW_SEARCH_ID", 0));
+                command.Parameters["@NEW_SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;
+                command.ExecuteNonQuery();
+                //searchId = Convert.ToInt32(command.Parameters["@NEW_SEARCH_ID"].Value); not sure we need this any more
             }
         }
 
@@ -557,6 +583,11 @@ namespace BusinessLibrary.BusinessClasses
                 if (modId == -3)
             {
                 retval = "NHSEED";
+            }
+            else
+                if (modId == -4)
+            {
+                retval = "NewRCTModel";
             }
 
             return retval;
@@ -629,6 +660,8 @@ public enum BatchScoreStatusCode
         const string apiKeyScoreModel = "***REMOVED***"; //EPPI-R Models: Apply Attribute Model
         const string BaseUrlBuildModel = "***REMOVED***";
         const string apiKeyBuildModel = "***REMOVED***"; //EPPI-R Models: Build Attribute Model
+        const string BaseUrlScoreNewRCTModel = "***REMOVED***";
+        const string apiKeyScoreNewRCTModel = "***REMOVED***"; // Cochrane RCT Classifier v.2 (ensemble) blob storage
         const string TempPath = @"UserTempUploads/ContactId";
 
         const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
@@ -660,18 +693,34 @@ public enum BatchScoreStatusCode
                 }
                 else
                 {
-                    apiKey = apiKeyScoreModel;
-                    BaseUrl = BaseUrlScoreModel;
-                    
-                    request = new BatchExecutionRequest()
+                    if (modelId == -4)
                     {
-                        GlobalParameters = new Dictionary<string, string>()
+                        apiKey = apiKeyScoreNewRCTModel;
+                        BaseUrl = BaseUrlScoreNewRCTModel;
+                        request = new BatchExecutionRequest()
                         {
-                            { "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
-                            { "ModelFile", @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
-                            { "ResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
-                        }
-                    };
+                            GlobalParameters = new Dictionary<string, string>()
+                            {
+                                { "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
+                                { "RCTResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv" },
+                                { "NonRCTResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv" },
+                            }
+                        };
+                    }
+                    else
+                    {
+                        apiKey = apiKeyScoreModel;
+                        BaseUrl = BaseUrlScoreModel;
+                        request = new BatchExecutionRequest()
+                        {
+                            GlobalParameters = new Dictionary<string, string>()
+                            {
+                                { "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
+                                { "ModelFile", @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
+                                { "ResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
+                            }
+                        };
+                    }
                 }
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
