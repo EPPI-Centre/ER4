@@ -8,7 +8,6 @@ import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-an
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
-import { ModalSearchService } from '../services/modalSearch.service';
 
 @Component({
 	selector: 'SearchComp',
