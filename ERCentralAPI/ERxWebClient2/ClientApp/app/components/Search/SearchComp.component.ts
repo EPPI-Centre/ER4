@@ -29,7 +29,6 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: ModalSearchService,
 		private reviewSetsService: ReviewSetsService
 	) {
 	}
@@ -83,20 +82,20 @@ export class SearchComp implements OnInit, OnDestroy {
 	//public gridData: GridDataResult = process(this.DataSource.data, this.stateAdd);
 	private bodyText!: string;
 	
-	openModal(id: string) {
+	//openModal(id: string) {
 
-		alert('got in here...');
+	//	alert('got in here...');
 
-		this.modalClass = true;
+	//	this.modalClass = true;
 
-		this.modalService.open(id);
+	//	this.modalService.open(id);
 
-	}
+	//}
 
-	closeModal(id: string) {
-		this.modalClass = false;
-		this.modalService.close(id);
-	}
+	//closeModal(id: string) {
+	//	this.modalClass = false;
+	//	this.modalService.close(id);
+	//}
 	
 	selectAllSearchesChange(e: any): void {
 		
