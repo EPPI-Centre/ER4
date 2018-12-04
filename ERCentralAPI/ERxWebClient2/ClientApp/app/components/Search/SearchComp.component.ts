@@ -8,6 +8,7 @@ import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-an
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { NgbModal, NgbActiveModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
+import { ModalSearchService } from '../services/modalSearch.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -29,7 +30,7 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: NgbModal,
+		private modalService: ModalSearchService,
 		//public activeModal: NgbActiveModal,
 		private reviewSetsService: ReviewSetsService
 	) {
@@ -41,6 +42,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	//	SearchesModalContent(this.activeModal, this.reviewSetsService, this._searchService);
 	
     public selectedAll: boolean = false;
+	public modalClass: boolean = false;
 
 	allSearchesSelected: boolean = false;
 	// bound to header checkbox
@@ -52,9 +54,23 @@ export class SearchComp implements OnInit, OnDestroy {
 	};
 
 	//public gridData: GridDataResult = process(this.DataSource.data, this.stateAdd);
+	private bodyText!: string;
+	
+	openModal(id: string) {
 
+		alert('got in here...');
 
+		this.modalClass = true;
 
+		this.modalService.open(id);
+
+	}
+
+	closeModal(id: string) {
+		this.modalClass = false;
+		this.modalService.close(id);
+	}
+	
 	selectAllSearchesChange(e: any): void {
 		
 		if (e.target.checked) {
@@ -101,28 +117,27 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._searchService.Delete(lstStrSearchIds);
 	}
 	
-
-	openNewSearchModal() {
+	//openNewSearchModal() {
 				
 
-		let modalNew = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
-		modalNew.componentInstance.InfoBoxTextInput = 'tester';
-		modalNew.componentInstance.focus(null);
+	//	let modalNew = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
+	//	modalNew.componentInstance.InfoBoxTextInput = 'tester';
+	//	modalNew.componentInstance.focus(null);
 
-		modalNew.result.then(
+	//	modalNew.result.then(
 
-			//called if search button is pressed
-			(result) => {
+	//		//called if search button is pressed
+	//		(result) => {
 
-				console.log('pressed okay: ' + JSON.stringify(result));
+	//			console.log('pressed okay: ' + JSON.stringify(result));
 
-			},
-			//called if modal is cancelled
-			(result) => {
-				console.log('cancelled: ' + JSON.stringify(result));
-			}
-		);
-	}
+	//		},
+	//		//called if modal is cancelled
+	//		(result) => {
+	//			console.log('cancelled: ' + JSON.stringify(result));
+	//		}
+	//	);
+	//}
 	
 	public checkboxClicked(dataItem: any) {
 
@@ -177,7 +192,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.router.navigate(['home']);
 		}
 		else {
-
+			this.bodyText = 'This text can be updated in modal 1';
             this._searchService.Fetch();
 
 		}

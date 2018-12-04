@@ -1,0 +1,57 @@
+﻿<!--<p>
+	You can pass an existing component as content of the modal window.
+	In this case remember to add content component
+	as an <code>entryComponents</code> section of your <code>NgModule</code>.
+</p>
+
+<button class="btn btn-lg btn-outline-primary" (click)="open()">Launch demo modal</button>-->
+
+<!--<div class="modal-header">
+	<h4 class="modal-title">My Form</h4>
+	<button type="button" class="close" aria-label="Close"
+			(click)="activeModal.dismiss('Cross click')"></button>
+</div>
+<form [formGroup]="myForm" (ngSubmit)="submitForm()">
+	<div class="modal-boy">
+		<div class="container">
+			<p>
+				Home page text: <input type="text" [(ngModel)]="bodyText" />
+			</p>
+			<div class="form-group">
+
+				<label for="id">ID</label>
+				<input type="text"
+					   class="form-control"
+					   formControlName="id" value="{{id}}">
+			</div>
+			<div class="form-group">
+
+				<label for="username">Username</label>
+				<input type="text"
+					   class="form-control"
+					   formControlName="username" />
+			</div>
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input type="password" class="form-control">
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-success"
+				[disabled]="!myForm.valid">
+			Submit Form
+		</button>
+	</div>
+</form>-->
+
+<modal id="custom-modal-1">
+	<div class="modal">
+		<div class="modal-body">
+			<h1>A Custom Modal!</h1>
+				Home page text: <input type="text" [(ngModel)]="bodyText" />
+			<button (click)="closeModal('custom-modal-1');">Close</button>
+		</div>
+	</div>
+	<div class="modal-background"></div>
+</modal>

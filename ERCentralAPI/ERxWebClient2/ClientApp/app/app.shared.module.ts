@@ -32,7 +32,7 @@ import { frequenciesResultsComp } from './components/Frequencies/frequenciesResu
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
-//import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
+import { SearchComp } from './components/Search/SearchComp.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
@@ -41,14 +41,15 @@ import { frequenciesComp } from './components/Frequencies/frequencies.component'
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { NgbdModalComponent, NgbdModalContent } from './components/NgbdModal/NgbdModal.component';
-import { SearchesModalContent } from './components/Search/SearchComp.component';
+//import { SearchesModalContent } from './components/Search/SearchComp.component';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
+import { ModalSearchComponent } from './components/ModalSearch/modalSearch.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		CodesetTreeComponent,
-		//SearchComp,
+		SearchComp,
         frequenciesComp,
 		frequenciesResultsComp,
 		CrossTabsComp,
@@ -65,9 +66,10 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
         itemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
-		SearchesModalContent,
+		//SearchesModalContent,
 		NgbdModalComponent,
 		NgbdModalContent,
+		ModalSearchComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
@@ -80,10 +82,11 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
-		, SearchesModalContent
+		//, SearchesModalContent
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent
-		, SearchesModalContent, NgbdModalContent],
+		//, SearchesModalContent
+		, NgbdModalContent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
