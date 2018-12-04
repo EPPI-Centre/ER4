@@ -72,8 +72,8 @@ public partial class ReturnFromPayment : System.Web.UI.Page
         Type cstype = this.GetType();
         ClientScriptManager cs = Page.ClientScript;
 
-        if (!cs.IsStartupScriptRegistered("Startup"))
-            cs.RegisterStartupScript(cstype, "Startup", scriptString);
+        //if (!cs.IsStartupScriptRegistered("Startup"))
+        //    cs.RegisterStartupScript(cstype, "Startup", scriptString);
     }
 
 }

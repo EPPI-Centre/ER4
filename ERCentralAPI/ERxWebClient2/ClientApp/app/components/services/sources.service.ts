@@ -161,9 +161,15 @@ export interface IncomingItemsList {
 }
 export interface IncomingItem {
     title: string;
-    parentTitle: string;
-    authors: string;
+    parent_title: string;
+    authorsLi: IncomingItemAuthor[];
     year: string;
+    pages: string;
+}
+export interface IncomingItemAuthor {
+    firstName: string;
+    lastName: string;
+    middleName: string;
 }
 export interface ImportFilter {
     filterID: number;

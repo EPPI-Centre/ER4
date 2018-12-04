@@ -16,45 +16,90 @@
         </div>
         <div *ngIf="WizPhase==2">
             Phase 2: see if the file parses as expected:<br />
-            <button (click)="back()">back</button> <br />
-            <button (click)="Upload()">upload!</button>
+            <button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button> <br />
             <div *ngIf="DataToCheck">
-                Results:<br />
-                Total references = {{DataToCheck.totalReferences}}
-                <ul>
-                    <li *ngFor="let item of DataToCheck.incomingItems">
-                        Title = {{item.title}}
-                    </li>
-                </ul>
+                <div class="row">
+                    <button type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
+                        {{togglePreviewPanelButtonText}}
+                    </button>
+                    <div *ngIf="!PreviewResultsAreGood() && this.DataToCheck && this.DataToCheck.totalReferences == 1" class="alert alert-danger col-4">
+                        Parsing this file with the chosen filter ({{currentFilterName}}) found only one reference.
+                        <strong>Are you sure you picked the right filter?</strong>
+                    </div>
+                    Results:<br />
+                    Total references = {{DataToCheck.totalReferences}}
+                </div>
+                <div [ngbCollapse]="!ShowPreviewTable" style="max-height:300px; overflow-y:scroll;">
+                        <table class="table-striped table table-bordered small">
+                            <tbody>
+                                <tr>
+                                    <th class="p-0" style="width:20%; min-width:50px">Journal</th>
+                                    <th class="p-0" style="width:50%; min-width:150px">Title</th>
+                                    <th class="p-0" style="width:10%; min-width:50px">Authors</th>
+                                    <th class="p-0" style="width:10%; min-width:50px">Pages</th>
+                                    <th class="p-0" style="width:10%; min-width:50px">Year</th>
+                                </tr>
+                                <tr *ngFor="let item of DataToCheck.incomingItems" class="p-0">
+                                    <td class="p-0 align-middle justify-content-center">
+                                        {{item.parent_title}}
+                                    </td>
+                                    <td class="p-1 align-middle">{{item.title}}</td>
+                                    <td class="p-1 align-middle ">{{AuthorsString(item.authorsLi)}}</td>
+                                    <td class="p-1 align-middle ">{{item.pages}}</td>
+                                    <td class="p-1 align-middle ">{{item.year}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                </div>
             </div>
+            <form *ngIf="Source4upload" class="row" (ngSubmit)="Upload()" #NewSourceForm="ngForm">
+                <div class="form-group col-6">
+                    <label for="source_Name">Source Name</label>
+                    <input type="text" class="form-control" id="Sourcename"
+                           [(ngModel)]="Source4upload.source_Name" name="source_Name"
+                           #name="ngModel">
+                    <div [hidden]="IsSourceNameValid() != 1"
+                         class="alert alert-danger">
+                        Name is required
+                    </div>
+                    <div [hidden]="IsSourceNameValid() != 2"
+                         class="alert alert-danger">
+                        There is another source with this name, please change it.
+                    </div>
+                </div>
+                <div class="form-group col-6">
+                    <label for="source_Name">Date of search</label>
+                    <kendo-datepicker [(value)]="value"
+                                      [format]="'dd-MMM-yyyy'"
+                                      class="form-control" id="DateOfSearch"
+                                      [(ngModel)]="DateOfSearch" name="DateOfSearch">
+                    </kendo-datepicker>
+                </div>
+                <div class="form-group col-12">
+                    <label for="searchString">Search String</label>
+                    <input type="text" class="form-control" id="searchString"
+                           [(ngModel)]="Source4upload.searchString" name="searchString">
+                </div>
+                <div class="form-group col-12">
+                    <label for="sourceDataBase">DataBase</label>
+                    <input type="text" class="form-control" id="sourceDataBase"
+                           [(ngModel)]="Source4upload.sourceDataBase" name="sourceDataBase">
+                </div>
+                <div class="form-group col-12">
+                    <label for="searchDescription">Description</label>
+                    <input type="text" class="form-control" id="searchDescription"
+                           [(ngModel)]="Source4upload.searchDescription" name="searchDescription">
+                </div>
+                <div class="form-group col-12">
+                    <label for="searchnotes">Notes</label>
+                    <input type="text" class="form-control" id="searchnotes"
+                           [(ngModel)]="Source4upload.notes" name="searchnotes">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Upload!</button>
+                </div>
+            </form>
         </div>
-        
-    </div>
-    <div class="m-1" style="max-height: 350px; overflow-y:scroll;">
-        <div>SOURCES in Review:</div>
-        <div *ngIf="ReviewSources.length == 0">
-            No Sources in review.
-        </div>
-        <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small" >
-            <tbody>
-                <tr>
-                    <th class="p-0" width="50"></th>
-                    <th class="p-0" style="min-width:100px;">Name</th>
-                    <th class="p-0" width="50">Items</th>
-                    <th class="p-0" width="60">Deleted</th>
-                    <th class="p-0" width="70">Duplicates</th>
-                </tr>
-                <tr *ngFor="let ROsource of ReviewSources" class="p-0">
-                    <td class="p-0 align-middle justify-content-center">
-                        <button *ngIf="ROsource.isDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-primary btn-sm p-1"> Restore </button>
-                        <button *ngIf="!ROsource.isDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-outline-info btn-sm p-1 ml-1"> Delete </button>
-                    </td>
-                    <td class="p-1 align-middle"><div class="btn btn-link btn-sm p-0 ml-2" (click)="ListSource(ROsource)">{{DisplaySourcename(ROsource)}}</div></td>
-                    <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
-                    <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>
-                    <td class="p-1 align-middle ">{{ROsource.duplicates}}</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </div>

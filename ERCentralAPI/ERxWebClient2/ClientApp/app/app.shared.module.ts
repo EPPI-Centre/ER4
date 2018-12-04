@@ -41,6 +41,8 @@ import { frequenciesComp } from './components/Frequencies/frequencies.component'
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
+import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
+import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 
 @NgModule({
     declarations: [
@@ -69,6 +71,7 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
+        ROSourcesListComponent,
         ImportReferencesFileComponent,
         MainFullReviewComponent,
         MainComponent
@@ -94,6 +97,7 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
         TreeModule,
         GridModule,
         ChartModule,
+        DatePickerModule,
         LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },

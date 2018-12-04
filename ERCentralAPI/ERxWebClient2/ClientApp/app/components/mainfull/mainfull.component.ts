@@ -40,8 +40,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
-		private _eventEmitter: EventEmitterService
-		, private frequenciesService: frequenciesService
+        private _eventEmitter: EventEmitterService,
+		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
         , private _searchService: searchService
         , private SourcesService: SourcesService
@@ -56,6 +56,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
+    public isSourcesPanelCollapsed = false;
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
@@ -76,7 +77,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		//alert(JSON.stringify(tab));
 		//alert(message);
-        console.log('tabselect:', tab);
+        //console.log('tabselect:', tab);
         if (tab.nextId === "UploadTab") this.SourcesTabSelected();
 	}
 
@@ -128,7 +129,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
 	}
-
+    public get SourcesPanelTogglingSymbol(): string {
+        if (this.isSourcesPanelCollapsed) return '&uarr;';
+        else return '&darr;';
+    }
 	ngAfterViewInit() {
 		this.tabsInitialized = true;
 		console.log('tabs initialised');
@@ -171,6 +175,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     toggleWorkAllocationsPanel() {
         this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
     }
+    toggleSourcesPanel() {
+        if (!this.isSourcesPanelCollapsed) {
+            this.SourcesService.FetchSources();
+        }
+        this.isSourcesPanelCollapsed = !this.isSourcesPanelCollapsed;
+    }
     getDaysLeftAccount() {
 
         return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
@@ -193,6 +203,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.Clear();
         //console.log('get rev sets in mainfull');
         this.reviewSetsService.GetReviewSets();
+        this
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
@@ -232,7 +243,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
        
     }
     SourcesTabSelected() {
-        this.SourcesService.FetchSources();
+        if (this.SourcesService.ReviewSources.length == 0) this.SourcesService.FetchSources();
     }
     ngOnDestroy() {
         //this.Clear();
