@@ -104,7 +104,6 @@ export class searchService {
 	}
 }
 
-
 export class Search {
 
 	searchNo: number = 0;
@@ -115,7 +114,6 @@ export class Search {
 	searchDate: string = '';
 	contactName: string = '';
 }
-
 
 export interface SearchCodeCommand {
 
