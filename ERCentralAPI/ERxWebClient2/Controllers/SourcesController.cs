@@ -102,8 +102,6 @@ namespace ERxWebClient2.Controllers
 			}
 
 		}
-
-
 		[HttpPost("[action]")]
 		public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
 		{
@@ -167,7 +165,6 @@ namespace ERxWebClient2.Controllers
             }
 
         }
-
         private FilterRules GetFilterRules(string FilterName, out int RuleID)
         {
             RuleID = -1;
@@ -224,6 +221,7 @@ namespace ERxWebClient2.Controllers
             rules.Keywords_Set(inRules.Keywords);
             return rules;
         }
+
     }
     
     public class UploadOrCheckSource

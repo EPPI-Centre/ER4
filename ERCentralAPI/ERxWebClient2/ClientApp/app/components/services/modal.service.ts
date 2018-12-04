@@ -7,7 +7,7 @@ import {
     ModalDialogComponent
 } from '../ModalDialog/ModalDialog.component';
 import { Router } from '@angular/router';
-import * as _ from 'underscore';
+//import * as _ from 'underscore';
 
 @Injectable({
     providedIn: 'root'
@@ -59,28 +59,28 @@ export class ModalService {
         this.confirm(Message);
 	}
 
-	private modals: any[] = [];
+	//private modals: any[] = [];
 
-	add(modal: any) {
-		// add modal to array of active modals
-		this.modals.push(modal);
-	}
+	//add(modal: any) {
+	//	// add modal to array of active modals
+	//	this.modals.push(modal);
+	//}
 
-	remove(id: string) {
-		// remove modal from array of active modals
-		let modalToRemove = _.findWhere(this.modals, { id: id });
-		this.modals = _.without(this.modals, modalToRemove);
-	}
+	//remove(id: string) {
+	//	// remove modal from array of active modals
+	//	let modalToRemove = _.findWhere(this.modals, { id: id });
+	//	this.modals = _.without(this.modals, modalToRemove);
+	//}
 
-	open(id: string) {
-		// open modal specified by id
-		let modal = _.findWhere(this.modals, { id: id });
-		modal.open();
-	}
+	//open(id: string) {
+	//	// open modal specified by id
+	//	let modal = _.findWhere(this.modals, { id: id });
+	//	modal.open();
+	//}
 
-	close(id: string) {
-		// close modal specified by id
-		let modal = _.find(this.modals, { id: id });
-		modal.close();
-	}
+	//close(id: string) {
+	//	// close modal specified by id
+	//	let modal = _.find(this.modals, { id: id });
+	//	modal.close();
+	//}
 }
