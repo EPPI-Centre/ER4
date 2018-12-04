@@ -68,7 +68,7 @@ export class ImportReferencesFileComponent implements OnInit {
     private fileRead(e: ProgressEvent) {
         if (this.reader.result) {
             let fileContent: string = this.reader.result as string;
-            console.log("fileRead: " + fileContent.length);
+            //console.log("fileRead: " + fileContent.length);
             let filename = "Please update";
             if (this.currentFileName) filename = this.currentFileName.trim();
             this.Source4upload = this.SourcesService.newSourceForUpload(fileContent, filename, this.currentFilterName);
@@ -82,9 +82,9 @@ export class ImportReferencesFileComponent implements OnInit {
     }
     public PreviewResultsAreGood(): boolean {
         //true if all is well, false if we think user might have picked the wrong filter
-        console.log("PreviewResultsAreGood?");
-        if (this.DataToCheck) console.log("DataToCheck.totalReferences", this.DataToCheck.totalReferences)
-        else console.log("WTF?");
+        //console.log("PreviewResultsAreGood?");
+        //if (this.DataToCheck) console.log("DataToCheck.totalReferences", this.DataToCheck.totalReferences)
+        //else console.log("WTF?");
         if (this.DataToCheck && this.DataToCheck.totalReferences > 1) return true;
         return false;
     }

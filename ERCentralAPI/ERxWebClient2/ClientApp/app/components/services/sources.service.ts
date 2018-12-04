@@ -54,7 +54,7 @@ export class SourcesService {
     }
     
     public CheckUpload(data: SourceForUpload) {
-        console.log('CheckUpload');
+        //console.log('CheckUpload');
         this._IncomingItems4Checking = null;
         let body = JSON.stringify(data);
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/VerifyFile',

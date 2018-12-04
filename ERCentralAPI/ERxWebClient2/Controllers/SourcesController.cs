@@ -27,8 +27,6 @@ namespace ERxWebClient2.Controllers
     {
 
         private readonly ILogger _logger;
-		
-
 		public SourcesController(ILogger<SearchListController> logger)
         {
             _logger = logger;
@@ -77,7 +75,6 @@ namespace ERxWebClient2.Controllers
 			{
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     int RuleID;
                     FilterRules rules = GetFilterRules(incoming.importFilter, out RuleID);
                     List<ItemIncomingData> FullRes = ImportRefs.Imp(incoming.fileContent, rules);
@@ -110,7 +107,6 @@ namespace ERxWebClient2.Controllers
 			{
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     int RuleID;
                     FilterRules rules = GetFilterRules(incoming.importFilter, out RuleID);
                     MobileList<ItemIncomingData> FullRes = ImportRefs.Imp(incoming.fileContent, rules);
@@ -150,7 +146,6 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     SourceDeleteCommand cmd = new SourceDeleteCommand(sourceId.Value);
                     DataPortal<SourceDeleteCommand> dp = new DataPortal<SourceDeleteCommand>();
                     cmd = dp.Execute(cmd);
@@ -160,7 +155,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Upload import file error");
+                _logger.LogException(e, "DeleteUndeleteSource error");
                 throw;
             }
 

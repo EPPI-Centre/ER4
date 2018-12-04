@@ -64,7 +64,7 @@
                     </ngb-tab>
                     <ngb-tab id="CrossTabsTab" (click)="testing($event)" title="CrossTabs">
                         <ng-template ngbTabContent>
-                           <crosstab></crosstab>
+                            <crosstab></crosstab>
                         </ng-template>
                     </ngb-tab>
                     <ngb-tab id="SearchListTab" title="Search">
@@ -72,10 +72,15 @@
                             <div class="row card bg-primary border-dark m-0">
                             </div>
                             <div class="row m-0">
-								<div class="card card-body bg-light col-md-12">
-										<SearchComp ></SearchComp>
-								</div>
+                                <div class="card card-body bg-light col-md-12">
+                                    <SearchComp></SearchComp>
+                                </div>
                             </div>
+                        </ng-template>
+                    </ngb-tab>
+                    <ngb-tab id="UploadTab" title="Upload">
+                        <ng-template ngbTabContent>
+                            <ImportReferencesFile></ImportReferencesFile>
                         </ng-template>
                     </ngb-tab>
                 </ngb-tabset>
