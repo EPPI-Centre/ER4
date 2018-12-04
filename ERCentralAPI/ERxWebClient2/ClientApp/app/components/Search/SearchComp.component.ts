@@ -407,261 +407,261 @@ export class SearchComp implements OnInit, OnDestroy {
 }
 
 
-@Component({
-	selector: 'ngbd-SearchesModal-content',
-	templateUrl: './SearchesModal.component.html'
-})
-export class SearchesModalContent implements SearchCodeCommand {
+//@Component({
+//	selector: 'ngbd-SearchesModal-content',
+//	templateUrl: './SearchesModal.component.html'
+//})
+//export class SearchesModalContent implements SearchCodeCommand {
 
-	@ViewChild('SearchesModal')
+//	@ViewChild('SearchesModal')
 
-    private _searchInclOrExcl: string = 'true';
-    public get searchInclOrExcl(): string {
-        console.log('I get it', this._searchInclOrExcl);
-        return this._searchInclOrExcl;
-    }
-    public set searchInclOrExcl(value: string) {
-        if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
-        else console.log("I'm not doing it :-P ", value);
-	}
+//    private _searchInclOrExcl: string = 'true';
+//    public get searchInclOrExcl(): string {
+//        console.log('I get it', this._searchInclOrExcl);
+//        return this._searchInclOrExcl;
+//    }
+//    public set searchInclOrExcl(value: string) {
+//        if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
+//        else console.log("I'm not doing it :-P ", value);
+//	}
 
 
-	private canWrite: boolean = true;
-	public dropDownList: any = null;
-	public showTextBox: boolean = false;
-	public selectedSearchDropDown: string = '';
-	public selectedSearchTextDropDown: string = '';
-	public selectedSearchCodeSetDropDown: string = '';
-	public CodeSets: any[] = [];
+//	private canWrite: boolean = true;
+//	public dropDownList: any = null;
+//	public showTextBox: boolean = false;
+//	public selectedSearchDropDown: string = '';
+//	public selectedSearchTextDropDown: string = '';
+//	public selectedSearchCodeSetDropDown: string = '';
+//	public CodeSets: any[] = [];
 
 	
-	_setID: number = 0;
-	_searchText: string = '';
-	_title: string = '';
-	_answers: string = '';
-	_included: boolean = true;
-	_withCodes: boolean = false;;
-	_searchId: number = 0;
-	_IDs: string = '';
+//	_setID: number = 0;
+//	_searchText: string = '';
+//	_title: string = '';
+//	_answers: string = '';
+//	_included: boolean = true;
+//	_withCodes: boolean = false;;
+//	_searchId: number = 0;
+//	_IDs: string = '';
 
-	public get IsReadOnly(): boolean {
-		return this.canWrite;
-	}
+//	public get IsReadOnly(): boolean {
+//		return this.canWrite;
+//	}
 
-	constructor(public _activeModal: NgbActiveModal,
-		private _reviewSetsService: ReviewSetsService,
-		private _searchService: searchService,
-	) {
+//	constructor(public _activeModal: NgbActiveModal,
+//		private _reviewSetsService: ReviewSetsService,
+//		private _searchService: searchService,
+//	) {
 
-	}
+//	}
 
-	ngOnInit() {
-        this._searchInclOrExcl = 'true';
-	}
+//	ngOnInit() {
+//        this._searchInclOrExcl = 'true';
+//	}
 
-	public cmdSearches: SearchCodeCommand = {
-		_setID: 0,
-		_searchText: '',
-		_IDs: '',
-		_title: '',
-		_answers: '',
-		_included: false,
-		_withCodes: false,
-		_searchId: 0
-	};
+//	public cmdSearches: SearchCodeCommand = {
+//		_setID: 0,
+//		_searchText: '',
+//		_IDs: '',
+//		_title: '',
+//		_answers: '',
+//		_included: false,
+//		_withCodes: false,
+//		_searchId: 0
+//	};
 
-	public withCode: boolean = false;
-	public attributeNames: string = '';
-	public commaIDs: string = '';
-	public searchText: string = '';
+//	public withCode: boolean = false;
+//	public attributeNames: string = '';
+//	public commaIDs: string = '';
+//	public searchText: string = '';
 	
-	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
+//	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
-		this.selectedSearchTextDropDown = selectedSearchTextDropDown;
-		let searchTitle: string = '';
-		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
-		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
-		this.cmdSearches._included = Boolean(searchBool);
-		this.cmdSearches._withCodes = this.withCode;
-		this.cmdSearches._searchId = 0;
+//		this.selectedSearchTextDropDown = selectedSearchTextDropDown;
+//		let searchTitle: string = '';
+//		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
+//		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+//		this.cmdSearches._included = Boolean(searchBool);
+//		this.cmdSearches._withCodes = this.withCode;
+//		this.cmdSearches._searchId = 0;
 		
-		if (firstNum == true || secNum == true ) {
+//		if (firstNum == true || secNum == true ) {
 
-			if (firstNum) {
+//			if (firstNum) {
 
-				this.withCode = true;
-			} else {
+//				this.withCode = true;
+//			} else {
 
-				this.withCode = false;
-			}			
+//				this.withCode = false;
+//			}			
 
-			if (this._reviewSetsService.selectedNode != undefined) {
+//			if (this._reviewSetsService.selectedNode != undefined) {
 
-				let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
-				this.attributeNames = this._reviewSetsService.selectedNode.name;
-				this.cmdSearches._answers = String(tmpID);
-				alert(this._reviewSetsService.selectedNode);
+//				let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
+//				this.attributeNames = this._reviewSetsService.selectedNode.name;
+//				this.cmdSearches._answers = String(tmpID);
+//				alert(this._reviewSetsService.selectedNode);
 			
-				searchTitle = this.withCode == true ?
-					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
+//				searchTitle = this.withCode == true ?
+//					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
 
-				this.cmdSearches._title = searchTitle;
-				this.cmdSearches._withCodes = this.withCode;
+//				this.cmdSearches._title = searchTitle;
+//				this.cmdSearches._withCodes = this.withCode;
 
-				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
+//				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
 	
-			}
-		}
+//			}
+//		}
 
-		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+//		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
 
-			this.cmdSearches._IDs = this.commaIDs;
-			this.cmdSearches._title = this.commaIDs;
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
-		
-
-		}
-		if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
-
-			this.cmdSearches._IDs = this.commaIDs;
-			this.cmdSearches._title = this.commaIDs;
-
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
+//			this.cmdSearches._IDs = this.commaIDs;
+//			this.cmdSearches._title = this.commaIDs;
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
 		
 
-		}
-		if (selectedSearchDropDown == 'Containing this text') {
+//		}
+//		if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
-			this.cmdSearches._title = this.searchText;
-			this.cmdSearches._included = Boolean(searchBool);
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchText');
-		}
-		if (selectedSearchDropDown == 'That have at least one code from this set') {
+//			this.cmdSearches._IDs = this.commaIDs;
+//			this.cmdSearches._title = this.commaIDs;
 
-			this.cmdSearches._withCodes = true;
-			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
-
-		}
-		if (selectedSearchDropDown == 'That dont have any codes from this set') {
-
-			this.cmdSearches._withCodes = false;
-			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
-
-		}
-		if (selectedSearchDropDown == 'Without an abstract') {
-
-			alert(selectedSearchDropDown);
-			this.cmdSearches._title = searchTitle;
-			
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
 		
-		}
 
-		if (selectedSearchDropDown == 'Without any documents uploaded') {
+//		}
+//		if (selectedSearchDropDown == 'Containing this text') {
 
-			alert(selectedSearchDropDown);
-			this.cmdSearches._title = 'Without any documents uploaded';
+//			this.cmdSearches._title = this.searchText;
+//			this.cmdSearches._included = Boolean(searchBool);
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchText');
+//		}
+//		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
+//			this.cmdSearches._withCodes = true;
+//			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
+
+//		}
+//		if (selectedSearchDropDown == 'That dont have any codes from this set') {
+
+//			this.cmdSearches._withCodes = false;
+//			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
+
+//		}
+//		if (selectedSearchDropDown == 'Without an abstract') {
+
+//			alert(selectedSearchDropDown);
+//			this.cmdSearches._title = searchTitle;
 			
-		}
-		if (selectedSearchDropDown == 'With at least one document uploaded') {
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
+		
+//		}
 
-			this.cmdSearches._title = 'With at least one document uploaded.';
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
+//		if (selectedSearchDropDown == 'Without any documents uploaded') {
+
+//			alert(selectedSearchDropDown);
+//			this.cmdSearches._title = 'Without any documents uploaded';
+
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
 			
-		}
-		alert('got to end of return of BO from CSLA');
-		this._activeModal.close('testData');
+//		}
+//		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
-	}
+//			this.cmdSearches._title = 'With at least one document uploaded.';
+//			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
+			
+//		}
+//		alert('got to end of return of BO from CSLA');
+//		this._activeModal.close('testData');
+
+//	}
 	
-	public nextDropDownList(num: number, val: string) {
+//	public nextDropDownList(num: number, val: string) {
 
-		this.showTextBox = false;
-		this.selectedSearchDropDown = val;
+//		this.showTextBox = false;
+//		this.selectedSearchDropDown = val;
 
-		switch (num) {
+//		switch (num) {
 
-			case 1: {
-				this.dropDownList = this._reviewSetsService.ReviewSets;
-				break;
-			}
-			case 2: {
-				this.dropDownList = this._reviewSetsService.ReviewSets;
-				break;
-			}
-			case 3: {
-				this.showTextBox = true;
-				break;
-			}
-			case 4: {
-				this.showTextBox = true;
-				break;
-			}
-			case 5: {
+//			case 1: {
+//				this.dropDownList = this._reviewSetsService.ReviewSets;
+//				break;
+//			}
+//			case 2: {
+//				this.dropDownList = this._reviewSetsService.ReviewSets;
+//				break;
+//			}
+//			case 3: {
+//				this.showTextBox = true;
+//				break;
+//			}
+//			case 4: {
+//				this.showTextBox = true;
+//				break;
+//			}
+//			case 5: {
 
-				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-					.map(
-						(y: ReviewSet) => {
-							return y.name;
-						}
-					);
-				this.dropDownList = this._reviewSetsService.ReviewSets;
-				break;
-			}
-			case 6: {
-				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-					.map(
-						(y: ReviewSet) => {
-							return y.name;
-						}
-					);
-				this.dropDownList = this._reviewSetsService.ReviewSets;
-				break;
-			}
-			case 7: {
-				break;
-			}
-			case 8: {
-				break;
-			}
-			case 9: {
-				break;
-			}
-			case 10: {
-				break;
-			}
-			default: {
-				break;
-			}
-		}
-	}
+//				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+//					.map(
+//						(y: ReviewSet) => {
+//							return y.name;
+//						}
+//					);
+//				this.dropDownList = this._reviewSetsService.ReviewSets;
+//				break;
+//			}
+//			case 6: {
+//				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+//					.map(
+//						(y: ReviewSet) => {
+//							return y.name;
+//						}
+//					);
+//				this.dropDownList = this._reviewSetsService.ReviewSets;
+//				break;
+//			}
+//			case 7: {
+//				break;
+//			}
+//			case 8: {
+//				break;
+//			}
+//			case 9: {
+//				break;
+//			}
+//			case 10: {
+//				break;
+//			}
+//			default: {
+//				break;
+//			}
+//		}
+//	}
 	
-	public setSearchCodeSetDropDown(codeSetName: string) {
+//	public setSearchCodeSetDropDown(codeSetName: string) {
 
-		this.selectedSearchCodeSetDropDown = this._reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
-			.map(
-				(y: ReviewSet) => {
+//		this.selectedSearchCodeSetDropDown = this._reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
+//			.map(
+//				(y: ReviewSet) => {
 
-						this.cmdSearches._setID = y.set_id;
-						return y.name;
-					}
-				)[0];
-	}
+//						this.cmdSearches._setID = y.set_id;
+//						return y.name;
+//					}
+//				)[0];
+//	}
 
-	public setSearchTextDropDown(heading: string) {
+//	public setSearchTextDropDown(heading: string) {
 
-		this.selectedSearchTextDropDown = heading;
-		this.cmdSearches._searchText = heading;
-	}
+//		this.selectedSearchTextDropDown = heading;
+//		this.cmdSearches._searchText = heading;
+//	}
 
-	public focus(canWrite: boolean) {
-		this.canWrite = canWrite;
-	}
+//	public focus(canWrite: boolean) {
+//		this.canWrite = canWrite;
+//	}
 
-}
+//}

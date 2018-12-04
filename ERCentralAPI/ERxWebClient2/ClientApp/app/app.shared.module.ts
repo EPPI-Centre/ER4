@@ -40,10 +40,8 @@ import { LayoutModule } from '@progress/kendo-angular-layout';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
-import { NgbdModalComponent, NgbdModalContent } from './components/NgbdModal/NgbdModal.component';
-//import { SearchesModalContent } from './components/Search/SearchComp.component';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
-import { ModalSearchComponent } from './components/ModalSearch/modalSearch.component';
+
 
 @NgModule({
     declarations: [
@@ -66,10 +64,6 @@ import { ModalSearchComponent } from './components/ModalSearch/modalSearch.compo
         itemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
-		//SearchesModalContent,
-		NgbdModalComponent,
-		NgbdModalContent,
-		ModalSearchComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
@@ -82,11 +76,8 @@ import { ModalSearchComponent } from './components/ModalSearch/modalSearch.compo
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
-		//, SearchesModalContent
     ],
-	entryComponents: [InfoBoxModalContent, ModalDialogComponent
-		//, SearchesModalContent
-		, NgbdModalContent],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
