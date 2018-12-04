@@ -32,7 +32,7 @@ import { frequenciesResultsComp } from './components/Frequencies/frequenciesResu
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
-import { SearchComp, SearchesModalContent } from './components/Search/SearchComp.component';
+import { SearchComp } from './components/Search/SearchComp.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
@@ -44,11 +44,12 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
 import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
 import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 
+
 @NgModule({
     declarations: [
 		AppComponent,
 		CodesetTreeComponent,
-        SearchComp,
+		SearchComp,
         frequenciesComp,
 		frequenciesResultsComp,
 		CrossTabsComp,
@@ -65,7 +66,6 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
         itemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
-		SearchesModalContent,
 		InfoBoxModalContent,
         ItemDocListComp,
         intropageComponent,
@@ -76,13 +76,11 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
         MainFullReviewComponent,
         MainComponent
 	],
-
     providers: [
         EventEmitterService,
-        { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
-        SearchesModalContent
+		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
-	entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent ],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
@@ -94,7 +92,7 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 		BrowserAnimationsModule,
 		ChartsModule,
         ReactiveFormsModule,
-        TreeModule,
+		TreeModule,
         GridModule,
         ChartModule,
         DatePickerModule,

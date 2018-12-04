@@ -1,4 +1,4 @@
-import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
+import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 
@@ -15,7 +15,10 @@ export class searchService {
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
         ) { }
-    
+
+
+	public cmdSearchesTest: SearchCodeCommand | undefined;
+
 	private _SearchList: Search[] = [];
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
@@ -42,7 +45,7 @@ export class searchService {
         this._isBusy = true;
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
 			.subscribe(result => {
-					console.log('alkjshdf askljdfh' + JSON.stringify(result));
+					//console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
 					//this.searchesChanged.emit();
              },
@@ -101,7 +104,6 @@ export class searchService {
 	}
 }
 
-
 export class Search {
 
 	searchNo: number = 0;
@@ -112,7 +114,6 @@ export class Search {
 	searchDate: string = '';
 	contactName: string = '';
 }
-
 
 export interface SearchCodeCommand {
 

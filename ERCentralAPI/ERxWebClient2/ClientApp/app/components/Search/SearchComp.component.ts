@@ -1,13 +1,11 @@
-import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { SelectionModel, DataSource } from '@angular/cdk/collections';
-import { RowClassArgs, GridDataResult, GridComponent, GridModule  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 
 @Component({
@@ -23,20 +21,53 @@ import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 
 export class SearchComp implements OnInit, OnDestroy {
 	displayedColumns = ['selected', 'searchId', 'title', 'contactName', 'searchDate', 'hitsNo'];
+
+
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private modalService: NgbModal
+		private reviewSetsService: ReviewSetsService
 	) {
 	}
 
 	@ViewChild('testKendoGrid') searchesGridRes!: GridComponent;
 
-	
-	
+	private _searchInclOrExcl: string = 'true';
+	public get searchInclOrExcl(): string {
+		console.log('I get it', this._searchInclOrExcl);
+		return this._searchInclOrExcl;
+	}
+	public set searchInclOrExcl(value: string) {
+		if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
+		else console.log("I'm not doing it :-P ", value);
+	}
+
+
+	private canWrite: boolean = true;
+	public dropDownList: any = null;
+	public showTextBox: boolean = false;
+	public selectedSearchDropDown: string = '';
+	public selectedSearchTextDropDown: string = '';
+	public selectedSearchCodeSetDropDown: string = '';
+	public CodeSets: any[] = [];
+
+
+	_setID: number = 0;
+	_searchText: string = '';
+	_title: string = '';
+	_answers: string = '';
+	_included: boolean = true;
+	_withCodes: boolean = false;;
+	_searchId: number = 0;
+	_IDs: string = '';
+
+	public get IsReadOnly(): boolean {
+		return this.canWrite;
+	}
     public selectedAll: boolean = false;
+	public modalClass: boolean = false;
 
 	allSearchesSelected: boolean = false;
 	// bound to header checkbox
@@ -47,8 +78,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		take: 2
 	};
 
-	//public gridData: GridDataResult = process(this.DataSource.data, this.stateAdd);
-
+	private bodyText!: string;
 
 
 	selectAllSearchesChange(e: any): void {
@@ -96,132 +126,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		console.log(lstStrSearchIds);
 		this._searchService.Delete(lstStrSearchIds);
 	}
-
-	openNewSearchModal() {
-
-		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
-		modalComp.componentInstance.InfoBoxTextInput = 'tester';
-		modalComp.componentInstance.focus(null);
-
-		modalComp.result.then(() => {
-		},
-			() => {
-			}
-		);
-	}
-	
-	public checkboxClicked(dataItem: any) {
-
-		dataItem.add = !dataItem.add;
-		if (dataItem.add == true) {
-			this._searchService.searchToBeDeleted = dataItem.searchId;
-		} else {
-			this._searchService.searchToBeDeleted = '';
-		}
-	};
-
-    public rowCallback(context: RowClassArgs) {
-        const isEven = context.index % 2 == 0;
-        return {
-            even: isEven,
-            odd: !isEven
-        };
-	}
-
-    public sort: SortDescriptor[] = [{
-        field: 'hitsNo',
-        dir: 'desc'
-    }];
-    public sortChange(sort: SortDescriptor[]): void {
-        this.sort = sort;
-        console.log('sorting?' + this.sort[0].field + " ");
-    }
-
-	ngOnDestroy() {
-	}
-	
-
-	SearchGetItemList(dataItem: Search) {
-
-		let search: Search = new Search();
-		let cr: Criteria = new Criteria();
-		cr.onlyIncluded = dataItem.selected;
-		cr.showDeleted = false;
-		cr.pageNumber = 0;
-		cr.searchId = dataItem.searchId;
-		let ListDescription: string = "GetItemSearchList";
-		cr.listType = ListDescription;
-
-		this.ItemListService.FetchWithCrit(cr, ListDescription);
-		this._eventEmitter.PleaseSelectItemsListTab.emit();
-
-	}
-
-	ngOnInit() {
-
-		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-			this.router.navigate(['home']);
-		}
-		else {
-
-            this._searchService.Fetch();
-
-		}
-	}
-
-}
-
-
-@Component({
-	selector: 'ngbd-SearchesModal-content',
-	templateUrl: './SearchesModal.component.html'
-})
-export class SearchesModalContent implements SearchCodeCommand {
-
-	@ViewChild('SearchesModal')
-
-    private _searchInclOrExcl: string = 'true';
-    public get searchInclOrExcl(): string {
-        console.log('I get it', this._searchInclOrExcl);
-        return this._searchInclOrExcl;
-    }
-    public set searchInclOrExcl(value: string) {
-        if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
-        else console.log("I'm not doing it :-P ", value);
-	}
-
-
-	private canWrite: boolean = true;
-	public dropDownList: any = null;
-	public showTextBox: boolean = false;
-	public selectedSearchDropDown: string = '';
-	public selectedSearchTextDropDown: string = '';
-	public selectedSearchCodeSetDropDown: string = '';
-
-	public CodeSets: any[] = [];
-		
-	_setID: number = 0;
-	_searchText: string = '';
-	_title: string = '';
-	_answers: string = '';
-	_included: boolean = true;
-	_withCodes: boolean = false;;
-	_searchId: number = 0;
-	_IDs: string = '';
-
-	public get IsReadOnly(): boolean {
-		return this.canWrite;
-	}
-
-	constructor(public activeModal: NgbActiveModal,
-		private reviewSetsService: ReviewSetsService,
-		private _searchService: searchService
-	) { }
-
-	ngOnInit() {
-        this._searchInclOrExcl = 'true';
-	}
-
 	public cmdSearches: SearchCodeCommand = {
 		_setID: 0,
 		_searchText: '',
@@ -237,7 +141,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 	public attributeNames: string = '';
 	public commaIDs: string = '';
 	public searchText: string = '';
-	
+
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
 		this.selectedSearchTextDropDown = selectedSearchTextDropDown;
@@ -247,8 +151,8 @@ export class SearchesModalContent implements SearchCodeCommand {
 		this.cmdSearches._included = Boolean(searchBool);
 		this.cmdSearches._withCodes = this.withCode;
 		this.cmdSearches._searchId = 0;
-		
-		if (firstNum == true || secNum == true ) {
+
+		if (firstNum == true || secNum == true) {
 
 			if (firstNum) {
 
@@ -256,7 +160,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 			} else {
 
 				this.withCode = false;
-			}			
+			}
 
 			if (this.reviewSetsService.selectedNode != undefined) {
 
@@ -264,7 +168,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.attributeNames = this.reviewSetsService.selectedNode.name;
 				this.cmdSearches._answers = String(tmpID);
 				alert(this.reviewSetsService.selectedNode);
-			
+
 				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
@@ -273,7 +177,7 @@ export class SearchesModalContent implements SearchCodeCommand {
 				this.cmdSearches._withCodes = this.withCode;
 
 				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
-	
+
 			}
 		}
 
@@ -282,16 +186,16 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
-		
+
 
 		}
-		if(selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+		if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
 			this.cmdSearches._IDs = this.commaIDs;
 			this.cmdSearches._title = this.commaIDs;
 
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
-		
+
 
 		}
 		if (selectedSearchDropDown == 'Containing this text') {
@@ -319,9 +223,9 @@ export class SearchesModalContent implements SearchCodeCommand {
 
 			alert(selectedSearchDropDown);
 			this.cmdSearches._title = searchTitle;
-			
+
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
-		
+
 		}
 
 		if (selectedSearchDropDown == 'Without any documents uploaded') {
@@ -330,19 +234,17 @@ export class SearchesModalContent implements SearchCodeCommand {
 			this.cmdSearches._title = 'Without any documents uploaded';
 
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
-			
+
 		}
 		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
 			this.cmdSearches._title = 'With at least one document uploaded.';
 			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
-			
+
 		}
 
-		this.activeModal.dismiss();
-
 	}
-	
+
 	public nextDropDownList(num: number, val: string) {
 
 		this.showTextBox = false;
@@ -404,17 +306,17 @@ export class SearchesModalContent implements SearchCodeCommand {
 			}
 		}
 	}
-	
+
 	public setSearchCodeSetDropDown(codeSetName: string) {
 
 		this.selectedSearchCodeSetDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
 			.map(
 				(y: ReviewSet) => {
 
-						this.cmdSearches._setID = y.set_id;
-						return y.name;
-					}
-				)[0];
+					this.cmdSearches._setID = y.set_id;
+					return y.name;
+				}
+			)[0];
 	}
 
 	public setSearchTextDropDown(heading: string) {
@@ -422,9 +324,65 @@ export class SearchesModalContent implements SearchCodeCommand {
 		this.selectedSearchTextDropDown = heading;
 		this.cmdSearches._searchText = heading;
 	}
+		
+	public checkboxClicked(dataItem: any) {
 
-	public focus(canWrite: boolean) {
-		this.canWrite = canWrite;
+		dataItem.add = !dataItem.add;
+		if (dataItem.add == true) {
+			this._searchService.searchToBeDeleted = dataItem.searchId;
+		} else {
+			this._searchService.searchToBeDeleted = '';
+		}
+	};
+
+    public rowCallback(context: RowClassArgs) {
+        const isEven = context.index % 2 == 0;
+        return {
+            even: isEven,
+            odd: !isEven
+        };
+	}
+
+    public sort: SortDescriptor[] = [{
+        field: 'hitsNo',
+        dir: 'desc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting?' + this.sort[0].field + " ");
+    }
+
+	ngOnDestroy() {
+	}
+	
+
+	SearchGetItemList(dataItem: Search) {
+
+		let search: Search = new Search();
+		let cr: Criteria = new Criteria();
+		cr.onlyIncluded = dataItem.selected;
+		cr.showDeleted = false;
+		cr.pageNumber = 0;
+		cr.searchId = dataItem.searchId;
+		let ListDescription: string = "GetItemSearchList";
+		cr.listType = ListDescription;
+
+		this.ItemListService.FetchWithCrit(cr, ListDescription);
+		this._eventEmitter.PleaseSelectItemsListTab.emit();
+
+	}
+
+	ngOnInit() {
+
+		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+			this.router.navigate(['home']);
+		}
+		else {
+
+			this._searchInclOrExcl = 'true';
+            this._searchService.Fetch();
+
+		}
 	}
 
 }
