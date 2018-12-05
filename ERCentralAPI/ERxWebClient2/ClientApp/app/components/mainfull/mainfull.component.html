@@ -8,10 +8,11 @@
                     <ngb-tab id="ReviewHomeTab" class="mt-1">
                         <ng-template ngbTabTitle><b>Review</b> home</ng-template>
                         <ng-template ngbTabContent>
-                            <kendo-toolbar>
-                                <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
-                            </kendo-toolbar>
-                            
+                            <div class="containsAtoolbar">
+                                <kendo-toolbar class="customk-toolbar">
+                                    <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b; background-color: #e1e4eb;"></kendo-toolbar-button>
+                                </kendo-toolbar>
+                            </div>
                             <div class="row m-1">
                                 <div class="col-md-7 p-0 pr-1">
                                     <reviewStatisticsComp (tabSelectEvent)="alertT()" (tabSelectEventf)="alertT()"></reviewStatisticsComp>
@@ -53,9 +54,11 @@
                     </ngb-tab>
                     <ngb-tab id="ItemListTab" title="Items">
                         <ng-template ngbTabContent>
-                            <kendo-toolbar class="bg-primary">
-                                <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
-                            </kendo-toolbar>
+                            <div class="containsAtoolbar">
+                                <kendo-toolbar style="background-color: #f5f6fa;">
+                                    <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
+                                </kendo-toolbar>
+                            </div>
                             <div class="card card-body bg-light">
                                 <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                             </div>

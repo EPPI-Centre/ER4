@@ -1,6 +1,7 @@
 import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
 
@@ -8,13 +9,15 @@ import { ModalService } from './modal.service';
 
 })
 
-export class searchService {
+export class searchService extends BusyAwareService {
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+        ) {
+        super();
+    }
 
 
 	public cmdSearchesTest: SearchCodeCommand | undefined;
@@ -35,14 +38,14 @@ export class searchService {
         //this.searchesChanged.emit();
 	}
 
-	private _isBusy: boolean = false;
-	public get isBusy(): boolean {
-		//console.log('Search list, isbusy? ' + this._isBusy);
-		return this._isBusy;
-	}
+	//private _isBusy: boolean = false;
+	//public get isBusy(): boolean {
+	//	//console.log('Search list, isbusy? ' + this._isBusy);
+	//	return this._isBusy;
+	//}
 
     Fetch() {
-        this._isBusy = true;
+        this._BusyMethods.push("Fetch");
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
 			.subscribe(result => {
 					//console.log('alkjshdf askljdfh' + JSON.stringify(result));
@@ -53,12 +56,14 @@ export class searchService {
                  this.modalService.GenericError(error);
                  this.Clear();
              }
-             , () => { this._isBusy = false;}
+             , () => {
+                 this.RemoveBusy("Fetch");
+             }
 		 );
 	}
     private Clear() {
         //this.crit = new CriteriaSearch();
-        this._isBusy = false;
+        //this._isBusy = false;
     }
 	public removeHandler({ sender, dataItem }: { sender: any, dataItem: any}) {
 		
@@ -72,7 +77,7 @@ export class searchService {
 	
 	Delete(value: string) {
 
-		this._isBusy = true;
+        this._BusyMethods.push("Delete");
 		let body = JSON.stringify({ Value: value });
 		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			body)
@@ -82,15 +87,16 @@ export class searchService {
 					this.SearchList.splice(tmpIndex, 1);
 					this.Fetch();
 			}, error => { this.modalService.GenericError(error); }
-			, () => { this._isBusy = false; }
+            , () => {
+                this.RemoveBusy("Delete");
+            }
 			
 		);
 
 	}
 
 	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
-
-		this._isBusy = true;
+        this._BusyMethods.push("CreateSearch");
 		apiStr = 'api/SearchList/' + apiStr;
 		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
@@ -98,7 +104,9 @@ export class searchService {
 			.subscribe(result => {
 				this.Fetch();
 			}, error => { this.modalService.GenericError(error); }
-				, () => { this._isBusy = false; }
+            , () => {
+                this.RemoveBusy("CreateSearch");
+            }
 
 			);
 	}

@@ -175,4 +175,9 @@ export class ImportReferencesFileComponent implements OnInit {
         }
         return res.trim();
     }
+    public CanWrite(): boolean {
+        console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);
+        if (this.ReviewerIdentityServ.HasWriteRights && !this.SourcesService.IsBusy) return true;
+        else return false;
+    }
 }

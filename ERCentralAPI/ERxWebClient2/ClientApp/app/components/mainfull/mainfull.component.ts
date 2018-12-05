@@ -32,7 +32,7 @@ import { SourcesService } from '../services/sources.service';
                 }
                 .k-button {
                     border-color: #04070b;
-                    color: #212529;
+                    color: #212528;
                     background-color: #e1e4eb;
                 }
         `]

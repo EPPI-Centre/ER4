@@ -335,6 +335,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             cmd.itemAttributeId = itemAtt.itemAttributeId;
         }
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             //do something if command ended with an error
             //console.log('Error handling');
             alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
@@ -385,6 +386,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             }
             
             this.SetCoding();
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             console.log('set dest');
             SubSuccess.unsubscribe();
             SubError.unsubscribe();

@@ -90,15 +90,15 @@ export class ItemDocument {
     public textTo: number = 0;
     public freeNotesStream: string = "";
     public freeNotesXML: string = '';
-    public isBusy: boolean = false;
-    public isChild: boolean = false;
-    public isDeleted: boolean = false;
-    public isDirty: boolean = false;
-    public isNew: boolean = false;
-    public isSavable: boolean = false;
-    public isSelfBusy: boolean = false;
-    public isSelfDirty: boolean = false;
-    public isSelfValid: boolean = false;
-    public isValid: boolean = false;
+    //public isBusy: boolean = false;
+    //public isChild: boolean = false;
+    //public isDeleted: boolean = false;
+    //public isDirty: boolean = false;
+    //public isNew: boolean = false;
+    //public isSavable: boolean = false;
+    //public isSelfBusy: boolean = false;
+    //public isSelfDirty: boolean = false;
+    //public isSelfValid: boolean = false;
+    //public isValid: boolean = false;
 
 }

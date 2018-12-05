@@ -123,6 +123,7 @@ namespace ERxWebClient2.Controllers
                     forSaving.SearchDescr = incoming.searchDescription;
                     forSaving.SearchStr = incoming.searchString;
                     forSaving.IncomingItems = FullRes;
+                    forSaving.buildShortTitles();
                     forSaving = forSaving.Save();
                     return Ok(res);
                 }

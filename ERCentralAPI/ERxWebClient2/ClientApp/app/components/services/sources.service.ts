@@ -11,12 +11,13 @@ import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { arm, Item, ItemListService } from './ItemList.service';
 import { formatDate } from '@angular/common';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class SourcesService {
+export class SourcesService extends BusyAwareService {
 
     constructor(
         private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
@@ -24,7 +25,7 @@ export class SourcesService {
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-       
+        super();
     }
     private _IncomingItems4Checking: IncomingItemsList | null = null;
     public get IncomingItems4Checking(): IncomingItemsList | null {
@@ -40,20 +41,31 @@ export class SourcesService {
     public get ReviewSources(): ReadOnlySource[] {
         return this._ReviewSources;
     }
+    
     public FetchSources() {
+        this._BusyMethods.push("FetchSources");
         this._http.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
             this._ReviewSources = result.sources;
         }, error => { this.modalService.GenericErrorMessage(error); }
+            , () => {
+                this.RemoveBusy("FetchSources");
+            }
         );
     }
     public FetchImportFilters() {
+        this._BusyMethods.push("FetchImportFilters");
         this._http.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
             this._ImportFilters = result;
-             }, error => { this.modalService.GenericErrorMessage(error); }
+            }, error => { this.modalService.GenericErrorMessage(error); }
+            , () => {
+                this.RemoveBusy("FetchImportFilters");
+            }
          );
     }
     
     public CheckUpload(data: SourceForUpload) {
+
+        this._BusyMethods.push("CheckUpload");
         //console.log('CheckUpload');
         this._IncomingItems4Checking = null;
         let body = JSON.stringify(data);
@@ -64,10 +76,13 @@ export class SourcesService {
             }, error => {
                 this.modalService.GenericErrorMessage(error);
             },
-            () => { this.gotItems4Checking.emit(); }
-            );
+            () => {
+                this.gotItems4Checking.emit();
+                this.RemoveBusy("CheckUpload");
+            });
     }
     public Upload(data: SourceForUpload) {
+        this._BusyMethods.push("Upload");
         console.log('CheckUpload');
         this._IncomingItems4Checking = null;
         let body = JSON.stringify(data);
@@ -78,11 +93,14 @@ export class SourcesService {
             }, error => {
                 this.modalService.GenericErrorMessage(error);
             },
-                () => {  }
+            () => {
+                this.RemoveBusy("Upload");
+            }
             );
     }
     
     public DeleteUndeleteSource(ros: ReadOnlySource) {
+        this._BusyMethods.push("DeleteUndeleteSource");
         let body = JSON.stringify({ Value: ros.source_ID });
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
         body).subscribe(result => {
@@ -90,7 +108,9 @@ export class SourcesService {
         }, error => {
             this.modalService.GenericErrorMessage(error);
         },
-            () => { }
+            () => {
+                this.RemoveBusy("DeleteUndeleteSource");
+            }
         );
     }
     newSourceForUpload(FileContent: string, Source_Name: string, ImportFilterName: string,

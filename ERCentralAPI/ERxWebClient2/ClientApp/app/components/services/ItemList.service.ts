@@ -11,20 +11,24 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
     }
 )
 
-export class ItemListService {
+export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService,
         private _PriorityScreeningService: PriorityScreeningService,
         private ModalService: ModalService
-    ) { }
+    ) {
+        super();
+    }
+    
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
@@ -46,12 +50,6 @@ export class ItemListService {
         this._IsInScreeningMode = state;
         //this.Save();
 	}
-
-    private _isBusy: boolean = false;
-    public get isBusy(): boolean {
-        //console.log('Item list, isbusy? ' + this._isBusy);
-        return this._isBusy;
-    }
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
@@ -206,10 +204,8 @@ export class ItemListService {
     }
 	public ListDescription: string = "";
 
-	public FetchWithCrit(crit: Criteria, listDescription: string) {
-
-        //alert(crit.listType);
-        this._isBusy = true;
+    public FetchWithCrit(crit: Criteria, listDescription: string) {
+        this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
         console.log(this._Criteria.listType);
         this.ListDescription = listDescription;
@@ -220,7 +216,7 @@ export class ItemListService {
 
                 this.SaveItems(list, this._Criteria);
                 }, error => { this.ModalService.GenericError(error); }
-                ,() => { this._isBusy = false; }
+            , () => { this.RemoveBusy("FetchWithCrit"); }
             );
     }
     public Refresh() {
