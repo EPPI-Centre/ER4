@@ -100,8 +100,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                        console.log('data changed event caught');
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+                        //console.log('data changed event caught');
                         this.SetCoding();
                     }
                 }
@@ -171,14 +171,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
     }
     SetCoding() {
-        console.log('change something');
-        if (this.ItemCodingService.ItemCodingList.length == 0) {
-            this.ReviewSetsService.clearItemData();
-            console.log('change: clearonly');
-            return;
-        }
+        console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
+        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
         if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }

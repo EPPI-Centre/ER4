@@ -39,24 +39,27 @@ export class ReviewSetsService extends BusyAwareService {
     private CurrentArmID: number = 0;
     public selectedNode: singleNode | null = null;
 	public CanWriteCoding(attribute: singleNode): boolean {
-
+        console.log('CanWriteCoding?');
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
- 
+            console.log("can't edit coding, reason 1");
             return false;
         }
         else if ((this.IsBusy) || !this.ReviewerIdentityService.HasWriteRights) {
-
+            console.log("can't edit coding, reason 2", this._BusyMethods);
             return false;
         }
         else if (this.CurrentArmID > 0 && (attribute.subTypeName == 'Include' || attribute.subTypeName == 'Exclude'))
         {
-
+            console.log("can't edit coding, reason 3");
             return false;
         }
         let FullAttribute: SetAttribute | null = this.FindAttributeById(+attribute.id.substring(1));
         if (FullAttribute) {
             let Set = this.FindSetById(FullAttribute.set_id);
-            if (Set && Set.itemSetIsLocked) return false;
+            if (Set && Set.itemSetIsLocked) {
+                console.log("can't edit coding, reason 4");
+                return false;
+            }
         }
 
 		return true;
@@ -191,8 +194,9 @@ export class ReviewSetsService extends BusyAwareService {
     }
 
     public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
+
         this._BusyMethods.push("AddItemData");
-        //console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
+        console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
         this.CurrentArmID = itemArmID;
         //logic:
             //if ITEM_SET is complete, show the tickbox.
@@ -242,6 +246,7 @@ export class ReviewSetsService extends BusyAwareService {
                 }
             }
         }
+        console.log('finishing addItemData');
         this.RemoveBusy("AddItemData");
     }
     public FindAttributeById(AttributeId: number): SetAttribute | null {
@@ -332,6 +337,7 @@ export class ReviewSetsService extends BusyAwareService {
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
                 //this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
+                this.RemoveBusy("ExecuteItemAttributeSaveCommand");
             }
         );
     }

@@ -126,6 +126,7 @@ namespace BusinessLibrary.Security
 
         public bool HasWriteRights()
         {
+            if (this.Roles == null || Roles.Count == 0) return false;
             return (!IsInRole("ReadOnlyUser"));
         }
 

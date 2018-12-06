@@ -47,9 +47,9 @@ body {
 }
 
 .ExcludeCode {
-	/*color: #FF7777;*/
-	color: forestgreen;
-	/*pointer-events: none;*/
+    color: #EE3333;
+    /*color: forestgreen;*/
+    /*pointer-events: none;*/
 }
 
 .tree-node {
