@@ -81,6 +81,16 @@ body {
     background-color: #e1e4eb;
 }
 
+ul.k-tabstrip-items {
+    border-color: rgba(33,37,41,0.45);
+}
+
+ul.k-tabstrip-items li.k-item.k-state-active {
+    border-color: rgba(33,37,41,0.45);
+}
+
+
+
 /*
     disable controls within a given element hack.
     see https://stackoverflow.com/questions/50385048/disable-all-button-and-links-in-a-div

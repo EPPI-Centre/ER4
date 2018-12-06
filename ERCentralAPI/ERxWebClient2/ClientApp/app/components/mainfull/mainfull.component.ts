@@ -16,6 +16,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { crosstabService } from '../services/crosstab.service';
 import { searchService } from '../services/search.service';
 import { SourcesService } from '../services/sources.service';
+import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 
 
 
@@ -26,14 +27,6 @@ import { SourcesService } from '../services/sources.service';
                 .pane-content { padding: 0em 1em; margin: 1;}
                 .ReviewsBg {
                     background-color:#f1f1f8 !important; 
-                }
-                .k-toolbar {
-                    background-color: #f5f6fa;
-                }
-                .k-button {
-                    border-color: #04070b;
-                    color: #212528;
-                    background-color: #e1e4eb;
                 }
         `]
      ,providers: []
@@ -55,7 +48,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private SourcesService: SourcesService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
-    @ViewChild('tabset') tabset!: NgbTabset;
+    @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
+    //@ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
 	
@@ -75,18 +69,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     	
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
-	alertT() {
-		this.tabset.select('ItemListTab');
-	}
 	
-	setTabSelected(tab: any) {
-		//this.tabSelected = tab;
-		//this._eventEmitter.tabSelected(tab);
-
-		//alert(JSON.stringify(tab));
-		//alert(message);
-        //console.log('tabselect:', tab);
-        if (tab.nextId === "UploadTab") this.SourcesTabSelected();
+	
+    setTabSelected(tabSelect: SelectEvent) {
+		//nothing for now, selectEvent is like this:
+        //index: number
+        //title: string
 	}
 
 
@@ -94,7 +82,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
-                this.tabset.select('ItemListTab');
+                this.tabstrip.selectTab(1);
             }
         )
 
@@ -147,7 +135,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
-		this.tabset.select('ItemListTab');
+		this.tabstrip.selectTab(1);
     }
     IncludedItemsListNoTabChange() {
         let cr: Criteria = new Criteria();
@@ -161,10 +149,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		cr.onlyIncluded = false;
 		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
 		console.log('selecting tab 2...');
-		this.tabset.select('ItemListTab');
+		this.tabstrip.selectTab(1);
 	}
 	GoToItemList() {
-		this.tabset.select('ItemListTab');
+		this.tabstrip.selectTab(1);
 	}
 	LoadWorkAllocList(workAlloc: WorkAllocation) {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
@@ -174,7 +162,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.tabsInitialized) {
 			console.log('tabs experiment');
 
-			this.tabset.select('ItemListTab');
+			this.tabstrip.selectTab(1);
 		}
 	}
     toggleReviewPanel() {
@@ -259,9 +247,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return msg;
        
     }
-    SourcesTabSelected() {
-        if (this.SourcesService.ReviewSources.length == 0) this.SourcesService.FetchSources();
-    }
+    
     GoToSources() {
         this.router.navigate(['sources']);
     }

@@ -4,88 +4,99 @@
     <div class="mt-1 ">
         <kendo-splitter orientation="horizontal">
             <kendo-splitter-pane [collapsible]="false" class="">
-                <ngb-tabset (tabChange)="setTabSelected($event)" #tabset="ngbTabset" [destroyOnHide]="false" type="pills">
-                    <ngb-tab id="ReviewHomeTab" class="mt-1">
-                        <ng-template ngbTabTitle><b>Review</b> home</ng-template>
-                        <ng-template ngbTabContent>
-                            <div class="containsAtoolbar">
-                                <kendo-toolbar class="customk-toolbar">
-                                    <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b; background-color: #e1e4eb;"></kendo-toolbar-button>
-                                </kendo-toolbar>
-                            </div>
-                            <div class="row m-1">
-                                <div class="col-md-7 p-0 pr-1">
-                                    <reviewStatisticsComp (tabSelectEvent)="alertT()" (tabSelectEventf)="alertT()"></reviewStatisticsComp>
+
+                <kendo-splitter-pane>
+                    <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+                        <kendo-tabstrip-tab [selected]="true">
+                            <ng-template kendoTabTitle>
+                                <b>Review</b>&nbsp;home
+                            </ng-template>
+                            <ng-template kendoTabContent>
+                                <div class="containsAtoolbar">
+                                    <kendo-toolbar class="customk-toolbar">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+                                        <!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+                                    </kendo-toolbar>
                                 </div>
-                                <div class="col-md-5 p-0">
-                                    <div class="card card-body bg-light ">
-                                        {{MyInfoMessage()}}
+                                <div class="row m-1">
+                                    <div class="col-md-7 p-0 pr-1">
+                                        <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                     </div>
-                                    <div class="card card-body ReviewsBg  mt-2 ">
-                                        <div class="row p-0">
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
-                                                    [attr.aria-expanded]="!isReviewPanelCollapsed">
-                                                My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleWorkAllocationsPanel()"
-                                                    [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
-                                                My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()"
-                                                    [attr.aria-expanded]="!isSourcesPanelCollapsed">
-                                                Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
-                                            </button>
+                                    <div class="col-md-5 p-0">
+                                        <div class="card card-body bg-light ">
+                                            {{MyInfoMessage()}}
                                         </div>
-                                        <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
-                                                         style="max-height: 520px;"></readonlyreviews>
-                                        <WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
-                                                                       (AllocationClicked)="GoToItemList()"
-                                                                       [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
-                                                                       resizable r-directions="['right']" r-flex="true"
-                                                                       class="mt-2"
-                                                                       Context="FullUI"
-                                                                       style="max-height: 420px;"></WorkAllocationContactListComp>
-                                        <ROSourcesList id="readOnlyReviews" [ngbCollapse]="!isSourcesPanelCollapsed" class="mt-1"
-                                                       style="max-height: 420px;"></ROSourcesList>
+                                        <div class="card card-body ReviewsBg  mt-2 ">
+                                            <div class="row p-0">
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
+                                                        [attr.aria-expanded]="!isReviewPanelCollapsed">
+                                                    My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleWorkAllocationsPanel()"
+                                                        [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
+                                                    My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()"
+                                                        [attr.aria-expanded]="!isSourcesPanelCollapsed">
+                                                    Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
+                                                </button>
+                                            </div>
+                                            <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
+                                                             style="max-height: 520px;"></readonlyreviews>
+                                            <WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
+                                                                           (AllocationClicked)="GoToItemList()"
+                                                                           [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
+                                                                           resizable r-directions="['right']" r-flex="true"
+                                                                           class="mt-2"
+                                                                           Context="FullUI"
+                                                                           style="max-height: 420px;"></WorkAllocationContactListComp>
+                                            <ROSourcesList id="readOnlyReviews" [ngbCollapse]="!isSourcesPanelCollapsed" class="mt-1"
+                                                           style="max-height: 420px;"></ROSourcesList>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab id="ItemListTab" title="Items">
-                        <ng-template ngbTabContent>
-                            <div class="containsAtoolbar">
-                                <kendo-toolbar style="background-color: #f5f6fa;">
-                                    <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
-                                </kendo-toolbar>
-                            </div>
-                            <div class="card card-body bg-light">
-                                <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
-                            </div>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab id="FrequenciesTab" title="Frequencies">
-                        <ng-template ngbTabContent>
-                            <frequencies></frequencies>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab id="CrossTabsTab" (click)="testing($event)" title="CrossTabs">
-                        <ng-template ngbTabContent>
-                            <crosstab></crosstab>
-                        </ng-template>
-                    </ngb-tab>
-                    <ngb-tab id="SearchListTab" title="Search">
-                        <ng-template ngbTabContent>
-                            <div class="row card bg-primary border-dark m-0">
-                            </div>
-                            <div class="row m-0">
-                                <div class="card card-body bg-light col-md-12">
-                                    <SearchComp></SearchComp>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'Items'">
+                            <ng-template kendoTabContent>
+                                <div class="containsAtoolbar">
+                                    <kendo-toolbar style="background-color: #f5f6fa;">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
+                                    </kendo-toolbar>
                                 </div>
-                            </div>
-                        </ng-template>
-                    </ngb-tab>
-                </ngb-tabset>
+                                <div class="card card-body bg-light">
+                                    <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                                </div>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'Frequencies'">
+                            <ng-template kendoTabContent>
+                                <frequencies></frequencies>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'CrossTabs'">
+                            <ng-template kendoTabContent>
+                                <crosstab></crosstab>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'Search'">
+                            <ng-template kendoTabContent>
+                                <div class="row card bg-primary border-dark m-0">
+                                </div>
+                                <div class="row m-0">
+                                    <div class="card card-body bg-light col-md-12">
+                                        <SearchComp></SearchComp>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                    </kendo-tabstrip>
+                </kendo-splitter-pane>
+
+
+               
             </kendo-splitter-pane>
             <kendo-splitter-pane [collapsible]="true" size="30%" class="bg-light">
                 <codesets></codesets>

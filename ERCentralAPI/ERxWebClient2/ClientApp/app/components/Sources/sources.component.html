@@ -1,13 +1,28 @@
 <HeaderComponent></HeaderComponent>
+<button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    Close/back
+</button>
 <kendo-splitter orientation="horizontal">
     <kendo-splitter-pane>
-        <div class="flex-row">
-            <div class="col-9 h3 float-left">Import Items:</div>
-            <button class="page-link pt-0 pb-1 mb-1 float-right" (click)="BackToMain()">
-                Close/back
-            </button>
-            <ImportReferencesFile></ImportReferencesFile>
-        </div>
+        <kendo-tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+            <kendo-tabstrip-tab [title]="'Manage Sources'" [selected]="true">
+                <ng-template kendoTabContent>
+                    Here We put the old "source" management features
+                </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'Import Items'">
+                <ng-template kendoTabContent>
+                    <div class="flex-row">
+                        <ImportReferencesFile></ImportReferencesFile>
+                    </div>
+                </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'PubMed'">
+                <ng-template kendoTabContent>
+                    pubmed here...
+                </ng-template>
+            </kendo-tabstrip-tab>
+        </kendo-tabstrip>
     </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">
         <div class="pane-content">
