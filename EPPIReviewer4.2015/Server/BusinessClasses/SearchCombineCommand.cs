@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SearchCombineCommand(){}
 #else
-        protected SearchCombineCommand() { }
+        public SearchCombineCommand() { }
 #endif
 
         private string _title;

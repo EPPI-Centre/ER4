@@ -41,18 +41,24 @@ export class ItemDocListComp implements OnInit, OnDestroy {
  
     @Input() itemID: number = 0;
     
-    ngOnInit() {
+	ngOnInit() {
+
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 
                 this.router.navigate(['home']);
         }
-        else {
+		else {
+
 
             this.sub = this.itemListService.ItemChanged.subscribe(
-                    () => {
-                        this.ItemDocsService.FetchDocList(this.itemID);
+
+				() => {
+
+						this.ItemDocsService.FetchDocList(this.itemID);
+
                     }
-            );
+			);
+
             this.sub = this.priorityScreeningService.gotItem.subscribe(
                 () => {
                     this.ItemDocsService.FetchDocList(this.itemID);
@@ -75,12 +81,10 @@ export class ItemDocListComp implements OnInit, OnDestroy {
 }
 
 
-
 export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];
 }
-
 
 export class ItemDocument {
 

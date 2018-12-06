@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         public ClassifierCreateCodesCommand() { }
 #else
-        protected ClassifierCreateCodesCommand() { }
+        public ClassifierCreateCodesCommand() { }
 #endif
         
         private int _SearchID;

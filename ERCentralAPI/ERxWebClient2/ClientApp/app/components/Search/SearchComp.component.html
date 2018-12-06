@@ -1,36 +1,27 @@
-
-
-<table class="table table-responsive">
-	<tr class="col-md-12">
-		<!--this first new search will now simply open a collapsable div-->
-		<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed = !isCollapsed"
-			[attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"><i class="fa fa-search" aria-hidden="true"></i> New Search</td>
-		<td class="btn  text-white bg-primary col-md-2" (click)="refreshSearches()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
-		<td class="btn text-white bg-primary col-md-2" (click)="DeleteSearchSelected()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
-		<td class="btn  text-white bg-primary col-md-1" (click)="alert('blah')"><img height="16" width="16" title="tester" src="../assets/SearchCombine.png" />Combine</td>
-		<td class="btn  text-white bg-primary col-md-1">
-			<input type="radio" value="AND" name="t" [(ngModel)]="search"><b>&nbsp; AND </b>
-		</td>
-		<td class="btn  text-white bg-primary col-md-1">
-			<input type="radio" value="OR" name="t" [(ngModel)]="search"><b>&nbsp; OR </b>
-		</td>
-		<td class="btn text-white bg-primary col-md-1">
-			<input type="radio" value="NOT" name="t" [(ngModel)]="search"><b>&nbsp; NOT</b>
-		</td>
-		<td class="btn text-white bg-primary col-md-2">
-			<input type="radio" value="NOTR" name="t" [(ngModel)]="search"><b>&nbsp; NOT (excluded)</b>
-		</td>
-	</tr>
+<table class="table col-md-12">
+	<tbody class="col-md-12">
+		<tr class="col-md-12">
+			<!--this first new search will now simply open a collapsable div-->
+			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed = !isCollapsed"
+				[attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+				<i class="fa fa-search" aria-hidden="true"></i> New Search
+			</td>
+			<td class="btn  text-white bg-primary col-md-2" (click)="refreshSearches()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
+			<td class="btn text-white bg-primary col-md-2" (click)="DeleteSearchSelected()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
+			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseExample2"><i class="fa fa-bullseye" aria-hidden="true"></i>Combine</td>
+			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3"><i class="fa fa-pie-chart" aria-hidden="true"></i>CLASSIFY</td>
+		</tr>
+	</tbody>
 </table>
-<div id="collapseExample" [ngbCollapse]="!isCollapsed">
+<div id="collapseExample" [ngbCollapse]="!isCollapsed" class="col-md-12">
 	<div class="card">
 		<div class="card-body">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-4 font-italic"><h5> Find Documents: </h5></div>
-					<div class="col-md-8">
+					<div class="col-md-2 font-italic"><h5> Find Documents: </h5></div>
+					<div class="col-md-7">
 						<div ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-primary col-md-6" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
+							<button class="btn btn-primary col-md-8" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 								<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 								<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
@@ -47,18 +38,19 @@
 
 						<div *ngIf="(selectedSearchDropDown == 'With this code' )
 						||   (selectedSearchDropDown == 'Without this code' )">
-							<codesets class="col-md-8"></codesets>
+							<!--<codesets class="col-md-8"></codesets>-->
 						</div>
 
 						<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 						||		selectedSearchDropDown == 'That dont have any codes from this set') "
 							 ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-info col-md-6" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 							</div>
 						</div>
 					</div>
+					<div *ngIf="reviewSetsService.selectedNode" class="col-md-3"> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</div>
 					<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 
 						<div>
@@ -95,9 +87,10 @@
 								</div>
 							</div>
 						</div>
+
 					</div>
 				</div>
-			</div>
+				</div>
 			<div class="row">
 				<div class="col-md-4"></div>
 				<div class="col-md-12">
@@ -126,8 +119,44 @@
 		</div>
 	</div>
 </div>
+<div id="collapseExample2"  [ngbCollapse]="!isCollapsed2">
+	<table class="table col-md-12">
+		<tr>
+			<td (click)="getLogicSearches()">
+				<button class="btn text-white btn-warning col-md-6" (click)="getLogicSearches()">&nbsp; AND</button>
+			</td>
+			<td (click)="getLogicSearches()">
+				<button class="btn text-white btn-info col-md-6" (click)="getLogicSearches()">&nbsp; OR</button>
+			</td>
+			<td (click)="getLogicSearches()">
+				<button class="btn text-white btn-danger col-md-6" (click)="getLogicSearches()">&nbsp; NOT</button>
+			</td>
+			<td (click)="getLogicSearches()">
+				<button class="btn text-white btn-dark col-md-6" (click)="getLogicSearches()">&nbsp; NOT (excluded)</button>
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
+	<table class="table col-md-12">
+		<tr>
+			<td>
+				<button class="btn btn-info col-md-7">&nbsp; RUN MACHINE LEARNING </button>
+			</td>
+			<td>
+				<p class="col-md-6" (click)="getLogicSearches()">&nbsp; or stuff</p>
+			</td>
+			<td>
+				<p class=" col-md-6" (click)="getLogicSearches()">&nbsp; other stuff</p>
+			</td>
+			<td>
+				<p class="col-md-6" (click)="getLogicSearches()">&nbsp;stuff</p>
+			</td>
+		</tr>
+	</table>
+</div>
 <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.isBusy"
-			id="testKendoGrid" [data]="DataSource" [height]="410"
+			[data]="DataSource" [height]="410"
 			[rowClass]="rowCallback"
 			[sortable]="{
 	allowUnsort: allowUnsort,
@@ -154,7 +183,6 @@
 				   [checked]="dataItem.add" />
 		</ng-template>
 	</kendo-grid-column>
-
 	<kendo-grid-column field="searchNo" title="No" width="140">
 	</kendo-grid-column>
 	<kendo-grid-column field="title" title="Name" width="250">

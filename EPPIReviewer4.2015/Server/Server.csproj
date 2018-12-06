@@ -122,6 +122,9 @@
       <HintPath>..\packages\CSLA-Core.4.3.13\lib\net40\Csla.XmlSerializers.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.12.0.1\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="DeployR7.4">
       <HintPath>..\Solution Items\DeployR7.4.dll</HintPath>
     </Reference>

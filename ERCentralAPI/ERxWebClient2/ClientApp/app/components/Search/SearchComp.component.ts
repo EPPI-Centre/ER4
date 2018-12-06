@@ -15,12 +15,10 @@ import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
        .k-grid tr.even { background-color: white; }
        .k-grid tr.odd { background-color: light-grey; }
    `],
-	providers: [],
-	encapsulation: ViewEncapsulation.None
+
 })
 
 export class SearchComp implements OnInit, OnDestroy {
-	displayedColumns = ['selected', 'searchId', 'title', 'contactName', 'searchDate', 'hitsNo'];
 
 
 	constructor(private router: Router,
@@ -32,19 +30,67 @@ export class SearchComp implements OnInit, OnDestroy {
 	) {
 	}
 
-	@ViewChild('testKendoGrid') searchesGridRes!: GridComponent;
 
-	private _searchInclOrExcl: string = 'true';
+
+	private _searchInclOrExcl: string = '';
+
 	public get searchInclOrExcl(): string {
+
+		this._searchService.cmdSearches._included = this._searchInclOrExcl;
 		console.log('I get it', this._searchInclOrExcl);
+
 		return this._searchInclOrExcl;
 	}
 	public set searchInclOrExcl(value: string) {
+
+		this._searchService.cmdSearches._included = this._searchInclOrExcl;
+
 		if (value == 'true' || value == 'false') this._searchInclOrExcl = value;
 		else console.log("I'm not doing it :-P ", value);
+
 	}
 
+	private _logic: string = '';
 
+	public get logic(): string {
+
+		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
+		console.log('I get it', this._logic);
+
+		return this._logic;
+	}
+
+	public set logic(value: string) {
+
+		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
+
+		//if (value == 'true' || value == 'false')
+		//{
+		//	this._logic = value;
+		//}
+		//else {
+		//	console.log("I'm not doing it :-P ", value);
+		//}
+
+		alert('got inside here');
+		this._searchService.cmdSearches._included = 'true';
+		this._searchService.cmdSearches._title = "159 AND 158";
+		this._searchService.cmdSearches._logicType = "AND";
+		this._searchService.cmdSearches._searches = "21712,21711";
+		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+		this._logic = value;
+	}
+
+	getLogicSearches() {
+
+		alert('got inside here');
+		this._searchService.cmdSearches._included = 'true';
+		this._searchService.cmdSearches._title = "159 AND 158";
+		this._searchService.cmdSearches._logicType = "AND";
+		this._searchService.cmdSearches._searches = "21712,21711";
+		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+	}
+	
 	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
@@ -52,16 +98,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
 	public CodeSets: any[] = [];
-
-
-	_setID: number = 0;
-	_searchText: string = '';
-	_title: string = '';
-	_answers: string = '';
-	_included: boolean = true;
-	_withCodes: boolean = false;;
-	_searchId: number = 0;
-	_IDs: string = '';
 
 	public get IsReadOnly(): boolean {
 		return this.canWrite;
@@ -77,10 +113,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		skip: 0,
 		take: 2
 	};
-
-	private bodyText!: string;
-
-
+	
 	selectAllSearchesChange(e: any): void {
 		
 		if (e.target.checked) {
@@ -106,7 +139,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			total: this._searchService.SearchList.length,
         };
 	}
-
+	   
 	refreshSearches() {
 		
 		this._searchService.Fetch();
@@ -126,17 +159,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		console.log(lstStrSearchIds);
 		this._searchService.Delete(lstStrSearchIds);
 	}
-	public cmdSearches: SearchCodeCommand = {
-		_setID: 0,
-		_searchText: '',
-		_IDs: '',
-		_title: '',
-		_answers: '',
-		_included: false,
-		_withCodes: false,
-		_searchId: 0
-	};
-
+	
 	public withCode: boolean = false;
 	public attributeNames: string = '';
 	public commaIDs: string = '';
@@ -148,9 +171,12 @@ export class SearchComp implements OnInit, OnDestroy {
 		let searchTitle: string = '';
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
 		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
-		this.cmdSearches._included = Boolean(searchBool);
-		this.cmdSearches._withCodes = this.withCode;
-		this.cmdSearches._searchId = 0;
+		this._searchService.cmdSearches._included = String(searchBool);
+
+		//alert('model ang value: ' + searchBool + ' value being passed is: ' + this._searchService.cmdSearches._included);
+
+		this._searchService.cmdSearches._withCodes = String(this.withCode);
+		this._searchService.cmdSearches._searchId = 0;
 
 		if (firstNum == true || secNum == true) {
 
@@ -166,83 +192,82 @@ export class SearchComp implements OnInit, OnDestroy {
 
 				let tmpID: number = this.reviewSetsService.selectedNode.attributeSetId;
 				this.attributeNames = this.reviewSetsService.selectedNode.name;
-				this.cmdSearches._answers = String(tmpID);
+				this._searchService.cmdSearches._answers = String(tmpID);
 				alert(this.reviewSetsService.selectedNode);
 
 				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
 
-				this.cmdSearches._title = searchTitle;
-				this.cmdSearches._withCodes = this.withCode;
+				this._searchService.cmdSearches._title = searchTitle;
+				this._searchService.cmdSearches._withCodes = String(this.withCode);
 
-				this._searchService.CreateSearch(this.cmdSearches, 'SearchCodes');
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
 
 			}
 		}
 
 		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
 
-			this.cmdSearches._IDs = this.commaIDs;
-			this.cmdSearches._title = this.commaIDs;
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchIDs');
+			this._searchService.cmdSearches._IDs = this.commaIDs;
+			this._searchService.cmdSearches._title = this.commaIDs;
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchIDs');
 
 
 		}
 		if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
-			this.cmdSearches._IDs = this.commaIDs;
-			this.cmdSearches._title = this.commaIDs;
+			this._searchService.cmdSearches._IDs = this.commaIDs;
+			this._searchService.cmdSearches._title = this.commaIDs;
 
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchImportedIDs');
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchImportedIDs');
 
 
 		}
 		if (selectedSearchDropDown == 'Containing this text') {
 
-			this.cmdSearches._title = this.searchText;
-			this.cmdSearches._included = Boolean(searchBool);
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchText');
+			this._searchService.cmdSearches._title = this.searchText;
+			//this._searchService.cmdSearches._included = Boolean(searchBool);
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
 		}
 		if (selectedSearchDropDown == 'That have at least one code from this set') {
 
-			this.cmdSearches._withCodes = true;
-			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+			this._searchService.cmdSearches._withCodes = 'true';
+			this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
 
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'That dont have any codes from this set') {
 
-			this.cmdSearches._withCodes = false;
-			this.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchCodeSetCheck');
+			this._searchService.cmdSearches._withCodes = 'false';
+			this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 		}
 		if (selectedSearchDropDown == 'Without an abstract') {
 
 			alert(selectedSearchDropDown);
-			this.cmdSearches._title = searchTitle;
+			this._searchService.cmdSearches._title = searchTitle;
 
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoAbstract');
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
 
 		}
 
 		if (selectedSearchDropDown == 'Without any documents uploaded') {
 
-			alert(selectedSearchDropDown);
-			this.cmdSearches._title = 'Without any documents uploaded';
+			//alert(selectedSearchDropDown);
+			this._searchService.cmdSearches._title = 'Without any documents uploaded';
 
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchNoFiles');
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
 
 		}
 		if (selectedSearchDropDown == 'With at least one document uploaded') {
 
-			this.cmdSearches._title = 'With at least one document uploaded.';
-			this._searchService.CreateSearch(this.cmdSearches, 'SearchOneFile');
+			this._searchService.cmdSearches._title = 'With at least one document uploaded.';
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
 		}
-
 	}
 
 	public nextDropDownList(num: number, val: string) {
@@ -289,18 +314,6 @@ export class SearchComp implements OnInit, OnDestroy {
 				this.dropDownList = this.reviewSetsService.ReviewSets;
 				break;
 			}
-			case 7: {
-				break;
-			}
-			case 8: {
-				break;
-			}
-			case 9: {
-				break;
-			}
-			case 10: {
-				break;
-			}
 			default: {
 				break;
 			}
@@ -313,7 +326,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			.map(
 				(y: ReviewSet) => {
 
-					this.cmdSearches._setID = y.set_id;
+					this._searchService.cmdSearches._setID = y.set_id;
 					return y.name;
 				}
 			)[0];
@@ -322,7 +335,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public setSearchTextDropDown(heading: string) {
 
 		this.selectedSearchTextDropDown = heading;
-		this.cmdSearches._searchText = heading;
+		this._searchService.cmdSearches._searchText = heading;
 	}
 		
 	public checkboxClicked(dataItem: any) {
@@ -355,7 +368,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	ngOnDestroy() {
 	}
 	
-
 	SearchGetItemList(dataItem: Search) {
 
 		let search: Search = new Search();
@@ -379,7 +391,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 		else {
 
-			this._searchInclOrExcl = 'true';
+			//this._searchInclOrExcl = 'true';
             this._searchService.Fetch();
 
 		}
