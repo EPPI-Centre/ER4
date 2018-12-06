@@ -36,7 +36,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	private _searchInclOrExcl: string = 'true';
 	public get searchInclOrExcl(): string {
-		console.log('I get it', this._searchInclOrExcl);
+		//console.log('I get it', this._searchInclOrExcl);
 		return this._searchInclOrExcl;
 	}
 	public set searchInclOrExcl(value: string) {

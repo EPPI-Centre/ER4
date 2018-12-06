@@ -128,7 +128,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             console.log('fill in arms here teseroo1');
 
 		}
-		console.log('this is item: ' + this.item);
+		//console.log('this is item: ' + this.item);
     }
 
     public HasPreviousScreening(): boolean{
@@ -158,6 +158,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
             this.ArmsCompRef.CurrentItem = this.item;
             this.armservice.FetchArms(this.item);

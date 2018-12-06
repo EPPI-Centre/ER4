@@ -48,7 +48,7 @@ export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
             //console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
             //let modalComp = this.modalService.open(InfoBoxModalContent);
             //modalComp.close();
-            this.GetReviewSets();
+            //this.GetReviewSets();
         }
 	}
 	

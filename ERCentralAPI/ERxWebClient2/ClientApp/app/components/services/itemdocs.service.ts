@@ -30,7 +30,7 @@ export class ItemDocsService {
     public FetchDocList(itemID: number) {
 
         let body = JSON.stringify({ Value: itemID });
-        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+        this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
             (res) => { this._itemDocs = res }
             , error => { this.modalService.GenericError(error); }
         );

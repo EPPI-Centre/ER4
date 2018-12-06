@@ -165,8 +165,9 @@ export class PriorityScreeningService {
     }
     private RunNewTrainingCommand() {
         return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
-
-            this.DelayedFetch(30 * 60);//seconds to wait...
+            //this.DelayedFetch(1 * 6);//seconds to wait...
+            this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
+            //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
     }

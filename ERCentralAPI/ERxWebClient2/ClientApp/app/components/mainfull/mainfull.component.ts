@@ -90,25 +90,25 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
 
-	ngOnInit() {
+    ngOnInit() {
 
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabset.select('ItemListTab');
-			}
-		)
-		
+            }
+        )
+
 
         //this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
         );
-		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-			|| (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
+        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-		) this.Reload();
-		//this.searchService.Fetch();
+        ) this.Reload();
+        //this.searchService.Fetch();
     }
 
 	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
@@ -207,9 +207,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	
 	
 
-	Reload() {
+    Reload() {
         this.Clear();
-        //console.log('get rev sets in mainfull');
+        console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
         this
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
@@ -217,6 +217,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
     }
+    //GetStatsFromSubscription() {
+    //    //we unsubscribe here as we won't use this again.
+    //    if (this.statsSub) {
+    //        console.log("(mainfull GetStatsFromSubscription) I should not happen more than once");
+    //        this.statsSub.unsubscribe();
+    //        this.statsSub = new Subscription();
+    //    }
+    //    this.GetStats();
+    //}
     GetStats() {
         console.log('getting stats (mainfull)');
         this.codesetStatsServ.GetReviewStatisticsCountsCommand();

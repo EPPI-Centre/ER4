@@ -44,8 +44,9 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	//public item?: Item;
 	//public itemId = new Subject<number>();
 	public itemID: number = 0;
-	private subGotScreeningItem: Subscription | null = null;
+    private subGotScreeningItem: Subscription | null = null;
     @Output() ItemChanged = new EventEmitter();
+    @Output() GoToNextScreeningItemClicked = new EventEmitter();
     @Input() IsScreening: boolean = false;
     @Input() item: Item | undefined;
     @Input() Context: string = "CodingFull";
@@ -82,12 +83,13 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	}
 	
     public GotScreeningItem() {
-
         //this.item = this.PriorityScreeningService.CurrentItem;
         //this.itemID = this.item.itemId;
         //this.GetItemCoding();
     }
-	
+    public GetScreeningItem() {
+        this.GoToNextScreeningItemClicked.emit();
+    }
 	private _hasPrevious: boolean | null = null;
 	hasPrevious(): boolean {
 		

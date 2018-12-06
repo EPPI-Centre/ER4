@@ -110,6 +110,7 @@ export class ItemListService extends BusyAwareService {
         //this.Save();
     }
     private ChangingItem(newItem: Item) {
+        //console.log('ChangingItem');
         this._currentItem = newItem;
         //this.SaveCurrentItem();
         this.ItemChanged.emit();
@@ -178,7 +179,7 @@ export class ItemListService extends BusyAwareService {
         //}
     }
     public getNext(itemId: number): Item {
-      
+        //console.log('getNext');
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {

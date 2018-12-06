@@ -63,7 +63,7 @@ export class ReviewSetsService extends BusyAwareService {
     }
 
      GetReviewSets(): ReviewSet[] {
-
+         //console.log("GetReviewSets");
          this._BusyMethods.push("GetReviewSets");
          this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
              data => {
