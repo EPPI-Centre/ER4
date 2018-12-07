@@ -62,7 +62,7 @@
         <div *ngIf="!DataToCheck" class="col-12">
             The source appears to contain no references. <strong>Are you sure you picked the right filter?</strong>
         </div>
-        <form *ngIf="Source4upload" class="col-12" (ngSubmit)="Upload()" #NewSourceForm="ngForm">
+        <form *ngIf="Source4upload" class="col-12 row" (ngSubmit)="Upload()" #NewSourceForm="ngForm">
             <div class="form-group col-6">
                 <label for="source_Name">Source Name</label>
                 <input type="text" class="form-control" id="Sourcename"
@@ -87,8 +87,8 @@
             </div>
             <div class="form-group col-12">
                 <label for="searchString">Search String</label>
-                <input type="text" class="form-control" id="searchString"
-                       [(ngModel)]="Source4upload.searchString" name="searchString">
+                <textarea class="form-control" id="searchString"
+                          [(ngModel)]="Source4upload.searchString" name="searchString" rows="3"></textarea>
             </div>
             <div class="form-group col-12">
                 <label for="sourceDataBase">DataBase</label>
@@ -106,7 +106,7 @@
                        [(ngModel)]="Source4upload.notes" name="searchnotes">
             </div>
             <div class="col-12">
-                <button type="submit" class="btn btn-success" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Upload!</button>
+                <button type="submit" class="btn btn-success mb-1" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Upload!</button>
             </div>
         </form>
     </div>
