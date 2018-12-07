@@ -99,6 +99,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchNullAbstract.cs" Link="Models\SearchNullAbstract.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Source.cs" Link="Models\Source.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SourceDeleteCommand.cs" Link="Models\SourceDeleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SourceDeleteForeverCommand.cs" Link="Models\SourceDeleteForeverCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Training.cs" Link="Models\Training.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingList.cs" Link="Models\TrainingList.cs" />

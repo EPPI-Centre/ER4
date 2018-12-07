@@ -37,9 +37,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
-import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
+import { DialogsModule  } from '@progress/kendo-angular-dialog';
+import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
 import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
@@ -98,7 +100,9 @@ import { SourcesComponent } from './components/Sources/sources.component';
 		TreeModule,
         GridModule,
         ChartModule,
+        DialogsModule,
         ToolBarModule,
+        NotificationModule,
         DatePickerModule,
         LayoutModule,
         RouterModule.forRoot([
