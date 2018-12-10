@@ -1,10 +1,13 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { SourcesService, IncomingItemsList, ImportFilter, SourceForUpload, Source, ReadOnlySource, IncomingItemAuthor } from '../services/sources.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { Subscription } from 'rxjs';
+
 
 
 @Component({
@@ -13,7 +16,8 @@ import { EventEmitterService } from '../services/EventEmitter.service';
     providers: []
 })
 
-export class ImportReferencesFileComponent implements OnInit {
+export class ImportReferencesFileComponent implements OnInit, OnDestroy {
+    
     //some inspiration taken from: https://malcoded.com/posts/angular-file-upload-component-with-express
     constructor(private router: Router,
                 @Inject('BASE_URL') private _baseUrl: string,
@@ -21,20 +25,23 @@ export class ImportReferencesFileComponent implements OnInit {
         private CodesetStatisticsService: CodesetStatisticsService,
         private ItemListService: ItemListService,
         private _eventEmitter: EventEmitterService,
-        private SourcesService: SourcesService
+        private SourcesService: SourcesService,
+        private notificationService: NotificationService,
     ) {    }
     ngOnInit() {
         this.reader.onload = (e) => this.fileRead(e);
-        this.SourcesService.gotItems4Checking.subscribe(() => {
+        this.gotItems4CheckingSbus = this.SourcesService.gotItems4Checking.subscribe(() => {
             this.gotItems4Checking();
         });
-        this.SourcesService.FetchImportFilters();
         //this.SourcesService.FetchSources();
-        this.SourcesService.SourceUploaded.subscribe(() => {
+        this.SrcUploadedSbus = this.SourcesService.SourceUploaded.subscribe(() => {
             this.SourceUploaded();
         })
     }
     @ViewChild('file') file: any;
+    private SrcUploadedSbus: Subscription = new Subscription();
+    private gotItems4CheckingSbus: Subscription = new Subscription();
+
     public DateOfSearch: Date = new Date();
     public WizPhase: number = 1
     public ShowPreviewTable: boolean = false;
@@ -122,10 +129,35 @@ export class ImportReferencesFileComponent implements OnInit {
         this.SourcesService.Upload(this.Source4upload);
     }
     SourceUploaded() {
-        alert("Source was uploaded succesfully. :-)");
-        this.ItemListService.FetchWithCrit(this.ItemListService.ListCriteria, this.ItemListService.ListDescription);
-        this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
+        if (this.Source4upload) {
+            this.showUploadedNotification(this.Source4upload.source_Name, this.SourcesService.LastUploadStatus);
+            this.ItemListService.FetchWithCrit(this.ItemListService.ListCriteria, this.ItemListService.ListDescription);
+            this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
+        }
+        this.SourcesService.ClearIncomingItems4Checking();
+        this.WizPhase = 1;
     }
+    public showUploadedNotification(sourcename: string, status: string): void {
+        
+        let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
+        let contentSt: string = "";
+        if (status == "Success") {
+            typeElement = "success";
+            contentSt = 'Upoload of "' + sourcename +'" completed successfully.';
+        }//type: { style: 'error', icon: true }
+        else {
+            typeElement = "error";
+            contentSt = 'Upoload of "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
+        }
+        this.notificationService.show({
+            content: contentSt,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: typeElement, icon: true },
+            closable: true
+        });
+    }
+
     ListSource(ros: ReadOnlySource) {
         let cr = new Criteria();
         //cr.onlyIncluded = false;// included ignore for sources
@@ -144,13 +176,9 @@ export class ImportReferencesFileComponent implements OnInit {
     IsSourceNameValid(): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)
         //if (this.WizPhase != 2) return 1;
-        if (this.Source4upload == null || this.Source4upload.source_Name.trim() == "") return 1;
+        if (this.Source4upload == null) return 1;
         else {
-            const s4u = this.Source4upload;
-            if (
-                this.SourcesService.ReviewSources.findIndex(found => found.source_Name == s4u.source_Name) == -1
-            ) return 0;
-            else return 2;
+            return this.SourcesService.IsSourceNameValid(this.Source4upload.source_Name);
         };
     }
     public get togglePreviewPanelButtonText(): string {
@@ -174,5 +202,14 @@ export class ImportReferencesFileComponent implements OnInit {
             }
         }
         return res.trim();
+    }
+    public CanWrite(): boolean {
+        //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);
+        if (this.ReviewerIdentityServ.HasWriteRights && !this.SourcesService.IsBusy) return true;
+        else return false;
+    }
+    ngOnDestroy(): void {
+        if (this.SrcUploadedSbus) this.SrcUploadedSbus.unsubscribe(); 
+        if (this.gotItems4CheckingSbus) this.gotItems4CheckingSbus.unsubscribe();
     }
 }

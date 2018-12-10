@@ -25,7 +25,33 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         private PriorityScreeningService: PriorityScreeningService
     ) { }
 
-    onSubmit(f: string) {
+    ngOnInit() {
+        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
+
+            if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
+
+                this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
+                this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
+
+            }
+            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
+                this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
+            }
+        }
+    }
+    ngAfterContentInit() {
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+
+            this.subWorkAllocationsLoaded = this._workAllocationContactListService.ListLoaded.subscribe(
+                () => this.LoadDefaultItemList()
+            );
+            this.getWorkAllocationContactList();
+        }
     }
 
     @Output() criteriaChange = new EventEmitter();
@@ -59,6 +85,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
     //will pick the ItemList to load. If one was 
     LoadDefaultItemList() {
+        console.log("load def item list " + this.JustCheckInstance);
         console.log(this.ItemListService.ListCriteria.workAllocationId + " | " + this.ItemListService.ListCriteria.listType);
         if (!this._workAllocationContactListService.workAllocations) return;
         
@@ -140,26 +167,8 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     log(blah: string) {
 
     }
+    JustCheckInstance: number = Math.random();
 
-    ngOnInit() {
-
-        if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
-            
-            if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListRemaining") {
-
-                this.setClickedIndex('waRemaining-' + this.ItemListService.ListCriteria.workAllocationId);
-            }
-            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationListStarted") {
-                this.setClickedIndex('waStarted-' + this.ItemListService.ListCriteria.workAllocationId);
-
-            }
-            else if (this.ItemListService.ListCriteria.listType == "GetItemWorkAllocationList") {
-                this.setClickedIndex('waAll-' + this.ItemListService.ListCriteria.workAllocationId);
-
-            }
-        }
-        
-    }
     HasScreeningList(): boolean {
         if (this.reviewInfoService
             && this.reviewInfoService.ReviewInfo
@@ -169,18 +178,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             return true;
         else return false;
     }
-    ngAfterContentInit() {
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-        else {
-
-            this.subWorkAllocationsLoaded = this._workAllocationContactListService.ListLoaded.subscribe(
-                () => this.LoadDefaultItemList()
-            );
-            this.getWorkAllocationContactList();
-        }
-    }
+    
     private subGotPriorityScreeningData: Subscription | null = null;
     StartScreening() {
         //alert('Start Screening: not implemented');
@@ -195,7 +193,6 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'PriorityScreening']);
     }
     ngOnDestroy() {
-
         if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded.unsubscribe();
         //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
     }

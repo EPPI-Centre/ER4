@@ -65,6 +65,7 @@ export class ReviewerIdentityService {
     }
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
+        this.Save();
     }
     public Report() {
         console.log('Reporting Cid: ' + this.reviewerIdentity.userId);
@@ -83,7 +84,7 @@ export class ReviewerIdentityService {
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0) {
-                    this.Save();
+                    //this.Save();
                     this.router.navigate(['intropage']);
                 }
             }, error => {
@@ -111,6 +112,16 @@ export class ReviewerIdentityService {
     public LogonTicketCheckAPI(u: string, g: string) {
 
         // Have to override here; ask Sergio...
+        //Sergio Says: this happens when:
+        //1. we logout (this._reviewerIdentity.ticket == ""), timer still ticks, comes here, but we shouldn't check the ticket...
+        //2. we change review, ticket changes, we should not check the old ticket...
+        //special "return" value below tells the timer to kill itself!
+        if (this._reviewerIdentity.ticket == ""
+            || this._reviewerIdentity.ticket != g
+        ) {
+            let res = new Promise<any>((resolve, reject) => { resolve({ result: 'no (local) user' }); });
+            return res;
+        }
         g = this._reviewerIdentity.ticket;
 
         let LgtC = new LogonTicketCheck(u, g);
@@ -121,6 +132,7 @@ export class ReviewerIdentityService {
 
 
     @Output() OpeningNewReview = new EventEmitter();
+    //@Output() OpeningNewReviewCoding = new EventEmitter();
     public LoginToReview(RevId: number) {
         (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let body = JSON.stringify({ Value: RevId });
@@ -131,7 +143,7 @@ export class ReviewerIdentityService {
 
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
 
-                    this.Save();
+                    //this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
@@ -159,7 +171,7 @@ export class ReviewerIdentityService {
 
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
 
-                    this.Save();
+                    //this.Save();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";

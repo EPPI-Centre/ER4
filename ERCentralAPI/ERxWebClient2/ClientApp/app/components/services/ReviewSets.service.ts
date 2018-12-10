@@ -10,6 +10,7 @@ import { ReviewInfo } from './ReviewInfo.service';
 import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { ModalService } from './modal.service';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -20,52 +21,57 @@ import { Node } from '@angular/compiler/src/render3/r3_ast';
     providedIn: 'root',
 })
 
-export class ReviewSetsService {
+export class ReviewSetsService extends BusyAwareService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
         private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
-        @Inject('BASE_URL') private _baseUrl: string) {    }
+        @Inject('BASE_URL') private _baseUrl: string) {
+        super();
+    }
 
     @Output() GetReviewStatsEmit = new EventEmitter();
     private _ReviewSets: ReviewSet[] = [];
-    private _IsBusy: boolean = true;
-    public get IsBusy(): boolean {
-        return this._IsBusy;
-    }
+    //private _IsBusy: boolean = true;
+    //public get IsBusy(): boolean {
+    //    return this._IsBusy;
+    //}
     private CurrentArmID: number = 0;
     public selectedNode: singleNode | null = null;
 	public CanWriteCoding(attribute: singleNode): boolean {
-
+        console.log('CanWriteCoding?');
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
- 
+            console.log("can't edit coding, reason 1");
             return false;
         }
-        else if ((this._IsBusy) || !this.ReviewerIdentityService.HasWriteRights) {
-
+        else if ((this.IsBusy) || !this.ReviewerIdentityService.HasWriteRights) {
+            console.log("can't edit coding, reason 2", this._BusyMethods);
             return false;
         }
         else if (this.CurrentArmID > 0 && (attribute.subTypeName == 'Include' || attribute.subTypeName == 'Exclude'))
         {
-
+            console.log("can't edit coding, reason 3");
             return false;
         }
         let FullAttribute: SetAttribute | null = this.FindAttributeById(+attribute.id.substring(1));
         if (FullAttribute) {
             let Set = this.FindSetById(FullAttribute.set_id);
-            if (Set && Set.itemSetIsLocked) return false;
+            if (Set && Set.itemSetIsLocked) {
+                console.log("can't edit coding, reason 4");
+                return false;
+            }
         }
 
 		return true;
     }
 
      GetReviewSets(): ReviewSet[] {
-
-        this._IsBusy = true;
+         //console.log("GetReviewSets");
+         this._BusyMethods.push("GetReviewSets");
          this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
              data => {
                 this.ReviewSets = ReviewSetsService.digestJSONarray(data);
-                 this._IsBusy = false;
+                 //this._IsBusy = false;
 
                  this.GetReviewStatsEmit.emit();
 
@@ -73,7 +79,8 @@ export class ReviewSetsService {
             error => {
                 this.modalService.GenericError(error);
                 this.Clear();
-            }
+            },
+             () => { this.RemoveBusy("GetReviewSets");}
         );
         return this.ReviewSets;
     }
@@ -106,7 +113,7 @@ export class ReviewSetsService {
         //this._IsBusy = true;
         this._ReviewSets = sets;
         //this.Save();
-        this._IsBusy = false;
+        //this._IsBusy = false;
     }
     //private Save() {
     //    if (this._ReviewSets != undefined && this._ReviewSets != null && this._ReviewSets.length > 0) //{ }
@@ -188,9 +195,9 @@ export class ReviewSetsService {
 
     public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
 
-        //console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
+        this._BusyMethods.push("AddItemData");
+        console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
         this.CurrentArmID = itemArmID;
-        this._IsBusy = true;
         //logic:
             //if ITEM_SET is complete, show the tickbox.
             //if ITEM_SET is not complete, show the tickbox only if the current user owns this item-set.
@@ -239,7 +246,8 @@ export class ReviewSetsService {
                 }
             }
         }
-        this._IsBusy = false;
+        console.log('finishing addItemData');
+        this.RemoveBusy("AddItemData");
     }
     public FindAttributeById(AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
@@ -277,12 +285,12 @@ export class ReviewSetsService {
         return result;
     }
     public clearItemData() {
-        this._IsBusy = true;
+        this._BusyMethods.push("clearItemData");
         for (let set of this._ReviewSets) {
             set.codingComplete = false;
             this.clearItemDataInChildren(set.attributes);
         }
-        this._IsBusy = false;
+        this.RemoveBusy("clearItemData");
     }
     private clearItemDataInChildren(children: SetAttribute[]) {
         
@@ -306,15 +314,19 @@ export class ReviewSetsService {
     }
     @Output() ItemCodingCheckBoxClickedEvent: EventEmitter<CheckBoxClickedEventData> = new EventEmitter<CheckBoxClickedEventData>();
     public PassItemCodingCeckboxChangedEvent(evdata: CheckBoxClickedEventData) {
-        this._IsBusy = true;
+        //this._IsBusy = true;
 
         this.ItemCodingCheckBoxClickedEvent.emit(evdata);
     }
     @Output() ItemCodingItemAttributeSaveCommandExecuted: EventEmitter<ItemAttributeSaveCommand> = new EventEmitter<ItemAttributeSaveCommand>();
+    public ItemCodingItemAttributeSaveCommandHandled() {
+        this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+    }
     @Output() ItemCodingItemAttributeSaveCommandError: EventEmitter<any> = new EventEmitter<any>();
     public ExecuteItemAttributeSaveCommand(cmd: ItemAttributeSaveCommand, currentCoding: ItemSet[]) {
-        this._IsBusy = true;
-
+        this._BusyMethods.push("ExecuteItemAttributeSaveCommand");
+        //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
+        //thus, we don't simply remove it when the API call ends.
         this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
             data => {
 
@@ -325,6 +337,7 @@ export class ReviewSetsService {
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
                 //this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
+                this.RemoveBusy("ExecuteItemAttributeSaveCommand");
             }
         );
     }

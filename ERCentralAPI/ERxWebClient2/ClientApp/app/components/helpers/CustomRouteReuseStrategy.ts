@@ -25,17 +25,37 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
      */
     private storedRoutes: { [key: string]: RouteStorageObject } = {};
 
+    //these are pages that will always mean the user is going to log on a review in order to reach mainfull.
+    //thus, we never store mainfull when going to one of these. This is to avoid leaking components that report "shouldDetach == true"
+    private KillDestinations: string[] = ["main", "home", "intropage"];
+
     //IMPORTANT! We statically "keep" only these routes, all the others are not recyled...
     private routesToCache: string[] = ["mainFullReview"];
-
+    private GoingTo: string = "";
     /** 
      * Determines whether or not the current route should be reused
      * @param future The route the user is going to, as triggered by the router
      * @param curr The route the user is currently on
      * @returns boolean basically indicating true if the user intends to leave the current route
      */
-    shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
-        //console.log("deciding to reuse", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
+    //shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+    //EEEEK!!? the line above causes the log message to report the current page as the future one, so I'll swap the paramaters around...
+    shouldReuseRoute(curr: ActivatedRouteSnapshot, future: ActivatedRouteSnapshot): boolean {
+        console.log("shouldReuseRoute:", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
+        if (future && future.routeConfig && future.routeConfig.path) {
+            console.log("shouldReuseRoute, GOINGTO:" + future.routeConfig.path);
+            this.GoingTo = future.routeConfig.path;
+        }
+        //if (curr.routeConfig === null && future.routeConfig === null) {
+        //    console.log("Null case, ret: false");
+        //    return false;
+        //}
+        //if (curr.routeConfig && future.routeConfig
+        //    && curr.routeConfig.path == "mainFullReview"
+        //    && (future.routeConfig.path == "main" || future.routeConfig.path == "home" || future.routeConfig.path == "readonlyreviews")) {
+        //    console.log("I'll return something special because of where we're going... this is an experiment!")
+        //    return true;
+        //}
         return future.routeConfig === curr.routeConfig;
     }
 
@@ -50,7 +70,17 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
      */
     shouldDetach(route: ActivatedRouteSnapshot): boolean {
         //Modified by SG
-        if (route.routeConfig && route.routeConfig.path) return this.routesToCache.indexOf(route.routeConfig.path) > -1;
+        //IMPORTANT! Do not mark current page as in need of detaching when we are going to a page in KillDestinations.
+        //when reaching these pages, we'll have to "logintoreview" in order to return to mainfull, so we don't want to store current mainfull.
+        //however, if this method returns true, ngOnDestroy isn't called and we leak: instance remains alive (memory leak) and worse, we leak subscriptions!
+        if (this.KillDestinations.indexOf(this.GoingTo) > -1) return false;
+        if (route.routeConfig && route.routeConfig.path) {
+            if (this.routesToCache.indexOf(route.routeConfig.path) > -1) {
+                console.log("shouldDetach, will return true!!!!!!!!!!!!!!!!!", route);
+                return true;
+            }
+        }
+        console.log("shouldDetach, will return false.", route);
         return false;
         //let detach: boolean = true;
         //console.log("detaching", route, "return: ", detach);
@@ -131,7 +161,25 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
     //SG Added: method to clear current saved pages...
     public Clear() {
-        console.log('clearing cached component instances.' , this.storedRoutes);
+        console.log('clearing cached component instances.', this.storedRoutes);
+        //while (this.storedRoutes != {}) {
+        //    this.storedRoutes[0]
+        //}
+        //for (var comK in this.storedRoutes) {
+        //    let el = this.storedRoutes[comK];
+        //    console.log("trying to destroy this: ", el.snapshot);
+        //    //if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string') ) {
+        //    //    if ('ngOnDestroy' in el.snapshot.component && ) el.snapshot.component.ngOnDestroy();
+        //    //}
+        //    if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string')) {
+        //        //if ('ngOnDestroy' in el.snapshot.component ) {
+        //        console.log("trying to destroy this: ", el.snapshot);
+        //            el.snapshot.component = null;
+        //        //el.handle = new DetachedRouteHandle();
+        //        //el =  { };
+        //        //}
+        //    }
+        //}
         this.storedRoutes = {};
     }
 

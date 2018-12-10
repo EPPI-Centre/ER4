@@ -95,8 +95,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                        console.log('data changed event caught');
+                    console.log('ItemCodingService data changed event caught');
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
                         this.SetCoding();
                     }
                 }
@@ -128,7 +128,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             console.log('fill in arms here teseroo1');
 
 		}
-		console.log('this is item: ' + this.item);
+		//console.log('this is item: ' + this.item);
     }
 
     public HasPreviousScreening(): boolean{
@@ -158,6 +158,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
             this.ArmsCompRef.CurrentItem = this.item;
             this.armservice.FetchArms(this.item);
@@ -166,14 +167,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
     }
     SetCoding() {
-        console.log('change something');
-        if (this.ItemCodingService.ItemCodingList.length == 0) {
-            this.ReviewSetsService.clearItemData();
-            console.log('change: clearonly');
-            return;
-        }
+        console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
+        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
         if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
@@ -334,6 +331,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             cmd.itemAttributeId = itemAtt.itemAttributeId;
         }
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             //do something if command ended with an error
             //console.log('Error handling');
             alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
@@ -387,6 +385,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             console.log('set dest');
             SubSuccess.unsubscribe();
             SubError.unsubscribe();
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             if (cmd.saveType == "Insert" && this.CheckBoxAutoAdvanceVal) {
                 //auto advance is on, we want to go to the next item
                 if (!this.IsScreening && this.hasNext()) this.nextItem();

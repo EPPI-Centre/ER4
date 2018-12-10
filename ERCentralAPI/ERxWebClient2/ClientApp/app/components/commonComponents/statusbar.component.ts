@@ -165,8 +165,13 @@ export class StatusBarComponent implements OnInit {
             success => {
                 if (success.result == "Valid") {
                     this.UpdateStatus(success.serverMessage);
+                }
+                else if (success.result == "no (local) user") {
+                    console.log('Silently killing the timer, user is out (or changed review)!')
+                    if (this.timerObj) this.killTrigger.next();
+                }
 
-                }else {
+                else {
 
                     if (this.timerObj) this.killTrigger.next();
                   

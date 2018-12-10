@@ -48,8 +48,23 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "GetSources data portal error");
                 throw;
             }
-
 		}
+        [HttpPost("[action]")]
+        public IActionResult GetSource([FromBody] SingleIntCriteria SourceId)
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<Source> dp = new DataPortal<Source>();
+                Source result = dp.Fetch(new SingleCriteria<Source, int>(SourceId.Value));
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetSource data portal error");
+                throw;
+            }
+        }
         [HttpGet("[action]")]
         public IActionResult GetImportFilters()
         {
@@ -123,6 +138,7 @@ namespace ERxWebClient2.Controllers
                     forSaving.SearchDescr = incoming.searchDescription;
                     forSaving.SearchStr = incoming.searchString;
                     forSaving.IncomingItems = FullRes;
+                    forSaving.buildShortTitles();
                     forSaving = forSaving.Save();
                     return Ok(res);
                 }
@@ -135,6 +151,34 @@ namespace ERxWebClient2.Controllers
 			}
 
 		}
+        [HttpPost("[action]")]
+        public IActionResult UpdateSource([FromBody] JSONSource incoming)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<Source> dp = new DataPortal<Source>();
+                    Source res = dp.Fetch(new SingleCriteria<Source, int>(incoming.source_ID));
+                    res.DateOfSerach = DateTime.Parse(incoming.dateOfSerach);
+                    res.Notes = incoming.notes;
+                    res.SearchDescription = incoming.searchDescription;
+                    res.SearchString = incoming.searchString;
+                    res.SourceDataBase = incoming.sourceDataBase;
+                    res.Source_Name = incoming.source_Name;
+                    res = res.Save();
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Upload import file error");
+                throw;
+            }
+
+        }
         [HttpPost("[action]")]
         public IActionResult DeleteUndeleteSource([FromBody] SingleIntCriteria sourceId)
         {
@@ -160,6 +204,45 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpPost("[action]")]
+        public IActionResult DeleteSourceForever([FromBody] SingleIntCriteria sourceId)
+        {
+            if (sourceId.Value < 1)
+            {
+                return NotFound();
+            }
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    //we want extra protections here. The command itself does not check if the source belongs to the review the user is logged on to...
+                    DataPortal<ReadOnlySourceList> dp = new DataPortal<ReadOnlySourceList>();
+                    ReadOnlySourceList ROSL = dp.Fetch();
+                    bool SourceIsInReview = false;
+                    foreach (ReadOnlySource src in ROSL.Sources)
+                    {
+                        if (src.Source_ID == sourceId.Value)
+                        {
+                            SourceIsInReview = true;
+                            break;
+                        }
+                    }
+                    if (SourceIsInReview == false) return NotFound();
+                    SourceDeleteForeverCommand cmd = new SourceDeleteForeverCommand(sourceId.Value);
+                    DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
+                    cmd = dp2.Execute(cmd);
+                    return Ok(cmd.SourceId);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteUndeleteSource error");
+                throw;
+            }
+
+        }
+
         private FilterRules GetFilterRules(string FilterName, out int RuleID)
         {
             RuleID = -1;
@@ -218,17 +301,8 @@ namespace ERxWebClient2.Controllers
         }
 
     }
-    
-    public class UploadOrCheckSource
+    public class JSONSource
     {
-        //public string FilterName = "";
-        //public string Source_Name = "";
-        //public int Total_Items = 0;
-        //public int Deleted_Items = 0;
-        //public int Duplicates = 0;
-        //public int Source_ID = 0;
-        //public bool IsDeleted = false;
-        public string fileContent = "";
         public string source_Name = "";
         public string dateOfSerach = DateTime.Now.ToLongDateString();
         public string dateOfImport = DateTime.Now.ToLongDateString();
@@ -247,6 +321,18 @@ namespace ERxWebClient2.Controllers
         public int duplicates = 0;
         public int isMasterOf = 0;
         public int outcomes = 0;
+    }
+    public class UploadOrCheckSource : JSONSource
+    {
+        //public string FilterName = "";
+        //public string Source_Name = "";
+        //public int Total_Items = 0;
+        //public int Deleted_Items = 0;
+        //public int Duplicates = 0;
+        //public int Source_ID = 0;
+        //public bool IsDeleted = false;
+        public string fileContent = "";
+        
     }
     public class IncomingItemsListJSON
     {

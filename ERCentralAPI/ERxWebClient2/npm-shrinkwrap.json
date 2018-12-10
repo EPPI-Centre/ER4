@@ -1834,6 +1834,17 @@
         "tslib": "^1.7.0"
       }
     },
+    "@progress/kendo-angular-dialog": {
+      "version": "3.9.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-dialog/-/kendo-angular-dialog-3.9.0.tgz",
+      "integrity": "sha512-21HMSsvpcFBmuw9JtzHpk42eBdFjydhhdlWrv0tCbUFsCdE/MKLBkoQEWxmEvkDr1nQmKuoUVPQrhJBb8oCsVw==",
+      "requires": {
+        "@progress/kendo-popup-common": "^1.2.3",
+        "@progress/kendo-schematics": "^0.2.0",
+        "@telerik/kendo-draggable": "^1.5.1",
+        "tslib": "^1.7.0"
+      }
+    },
     "@progress/kendo-angular-dropdowns": {
       "version": "3.4.0",
       "resolved": "https://registry.npmjs.org/@progress/kendo-angular-dropdowns/-/kendo-angular-dropdowns-3.4.0.tgz",
@@ -1916,6 +1927,15 @@
       "requires": {
         "@progress/kendo-schematics": "^0.2.0",
         "@telerik/kendo-draggable": "^1.5.1",
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-notification": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-notification/-/kendo-angular-notification-1.1.1.tgz",
+      "integrity": "sha512-unA6++vr3lemGN6GpLTYrF1peK+DXGuugC8XIQ+Hw3cOd4NnZxVyjg1C5EcTIwl8yPSFdNhSiwVnDOAtXYEJzQ==",
+      "requires": {
+        "@progress/kendo-schematics": "^0.2.0",
         "tslib": "^1.7.0"
       }
     },

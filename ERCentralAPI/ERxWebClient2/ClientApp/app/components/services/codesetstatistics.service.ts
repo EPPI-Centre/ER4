@@ -163,7 +163,7 @@ export class CodesetStatisticsService {
                 //this.SaveIncompleteSets();
                 this.GetIncompleteSetsEmit.emit(result);
                 this.formateSets();
-                console.log(this._tmpCodesets);
+                //console.log(this._tmpCodesets);
                 trigger.next();
 
             }, error => { this.modalService.SendBackHomeWithError(error); }
