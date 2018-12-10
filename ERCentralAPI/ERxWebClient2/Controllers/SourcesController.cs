@@ -161,6 +161,7 @@ namespace ERxWebClient2.Controllers
                 {
                     DataPortal<Source> dp = new DataPortal<Source>();
                     Source res = dp.Fetch(new SingleCriteria<Source, int>(incoming.source_ID));
+                    if (res.Source_ID == 0) return NotFound();//Would happen if the sourceID of incoming obj was wrong (does not belong to review) 
                     res.DateOfSerach = DateTime.Parse(incoming.dateOfSerach);
                     res.Notes = incoming.notes;
                     res.SearchDescription = incoming.searchDescription;
