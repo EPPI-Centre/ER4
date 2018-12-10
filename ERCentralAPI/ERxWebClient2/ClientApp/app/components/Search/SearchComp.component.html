@@ -1,7 +1,7 @@
-<table class="table col-md-12">
+<!--<table class="table col-md-12">
 	<tbody class="col-md-12">
 		<tr class="col-md-12">
-			<!--this first new search will now simply open a collapsable div-->
+
 			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed = !isCollapsed"
 				[attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
 				<i class="fa fa-search" aria-hidden="true"></i> New Search
@@ -12,7 +12,18 @@
 			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3"><i class="fa fa-pie-chart" aria-hidden="true"></i>CLASSIFY</td>
 		</tr>
 	</tbody>
-</table>
+</table>-->
+
+<div class="containsAtoolbar">
+	<kendo-toolbar style="background-color: steelblue;">
+		<kendo-toolbar-button [text]="'New Search'" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Refresh Search'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Delete Search'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Combine'" (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseExample2"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+	</kendo-toolbar>
+</div>
+
 <div id="collapseExample" [ngbCollapse]="!isCollapsed" class="col-md-12">
 	<div class="card">
 		<div class="card-body">
@@ -90,7 +101,7 @@
 
 					</div>
 				</div>
-				</div>
+			</div>
 			<div class="row">
 				<div class="col-md-4"></div>
 				<div class="col-md-12">
@@ -111,7 +122,7 @@
 				</div>
 			</div>
 			<div class="row">
-					<button type="button" class="btn btn-warning col-md-4"
+				<button type="button" class="btn btn-outline-primary col-md-4"
 						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl)">
 					Search
 				</button>
@@ -119,20 +130,20 @@
 		</div>
 	</div>
 </div>
-<div id="collapseExample2"  [ngbCollapse]="!isCollapsed2">
+<div id="collapseExample2" [ngbCollapse]="!isCollapsed2">
 	<table class="table col-md-12">
 		<tr>
-			<td (click)="getLogicSearches()">
-				<button class="btn text-white btn-warning col-md-6" (click)="getLogicSearches()">&nbsp; AND</button>
+			<td>
+				<button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
 			</td>
-			<td (click)="getLogicSearches()">
-				<button class="btn text-white btn-info col-md-6" (click)="getLogicSearches()">&nbsp; OR</button>
+			<td>
+				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
 			</td>
-			<td (click)="getLogicSearches()">
-				<button class="btn text-white btn-danger col-md-6" (click)="getLogicSearches()">&nbsp; NOT</button>
+			<td>
+				<button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
 			</td>
-			<td (click)="getLogicSearches()">
-				<button class="btn text-white btn-dark col-md-6" (click)="getLogicSearches()">&nbsp; NOT (excluded)</button>
+			<td>
+				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
 			</td>
 		</tr>
 	</table>
@@ -141,7 +152,7 @@
 	<table class="table col-md-12">
 		<tr>
 			<td>
-				<button class="btn btn-info col-md-7">&nbsp; RUN MACHINE LEARNING </button>
+				<button class="btn btn-outline-success col-md-7">&nbsp; RUN MACHINE LEARNING </button>
 			</td>
 			<td>
 				<p class="col-md-6" (click)="getLogicSearches()">&nbsp; or stuff</p>

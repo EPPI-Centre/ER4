@@ -81,13 +81,39 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._logic = value;
 	}
 
-	getLogicSearches() {
+	getLogicSearches(logicChoice: string) {
 
-		alert('got inside here');
-		this._searchService.cmdSearches._included = 'true';
-		this._searchService.cmdSearches._title = "159 AND 158";
-		this._searchService.cmdSearches._logicType = "AND";
-		this._searchService.cmdSearches._searches = "21712,21711";
+		//alert('got inside here: ' + logicChoice);
+		if (logicChoice == 'NOT (excluded)') {
+			this._searchService.cmdSearches._included = 'false';
+			logicChoice = 'NOT';
+
+		} else {
+			this._searchService.cmdSearches._included = 'true';
+		}
+
+		let lstStrSearchIds = '';
+		let lstStrSearchNos = '';
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+
+			if (this.DataSource.data[i].add == true) {
+
+				if (lstStrSearchIds == "") {
+					lstStrSearchIds = this.DataSource.data[i].searchId;
+					lstStrSearchNos = this.DataSource.data[i].searchNo;
+				} else {
+					lstStrSearchIds += ',' + this.DataSource.data[i].searchId ;
+					lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSource.data[i].searchNo;
+				}
+
+			}
+		}
+		alert(lstStrSearchNos);
+		//need some logic around the checkbox selection for title and searches
+		//these should be separated by a comma
+		this._searchService.cmdSearches._title = lstStrSearchNos;
+		this._searchService.cmdSearches._logicType = logicChoice;
+		this._searchService.cmdSearches._searches = lstStrSearchIds;
 		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
 	}
 	
