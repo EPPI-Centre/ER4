@@ -4,7 +4,7 @@
 </button>
 <kendo-splitter orientation="horizontal">
     <kendo-splitter-pane>
-        <kendo-tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+        <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
             <kendo-tabstrip-tab [title]="'Manage Sources'">
                 <ng-template kendoTabContent>
                     <div class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
@@ -129,7 +129,13 @@
                     </tr>
                     <tr *ngFor="let ROsource of ReviewSources" class="p-0"
                         [hidden]="HideManuallyCreatedItems(ROsource)">
-                        <td class="p-1 align-middle"><div class="btn btn-link btn-sm p-0 ml-2" (click)="SelectSource(ROsource)">{{ROsource.source_Name}}</div></td>                        
+                        <td class="p-1 align-middle">
+                            <div class="btn btn-link btn-sm p-0 ml-2"
+                                 [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                                 (click)="SelectSource(ROsource)">
+                                {{ROsource.source_Name}}
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -138,10 +144,12 @@
 </kendo-splitter>
 <kendo-dialog title="Please confirm" *ngIf="confirmSourceDeletionOpen" (close)="confirmSourceDeletionClose('cancel')" [minWidth]="250" [width]="450">
     <p style="margin: 30px; text-align: center;">Are you sure you want delete this source forever?<br />
-    This action cannot be undone!</p>
+    <strong>This action cannot be undone!</strong></p>
     <kendo-dialog-actions>
-        <button class="btn btn-danger"  (click)="confirmSourceDeletionClose('yes')" primary="true" style="width:25%;">Yes</button>
-        <button class="btn btn-outline-secondary"  (click)="confirmSourceDeletionClose('cancel')" style="width:65%;">Cancel</button>
+        <div class="row m-0 w-100 justify-content-center">
+            <button class="btn btn-danger mr-2" (click)="confirmSourceDeletionClose('yes')" primary="true" style="width:25%;">Delete</button>
+            <button class="btn btn-outline-success " (click)="confirmSourceDeletionClose('cancel')" style="width:70%;">Cancel</button>
+        </div>
     </kendo-dialog-actions>
 </kendo-dialog>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

@@ -33,7 +33,7 @@ export class SourcesService extends BusyAwareService {
     }
     public ClearIncomingItems4Checking() {
         this._IncomingItems4Checking = null;
-        this._LastUploadStatus = "";
+        this._LastUploadOrUpdateStatus = "";
     }
     private _ImportFilters: ImportFilter[] = [];
     public get ImportFilters(): ImportFilter[] {
@@ -42,6 +42,7 @@ export class SourcesService extends BusyAwareService {
     @Output() gotSource = new EventEmitter();
     @Output() gotItems4Checking = new EventEmitter();
     @Output() SourceUploaded = new EventEmitter();
+    @Output() SourceUpdated = new EventEmitter();
     @Output() SourceDeleted = new EventEmitter<number>();
     private _ReviewSources: ReadOnlySource[] = [];
     public get ReviewSources(): ReadOnlySource[] {
@@ -51,9 +52,9 @@ export class SourcesService extends BusyAwareService {
     public get CurrentSourceDetail(): Source | null {
         return this._Source;
     }
-    private _LastUploadStatus: string = "";
-    public get LastUploadStatus(): string {
-        return this._LastUploadStatus;
+    private _LastUploadOrUpdateStatus: string = "";
+    public get LastUploadOrUpdateStatus(): string {
+        return this._LastUploadOrUpdateStatus;
     }
     private _LastDeleteForeverStatus: string = "";
     public get LastDeleteForeverStatus(): string {
@@ -119,7 +120,7 @@ export class SourcesService extends BusyAwareService {
     }
     
     public CheckUpload(data: SourceForUpload) {
-        this._LastUploadStatus = ""; //reset this as we're starting over
+        this._LastUploadOrUpdateStatus = ""; //reset this as we're starting over
         this._BusyMethods.push("CheckUpload");
         //console.log('CheckUpload');
         this._IncomingItems4Checking = null;
@@ -138,16 +139,16 @@ export class SourcesService extends BusyAwareService {
     }
     public Upload(data: SourceForUpload) {
         this._BusyMethods.push("Upload");
-        this._LastUploadStatus = "Uploading";//probably redundant, we only use this value when API call is finished.
+        this._LastUploadOrUpdateStatus = "Uploading";//probably redundant, we only use this value when API call is finished.
         console.log('Upload Source started');
         let body = JSON.stringify(data);
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UploadSource',
             body).subscribe(result => {
                  this.FetchSources()
-                this._LastUploadStatus = "Success";
+                this._LastUploadOrUpdateStatus = "Success";
             }, error => {
                 //this.modalService.GenericErrorMessage();
-                this._LastUploadStatus = "Error";
+                this._LastUploadOrUpdateStatus = "Error";
             },
             () => {
                 this.RemoveBusy("Upload");
@@ -169,6 +170,27 @@ export class SourcesService extends BusyAwareService {
                 this.RemoveBusy("DeleteUndeleteSource");
             }
         );
+    }
+
+    public UpdateSource(source: Source) {
+        this._BusyMethods.push("UpdateSource");
+        this._LastUploadOrUpdateStatus = "Updating";//probably redundant, we only use this value when API call is finished.
+        console.log('UpdateSource Source started');
+        let body = JSON.stringify(source);
+        this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UpdateSource',
+            body).subscribe(result => {
+                this._LastUploadOrUpdateStatus = "Success";
+            }, error => {
+                //this.modalService.GenericErrorMessage();
+                this._LastUploadOrUpdateStatus = "Error";
+            },
+            () => {
+                    this.FetchSource(source.source_ID);
+                    this.FetchSources();
+                    this.RemoveBusy("UpdateSource");//service remains busy because of the two calls above
+                    this.SourceUpdated.emit();//makes the component wait for service to stop being busy and then update itself (gotSource subscr) and show the notify.
+                }
+            );
     }
     public IsSourceNameValid(sourceName: string, sourceID?: number): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)

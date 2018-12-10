@@ -130,7 +130,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
     }
     SourceUploaded() {
         if (this.Source4upload) {
-            this.showUploadedNotification(this.Source4upload.source_Name, this.SourcesService.LastUploadStatus);
+            this.showUploadedNotification(this.Source4upload.source_Name, this.SourcesService.LastUploadOrUpdateStatus);
             this.ItemListService.FetchWithCrit(this.ItemListService.ListCriteria, this.ItemListService.ListDescription);
             this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
         }

@@ -592,6 +592,10 @@ namespace BusinessLibrary.Security
                             break;
                     }
                 }
+                if (Roles.Count > 0)
+                {//ticket could be parsed/decrypted and it contained roles: user is for real
+                    this.IsAuthenticated = true;
+                }
             }
 #endif
         }

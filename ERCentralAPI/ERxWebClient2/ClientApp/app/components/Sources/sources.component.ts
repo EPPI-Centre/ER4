@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SourcesService, ReadOnlySource, Source } from '../services/sources.service';
 import { Subscription } from 'rxjs';
@@ -6,6 +6,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { ItemListService } from '../services/ItemList.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this.GotSourcesSubs = this.SourcesService.gotSource.subscribe(() => {
             if (this.SourcesService.CurrentSourceDetail && this._CurrentSource == null) {
                 this._CurrentSource = this.SourcesService.CurrentSourceDetail;
+                this._CurrentSourceDateofSearch = new Date(this._CurrentSource.dateOfSerach);
             }
             this.GotSourcesSubs.unsubscribe();
         })
@@ -43,6 +45,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
                 this.SourcesService.FetchImportFilters();
             //}, 10);
         }
+        this.SrcUpdatedSbus = this.SourcesService.SourceUpdated.subscribe(() => {
+            this.SourceUpdated();
+        })
     }
     ngAfterViewInit() {
        
@@ -51,13 +56,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //}
         //this.SourcesService.FetchImportFilters();
     }
-    
+    @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
     private SourceDeletedSubs: Subscription = new Subscription();
-
+    private SrcUpdatedSbus: Subscription = new Subscription();
     //we are going to use a clone of the selected source, cached here
     //this is to avoid dangerous recursion problems.
     private _CurrentSource: Source | null = null;
@@ -103,6 +108,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         else return false;
     }
     SelectSource(ROS: ReadOnlySource) {
+        this.tabstrip.selectTab(0);
         this.SourcesService.FetchSource(ROS.source_ID);
     }
     IsSourceNameValid(): number {
@@ -159,8 +165,47 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
 
     SaveSource() {
-        alert('Not yet ;-)');
+        //alert('Not yet ;-)');
+        if (this._CurrentSource) {
+            if (this._CurrentSourceDateofSearch) this._CurrentSource.dateOfSerach = this._CurrentSourceDateofSearch.toJSON().slice(0, 10);
+            this.SourcesService.UpdateSource(this._CurrentSource);
+        }
     }
+    SourceUpdated() {
+        let counter: number = 0;
+        //setTimeout(() => {
+            while (this.SourcesService.IsBusy && counter < 3*120) {
+                counter++;
+                this.Sleep(200);
+                console.log("waiting, cycle n: " + counter);
+            }
+        //}, 200);//will remain here for up to 2 minutes (200ms*3*120)... counter ensures we won't have an endless loop.
+        this.showUploadedNotification(this.SourcesService.LastUploadOrUpdateStatus);
+    }
+    Sleep(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    private showUploadedNotification(status: string): void {
+
+        let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
+        let contentSt: string = "";
+        if (status == "Success") {
+            typeElement = "success";
+            contentSt = 'Source updated succesfully.';
+        }//type: { style: 'error', icon: true }
+        else {
+            typeElement = "error";
+            contentSt = 'The source update failed, if the problem persists, please contact EPPISupport.';
+        }
+        this.notificationService.show({
+            content: contentSt,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: typeElement, icon: true },
+            closable: true
+        });
+    }
+
     ConfirmDeleteSourceForever() {
         //alert('Not yet ;-)');
         this.confirmSourceDeletionOpen = true;
@@ -179,6 +224,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
         if (this.SourceDeletedSubs) this.SourceDeletedSubs.unsubscribe();
+        if (this.SrcUpdatedSbus) this.SrcUpdatedSbus.unsubscribe();
+        if (this.GotSourcesSubs) this.GotSourcesSubs.unsubscribe();
     }
 
 }
