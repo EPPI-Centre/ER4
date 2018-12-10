@@ -81,8 +81,19 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
 
-    ngOnInit() {
-        //console.log('init!');
+	ngOnInit() {
+
+
+		//this.route.params.subscribe(params => {
+
+		//	alert(params);
+
+		//	if (params['itemId']) {
+
+		//		alert(params['itemId']);
+		//	}
+		//});
+
         
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);

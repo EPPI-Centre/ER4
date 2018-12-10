@@ -27,10 +27,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private ClassifierModel() { }
+        public ClassifierModel() { }
 #endif
 
-        private static PropertyInfo<int> ModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ModelId", "ModelId"));
+        public static readonly PropertyInfo<int> ModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ModelId", "ModelId"));
         public int ModelId
         {
             get
@@ -39,7 +39,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+		public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
+		public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
         public string ContactName
         {
             get
@@ -57,7 +57,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ModelTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ModelTitle", "ModelTitle"));
+		public static readonly PropertyInfo<string> ModelTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ModelTitle", "ModelTitle"));
         public string ModelTitle
         {
             get
@@ -66,7 +66,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeOnProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeOn", "AttributeOn"));
+		public static readonly PropertyInfo<string> AttributeOnProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeOn", "AttributeOn"));
         public string AttributeOn
         {
             get
@@ -75,7 +75,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNotOnProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeNotOn", "AttributeNotOn"));
+		public static readonly PropertyInfo<string> AttributeNotOnProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeNotOn", "AttributeNotOn"));
         public string AttributeNotOn
         {
             get
@@ -84,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<decimal> AccuracyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Accuracy", "Accuracy"));
+		public static readonly PropertyInfo<decimal> AccuracyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Accuracy", "Accuracy"));
         public decimal Accuracy
         {
             get
@@ -93,7 +93,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<decimal> AucProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Auc", "Auc"));
+		public static readonly PropertyInfo<decimal> AucProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Auc", "Auc"));
         public decimal Auc
         {
             get
@@ -102,7 +102,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<decimal> PrecisionProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Precision", "Precision"));
+		public static readonly PropertyInfo<decimal> PrecisionProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Precision", "Precision"));
         public decimal Precision
         {
             get
@@ -111,7 +111,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<decimal> RecallProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Recall", "Recall"));
+		public static readonly PropertyInfo<decimal> RecallProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Recall", "Recall"));
         public decimal Recall
         {
             get

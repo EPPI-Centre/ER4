@@ -71,13 +71,16 @@ export class ItemListComp implements OnInit {
     }
 
     OpenItem(itemId: number) {
-       
-        if (itemId > 0) {
+
+		if (itemId > 0) {
+			// , { queryParams: { page: pageNum } }
+			//if (this.Context == 'FullUI') this.router.navigate(['itemcoding', { queryParams: { itemId: itemId } }]);
             if (this.Context == 'FullUI') this.router.navigate(['itemcoding', itemId]);
             else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', itemId]);
             else alert("Sorry, don't know where we are, can't send you anywhere...");
         } 
-    }
+	}
+
     ngOnInit() {
 
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -86,7 +89,8 @@ export class ItemListComp implements OnInit {
         else {
             //this.loadDefault.emit();
         }
-    }
+
+	}
     nextPage() {
     
         this.ItemListService.FetchNextPage();

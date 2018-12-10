@@ -6,5 +6,7 @@ export class EventEmitterService {
 	public nodeSelected: boolean = false;
 	public nodeName: string = '';
 
-	constructor() { }
+	constructor() {
+
+	}
 }

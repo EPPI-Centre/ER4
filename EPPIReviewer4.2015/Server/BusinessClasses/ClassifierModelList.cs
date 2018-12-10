@@ -31,7 +31,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ClassifierModelList() { }
 #else
-        private ClassifierModelList() { }
+        public ClassifierModelList() { }
 #endif
 
 

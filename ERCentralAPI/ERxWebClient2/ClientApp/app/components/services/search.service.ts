@@ -20,7 +20,8 @@ export class searchService extends BusyAwareService {
     }
 
 
-	public cmdSearchesTest: SearchCodeCommand | undefined;
+
+	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
 
 	private _SearchList: Search[] = [];
 	//@Output() searchesChanged = new EventEmitter();
@@ -123,15 +124,17 @@ export class Search {
 	contactName: string = '';
 }
 
-export interface SearchCodeCommand {
+export class SearchCodeCommand {
 
-	_setID: number;
-	_searchText: string;
-	_IDs: string;
-	_title: string;
-	_answers: string ;
-	_included: boolean ;
-	_withCodes: boolean ;
-	_searchId: number ;
+	public _searches: string = '';
+	public _logicType: string = '';
+	public _setID: number = 0;
+	public _searchText: string = '';
+	public _IDs: string = '';
+	public _title: string = '';
+	public _answers: string = '';
+	public _included: string = 'false';
+	public _withCodes: string = 'false';
+	public _searchId: number = 0;
 
 }
