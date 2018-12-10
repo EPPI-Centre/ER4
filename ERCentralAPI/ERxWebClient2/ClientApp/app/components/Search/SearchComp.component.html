@@ -202,11 +202,21 @@
 	</kendo-grid-column>
 	<kendo-grid-column field="searchDate" title="Date" width="120">
 	</kendo-grid-column>
-	<kendo-grid-column class="btn btn-link font-weight-bold"
-					   field="hitsNo" title="Hits" width="80">
+	<kendo-grid-column width="250" class="btn-link font-weight-bold"
+					   field="hitsNo" title="Hits" >
 		<ng-template kendoGridCellTemplate let-dataItem>
 			<div (click)="SearchGetItemList(dataItem)">
 				{{dataItem.hitsNo}}
+			</div>
+		</ng-template>
+	</kendo-grid-column>
+	<kendo-grid-column field="isClassifierResult" 
+					   class="btn-link font-weight-bold"
+					   title="Classifier" width="250">
+		<ng-template kendoGridCellTemplate let-dataItem>
+			<div (click)="OpenClassifierScreen(dataItem.isClassifierResult)"
+				 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+				{{dataItem.isClassifierResult}}
 			</div>
 		</ng-template>
 	</kendo-grid-column>

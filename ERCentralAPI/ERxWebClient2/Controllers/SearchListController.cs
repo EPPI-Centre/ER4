@@ -256,7 +256,6 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult SearchCodeLogic([FromBody] CodeCommand cmdIn)
 		{
-
 			try
 			{
 				SetCSLAUser();
@@ -278,7 +277,6 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "GetSearches data portal error");
 				throw;
 			}
-
 		}
 
 		[HttpPost("[action]")]

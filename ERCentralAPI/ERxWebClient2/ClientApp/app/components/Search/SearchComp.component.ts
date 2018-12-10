@@ -7,6 +7,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
 	selector: 'SearchComp',
@@ -26,11 +27,19 @@ export class SearchComp implements OnInit, OnDestroy {
         public ItemListService: ItemListService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private reviewSetsService: ReviewSetsService
+		private reviewSetsService: ReviewSetsService,
+		private notificationService: NotificationService,
 	) {
 	}
 
+	public OpenClassifierScreen(ML: boolean) {
 
+		if (ML) {
+			alert('need to open a relevant screen');
+		} else {
+			alert('do nothing here');
+		}
+	}
 
 	private _searchInclOrExcl: string = '';
 
@@ -298,17 +307,35 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public nextDropDownList(num: number, val: string) {
 
+		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
 
 		switch (num) {
 
 			case 1: {
+
+				typeElement = 'warning';
 				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.notificationService.show({
+					content: 'Please use the tree on the right hand side to choose a code',
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: typeElement, icon: true },
+					closable: true
+				});
 				break;
 			}
 			case 2: {
 				this.dropDownList = this.reviewSetsService.ReviewSets;
+				typeElement = 'warning';
+				this.notificationService.show({
+					content: 'Please use the tree on the right hand side to choose a code',
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: typeElement, icon: true },
+					closable: true
+				});
 				break;
 			}
 			case 3: {
