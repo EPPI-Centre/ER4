@@ -37,6 +37,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
+import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
@@ -47,6 +48,7 @@ import { ImportReferencesFileComponent } from './components/Sources/importrefere
 import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
 import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { SourcesComponent } from './components/Sources/sources.component';
+import { PubMedComponent } from './components/Sources/PubMed.component';
 
 
 @NgModule({
@@ -73,11 +75,12 @@ import { SourcesComponent } from './components/Sources/sources.component';
 		InfoBoxModalContent,
         ItemDocListComp,
         SourcesComponent,
+        ImportReferencesFileComponent,
+        PubMedComponent,
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
         ROSourcesListComponent,
-        ImportReferencesFileComponent,
         MainFullReviewComponent,
         MainComponent
 	],
@@ -102,6 +105,7 @@ import { SourcesComponent } from './components/Sources/sources.component';
         ChartModule,
         DialogsModule,
         ToolBarModule,
+        InputsModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,

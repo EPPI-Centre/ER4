@@ -140,7 +140,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
             this.showDeletedForeverNotification("*missing name*", this.SourcesService.LastDeleteForeverStatus);
             //user might have changed source!!!
         }
-        this.ItemListService.FetchWithCrit(this.ItemListService.ListCriteria, this.ItemListService.ListDescription);
+        this.ItemListService.Refresh();
         this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
     }
     public showDeletedForeverNotification(sourcename: string, status: string): void {
@@ -221,6 +221,10 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);
         if (this.ReviewerIdentityServ.HasWriteRights && !this.SourcesService.IsBusy) return true;
         else return false;
+    }
+    public IsServiceBusy(): boolean {
+        //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);
+        return this.SourcesService.IsBusy;
     }
     ngOnDestroy() {
         if (this.SourceDeletedSubs) this.SourceDeletedSubs.unsubscribe();

@@ -70,6 +70,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRuleList.cs" Link="Models\ReadOnlyImportFilterRuleList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />

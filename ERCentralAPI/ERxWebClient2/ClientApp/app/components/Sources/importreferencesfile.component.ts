@@ -26,7 +26,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
         private _eventEmitter: EventEmitterService,
         private SourcesService: SourcesService,
-        private notificationService: NotificationService,
+        private notificationService: NotificationService
     ) {    }
     ngOnInit() {
         this.reader.onload = (e) => this.fileRead(e);
@@ -131,14 +131,12 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
     SourceUploaded() {
         if (this.Source4upload) {
             this.showUploadedNotification(this.Source4upload.source_Name, this.SourcesService.LastUploadOrUpdateStatus);
-            this.ItemListService.FetchWithCrit(this.ItemListService.ListCriteria, this.ItemListService.ListDescription);
+            this.ItemListService.Refresh();
             this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
         }
-        this.SourcesService.ClearIncomingItems4Checking();
-        this.WizPhase = 1;
+        this.back();
     }
     public showUploadedNotification(sourcename: string, status: string): void {
-        
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
         let contentSt: string = "";
         if (status == "Success") {
@@ -156,19 +154,9 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
             type: { style: typeElement, icon: true },
             closable: true
         });
+        this.SourcesService.ClearIncomingItems4Checking();
     }
-
-    ListSource(ros: ReadOnlySource) {
-        let cr = new Criteria();
-        //cr.onlyIncluded = false;// included ignore for sources
-        //cr.showDeleted = true; // deleted ignore for sources
-        cr.attributeSetIdList = "";
-        cr.sourceId = ros.source_ID;
-        cr.listType = "StandardItemList";
-        let ListDescription: string = "Showing: " +  ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) ? "Manually Created (Sourceless) Items." : ros.source_Name);
-        this.ItemListService.FetchWithCrit(cr, ListDescription);
-        this._eventEmitter.PleaseSelectItemsListTab.emit();
-    }
+    
     ToggleDelSource(ros: ReadOnlySource) {
         //we should really show a "are you sure?" dialog...
         if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) this.SourcesService.DeleteUndeleteSource(ros);
@@ -189,19 +177,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = !this.ShowPreviewTable;        
     }
     public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
-        //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
-        let res: string = "";
-        if (IncomingItemAuthors) {
-            for (let IncomingItemAuthor of IncomingItemAuthors) {
-                res += IncomingItemAuthor.lastName + ' ' + IncomingItemAuthor.firstName +
-                    (IncomingItemAuthor.middleName.length > 0 ? ' ' + IncomingItemAuthor.middleName : '') + '; ';
-                if (res.length > 60) {
-                    res += " [et al.]";
-                    break;
-                }
-            }
-        }
-        return res.trim();
+        return this.SourcesService.AuthorsString(IncomingItemAuthors);        
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

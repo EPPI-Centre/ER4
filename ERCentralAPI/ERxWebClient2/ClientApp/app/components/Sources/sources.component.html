@@ -2,8 +2,9 @@
 <button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
+
 <kendo-splitter orientation="horizontal">
-    <kendo-splitter-pane>
+    <kendo-splitter-pane><div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
         <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
             <kendo-tabstrip-tab [title]="'Manage Sources'">
                 <ng-template kendoTabContent>
@@ -61,6 +62,7 @@
                                                 </p>
                                                 <p>Duplicates: <strong>{{CurrentSource.duplicates}}</strong></p>
                                                 <p>Outcomes: <strong>{{CurrentSource.outcomes}}</strong></p>
+                                                <p>Import Filter: <strong>{{CurrentSource.importFilter}}</strong></p>
                                             </div>
                                         </div>
                                     </div>
@@ -110,7 +112,7 @@
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'PubMed'">
                 <ng-template kendoTabContent>
-                    pubmed here...
+                    <PubMedComp></PubMedComp>
                 </ng-template>
             </kendo-tabstrip-tab>
         </kendo-tabstrip>

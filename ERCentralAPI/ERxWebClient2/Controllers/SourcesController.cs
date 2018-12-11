@@ -244,6 +244,75 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [HttpPost("[action]")]
+        public IActionResult NewPubMedSearchPreview([FromBody] SingleStringCriteria SearchSt)
+        {
+            //called the first time we run a given search (assumed new search string)
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<PubMedSearch> dp = new DataPortal<PubMedSearch>();
+                    PubMedSearch res = dp.Fetch(new SingleCriteria<PubMedSearch, string>(SearchSt.Value));
+                    //if (FullRes.Count > 100)
+                    //{//send back only 100 results...
+                    //    res.incomingItems = FullRes.GetRange(0, 100);
+                    //}
+                    //else
+                    //{
+                    //    res.incomingItems = FullRes;
+                    //}
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "New PubMed Search Preview error");
+                throw;
+            }
+
+        }
+        [HttpPost("[action]")]
+        public IActionResult ActOnPubMedSearchPreview([FromBody] PubMedSearchJSON PmSearchJSON)
+        {
+            //called to fetch a different subset of results in existing search OR to save(import) the search
+            //difference is in the values of ShowStart/End and SaveStart/End.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    PubMedSearch res = new PubMedSearch();
+                    res.QueMax = PmSearchJSON.queMax;
+                    res.QueryKey = PmSearchJSON.queryKey;
+                    res.QueryStr = PmSearchJSON.queryStr;
+                    res.saveEnd = PmSearchJSON.saveEnd;
+                    res.saveStart = PmSearchJSON.saveStart;
+                    res.showEnd = PmSearchJSON.showEnd;
+                    res.showStart = PmSearchJSON.showStart;
+                    res.Summary = PmSearchJSON.summary;
+                    res.WebEnv = PmSearchJSON.webEnv;
+                    res.ItemsList = new IncomingItemsList();
+                    res.ItemsList.SourceName = PmSearchJSON.ItemsList.SourceName;
+                    res.ItemsList.SearchDescr = PmSearchJSON.ItemsList.SearchDescr;
+                    res.ItemsList.SearchStr = PmSearchJSON.queryStr;
+                    res.ItemsList.SourceDB = PmSearchJSON.ItemsList.SourceDB;
+                    res.ItemsList.DateOfImport = PmSearchJSON.ItemsList.DateOfImport == new DateTime() ? DateTime.Now : PmSearchJSON.ItemsList.DateOfImport;
+                    res.ItemsList.DateOfSearch = PmSearchJSON.ItemsList.DateOfSearch == new DateTime() ? DateTime.Now : PmSearchJSON.ItemsList.DateOfSearch;
+                    res = res.Save();
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Act on PubMed Search (import or fetch specific subset) error");
+                throw;
+            }
+
+        }
+
+
         private FilterRules GetFilterRules(string FilterName, out int RuleID)
         {
             RuleID = -1;
@@ -340,6 +409,22 @@ namespace ERxWebClient2.Controllers
         public int totalReferences = 0;
         public List<ItemIncomingData> incomingItems = new List<ItemIncomingData>();
     }
+
+    public class PubMedSearchJSON
+    {
+        public string queryStr = "";
+        public string webEnv = "";
+        public int queMax = 0;
+        public int showStart = 0;
+        public int showEnd = 0;
+        public int saveStart = 0;
+        public int saveEnd = 0;
+        public string summary = "";
+        //public MobileList<string> SavedIndexes = null;
+        public IncomingItemsList ItemsList = new IncomingItemsList();
+        public int queryKey = 0;
+    }
+
 //    public string Source_Name
 //public DateTime DateOfSerach
 //public DateTime DateOfImport

@@ -31,10 +31,6 @@ export class SourcesService extends BusyAwareService {
     public get IncomingItems4Checking(): IncomingItemsList | null {
         return this._IncomingItems4Checking;
     }
-    public ClearIncomingItems4Checking() {
-        this._IncomingItems4Checking = null;
-        this._LastUploadOrUpdateStatus = "";
-    }
     private _ImportFilters: ImportFilter[] = [];
     public get ImportFilters(): ImportFilter[] {
         return this._ImportFilters;
@@ -44,6 +40,9 @@ export class SourcesService extends BusyAwareService {
     @Output() SourceUploaded = new EventEmitter();
     @Output() SourceUpdated = new EventEmitter();
     @Output() SourceDeleted = new EventEmitter<number>();
+    @Output() gotPmSearchToCheck = new EventEmitter();
+    @Output() PubMedSearchImported = new EventEmitter();
+
     private _ReviewSources: ReadOnlySource[] = [];
     public get ReviewSources(): ReadOnlySource[] {
         return this._ReviewSources;
@@ -59,6 +58,19 @@ export class SourcesService extends BusyAwareService {
     private _LastDeleteForeverStatus: string = "";
     public get LastDeleteForeverStatus(): string {
         return this._LastDeleteForeverStatus;
+    }
+    private _CurrentPMsearch: PubMedSearch | null = null;
+    public get CurrentPMsearch(): PubMedSearch | null {
+        return this._CurrentPMsearch;
+    }
+
+    public ClearIncomingItems4Checking() {
+        this._IncomingItems4Checking = null;
+        this._LastUploadOrUpdateStatus = "";
+    }
+    public ClearPMsearchState() {
+        this._CurrentPMsearch = null;
+        this._LastUploadOrUpdateStatus = "";
     }
     
     public FetchSources() {
@@ -88,7 +100,43 @@ export class SourcesService extends BusyAwareService {
             }
         );
     }
-    //UpdateSource
+    public FetchNewPubMedSearch(SearchString: string) {
+        this._BusyMethods.push("FetchNewPubMedSearch");
+        let body = JSON.stringify({ Value: SearchString });
+        this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
+            this._CurrentPMsearch = result;
+            //this.gotSource.emit();
+        }, error => { this.modalService.GenericErrorMessage(error); }
+            , () => {
+                this.gotPmSearchToCheck.emit();
+                this.RemoveBusy("FetchNewPubMedSearch");
+            }
+        );
+    }
+    public ActOnPubMedSearch(PmSearch: PubMedSearch) {
+        this._BusyMethods.push("ActOnPubMedSearch");
+        //same logic as ER4 to figure if we're doing the import or just getting some results to show.
+        let IsGettingAPreview: boolean = (PmSearch.showEnd != 0 && PmSearch.showStart < PmSearch.showEnd && PmSearch.saveEnd == 0 && PmSearch.saveStart == 0);
+        let body = JSON.stringify(PmSearch);
+        this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
+            this._CurrentPMsearch = result;
+            this._LastUploadOrUpdateStatus = "Success";
+            if (!IsGettingAPreview) this.FetchSources();
+        }, error => {
+            console.log("something went wrong: ", error);
+            this._LastUploadOrUpdateStatus = "Error";
+        }
+            , () => {
+                if (IsGettingAPreview) {
+                    //we're getting a different preview
+                    this.gotPmSearchToCheck.emit();
+                } else {//importing
+                    this.PubMedSearchImported.emit();
+                }
+                this.RemoveBusy("ActOnPubMedSearch");
+            }
+        );
+    }
     public DeleteSourceForever(SourceId: number) {
         this._LastDeleteForeverStatus = "";
         this._BusyMethods.push("DeleteSourceForever");
@@ -244,7 +292,22 @@ export class SourcesService extends BusyAwareService {
         };
         return result;
     }
-    
+    public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
+        //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
+        let res: string = "";
+        if (IncomingItemAuthors) {
+            for (let IncomingItemAuthor of IncomingItemAuthors) {
+                res += IncomingItemAuthor.lastName + ' ' + IncomingItemAuthor.firstName +
+                    (IncomingItemAuthor.middleName.length > 0 ? ' ' + IncomingItemAuthor.middleName : '') + '; ';
+                if (res.length > 60) {
+                    res += " [et al.]";
+                    break;
+                }
+            }
+        }
+        return res.trim();
+    }
+
 }
 export interface Source {
     source_ID: number;
@@ -304,4 +367,27 @@ export interface ReadOnlySource {
 }
 export interface ReadOnlySourcesList {
     sources: ReadOnlySource[];
+}
+
+export interface PubMedSearch {
+    queryStr: string;
+    webEnv: string;
+    queMax: number;
+    showStart: number;
+    showEnd: number;
+    saveStart: number;
+    saveEnd: number;
+    summary: string;
+    //public MobileList<string> SavedIndexes = null;
+    itemsList: PMincomingItems;
+    queryKey: number;
+}
+export interface PMincomingItems {
+    sourceName: string;
+    incomingItems: IncomingItem[];
+    notes: string;
+    searchDescr: string;
+    sourceDB: string;
+    dateOfSerach: string;
+    dateOfImport: string;
 }

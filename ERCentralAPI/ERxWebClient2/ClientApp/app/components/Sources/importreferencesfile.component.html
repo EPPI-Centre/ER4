@@ -14,11 +14,11 @@
         <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
     </div>
     <div *ngIf="WizPhase==1.5">
-        Phase 1.5: uploading <button (click)="back()">back/cancel</button> <br />
+        Phase 1: uploading... <br /><br /><br />
     </div>
     <div *ngIf="WizPhase==2" class="row">
         <div class="col-12">
-            Phase 2: see if the file parses as expected:<br />
+            Phase 2, see if the file parses as expected:<br />
             <button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button>
             <button *ngIf="DataToCheck" type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
                 {{togglePreviewPanelButtonText}}
