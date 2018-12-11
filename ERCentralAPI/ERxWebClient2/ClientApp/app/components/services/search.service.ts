@@ -48,8 +48,9 @@ export class searchService extends BusyAwareService {
     Fetch() {
         this._BusyMethods.push("Fetch");
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
-			.subscribe(result => {
-					//console.log('alkjshdf askljdfh' + JSON.stringify(result));
+			 .subscribe(result => {
+				
+					console.log('alkjshdf askljdfh' + JSON.stringify(result));
 					this.SearchList = result;
 					//this.searchesChanged.emit();
              },
@@ -122,6 +123,8 @@ export class Search {
 	title: string = '';
 	searchDate: string = '';
 	contactName: string = '';
+	isClassifierResult: boolean = false;
+
 }
 
 export class SearchCodeCommand {
