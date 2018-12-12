@@ -24,7 +24,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyReviewList() { }
 #else
-        private ReadOnlyReviewList() { }
+        public ReadOnlyReviewList() { }
 #endif
 
         public static void GetReviewList(int contactId, EventHandler<DataPortalResult<ReadOnlyReviewList>> handler)
@@ -48,7 +48,11 @@ namespace BusinessLibrary.BusinessClasses
 
         private void DataPortal_Fetch(SingleCriteria<ReadOnlyReviewList, int> criteria)
         {
+#if !CSLA_NETCORE
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+#elif CSLA_NETCORE
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+#endif
             int currentRid = ri.ReviewId;
             RaiseListChangedEvents = false;
             IsReadOnly = false;
@@ -95,5 +99,5 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-    }
+        }
 }

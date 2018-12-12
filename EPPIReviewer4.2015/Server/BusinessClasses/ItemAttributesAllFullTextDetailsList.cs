@@ -21,11 +21,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributesAllFullTextDetailsList : DynamicBindingListBase<ItemAttributeFullTextDetails>
     {
-#if SILVERLIGHT
+
     public ItemAttributesAllFullTextDetailsList() { }
-#else
-        private ItemAttributesAllFullTextDetailsList() { }
-#endif
+
     //internal ItemAttributeFullTextDetails getItemSet(Int64 ItemSetID)
     //{
     //    foreach (ItemSet IS in this)

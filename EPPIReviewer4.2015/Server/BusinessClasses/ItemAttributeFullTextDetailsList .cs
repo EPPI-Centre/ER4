@@ -21,13 +21,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeFullTextDetailsList : DynamicBindingListBase<ItemAttributeFullTextDetails>
     {
-#if SILVERLIGHT
         public ItemAttributeFullTextDetailsList () { }
-        
-#else
-        private ItemAttributeFullTextDetailsList() { }
-        
-#endif
         private List<ItemAttributeFullTextDetails> _SimpleTextList;
         public List<ItemAttributeFullTextDetails> SimpleTextList
         {//used to get the simpletext list to be used when adding other codes to simple text.

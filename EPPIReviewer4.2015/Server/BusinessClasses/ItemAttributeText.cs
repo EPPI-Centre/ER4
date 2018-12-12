@@ -21,12 +21,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeText : BusinessBase<ItemAttributeText>
     {
-
-#if SILVERLIGHT
     public ItemAttributeText() { }
-#else
-        private ItemAttributeText() { }
-#endif
+
         internal static ItemAttributeText CreateNew(ItemAttributeFullTextDetails source)
         {
             if (source.IsFromPDF) return null;
@@ -42,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
                 return result;
             }
         }
-        private static PropertyInfo<Int64> ItemAttributeTextIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeTextId", "ItemAttributeTextId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeTextIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeTextId", "ItemAttributeTextId"));
         public Int64 ItemAttributeTextId
         {
             get
@@ -55,7 +51,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        public static readonly PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
         public Int64 ItemDocumentId
         {
             get
@@ -68,7 +64,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
         public Int64 ItemAttributeId
         {
             get
@@ -81,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom", 0));
+        public static readonly PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom", 0));
         public int TextFrom
         {
             get
@@ -94,7 +90,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo", 0));
+        public static readonly PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo", 0));
         public int TextTo
         {
             get

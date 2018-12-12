@@ -7,115 +7,13 @@ using System.IO;
 
 namespace EPPIDataServices.Helpers
 {
-    // Specific implementation of dotnetcore ILogger
-    public class EPPILogger : ILogger
-    {
-
-        private bool SaveLog = false;
-        private string LogFileFullPath = "";
-        readonly CustomLoggerProviderConfiguration loggerConfigK;
-        readonly CustomLoggerProviderConfigurationPubMed loggerConfig;
-        
-        public EPPILogger(CustomLoggerProviderConfiguration loggerConfigK)
-        {
-            this.loggerConfigK = loggerConfigK;
-        }
-
-        public EPPILogger(string name, CustomLoggerProviderConfigurationPubMed config)
-        {
-            // Need to change this so that the file is used for logging
-            // or not dependent on the setting...
-            SaveLog = true; // SaveLogTofile;
-
-            loggerConfig = config;
-        }
-                
-        private static string CreateLogFileName()
-        {
-            DirectoryInfo logDir = System.IO.Directory.CreateDirectory("LogFiles");
-            string LogFilename = logDir.FullName + @"\" + "PubmedImportLog-" + DateTime.Now.ToString("dd-MM-yyyy") + ".txt";
-            //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
-            return LogFilename;
-        }
-        public static string Duration(DateTime starttime)
-        {
-            double ms = DateTime.Now.Subtract(starttime).TotalMilliseconds;
-            string duration = Math.Round(ms).ToString() + "ms.";
-            if (ms > 180000)
-            {
-                ms = DateTime.Now.Subtract(starttime).TotalMinutes;
-                duration = Math.Round(ms).ToString() + "m.";
-            }
-            else if (ms > 4000)
-            {
-                duration = Math.Round(ms / 1000).ToString() + "s.";
-            }
-            return duration;
-        }
-        // Main log method, for different types write extensions
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-                string message = string.Format("{0}: {1} - {2}", logLevel.ToString(), eventId.Id, formatter(state, exception));
-                WriteTextToFile(message);
-
-        }
-        private void WriteTextToFile(string message)
-        {
-            string filePath = CreateLogFileName(); 
-            using (StreamWriter streamWriter = new StreamWriter(filePath, true))
-            {
-                streamWriter.WriteLine(message);
-                streamWriter.Close();
-            }
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return null;
-        }
-    }
-
-    public class CustomLoggerProviderConfiguration
-    {
-        public LogLevel LogLevel { get; set; } = LogLevel.Error;
-        public int EventId { get; set; } = 0;
-    }
 
     public class CustomLoggerProviderConfigurationPubMed
     {
         public LogLevel LogLevel { get; set; } = LogLevel.Error;
         public int EventId { get; set; } = 0;
     }
-
-    // The ILogger provider is described below
-    // see microsoft MSDN for different options here
-    // EPPILogger class is used as the method and properties...
-    public class CustomLoggerProvider : ILoggerProvider
-    {
-
-        readonly CustomLoggerProviderConfigurationPubMed loggerConfigK;
-        readonly ConcurrentDictionary<string, EPPILogger> loggers =
-         new ConcurrentDictionary<string, EPPILogger>();
-        public CustomLoggerProvider(CustomLoggerProviderConfigurationPubMed config)
-        {
-            loggerConfigK = config;
-        }
-        public ILogger CreateLogger(string category)
-        {
-            return loggers.GetOrAdd(category,
-             name => new EPPILogger(null, loggerConfigK));
-        }
-        public void Dispose()
-        {
-            //Write code here to dispose the resources
-        }
-    }
-
+      
     public static class LoggerExtensions
     {
         private static readonly Action<ILogger, string, string, Exception> _SQLActionFailed;
@@ -123,8 +21,9 @@ namespace EPPIDataServices.Helpers
         public static string SQLParams;
         public static string strFTP;
 
-        public static void LogException(this ILogger logger, Exception ex)
+        public static void LogException(this ILogger logger, Exception ex, string message = "")
         {
+            if (message != "") logger.LogError(message);
             if (ex.Message != null && ex.Message != "")
                 logger.LogError("MSG: " + ex.Message);
             if (ex.StackTrace != null && ex.StackTrace != "")
@@ -151,7 +50,8 @@ namespace EPPIDataServices.Helpers
             _SQLActionFailed = LoggerMessage.Define<string, string>(
                 LogLevel.Error,
                new EventId(4, nameof(SQLActionFailed)),
-               "SQL Error detected (message = '{message}' SQLParams= {SQLParams})");
+               "SQL Error detected." + Environment.NewLine 
+               + "(message = '{message}' " + Environment.NewLine + " SQLParams= {SQLParams})");
 
             _FTPActionFailed = LoggerMessage.Define<string, string>(
                LogLevel.Error,
@@ -169,7 +69,9 @@ namespace EPPIDataServices.Helpers
                 {
                     if (item != null)
                     {
-                        SQLParams += item.ParameterName + "," + " SQLValue: " + item.Value.ToString();
+                        SQLParams += item.ParameterName + ", SQLValue: ";
+                        if (item.Value == null) SQLParams += "NULL" + Environment.NewLine;
+                        else SQLParams +=  item.Value.ToString() + Environment.NewLine;
                     }
                 }
             }
@@ -178,6 +80,7 @@ namespace EPPIDataServices.Helpers
 
         public static void FTPActionFailed(this ILogger logger, List<string> messages, string doingWhat, Exception ex)
         {
+            LogException(logger, ex);
             if (ex == null || ex.Message == null || ex.Message == "")
             {
                 messages.Add("Unknown error " + doingWhat);

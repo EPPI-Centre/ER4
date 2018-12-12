@@ -16,7 +16,9 @@ using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
+#if (!CSLA_NETCORE)
 using MetaGraphs.ForestPlot;
+#endif
 using System.Drawing;
 #else
 using System.Windows.Media.Imaging; 
@@ -56,7 +58,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<Item, Int64>(Id));
         }
 
-        private static PropertyInfo<int> OutcomeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeId", "OutcomeId"));
+        public static readonly PropertyInfo<int> OutcomeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeId", "OutcomeId"));
         [JsonProperty]
         public int OutcomeId
         {
@@ -66,7 +68,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+        public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
 
         [JsonProperty]
         public Int64 ItemSetId
@@ -81,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> OutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeTypeId", "OutcomeTypeId"));
+        public static readonly PropertyInfo<int> OutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeTypeId", "OutcomeTypeId"));
         public int OutcomeTypeId
         {
             get
@@ -95,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ManuallyEnteredOutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ManuallyEnteredOutcomeTypeId", "ManuallyEnteredOutcomeTypeId"));
+        public static readonly PropertyInfo<int> ManuallyEnteredOutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ManuallyEnteredOutcomeTypeId", "ManuallyEnteredOutcomeTypeId"));
         public int ManuallyEnteredOutcomeTypeId
         {
             get
@@ -109,7 +111,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // This combines the manually entered with the other outcome types in order that we can present a unified type
-        private static PropertyInfo<int> UnifiedOutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UnifiedOutcomeTypeId", "UnifiedOutcomeTypeId"));
+        public static readonly PropertyInfo<int> UnifiedOutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UnifiedOutcomeTypeId", "UnifiedOutcomeTypeId"));
         public int UnifiedOutcomeTypeId
         {
             get
@@ -122,7 +124,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> OutcomeTypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeTypeName", "OutcomeTypeName"));
+        public static readonly PropertyInfo<string> OutcomeTypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeTypeName", "OutcomeTypeName"));
         [JsonProperty]
         public string OutcomeTypeName
         {
@@ -136,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdInterventionProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdIntervention", "ItemAttributeIdIntervention"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdInterventionProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdIntervention", "ItemAttributeIdIntervention"));
         [JsonProperty]
         public Int64 ItemAttributeIdIntervention
         {
@@ -150,7 +152,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdControlProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdControl", "ItemAttributeIdControl"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdControlProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdControl", "ItemAttributeIdControl"));
         [JsonProperty]
         public Int64 ItemAttributeIdControl
         {
@@ -164,7 +166,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdOutcomeProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdOutcome", "ItemAttributeIdOutcome"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdOutcomeProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeIdOutcome", "ItemAttributeIdOutcome"));
         [JsonProperty]
         public Int64 ItemAttributeIdOutcome
         {
@@ -178,7 +180,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         [JsonProperty]
         public string Title
         {
@@ -192,7 +194,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
         [JsonProperty]
         public string ShortTitle
         {
@@ -206,7 +208,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> OutcomeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeDescription", "OutcomeDescription", string.Empty));
+        public static readonly PropertyInfo<string> OutcomeDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeDescription", "OutcomeDescription", string.Empty));
         [JsonProperty]
         public string OutcomeDescription
         {
@@ -220,7 +222,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data1Property = RegisterProperty<double>(new PropertyInfo<double>("Data1", "Data1"));
+        public static readonly PropertyInfo<double> Data1Property = RegisterProperty<double>(new PropertyInfo<double>("Data1", "Data1"));
         [JsonProperty]
         public double Data1
         {
@@ -235,7 +237,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data2Property = RegisterProperty<double>(new PropertyInfo<double>("Data2", "Data2"));
+        public static readonly PropertyInfo<double> Data2Property = RegisterProperty<double>(new PropertyInfo<double>("Data2", "Data2"));
         [JsonProperty]
         public double Data2
         {
@@ -250,7 +252,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data3Property = RegisterProperty<double>(new PropertyInfo<double>("Data3", "Data3"));
+        public static readonly PropertyInfo<double> Data3Property = RegisterProperty<double>(new PropertyInfo<double>("Data3", "Data3"));
         [JsonProperty]
         public double Data3
         {
@@ -265,7 +267,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data4Property = RegisterProperty<double>(new PropertyInfo<double>("Data4", "Data4"));
+        public static readonly PropertyInfo<double> Data4Property = RegisterProperty<double>(new PropertyInfo<double>("Data4", "Data4"));
         [JsonProperty]
         public double Data4
         {
@@ -280,7 +282,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data5Property = RegisterProperty<double>(new PropertyInfo<double>("Data5", "Data5"));
+        public static readonly PropertyInfo<double> Data5Property = RegisterProperty<double>(new PropertyInfo<double>("Data5", "Data5"));
         [JsonProperty]
         public double Data5
         {
@@ -295,7 +297,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data6Property = RegisterProperty<double>(new PropertyInfo<double>("Data6", "Data6"));
+        public static readonly PropertyInfo<double> Data6Property = RegisterProperty<double>(new PropertyInfo<double>("Data6", "Data6"));
         [JsonProperty]
         public double Data6
         {
@@ -310,7 +312,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data7Property = RegisterProperty<double>(new PropertyInfo<double>("Data7", "Data7"));
+        public static readonly PropertyInfo<double> Data7Property = RegisterProperty<double>(new PropertyInfo<double>("Data7", "Data7"));
         [JsonProperty]
         public double Data7
         {
@@ -325,7 +327,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data8Property = RegisterProperty<double>(new PropertyInfo<double>("Data8", "Data8"));
+        public static readonly PropertyInfo<double> Data8Property = RegisterProperty<double>(new PropertyInfo<double>("Data8", "Data8"));
         [JsonProperty]
         public double Data8
         {
@@ -340,7 +342,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data9Property = RegisterProperty<double>(new PropertyInfo<double>("Data9", "Data9"));
+        public static readonly PropertyInfo<double> Data9Property = RegisterProperty<double>(new PropertyInfo<double>("Data9", "Data9"));
         [JsonProperty]
         public double Data9
         {
@@ -355,7 +357,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data10Property = RegisterProperty<double>(new PropertyInfo<double>("Data10", "Data10"));
+        public static readonly PropertyInfo<double> Data10Property = RegisterProperty<double>(new PropertyInfo<double>("Data10", "Data10"));
         [JsonProperty]
         public double Data10
         {
@@ -370,7 +372,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data11Property = RegisterProperty<double>(new PropertyInfo<double>("Data11", "Data11"));
+        public static readonly PropertyInfo<double> Data11Property = RegisterProperty<double>(new PropertyInfo<double>("Data11", "Data11"));
         [JsonProperty]
         public double Data11
         {
@@ -385,7 +387,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data12Property = RegisterProperty<double>(new PropertyInfo<double>("Data12", "Data12"));
+        public static readonly PropertyInfo<double> Data12Property = RegisterProperty<double>(new PropertyInfo<double>("Data12", "Data12"));
         [JsonProperty]
         public double Data12
         {
@@ -400,7 +402,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data13Property = RegisterProperty<double>(new PropertyInfo<double>("Data13", "Data13"));
+        public static readonly PropertyInfo<double> Data13Property = RegisterProperty<double>(new PropertyInfo<double>("Data13", "Data13"));
         [JsonProperty]
         public double Data13
         {
@@ -415,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> Data14Property = RegisterProperty<double>(new PropertyInfo<double>("Data14", "Data14"));
+        public static readonly PropertyInfo<double> Data14Property = RegisterProperty<double>(new PropertyInfo<double>("Data14", "Data14"));
         [JsonProperty]
         public double Data14
         {
@@ -430,7 +432,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
+        public static readonly PropertyInfo<string> InterventionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("InterventionText", "InterventionText", string.Empty));
         [JsonProperty]
         public string InterventionText
         {
@@ -444,7 +446,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ControlTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ControlText", "ControlText", string.Empty));
+        public static readonly PropertyInfo<string> ControlTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ControlText", "ControlText", string.Empty));
         [JsonProperty]
         public string ControlText
         {
@@ -458,7 +460,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> OutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeText", "OutcomeText", string.Empty));
+        public static readonly PropertyInfo<string> OutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("OutcomeText", "OutcomeText", string.Empty));
         [JsonProperty]
         public string OutcomeText
         {
@@ -472,7 +474,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected"));
+        public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected"));
         public bool IsSelected
         {
             get
@@ -492,7 +494,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> CanSelectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CanSelect", "CanSelect"));
+        public static readonly PropertyInfo<bool> CanSelectProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CanSelect", "CanSelect"));
         public bool CanSelect
         {
             get
@@ -540,7 +542,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         [NotUndoable]
-        private static PropertyInfo<OutcomeItemAttributeList> OutcomeCodesProperty = RegisterProperty<OutcomeItemAttributeList>(new PropertyInfo<OutcomeItemAttributeList>("OutcomeCodes", "OutcomeCodes"));
+        public static readonly PropertyInfo<OutcomeItemAttributeList> OutcomeCodesProperty = RegisterProperty<OutcomeItemAttributeList>(new PropertyInfo<OutcomeItemAttributeList>("OutcomeCodes", "OutcomeCodes"));
 
         public OutcomeItemAttributeList OutcomeCodes
         {
@@ -556,7 +558,7 @@ namespace BusinessLibrary.BusinessClasses
 
         /**** OUTCOME CLASSIFICATION CODES - NORMALISED FOR GRIDVIEW *****/
 
-        private static PropertyInfo<int> occ1Property = RegisterProperty<int>(new PropertyInfo<int>("occ1", "occ1"));
+        public static readonly PropertyInfo<int> occ1Property = RegisterProperty<int>(new PropertyInfo<int>("occ1", "occ1"));
         public int occ1
         {
             get
@@ -569,7 +571,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-       private static PropertyInfo<int> occ2Property = RegisterProperty<int>(new PropertyInfo<int>("occ2", "occ2"));
+       public static readonly PropertyInfo<int> occ2Property = RegisterProperty<int>(new PropertyInfo<int>("occ2", "occ2"));
         public int occ2
         {
             get
@@ -582,7 +584,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ3Property = RegisterProperty<int>(new PropertyInfo<int>("occ3", "occ3"));
+        public static readonly PropertyInfo<int> occ3Property = RegisterProperty<int>(new PropertyInfo<int>("occ3", "occ3"));
         public int occ3
         {
             get
@@ -595,7 +597,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ4Property = RegisterProperty<int>(new PropertyInfo<int>("occ4", "occ4"));
+        public static readonly PropertyInfo<int> occ4Property = RegisterProperty<int>(new PropertyInfo<int>("occ4", "occ4"));
         public int occ4
         {
             get
@@ -608,7 +610,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ5Property = RegisterProperty<int>(new PropertyInfo<int>("occ5", "occ5"));
+        public static readonly PropertyInfo<int> occ5Property = RegisterProperty<int>(new PropertyInfo<int>("occ5", "occ5"));
         public int occ5
         {
             get
@@ -621,7 +623,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ6Property = RegisterProperty<int>(new PropertyInfo<int>("occ6", "occ6"));
+        public static readonly PropertyInfo<int> occ6Property = RegisterProperty<int>(new PropertyInfo<int>("occ6", "occ6"));
         public int occ6
         {
             get
@@ -634,7 +636,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ7Property = RegisterProperty<int>(new PropertyInfo<int>("occ7", "occ7"));
+        public static readonly PropertyInfo<int> occ7Property = RegisterProperty<int>(new PropertyInfo<int>("occ7", "occ7"));
         public int occ7
         {
             get
@@ -647,7 +649,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ8Property = RegisterProperty<int>(new PropertyInfo<int>("occ8", "occ8"));
+        public static readonly PropertyInfo<int> occ8Property = RegisterProperty<int>(new PropertyInfo<int>("occ8", "occ8"));
         public int occ8
         {
             get
@@ -660,7 +662,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ9Property = RegisterProperty<int>(new PropertyInfo<int>("occ9", "occ9"));
+        public static readonly PropertyInfo<int> occ9Property = RegisterProperty<int>(new PropertyInfo<int>("occ9", "occ9"));
         public int occ9
         {
             get
@@ -673,7 +675,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ10Property = RegisterProperty<int>(new PropertyInfo<int>("occ10", "occ10"));
+        public static readonly PropertyInfo<int> occ10Property = RegisterProperty<int>(new PropertyInfo<int>("occ10", "occ10"));
         public int occ10
         {
             get
@@ -686,7 +688,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ11Property = RegisterProperty<int>(new PropertyInfo<int>("occ11", "occ11"));
+        public static readonly PropertyInfo<int> occ11Property = RegisterProperty<int>(new PropertyInfo<int>("occ11", "occ11"));
         public int occ11
         {
             get
@@ -699,7 +701,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ12Property = RegisterProperty<int>(new PropertyInfo<int>("occ12", "occ12"));
+        public static readonly PropertyInfo<int> occ12Property = RegisterProperty<int>(new PropertyInfo<int>("occ12", "occ12"));
         public int occ12
         {
             get
@@ -712,7 +714,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ13Property = RegisterProperty<int>(new PropertyInfo<int>("occ13", "occ13"));
+        public static readonly PropertyInfo<int> occ13Property = RegisterProperty<int>(new PropertyInfo<int>("occ13", "occ13"));
         public int occ13
         {
             get
@@ -725,7 +727,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ14Property = RegisterProperty<int>(new PropertyInfo<int>("occ14", "occ14"));
+        public static readonly PropertyInfo<int> occ14Property = RegisterProperty<int>(new PropertyInfo<int>("occ14", "occ14"));
         public int occ14
         {
             get
@@ -738,7 +740,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ15Property = RegisterProperty<int>(new PropertyInfo<int>("occ15", "occ15"));
+        public static readonly PropertyInfo<int> occ15Property = RegisterProperty<int>(new PropertyInfo<int>("occ15", "occ15"));
         public int occ15
         {
             get
@@ -751,7 +753,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ16Property = RegisterProperty<int>(new PropertyInfo<int>("occ16", "occ16"));
+        public static readonly PropertyInfo<int> occ16Property = RegisterProperty<int>(new PropertyInfo<int>("occ16", "occ16"));
         public int occ16
         {
             get
@@ -764,7 +766,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ17Property = RegisterProperty<int>(new PropertyInfo<int>("occ17", "occ17"));
+        public static readonly PropertyInfo<int> occ17Property = RegisterProperty<int>(new PropertyInfo<int>("occ17", "occ17"));
         public int occ17
         {
             get
@@ -777,7 +779,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ18Property = RegisterProperty<int>(new PropertyInfo<int>("occ18", "occ18"));
+        public static readonly PropertyInfo<int> occ18Property = RegisterProperty<int>(new PropertyInfo<int>("occ18", "occ18"));
         public int occ18
         {
             get
@@ -790,7 +792,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ19Property = RegisterProperty<int>(new PropertyInfo<int>("occ19", "occ19"));
+        public static readonly PropertyInfo<int> occ19Property = RegisterProperty<int>(new PropertyInfo<int>("occ19", "occ19"));
         public int occ19
         {
             get
@@ -803,7 +805,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ20Property = RegisterProperty<int>(new PropertyInfo<int>("occ20", "occ20"));
+        public static readonly PropertyInfo<int> occ20Property = RegisterProperty<int>(new PropertyInfo<int>("occ20", "occ20"));
         public int occ20
         {
             get
@@ -816,7 +818,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ21Property = RegisterProperty<int>(new PropertyInfo<int>("occ21", "occ21"));
+        public static readonly PropertyInfo<int> occ21Property = RegisterProperty<int>(new PropertyInfo<int>("occ21", "occ21"));
         public int occ21
         {
             get
@@ -829,7 +831,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ22Property = RegisterProperty<int>(new PropertyInfo<int>("occ22", "occ22"));
+        public static readonly PropertyInfo<int> occ22Property = RegisterProperty<int>(new PropertyInfo<int>("occ22", "occ22"));
         public int occ22
         {
             get
@@ -842,7 +844,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ23Property = RegisterProperty<int>(new PropertyInfo<int>("occ23", "occ23"));
+        public static readonly PropertyInfo<int> occ23Property = RegisterProperty<int>(new PropertyInfo<int>("occ23", "occ23"));
         public int occ23
         {
             get
@@ -855,7 +857,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ24Property = RegisterProperty<int>(new PropertyInfo<int>("occ24", "occ24"));
+        public static readonly PropertyInfo<int> occ24Property = RegisterProperty<int>(new PropertyInfo<int>("occ24", "occ24"));
         public int occ24
         {
             get
@@ -868,7 +870,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ25Property = RegisterProperty<int>(new PropertyInfo<int>("occ25", "occ25"));
+        public static readonly PropertyInfo<int> occ25Property = RegisterProperty<int>(new PropertyInfo<int>("occ25", "occ25"));
         public int occ25
         {
             get
@@ -881,7 +883,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ26Property = RegisterProperty<int>(new PropertyInfo<int>("occ26", "occ26"));
+        public static readonly PropertyInfo<int> occ26Property = RegisterProperty<int>(new PropertyInfo<int>("occ26", "occ26"));
         public int occ26
         {
             get
@@ -894,7 +896,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ27Property = RegisterProperty<int>(new PropertyInfo<int>("occ27", "occ27"));
+        public static readonly PropertyInfo<int> occ27Property = RegisterProperty<int>(new PropertyInfo<int>("occ27", "occ27"));
         public int occ27
         {
             get
@@ -907,7 +909,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ28Property = RegisterProperty<int>(new PropertyInfo<int>("occ28", "occ28"));
+        public static readonly PropertyInfo<int> occ28Property = RegisterProperty<int>(new PropertyInfo<int>("occ28", "occ28"));
         public int occ28
         {
             get
@@ -920,7 +922,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ29Property = RegisterProperty<int>(new PropertyInfo<int>("occ29", "occ29"));
+        public static readonly PropertyInfo<int> occ29Property = RegisterProperty<int>(new PropertyInfo<int>("occ29", "occ29"));
         public int occ29
         {
             get
@@ -933,7 +935,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> occ30Property = RegisterProperty<int>(new PropertyInfo<int>("occ30", "occ30"));
+        public static readonly PropertyInfo<int> occ30Property = RegisterProperty<int>(new PropertyInfo<int>("occ30", "occ30"));
         public int occ30
         {
             get
@@ -946,7 +948,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa1Property = RegisterProperty<long>(new PropertyInfo<long>("aa1", "aa1"));
+        public static readonly PropertyInfo<long> aa1Property = RegisterProperty<long>(new PropertyInfo<long>("aa1", "aa1"));
         public long aa1
         {
             get
@@ -959,7 +961,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa2Property = RegisterProperty<long>(new PropertyInfo<long>("aa2", "aa2"));
+        public static readonly PropertyInfo<long> aa2Property = RegisterProperty<long>(new PropertyInfo<long>("aa2", "aa2"));
         public long aa2
         {
             get
@@ -972,7 +974,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa3Property = RegisterProperty<long>(new PropertyInfo<long>("aa3", "aa3"));
+        public static readonly PropertyInfo<long> aa3Property = RegisterProperty<long>(new PropertyInfo<long>("aa3", "aa3"));
         public long aa3
         {
             get
@@ -985,7 +987,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa4Property = RegisterProperty<long>(new PropertyInfo<long>("aa4", "aa4"));
+        public static readonly PropertyInfo<long> aa4Property = RegisterProperty<long>(new PropertyInfo<long>("aa4", "aa4"));
         public long aa4
         {
             get
@@ -998,7 +1000,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa5Property = RegisterProperty<long>(new PropertyInfo<long>("aa5", "aa5"));
+        public static readonly PropertyInfo<long> aa5Property = RegisterProperty<long>(new PropertyInfo<long>("aa5", "aa5"));
         public long aa5
         {
             get
@@ -1011,7 +1013,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa6Property = RegisterProperty<long>(new PropertyInfo<long>("aa6", "aa6"));
+        public static readonly PropertyInfo<long> aa6Property = RegisterProperty<long>(new PropertyInfo<long>("aa6", "aa6"));
         public long aa6
         {
             get
@@ -1024,7 +1026,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa7Property = RegisterProperty<long>(new PropertyInfo<long>("aa7", "aa7"));
+        public static readonly PropertyInfo<long> aa7Property = RegisterProperty<long>(new PropertyInfo<long>("aa7", "aa7"));
         public long aa7
         {
             get
@@ -1037,7 +1039,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa8Property = RegisterProperty<long>(new PropertyInfo<long>("aa8", "aa8"));
+        public static readonly PropertyInfo<long> aa8Property = RegisterProperty<long>(new PropertyInfo<long>("aa8", "aa8"));
         public long aa8
         {
             get
@@ -1050,7 +1052,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa9Property = RegisterProperty<long>(new PropertyInfo<long>("aa9", "aa9"));
+        public static readonly PropertyInfo<long> aa9Property = RegisterProperty<long>(new PropertyInfo<long>("aa9", "aa9"));
         public long aa9
         {
             get
@@ -1063,7 +1065,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa10Property = RegisterProperty<long>(new PropertyInfo<long>("aa10", "aa10"));
+        public static readonly PropertyInfo<long> aa10Property = RegisterProperty<long>(new PropertyInfo<long>("aa10", "aa10"));
         public long aa10
         {
             get
@@ -1076,7 +1078,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa11Property = RegisterProperty<long>(new PropertyInfo<long>("aa11", "aa11"));
+        public static readonly PropertyInfo<long> aa11Property = RegisterProperty<long>(new PropertyInfo<long>("aa11", "aa11"));
         public long aa11
         {
             get
@@ -1089,7 +1091,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa12Property = RegisterProperty<long>(new PropertyInfo<long>("aa12", "aa12"));
+        public static readonly PropertyInfo<long> aa12Property = RegisterProperty<long>(new PropertyInfo<long>("aa12", "aa12"));
         public long aa12
         {
             get
@@ -1102,7 +1104,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa13Property = RegisterProperty<long>(new PropertyInfo<long>("aa13", "aa13"));
+        public static readonly PropertyInfo<long> aa13Property = RegisterProperty<long>(new PropertyInfo<long>("aa13", "aa13"));
         public long aa13
         {
             get
@@ -1115,7 +1117,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa14Property = RegisterProperty<long>(new PropertyInfo<long>("aa14", "aa14"));
+        public static readonly PropertyInfo<long> aa14Property = RegisterProperty<long>(new PropertyInfo<long>("aa14", "aa14"));
         public long aa14
         {
             get
@@ -1128,7 +1130,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa15Property = RegisterProperty<long>(new PropertyInfo<long>("aa15", "aa15"));
+        public static readonly PropertyInfo<long> aa15Property = RegisterProperty<long>(new PropertyInfo<long>("aa15", "aa15"));
         public long aa15
         {
             get
@@ -1141,7 +1143,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa16Property = RegisterProperty<long>(new PropertyInfo<long>("aa16", "aa16"));
+        public static readonly PropertyInfo<long> aa16Property = RegisterProperty<long>(new PropertyInfo<long>("aa16", "aa16"));
         public long aa16
         {
             get
@@ -1154,7 +1156,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa17Property = RegisterProperty<long>(new PropertyInfo<long>("aa17", "aa17"));
+        public static readonly PropertyInfo<long> aa17Property = RegisterProperty<long>(new PropertyInfo<long>("aa17", "aa17"));
         public long aa17
         {
             get
@@ -1167,7 +1169,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa18Property = RegisterProperty<long>(new PropertyInfo<long>("aa18", "aa18"));
+        public static readonly PropertyInfo<long> aa18Property = RegisterProperty<long>(new PropertyInfo<long>("aa18", "aa18"));
         public long aa18
         {
             get
@@ -1180,7 +1182,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa19Property = RegisterProperty<long>(new PropertyInfo<long>("aa19", "aa19"));
+        public static readonly PropertyInfo<long> aa19Property = RegisterProperty<long>(new PropertyInfo<long>("aa19", "aa19"));
         public long aa19
         {
             get
@@ -1193,7 +1195,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<long> aa20Property = RegisterProperty<long>(new PropertyInfo<long>("aa20", "aa20"));
+        public static readonly PropertyInfo<long> aa20Property = RegisterProperty<long>(new PropertyInfo<long>("aa20", "aa20"));
         public long aa20
         {
             get
@@ -1206,7 +1208,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq1Property = RegisterProperty<string>(new PropertyInfo<string>("aq1", "aq1"));
+        public static readonly PropertyInfo<string> aq1Property = RegisterProperty<string>(new PropertyInfo<string>("aq1", "aq1"));
         public string aq1
         {
             get
@@ -1219,7 +1221,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq2Property = RegisterProperty<string>(new PropertyInfo<string>("aq2", "aq2"));
+        public static readonly PropertyInfo<string> aq2Property = RegisterProperty<string>(new PropertyInfo<string>("aq2", "aq2"));
         public string aq2
         {
             get
@@ -1232,7 +1234,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq3Property = RegisterProperty<string>(new PropertyInfo<string>("aq3", "aq3"));
+        public static readonly PropertyInfo<string> aq3Property = RegisterProperty<string>(new PropertyInfo<string>("aq3", "aq3"));
         public string aq3
         {
             get
@@ -1245,7 +1247,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq4Property = RegisterProperty<string>(new PropertyInfo<string>("aq4", "aq4"));
+        public static readonly PropertyInfo<string> aq4Property = RegisterProperty<string>(new PropertyInfo<string>("aq4", "aq4"));
         public string aq4
         {
             get
@@ -1258,7 +1260,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq5Property = RegisterProperty<string>(new PropertyInfo<string>("aq5", "aq5"));
+        public static readonly PropertyInfo<string> aq5Property = RegisterProperty<string>(new PropertyInfo<string>("aq5", "aq5"));
         public string aq5
         {
             get
@@ -1271,7 +1273,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq6Property = RegisterProperty<string>(new PropertyInfo<string>("aq6", "aq6"));
+        public static readonly PropertyInfo<string> aq6Property = RegisterProperty<string>(new PropertyInfo<string>("aq6", "aq6"));
         public string aq6
         {
             get
@@ -1284,7 +1286,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq7Property = RegisterProperty<string>(new PropertyInfo<string>("aq7", "aq7"));
+        public static readonly PropertyInfo<string> aq7Property = RegisterProperty<string>(new PropertyInfo<string>("aq7", "aq7"));
         public string aq7
         {
             get
@@ -1297,7 +1299,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq8Property = RegisterProperty<string>(new PropertyInfo<string>("aq8", "aq8"));
+        public static readonly PropertyInfo<string> aq8Property = RegisterProperty<string>(new PropertyInfo<string>("aq8", "aq8"));
         public string aq8
         {
             get
@@ -1310,7 +1312,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq9Property = RegisterProperty<string>(new PropertyInfo<string>("aq9", "aq9"));
+        public static readonly PropertyInfo<string> aq9Property = RegisterProperty<string>(new PropertyInfo<string>("aq9", "aq9"));
         public string aq9
         {
             get
@@ -1323,7 +1325,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq10Property = RegisterProperty<string>(new PropertyInfo<string>("aq10", "aq10"));
+        public static readonly PropertyInfo<string> aq10Property = RegisterProperty<string>(new PropertyInfo<string>("aq10", "aq10"));
         public string aq10
         {
             get
@@ -1336,7 +1338,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq11Property = RegisterProperty<string>(new PropertyInfo<string>("aq11", "aq11"));
+        public static readonly PropertyInfo<string> aq11Property = RegisterProperty<string>(new PropertyInfo<string>("aq11", "aq11"));
         public string aq11
         {
             get
@@ -1349,7 +1351,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq12Property = RegisterProperty<string>(new PropertyInfo<string>("aq12", "aq12"));
+        public static readonly PropertyInfo<string> aq12Property = RegisterProperty<string>(new PropertyInfo<string>("aq12", "aq12"));
         public string aq12
         {
             get
@@ -1362,7 +1364,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq13Property = RegisterProperty<string>(new PropertyInfo<string>("aq13", "aq13"));
+        public static readonly PropertyInfo<string> aq13Property = RegisterProperty<string>(new PropertyInfo<string>("aq13", "aq13"));
         public string aq13
         {
             get
@@ -1375,7 +1377,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq14Property = RegisterProperty<string>(new PropertyInfo<string>("aq14", "aq14"));
+        public static readonly PropertyInfo<string> aq14Property = RegisterProperty<string>(new PropertyInfo<string>("aq14", "aq14"));
         public string aq14
         {
             get
@@ -1388,7 +1390,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq15Property = RegisterProperty<string>(new PropertyInfo<string>("aq15", "aq15"));
+        public static readonly PropertyInfo<string> aq15Property = RegisterProperty<string>(new PropertyInfo<string>("aq15", "aq15"));
         public string aq15
         {
             get
@@ -1401,7 +1403,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq16Property = RegisterProperty<string>(new PropertyInfo<string>("aq16", "aq16"));
+        public static readonly PropertyInfo<string> aq16Property = RegisterProperty<string>(new PropertyInfo<string>("aq16", "aq16"));
         public string aq16
         {
             get
@@ -1414,7 +1416,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq17Property = RegisterProperty<string>(new PropertyInfo<string>("aq17", "aq17"));
+        public static readonly PropertyInfo<string> aq17Property = RegisterProperty<string>(new PropertyInfo<string>("aq17", "aq17"));
         public string aq17
         {
             get
@@ -1427,7 +1429,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq18Property = RegisterProperty<string>(new PropertyInfo<string>("aq18", "aq18"));
+        public static readonly PropertyInfo<string> aq18Property = RegisterProperty<string>(new PropertyInfo<string>("aq18", "aq18"));
         public string aq18
         {
             get
@@ -1440,7 +1442,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq19Property = RegisterProperty<string>(new PropertyInfo<string>("aq19", "aq19"));
+        public static readonly PropertyInfo<string> aq19Property = RegisterProperty<string>(new PropertyInfo<string>("aq19", "aq19"));
         public string aq19
         {
             get
@@ -1453,7 +1455,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> aq20Property = RegisterProperty<string>(new PropertyInfo<string>("aq20", "aq20"));
+        public static readonly PropertyInfo<string> aq20Property = RegisterProperty<string>(new PropertyInfo<string>("aq20", "aq20"));
         public string aq20
         {
             get
@@ -1475,7 +1477,7 @@ namespace BusinessLibrary.BusinessClasses
          * 
          */
 
-        private static PropertyInfo<double> feWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("feWeight", "feWeight"));
+        public static readonly PropertyInfo<double> feWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("feWeight", "feWeight"));
         [JsonProperty]
         public double feWeight // just used when sending objects to the forest plotter.
         {
@@ -1489,7 +1491,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> reWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("reWeight", "reWeight"));
+        public static readonly PropertyInfo<double> reWeightProperty = RegisterProperty<double>(new PropertyInfo<double>("reWeight", "reWeight"));
         [JsonProperty]
         public double reWeight // just used when sending objects to the forest plotter.
         {
@@ -2410,7 +2412,7 @@ namespace BusinessLibrary.BusinessClasses
             return 0;
         }
 
-        private static PropertyInfo<double> SMDProperty = RegisterProperty<double>(new PropertyInfo<double>("SMD", "SMD"));
+        public static readonly PropertyInfo<double> SMDProperty = RegisterProperty<double>(new PropertyInfo<double>("SMD", "SMD"));
         [JsonProperty]
         public double SMD
         {
@@ -2420,7 +2422,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SESMDProperty = RegisterProperty<double>(new PropertyInfo<double>("SESMD", "SESMD"));
+        public static readonly PropertyInfo<double> SESMDProperty = RegisterProperty<double>(new PropertyInfo<double>("SESMD", "SESMD"));
         [JsonProperty]
         public double SESMD
         {
@@ -2430,7 +2432,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> RProperty = RegisterProperty<double>(new PropertyInfo<double>("R", "R"));
+        public static readonly PropertyInfo<double> RProperty = RegisterProperty<double>(new PropertyInfo<double>("R", "R"));
         [JsonProperty]
         public double R
         {
@@ -2440,7 +2442,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SERProperty = RegisterProperty<double>(new PropertyInfo<double>("SER", "SER"));
+        public static readonly PropertyInfo<double> SERProperty = RegisterProperty<double>(new PropertyInfo<double>("SER", "SER"));
         [JsonProperty]
         public double SER
         {
@@ -2450,7 +2452,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> OddsRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("OddsRatio", "OddsRatio"));
+        public static readonly PropertyInfo<double> OddsRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("OddsRatio", "OddsRatio"));
         [JsonProperty]
         public double OddsRatio
         {
@@ -2460,7 +2462,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SEOddsRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("SEOddsRatio", "SEOddsRatio"));
+        public static readonly PropertyInfo<double> SEOddsRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("SEOddsRatio", "SEOddsRatio"));
         [JsonProperty]
         public double SEOddsRatio
         {
@@ -2470,7 +2472,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> RiskRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("RiskRatio", "RiskRatio"));
+        public static readonly PropertyInfo<double> RiskRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("RiskRatio", "RiskRatio"));
         [JsonProperty]
         public double RiskRatio
         {
@@ -2480,7 +2482,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SERiskRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("SERiskRatio", "SERiskRatio"));
+        public static readonly PropertyInfo<double> SERiskRatioProperty = RegisterProperty<double>(new PropertyInfo<double>("SERiskRatio", "SERiskRatio"));
         [JsonProperty]
         public double SERiskRatio
         {
@@ -2618,7 +2620,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> RiskDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("RiskDifference", "RiskDifference"));
+        public static readonly PropertyInfo<double> RiskDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("RiskDifference", "RiskDifference"));
         [JsonProperty]
         public double RiskDifference
         {
@@ -2628,7 +2630,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SERiskDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("SERiskDifference", "SERiskDifference"));
+        public static readonly PropertyInfo<double> SERiskDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("SERiskDifference", "SERiskDifference"));
         [JsonProperty]
         public double SERiskDifference
         {
@@ -2638,7 +2640,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> MeanDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("MeanDifference", "MeanDifference"));
+        public static readonly PropertyInfo<double> MeanDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("MeanDifference", "MeanDifference"));
         [JsonProperty]
         public double MeanDifference
         {
@@ -2648,7 +2650,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SEMeanDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("SEMeanDifference", "SEMeanDifference"));
+        public static readonly PropertyInfo<double> SEMeanDifferenceProperty = RegisterProperty<double>(new PropertyInfo<double>("SEMeanDifference", "SEMeanDifference"));
         [JsonProperty]
         public double SEMeanDifference
         {
@@ -2658,7 +2660,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> PetoORProperty = RegisterProperty<double>(new PropertyInfo<double>("PetoOR", "PetoOR"));
+        public static readonly PropertyInfo<double> PetoORProperty = RegisterProperty<double>(new PropertyInfo<double>("PetoOR", "PetoOR"));
         [JsonProperty]
         public double PetoOR
         {
@@ -2668,7 +2670,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SEPetoORProperty = RegisterProperty<double>(new PropertyInfo<double>("SEPetoOR", "SEPetoOR"));
+        public static readonly PropertyInfo<double> SEPetoORProperty = RegisterProperty<double>(new PropertyInfo<double>("SEPetoOR", "SEPetoOR"));
         [JsonProperty]
         public double SEPetoOR
         {
@@ -2678,7 +2680,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> ESProperty = RegisterProperty<double>(new PropertyInfo<double>("ES", "ES"));
+        public static readonly PropertyInfo<double> ESProperty = RegisterProperty<double>(new PropertyInfo<double>("ES", "ES"));
         [JsonProperty]
         public double ES
         {
@@ -2688,7 +2690,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> SEESProperty = RegisterProperty<double>(new PropertyInfo<double>("SEES", "SEES"));
+        public static readonly PropertyInfo<double> SEESProperty = RegisterProperty<double>(new PropertyInfo<double>("SEES", "SEES"));
         [JsonProperty]
         public double SEES
         {
@@ -2698,7 +2700,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> NRowsProperty = RegisterProperty<int>(new PropertyInfo<int>("NRows", "NRows"));
+        public static readonly PropertyInfo<int> NRowsProperty = RegisterProperty<int>(new PropertyInfo<int>("NRows", "NRows"));
         [JsonProperty]
         public int NRows
         {
@@ -2708,7 +2710,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> CILowerProperty = RegisterProperty<double>(new PropertyInfo<double>("CILower", "CILower"));
+        public static readonly PropertyInfo<double> CILowerProperty = RegisterProperty<double>(new PropertyInfo<double>("CILower", "CILower"));
         [JsonProperty]
         public double CILower
         {
@@ -2718,7 +2720,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<double> CIUpperProperty = RegisterProperty<double>(new PropertyInfo<double>("CIUpper", "CIUpper"));
+        public static readonly PropertyInfo<double> CIUpperProperty = RegisterProperty<double>(new PropertyInfo<double>("CIUpper", "CIUpper"));
         [JsonProperty]
         public double CIUpper
         {
@@ -2728,7 +2730,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ESDescProperty = RegisterProperty<string>(new PropertyInfo<string>("ESDesc", "ESDesc", string.Empty));
+        public static readonly PropertyInfo<string> ESDescProperty = RegisterProperty<string>(new PropertyInfo<string>("ESDesc", "ESDesc", string.Empty));
         [JsonProperty]
         public string ESDesc
         {
@@ -2738,7 +2740,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SEDescProperty = RegisterProperty<string>(new PropertyInfo<string>("SEDesc", "SEDesc", string.Empty));
+        public static readonly PropertyInfo<string> SEDescProperty = RegisterProperty<string>(new PropertyInfo<string>("SEDesc", "SEDesc", string.Empty));
         [JsonProperty]
         public string SEDesc
         {
@@ -2748,7 +2750,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data1DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data1Desc", "Data1Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data1DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data1Desc", "Data1Desc", string.Empty));
         [JsonProperty]
         public string Data1Desc
         {
@@ -2758,7 +2760,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data2DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data2Desc", "Data2Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data2DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data2Desc", "Data2Desc", string.Empty));
         [JsonProperty]
         public string Data2Desc
         {
@@ -2768,7 +2770,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<string> Data3DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data3Desc", "Data3Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data3DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data3Desc", "Data3Desc", string.Empty));
         [JsonProperty]
         public string Data3Desc
         {
@@ -2778,7 +2780,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<string> Data4DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data4Desc", "Data4Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data4DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data4Desc", "Data4Desc", string.Empty));
         [JsonProperty]
         public string Data4Desc
         {
@@ -2788,7 +2790,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<string> Data5DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data5Desc", "Data5Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data5DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data5Desc", "Data5Desc", string.Empty));
         [JsonProperty]
         public string Data5Desc
         {
@@ -2798,7 +2800,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<string> Data6DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data6Desc", "Data6Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data6DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data6Desc", "Data6Desc", string.Empty));
         [JsonProperty]
         public string Data6Desc
         {
@@ -2808,7 +2810,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data7DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data7Desc", "Data7Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data7DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data7Desc", "Data7Desc", string.Empty));
         [JsonProperty]
         public string Data7Desc
         {
@@ -2818,7 +2820,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data8DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data8Desc", "Data8Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data8DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data8Desc", "Data8Desc", string.Empty));
         [JsonProperty]
         public string Data8Desc
         {
@@ -2828,7 +2830,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data9DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data9Desc", "Data9Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data9DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data9Desc", "Data9Desc", string.Empty));
         [JsonProperty]
         public string Data9Desc
         {
@@ -2838,7 +2840,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data10DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data10Desc", "Data10Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data10DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data10Desc", "Data10Desc", string.Empty));
         [JsonProperty]
         public string Data10Desc
         {
@@ -2848,7 +2850,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data11DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data11Desc", "Data11Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data11DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data11Desc", "Data11Desc", string.Empty));
         [JsonProperty]
         public string Data11Desc
         {
@@ -2858,7 +2860,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data12DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data12Desc", "Data12Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data12DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data12Desc", "Data12Desc", string.Empty));
         [JsonProperty]
         public string Data12Desc
         {
@@ -2868,7 +2870,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data13DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data13Desc", "Data13Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data13DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data13Desc", "Data13Desc", string.Empty));
         [JsonProperty]
         public string Data13Desc
         {
@@ -2878,7 +2880,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> Data14DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data14Desc", "Data14Desc", string.Empty));
+        public static readonly PropertyInfo<string> Data14DescProperty = RegisterProperty<string>(new PropertyInfo<string>("Data14Desc", "Data14Desc", string.Empty));
         [JsonProperty]
         public string Data14Desc
         {

@@ -22,20 +22,13 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingReviewerTerm : BusinessBase<TrainingReviewerTerm>
     {
-#if SILVERLIGHT
-    public TrainingReviewerTerm() { }
-
-        
-#else
-        private TrainingReviewerTerm() { }
-#endif
-
+        public TrainingReviewerTerm() { }
         public override string ToString()
         {
             return ReviewerTerm;
         }
 
-        private static PropertyInfo<int> TrainingReviewerTermIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingReviewerTermId", "TrainingReviewerTermId"));
+        public static readonly PropertyInfo<int> TrainingReviewerTermIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingReviewerTermId", "TrainingReviewerTermId"));
         public int TrainingReviewerTermId
         {
             get
@@ -44,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemTermDictionaryIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemTermDictionaryId", "ItemTermDictionaryId"));
+        public static readonly PropertyInfo<Int64> ItemTermDictionaryIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemTermDictionaryId", "ItemTermDictionaryId"));
         public Int64 ItemTermDictionaryId
         {
             get
@@ -57,7 +50,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReviewerTermProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewerTerm", "ReviewerTerm", string.Empty));
+        public static readonly PropertyInfo<string> ReviewerTermProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewerTerm", "ReviewerTerm", string.Empty));
         public string ReviewerTerm
         {
             get
@@ -70,7 +63,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
+        public static readonly PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
         public bool Included
         {
             get
@@ -83,7 +76,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TermProperty = RegisterProperty<string>(new PropertyInfo<string>("Term", "Term", string.Empty));
+        public static readonly PropertyInfo<string> TermProperty = RegisterProperty<string>(new PropertyInfo<string>("Term", "Term", string.Empty));
         public string Term
         {
             get

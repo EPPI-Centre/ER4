@@ -68,6 +68,13 @@
                            FactoryMethod="GetItemDocumentList"
                            DataChanged="CslaDataProvider_DataChanged"
                            />
+        <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemArmList"
+                           DataChanged="DpItemArms_FetchCompleted"
+                           />
         <Style TargetType="telerik:GridViewCell" x:Name="cellStylePdf">
             <Setter Property="Template">
                 <Setter.Value>
@@ -291,7 +298,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer1K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl  Grid.Row="1" Content="{Binding CodesReviewer1, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl  Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer1'}" 
                                             BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ContentControl>
                         </Grid>
                     </DataTemplate>
@@ -321,7 +328,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer2K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl Grid.Row="1" Content="{Binding CodesReviewer2, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer2' }" 
                                             BorderThickness="0" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"></ContentControl>
                                 
                         </Grid>
@@ -351,7 +358,7 @@
                                                     ConverterParameter={StaticResource ControlReviewer3K}, Mode=OneWay}">
                                 <Image Margin="1" Width="16" Height="16" Source="../Icons/CodingComplete.png"/>
                             </Border>
-                            <ContentControl Grid.Row="1" Content="{Binding CodesReviewer3, Converter={StaticResource reconcilingCodesConverter}}" 
+                                <ContentControl Grid.Row="1" Content="{Binding Converter={StaticResource reconcilingCodesConverter}, ConverterParameter='CodesReviewer3' }" 
                                             BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></ContentControl>
                                 
                         </Grid>
@@ -418,9 +425,10 @@
                 </Border>
                 <Border Grid.Column="1" Grid.Row="5" BorderBrush="#FF3C7FB1" BorderThickness="1" Margin="1" VerticalAlignment="Top">
                     <TextBlock Text="{Binding ShortTitle, Mode=OneWay}" Margin="1" TextWrapping="Wrap"/>
-                </Border>
-                <TextBlock Text="Abstract:" Grid.Column="2" Grid.Row="0"  Margin="0"/>
-                <ScrollViewer Grid.Column="2" Grid.Row="1" Grid.RowSpan="6" Grid.ColumnSpan="2"
+            </Border>
+            <TextBlock Text="Abstract:" Grid.Column="2" Grid.Row="0"  Margin="0"/>
+
+            <ScrollViewer Grid.Column="2" Grid.Row="1" Grid.RowSpan="6" Grid.ColumnSpan="2"
                           VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <TextBox IsReadOnly="True" Text="{Binding Abstract, Mode=OneWay}" Margin="-1" 
                          TextWrapping="Wrap" 
@@ -429,6 +437,10 @@
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"/>
                 </ScrollViewer>
+            <StackPanel Orientation="Horizontal" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Left" Background="LightCoral" x:Name="ProgressReport" >
+                <TextBlock Text="..." x:Name="ProgressReportText" Grid.Column="2" Margin="2,2,2,0" Grid.Row="0" />
+                <cslaXAML:BusyAnimation x:Name="IsBusy" IsRunning="False" />
+            </StackPanel>
             <StackPanel Grid.Column="3" Grid.Row="0"
                 Orientation="Horizontal" HorizontalAlignment="Right" Background="#FFBBDDFF">
                 <Button x:Name="cmdSaveReconcTable" Click="cmdSaveReconcTable_Click"

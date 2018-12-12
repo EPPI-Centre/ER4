@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BusinessLibrary.BusinessClasses;
+using Csla;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ERxWebClient.Controllers

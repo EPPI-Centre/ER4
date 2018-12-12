@@ -57,7 +57,20 @@ namespace AcademicImport
             string clientSecret = configuration["AppSettings:clientSecret"];
             string tenantId = configuration["AppSettings:tenantId"];
             string adlsAccountFQDN = configuration["AppSettings:adlsAccountFQDN"];   // full account FQDN, not just the account name like example.azure.datalakestore.net
-            string writeToThisFolder = @"E:\MSAcademic\downloads"; 
+
+
+            // Change these settings for different install locations
+            bool isAlpha = true;
+
+            string writeToThisFolder = @"E:\MSAcademic\downloads";
+            string SqlScriptFolder = @"../../SQLScripts/";
+            int limit = 100; // ********** use this for testing. 0 = get everything
+
+            if (isAlpha)
+            {
+                writeToThisFolder = "./downloads";
+                SqlScriptFolder = "./SqlScripts";
+            }
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
 
@@ -100,39 +113,64 @@ namespace AcademicImport
                 // TODO = CREATE DATABASE
                 // at the moment we're assuming the database has been created
 
-                // Now create all the tables - see 'CreateTables.sql' for current shape of data
-                SqlConnection conn = new SqlConnection(Program.SqlHelper.AcademicDB);
-                conn.Open();
-                SqlHelper.ExecuteNonQueryNonSP(conn, "CREATE TABLE [dbo].[PaperReferences]([PaperID][bigint] NULL, [PaperReferenceID][bigint] NULL ON[PRIMARY]");
-                conn.Close();
 
                 // 2. Go through each file that we want to download.
 
                 // empty the downloads folder
+                Console.WriteLine("Deleting old files...");
                 System.IO.DirectoryInfo di = new DirectoryInfo(writeToThisFolder);
                 foreach (FileInfo file in di.GetFiles())
                 {
                     file.Delete();
                 }
+                Console.WriteLine("");
 
-                int limit = 100; // ********** use this for testing so that there's no need to download the whole database!
+                DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/PaperRecommendations.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/PaperReferences.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/PaperUrls.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/FieldOfStudyChildren.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/FieldOfStudyRelationship.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/FieldsOfStudy.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/Journals.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/Authors.txt", writeToThisFolder, limit);
+                DownloadThisFile(client, latest.FullName, "/Affiliations.txt", writeToThisFolder, limit);
+                Console.WriteLine("");
 
-                //DownloadThisFile(client, latest.FullName, "/Papers.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/PaperAbstractsInvertedIndex.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/PaperFieldsOfStudy.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/PaperRecommendations.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/PaperReferences.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/PaperUrls.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/FieldOfStudyChildren.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/FieldOfStudyRelationship.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/FieldsOfStudy.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/Journals.txt", writeToThisFolder, limit);
-                //DownloadThisFile(client, latest.FullName, "/Authors.txt", writeToThisFolder, limit);
+                // once we've downloaded the files, put them into the SQL DB
 
-                // once we've downloaded the file, put it into the SQL DB
-                // See the BulkTextUpload.sql file for an example of this. (We should probably put these into stored procedures)
+                // Create all the tables
+                Console.WriteLine("Creating tables...");
+                SqlConnection conn = new SqlConnection(Program.SqlHelper.AcademicDB);
+                conn.Open();
+                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "CreateTables.sql"));
+                SqlHelper.ExecuteNonQueryNonSP(conn, "DROP PROCEDURE IF EXISTS [BulkTextUpload]");
+                SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "BulkTextUpload.sql").Replace("writeToThisFolder", writeToThisFolder));
+                Console.WriteLine("");
 
-                // Once the file has been put into the DB, delete it from the local filesystem
+                // put the files into the DB
+                UploadToDatabase(conn, "Papers");
+                UploadToDatabase(conn, "PaperAbstractsInvertedIndex");
+                UploadToDatabase(conn, "PaperFieldsOfStudy");
+                UploadToDatabase(conn, "PaperRecommendations");
+                UploadToDatabase(conn, "PaperReferences");
+                UploadToDatabase(conn, "PaperUrls");
+                UploadToDatabase(conn, "FieldOfStudyChildren");
+                UploadToDatabase(conn, "FieldOfStudyRelationship");
+                UploadToDatabase(conn, "FieldsOfStudy");
+                UploadToDatabase(conn, "Journals");
+                UploadToDatabase(conn, "Authors");
+                UploadToDatabase(conn, "Affiliations");
+                Console.WriteLine("");
+
+                // CREATE INDEXES ON THE APPROPRIATE TABLES / FIELDS
+                CreateIndexes(conn, SqlScriptFolder);
+
+                conn.Close();
+
+                // Once the file has been put into the DB, delete it from the local filesystem. e.g.
                 /*
                 if (File.Exists(@"E:\MSAcademic\Affiliations.txt"))
                 {
@@ -166,6 +204,32 @@ namespace AcademicImport
 
             Console.WriteLine("Done. Press ENTER to continue ...");
             Console.ReadLine();
+        }
+
+        private static bool UploadToDatabase(SqlConnection conn, string FileName)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            Console.WriteLine("Uploading this file now: " + FileName);
+            List<SqlParameter> sqlParams = new List<SqlParameter>();
+            sqlParams.Add(new SqlParameter("@FileName", FileName));
+            SqlParameter[] parameters = new SqlParameter[1];
+            parameters = sqlParams.ToArray();
+            SqlHelper.ExecuteNonQuerySP(conn, "BulkTextUpload", parameters);
+            sw.Stop();
+            Console.WriteLine("That took: " + sw.Elapsed);
+            return true;
+        }
+
+        private static bool CreateIndexes(SqlConnection conn, string SqlScriptFolder)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            Console.WriteLine("Creating indexes...: ");
+            SqlHelper.ExecuteNonQueryNonSP(conn, File.ReadAllText(SqlScriptFolder + "CreateIndexes.sql"));
+            sw.Stop();
+            Console.WriteLine("Creating indexes took: " + sw.Elapsed);
+            return true;
         }
 
         private static bool DownloadThisFile(AdlsClient client, string graphPath, string fileName, string folder, int limit)

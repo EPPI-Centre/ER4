@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public CheckTicketExpirationCommand(){}
 #else
-        protected CheckTicketExpirationCommand() { }
+        public CheckTicketExpirationCommand() { }
 #endif
 
         private string _GUID;

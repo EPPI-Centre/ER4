@@ -19,7 +19,7 @@
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         
-        <local:AttributeCodingTemplateSelector x:Key="myAttributeCodingTemplateSelector">
+        <local:AttributeCodingTemplateSelector  x:Key="myAttributeCodingTemplateSelector">
             <local:TypedTemplate TypeName="SelectableAttributeTemplate">
                 <core:HierarchicalDataTemplate x:Name="SelectableAttributeTemplate" ItemsSource="{Binding Attributes}">
                     <StackPanel Orientation="Horizontal">
@@ -48,7 +48,7 @@
             </local:TypedTemplate>
 
             <local:TypedTemplate TypeName="CodeSetTemplate">
-                <core:HierarchicalDataTemplate x:Name="CodeSetTemplateN" ItemsSource="{Binding Attributes}">
+                <core:HierarchicalDataTemplate x:Name="CodeSetTemplateN"  ItemsSource="{Binding Attributes}">
                     <StackPanel Orientation="Horizontal">
                         <Image Margin="0,0,4,0" Source="Icons/person.png" Visibility="{Binding CodingIsFinal, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}" ToolTipService.ToolTip="Normal Mode: single data entry for all users"></Image>
                         <Image Margin="0,0,4,0" Source="Icons/team.png" Visibility="{Binding CodingIsFinal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}" ToolTipService.ToolTip="Comparison Mode: independent multi-user entry"></Image>
@@ -144,12 +144,13 @@
 
         </telerikNavigation:RadToolBar>
 
-        <telerikNavigation:RadToolBar Grid.Row="1" HorizontalAlignment="Stretch"
-				                        VerticalAlignment="Top" x:Name="ArmsToolBar" Visibility="Collapsed">
-            <TextBlock>Codes apply to:</TextBlock>
-            <ComboBox Name="ComboArms" DisplayMemberPath="ArmTitle" SelectedValuePath="ItemArmId" Height="30" SelectionChanged="ComboArms_SelectionChanged" Visibility="Collapsed" />
-            
-        </telerikNavigation:RadToolBar>
+        <Border BorderBrush="CadetBlue" Margin="2,1,2,1" BorderThickness="1" Grid.Row="1" MaxHeight="34" x:Name="ArmsToolBar" Visibility="Collapsed" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Stretch" telerikNavigation:RadToolBar.OverflowMode="Never"
+				                        VerticalAlignment="Top" >
+                <TextBlock VerticalAlignment="Center" Margin="1">Codes apply to:</TextBlock>
+                <ComboBox Name="ComboArms" DisplayMemberPath="ArmTitle" SelectedValuePath="ItemArmId" Margin="1" Height="30" SelectionChanged="ComboArms_SelectionChanged" Visibility="Collapsed" />
+            </StackPanel>
+        </Border>
 
         <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="3" HorizontalAlignment="Stretch" IsRunning="{Binding Source={StaticResource CodeSetsData}, Path=IsBusy}" />
         <sdk:GridSplitter Grid.Row="4" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Opacity="00"

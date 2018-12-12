@@ -41,10 +41,10 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 #else
-        private ReviewInfo() { }
+        public ReviewInfo() { }
 #endif
 
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
+        public static readonly  PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
         public int ReviewId
         {
             get
@@ -57,7 +57,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "ReviewName", string.Empty));
+        public static readonly  PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "ReviewName", string.Empty));
         public string ReviewName
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static readonly PropertyInfo<bool> ShowScreeningProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowScreening", "ShowScreening"));
+        public static readonly PropertyInfo<bool> ShowScreeningProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowScreening", "ShowScreening"));
         public bool ShowScreening
         {
             get
@@ -82,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowScreeningProperty, value);
             }
         }
-        private static PropertyInfo<int> ScreeningCodeSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ScreeningCodeSetId", "ScreeningCodeSetId Id", 0));
+        public static readonly  PropertyInfo<int> ScreeningCodeSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ScreeningCodeSetId", "ScreeningCodeSetId Id", 0));
         public int ScreeningCodeSetId
         {
             get
@@ -94,7 +94,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningCodeSetIdProperty, value);
             }
         }
-        private static PropertyInfo<string> ScreeningModeProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningMode", "ScreeningMode Id", ""));
+        public static readonly  PropertyInfo<string> ScreeningModeProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningMode", "ScreeningMode Id", ""));
         public string ScreeningMode
         {
             get
@@ -106,7 +106,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningModeProperty, value);
             }
         }
-        private static PropertyInfo<string> ScreeningReconcilliationProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningReconcilliation", "ScreeningReconcilliation Id", ""));
+        public static readonly  PropertyInfo<string> ScreeningReconcilliationProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningReconcilliation", "ScreeningReconcilliation Id", ""));
         public string ScreeningReconcilliation
         {
             get
@@ -118,7 +118,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningReconcilliationProperty, value);
             }
         }
-        private static PropertyInfo<Int64> ScreeningWhatAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ScreeningWhatAttributeId", "ScreeningWhatAttributeId Id", Convert.ToInt64(0)));
+        public static readonly  PropertyInfo<Int64> ScreeningWhatAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ScreeningWhatAttributeId", "ScreeningWhatAttributeId Id", Convert.ToInt64(0)));
         public Int64 ScreeningWhatAttributeId
         {
             get
@@ -130,7 +130,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningWhatAttributeIdProperty, value);
             }
         }
-        private static PropertyInfo<int> ScreeningNPeopleProperty = RegisterProperty<int>(new PropertyInfo<int>("ScreeningNPeople", "ScreeningNPeople Id", 0));
+        public static readonly  PropertyInfo<int> ScreeningNPeopleProperty = RegisterProperty<int>(new PropertyInfo<int>("ScreeningNPeople", "ScreeningNPeople Id", 0));
         public int ScreeningNPeople
         {
             get
@@ -142,7 +142,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningNPeopleProperty, value);
             }
         }
-        private static PropertyInfo<bool> ScreeningAutoExcludeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningAutoExclude", "ScreeningAutoExclude Id", false));
+        public static readonly  PropertyInfo<bool> ScreeningAutoExcludeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningAutoExclude", "ScreeningAutoExclude Id", false));
         public bool ScreeningAutoExclude
         {
             get
@@ -154,7 +154,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningAutoExcludeProperty, value);
             }
         }
-        private static PropertyInfo<bool> ScreeningModelRunningProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningModelRunning", "ScreeningModelRunning Id", false));
+        public static readonly  PropertyInfo<bool> ScreeningModelRunningProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningModelRunning", "ScreeningModelRunning Id", false));
         public bool ScreeningModelRunning
         {
             get
@@ -166,7 +166,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningModelRunningProperty, value);
             }
         }
-        private static PropertyInfo<bool> ScreeningIndexedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningIndexed", "ScreeningIndexed Id", false));
+        public static readonly  PropertyInfo<bool> ScreeningIndexedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningIndexed", "ScreeningIndexed Id", false));
         public bool ScreeningIndexed
         {
             get
@@ -178,7 +178,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningIndexedProperty, value);
             }
         }
-        private static PropertyInfo<bool> ScreeningListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningListIsGood", "ScreeningListIsGood", false));
+        public static readonly  PropertyInfo<bool> ScreeningListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningListIsGood", "ScreeningListIsGood", false));
         public bool ScreeningListIsGood
         {
             get
@@ -190,7 +190,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningListIsGoodProperty, value);
             }
         }
-        //private static PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
+        //public static readonly  PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
         //public string ScreeningDataFile
         //{
         //    get
@@ -202,7 +202,7 @@ namespace BusinessLibrary.BusinessClasses
         //        SetProperty(ScreeningDataFileProperty, value);
         //    }
         //}
-        private static PropertyInfo<string> BL_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_ACCOUNT_CODE", "BL_ACCOUNT_CODE", string.Empty));
+        public static readonly  PropertyInfo<string> BL_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_ACCOUNT_CODE", "BL_ACCOUNT_CODE", string.Empty));
         public string BL_ACCOUNT_CODE
         {
             get
@@ -214,7 +214,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_ACCOUNT_CODEProperty, value);
             }
         }
-        private static PropertyInfo<string> BL_AUTH_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_AUTH_CODE", "BL_AUTH_CODE", string.Empty));
+        public static readonly  PropertyInfo<string> BL_AUTH_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_AUTH_CODE", "BL_AUTH_CODE", string.Empty));
         public string BL_AUTH_CODE
         {
             get
@@ -226,7 +226,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_AUTH_CODEProperty, value);
             }
         }
-        private static PropertyInfo<string> BL_TXProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_TX", "BL_TX", string.Empty));
+        public static readonly  PropertyInfo<string> BL_TXProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_TX", "BL_TX", string.Empty));
         public string BL_TX
         {
             get
@@ -239,7 +239,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> BL_CC_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_ACCOUNT_CODE", "BL_CC_ACCOUNT_CODE", string.Empty));
+        public static readonly  PropertyInfo<string> BL_CC_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_ACCOUNT_CODE", "BL_CC_ACCOUNT_CODE", string.Empty));
         public string BL_CC_ACCOUNT_CODE
         {
             get
@@ -251,7 +251,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_ACCOUNT_CODEProperty, value);
             }
         }
-        private static PropertyInfo<string> BL_CC_AUTH_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_AUTH_CODE", "BL_CC_AUTH_CODE", string.Empty));
+        public static readonly  PropertyInfo<string> BL_CC_AUTH_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_AUTH_CODE", "BL_CC_AUTH_CODE", string.Empty));
         public string BL_CC_AUTH_CODE
         {
             get
@@ -263,7 +263,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_AUTH_CODEProperty, value);
             }
         }
-        private static PropertyInfo<string> BL_CC_TXProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_TX", "BL_CC_TX", string.Empty));
+        public static readonly  PropertyInfo<string> BL_CC_TXProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_CC_TX", "BL_CC_TX", string.Empty));
         public string BL_CC_TX
         {
             get
@@ -275,18 +275,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_TXProperty, value);
             }
         }
-        private static PropertyInfo<bool> EnableArmsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("EnableArms", "EnableArms Id", false));
-        public bool EnableArms
-        {
-            get
-            {
-                return GetProperty(EnableArmsProperty);
-            }
-            set
-            {
-                SetProperty(EnableArmsProperty, value);
-            }
-        }
+        
 
         //protected override void AddAuthorizationRules()
         //{
@@ -402,7 +391,6 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(ScreeningAutoExcludeProperty, reader.GetBoolean("SCREENING_AUTO_EXCLUDE"));
                             LoadProperty<bool>(ScreeningModelRunningProperty, reader.GetBoolean("SCREENING_MODEL_RUNNING"));
                             LoadProperty<bool>(ScreeningIndexedProperty, reader.GetBoolean("SCREENING_INDEXED"));
-                            LoadProperty<bool>(EnableArmsProperty, reader.GetBoolean("ENABLE_ARMS"));
                             //LoadProperty<string>(ScreeningDataFileProperty, reader.GetString("SCREENING_DATA_FILE"));
 
                             LoadProperty<string>(BL_ACCOUNT_CODEProperty, reader.GetString("BL_ACCOUNT_CODE"));

@@ -22,20 +22,17 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemArm : BusinessBase<ItemArm>
     {
-#if SILVERLIGHT
+
     public ItemArm() { }
 
-        
-#else
-        private ItemArm() { }
-#endif
+
 
         public override string ToString()
         {
             return Title;
         }
 
-        private static PropertyInfo<Int64> ItemArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemArmId", "ItemArmId"));
+        public static readonly PropertyInfo<Int64> ItemArmIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemArmId", "ItemArmId"));
         public Int64 ItemArmId
         {
             get
@@ -44,7 +41,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -57,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -70,7 +67,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> OrderingProperty = RegisterProperty<int>(new PropertyInfo<int>("Ordering", "Ordering", 0));
+        public static readonly PropertyInfo<int> OrderingProperty = RegisterProperty<int>(new PropertyInfo<int>("Ordering", "Ordering", 0));
         public int Ordering
         {
             get

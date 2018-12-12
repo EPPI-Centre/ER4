@@ -69,7 +69,7 @@ namespace SQL_Changes_Manager
                     LogMessageLine("New Database Version Number is: " + scriptVns[scriptVns.Count - 1].ToString() + ".");
                 }
             }
-            LogMessageLine("END." + Environment.NewLine + Environment.NewLine + Environment.NewLine);
+            LogMessageLine("END. " + Environment.NewLine + Environment.NewLine + Environment.NewLine);
         }
         static List<int> GetFiles(int CurrentVersionNumber)
         {

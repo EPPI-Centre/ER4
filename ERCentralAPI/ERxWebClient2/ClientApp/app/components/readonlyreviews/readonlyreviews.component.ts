@@ -1,84 +1,68 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { Http, Response, Headers, RequestOptions, RequestMethod } from '@angular/http';
+import { Component, Inject, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, } from 'rxjs';
-import { ReviewerIdentityService } from '../app/revieweridentity.service';
-import 'rxjs/add/operator/toPromise';
-
-
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ReviewerIdentity } from '../services/revieweridentity.service';
+import { readonlyreviewsService } from '../services/readonlyreviews.service';
+import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
+import { take, map } from 'rxjs/operators';
 
 @Component({
     selector: 'readonlyreviews',
     templateUrl: './readonlyreviews.component.html',
-    //providers: [ReviewerIdentityService]
     providers: []
 })
-export class FetchReadOnlyReviewsComponent implements OnInit {
-    public ReviewList: ReadOnlyReview[] = [];
-    private _http: Http;
-    private _baseUrl: string;
-    private headers: Headers = new Headers({ "Content-Type": 'application/x-www-form-urlencoded'  });
-    constructor(private router: Router,http: Http, @Inject('BASE_URL') baseUrl: string, private ReviewerIdentity: ReviewerIdentityService) {//,@Inject(ReviewerIdentityService) private ReviewerIdentity: ReviewerIdentityService) {
-        this._http = http;
-        this._baseUrl = baseUrl;
-        console.log('rOr constructor: ' + this.ReviewerIdentity.ContactId);
-        this.getReviews();
-        
+export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy {
+
+    constructor(private router: Router,
+                private _httpC: HttpClient,
+                @Inject('BASE_URL') private _baseUrl: string,
+                private ReviewerIdentityServ: ReviewerIdentityService,
+                public _readonlyreviewsService: readonlyreviewsService) {
+
+                //console.log('rOr constructor: ' + this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
+
+    FormatDate(DateSt: string): string {
+        let date: Date = new Date(DateSt);
+        return date.toLocaleDateString();
+    }
+
     onSubmit(f: string) {
-        this.ReviewerIdentity.ReviewId = +f;
-        this.router.navigate(['fetch-reviewsets'])
+            let RevId: number = parseInt(f, 10);
+        this.ReviewerIdentityServ.LoginToReview(RevId);
+
+        
     }
 
     getReviews() {
-        //console.log('rOr getReviews: ' + this.ReviewerIdentity.ContactId);
-        //this.ReviewerIdentity.Report();
-        let body = "contactId="+ this.ReviewerIdentity.ContactId;
-        //let body = JSON.stringify({ 'contactId': 1 });
-        let requestoptions = new RequestOptions({
-            method: RequestMethod.Post,
-            url: this._baseUrl + 'api/review/reviewsbycontact',
-            headers: this.headers,
-            body: body
-        });
+        //console.log('inside get reviews');
+        //when we're not in a review, we want the fresh list! otherwise we're OK with the existing one
+        if (this._readonlyreviewsService.ReadOnlyReviews.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
 
-        this._http.request(this._baseUrl + 'api/review/reviewsbycontact', requestoptions).subscribe(result => {
-            this.ReviewList = result.json() as ReadOnlyReview[];
-            console.log(this.ReviewList.length);
-        }, error => console.error(error));
-
-
-        
-        //var body = { contactId: " + this.ReviewerIdentity.ContactId + };//{ contactId: this.ReviewerIdentity.ContactId };//JSON.stringify({name: name}), {headers: this.headers}
-        //this._http.post(this._baseUrl + 'api/review/reviewsbycontact', body, { headers: this.headers }).subscribe(result => {
-        //this._http.post(this._baseUrl + 'api/review/reviewsbycontact', body, { headers: this.headers }).subscribe(result => {
-        //    this.ReviewList = result.json() as ReadOnlyReview[];
-        //}, error => console.error(error));
+            this._readonlyreviewsService.Fetch();
+        }
     }
+
     ngOnInit() {
-        //console.log('rOr init: ' + this.ReviewerIdentity.ContactId);
-        //this.ReviewerIdentity.Report();
-        //if (this.ReviewerIdentity.ContactId != 0 && !this.ReviewList) {
-        //    //this.getReviews();
-        //} else {
-        //    this.ReviewerIdentity.ContactId = 1214;
-        //    //this.getReviews();
-        //}
-        //alert(something);
-        //this._http.post(this._baseUrl + 'api/review/reviewsbycontact', something.).subscribe(result => {
-        //        this.ReviewList = result.json() as ReadOnlyReview[];
-        //}, error => console.error(error));
+
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            console.log('user is empty...');
+            this.router.navigate(['home']);
+        }
+        else {
+
+            //console.log("getting ReadOnlyReviews");
+            //this.ReviewerIdentityServ.Report();
+            this.getReviews();
+        }
     }
+    ngOnDestroy() {
+        //console.log('killing ROR comp');
+        //this._readonlyreviewsService.ReadOnlyReviews = [];
+    }
+
 }
-
-
-interface ReadOnlyReview {
-    reviewId: number;
-    reviewName: string;
-    contactReviewRoles: string;
-    reviewOwner: string;
-    lastAccess: string;
-}
-

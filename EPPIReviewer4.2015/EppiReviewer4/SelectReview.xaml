@@ -93,8 +93,8 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid x:Name="GridHost">
-        <Grid x:Name="TextBlockLoading" Margin="1" Visibility="Collapsed" Background="White" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+    <Grid x:Name="GridHost" MinWidth="385" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!--<Grid x:Name="TextBlockLoading" Margin="1" Visibility="Collapsed" Background="White" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
@@ -119,19 +119,21 @@
                 </StackPanel>
             </StackPanel>
 
-        </Grid>
+        </Grid>-->
         <cslaXAML:BusyAnimation x:Name="busyanimation" Height="40" Width="40" IsRunning="False" ></cslaXAML:BusyAnimation>
         <telerikNavigation:RadTabControl x:Name="Tabhost">
             <telerikNavigation:RadTabItem x:Name="er4ReviewsTab" Header="Reviews in EPPI-Reviewer" IsSelected="True" Visibility="Collapsed">
                 <Grid x:Name="selrevG" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" HorizontalAlignment="Center" >
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="MainRow" Height="*"/>
-                    <RowDefinition x:Name="ExpRow" Height="0"/>
-                </Grid.RowDefinitions>
+                    <RowDefinition x:Name="ExpRow" Height="30"/>
+                        <RowDefinition x:Name="ExpRow2" Height="auto"/>
+                    </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition MinWidth="260" />
                 </Grid.ColumnDefinitions>
-                <Controls:RadGridView x:Name="GridViewReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Top"
+                    <Controls:RadGridView x:Name="GridViewReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0"  Grid.ColumnSpan="2" VerticalAlignment="Top"
                               HorizontalAlignment="Center" SizeChanged="GridViewReviewList_SizeChanged"
                               ItemsSource="{Binding Source={StaticResource ReviewsData}, Path=Data}" AutoGenerateColumns="False" DataLoaded="RadGridView_DataLoaded"
                               RowIndicatorVisibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -144,16 +146,28 @@
                         <Controls:GridViewDataColumn IsVisible="True" IsFilterable="False" Width="35" IsSortable="False" CellStyle="{StaticResource csCodeOnlyBt}" Header="" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
                     </Controls:RadGridView.Columns>
                 </Controls:RadGridView>
-                <StackPanel x:Name="createRevStack" Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Visibility="Collapsed" >
-                    <Button x:Name="NewRevBT" Content="New Review" IsEnabled="False" Click="Button_Click" Margin="2"/>
-                    <TextBox x:Name="newReviewTB" ToolTipService.ToolTip="Type a name for the new review" Width="250" TextChanged="newReviewTB_TextChanged" Margin="2"/>
-                </StackPanel>
-                <StackPanel x:Name="LogonToRevIDstackp" Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Visibility="Collapsed" HorizontalAlignment="Center">
-                    <TextBox x:Name="LogonToRevIDTB" ToolTipService.ToolTip="Type a Review_ID" Width="50" KeyDown="LogonToRevIDTB_KeyDown" Margin="2" HorizontalAlignment="Center"/>
-                    <Button x:Name="LogonToRevIDBT" Content="Logon to RevID" IsEnabled="False" Click="LogonToRevIDBT_Click" Margin="10,1,1,1" HorizontalAlignment="Center"/>
-                    <EppiReviewer4:ArchieLogin x:Name="ArchieLogonControl"/>
-                </StackPanel>
-            </Grid>
+                    <StackPanel  Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="2">
+                        <Button x:Name="NewRevBT" Content="Create New Review" IsEnabled="False" Click="Button_Click" Margin="1"/>
+                    </StackPanel>
+                    <StackPanel  Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="1">
+                        <TextBox x:Name="newReviewTB" ToolTipService.ToolTip="Type a name for the new review"  
+                                         HorizontalAlignment="Stretch" IsEnabled="False"
+                                         TextChanged="newReviewTB_TextChanged" Margin="2,1,2,1"/>
+                    </StackPanel>
+                    <StackPanel x:Name="LogonToRevIDstackp" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"
+                                Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Center">
+                        <TextBox x:Name="LogonToRevIDTB" ToolTipService.ToolTip="Type a Review_ID" Width="50" KeyDown="LogonToRevIDTB_KeyDown" Margin="2" HorizontalAlignment="Center"/>
+                        <Button x:Name="LogonToRevIDBT" Content="Logon to RevID" IsEnabled="False" Click="LogonToRevIDBT_Click" Margin="10,1,1,1" HorizontalAlignment="Center"/>
+                        <EppiReviewer4:ArchieLogin x:Name="ArchieLogonControl"/>
+                    </StackPanel>
+                    <StackPanel x:Name="ShowReadOnlyMessage" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Visibility="Collapsed"
+                                Orientation="Vertical" HorizontalAlignment="Left" Margin="2">
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Sorry, your account is Exipred.</TextBlock>
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Since you have never created any review, there is nothing that can be done here (no data to access in "Read-only").</TextBlock>
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Please head back to the EPPI-Reviewer gateway and purchase a subscription and/or create a new account.</TextBlock>
+                    </StackPanel>
+
+                </Grid>
             </telerikNavigation:RadTabItem>
             <telerikNavigation:RadTabItem  x:Name="ArchieReviewsTab" Header="Archie Reviews" IsSelected="False" Visibility="Collapsed" >
                 <Controls:RadGridView x:Name="GridViewArchieReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Top"

@@ -21,11 +21,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeTextList : DynamicBindingListBase<ItemAttributeText>
     {
-#if SILVERLIGHT
+
     public ItemAttributeTextList() { }
-#else
-        private ItemAttributeTextList() { }
-#endif
+
         internal static ItemAttributeTextList NewItemAttributeTextList()
         {
             return new ItemAttributeTextList();

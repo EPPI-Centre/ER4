@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private ItemDocument() { }
+        public ItemDocument() { }
 #endif
 
         public override string ToString()
@@ -35,7 +35,7 @@ namespace BusinessLibrary.BusinessClasses
             return Title;
         }
 
-        private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        public static readonly PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
         public Int64 ItemDocumentId
         {
             get
@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId 
         {
             get
@@ -61,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
         public string ShortTitle
         {
             get
@@ -74,7 +74,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ExtensionProperty = RegisterProperty<string>(new PropertyInfo<string>("Extension", "Extension", string.Empty));
+        public static readonly PropertyInfo<string> ExtensionProperty = RegisterProperty<string>(new PropertyInfo<string>("Extension", "Extension", string.Empty));
         public string Extension
         {
             get
@@ -87,7 +87,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -100,7 +100,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TextProperty = RegisterProperty<string>(new PropertyInfo<string>("Text", "Text", string.Empty));
+        public static readonly PropertyInfo<string> TextProperty = RegisterProperty<string>(new PropertyInfo<string>("Text", "Text", string.Empty));
         public string Text
         {
             get
@@ -113,7 +113,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> BinaryExistsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("BinaryExists", "BinaryExists"));
+        public static readonly PropertyInfo<bool> BinaryExistsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("BinaryExists", "BinaryExists"));
         public bool BinaryExists
         {
             get
@@ -126,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom"));
+        public static readonly PropertyInfo<int> TextFromProperty = RegisterProperty<int>(new PropertyInfo<int>("TextFrom", "TextFrom"));
         public int TextFrom
         {
             get
@@ -139,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo"));
+        public static readonly PropertyInfo<int> TextToProperty = RegisterProperty<int>(new PropertyInfo<int>("TextTo", "TextTo"));
         public int TextTo
         {
             get
@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(TextToProperty, value);
             }
         }
-        private static PropertyInfo<byte[]> FreeNotesStreamProperty = RegisterProperty<byte[]>(new PropertyInfo<byte[]>("FreeNotesStream", "FreeNotesStream"));
+        public static readonly PropertyInfo<byte[]> FreeNotesStreamProperty = RegisterProperty<byte[]>(new PropertyInfo<byte[]>("FreeNotesStream", "FreeNotesStream"));
          //<summary>
          //get and set the notes for Silverdox in the Silverdox Byte[] format, this field uses the same underlying data as FreeNotesXML, and is what Silverdox uses to load and save notes on client side.
          // </summary>
