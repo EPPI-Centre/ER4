@@ -163,6 +163,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
             this.ArmsCompRef.CurrentItem = this.item;
             this.armservice.FetchArms(this.item);

@@ -189,7 +189,7 @@ export class ReviewSetsService {
 
     public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
 
-        console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
+        //console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
         this.CurrentArmID = itemArmID;
         this._IsBusy = true;
         //logic:
