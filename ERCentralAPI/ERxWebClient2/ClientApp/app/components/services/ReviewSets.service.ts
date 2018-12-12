@@ -196,7 +196,7 @@ export class ReviewSetsService extends BusyAwareService {
     public AddItemData(ItemCodingList: ItemSet[], itemArmID: number) {
 
         this._BusyMethods.push("AddItemData");
-        console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
+        //console.log('AAAAAAAAAAAAAAAAgot inside addItemData, arm title is: ' + itemArmID);
         this.CurrentArmID = itemArmID;
         //logic:
             //if ITEM_SET is complete, show the tickbox.
