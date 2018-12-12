@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -44,7 +44,15 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService
     ) { }
-   
+    //Style for the hide/show codes button
+                //.vertical-text {
+                //    position: fixed;
+                //    top: 50 %;
+                //    transform: rotate(90deg);
+                //    left: -23px;
+                //    float: left;
+                //}
+    
     @ViewChild('cmp')
     private ArmsCompRef!: any;
 
@@ -65,8 +73,21 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('ItemDetailsCmp')
     private ItemDetailsCompRef!: any;
 
-
-
+    //public innerWidth: any = 900;
+    //@HostListener('window:resize', ['$event'])
+    //onResize(event: any) {
+    //    this.innerWidth = window.innerWidth;
+    //}
+    //IsSmallScreen(): boolean {
+    //    if (this.innerWidth && this.innerWidth < 768) {
+    //        return true;
+    //    }
+    //    else return false;
+    //}
+    //public ShowCodesInSmallScreen: boolean = false;
+    //public ShowHideCodes() {
+    //    this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
+    //}
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -99,10 +120,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.router.navigate(['home']);
         }
         else {
-            this.ArmsCompRef.armChangedEE.subscribe(() => {
-                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
-                else this.SetArmCoding(0);
-            });
+            //if (this.ArmsCompRef) {
+                this.ArmsCompRef.armChangedEE.subscribe(() => {
+                    if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+                    else this.SetArmCoding(0);
+                });
+            //}
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
 				this.GetItem();
@@ -175,7 +198,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
         this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
-            this.ArmsCompRef.CurrentItem = this.item;
+            //if (this.ArmsCompRef) {
+                this.ArmsCompRef.CurrentItem = this.item;
+            //}
             this.armservice.FetchArms(this.item);
         }
         this.ItemCodingService.Fetch(this.itemID);    
