@@ -1,0 +1,47 @@
+<HeaderComponent PageTitle="Edit codesets"></HeaderComponent>
+<button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    Close/back
+</button>
+<div *ngFor="let type of SetTypes">
+    ID: {{type.setTypeId}} - Name: {{type.setTypeName}} - allowed types N: {{type.allowedCodeTypes.length}}
+</div>
+<kendo-splitter orientation="horizontal">
+    <kendo-splitter-pane>
+        <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
+    </kendo-splitter-pane>
+    <kendo-splitter-pane size="30%">
+        <div class="pane-content">
+
+            <div>Codesets in Review:</div>
+            <div *ngIf="ReviewSets.length == 0">
+                No Codesets in review.
+            </div>
+            <table *ngIf="ReviewSets.length > 0" class="table-striped table table-bordered small"
+                   [ngClass]="{disableThisAndChildren:!CanWrite()}">
+                <tbody>
+                    <tr>
+                        <th class="p-0" style="min-width:100px;">Name</th>
+                    </tr>
+                    <tr *ngFor="let rs of ReviewSets" class="p-0">
+                        <td class="p-1 align-middle">
+                            <span class="btn btn-sm p-0 ml-2"
+                                  [ngClass]="{'font-weight-bold' : (CurrentReviewSet && CurrentReviewSet.set_id == rs.set_id),
+                                                                    'ScreeningSet' : rs.subTypeName == 'Screening',
+                                                                    'AdminSet' : rs.subTypeName == 'Administration'}"
+                                  (click)="SelectReviewSet(rs)">
+                                <span>
+                                    <img *ngIf="rs.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                                    <img *ngIf="!rs.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                                    <img *ngIf="!rs.allowEditingCodeset" title="You can't edit this code set" src="../assets/CodeSetLocked.png" class="mr-1" />
+                                </span>
+                                {{rs.set_name}}
+                            </span>
+                            <i *ngIf="rs.order != ReviewSets.length -1" class="fa fa-caret-down btn btn-link p-0" (click)="MoveDownSet(rs)"></i>
+                            <i *ngIf="rs.order != 0" class="fa fa-caret-up btn btn-link p-0" (click)="MoveUpSet(rs)"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </kendo-splitter-pane>
+</kendo-splitter>

@@ -9,7 +9,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { MainFullReviewComponent } from './components/mainfull/mainfull.component';
+import { MainFullReviewComponent } from './components/main/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -49,6 +49,7 @@ import { ROSourcesListComponent } from './components/Sources/ROSourcesList.compo
 import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { SourcesComponent } from './components/Sources/sources.component';
 import { PubMedComponent } from './components/Sources/PubMed.component';
+import { ReviewSetsEditorComponent } from './components/reviewsets/reviewSetsEditor.component';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import { PubMedComponent } from './components/Sources/PubMed.component';
 		CodesetTreeComponent,
 		SearchComp,
         frequenciesComp,
-		frequenciesResultsComp,
+        frequenciesResultsComp,
+        ReviewSetsEditorComponent,
 		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
@@ -114,12 +116,13 @@ import { PubMedComponent } from './components/Sources/PubMed.component';
             { path: 'home', component: HomeComponent },
             { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
-            { path: 'mainFullReview', component: MainFullReviewComponent }, 
-            { path: 'main', component: MainComponent }, 
+            { path: 'Main', component: MainFullReviewComponent }, 
+            { path: 'MainCodingOnly', component: MainComponent }, 
             { path: 'sources', component: SourcesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
-            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage
+            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
+            { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

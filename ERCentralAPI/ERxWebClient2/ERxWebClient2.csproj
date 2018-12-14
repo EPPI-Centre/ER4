@@ -41,6 +41,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetList.cs" Link="Models\AttributeSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
@@ -88,6 +92,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetUpdateCommand.cs" Link="Models\ReviewSetUpdateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsCodeSet.cs" Link="Models\ReviewStatisticsCodeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsCodeSetList.cs" Link="Models\ReviewStatisticsCodeSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewStatisticsCountsCommand.cs" Link="Models\ReviewStatisticsCountsCommand.cs" />
@@ -132,11 +137,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\app\components\main\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 
   <!-- <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') "> -->

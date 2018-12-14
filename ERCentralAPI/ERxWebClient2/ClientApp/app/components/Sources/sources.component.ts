@@ -101,7 +101,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this._CurrentSourceDateofSearch = newDate;
     }
     BackToMain() {
-        this.router.navigate(['mainFullReview']);
+        this.router.navigate(['Main']);
     }
     HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
         if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;

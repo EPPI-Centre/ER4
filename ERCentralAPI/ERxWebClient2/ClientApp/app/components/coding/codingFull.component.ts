@@ -262,7 +262,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     BackToMain() {
         this.clearItemData();
-        this.router.navigate(['mainFullReview']);
+        this.router.navigate(['Main']);
     }
     ItemAttributeSave(data: CheckBoxClickedEventData) {
         

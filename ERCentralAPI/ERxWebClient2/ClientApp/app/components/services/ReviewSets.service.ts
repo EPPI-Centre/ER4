@@ -125,6 +125,7 @@ export class ReviewSetsService extends BusyAwareService {
         for (let iItemset of data) {
             let newSet: ReviewSet = new ReviewSet();
             newSet.set_id = iItemset.setId;
+            newSet.reviewSetId = iItemset.reviewSetId;
             newSet.set_name = iItemset.setName;
             newSet.order = iItemset.setOrder;
             newSet.codingIsFinal = iItemset.codingIsFinal;
@@ -370,6 +371,7 @@ export class ReviewSet implements singleNode {
     set_name: string = "";
     public get name(): string { return this.set_name; }
     set_order: number = -1;
+    reviewSetId: number = -1;
     attributes: SetAttribute[] = [];
     showCheckBox: boolean = false;
     public get subTypeName(): string {
@@ -458,8 +460,18 @@ export interface iAttributeSet {
     attributeOrder: number;
 }
 export interface iSetType {
+    setTypeId: number;
     setTypeName: string;
     setTypeDescription: string;
+    allowComparison: boolean;
+    allowRandomAllocation: boolean;
+    maxDepth: number;
+    allowedCodeTypes: kvAllowedAttributeType[];
+    allowedSetTypesID4Paste: number[];
+}
+export interface kvAllowedAttributeType {
+    key: number;
+    value: string;
 }
 export class ItemAttributeSaveCommand {
     public saveType: string = "";

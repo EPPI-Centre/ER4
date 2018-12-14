@@ -148,7 +148,7 @@ export class ReviewerIdentityService {
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
-                    this.router.navigate(['main']);
+                    this.router.navigate(['MainCodingOnly']);
                 }
             }
                 , error => {
@@ -177,7 +177,7 @@ export class ReviewerIdentityService {
                     this.router.onSameUrlNavigation = "reload";
                     this.OpeningNewReview.emit();
 
-                    this.router.navigate(['mainFullReview']);
+                    this.router.navigate(['Main']);
                 }
             }
                 , error => {

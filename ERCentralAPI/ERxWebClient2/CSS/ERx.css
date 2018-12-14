@@ -37,13 +37,10 @@ body {
 
 .ScreeningSet {
 	color: #00BB00;
-	/*color: red;*/
-	/*pointer-events: none;*/
 }
 
 .AdminSet {
     color: #0000DD;
-	/*color: yellow;*/
 }
 
 .ExcludeCode {

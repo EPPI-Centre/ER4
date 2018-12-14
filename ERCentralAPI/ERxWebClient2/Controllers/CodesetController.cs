@@ -40,35 +40,61 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Dataportal error");
+                _logger.LogException(e, "Dataportal error getting ReviewSets");
                 throw;
             }
-
-
-            //not using CSLA object!! this needs revising
-            //SetCSLAUser();
-            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            //List<ReviewSet> res = new List<ReviewSet>();
-            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
-            //{
-            //    SqlParameter RevID = new SqlParameter("@REVIEW_ID", ri.ReviewId);
-            //    try
-            //    {
-            //        using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_ReviewSets", RevID))
-            //        {
-            //            if (reader != null)
-            //            {
-            //                res = ReviewSet.GetReviewSets(conn, reader);
-            //            }
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        Program.Logger.LogSQLException(e, "Error fetching list of codesets", RevID);
-            //    }
-            //}
-            //return (IEnumerable<ReviewSet>)res;
         }
-
+        [HttpGet("[action]")]
+        public IActionResult SetTypes()
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ReadOnlySetTypeList> dp = new DataPortal<ReadOnlySetTypeList>();
+                ReadOnlySetTypeList res = dp.Fetch();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error getting SetTypes");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult SaveReviewSet([FromBody] ReviewSetUpdateCommandJSON data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewSetUpdateCommand cmd = new ReviewSetUpdateCommand(data.ReviewSetId
+                        , data.SetId
+                        , data.AllowCodingEdits
+                        , data.CodingIsFinal
+                        , data.SetName
+                        , data.setOrder
+                        , data.setDescription);
+                    DataPortal<ReviewSetUpdateCommand> dp = new DataPortal<ReviewSetUpdateCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(data);//if no error, all should be OK.
+                }
+                else  return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running ReviewSetUpdateCommand");
+                throw;
+            }
+        }
+    }
+    public class ReviewSetUpdateCommandJSON
+    {
+        public int SetId;
+        public int ReviewSetId;
+        public string SetName;
+        public int setOrder;
+        public string setDescription;
+        public bool CodingIsFinal;//normal or comparison mode
+        public bool AllowCodingEdits; //AllowCodingEdits can edit this codeset...
     }
 }

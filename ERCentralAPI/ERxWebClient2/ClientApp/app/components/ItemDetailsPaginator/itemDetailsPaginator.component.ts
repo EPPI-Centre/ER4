@@ -158,7 +158,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		//this.GetItemCoding();
 	}
 	BackToMain() {
-		this.router.navigate(['mainFullReview']);
+		this.router.navigate(['Main']);
 	}
 	
 	ngOnDestroy() {

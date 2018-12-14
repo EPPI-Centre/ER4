@@ -16,7 +16,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
-    selector: 'main',
+    selector: 'mainCodingOnly',
     templateUrl: './main.component.html'
     ,styles: [`
                 
