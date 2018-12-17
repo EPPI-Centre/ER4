@@ -1,0 +1,93 @@
+﻿<configuration>
+    <system.serviceModel>
+        <bindings>
+          <basicHttpBinding>
+            <binding name="LocalBasicHttpBinding_IWcfPortal"
+                     maxBufferSize="2147483647"
+                     maxReceivedMessageSize="2147483647"
+                     receiveTimeout="00:10:00"
+                     sendTimeout="00:10:00"
+                     openTimeout="00:10:00"
+                     closeTimeout="00:10:00">
+            </binding>
+            <binding name="HttpsBinding_IWcfPortal"
+                     maxBufferSize="2147483647"
+                     maxReceivedMessageSize="2147483647"
+                     receiveTimeout="00:10:00"
+                     sendTimeout="00:10:00"
+                     openTimeout="00:10:00"
+                     closeTimeout="00:10:00">
+              <security mode="Transport"/>
+            </binding>
+            <binding name="BasicHttpBinding_IWcfPortal"
+                     maxBufferSize="2147483647"
+                     maxReceivedMessageSize="2147483647"
+                     receiveTimeout="00:10:00"
+                     sendTimeout="00:10:00"
+                     openTimeout="00:10:00"
+                     closeTimeout="00:10:00">
+            </binding>
+          </basicHttpBinding>
+        </bindings>
+        <client>
+			
+			    <!--<endpoint address="http://eppi.ioe.ac.uk/er4dbg/WcfPortal.svc"
+          endpoint address=""-->
+          <endpoint address="http://epi3.westeurope.cloudapp.azure.com/EPPIReviewer4/WcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="BasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="AzureHttpBinding_IWcfPortal" />
+          <endpoint address="https://epi3.westeurope.cloudapp.azure.com/EPPIReviewer4/sWcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="HttpsBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="HttpsAzureHttpBinding_IWcfPortal" />
+          <endpoint address="http://eppi.ioe.ac.uk/EPPIReviewer4/WcfPortal.svc"
+                    binding="basicHttpBinding" 
+                    bindingConfiguration="BasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal" 
+                    name="BasicHttpBinding_IWcfPortal" />
+          <endpoint address="https://eppi.ioe.ac.uk/EPPIReviewer4/sWcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="HttpsBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="HttpsBinding_IWcfPortal" />
+          <endpoint address="http://eppi-management/WcfHostPortal/WcfPortal.svc"
+                    binding="basicHttpBinding" 
+                    bindingConfiguration="BasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal" 
+                    name="Management_HttpBinding_IWcfPortal" />
+          <endpoint address="https://eppi-management/WcfHostPortal/sWcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="HttpsBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="HttpsManagement_Binding_IWcfPortal" />
+          <endpoint address="http://localhost/WcfHostPortal/WcfPortal.svc"
+                    binding="basicHttpBinding" 
+                    bindingConfiguration="LocalBasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal" 
+                    name="LocalBasicHttpBinding_IWcfPortal" />
+          <endpoint address="http://er5-alpha.ucl.ac.uk/ER4/WcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="BasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="TestingBasicHttpBinding_IWcfPortal"/>
+          <endpoint address="https://er5-alpha.ucl.ac.uk/ER4/sWcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="HttpsBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="TestingHttpsBinding_IWcfPortal"/>
+          <endpoint address="https://ssru38.ioe.ac.uk/WcfHostPortal/sWcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="HttpsBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="LocalHttpsBinding_IWcfPortal"/>
+          <endpoint address="http://cs00032214/WcfHostPortal/WcfPortal.svc"
+                    binding="basicHttpBinding"
+                    bindingConfiguration="BasicHttpBinding_IWcfPortal"
+                    contract="WcfPortal.IWcfPortal"
+                    name="cs00032214HttpBinding_IWcfPortal"/>
+        </client>
+    </system.serviceModel>
+</configuration>

@@ -1,0 +1,15 @@
+﻿New version with the ability to run integration services integrated into the webservice
+1. Edit Package.dtsx and point SILVIE.Reviewer1 to the server in question.
+2. Deploy the package to the server as DictionaryCreation.
+3. Figure out permissions!
+4. Go into SQL Server Agent and create a new job called RunCreateDictionary.
+5. Create a step called 'RunIt'. It's an SQL Server Integration Services Package that runs 'DictionaryCreation'.
+6. Test term extraction in ER4 by using TF*IDF.
+7 Figure out permissions!
+
+OLD VERSION
+1. In SQL Server Management Studio connect to Integration Services.
+2. Under 'file system' import Package.dtsx. This should appear as 'DictionaryCreation'.
+3. Go into SQL Server Agent and create a new job called RunCreateDictionary.
+4. Create a step called 'RunIt'. It's an SQL Server Integration Services Package that runs 'DictionaryCreation'.
+5. Test term extraction in ER4 by using TF*IDF.

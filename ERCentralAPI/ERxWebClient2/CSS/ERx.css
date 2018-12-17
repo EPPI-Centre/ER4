@@ -1,0 +1,107 @@
+body {
+	font-family: Roboto, Arial, sans-serif;
+	margin: 0;
+}
+
+.basic-container {
+	padding: 5px;
+}
+
+.version-info {
+	font-size: 8pt;
+	float: right;
+}
+
+
+
+
+.GreenIcon {
+    color: green;
+}
+.RedIcon {
+    color: red;
+}
+.RelevantTerm {
+    color: white;
+    background-color: green;
+}
+
+.IrrelevantTerm {
+    color: white;
+    background-color: red;
+}
+
+body {
+    height: 700px;
+}
+
+.ScreeningSet {
+	color: #00BB00;
+	/*color: red;*/
+	/*pointer-events: none;*/
+}
+
+.AdminSet {
+    color: #0000DD;
+	/*color: yellow;*/
+}
+
+.ExcludeCode {
+    color: #EE3333;
+    /*color: forestgreen;*/
+    /*pointer-events: none;*/
+}
+
+.tree-node {
+	color: black;
+	/*pointer-events: none;*/
+}
+
+.tree-node-disabled {
+	pointer-events: none;
+	color: black;
+}
+
+
+
+.hidden-item {
+	display: none;
+}
+
+.tab-content {
+	width: 100%;
+}
+
+.containsAtoolbar .k-toolbar {
+    background-color: #f1f1f8;
+}
+.containsAtoolbar .k-button {
+    border-color: #04070b;
+    color: #04070b;
+    background-color: #e1e4eb;
+}
+
+ul.k-tabstrip-items {
+    border-color: rgba(33,37,41,0.45);
+}
+
+ul.k-tabstrip-items li.k-item.k-state-active {
+    border-color: rgba(33,37,41,0.45);
+}
+
+
+
+/*
+    disable controls within a given element hack.
+    see https://stackoverflow.com/questions/50385048/disable-all-button-and-links-in-a-div
+    and 
+    https://stackoverflow.com/questions/14072479/how-to-disable-keyboard-key-with-css
+*/
+.disableThisAndChildren {
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+    pointer-events: none;
+    opacity: 0.3;
+}

@@ -1,0 +1,231 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+
+<%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="Telerik" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>Review Management</title>
+    <link href="MainStyleSheet.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript">
+        function Jump() {
+            window.location.href = "PurchaseHistory.aspx";
+        }
+
+	
+    </script>
+
+
+
+
+
+
+</head>
+
+
+<body>
+    <form id="form1" runat="server">
+
+        <telerik:RadScriptManager runat="server" ID="RadScriptManager1" />
+        <telerik:RadFormDecorator ID="QsfFromDecorator" runat="server" DecoratedControls="All" EnableRoundedCorners="false" />
+
+     
+
+        <div style="text-align: left">
+
+        <table style="padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px; padding-top: 0px" width="100%">
+            <tr>
+                <td style="width: 20%; color: #35587a; font-style: italic">
+                    <strong>EPPI-Reviewer 4 manager</strong></td>
+            </tr>
+        </table><br />
+
+            
+            <table border="0" cellpadding="0" cellspacing="0" style="border-left-width: thin;
+                border-left-color: #4544af; border-bottom-width: thin; border-bottom-color: #4544af;
+                border-right-width: thin; border-right-color: #4544af">
+
+
+
+                <tr><td style="width:800px">
+                                <telerik:RadTabStrip ID="rtsMenu" runat="server"  MultiPageID="RadMultiPage1" 
+                                    Width="100%" SelectedIndex="5"
+                             Owner="rtsMenu" Skin="WebBlue" ResolvedRenderMode="Classic" >
+                                    <Tabs>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" 
+                                            Text="Summary">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" Text="Summary">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Purchase.aspx" Text="Purchase" 
+                                            Visible="False">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Purchase.aspx" Text="Purchase" 
+                                                    Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/PurchaseHistory.aspx" 
+                                                    Text="Purchase history" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False" Owner="">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Reviews.aspx" Text="Reviews" 
+                                            Visible="False">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Reviews.aspx" Text="Reviews" 
+                                                    Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/NonShareableReviews.aspx" 
+                                                    Text="NonShare Reviews">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/CochraneReviews.aspx" 
+                                                    Text="Cochrane Reviews">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ReviewDetails.aspx" 
+                                                    Text="Review details" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False" Owner="">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Contacts.aspx" Text="Contacts" 
+                                            Visible="False">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Contacts.aspx" Text="Contacts" 
+                                                    Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ContactDetails.aspx" 
+                                                    Text="Contact details" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False" Owner="">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/RecentActivity.aspx" 
+                                            Text="Admin" Visible="False">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/RecentActivity.aspx" 
+                                                    Text="Recent Activity" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/UserStatistics.aspx" 
+                                                    Text="User statistics" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/TermsAndConditions.aspx" 
+                                                    Text="Terms setup" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/NewUser.aspx" Text="New users" 
+                                                    Owner="" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/MessageOfTheDay.aspx" 
+                                                    Text="Msg of the day" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/AccessSettings.aspx" 
+                                                    Text="Access settings" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Newsletter.aspx" 
+                                                    Text="Newsletter" Owner="">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Emails.aspx" Text="Emails" 
+                                                    Owner="">
+                                                </Telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/FilterBuilder.aspx" Text="Import filters">
+                                                </telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" 
+                                            Selected="True" SelectedIndex="2">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Owner="" 
+                                                    Text="Codesets">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Presenter.aspx" Owner="" 
+                                                    Text="Data viewer setup" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Owner="" 
+                                                    Text="Example review" Selected="True">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy.aspx" Owner="" 
+                                                    Text="Review copy 1" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/ReviewCopy2.aspx" Owner="" 
+                                                    Text="Review copy 2" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Enabled="False" Owner="" Text="&amp;nbsp;">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/SiteLicense.aspx" 
+                                            Text="Site license" Visible="False">
+                                            <Tabs>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/SiteLicense.aspx" Owner="" 
+                                                    Text="Site license">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/SiteLicenseSetup.aspx" Owner="" 
+                                                    Text="Setup" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" Enabled="False" Owner="" Text="&amp;nbsp;">
+                                                </Telerik:RadTab>
+                                            </Tabs>
+                                        </Telerik:RadTab>
+                                        <telerik:RadTab runat="server" NavigateUrl="~/Organisation.aspx" Text="Organisations" Visible="False">
+                                            <Tabs>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/Organisation.aspx" Text="Organisations">
+                                                </telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/OrganisationSetup.aspx" Text="Setup" Visible="False">
+                                                </telerik:RadTab>
+                                                <telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
+                                                </telerik:RadTab>
+                                            </Tabs>
+                                        </telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Login.aspx" Text="Logout">
+                                        </Telerik:RadTab>
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Login.aspx" Text="Login" 
+                                            Visible="False">
+                                        </Telerik:RadTab>
+                                    </Tabs>
+
+
+                             </telerik:RadTabStrip>
+
+                  </td>   </tr>                       
+                <tr>
+                    <td 
+                        
+                        style="background-image: url(Images/Web2strip2.gif); vertical-align:bottom; padding-right: 4px;
+                        padding-left: 4px; padding-bottom: 4px; padding-top: 5px; color: #000000;" >
+                        <asp:Label ID="lblHeadingText" runat="server" Font-Bold="False" 
+                            ForeColor="White" Font-Size="Small"></asp:Label>
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <td style="border-right: #859DB5 thin solid; border-top: #859DB5 thin solid; border-left: #859DB5 thin solid;
+                        border-bottom: #859DB5 thin solid; padding-right: 4px; padding-left: 4px; padding-bottom: 4px;
+                        padding-top: 5px;">
+                        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                        </asp:ContentPlaceHolder>
+                    </td>
+                </tr>
+            </table>
+            
+            You are logged in as: 
+            <asp:Label ID="lblLoggedInAs" runat="server" Font-Bold="True" Text="Label"></asp:Label>
+            </div>
+            
+            <asp:LinkButton PostBackUrl="~/PurchaseHistory.aspx" ID="NavToSummary" Visible="true" style="display: none;" runat="server" Enabled="true">www</asp:LinkButton>
+    </form>
+
+</body>
+
+
+</html>

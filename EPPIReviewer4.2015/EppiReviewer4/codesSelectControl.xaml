@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="EppiReviewer4.codesSelectControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+    
+    <UserControl.Resources>
+        <ListBox x:Name="ListOfSetTypes" />
+        <helper:CodeSetVisibility4RandomAllocation x:Name="codeSetVisibility4RandomAllocation" />
+        <telerik:HierarchicalDataTemplate x:Key="selectCodeControlTemplate" ItemsSource="{Binding Attributes}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding AttributeName}" HorizontalAlignment="Left" />
+            </StackPanel>
+        </telerik:HierarchicalDataTemplate>
+        
+        <telerik:HierarchicalDataTemplate x:Key="selectCodeSetTemplate" ItemsSource="{Binding Attributes}" ItemTemplate="{StaticResource selectCodeControlTemplate}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding SetName}" HorizontalAlignment="Left" />
+            </StackPanel>
+        </telerik:HierarchicalDataTemplate>
+    </UserControl.Resources>
+    
+    <Grid x:Name="LayoutRoot" >
+        <telerik:RadDropDownButton x:Name="codeSelectControlDropDown" VerticalAlignment="Stretch"  DropDownMaxHeight="300" DropDownMaxWidth="400" HorizontalAlignment="Stretch" IsOpen="False" >
+        
+            <telerik:RadDropDownButton.DropDownContent>
+                <telerik:RadTreeView x:Name="TreeViewSelectCode" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}"
+                SelectionChanged="TreeViewSelectCode_SelectionChanged" ItemTemplate="{StaticResource selectCodeSetTemplate}" 
+                                     MouseLeftButtonUp="TreeViewSelectCode_MouseLeftButtonUp">
+                    <telerik:RadTreeView.Resources>
+                        <Style TargetType="telerik:RadTreeViewItem" x:Key="4RandomAlloc">
+                            <Setter Property="IsEnabled" Value="{Binding Converter={StaticResource codeSetVisibility4RandomAllocation}, ConverterParameter={StaticResource ListOfSetTypes}, Mode=OneWay}" >
+                            </Setter>
+                        </Style>
+                    </telerik:RadTreeView.Resources>
+                </telerik:RadTreeView>
+            </telerik:RadDropDownButton.DropDownContent>
+        </telerik:RadDropDownButton>
+    </Grid>
+</UserControl>

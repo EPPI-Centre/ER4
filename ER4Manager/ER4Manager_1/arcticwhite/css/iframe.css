@@ -1,0 +1,10 @@
+.SourceCssClass { font-family:"Consolas","Lucida Console","Courier New",monospace;font-size:12px;padding:none;border:none;background-image:none; }
+.DesignCssClass { font-family:Arial,Helvetica,sans-serif;color:#333;font-size:12px;background-image:none; }
+.HighlightCssClass { background-color:#cee2ec; }
+
+h1 { font-family:"Arial Black",Arial,Helvetica,sans-serif;color:#333;font-size:20px;line-height:30px;margin:0; }
+h2 { color:#3c7e9d;font-size:17px;line-height:26px;font-weight:bold;margin:0; }
+h3 { color:#999;font-size:12px;padding-top:0px;margin-top:0px; }
+
+.DesignCssClass a { color:#3c7e9d !important; }
+.DesignCssClass a:hover { color:#3c7e9d !important;text-decoration:underline !important; }

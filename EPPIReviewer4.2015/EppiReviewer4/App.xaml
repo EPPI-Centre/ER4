@@ -1,0 +1,115 @@
+﻿<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             x:Class="EppiReviewer4.App"
+             xmlns:core="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:animation="clr-namespace:Telerik.Windows.Controls.Animation;assembly=Telerik.Windows.Controls" 
+             xmlns:telerikChromes="clr-namespace:Telerik.Windows.Controls.Chromes;assembly=Telerik.Windows.Controls" 
+             xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+             xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+             xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+             >
+    <Application.Resources>
+        <ResourceDictionary >
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Helpers/StyledDictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="HandStyle" TargetType="telerik:GridViewCell">
+            <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+            <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+            <cslaXAML:CslaDataProvider x:Key="CodeSetsData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.ReviewSetsList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetReviewSetsList"
+                               DataChanged="CslaDataProvider_DataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="SetTypes"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.ReadOnlySetTypeList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetSetTypeList"
+                               DataChanged="ReadOnlySetTypeList_DataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="SearchesData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.SearchList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetSearchList" 
+                               DataChanged="CslaDataProvider_SearchesDataDataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="ReportListData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.ReportList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetReportList"
+                               DataChanged="CslaDataProviderReportListData_DataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="AttributeTypesData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="True"
+                               ObjectType="BusinessLibrary.BusinessClasses.AttributeTypes, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetAttributeTypes"
+                               DataChanged="CslaDataProvider_AttributeTypesDataDataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="ReviewsData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.ReadOnlyReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               DataChanged="CslaDataProvider_ReviewsDataChanged"
+                               FactoryMethod="GetReviewList"
+                                       />
+            <cslaXAML:CslaDataProvider x:Key="ArchieReviewsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReadOnlyArchieReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="ArchieReviewsProvider_DataChanged"
+                           FactoryMethod="GetReviewList"
+                             />
+            <cslaXAML:CslaDataProvider x:Key="WorkAllocationContactListData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.WorkAllocationContactList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetWorkAllocationContactList"
+                               DataChanged="CslaDataProvider_WorkAllocationContactListDataDataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="ReviewContactNVLData"
+                               ManageObjectLifetime="True"
+                               IsInitialLoadEnabled="False"
+                               ObjectType="BusinessLibrary.BusinessClasses.ReviewContactNVL, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                               FactoryMethod="GetReviewContactNVL"
+                               DataChanged="CslaDataProvider_ReviewContactNVLDataDataChanged"
+                               />
+            <cslaXAML:CslaDataProvider x:Key="TrainingReviewerTermData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.TrainingReviewerTermList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="TrainingReviewerTermData_DataChanged"
+                           FactoryMethod="GetTrainingReviewerTermList"/>
+            <cslaXAML:CslaDataProvider x:Key="TrainingListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.TrainingList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="TrainingListData_DataChanged"
+                           FactoryMethod="GetTrainingList"/>
+            <cslaXAML:CslaDataProvider x:Key="ReviewInfoData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReviewInfo, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="CslaDataProvider_DataChanged_2"
+                           FactoryMethod="GetReviewInfo"/>
+            <cslaXAML:CslaDataProvider x:Key="SearchVisualiseData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.SearchVisualiseList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetSearchVisualiseList" 
+                           DataChanged="CslaDataProvider_DataChanged_3"
+                           />
+        </ResourceDictionary>
+
+
+
+
+    </Application.Resources>
+</Application>

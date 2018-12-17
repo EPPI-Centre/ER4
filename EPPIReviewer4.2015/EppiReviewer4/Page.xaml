@@ -1,0 +1,59 @@
+﻿<UserControl xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    x:Class="EppiReviewer4.Page"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    >
+    <Grid x:Name="LayoutRoot" Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid x:Name="_gridDocuments" Grid.Row="0"></Grid>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Border x:Name="StatusContainer">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="textBlockMsg" Text="Status: No message yet" ></TextBlock>
+                    <HyperlinkButton x:Name="viewFullMOTD_hlink" Click="viewFullMOTD_hlink_Click" Content="[Show More]" FontWeight="Bold" Foreground="Black" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+            <TextBlock x:Name="textBlockSeparator" Text=" | "></TextBlock>
+            <Border x:Name="CurrentUserStatusContainer" VerticalAlignment="Top">
+                <TextBlock x:Name="textBlockStatus" Text="Not logged in"></TextBlock>
+            </Border>
+            <TextBlock Text=" | "></TextBlock>
+            <Border x:Name="CurrentReviewStatusContainer" VerticalAlignment="Top">
+                <TextBlock x:Name="textBlockReview" Text="No review selected"></TextBlock>
+            </Border>
+        </StackPanel>
+        
+        <!--<telerikNavigation:RadWindow x:Name="windowLoadingAttributes" Header="Loading codes..." WindowStartupLocation="CenterScreen"
+                  ResizeMode="NoResize" CanClose="False">
+            <StackPanel x:Name="additionalContent" Orientation="Vertical">
+                <cslaXAML:BusyAnimation x:Name="BusyLoading" Height="50" Width="50" />
+            </StackPanel>
+        </telerikNavigation:RadWindow>-->
+                
+        <!--<telerikNavigation:RadWindow x:Name="windowReviews" Header="Please select review" WindowStartupLocation="CenterScreen"
+                  ResizeMode="NoResize" CanClose="False" >
+            <Grid x:Name="ReviewsGrid" >
+                
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        <!--<telerikNavigation:RadWindow x:Name="windowMOTD" Header="Status Details:" WindowStartupLocation="CenterScreen"
+                  ResizeMode="NoResize" CanClose="true" WindowState="Normal" Width="350" Closed="windowMOTD_Closed">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="MOTDtextBlock" TextWrapping="Wrap" Grid.Row="0" Margin="5"/>
+                <Button x:Name="cmdCloseMOTD" Click="cmdCloseMOTD_Click" Content="OK" Width="80" Height="30" Grid.Row="1" />
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        
+    </Grid>
+</UserControl>

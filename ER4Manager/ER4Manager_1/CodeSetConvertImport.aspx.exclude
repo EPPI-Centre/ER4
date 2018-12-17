@@ -1,0 +1,194 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true"
+    CodeFile="CodeSetConvertImport.aspx.cs" Inherits="CodeSetConvertImport" Title="CodeSetConvertImport" %>
+    <%@ Register namespace="ComponentArt.Web.UI" tagprefix="UI" %>
+    <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
+        <div style="max-width:800px">
+
+
+            <b>Note: This convertor and importer is only for ER3 guidelines. These 
+            guidelines followed a very strict Section, Questions, Answer
+            <br />
+            format and this utility expects to see that format.</b>&nbsp;
+            <br />
+            <asp:Panel ID="pnlExport" runat="server" BorderStyle="Solid" BorderWidth="1px">
+                <b>Convert ER3 guideline xml file into ER4 codeset xml file</b><br />
+                <br />
+                <input ID="fDocument" runat="server" class="button" name="fDocument" 
+                    type="file" /> &nbsp;&nbsp;<asp:Button ID="cmdConvertGuideline" runat="server" 
+                    OnClick="cmdConvertGuideline_Click" Text="Convert" Enabled="False" />
+                &nbsp; Select the ER3 xml file and then <strong>Convert</strong>.
+                <br />
+            </asp:Panel>
+            <br />
+            <br />
+            <asp:Panel ID="pnlImport" runat="server" BorderStyle="Solid" BorderWidth="1px">
+                <b>Import converted ER3 guideline into ER4</b><br />
+                <br />
+                <br />
+            </asp:Panel>
+            <br />
+            <br />
+            <br />
+            <asp:Panel ID="pnlXmlFormat" runat="server" BorderStyle="Solid" 
+                BorderWidth="1px">
+                <b>Codeset xml file ER3 format</b><br />
+                <br />
+                <span class="Normal">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;<br />
+                &lt;guideline&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;guideline_header&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;guideline_name&gt;Test guideline&lt;/guideline_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;guideline_text&gt;This is a test guideline&lt;/guideline_text&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;/guideline_header&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;section&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;section_name&gt;This is section 1&lt;/section_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for section 1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question_name&gt;This is question 1&lt;/question_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 1 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 1 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 3 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question_name&gt;This is question 2&lt;/question_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 1 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 1 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 3 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;/section&gt;<br />
+                &lt;/guideline&gt;</span><br />
+                <br />
+                Converted to ER4 format<br />
+                <br />
+                <span class="Normal">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;<br />
+                &lt;codeset&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;codeset_header&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;codeset_name&gt;Test guideline&lt;/codeset_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;codeset_text&gt;This is a test guideline&lt;/codeset_text&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;/codeset_header&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;child01&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;child01_name&gt;This is section 1&lt;/child01_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for section 1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question_name&gt;This is question 1&lt;/question_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 1 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 1 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 3 for question 
+                1&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;question_name&gt;This is question 2&lt;/question_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;this is the description for question 
+                1&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 1 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 1 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                <br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 2 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;answer_name&gt;This is possible answer 2 for question 
+                2&lt;/answer_name&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;description&gt;This is a description of answer 3 question 
+                2&lt;/description&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/answer&gt;<br />
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/question&gt;<br />
+                &nbsp;&nbsp;&nbsp; &lt;/child01&gt;<br />
+                &lt;/codeset&gt;</span><br />
+                <br />
+                <br />
+                <b>Translations</b><br />
+                <span class="Normal">&lt;guideline&gt; = &lt;codeset&gt;</span><br />
+                <span class="Normal">&lt;guideline_header&gt; = &lt;codeset_header&gt;
+                <br />
+                &lt;guideline_name&gt; = &lt;codeset_name&gt;<br />
+                &lt;guideline_text&gt; = &lt;codeset_text&gt;<br />
+                &lt;section&gt; - &lt;child01&gt;<br />
+                &lt;section_name&gt; = &lt;child01_name&gt;</span><br />
+                <span class="Normal">&lt;description&gt; = &lt;description&gt;
+                <br />
+                &lt;question&gt; = &lt;child02&gt;<br />
+                &lt;question_name&gt; = &lt;child02_name&gt;
+                <br />
+                &lt;answer&gt; = &lt;child03&gt;
+                <br />
+                &lt;answer_name&gt; = &lt;child03_name&gt;<br />
+&nbsp;<br />
+                <br />
+                </span>
+                <br />
+                <br />
+            </asp:Panel>
+            <br />
+            <span class="Normal">
+            <br />
+            <br />
+            </span>
+            <br />
+            <br />
+            <br />
+
+
+    <br />
+    
+    </div>
+</asp:Content>

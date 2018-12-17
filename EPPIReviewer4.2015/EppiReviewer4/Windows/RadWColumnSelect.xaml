@@ -1,0 +1,80 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWColumnSelect"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Select fields to display"
+                   Width="280"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+        <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        
+    </telerik:RadWindow.Resources>
+    
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <CheckBox x:Name="cbDataColumnId" Content="Document ID" Grid.Row="1" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnOldId" Content="Your document ID" Grid.Row="2" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnAuthors" Content="Authors" Grid.Row="3" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnTitle" Content="Title" Grid.Row="4" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnJournal" Content="Journal" Grid.Row="5" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnShortTitle" Content="Short title" Grid.Row="6" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnItemType" Content="Document type" Grid.Row="7" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnYear" Content="Year" Grid.Row="8" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnAdditionalText" Content="Info" Grid.Row="9" Grid.Column="1"></CheckBox>
+            <CheckBox x:Name="cbDataColumnScore" Content="Score" Grid.Row="10" Grid.Column="1"></CheckBox>
+
+        <TextBlock Grid.Row="11" Grid.Column="0" Text="Maximum no of rows" HorizontalAlignment="Right" Margin="6,9,6,6"></TextBlock>
+            <telerik:RadNumericUpDown Grid.Row="11" Grid.Column="1" x:Name="UpDownPageSize" Margin="0,6,6,6" Width="50" Maximum="4000" Minimum="10" IsInteger="True" Value="700" HorizontalAlignment="Left" />
+            <Button x:Name="cmdCloseWindowColumnSelect" Grid.Row="12" Grid.Column="1" Width="80" Content="Close" HorizontalAlignment="Right" Margin="3,3,3,3" Click="cmdCloseWindowColumnSelect_Click"></Button>
+        </Grid>
+</telerik:RadWindow>

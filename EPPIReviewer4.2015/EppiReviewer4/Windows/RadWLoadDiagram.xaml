@@ -1,0 +1,41 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWLoadDiagram"
+    	           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		           xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+                   xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+                   xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+                   xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+		           xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+                   Header="Load diagram" WindowStartupLocation="CenterScreen" RestrictedAreaMargin="4"
+                    ResizeMode="CanResize" Width="400" Height="400">
+    <telerik:RadWindow.Resources>
+        <cslaXAML:CslaDataProvider x:Key="DiagramListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.DiagramList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetDiagramList"
+                           
+                           />
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDiagram">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdLoadDiagram" Content="Go" Click="cmdLoadDiagram_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </telerik:RadWindow.Resources>
+
+    <Grid>
+        <telerikGridView:RadGridView x:Name="GridDiagrams" ShowGroupPanel="False" AutoGenerateColumns="False"
+                    ItemsSource="{Binding Source={StaticResource DiagramListData}, Path=Data, Mode=TwoWay}"
+                                             RowIndicatorVisibility="Collapsed" IsReadOnly="True">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDiagram}"
+                                             Width="40" Header="Select" DataMemberBinding="{Binding Name}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Diagram" DataMemberBinding="{Binding Name}"></telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+        </Grid>
+</telerik:RadWindow>

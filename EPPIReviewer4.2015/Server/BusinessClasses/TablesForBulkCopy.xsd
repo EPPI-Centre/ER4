@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ItemRankDataSet" targetNamespace="http://tempuri.org/ItemRankDataSet.xsd" xmlns:mstns="http://tempuri.org/ItemRankDataSet.xsd" xmlns="http://tempuri.org/ItemRankDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ItemRankDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ItemRankDataSet" msprop:Generator_UserDSName="ItemRankDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="ItemRankDataTable" msprop:Generator_TableClassName="ItemRankDataTableDataTable" msprop:Generator_TableVarName="tableItemRankDataTable" msprop:Generator_TablePropName="ItemRankDataTable" msprop:Generator_RowDeletingName="ItemRankDataTableRowDeleting" msprop:Generator_RowChangingName="ItemRankDataTableRowChanging" msprop:Generator_RowEvHandlerName="ItemRankDataTableRowChangeEventHandler" msprop:Generator_RowDeletedName="ItemRankDataTableRowDeleted" msprop:Generator_UserTableName="ItemRankDataTable" msprop:Generator_RowChangedName="ItemRankDataTableRowChanged" msprop:Generator_RowEvArgName="ItemRankDataTableRowChangeEvent" msprop:Generator_RowClassName="ItemRankDataTableRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ITEM_ID" msprop:Generator_ColumnVarNameInTable="columnITEM_ID" msprop:Generator_ColumnPropNameInRow="ITEM_ID" msprop:Generator_ColumnPropNameInTable="ITEM_IDColumn" msprop:Generator_UserColumnName="ITEM_ID" type="xs:long" minOccurs="0" />
+              <xs:element name="ITEM_RANK" msprop:Generator_ColumnVarNameInTable="columnITEM_RANK" msprop:Generator_ColumnPropNameInRow="ITEM_RANK" msprop:Generator_ColumnPropNameInTable="ITEM_RANKColumn" msprop:Generator_UserColumnName="ITEM_RANK" type="xs:int" minOccurs="0" />
+              <xs:element name="SEARCH_ID" msprop:Generator_ColumnVarNameInTable="columnSEARCH_ID" msprop:Generator_ColumnPropNameInRow="SEARCH_ID" msprop:Generator_ColumnPropNameInTable="SEARCH_IDColumn" msprop:Generator_UserColumnName="SEARCH_ID" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

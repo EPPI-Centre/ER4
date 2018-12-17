@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Defines a DependencyProperty</Title>
+      <Shortcut>DependencyProperty</Shortcut>
+      <Description>Defines a DependencyProperty</Description>
+      <Author>Colin Eberhardt</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>type</ID>
+          <ToolTip>Property Type</ToolTip>
+          <Default>string</Default>
+        </Literal>
+        <Literal>
+          <ID>summary</ID>
+          <ToolTip>Summary Documentation</ToolTip>
+          <Default>Gets / sets the property value</Default>
+        </Literal>
+        <Literal>
+          <ID>property</ID>
+          <ToolTip>Property Name</ToolTip>
+          <Default>MyProperty</Default>
+        </Literal>
+        <Literal>
+          <ID>containerType</ID>
+          <ToolTip>Containing type</ToolTip>
+          <Default>Control</Default>
+        </Literal>
+        <Literal>
+          <ID>defaultValue</ID>
+          <ToolTip>Property default value</ToolTip>
+          <Default>null</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp">
+        <![CDATA[
+    /// <summary>
+    /// $summary$ This is a dependency property
+    /// </summary>
+    public $type$ $property$
+    {
+        get { return ($type$)GetValue($property$Property); }
+        set { SetValue($property$Property, value); }
+    }
+    
+    /// <summary>
+    /// Defines the $property$ dependnecy property.
+    /// </summary>
+    public static readonly DependencyProperty $property$Property =
+        DependencyProperty.Register("$property$", typeof($type$), typeof($containerType$),
+            new PropertyMetadata($defaultValue$, new PropertyChangedCallback(On$property$PropertyChanged)));
+            
+    /// <summary>
+    /// Invoked when the $property$ property changes
+    /// </summary>
+    partial void On$property$PropertyChanged(DependencyPropertyChangedEventArgs e);
+
+    private static void On$property$PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        $containerType$ control = d as $containerType$;
+        control.On$property$PropertyChanged(e);
+    }
+    
+    $end$]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

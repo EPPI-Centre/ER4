@@ -1,0 +1,50 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWDocumentCluster"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+        xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"            
+		Header="Automatically code documents" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    
+    <Grid x:Name="GridWindowDocumentCluster">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160"></ColumnDefinition>
+            <ColumnDefinition Width="190"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Document clustering" FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+        <TextBlock Text="Maximum hierarchy depth" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="1" Margin="6,6,6,6"></TextBlock>
+        <telerikInput:RadNumericUpDown x:Name="NumericUpDownMaxHierarchyDepth" Maximum="5" Minimum="1" Value="2" SmallChange="1" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
+        <TextBlock Text="Minimum cluster size" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="2" Margin="6,6,6,6"></TextBlock>
+        <telerikInput:RadNumericUpDown x:Name="NumericUpDownMinClusterSize" Maximum="1" Minimum="0" Value="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
+        <TextBlock Text="Maximum cluster size" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="3" Margin="6,6,6,6"></TextBlock>
+        <telerikInput:RadNumericUpDown x:Name="NumericUpDownMaxClusterSize" Maximum="1" Minimum="0" Value="0.35" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
+        <TextBlock Text="Single word label weight" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="4" Margin="6,6,6,6"></TextBlock>
+        <telerikInput:RadNumericUpDown x:Name="NumericUpDownSingleWordLabelWeight" Maximum="1" Minimum="0" Value="0.5" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
+        <TextBlock Text="Minimum label length" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="5" Margin="6,6,6,6"></TextBlock>
+        <telerikInput:RadNumericUpDown x:Name="NumericUpDownMinLabelLength" Maximum="8" Minimum="1" Value="0.35" SmallChange="1" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" Width="80" Margin="6,3,6,6"></telerikInput:RadNumericUpDown>
+        <TextBlock Text="Include" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="6" Margin="6,10,6,6"></TextBlock>
+        <ComboBox x:Name="ComboClusterWhat" Grid.Column="1" Grid.Row="6" Margin="6,6,6,6" SelectionChanged="ComboClusterWhat_SelectionChanged">
+            <ComboBoxItem Content="All included items" IsSelected="True"></ComboBoxItem>
+            <ComboBoxItem Content="All selected items"></ComboBoxItem>
+            <ComboBoxItem Content="All items with this code"></ComboBoxItem>
+        </ComboBox>
+        <TextBlock Text="Select Code:" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="7" Margin="6,10,6,6"></TextBlock>
+        <local:codesSelectControl x:Name="codesSelectControlClusterSelect" Grid.Row="7" Grid.Column="1" Margin="4,4,4,4"></local:codesSelectControl>
+        <TextBlock Text="Cluster documents?" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="8" Margin="6,6,6,6" Visibility="Collapsed"></TextBlock>
+        <CheckBox x:Name="CheckBoxClusterIncludeDocs" Visibility="Collapsed" IsChecked="False" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="8" Margin="6,6,6,6"></CheckBox>
+        <Button x:Name="cmdCluster" HorizontalAlignment="Right" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="9" Grid.Column="1" FontSize="10" Content="Cluster documents" Width="100" Margin="6,0,6,12" Click="cmdCluster_Click"></Button>
+    </Grid>
+</telerik:RadWindow>

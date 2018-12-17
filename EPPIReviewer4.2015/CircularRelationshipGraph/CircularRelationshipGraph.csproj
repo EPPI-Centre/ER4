@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{51CFA1CE-A376-4058-940C-70AE8400DD00}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CircularRelationshipGraph</RootNamespace>
+    <AssemblyName>CircularRelationshipGraph</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>CircularRelationshipGraph.xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>CircularRelationshipGraph.App</SilverlightAppEntry>
+    <TestPageFileName>CircularRelationshipGraphTestPage.html</TestPageFileName>
+    <CreateTestPage>true</CreateTestPage>
+    <ValidateXaml>true</ValidateXaml>
+    <EnableOutOfBrowser>false</EnableOutOfBrowser>
+    <OutOfBrowserSettingsFile>Properties\OutOfBrowserSettings.xml</OutOfBrowserSettingsFile>
+    <UsePlatformExtensions>false</UsePlatformExtensions>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <LinkedServerProject>
+    </LinkedServerProject>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Windows.Browser" />
+    <Reference Include="System.Xml.Linq, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Data\NodeList.cs" />
+    <Compile Include="Menu.xaml.cs">
+      <DependentUpon>Menu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes.xaml.cs">
+      <DependentUpon>Shapes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Sort\DelegateSortOrderProvider.cs" />
+    <Compile Include="DoubleRange.cs" />
+    <Compile Include="Interpolator\BindingExtractor.cs" />
+    <Compile Include="Interpolator\DoubleInterpolator.cs" />
+    <Compile Include="Interpolator\InterpolationMode.cs" />
+    <Compile Include="Interpolator\Interpolator.cs" />
+    <Compile Include="Interpolator\RangeInterpolator.cs" />
+    <Compile Include="Interpolator\SolidColorBrushInterpolator.cs" />
+    <Compile Include="Sort\ISortOrderProvider.cs" />
+    <Compile Include="Sort\MinimisedConnectionLengthSort.cs" />
+    <Compile Include="Sort\NaturalSortOrderProvider.cs" />
+    <Compile Include="Primitives\DoubleToVisibilityConverter.cs" />
+    <Compile Include="Primitives\NegateDoubleConverter.cs" />
+    <Compile Include="Primitives\NodeConnection.cs" />
+    <Compile Include="Primitives\NodeConnectionViewModel.cs" />
+    <Compile Include="Primitives\NodeConnectionViewModel_Generated.cs" />
+    <Compile Include="Primitives\NodeConnection_Generated.cs" />
+    <Compile Include="RelationshipGraph.cs" />
+    <Compile Include="RelationshipGraph_Generated.cs" />
+    <Compile Include="CodeGen\EnvDTE.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EnvDTE.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CodeGen\GenerateObjects.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GenerateObjects.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CodeGen\Includes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Includes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CodeGen\Snippets\dp.cs" />
+    <Compile Include="CodeGen\Snippets\inpc.cs" />
+    <Compile Include="CodeGen\Snippets\prop_inpc.cs" />
+    <Compile Include="CodeGen\Util.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Util.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Data\INode.cs" />
+    <Compile Include="Data\Node.cs" />
+    <Compile Include="Data\NodeRelationship.cs" />
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Primitives\NodeSegment.cs" />
+    <Compile Include="Primitives\NodeSegmentViewModel.cs" />
+    <Compile Include="Primitives\NodeSegmentViewModel_Generated.cs" />
+    <Compile Include="Primitives\NodeSegment_Generated.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StackOverflow.xaml.cs">
+      <DependentUpon>StackOverflow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Util.cs" />
+    <Compile Include="WorldDebt.xaml.cs">
+      <DependentUpon>WorldDebt.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeGen\EnvDTE.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EnvDTE.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\GenerateObjects.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenerateObjects.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Includes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Includes.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Snippets\dp.snippet" />
+    <None Include="CodeGen\Snippets\inpc.snippet" />
+    <None Include="CodeGen\Snippets\prop_inpc.snippet" />
+    <None Include="CodeGen\Util.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Util.cs</LastGenOutput>
+    </None>
+    <None Include="Properties\AppManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Menu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StackOverflow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CodeGen\SnippetToAttribute.xslt" />
+    <Page Include="Shapes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WorldDebt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

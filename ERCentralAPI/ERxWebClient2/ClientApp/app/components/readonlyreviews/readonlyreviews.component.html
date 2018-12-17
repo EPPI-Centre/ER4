@@ -1,0 +1,37 @@
+<p *ngIf="!_readonlyreviewsService.ReadOnlyReviews"><em>Loading...</em></p>
+<div class="" style="max-height: 500px; overflow-y:scroll;">
+    <kendo-grid [data]="DataSource" [height]="490"
+                [sortable]="{
+                    allowUnsort: allowUnsort,
+                    mode: 'single'
+                    }"
+                style="min-width:570px; " class="km-horizontal-scrollbar"
+                [sort]="sort"
+                (sortChange)="sortChange($event)">
+        <kendo-grid-column title="Main" [style]="{'width':'75px', 'padding':'0.25rem'}" [headerStyle]="{'width':'75px'}" >
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <form #f="ngForm" (ngSubmit)="onFullSubmit(r_id.value)" novalidate>
+                    <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
+                    <button class="btn btn-info p-1 w-100" data-placement="top">Main</button>
+                </form>
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="reviewId" [style]="{'width':'78px'}" [headerStyle]="{'width':'78px'}" title="ID" >
+        </kendo-grid-column>
+        <kendo-grid-column field="reviewName" [style]="{'min-width':'150px', 'overflow': 'visible'}" [headerStyle]="{'min-width':'150px', 'overflow': 'visible'}" title="Review Name">
+        </kendo-grid-column>
+        <kendo-grid-column field="lastAccess" [style]="{'width':'145px'}" [headerStyle]="{'width':'145px'}" title="Last Access:">
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                {{FormatDate(dataItem.lastAccess)}}
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column title="Coding Only" [style]="{'width':'120px'}" [headerStyle]="{'width':'120px'}"  >
+            <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
+                    <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
+                    <button class="btn btn-info p-1" data-placement="top">Coding Only</button>
+                </form>
+            </ng-template>
+        </kendo-grid-column>
+    </kendo-grid>
+</div>

@@ -1,0 +1,33 @@
+<div class="border-0">
+    <paginatorComp class="row ml-1"></paginatorComp>
+
+    <div *ngIf="ItemListService.ListDescription != ''"
+         class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
+        <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
+    </div>
+
+    <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.isBusy"
+                id="testKendoGrid" [data]="DataSource" [height]="610"
+                [sortable]="{
+            allowUnsort: allowUnsort,
+            mode: 'single'
+            }"
+                [sort]="sort"
+                (sortChange)="sortChange($event)">
+
+        <kendo-grid-column field="searchId" title="ID" width="72">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button><br />(Id:&nbsp;{{ dataItem.itemId }})
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="shortTitle" title="Short Title" width="108">
+        </kendo-grid-column>
+        <kendo-grid-column field="title" title="Title" width="288">
+        </kendo-grid-column>
+        <kendo-grid-column field="year" title="Year" width="36">
+        </kendo-grid-column>
+    </kendo-grid>
+    <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.isBusy">Loading items...</div>
+    <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.isBusy">Items list is empty...</div>
+    <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
+</div>

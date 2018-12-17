@@ -1,0 +1,781 @@
+﻿<UserControl xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"  
+    x:Class="EppiReviewer4.dialogCoding"
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking" 
+    x:Name="CodingHome"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"         
+    xmlns:local="clr-namespace:EppiReviewer4"
+    xmlns:RichTextBoxUI="clr-namespace:Telerik.Windows.Controls.RichTextBoxUI;assembly=Telerik.Windows.Controls.RichTextBoxUI"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    xmlns:converters="clr-namespace:Telerik.Windows.Documents.Converters;assembly=Telerik.Windows.Controls.FixedDocumentViewers"         
+    >
+     
+    <UserControl.Resources>
+        <cslaXAML:CslaDataProvider x:Key="ItemDocumentListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemDocumentList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemDocumentList"
+                           DataChanged="CslaDataProvider_DataChanged"
+                           />
+        <cslaXAML:CslaDataProvider x:Key="ItemAttributePDFData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemAttributePDFList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemAttributePDFList"
+                           DataChanged="ItemAttributePDFList_DataChanged"
+                           />
+        <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemArmList"
+                           DataChanged="CslaDataProvider_DataChanged_1"
+                           />
+
+        <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
+        <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
+        
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleText">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdViewText" 
+                                Content="Go!" Click="cmdViewText_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleEditArm">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdEditarm" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}"
+                                Content="Edit arm" Click="cmdEditarm_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteArm">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdDeletearm" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
+                                Content="Delete arm" Click="cmdDeletearm_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <helper:ViewDocConverter x:Key="helper"/>
+        <helper:EnableDownloadButtonConverter x:Key="EnableDownload"/>
+        <helper:EnableViewPDFButtonConverter x:Key="EnableViewPDF"/>
+        <helper:URIgetbinButtonConverter x:Key="DownloadURI"/>
+        <helper:ZoomLevelConverter x:Key="ZoomLevelConverter"/>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStylePdf">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate >
+                        
+
+                        <!--<Button x:Name="cmdViewPdf" IsEnabled="{Binding Extension, Converter={StaticResource EnableDownload}}"
+                                Content="{Binding Extension, Converter={StaticResource helper}}" Tag="{Binding ItemDocumentId}" Click="cmdViewPdf_Click"></Button>-->
+                        <!--Button x:Name="cmdViewPdf" IsEnabled="{Binding Extension, Converter={StaticResource EnableDownload}}"
+                                Content="Download" Tag="{Binding ItemDocumentId}" Click="cmdViewPdf_Click"></Button-->
+                       <Button Margin="0" Padding="0" BorderThickness="1" BorderBrush="LightGray">
+                        <HyperlinkButton x:Name="cmdViewPdf" IsEnabled="{Binding Extension, Converter={StaticResource EnableDownload}}" TargetName="_blank"
+                                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Padding="0"
+                                 Tag="{Binding ItemDocumentId}" NavigateUri="{Binding ItemDocumentId, Converter={StaticResource DownloadURI}}">
+
+                            <ContentControl>
+                                
+                                    <Border VerticalAlignment="Center" HorizontalAlignment="Stretch" Width="80" Height="24" BorderThickness="0" >
+                                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Download</TextBlock>
+                                    </Border>
+                            </ContentControl>
+                        </HyperlinkButton></Button>
+                        
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="HyperlinkButton" x:Key="cmdViewPdftmpl">
+            
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleViewDox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="ViewDox" IsEnabled="{Binding Extension, Converter={StaticResource EnableViewPDF}}"
+                                Content="View" Tag="{Binding ItemDocumentId}" Click="ViewDox_Click"></Button>
+                        <!--<Button x:Name="ViewDox" IsEnabled="False"
+                                Content="View" Tag="{Binding ItemDocumentId}" Click="ViewDox_Click"></Button>-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDelFile">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdViewPdf" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
+                                Content="Del" Tag="{Binding ItemDocumentId}"  Click="cmdDelFile_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleCodingReport">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdCodingReport" 
+                                Content="View" Tag="{Binding ItemDocumentId}"  Click="cmdCodingReport_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleCodingReportCodingOnly">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdCodingReport" 
+                                Content="View" Tag="{Binding ItemDocumentId}" IsEnabled="{Binding isOwn}" Click="cmdCodingReport_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleSelected">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <CheckBox x:Name="CheckBoxSelectedItem" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}"></CheckBox>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+    </UserControl.Resources>
+    
+    <Grid KeyUp="Grid_KeyUp">
+
+        <radDock:RadDocking AllowUnsafeMode="True" >
+            
+            <radDock:RadSplitContainer InitialPosition="DockedLeft" Width="330">
+                <radDock:RadPaneGroup x:Name="PaneGroupCodeSets">
+                    <radDock:RadDocumentPane Header="Codes" Title="Codes" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
+                        <Grid x:Name="CodingGrid">
+                            <local:CodesTreeControl x:Name="codesTreeControl" SelectedItemChanged="codesTreeControl_SelectedItemChanged"
+                                                    ControlContext="dialogCoding"
+                                                    RequestItemAdvance="codesTreeControl_RequestItemAdvance"></local:CodesTreeControl>
+                            <local:ReviewerTerms x:Name="reviewerTerms" Margin="3" Visibility="Collapsed" TermsChanged="reviewerTerms_TermsChanged" ></local:ReviewerTerms>
+                        </Grid>
+                    </radDock:RadDocumentPane>
+                </radDock:RadPaneGroup>
+            </radDock:RadSplitContainer>
+
+            <radDock:RadSplitContainer x:Name="BottomContainer" InitialPosition="DockedBottom" Height="110" >
+                <radDock:RadPaneGroup x:Name="Group3">
+                    <radDock:RadPane x:Name="PaneFilesOrComparisons" Header="Files" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False">
+                        <ScrollViewer Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                            <Grid>
+                                <Grid x:Name="GridFilesManagement">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                    <telerikGridView:RadGridView x:Name="GridDocuments" Grid.Column="1" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemDocumentListData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
+                                        <telerikGridView:RadGridView.Columns>
+                                            <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Header="Document" DataMemberBinding="{Binding ShortTitle}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Header="Extension" IsReadOnly="True" DataMemberBinding="{Binding Extension}"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDelFile}" Width="60" Header="Delete" DataMemberBinding="{Binding ItemDocumentId}"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleText}" Width="60" Header="View text" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStylePdf}" Width="80" Header="Download" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleViewDox}" Width="80" Header="View PDF" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                                        </telerikGridView:RadGridView.Columns>
+                                    </telerikGridView:RadGridView>
+                                    <StackPanel Orientation="Vertical">
+                                        <Button x:Name="cmdUploadFile" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
+                                            Content="Upload" Grid.Column="0" Height="25" VerticalAlignment="Top" Click="cmdUploadFile_Click"  Margin="3,3,3,3"></Button>
+                                        <cslaXAML:BusyAnimation x:Name="busyDocList" IsRunning="{Binding Source={StaticResource ItemDocumentListData},Path=IsBusy}"></cslaXAML:BusyAnimation>
+                                        <cslaXAML:BusyAnimation x:Name="busyUploading" IsRunning="False"></cslaXAML:BusyAnimation>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid x:Name="GridLiveComparisons" Visibility="Collapsed">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"></RowDefinition>
+                                        
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid x:Name="GridLiveComparisonsContent" Grid.Row="0" Grid.Column="1"></Grid>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <Button x:Name="cmdCloseLiveComparisons" Content="Close" Margin="3,3,3,3" Click="cmdCloseLiveComparisons_Click"></Button>
+                                        <cslaXAML:BusyAnimation x:Name="BusyLoadingAllAttributes" />
+                                    </StackPanel>
+                                    
+                                </Grid>
+                                
+                                <Grid x:Name="GridShowCodedText" Visibility="Collapsed">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"></RowDefinition>
+
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid x:Name="GridShowCodedTextContent" Grid.Row="0" Grid.Column="1"></Grid>
+                                    <Button x:Name="cmdCloseShowCodedText" Grid.Row="0" Grid.Column="0" Content="Close" Margin="3,3,3,3" Height="35" VerticalAlignment="Top" Click="cmdCloseShowCodedText_Click"></Button>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                    </radDock:RadPane>
+
+                </radDock:RadPaneGroup>
+            </radDock:RadSplitContainer>
+
+            <radDock:RadDocking.DocumentHost>
+                <radDock:RadSplitContainer>
+                    <radDock:RadPaneGroup x:Name="PaneItemDetails" SelectionChanged="PaneItemDetails_SelectionChanged">
+                        <radDock:RadDocumentPane Header="Citation details" Title="Citation details" CanFloat="False" CanUserClose="False">
+                            <Grid Margin="0,0,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="15"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="70"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <telerikNavigation:RadToolBar Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+				                        VerticalAlignment="Top" x:Name="mainToolBar">
+                                    <TextBlock x:Name="TextBlockIndexInList" Margin="5,0,5,0"></TextBlock>
+                                    
+                                    <Button x:Name="cmdPrevious" Click="cmdPrevious_Click" ToolTipService.ToolTip="Hotkey: Ctrl + shift + left arrow" >
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/PreviousDocument.png"/>
+                                            <TextBlock Text="Previous" Margin="5,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdNext" Click="cmdNext_Click" ToolTipService.ToolTip="Hotkey: Ctrl + shift + right arrow">
+                                            <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Next" Margin="0,0,5,0"></TextBlock>
+                                            <Image Width="16" Height="16" Source="Icons/NextDocument.png"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdPreviousScreening" ToolTipService.ToolTip="Previous item screened" Click="cmdPreviousScreening_Click"  Visibility="Collapsed">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/PreviousDocument.png"/>
+                                            <TextBlock Text="Previous item screened" Margin="5,0,5,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdNextScreening" ToolTipService.ToolTip="Next item to screen in the list." Click="cmdNextScreening_Click" Visibility="Collapsed">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Next item to screen" Margin="0,0,5,0"></TextBlock>
+                                            <Image Width="16" Height="16" Source="Icons/NextDocument.png"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <telerikNavigation:RadToolBarSeparator Margin="5,2,5,2" />
+
+                                    <Button x:Name="cmdShowTextHighlight"  ToolTipService.ToolTip="Show key terms" Click="cmdShowTextHighlight_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/ShowTextBold.png"/>
+                                            <TextBlock Text="Show terms" Margin="4,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdShowEditableBoxes"  ToolTipService.ToolTip="Switch back to editable abstract / title" Click="cmdShowEditableBoxes_Click" Visibility="Collapsed">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/SwitchToEdit.png"/>
+                                            <TextBlock Text="Hide Terms" Margin="4,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <telerikNavigation:RadToolBarSeparator Margin="5,2,5,2" />
+                                    <Button x:Name="cmdOk" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" Tag="Open" Width="40"
+                                            ToolTipService.ToolTip="Save">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/DocumentSave.png"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdOkAndClose" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Click="cmdOk_Click" 
+                                            Tag="Close" Width="120">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/DocumentSaveAndClose.png"/>
+                                            <TextBlock Text="Save and close" Margin="4,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdCancelEditItem"  IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Width="80" 
+                                            Click="cmdCancelEditItem_Click" ToolTipService.ToolTip="Close without saving (citation edits)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/DocumentCancel.png"/>
+                                            <TextBlock Text="Cancel" Margin="5,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <telerikNavigation:RadToolBarSeparator Margin="5,2,5,2" />
+                                    <Button x:Name="cmdFindOnGoogle" Width="60" Click="cmdFindOnGoogle_Click" ToolTipService.ToolTip="Search for this publication on Google">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/FindOnGoogle.png"/>
+                                            <TextBlock Text="Find" Margin="4,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="cmdTranslate" Width="90"  ToolTipService.ToolTip="Translate the title and abstract">
+                                        <telerik:RadContextMenu.ContextMenu>
+                                            <telerik:RadContextMenu x:Name="ctxMenuTranslate" EventName="Click" ItemClick="cmdTranslate_Click" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                                                     FontSize="11" MaxHeight="350"
+                                                                    IconColumnWidth="0">
+                                                <telerik:RadMenuItem Tag="en" Header="to English" />
+                                                <telerik:RadMenuItem Tag="fr" Header="to French" />
+                                                <telerik:RadMenuItem Tag="pt" Header="to Portuguese" />
+                                                <telerik:RadMenuItem Tag="es" Header="to Spanish" />
+                                                    <telerik:RadMenuItem Tag="zh-CHS" >
+                                                        <telerik:RadMenuItem.Header>
+                                                            <Border BorderBrush="DarkGray" BorderThickness="0,0,0,1" >
+                                                                <TextBlock Text="to Chinese Simplified" />
+                                                            </Border>
+                                                        </telerik:RadMenuItem.Header>
+                                                    </telerik:RadMenuItem>
+                                                <telerik:RadMenuItem Tag="ar" Header="to Arabic" />
+                                                <telerik:RadMenuItem Header="to Bulgarian" Tag="bg" />
+                                                <telerik:RadMenuItem Tag="ca" Header="to Catalan" />
+                                                <telerik:RadMenuItem Tag="zh-CHT" Header="to Chinese Traditional" />
+                                                <telerik:RadMenuItem Tag="cs" Header="to Czech" />
+                                                <telerik:RadMenuItem Tag="da" Header="to Danish" />
+                                                <telerik:RadMenuItem Tag="nl" Header="to Dutch" />
+                                                <telerik:RadMenuItem Tag="et" Header="to Estonian" />
+                                                <telerik:RadMenuItem Tag="fi" Header="to Finnish" />
+
+                                                <telerik:RadMenuItem Tag="de" Header="to German" />
+                                                <telerik:RadMenuItem Tag="el" Header="to Greek" />
+                                                <telerik:RadMenuItem Tag="ht" Header="to Haitian Creole" />
+                                                <telerik:RadMenuItem Tag="he" Header="to Hebrew" />
+                                                <telerik:RadMenuItem Tag="hi" Header="to Hindi" />
+                                                <telerik:RadMenuItem Tag="mww" Header="to Hmong Daw" />
+                                                <telerik:RadMenuItem Tag="hu" Header="to Hungarian" />
+                                                <telerik:RadMenuItem Tag="id" Header="to Indonesian" />
+                                                <telerik:RadMenuItem Tag="it" Header="to Italian" />
+                                                <telerik:RadMenuItem Tag="ja" Header="to Japanese" />
+                                                <telerik:RadMenuItem Tag="ko" Header="to Korean" />
+                                                <telerik:RadMenuItem Tag="lv" Header="to Latvian" />
+                                                <telerik:RadMenuItem Tag="lt" Header="to Lithuanian" />
+                                                <telerik:RadMenuItem Tag="ms" Header="to Malay" />
+                                                <telerik:RadMenuItem Tag="mt" Header="to Maltese" />
+                                                <telerik:RadMenuItem Tag="no" Header="to Norwegian" />
+                                                <telerik:RadMenuItem Tag="fa" Header="to Persian" />
+                                                <telerik:RadMenuItem Tag="pl" Header="to Polish" />
+                                                
+                                                <telerik:RadMenuItem Tag="ro" Header="to Romanian" />
+                                                <telerik:RadMenuItem Tag="ru" Header="to Russian" />
+                                                <telerik:RadMenuItem Tag="sk" Header="to Slovak" />
+                                                <telerik:RadMenuItem Tag="sl" Header="to Slovenian" />
+                                                
+                                                <telerik:RadMenuItem Tag="sv" Header="to Swedish" />
+                                                <telerik:RadMenuItem Tag="th" Header="to Thai" />
+                                                <telerik:RadMenuItem Tag="tr" Header="to Turkish" />
+                                                <telerik:RadMenuItem Tag="uk" Header="to Ukrainian" />
+                                                <telerik:RadMenuItem Tag="ur" Header="to Urdu" />
+                                                <telerik:RadMenuItem Tag="vi" Header="to Vietnamese" />
+                                                <telerik:RadMenuItem Tag="cy" Header="to Welsh" />
+                                            </telerik:RadContextMenu>
+                                        </telerik:RadContextMenu.ContextMenu>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/translate.png"/>
+                                            <TextBlock Text="Translate" Margin="4,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </Button>
+                                </telerikNavigation:RadToolBar>
+
+                                <ScrollViewer x:Name="ScrollViewerCitationDetails" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0">
+                                    <local:dialogItemDetails x:Name="dialogItemDetailsControl" UnMarkAsDuplicate="UnMarkAsDuplicate" ShowTermsClicked="dialogItemDetailsControl_ShowTermsClicked" ></local:dialogItemDetails>
+                                </ScrollViewer>
+                                
+                            </Grid>
+                            
+                        </radDock:RadDocumentPane>
+                        <radDock:RadDocumentPane Header="Text document" Title="Text document" CanUserClose="False" CanFloat="False" IsEnabled="False">
+                                <!--<rich:RichEdit x:Name="rich" IsReadOnly="True" ShowCaretInReadOnly="False"
+                                               MouseLeftButtonUp="rich_MouseLeftButtonUp"
+                                               >-->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="315*" />
+                                    <ColumnDefinition Width="285" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="28"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <!--<RowDefinition Height="30"></RowDefinition>-->
+                                </Grid.RowDefinitions>
+                                <telerikNavigation:RadToolBar HorizontalAlignment="Stretch" Margin="0,0,2,0"
+                                      Grid.Column="0" Grid.Row="0">
+
+                                    <TextBox Margin="2" x:Name="tbFindTxt" KeyUp="tbFindTxt_KeyUp" HorizontalAlignment="Stretch"  MinWidth="55" MaxLength="200"
+                                             ToolTipService.ToolTip="Find">
+                                    </TextBox>   
+                                    
+                                    <telerik:RadButton x:Name="btnFindTxt" Visibility="Visible" Margin="2" Click="btnFindTxt_Click" Width="22"
+                                                       Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Find" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.RichTextBoxUI;component/Images/MSOffice/16/Find.png" Stretch="None" />
+                                    </telerik:RadButton>
+                                    
+                                    <telerik:RadButton x:Name="btnPrevTxt" Visibility="Collapsed" Click="btnPrevTxt_Click"  Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Find Previous" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-previous.png" Stretch="None" />
+                                    </telerik:RadButton>
+
+                                    <telerik:RadButton x:Name="btnNextTxt" Visibility="Collapsed" Click="btnNextTxt_Click" Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Find Next" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-next.png" Stretch="None" />
+                                    </telerik:RadButton>
+                                </telerikNavigation:RadToolBar>
+                                <RichTextBoxUI:RadRichTextBoxStatusBar AssociatedRichTextBox="{Binding ElementName=rich, Mode=OneTime}" 
+                                                  HorizontalAlignment="Right" Background="BlueViolet" HorizontalContentAlignment="Right"  
+                                               Grid.Column="1" Grid.Row="0"/>
+                                <telerik:RadRichTextBox x:Name="rich" IsReadOnly="True" IsSpellCheckingEnabled="False" IsImageMiniToolBarEnabled="False"
+                                                    IsSelectionMiniToolBarEnabled="False" Margin="4" 
+                                                   MouseLeftButtonUp="rich_MouseLeftButtonUp"
+                                                        DocumentInheritsDefaultStyleSettings="True" FontFamily="Courier New" FontSize="11"
+                                                   Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
+                                    <telerikNavigation:RadContextMenu.ContextMenu>
+                                        <telerikNavigation:RadContextMenu x:Name="contextMenuRich" ItemClick="contextMenuRich_ItemClick">
+                                            <telerikNavigation:RadMenuItem Header="Send Selection to Reference Search" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" />
+                                            <telerikNavigation:RadMenuItem Header="Hightlight All"/>
+                                        </telerikNavigation:RadContextMenu>
+                                    </telerikNavigation:RadContextMenu.ContextMenu>
+
+                                </telerik:RadRichTextBox>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+
+                        <radDock:RadDocumentPane Header="Reference Search" Title="Reference Search" CanUserClose="False" CanFloat="False">
+                            <local:ReferenceSearchPage x:Name="ReferenceSearch"/>
+                        </radDock:RadDocumentPane>
+
+                        <radDock:RadDocumentPane Header="Coding record" Title="Coding record" CanUserClose="False" CanFloat="False">
+                            <Grid x:Name="GridCodingRecord">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <cslaXAML:BusyAnimation x:Name="BusyLoadingCodingRecord" Grid.Row="1" HorizontalAlignment="Right" />
+                                <telerikGridView:RadGridView x:Name="CodingRecordGrid" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    RowIndicatorVisibility="Collapsed" Grid.Row="0" DataLoaded="CodingRecordGrid_DataLoaded"
+                                    SelectionMode="Single" >
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleSelected}" Width="25" Header="" DataMemberBinding="{Binding SetId}"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Code set" DataMemberBinding="{Binding SetName}" IsFilterable="False" Width="*" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Reviewer" DataMemberBinding="{Binding ContactName}" ShowDistinctFilters="False" Width="150" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Completed?" DataMemberBinding="{Binding IsCompleted}" ShowDistinctFilters="False" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Locked?" DataMemberBinding="{Binding IsLocked}" ShowDistinctFilters="False" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn x:Name="ViewReportColumn" IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleCodingReport}" Width="60" Header="" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
+                                <StackPanel Orientation="Horizontal" Grid.Row="1" x:Name="ComparisonButtons">
+                                    <Button x:Name="cmdRunComparison" Content="Run comparison" Width="100" Margin="4,4,4,4" HorizontalAlignment="Left" Click="cmdRunComparison_Click"></Button>
+                                    <Button x:Name="cmdDoLiveComparison" Content="Live comparison" Width="100" Margin="4,4,4,4" HorizontalAlignment="Left" Click="cmdDoLiveComparison_Click"></Button>
+                                </StackPanel>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+
+                        <radDock:RadDocumentPane Header="Linked records" Title="Linked records" CanUserClose="False" CanFloat="False">
+                            <Grid>
+                                <local:dialogLinkedItems x:Name="dialogLinkedItemsControl"></local:dialogLinkedItems>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+                        <!--<radDock:RadDocumentPane Header="PDF" Title="PDF" CanUserClose="False" CanFloat="False" IsEnabled="False">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="41"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" 
+                                            Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" >
+                                <telerikNavigation:RadToolBar x:Name="SilverdoxButtons" HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+				                        DataContext="{Binding ElementName=SilverdoxDocumentViewer}" >
+                                    <Button Name="DoxBtLoad" Click="loadAnnotations" Content="Reload Annotations"/>
+                                    <Button Name="DoxBtSaveAnnotations" Click="DoxBtSaveAnnotations_Click" ToolTipService.ToolTip="Save Annotations">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/DocumentSave.png"/>
+                                            <TextBlock Text="Save" Margin="3,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Name="DoxBtAdd" Click="DoxBtAdd_Click" Content="New Annotation"/>
+                                    <Button Name="DoxBtDelete" Click="DoxBtDelete_Click" Content="Delete Annotation"/>
+                                    <Slider x:Name="ZoomSlider" Maximum="4.0" Minimum="0.1" Width="100" Value="{Binding Zoom, Mode=TwoWay}"
+                                            >
+                                        <ToolTipService.ToolTip>
+                                            <ToolTip Placement="Bottom">
+                                                <TextBlock Text="Zoom"/>
+                                            </ToolTip>
+                                        </ToolTipService.ToolTip>
+                                    </Slider>
+                                    <StackPanel Margin="0" Orientation="Horizontal">
+                                        <TextBox x:Name="ZoomTextBox" Text="{Binding Converter={StaticResource ZoomLevelConverter}, Mode=TwoWay, Path=Zoom}" 
+				                                KeyDown="ZoomTextBox_KeyDown" MouseEnter="ZoomTextBox_MouseEnter"
+                                                MaxLength="4" VerticalAlignment="Center" HorizontalContentAlignment="Right"
+				                                Width="35" Foreground="Black" HorizontalAlignment="Right"  TextAlignment="Right" BorderThickness="1" Padding="0" >
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Placement="Bottom">
+                                                    <TextBlock x:Name="ZoomToolTextBlock" Text="Zoom"/>
+                                                </ToolTip>
+                                            </ToolTipService.ToolTip>
+                                        </TextBox>
+                                        <TextBlock Text="%" Margin="2,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                        <TextBlock Text="Pages:" Margin="4,0,1,0"/>
+                                        <TextBlock x:Name="SilverdoxPageCountText" Text="{Binding PageCount}" VerticalAlignment="Center">
+                                            <ToolTipService.ToolTip>
+				                                <ToolTip Placement="Bottom">
+					                                <TextBlock Text="Number of pages" />
+				                                </ToolTip>
+			                                </ToolTipService.ToolTip>
+		                                </TextBlock>
+                                    </telerikNavigation:RadToolBar>
+                                <TextBlock x:Name="SilverdoxDocumentViewerTitle" HorizontalAlignment="Center" FontSize="11"/>
+                                </StackPanel>
+                                <Border BorderBrush="Red" BorderThickness="0"
+                                        Grid.Row="1" Grid.Column="0">
+                                <local:EppiDocumentViewer x:Name="SilverdoxDocumentViewer"  Margin="5,1,5,5" Background="LightGray" ReCheck="SilverdoxDocumentViewer_ReCheck"
+                                                     />
+                                </Border>
+                                <cslaXAML:BusyAnimation x:Name="BusySilverdoxDocumentViewer" IsRunning="False" Width="60" Height="60" 
+                                                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    Grid.Row="1" Grid.Column="0" />
+                            </Grid>
+                        </radDock:RadDocumentPane>-->
+                        <radDock:RadDocumentPane Header="PDF" x:Name="PDF_NewGrid" Title="PDF-New" CanUserClose="False" CanFloat="False" IsEnabled="False" >
+                            <Grid Background="Gray">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <telerik:RadToolBar x:Name="pdfViewerToolbar" DataContext="{Binding ElementName=pdfViewer, Path=Commands}" Grid.Row="0" Grid.Column="0">
+                                    <telerik:RadToolBar.Resources>
+                                        <converters:DoubleToStringPercentConverter x:Key="doubleToStringPercentConverter" />
+                                    </telerik:RadToolBar.Resources>
+                                    <TextBlock VerticalAlignment="Center">Current Code:</TextBlock>
+                                    <Border BorderBrush="DarkBlue" BorderThickness="1" Background="#9900ffff" Margin="2" MinWidth="30" MaxWidth="200" >
+                                        <TextBlock x:Name="tbCurrentCode" FontWeight="Bold" Text="{Binding Path=AttributeName}" VerticalAlignment="Center" Margin="2,0,2,0"></TextBlock>
+                                    </Border>
+                                    <Button Click="cmdApplyCodeClick" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"  Margin="3" ToolTipService.ToolTip="Add Code to Selected text (you can also press 'a')" >
+                                        <Image Source="Icons/AddPDFCode.png" Stretch="None" />
+                                    </Button>
+                                    <Button  Click="cmdRemoveCodeClick" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"  Margin="3" ToolTipService.ToolTip="Remove Code from Selected text (you can also press 'd')" >
+                                        <Image Source="Icons/RemPDFCode.png" Stretch="None" />
+                                    </Button>
+                                    <telerik:RadToolBarSeparator/>
+                                    <telerik:RadButton Command="{Binding PrintPdfDocumentCommand}" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsBackgroundVisible="False">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Print" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/printer.png" Stretch="None" />
+                                    </telerik:RadButton>
+                                    <telerik:RadButton Command="{Binding ZoomInCommand}" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsBackgroundVisible="False">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Zoom in" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/zoom-in.png" Stretch="None" />
+                                    </telerik:RadButton>
+
+                                    <telerik:RadButton x:Name="PART_btnZoomOut" Command="{Binding ZoomOutCommand}" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsBackgroundVisible="False">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Zoom out" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/zoom-out.png" Stretch="None" />
+                                    </telerik:RadButton>
+                                    <telerik:RadComboBox IsEditable="True" Margin="2" Width="70" SelectedIndex="4"
+                                          Text="{Binding FixedDocumentViewer.ScaleFactor, Converter={StaticResource doubleToStringPercentConverter}, Mode=TwoWay}">
+                                                    <telerik:RadComboBoxItem Content="10%" />
+                                                    <telerik:RadComboBoxItem Content="25%" />
+                                                    <telerik:RadComboBoxItem Content="50%" />
+                                                    <telerik:RadComboBoxItem Content="75%" />
+                                                    <telerik:RadComboBoxItem Content="100%" />
+                                                    <telerik:RadComboBoxItem Content="150%" />
+                                                    <telerik:RadComboBoxItem Content="200%" />
+                                                    <telerik:RadComboBoxItem Content="500%" />
+                                                    <telerik:RadComboBoxItem Content="1000%" />
+                                                    <telerik:RadComboBoxItem Content="2000%" />
+                                    </telerik:RadComboBox>
+                                    <telerik:RadWatermarkTextBox Margin="2" x:Name="tbFind" KeyDown="tbFind_KeyDown" Width="100">
+                                        <telerik:RadWatermarkTextBox.WatermarkContent>
+                                            <TextBlock Text="Find" FontStyle="Normal" />
+                                        </telerik:RadWatermarkTextBox.WatermarkContent>
+                                    </telerik:RadWatermarkTextBox>
+
+                                    <telerik:RadButton x:Name="btnPrev" Visibility="Collapsed" Command="{Binding FindPreviousCommand}" CommandParameter="{Binding ElementName=tbFind, Path=Text}" Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Find Previous" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-previous.png" Stretch="None" />
+                                    </telerik:RadButton>
+
+                                    <telerik:RadButton x:Name="btnNext" Visibility="Collapsed" Command="{Binding FindCommand}" CommandParameter="{Binding ElementName=tbFind, Path=Text}" Margin="2" Padding="0" IsBackgroundVisible="False" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                        <ToolTipService.ToolTip>
+                                            <TextBlock Text="Find Next" />
+                                        </ToolTipService.ToolTip>
+                                        <Image Source="/Telerik.Windows.Controls.FixedDocumentViewers;component/Images/find-next.png" Stretch="None" />
+                                    </telerik:RadButton>
+                                    <ToggleButton x:Name="tgglShowAnn" Content="Show Annotations" Click="ShowAnnotationsClick" IsChecked="True" Margin="3" HorizontalAlignment="Right" />
+                                    <telerik:RadButton x:Name="btnReset" Click="btnReset_Click" Content="Reset..."/>
+                                </telerik:RadToolBar>
+                                <telerik:RadPdfViewer Grid.Row="1" Grid.Column="0" x:Name="pdfViewer" Mode="TextSelection" DocumentChanged="PdfViewer_DocumentChanged"
+                                                      HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Auto" KeyDown="pdfViewer_KeyDown" KeyUp="pdfViewer_KeyUp" />
+                                <!--<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="showTxt" />-->
+                                <cslaXAML:BusyAnimation x:Name="pdfBusy" Visibility="Collapsed" Width="40" Height="40" IsRunning="False"
+                                                          Grid.Column="0" Grid.Row="1" />
+                            </Grid>
+                        </radDock:RadDocumentPane>
+                        <radDock:RadDocumentPane Header="Study arms" x:Name="Arms" Title="Study arms" CanUserClose="False" CanFloat="False" IsEnabled="True" >
+                            <Grid >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="300" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="75"></ColumnDefinition>
+                                    <ColumnDefinition Width="170"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Study arms" HorizontalAlignment="Left" FontWeight="Bold" Margin="3,6,3,3"></TextBlock>
+
+                                <telerikGridView:RadGridView x:Name="GridArms" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemArmsData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Arm title" DataMemberBinding="{Binding Title, Mode=OneWay}" IsReadOnly="True" Width="*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditArm}" Width="60" Header="Edit" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteArm}" Width="70" Header="Delete" DataMemberBinding="{Binding ItemArmId}"></telerikGridView:GridViewDataColumn>
+                                        
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Name="tbArmDescriptor" Text="New Arm" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="3,6,3,3"></TextBlock>
+                                <TextBox Grid.Row="2" Grid.Column="1" Name="tbNewArm" Margin="3,3,3,3"></TextBox>
+                                <Button HorizontalAlignment="Center" Name="NewArm" Click="NewArm_Click" Width="25" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Height="25" Grid.Row="2" Grid.Column="2"  Margin="3" ToolTipService.ToolTip="Save arm" >
+                                    <Image Source="Icons/AddPDFCode.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
+                                <Button HorizontalAlignment="Center" Name="CancelArm" Click="CancelArm_Click" Width="25" Height="25" Grid.Row="2" Grid.Column="3"  Margin="3" ToolTipService.ToolTip="Cancel" >
+                                    <Image Source="Icons/RedX.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+                    </radDock:RadPaneGroup>
+                </radDock:RadSplitContainer>
+            </radDock:RadDocking.DocumentHost>
+            
+        </radDock:RadDocking>
+        
+        
+        
+        <!--telerikNavigation:RadWindow x:Name="windowUploadFile" Header="Upload file" WindowStartupLocation="CenterScreen" CanClose="False"
+                 ResizeMode="CanResize">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"></ColumnDefinition>
+                    <ColumnDefinition Width="100"></ColumnDefinition>
+                    <ColumnDefinition Width="200"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="40"></RowDefinition>
+                </Grid.RowDefinitions>
+                <cslaXAML:BusyAnimation x:Name="BusyUpLoading" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" HorizontalAlignment="Right" Margin="4,4,4,4" Text="Title"></TextBlock>
+                <TextBox Grid.Column="2"  Grid.Row="0" Margin="4,4,4,4" x:Name="TextBoxFileTitle"></TextBox>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Right" Margin="4,4,4,4" Text="File type"></TextBlock>
+                <TextBox Grid.Column="2" Grid.Row="1" Margin="4,4,4,4" x:Name="TextBoxFileType"></TextBox>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="4,4,4,4" HorizontalAlignment="Right" Text="Selected file"></TextBlock>
+                <TextBlock Grid.Column="2" Grid.Row="2" Margin="4,4,4,4" x:Name="TextBoxFileName"></TextBlock>
+                <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" x:Name="ButtonOpenFileDialog" Width="70" Content="Select file" Height="30" Click="ButtonOpenFileDialog_Click"  Margin="3,3,3,3" HorizontalAlignment="Left"></Button>
+                <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="3">
+                    <Button x:Name="ButtonUploadFile" Width="70" Content="Save" Height="30" Click="ButtonUploadFile_Click" Margin="3,3,3,3" HorizontalAlignment="Right"></Button>
+                    <Button x:Name="ButtonUploadFileCancel" Width="70" Content="Cancel" Height="30" Click="ButtonUploadFileCancel_Click"  Margin="3,3,3,3" HorizontalAlignment="Right"></Button>
+                </StackPanel>
+            </Grid>
+        </telerikNavigation:RadWindow-->
+
+        <!--<telerikNavigation:RadWindow x:Name="windowReports" Header="Report viewer" WindowState="Maximized" WindowStartupLocation="CenterScreen" RestrictedAreaMargin="20"  Width="500" CanClose="True">
+            <Grid>
+                <local:dialogReportViewer x:Name="reportViewerControl"></local:dialogReportViewer>
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+
+        <!--<telerikNavigation:RadWindow x:Name="windowConfirmDocDelete" Header="Delete Document?" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Width="300">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                    <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TextBlockCheckDeleteDoc" TextWrapping="Wrap" Text="Are you sure you want to delete this File?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+                <cslaXAML:BusyAnimation x:Name="BusyCheckDocDelete" Grid.Row="1" Grid.Column="0" />
+                <TextBlock x:Name="TextBlockCheckDeleteDocDetails" TextWrapping="Wrap" Text="Are you sure you want to delete this File?" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+                <Button x:Name="cmdDeleteDoc"  Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Click="cmdDeleteDoc_Click"></Button>
+                <Button x:Name="cmdCancelDeleteDoc"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelDeleteDoc_Click"></Button>
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+
+        <!--<telerikNavigation:RadWindow x:Name="windowCoding2" Header="Document details" WindowState="Maximized" ResizeMode="CanResize"
+            RestrictedAreaMargin="20" IsRestricted="True" BorderBackground="Black" BorderThickness="1">
+            <Grid x:Name="codingContent2">
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+        <!--<telerikNavigation:RadWindow x:Name="WindowRaduploadContainer" Header="Upload Documents" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" CanClose="False" CanMove="False" IsRestricted="True">
+            <Grid>
+                <telerikInput:RadUpload x:Name="RadUp" UploadServiceUrl="../RadUploadHandler.ashx" BufferSize="150000" IsMultiselect="False" Visibility="Visible" MaxFileSize="15000000"
+                                        IsDeleteEnabled="False" OverwriteExistingFiles="True" IsAppendFilesEnabled="False"
+                                        FileUploadStarting="RadUp_FileUploadStarting" LostFocus="RadUp_LostFocus"  FilesSelected="RadUp_FilesSelected"
+                                        FileUploaded="RadUp_FileUploaded" FileUploadFailed="RadUp_FileUploadFailed" UploadCanceled="RadUp_UploadCanceled" TargetFolder="./UserTempUploads" />
+            </Grid>
+        </telerikNavigation:RadWindow>-->
+
+        
+
+
+
+
+    </Grid>
+       
+    
+    
+
+        
+    
+</UserControl>

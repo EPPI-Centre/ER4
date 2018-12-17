@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Items>
+
+  <ToolBarItem
+    EditorCommandType="FormatBold"
+    ItemType="ToggleCheck"
+    ToolTip="Bold"
+    ImageUrl="_blank.png"
+    CssClass="item bold"
+    HoverCssClass="item bold-h"
+    ActiveCssClass="item bold-a"
+    CheckedCssClass="item bold-c"
+    CheckedHoverCssClass="item bold-c-h"
+    CheckedActiveCssClass="item bold-c-a"
+    DisabledCssClass="item bold-d"
+    DisabledCheckedCssClass="item bold-d-c"
+              />
+
+  <ToolBarItem
+    EditorCommandType="FormatItalic"
+    ItemType="ToggleCheck"
+    ToolTip="Italic"
+    ImageUrl="_blank.png"
+    CssClass="item italic"
+    HoverCssClass="item italic-h"
+    ActiveCssClass="item italic-a"
+    CheckedCssClass="item italic-c"
+    CheckedHoverCssClass="item italic-c-h"
+    CheckedActiveCssClass="item italic-c-a"
+    DisabledCssClass="item italic-d"
+    DisabledCheckedCssClass="item italic-d-c"
+              />
+
+  <ToolBarItem
+    EditorCommandType="FormatUnderline"
+    ItemType="ToggleCheck"
+    ToolTip="Underline"
+    ImageUrl="_blank.png"
+    CssClass="item underline"
+    HoverCssClass="item underline-h"
+    ActiveCssClass="item underline-a"
+    CheckedCssClass="item underline-c"
+    CheckedHoverCssClass="item underline-c-h"
+    CheckedActiveCssClass="item underline-c-a"
+    DisabledCssClass="item underline-d"
+    DisabledCheckedCssClass="item underline-d-c"
+              />
+
+  <ToolBarItem
+    EditorCommandType="FormatStrikethrough"
+    ItemType="ToggleCheck"
+    ToolTip="Strikethrough"
+    ImageUrl="_blank.png"
+    CssClass="item strikethrough"
+    HoverCssClass="item strikethrough-h"
+    ActiveCssClass="item strikethrough-a"
+    CheckedCssClass="item strikethrough-c"
+    CheckedHoverCssClass="item strikethrough-c-h"
+    CheckedActiveCssClass="item strikethrough-c-a"
+    DisabledCssClass="item strikethrough-d"
+    DisabledCheckedCssClass="item strikethrough-d-c"
+              />
+
+  <ToolBarItem ItemType="Separator" ImageWidth="10" ImageUrl="_blank.png" CssClass="sep" />
+
+  <ToolBarItem
+    EditorCommandType="FormatIncreaseIndent"
+    ToolTip="Increase Indent"
+    ImageUrl="_blank.png"
+    CssClass="item increase-indent"
+    HoverCssClass="item increase-indent-h"
+    ActiveCssClass="item increase-indent-a"
+    DisabledCssClass="item increase-indent-d"
+              />
+
+  <ToolBarItem
+    EditorCommandType="FormatDecreaseIndent"
+    ToolTip="Decrease Indent"
+    ImageUrl="_blank.png"
+    CssClass="item decrease-indent"
+    HoverCssClass="item decrease-indent-h"
+    ActiveCssClass="item decrease-indent-a"
+    DisabledCssClass="item decrease-indent-d"
+              />
+
+  <ToolBarItem ItemType="Separator" ImageWidth="10" ImageUrl="_blank.png" CssClass="sep" />
+
+  <ToolBarItem
+    EditorCommandType="FormatBullets"
+    ToolTip="Bullets"
+    ImageUrl="_blank.png"
+    ImageWidth="24"
+    CssClass="item split bullets"
+    HoverCssClass="item split-h bullets-h"
+    ActiveCssClass="item split-a bullets-a"
+    CheckedCssClass="item split-c bullets-c"
+    CheckedHoverCssClass="item split-c-h bullets-c-h"
+    CheckedActiveCssClass="item split-c-a bullets-c-a"
+    DisabledCssClass="item split-d bullets-d"
+    DisabledCheckedCssClass="item split-d-c bullets-d-c"
+    ExpandedCssClass="item split-a bullets-a"
+    DropDownImageWidth="15"
+    DropDownImageHeight="25"
+    DropDownImageUrl="_blank.png"
+              />
+
+  <ToolBarItem
+    EditorCommandType="FormatNumbering"
+    ToolTip="Numbering"
+    ImageUrl="_blank.png"
+    ImageWidth="24"
+    CssClass="item split numbering"
+    HoverCssClass="item split-h numbering-h"
+    ActiveCssClass="item split-a numbering-a"
+    CheckedCssClass="item split-c numbering-c"
+    CheckedHoverCssClass="item split-c-h numbering-c-h"
+    CheckedActiveCssClass="item split-c-a numbering-c-a"
+    DisabledCssClass="item split-d numbering-d"
+    DisabledCheckedCssClass="item split-d-c numbering-d-c"
+    ExpandedCssClass="item split-a numbering-a"
+    DropDownImageWidth="15"
+    DropDownImageHeight="25"
+    DropDownImageUrl="_blank.png"
+              />
+
+  <ToolBarItem ItemType="Separator" ImageWidth="10" ImageUrl="_blank.png" CssClass="sep" />
+
+  <ToolBarItem
+    EditorCommandType="EditCut"
+    ToolTip="Cut"
+    ImageUrl="_blank.png"
+    CssClass="item cut"
+    HoverCssClass="item cut-h"
+    ActiveCssClass="item cut-a"
+    DisabledCssClass="item cut-d"
+              />
+
+  <ToolBarItem
+    EditorCommandType="EditCopy"
+    ToolTip="Copy"
+    ImageUrl="_blank.png"
+    CssClass="item copy"
+    HoverCssClass="item copy-h"
+    ActiveCssClass="item copy-a"
+    DisabledCssClass="item copy-d"
+              />
+
+  <ToolBarItem
+    EditorCommandType="EditPaste"
+    ToolTip="Paste"
+    ImageUrl="_blank.png"
+    CssClass="item paste"
+    HoverCssClass="item paste-h"
+    ActiveCssClass="item paste-a"
+    DisabledCssClass="item paste-d"
+              />
+
+  <ToolBarItem
+    EditorCommandType="EditPaste"
+    ToolTip="Paste from Word"
+    ImageUrl="_blank.png"
+    CssClass="item word-paste"
+    HoverCssClass="item word-paste-h"
+    ActiveCssClass="item word-paste-a"
+    DisabledCssClass="item word-paste-d"
+              />
+</Items>
+
+

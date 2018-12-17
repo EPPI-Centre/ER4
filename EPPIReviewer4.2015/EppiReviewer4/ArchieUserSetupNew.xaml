@@ -1,0 +1,244 @@
+﻿<UserControl x:Class="EppiReviewer4.ArchieUserSetupNew"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    mc:Ignorable="d"
+    d:DesignHeight="500" d:DesignWidth="400">
+    
+    <Grid x:Name="LayoutRoot" Background="White" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <Grid x:Name="IntroGr" Visibility="Visible" Margin="0,0,0,29">
+            <!--welcome and firs choice: link or create new account?-->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" MaxWidth="650">
+                <TextBlock FontSize="20" Foreground="Blue" HorizontalAlignment="Center" Text="Welcome to EPPI-Reviewer 4" />
+                <RichTextBlock TextWrapping="Wrap" Margin="4">
+                    <Paragraph >
+                        <Bold>You have successfully authenticated through Archie.</Bold> However, your Archie Identity is not currenlty known to EPPI-Reviewer.
+                        </Paragraph>
+                    <Paragraph>
+                        In order to work properly, EPPI-Reviewer needs to establish a link between an EPPI-Reviewer account and your Archie credentials. This can be
+                        done in two ways:
+                    </Paragraph>
+                    <Paragraph>
+                        <Bold>1. Link an existing EPPI-Reviewer account to your Archie details.</Bold> Please choose this option if you already have an EPPI-Reviewer account.
+                        <LineBreak/> You will be asked to log on again, using your EPPI-Reviewer username and password.
+                        In case you don't remember your EPPI-Reviewer details, you can retrieve your username and/or reset you password by clicking
+                        <Hyperlink NavigateUri="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" TargetName="_blank">here</Hyperlink>.
+                        
+                    </Paragraph>
+                    <Paragraph>
+                        <Bold>2. Create a new EPPI-Reviewer account.</Bold> Please choose this option only if you don't already have an EPPI-Reviewer account.
+                        <LineBreak/>If you have an Expired account, please do not choose this option: an expired account will work best with option 1.
+                    </Paragraph>
+                    <Paragraph>
+                        <Bold>Whichever your choice, you will need to succesfully complete this process only once.</Bold>
+                    </Paragraph>
+                </RichTextBlock>
+            </StackPanel>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" FontSize="20" HorizontalAlignment="Center" Text="Please pick your route below:" />
+            <TextBlock HorizontalAlignment="Right" Margin="0,1,5,1"  Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">
+                Link to an exsisting account:
+            </TextBlock>
+            <Button x:Name="btRoute2Start" Click="btRoute2Start_Click"   HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1" Margin="0,1,1,1" >
+                <TextBlock FontWeight="Bold">1. Proceed ></TextBlock>
+            </Button>
+            <TextBlock HorizontalAlignment="Left" Margin="100,1,5,1"  Grid.Row="2" Grid.Column="1" FontWeight="Bold"  VerticalAlignment="Center">
+                (Preferred)
+            </TextBlock>
+            <TextBlock HorizontalAlignment="Right" Margin="0,1,5,1" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">
+                    Create new account:
+            </TextBlock>
+            <Button x:Name="btRoute1Start" Click="btRoute1Start_Click" Content="2. Proceed >  " HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" Margin="0,1,1,1" />
+            
+                
+        </Grid>
+        <Grid x:Name="LinkAccountStage1Gr" Visibility="Collapsed">
+            <!--logon with ER4 credentials-->
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="32"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <TextBlock FontSize="20" HorizontalAlignment="Center" Text="Please provide your EPPI-Reviewer username and password below :" />
+                <RichTextBlock TextWrapping="Wrap" Margin="4" MaxWidth="650">
+                    <Paragraph >
+                        <Bold>In case you don't remember your EPPI-Reviewer details</Bold>, you can retrieve your username and/or reset you password by clicking
+                            <Hyperlink NavigateUri="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" TargetName="_blank">here</Hyperlink>.
+                        <LineBreak/>
+                        Clicking "Re-Logon" below will allow EPPI-Reviewer to immediately verify your identity. 
+                        <LineBreak />
+                        Your Archie details will be linked with your EPPI-Reviewer account automatically. 
+                        From then on you will be able to log on normally (EPPI-Reviewer credentials) or through Archie, indifferently. 
+                    </Paragraph>
+                </RichTextBlock>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Right" Margin="0,1,5,1" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+               Username:
+           </TextBlock>
+            <TextBox x:Name="tBoxER4Username" Width="200" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left"/>
+            <TextBlock HorizontalAlignment="Right" Margin="0,1,5,1" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">
+              Password:
+           </TextBlock>
+            <PasswordBox x:Name="UserPwdBox" KeyDown="UserPwdBox_KeyDown" GotFocus="UserPwdBox_GotFocus" 
+                         Password="" Grid.Row="2" Grid.Column="1" Width="200" HorizontalAlignment="Left" />
+            <Button x:Name="btBack0" Grid.Row="3" Grid.Column="0" Click="btBack_Click" Width="60" Margin="2" 
+                    HorizontalAlignment="Right" Content="Back" ToolTipService.ToolTip="Back to 'Create or Link?' choice." />
+            <Button x:Name="btER4Logon" Click="btER4Logon_Click" Content="Re-Logon" HorizontalAlignment="Left" Margin="2" Grid.Row="3" Grid.Column="1" />
+        </Grid>
+        <Grid x:Name="LinkAccountDoneGr" Visibility="Collapsed">
+            <!--logged on with ER4 credentials, acknowledge and move on?-->
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="0">
+                <TextBlock FontSize="20" HorizontalAlignment="Center" Text="Congratulations!" />
+                <RichTextBlock TextWrapping="Wrap" MaxWidth="650">
+                    <Paragraph >
+                        <Bold>Your EPPI-Reviewer and Archie account are now linked.</Bold>
+                        <LineBreak/>
+                        You can now proceed to the full EPPI-Reviewer. You will not need to complete this procedure again. Please click the "Close and Continue" button below.
+                    </Paragraph>
+                </RichTextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                <Button x:Name="btLinkAccountDone" Click="btLinkAccountDone_Click" Content="Close and Continue" Width="200" />
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="CreateAccountStage1Gr" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="142" />
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="42"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="247"/>
+                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="247"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+                <TextBlock FontSize="18" HorizontalAlignment="Center" Text="Create new account:" />
+                <RichTextBlock x:Name="richInstructions" TextWrapping="Wrap" MaxWidth="650">
+                    <Paragraph  >
+                        <Bold >Please Fill all the fields below:</Bold>
+                        <LineBreak/>
+                        This will create a new EPPI-Reviewer account and link the new account to your Archie Identity. After completing this procedure you will be able to 
+                        authenticate in EPPI-Reviewer using Archie (as you just did) or the credentials below. EPPI-Reviewer functionalities will remain unchanged either way.
+                        <LineBreak />
+                        Please note that in order to be able to use your EPPI-Reviewer credentials you will need to
+                        <Bold>confirm your email address.</Bold> After registering here you will receive an "Activation" email, with a unique link. 
+                        <LineBreak />
+                        Clicking the link will complete the activation by confirming that your Email address is valid.
+                    </Paragraph>
+                </RichTextBlock>
+            </StackPanel>
+            <TextBlock Text="Frist Name" Grid.Row="1" Grid.Column="0" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBox x:Name="tboxFirstname" Grid.Row="1" Grid.Column="1" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBlock Text="Last Name" Grid.Row="1" Grid.Column="2" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBox x:Name="tboxLastname" Grid.Row="1" Grid.Column="3" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBlock Text="Username" Grid.Row="2" Grid.Column="0" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBox x:Name="tboxUsername" Grid.Row="2" Grid.Column="1" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <RichTextBlock TextWrapping="Wrap" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Paragraph >
+                    The username must be at least 4 characters long and unique. Maximum length is 50 characters.
+                </Paragraph>
+            </RichTextBlock>
+            <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Height="40" Width="40"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                     />
+            <TextBlock Text="Email" Grid.Row="3" Grid.Column="0" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBox x:Name="tboxEmail1" Grid.Row="3" Grid.Column="1" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBlock Text="Confirm Email" Grid.Row="3" Grid.Column="2" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBox x:Name="tboxEmail2" Grid.Row="3" Grid.Column="3" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBlock Text="Password" Grid.Row="4" Grid.Column="0" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <PasswordBox x:Name="pboxPassword1" Grid.Row="4" Grid.Column="1" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBox x:Name="tboxPassword1" Grid.Row="4" Grid.Column="1" Margin="2,1,1,1" HorizontalAlignment="Left" Visibility="Collapsed" Width="240" />
+            <TextBlock Text="Confirm Password" Grid.Row="4" Grid.Column="2" Margin="1,1,2,1" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <PasswordBox x:Name="pboxPassword2" KeyDown="pboxPassword2_KeyDown" Grid.Row="4" Grid.Column="3" Margin="2,1,1,1" HorizontalAlignment="Left" Width="240" />
+            <TextBox x:Name="tboxPassword2" KeyDown="pboxPassword2_KeyDown" Grid.Row="4" Grid.Column="3" Margin="2,1,1,1" HorizontalAlignment="Left" Visibility="Collapsed" Width="240" />
+            <RichTextBlock TextWrapping="Wrap" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4" Margin="2" HorizontalAlignment="Stretch" >
+                <Paragraph > 
+                    Passwords must be at least
+                    <Bold>8 characters</Bold> and contain and at least
+                    <Bold>one one lower case</Bold>
+                    letter, one
+                    <Bold>upper case</Bold> letter,
+                    <Bold>one digit</Bold> and no spaces.
+                </Paragraph>
+            </RichTextBlock>
+            <Border BorderBrush="Gray" BorderThickness="1" Margin="5,2,5,2" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Right" Grid.ColumnSpan="3">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="3,0,3,0">
+                    <CheckBox x:Name="cbShowPassword" Content="Show password" Margin="1" Checked="cbShowPassword_Checked" Unchecked="cbShowPassword_Unchecked" />
+                    <CheckBox x:Name="cbIncludeExampleReview" Content="Create an Example review?" Margin="1"  Visibility="Collapsed"
+                              ToolTipService.ToolTip="The Example Review will help you familiarise with EPPI-Reviewer." />
+                    <CheckBox x:Name="cbNoNewsletter" Content="Send Newsletter?" IsChecked="True" Margin="1"
+                      ToolTipService.ToolTip="Newsletters highlight imprtant changes: we never send more than one per term." />
+                </StackPanel>
+            </Border>
+            <Button x:Name="btCheckandCreate" Grid.Row="6" Grid.Column="3" Click="btCheckandCreate_Click" Width="120" Margin="1" Content="Check and Create" />
+            
+            <Button x:Name="btBack" Grid.Row="7" Grid.Column="0" Click="btBack_Click" Width="60" Margin="2" 
+                    HorizontalAlignment="Right" Content="Back" ToolTipService.ToolTip="Back to 'Create or Link?' choice." />
+            <TextBlock Text="Go back to previous choice" Grid.Row="7" Grid.Column="1" Margin="1,1,2,1" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button x:Name="btCancel" Grid.Row="7" Grid.Column="2" Click="btCancel_Click" Width="100" Margin="2"  HorizontalAlignment="Right" Content="Cancel" />
+            <TextBlock Text="Cancel and logout completely" Grid.Row="7" Grid.Column="3" Margin="1,1,2,1" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </Grid>
+        <Grid x:Name="CreateAccountDoneGr" Visibility="Collapsed">
+            <!--alert that an email was sent, explain why and move on-->
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Row="0">
+                <TextBlock FontSize="20" HorizontalAlignment="Center" Text="Congratulations!" />
+                <RichTextBlock TextWrapping="Wrap" MaxWidth="650">
+                    <Paragraph >
+                        <Bold>Thank you, you have successfully created your EPPI-Reviewer account.</Bold>
+                        <LineBreak/>
+                         From now on, you will be able to use your Archie credentials to log-on to EPPI-Reviewer. However, some functionalities will Not be available
+                        until you'll confirm the validity of your email address.
+                        <LineBreak/>
+                        <Bold>Please check your Inbox and Spam folders:</Bold> you should receive and "Activate" email shortly. This email contains a unique link that will allow you to confirm your email address validity.
+                        <LineBreak />
+                        After clicking the link your EPPI-Reviewer account will be
+                        <Bold>fully functional.</Bold>
+                        <LineBreak/>
+                        From then on, you will be able to log on EPPI-Reviewer with either your Archie or EPPI-Reviewer username and password, EPPI-Reviewer will always recognise you as the same person.
+                        <LineBreak/>
+                        Please click the "Close and Continue" button below.
+                    </Paragraph>
+                </RichTextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                <Button x:Name="btCreateAccountDone" Click="btCreateAccountDone_Click" Content="Close and Continue" Width="200" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

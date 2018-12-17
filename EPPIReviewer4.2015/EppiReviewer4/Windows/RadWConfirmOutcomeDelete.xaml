@@ -1,0 +1,63 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWConfirmOutcomeDelete"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Delete outcome?"
+                   Width="320"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+        
+    </telerik:RadWindow.Resources>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="TextBlockCheckDeleteDoc" TextWrapping="Wrap" Text="Are you sure you want to delete this outcome?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+            <cslaXAML:BusyAnimation x:Name="BusyCheckOutcomeDelete" Grid.Row="1" Grid.Column="0" />
+            <Button x:Name="cmdDeleteOutcome"  Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Click="cmdDeleteOutcome_Click_1"
+                        IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></Button>
+            <Button x:Name="cmdCancelDeleteOutcome"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelDeleteOutcome_Click" ></Button>
+        </Grid>
+</telerik:RadWindow>

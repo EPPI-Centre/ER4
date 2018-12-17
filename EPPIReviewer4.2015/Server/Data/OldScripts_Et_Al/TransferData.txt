@@ -1,0 +1,967 @@
+﻿USE [REVIEWER]
+
+/* ******* TODO / BUGS ********
+
+1. CHANGE SCRIPT TO OPERATE PER REVIEW
+2. TB_ITEM / AUTHORS TRANSFER
+
+*/
+
+DELETE FROM REVIEWER.DBO.TB_REVIEW_SET
+DELETE FROM REVIEWER.DBO.TB_ITEM_ATTRIBUTE_TEXT
+DELETE FROM REVIEWER.DBO.TB_ITEM_ATTRIBUTE
+DELETE FROM REVIEWER.DBO.TB_ITEM_SET
+DELETE FROM REVIEWER.DBO.TB_ATTRIBUTE_SET
+DELETE FROM REVIEWER.DBO.TB_ATTRIBUTE_TYPE
+DELETE FROM REVIEWER.DBO.TB_SET
+DELETE FROM REVIEWER.DBO.TB_SET_TYPE
+DELETE FROM REVIEWER.DBO.TB_ATTRIBUTE
+DELETE FROM REVIEWER.DBO.TB_ITEM_REVIEW
+DELETE FROM REVIEWER.DBO.TB_CONTACT_REVIEW_ROLE
+DELETE FROM REVIEWER.DBO.TB_REVIEW_CONTACT
+DELETE FROM REVIEWER.DBO.TB_REVIEW_ROLE
+DELETE FROM REVIEWER.DBO.TB_CONTACT
+DELETE FROM REVIEWER.DBO.TB_ITEM_SOURCE
+DELETE FROM REVIEWER.DBO.TB_SOURCE
+DELETE FROM REVIEWER.DBO.tb_ITEM_DOCUMENT
+DELETE FROM REVIEWER.DBO.TB_REVIEW
+DELETE FROM REVIEWER.DBO.TB_ITEM
+DELETE FROM REVIEWER.DBO.TB_TEMP_ITEM
+DELETE FROM REVIEWER.DBO.TB_ITEM_TYPE
+
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (14, 'Journal, Article', 'Used also for old "Journal, Whole", D(Journal short form) and "JOUR" codes', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (1, 'Report', 'Old Code was E', 'Consider using Dissertation or Research Project when appropriate')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (2, 'Book, Whole', '', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (3, 'Book, Chapter', '', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (4, 'Dissertation', 'Old Code Was G', 'Use the Edition field to specify the thesis type')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (5, 'Conference Proceedings', 'Old Code Was K', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (6, 'Document From Internet Site', 'This is a single document', 'Date fields refer to publication date, if known')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (7, 'Web Site', 'This is a multi-page website ', 'URL field should contain the root of the site hierarchy, date fields should refer to last visited date')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (8, 'DVD, Video, Media', '', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (9, 'Research project', '', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (10, 'Article In A Periodical', 'Newspapers, magazines and similar. Old codes are "PER" and F(newspaper)', '')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (11, 'Interview', 'Old code was INT', 'Author role = 0 is for the Interviewer, Author role = 1 for the Interviewee')
+INSERT INTO TB_ITEM_TYPE([TYPE_ID], [TYPE_NAME], [DESCRIPTION], NOTES)
+VALUES (12, 'Generic', 'Whatever does not fit any of the above, only old code that fits here is H(trade catalogue)', '')
+
+INSERT INTO TB_OUTCOME_TYPE(OUTCOME_TYPE_NAME, OUTCOME_TYPE_ID)
+VALUES ('User defined', 0)
+INSERT INTO TB_OUTCOME_TYPE(OUTCOME_TYPE_NAME, OUTCOME_TYPE_ID)
+VALUES ('N, Mean, SD', 1)
+INSERT INTO TB_OUTCOME_TYPE(OUTCOME_TYPE_NAME, OUTCOME_TYPE_ID)
+VALUES ('N, Mean, CI', 2)
+
+INSERT INTO TB_META_ANALYSIS_TYPE (META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE)
+VALUES (0, 'Continuous: d (Hedges g)')
+INSERT INTO TB_META_ANALYSIS_TYPE (META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE)
+VALUES (1, 'Continuous: r')
+INSERT INTO TB_META_ANALYSIS_TYPE (META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE)
+VALUES (2, 'Binary: odds ratio')
+INSERT INTO TB_META_ANALYSIS_TYPE (META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE)
+VALUES (3, 'Binary: risk ratio')
+INSERT INTO TB_META_ANALYSIS_TYPE (META_ANALYSIS_TYPE_ID, META_ANALYSIS_TYPE_TITLE)
+VALUES (4, 'Binary: risk difference')
+GO
+INSERT [dbo].[TB_REVIEW_ROLE] ([ROLE_NAME], [ROLE_DESCR]) VALUES (N'AdminUser', N'Has full rights over the review')
+INSERT [dbo].[TB_REVIEW_ROLE] ([ROLE_NAME], [ROLE_DESCR]) VALUES (N'ReadOnlyUser', N'Read Only access to the review')
+INSERT [dbo].[TB_REVIEW_ROLE] ([ROLE_NAME], [ROLE_DESCR]) VALUES (N'RegularUser', N'Has ordinary rights, but can''t modify rights of other users')
+GO
+INSERT INTO [REVIEWER].DBO.[TB_CONTACT](OLD_CONTACT_ID, CONTACT_NAME, USERNAME, [PASSWORD], LAST_LOGIN, DATE_CREATED, EMAIL)
+SELECT CONTACT_ID, CONTACT, USERID, [PASSWD], LAST_LOGIN, DATE_CREATED, EMAIL FROM [EPPI_WEB].DBO.[TB_CONTACT]
+
+INSERT INTO REVIEWER.DBO.TB_REVIEW(OLD_REVIEW_ID, OLD_REVIEW_GROUP_ID, REVIEW_NAME, DATE_CREATED, FUNDER_ID, REVIEW_NUMBER)
+SELECT REVIEW_ID, REVIEW_GROUP_ID, REVIEW, DATE_REVIEW_CREATED, FUNDER_ID, REVIEW_NUMBER FROM EPPI_WEB.DBO.TB_REVIEW
+
+INSERT INTO REVIEWER.DBO.TB_REVIEW_CONTACT(OLD_CONTACT_ID, OLD_REVIEW_ID, CONTACT_ID, REVIEW_ID)
+SELECT CONTACT_ID, REVIEW_ID, 
+		(SELECT REVIEWER.DBO.TB_CONTACT.CONTACT_ID 
+			FROM REVIEWER.DBO.TB_CONTACT
+			WHERE REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = src.CONTACT_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_REVIEW.REVIEW_ID FROM REVIEWER.DBO.TB_REVIEW
+			WHERE REVIEWER.DBO.TB_REVIEW.OLD_REVIEW_ID = src.REVIEW_ID COLLATE Latin1_General_CI_AS)
+	FROM EPPI_WEB.DBO.TB_REVIEW_CONTACT as src
+go
+
+INSERT INTO [Reviewer].[dbo].[TB_CONTACT_REVIEW_ROLE]([REVIEW_CONTACT_ID],[ROLE_NAME])
+SELECT (SELECT 
+			REVIEW_CONTACT_ID FROM TB_REVIEW_CONTACT WHERE
+			 REVIEWER.DBO.TB_REVIEW_CONTACT.OLD_CONTACT_ID = src.CONTACT_ID COLLATE Latin1_General_CI_AS
+			 AND REVIEWER.DBO.TB_REVIEW_CONTACT.OLD_REVIEW_ID = src.REVIEW_ID COLLATE Latin1_General_CI_AS) as s_ID,
+		ROLE_NAME = CASE
+			WHEN ([ROLE] = 'LEADER') THEN 'AdminUser'
+			ELSE 'RegularUser'
+		END
+	FROM EPPI_WEB.DBO.TB_REVIEW_CONTACT as src
+
+go
+
+
+/* ************* BEGIN SERGIO'S ITEM TRANSFER CODE ******************** */
+
+-- removed references to database er4testing (we 'use' the database at the beginning of the script)
+
+--POPULATE TEMP TABLE: this applies to the real table tb_TEMP_ITEM where "temp" is just a name,
+--can be easily adapted to use are genuine #temp table, or a @table variable.
+delete from tb_TEMP_ITEM
+DBCC CHECKIDENT('tb_TEMP_ITEM', RESEED, 0)
+insert 
+into tb_TEMP_ITEM
+
+(
+	TYPE_ID,
+	ISWEB,
+	mediumToEd,
+	titleSource,
+	ParentTSource,
+	PUBDATA,
+	INSTITUTION,
+	ITEM_ID,
+	ITEM,
+	ITEM_DESCRIPTION,
+	TYPE_CODE,
+	DATE_CREATED,
+	DATE_EDITED,
+	CREATED_BY,
+	EDITED_BY,
+	AUTHOR_ANALYTIC,
+	TITLE_ANALYTIC,
+	MEDIUM,
+	AUTHOR_MONO,
+	AUTHOR_ROLE,
+	TITLE_MONO,
+	JOURNAL,
+	TRANS_NEWS_TITLE,
+	PLACE,
+	EDITION,
+	PLACE_OF_PUB,
+	PUBLISHER,
+	DATE_OF_PUB,
+	VOLUME,
+	REPORT_ID,
+	ISSUE,
+	PAGES,
+	EXTENT_OF_WORK,
+	CONTACT_DETAILS,
+	SERIES_TITLE,
+	SERIES_VOLUME,
+	SERIES_ISSUE,
+	WRITTEN_LANGUAGE,
+	AVAILABILITY,
+	LOCATION,
+	EPIC_NO,
+	ISSN,
+	ISBN,
+	NOTES,
+	ABSTRACT,
+	AGE_RANGE,
+	SHORT_TITLE,
+	ITEM_IDENTITY,
+	CONFIDENTIAL_CONTACT_ID,
+	IMPORTED_REF_ID
+)
+
+select 
+	'TYPE_ID' = CASE
+     WHEN (type_code = 'Journal, Article'
+			or type_code = 'D'
+			or type_code = 'JOUR      '
+			or type_code = 'Journal, Whole'
+			or (type_code = 'PUB' and (JOURNAL != '' and JOURNAL is not null)) ) THEN 14  
+     WHEN (type_code = 'E') THEN 1
+	 WHEN (type_code = 'Book, Whole') THEN 2 
+     WHEN (type_code = 'Book, Chapter') THEN 3
+	 WHEN (type_code = 'G') THEN 4  
+     WHEN (type_code = 'K') THEN 5
+	 WHEN (type_code = 'PUB' and (JOURNAL = '' or JOURNAL is null)) THEN 1 
+	 WHEN (type_code = 'INT       ') THEN 11
+	 WHEN (type_code = 'Electronic Citation'
+			and isweb > 0) THEN 7
+	 WHEN (type_code = 'Electronic Citation'
+			and journal is not null and journal != '') THEN 0
+	 WHEN (type_code = 'Electronic Citation'
+			and (journal is null or journal = '')) THEN 8
+	 WHEN (type_code = 'Research project') THEN 9
+	 WHEN (type_code = 'PER       ' or type_code = 'F') THEN 10
+	 WHEN (type_code = 'DVD, Video, Media' and isweb = 0) THEN 8
+	 WHEN (type_code = 'DVD, Video, Media' and isweb > 0) THEN 7
+	 WHEN (type_code = 'H') THEN 12
+	 ELSE 12 
+	END,
+	*
+from ( select 
+			'isweb' = CASE 
+				 WHEN ((len(AVAILABILITY) > 5 and left(AVAILABILITY, 4) = 'www.')
+							or (len(AVAILABILITY) > 7 and left(AVAILABILITY, 7) = 'http://')
+							or (len(AVAILABILITY) > 8 and left(AVAILABILITY, 8) = 'https://')
+							) 
+				 THEN 1
+				 WHEN ((len(LOCATION) > 5 and left(LOCATION, 4) = 'www.')
+							or (len(LOCATION) > 7 and left(LOCATION, 7) = 'http://')
+							or (len(LOCATION) > 5 and left(LOCATION, 5) = 'http')
+							or (len(LOCATION) > 8 and left(LOCATION, 8) = 'https://')
+							)
+				 THEN 2
+				 WHEN ((len(JOURNAL) > 5 and left(JOURNAL, 4) = 'www.')
+							or (len(JOURNAL) > 7 and left(JOURNAL, 7) = 'http://')
+							or (len(JOURNAL) > 8 and left(JOURNAL, 8) = 'https://')
+							)
+				 THEN 3
+				 ELSE 0 
+			END,
+			mediumToEd = CASE
+				when (type_code = 'G' and (Journal = '' or Journal is null) and (medium is not null and medium !=''))
+				then 1
+				else 0
+			END,
+			titleSource = CASE
+				when (type_code = 'Book, Whole' and (title_mono != '' and title_mono is not null))
+				then 'title_mono'	
+				else 'title_analytic'
+			END,
+			ParentTSource = CASE
+				when (type_code = 'PUB' and Journal != '' and Journal is not null)
+					or 
+					(
+						(type_code = 'Journal, Article' or type_code = 'Journal, Whole'
+						or type_code = 'D' or  type_code = 'jour' ) and 
+						( journal is not null and journal !='') 
+					) or (
+						type_code = 'K' and JOURNAL != '' and JOURNAL is not null and 
+							(title_mono not like '155%' or title_mono is null)
+					) or (
+						type_code = 'PUB' and (JOURNAL != '' and JOURNAL is not null)
+					)  or (
+						type_code = 'Electronic Citation' and (JOURNAL != '' and JOURNAL is not null) 
+						and not ((len(JOURNAL) > 5 and left(JOURNAL, 4) = 'www.')
+							or (len(JOURNAL) > 7 and left(JOURNAL, 7) = 'http://')
+							or (len(JOURNAL) > 8 and left(JOURNAL, 8) = 'https://')
+							)
+					)
+					then 'Journal'
+				when (
+						(type_code = 'Book, Whole' and (SERIES_TITLE is null or SERIES_TITLE = ''))
+						or (type_code = 'G' and (Journal is null or journal = '') 
+							and (title_mono is  null or title_mono = ''))) then '0'
+				when (type_code = 'Book, Whole' and SERIES_TITLE is not null and SERIES_TITLE != '') then 'SERIES_TITLE'
+				when (type_code = 'G' and Journal is not null and journal !='') then 'Journal'	
+				else 'TITLE_MONO'
+			END,
+			PubData = CASE
+				when (date_of_PUB like 'win [0-9][0-9][0-9][0-9]'	
+						or date_of_PUB like 'sum [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'wnt [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'spr [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'fal [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'aut [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'win [0-9][0-9][0-9][0-9][,.:; ¦|\/]'	
+						or date_of_PUB like 'sum [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'wnt [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'spr [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'fal [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'aut [0-9][0-9][0-9][0-9][,.:; ¦|\/]')
+					then substring(DATE_OF_PUB, 5,4)
+				when (date_of_PUB like '[a-z][a-z][a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like '[0-9][0-9][0-9][0-9] [a-z][a-z][a-z] [0-9][0-9]'
+						or date_of_PUB like 'January [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'February [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'March [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'April [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'May [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'June [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'July [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'August [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'September [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'October [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'November [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'December [0-9][0-9][0-9][0-9]'
+						--or date_of_PUB like '[0-9][0-9][0-9][0-9]'	
+						)	
+					then DATE_OF_PUB
+				when (DATE_OF_PUB like '[0-9][0-9][0-9][0-9][,.:; ¦|\/]')
+					then substring(DATE_OF_PUB, 1,4)
+				when (date_of_PUB like '[a-z][a-z][a-z] [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'January [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'February [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'March [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'April [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'May [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'June [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'July [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'August [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'September [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'October [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'November [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'December [0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like '[a-z][a-z][a-z] [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'January [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'February [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'March [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'April [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'May [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'June [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'July [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'August [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'September [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'October [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'November [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'December [0-9][0-9] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like '[a-z][a-z][a-z] [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'January [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'February [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'March [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'April [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'May [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'June [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'July [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'August [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'September [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'October [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'November [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'December [0-9][0-9][^a-z] [0-9][0-9][0-9][0-9]'
+						)	
+					then DATE_OF_PUB
+				when (date_of_PUB like '[a-z][a-z][a-z] [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'January [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'February [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'March [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'April [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'May [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'June [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'July [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'August [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'September [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'October [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'November [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'December [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						
+						)	
+					then substring(DATE_OF_PUB, 1, PATINDEX('%[0-9][0-9][0-9][0-9]%', DATE_OF_PUB) + 3)
+				when (date_of_PUB like '[0-9][0-9][0-9][0-9] [a-z][a-z][a-z] [0-9][0-9][,.:; ¦|\/]')	
+					then  left(DATE_OF_PUB, 11)
+				when (date_of_PUB like 'May [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,8)
+				when (date_of_PUB like 'June [0-9][0-9][0-9][0-9]%'
+						or date_of_PUB like 'July [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,9)
+				when (date_of_PUB like 'March [0-9][0-9][0-9][0-9]%'
+						or date_of_PUB like 'April [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,10)
+				when (date_of_PUB like 'August [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,11)
+				when (date_of_PUB like 'January [0-9][0-9][0-9][0-9]%'
+						or date_of_PUB like 'October [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,12)
+				when (date_of_PUB like 'February [0-9][0-9][0-9][0-9]%'
+						or date_of_PUB like 'November [0-9][0-9][0-9][0-9]%'
+						or date_of_PUB like 'December [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,13)
+				when (date_of_PUB like 'September [0-9][0-9][0-9][0-9]%')	
+					then substring(DATE_OF_PUB, 1,14)
+				when (date_of_PUB like 'winter [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'spring [0-9][0-9][0-9][0-9]'
+						or date_of_PUB like 'summer [0-9][0-9][0-9][0-9]')
+					then substring(DATE_OF_PUB, 8,4)
+				when (date_of_PUB like 'winter [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'spring [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'summer [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'winter [0-9][0-9][0-9][0-9][ ]'
+						or date_of_PUB like 'spring [0-9][0-9][0-9][0-9][ ]'
+						or date_of_PUB like 'summer [0-9][0-9][0-9][0-9][ ]')
+					then substring(DATE_OF_PUB, 8,4)
+				when (date_of_PUB like 'fall [0-9][0-9][0-9][0-9][,.:; ¦|\/]'
+						or date_of_PUB like 'fall [0-9][0-9][0-9][0-9][ ]')
+					then substring(DATE_OF_PUB, 6,4)
+				when (date_of_pub like'[0-9][0-9][0-9][0-9]/[0-9][0-9]'
+						or date_of_pub like'[0-9][0-9][0-9][0-9]/[0-9][0-9]//')
+					then substring(date_of_pub, 6, 2) + '/01/' + left(date_of_pub, 4)
+				when ((date_of_pub like'[0-9][0-9][0-9][0-9] [jfmasond][aepuco][nbrynlgptvc]'
+						or date_of_pub like'[0-9][0-9][0-9][0-9] [jfmasond][aepuco][nbrynlgptvc][,.:; ¦|\/]')
+						and date_of_pub not like '[0-9][0-9][0-9][0-9] spr%')
+					then substring(date_of_pub, 6, 3) + ' ' + left(date_of_pub, 4)
+				when (date_of_pub like'[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]/')
+					then substring(date_of_pub, 6, 2) + '/' + substring(date_of_pub, 9, 2) + '/' + left(date_of_pub, 4)
+				when (date_of_pub like '[0-9][0-9][0-9][0-9]%' and left(date_of_pub, 4) > 1900 and left(date_of_pub, 4) < 2010)
+					then  + left(date_of_pub, 4)
+				when (date_of_pub like '%[0-9][0-9][0-9][0-9]%'
+						and substring(date_of_pub, PATINDEX('%[0-9][0-9][0-9][0-9]%', date_of_pub), 4) > 1900
+						and substring(date_of_pub, PATINDEX('%[0-9][0-9][0-9][0-9]%', date_of_pub), 4) < 2010)
+					then substring(date_of_pub, PATINDEX('%[0-9][0-9][0-9][0-9]%', date_of_pub), 4)
+				else 'x'
+			END,
+
+			'institution' = CASE
+				when ((type_code = 'e' or type_code = 'g' or type_code = 'Research project') and publisher is not null and publisher != 'unpublished') then publisher	
+				else ''
+			END,
+			*
+		from eppi_web.dbo.tb_ITEM 
+	) a
+GO
+
+
+--populate tb_ITEM from temp table:
+delete from tb_ITEM
+DBCC CHECKIDENT('tb_ITEM', RESEED, 0)
+
+insert into tb_ITEM
+(
+	[TYPE_ID], TITLE, PARENT_TITLE,
+	SHORT_TITLE, DATE_CREATED, CREATED_BY,
+	DATE_EDITED, EDITED_BY, [YEAR],
+	[MONTH], STANDARD_NUMBER, CITY,
+	PUBLISHER, INSTITUTION,
+	VOLUME, PAGES, EDITION,
+	ISSUE, AVAILABILITY,
+	URL, OLD_ITEM_ID, ABSTRACT,
+	COMMENTS
+)
+select 
+	[TYPE_ID], 
+	TITLE = Case
+		When (titlesource = 'TITLE_MONO' ) then TITLE_MONO
+		WHEN (title_analytic is not null) then title_analytic
+		else ''
+	END,
+	PARENT_TITLE = Case
+		When (ParentTSource = 'TITLE_MONO' AND TITLE_MONO is not null) then TITLE_MONO
+		When (ParentTSource = 'SERIES_TITLE' AND SERIES_TITLE is not null) then SERIES_TITLE
+		When (ParentTSource = 'JOURNAL' AND JOURNAL is not null) then JOURNAL	
+		else ''
+	END,
+	SHORT_TITLE= Case
+		When ( SHORT_TITLE is null) then ''
+		ELSE SHORT_TITLE
+	END,
+	DATE_CREATED = Case
+		When (DATE_CREATED = '' or DATE_CREATED is null) then '2000-01-01 00:00:00.0'
+		ELSE DATE_CREATED
+	END,
+	CREATED_BY = Case
+		WHEN (CREATED_BY is null) then ''
+		ELSE CREATED_BY
+	END,
+	DATE_EDITED = Case
+		WHEN ((DATE_CREATED = '' or DATE_CREATED is null)
+			and (DATE_EDITED = '' or DATE_EDITED is null)) then '2000-01-01 00:00:00.0'
+		WHEN ((DATE_CREATED != '' and DATE_CREATED is not null)
+			and (DATE_EDITED = '' or DATE_EDITED is null)) then DATE_CREATED
+		ELSE DATE_EDITED
+	END,
+	EDITED_BY = Case
+		WHEN ((CREATED_BY = '' or CREATED_BY is null)
+			and (EDITED_BY = '' or EDITED_BY is null)) then ''
+		WHEN ((CREATED_BY != '' and CREATED_BY is not null)
+			and (EDITED_BY = '' or EDITED_BY is null)) then CREATED_BY
+		ELSE EDITED_BY
+	END,
+	
+	'YEAR' = CASE 
+		WHEN (len(PubData) > 2 ) THEN Datename(yyyy, cast (PubData as datetime))  
+		ELSE ''
+	END,
+
+	'MONTH' = CASE
+		WHEN (len(PubData) > 4 ) THEN Datename(mm, cast (PubData as datetime)) 
+		ELSE ''
+	END,
+
+	STANDARD_NUMBER = CASE
+		WHEN ((ISSN != '' and ISSN is not null) and (ISBN != '' and ISBN is not null))
+			THEN 'ISSN: ' + ISSN + ' ISBN: ' + ISBN
+		WHEN ((ISSN = '' or ISSN is null) and (ISBN != '' and ISBN is not null))
+			THEN 'ISBN: ' + cast(ISBN as nvarchar(249))
+		WHEN ((ISSN != '' and ISSN is not null) and (ISBN = '' or ISBN is null))
+			THEN 'ISSN: ' + cast(ISSN as nvarchar(249))
+		ELSE ''
+	END,
+	CITY = CASE 
+		WHEN (PLACE_OF_PUB is null) then ''
+		ELSE cast(PLACE_OF_PUB as nvarchar(100))
+	END,
+	PUBLISHER  = CASE 
+		WHEN (PUBLISHER is null) then ''
+		ELSE PUBLISHER
+	END,
+	INSTITUTION,
+	VOLUME = CASE
+		WHEN (VOLUME is not null) then cast (VOLUME as nvarchar(56))
+		WHEN ((VOLUME is null or VOLUME = '') and (SERIES_VOLUME != '' and SERIES_VOLUME is not null))
+			then cast (SERIES_VOLUME as nvarchar(56))
+		ELSE ''
+	END,
+	PAGES = CASE 
+		WHEN (PAGES is null) then ''
+		ELSE cast (PAGES as nvarchar(50))
+	END,
+	EDITION = CASE 
+		WHEN (EDITION is null) then ''
+		ELSE EDITION
+	END,
+	ISSUE = CASE
+		WHEN (SERIES_ISSUE is not null and SERIES_ISSUE != '') then cast (SERIES_ISSUE as nvarchar(100))
+		WHEN (SERIES_ISSUE is not null) then cast (ISSUE as nvarchar(100))
+		ELSE ''
+	END,
+	AVAILABILITY = CASE
+		WHEN (ISWEB = 1 or AVAILABILITY is null) then ''
+		WHEN ((AVAILABILITY is null or AVAILABILITY = '') and (LOCATION is not null and LOCATION != '')) then LOCATION
+		ELSE AVAILABILITY
+	END,
+	URL = CASE
+		WHEN (ISWEB = 1) then AVAILABILITY
+		WHEN (ISWEB = 2) then LOCATION
+		WHEN (ISWEB = 3) then JOURNAL
+		ELSE ''
+	END,
+	ITEM_ID,
+	ABSTRACT = CASE 
+		WHEN (ABSTRACT is null) then ''
+		ELSE ABSTRACT
+	END,
+	COMMENTS = CASE
+		WHEN (NOTES is not null AND EXTENT_OF_WORK is not null AND CONTACT_DETAILS is not null)
+			THEN LTRIM(RTRIM(convert(nvarchar(max), NOTES) + ' ' + EXTENT_OF_WORK + ' ' + CONTACT_DETAILS))
+		ELSE ''
+	end
+from tb_TEMP_ITEM
+GO
+
+
+-- populate tb_ITEM_AUTHOR
+DELETE from tb_ITEM_AUTHOR
+
+insert into tb_ITEM_AUTHOR (
+	ITEM_ID, LAST, FIRST, SECOND, ROLE, RANK
+)
+Select T.ITEM_ID, LAST, FIRST, SECOND, ORIGIN, RANK 
+From tb_ITEM as T 
+	inner join eppi_web.dbo.tb_ITEM_AUTHOR as S 
+	on T.OLD_ITEM_ID COLLATE SQL_Latin1_General_CP1_CI_AS = S.ITEM_ID 
+	order by item_id, rank
+delete from tb_TEMP_ITEM
+go
+
+/* ********************* END SERGIO'S TRANSFER CODE *********************** */
+
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_REVIEW(ITEM_ID, REVIEW_ID, IS_INCLUDED, MASTER_ITEM_ID, IS_DELETED)
+SELECT (SELECT REVIEWER.DBO.TB_ITEM.ITEM_ID FROM REVIEWER.DBO.TB_ITEM
+		WHERE REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_ITEM_REVIEW.ITEM_ID COLLATE Latin1_General_CI_AS),
+	(SELECT REVIEWER.DBO.TB_REVIEW.REVIEW_ID FROM REVIEWER.DBO.TB_REVIEW
+			WHERE REVIEWER.DBO.TB_REVIEW.OLD_REVIEW_ID = EPPI_WEB.DBO.TB_ITEM_REVIEW.REVIEW_ID COLLATE Latin1_General_CI_AS),
+	'TRUE', NULL, 'FALSE'
+	FROM EPPI_WEB.DBO.TB_ITEM_REVIEW
+
+INSERT INTO TB_ATTRIBUTE(CONTACT_ID, ATTRIBUTE_NAME, ATTRIBUTE_DESC, OLD_ATTRIBUTE_ID)
+SELECT (SELECT REVIEWER.DBO.TB_CONTACT.CONTACT_ID FROM REVIEWER.DBO.TB_CONTACT
+		WHERE REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.TB_ATTRIBUTE.CONTACT_ID COLLATE Latin1_General_CI_AS),
+	ATTRIBUTE, ATTRIBUTE_DESC, ATTRIBUTE_ID
+	FROM EPPI_WEB.DBO.TB_ATTRIBUTE
+
+INSERT INTO REVIEWER.DBO.TB_SET_TYPE(SET_TYPE, OLD_GUIDELINE_STATUS_ID)
+SELECT GUIDELINE_STATUS, CAST(GUIDELINE_STATUS_ID AS INT) FROM EPPI_WEB.DBO.TB_GUIDELINE_STATUS
+
+INSERT INTO REVIEWER.DBO.TB_SET(SET_TYPE_ID, SET_NAME, OLD_GUIDELINE_ID)
+SELECT (SELECT REVIEWER.DBO.TB_SET_TYPE.SET_TYPE_ID FROM REVIEWER.DBO.TB_SET_TYPE
+		WHERE REVIEWER.DBO.TB_SET_TYPE.SET_TYPE_ID = EPPI_WEB.DBO.TB_GUIDELINE.GUIDELINE_STATUS_ID),
+		GUIDELINE, GUIDELINE_ID FROM EPPI_WEB.DBO.TB_GUIDELINE
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Not selectable (no checkbox)', 'N', 1)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Selectable (show checkbox)', 'Y', 2)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Selectable (show radiobutton)', 'Y', 3)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Outcome', 'Y', 4)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Intervention', 'Y', 5)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Comparison', 'Y', 6)
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Numeric value', 'Y', 7)
+-- INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_TYPE(ATTRIBUTE_TYPE, OLD_IS_ANSWER, ATTRIBUTE_TYPE_ID) VALUES('Mark as included', 'Y', 8)
+
+-- TWO STAGES - PARENTS WHERE SUP_ATTRIBUTE_ID = NULL FIRST
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID, ATTRIBUTE_SET_DESC, ATTRIBUTE_ORDER)
+SELECT (SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = EPPI_WEB.DBO.TB_GUIDE_STRUCT.ATTRIBUTE_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_SET.SET_ID FROM REVIEWER.DBO.TB_SET
+		WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.TB_GUIDE_STRUCT.GUIDELINE_ID COLLATE Latin1_General_CI_AS),
+		0,
+		(SELECT TOP(1) REVIEWER.DBO.TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE_TYPE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE_TYPE.OLD_IS_ANSWER = EPPI_WEB.DBO.TB_GUIDE_STRUCT.IS_ANSWER COLLATE Latin1_General_CI_AS),
+		CAST(GUIDE_STRUCT_DESC AS NVARCHAR(MAX)),
+		ATTR_ORDER
+		FROM EPPI_WEB.DBO.TB_GUIDE_STRUCT WHERE EPPI_WEB.DBO.TB_GUIDE_STRUCT.SUP_ATTRIBUTE_ID IS NULL
+
+-- SECOND STAGE - WHERE NOT NULL
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID, ATTRIBUTE_SET_DESC, ATTRIBUTE_ORDER)
+SELECT (SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = EPPI_WEB.DBO.TB_GUIDE_STRUCT.ATTRIBUTE_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_SET.SET_ID FROM REVIEWER.DBO.TB_SET
+		WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.TB_GUIDE_STRUCT.GUIDELINE_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = EPPI_WEB.DBO.TB_GUIDE_STRUCT.SUP_ATTRIBUTE_ID COLLATE Latin1_General_CI_AS),
+		(SELECT TOP(1) REVIEWER.DBO.TB_ATTRIBUTE_TYPE.ATTRIBUTE_TYPE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE_TYPE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE_TYPE.OLD_IS_ANSWER = EPPI_WEB.DBO.TB_GUIDE_STRUCT.IS_ANSWER COLLATE Latin1_General_CI_AS),
+		CAST(GUIDE_STRUCT_DESC AS NVARCHAR(MAX)),
+		ATTR_ORDER
+		FROM EPPI_WEB.DBO.TB_GUIDE_STRUCT
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+SELECT (SELECT REVIEWER.DBO.TB_ITEM.ITEM_ID FROM REVIEWER.DBO.TB_ITEM
+		WHERE REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_DATA_EXTRACTION_GUIDELINE.ITEM_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_SET.SET_ID FROM REVIEWER.DBO.TB_SET
+		WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.TB_DATA_EXTRACTION_GUIDELINE.GUIDELINE_ID COLLATE Latin1_General_CI_AS),
+		CASE WHEN EPPI_WEB.DBO.TB_DATA_EXTRACTION_GUIDELINE.STATUS_ID = 'COMP' THEN 'TRUE' ELSE 'FALSE' END,
+		(SELECT REVIEWER.DBO.TB_CONTACT.CONTACT_ID FROM REVIEWER.DBO.TB_CONTACT
+			WHERE REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.TB_DATA_EXTRACTION_GUIDELINE.CONTACT_ID COLLATE Latin1_General_CI_AS)
+		FROM EPPI_WEB.DBO.TB_DATA_EXTRACTION_GUIDELINE
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT)
+SELECT (SELECT REVIEWER.DBO.TB_ITEM.ITEM_ID FROM REVIEWER.DBO.TB_ITEM
+		WHERE REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_ITEM_SET.ITEM_SET_ID FROM REVIEWER.DBO.TB_ITEM_SET WHERE
+			REVIEWER.DBO.TB_ITEM_SET.ITEM_ID = 
+				(SELECT REVIEWER.DBO.TB_ITEM.ITEM_ID FROM REVIEWER.DBO.TB_ITEM
+					WHERE REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID COLLATE Latin1_General_CI_AS)
+			AND REVIEWER.DBO.TB_ITEM_SET.SET_ID = (SELECT REVIEWER.DBO.TB_SET.SET_ID FROM REVIEWER.DBO.TB_SET
+				WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.GUIDELINE_ID COLLATE Latin1_General_CI_AS)
+			AND REVIEWER.DBO.TB_ITEM_SET.CONTACT_ID = (SELECT REVIEWER.DBO.TB_CONTACT.CONTACT_ID FROM REVIEWER.DBO.TB_CONTACT
+				WHERE REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.CONTACT_ID COLLATE Latin1_General_CI_AS)
+			AND REVIEWER.DBO.TB_ITEM_SET.IS_COMPLETED = 'TRUE'),
+		(SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ATTRIBUTE_ID COLLATE Latin1_General_CI_AS),
+		EXTRACT_ATTR_DESC
+	FROM EPPI_WEB.DBO.TB_EXTRACT_ATTR 
+	INNER JOIN EPPI_WEB.DBO.TB_ITEM_REVIEW ON EPPI_WEB.DBO.TB_ITEM_REVIEW.ITEM_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID
+	WHERE EPPI_WEB.DBO.TB_ITEM_REVIEW.REVIEW_ID = 'REV327' OR EPPI_WEB.DBO.TB_ITEM_REVIEW.REVIEW_ID = 'REV142' OR EPPI_WEB.DBO.TB_ITEM_REVIEW.REVIEW_ID = 'REV203' 
+
+INSERT INTO REVIEWER.DBO.TB_REVIEW_SET(REVIEW_ID, SET_ID, ALLOW_CODING_EDITS)
+SELECT (SELECT REVIEWER.DBO.TB_REVIEW.REVIEW_ID FROM REVIEWER.DBO.TB_REVIEW
+			WHERE REVIEWER.DBO.TB_REVIEW.OLD_REVIEW_ID = EPPI_WEB.DBO.tb_REVIEW_GUIDELINE.REVIEW_ID COLLATE Latin1_General_CI_AS),
+		(SELECT REVIEWER.DBO.TB_SET.SET_ID FROM REVIEWER.DBO.TB_SET
+				WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.tb_REVIEW_GUIDELINE.GUIDELINE_ID COLLATE Latin1_General_CI_AS),
+		'FALSE'
+		FROM EPPI_WEB.DBO.TB_REVIEW_GUIDELINE
+
+-- TRANSFER INDUCTIVE CODES
+
+INSERT INTO REVIEWER.DBO.TB_SET(OLD_GUIDELINE_ID, SET_TYPE_ID, SET_NAME)
+SELECT DISTINCT(REVIEW_ID), 3, 'Inductive codes'  FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE
+
+INSERT INTO REVIEWER.DBO.TB_REVIEW_SET(REVIEW_ID, SET_ID, ALLOW_CODING_EDITS, CODING_IS_FINAL)
+SELECT REVIEW_ID, SET_ID, 'True', 'True' FROM TB_SET INNER JOIN TB_REVIEW ON TB_REVIEW.OLD_REVIEW_ID = TB_SET.OLD_GUIDELINE_ID
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE(CONTACT_ID, ATTRIBUTE_NAME, ATTRIBUTE_DESC, OLD_ATTRIBUTE_ID)
+SELECT (SELECT REVIEWER.DBO.TB_CONTACT.CONTACT_ID FROM REVIEWER.DBO.TB_CONTACT
+	WHERE REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE.CONTACT_ID COLLATE Latin1_General_CI_AS),
+	INDUCTIVE_CODE,
+	CAST([DESCRIPTION] AS NVARCHAR(2000)),
+	CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE.INDUCTIVE_CODE_ID AS NVARCHAR(6)) AS NVARCHAR(50))
+FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE
+
+-- TWO STAGES - PARENTS WHERE parent_ID = 0 FIRST
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID, ATTRIBUTE_ORDER)
+SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID, REVIEWER.DBO.TB_SET.SET_ID, 0, 1, CODE_ORDER
+FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE
+INNER JOIN REVIEWER.DBO.TB_ATTRIBUTE ON
+	REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = 
+			CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE.INDUCTIVE_CODE_ID AS NVARCHAR(6)) AS NVARCHAR(10)) COLLATE Latin1_General_CI_AS
+INNER JOIN REVIEWER.DBO.TB_SET ON
+	REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID =
+			EPPI_WEB.DBO.TB_INDUCTIVE_CODE.REVIEW_ID COLLATE Latin1_General_CI_AS
+WHERE PARENT_ID = 0
+
+-- SECOND STAGE - WHERE NOT == 0
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID,
+	ATTRIBUTE_ORDER)
+SELECT (SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE
+		WHERE REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = 
+			CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE.INDUCTIVE_CODE_ID AS NVARCHAR(6)) AS NVARCHAR(10)) COLLATE Latin1_General_CI_AS),
+		(SELECT SET_ID FROM REVIEWER.DBO.TB_SET WHERE REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID =
+			EPPI_WEB.DBO.TB_INDUCTIVE_CODE.REVIEW_ID COLLATE Latin1_General_CI_AS),
+		(SELECT ATTRIBUTE_ID FROM REVIEWER.DBO.TB_ATTRIBUTE WHERE OLD_ATTRIBUTE_ID =
+			CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE.PARENT_ID AS NVARCHAR(6)) AS NVARCHAR(10)) COLLATE Latin1_General_CI_AS),
+		1,
+		CODE_ORDER
+		FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE
+		WHERE PARENT_ID != 0
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_SET(ITEM_ID, SET_ID, IS_COMPLETED, CONTACT_ID)
+SELECT DISTINCT REVIEWER.DBO.TB_ITEM.ITEM_ID, REVIEWER.DBO.TB_SET.SET_ID, 'True', REVIEWER.DBO.TB_CONTACT.CONTACT_ID
+FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR
+INNER JOIN REVIEWER.DBO.TB_ITEM ON
+	REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ITEM_ID COLLATE Latin1_General_CI_AS
+INNER JOIN EPPI_WEB.DBO.TB_INDUCTIVE_CODE ON
+	EPPI_WEB.DBO.TB_INDUCTIVE_CODE.INDUCTIVE_CODE_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.INDUCTIVE_CODE_ID
+INNER JOIN REVIEWER.DBO.TB_SET ON
+	REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE.REVIEW_ID COLLATE Latin1_General_CI_AS
+INNER JOIN REVIEWER.DBO.TB_CONTACT ON
+	REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.CONTACT_ID COLLATE Latin1_General_CI_AS
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID)
+SELECT DISTINCT REVIEWER.DBO.TB_ITEM.ITEM_ID, REVIEWER.DBO.TB_ITEM_SET.ITEM_SET_ID, REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID
+FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR
+INNER JOIN REVIEWER.DBO.TB_ITEM ON
+	REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ITEM_ID COLLATE Latin1_General_CI_AS
+INNER JOIN REVIEWER.DBO.TB_ITEM_SET ON
+	REVIEWER.DBO.TB_ITEM_SET.ITEM_ID = REVIEWER.DBO.TB_ITEM.ITEM_ID
+	INNER JOIN REVIEWER.DBO.TB_SET ON REVIEWER.DBO.TB_SET.SET_ID = REVIEWER.DBO.TB_ITEM_SET.SET_ID
+		AND REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = 
+					(SELECT REVIEW_ID FROM EPPI_WEB.DBO.tb_INDUCTIVE_CODE
+						WHERE EPPI_WEB.DBO.tb_INDUCTIVE_CODE.INDUCTIVE_CODE_ID =
+							EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.INDUCTIVE_CODE_ID) COLLATE Latin1_General_CI_AS
+INNER JOIN REVIEWER.DBO.TB_ATTRIBUTE ON
+		REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID =
+			CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.INDUCTIVE_CODE_ID AS NVARCHAR(6)) AS NVARCHAR(10)) 
+				COLLATE Latin1_General_CI_AS
+
+-- TRANSFER TEXT FOR INDUCTIVE CODES AS ITEM DOCUMENTS
+
+INSERT INTO REVIEWER.DBO.TB_ITEM_DOCUMENT(ITEM_ID, DOCUMENT_TITLE, DOCUMENT_TEXT, OLD_EXTRACT_ATTR_IDENTITY)
+SELECT DISTINCT (SELECT REVIEWER.DBO.TB_ITEM.ITEM_ID FROM REVIEWER.DBO.TB_ITEM
+		WHERE REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID COLLATE Latin1_General_CI_AS),
+		'Transferred document',
+		cast(EXTRACT_ATTR_DESC as nvarchar(max)),
+		[IDENTITY]
+FROM EPPI_WEB.DBO.TB_EXTRACT_ATTR
+INNER JOIN EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR ON
+	EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ATTRIBUTE_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ATTRIBUTE_ID
+	AND EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.GUIDELINE_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.GUIDELINE_ID
+	AND EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ITEM_ID = EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID
+
+declare @ITEM_ATTRIBUTE_ID BIGINT
+declare	@ITEM_DOCUMENT_ID BIGINT
+declare	@START_AT INT
+declare	@END_AT INT
+
+Declare textCursor CURSOR READ_ONLY FOR
+SELECT DISTINCT ITEM_DOCUMENT_ID, ITEM_ATTRIBUTE_ID, START_AT, END_AT
+FROM EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR
+INNER JOIN TB_ITEM_DOCUMENT ON
+			TB_ITEM_DOCUMENT.OLD_EXTRACT_ATTR_IDENTITY =
+				(SELECT EPPI_WEB.DBO.TB_EXTRACT_ATTR.[IDENTITY]
+					FROM EPPI_WEB.DBO.TB_EXTRACT_ATTR WHERE 
+					EPPI_WEB.DBO.TB_EXTRACT_ATTR.ATTRIBUTE_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ATTRIBUTE_ID
+					AND EPPI_WEB.DBO.TB_EXTRACT_ATTR.ITEM_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.ITEM_ID
+					AND EPPI_WEB.DBO.TB_EXTRACT_ATTR.GUIDELINE_ID = EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.GUIDELINE_ID)
+INNER JOIN TB_ITEM_ATTRIBUTE ON
+	TB_ITEM_ATTRIBUTE.ITEM_ID = TB_ITEM_DOCUMENT.ITEM_ID
+INNER JOIN REVIEWER.DBO.TB_ATTRIBUTE ON
+	REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+	AND REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID =
+		CAST('IC' + CAST(EPPI_WEB.DBO.TB_INDUCTIVE_CODE_EXTRACT_ATTR.INDUCTIVE_CODE_ID AS NVARCHAR(6)) AS NVARCHAR(10)) 
+				COLLATE Latin1_General_CI_AS
+Open textCursor
+Fetch next from textCursor into  @ITEM_DOCUMENT_ID, @ITEM_ATTRIBUTE_ID, @START_AT, @END_AT
+While @@FETCH_STATUS = 0
+Begin
+          exec st_ItemAttributeTextInsert @ITEM_ATTRIBUTE_ID, @ITEM_DOCUMENT_ID, @START_AT, @END_AT
+			Fetch next from textCursor into @ITEM_DOCUMENT_ID, @ITEM_ATTRIBUTE_ID, @START_AT, @END_AT
+End
+Close textCursor
+Deallocate textCursor
+
+DELETE FROM TB_ITEM_ATTRIBUTE_TEXT WHERE TEXT_TO - TEXT_FROM < 5
+
+-- TRANSFER EXCLUSION CRITERIA
+
+INSERT INTO REVIEWER.DBO.TB_SET(OLD_GUIDELINE_ID, SET_TYPE_ID, SET_NAME)
+SELECT DISTINCT 'EX' + CAST(ELEMENT_GROUP_ID AS NVARCHAR(8)), 3, 'Inclusion / exclusion criteria' 
+FROM EPPI_WEB.DBO.tb_REFERENCE_ELEMENT_GROUPS WHERE TYPE = 'EXCLUSION'
+
+INSERT INTO REVIEWER.DBO.TB_REVIEW_SET(REVIEW_ID, SET_ID, ALLOW_CODING_EDITS, CODING_IS_FINAL)
+SELECT TB_REVIEW.REVIEW_ID, SET_ID, 'True', 'True' FROM TB_SET
+INNER JOIN eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS ON
+	'EX' + CAST(eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS.ELEMENT_GROUP_ID AS NVARCHAR(8)) = TB_SET.OLD_GUIDELINE_ID
+INNER JOIN TB_REVIEW ON TB_REVIEW.OLD_REVIEW_ID = eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS.REVIEW_ID  COLLATE Latin1_General_CI_AS
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE(CONTACT_ID, ATTRIBUTE_NAME, ATTRIBUTE_DESC, OLD_ATTRIBUTE_ID)
+SELECT NULL,
+	ELEMENT_NAME,
+	CAST(ELEMENT_CRITERIA AS NVARCHAR(2000)),
+	CAST('EX' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_ID AS NVARCHAR(8)) AS NVARCHAR(50))
+FROM EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS
+
+INSERT INTO REVIEWER.DBO.TB_ATTRIBUTE_SET(ATTRIBUTE_ID, SET_ID, PARENT_ATTRIBUTE_ID, ATTRIBUTE_TYPE_ID, ATTRIBUTE_ORDER)
+SELECT REVIEWER.DBO.TB_ATTRIBUTE.ATTRIBUTE_ID, REVIEWER.DBO.TB_SET.SET_ID, 0, 2, ORDER_NUMBER
+FROM EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS
+INNER JOIN REVIEWER.DBO.TB_ATTRIBUTE ON
+	REVIEWER.DBO.TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = 
+			'EX' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_ID AS NVARCHAR(6)) COLLATE Latin1_General_CI_AS
+INNER JOIN EPPI_WEB.DBO.tb_REFERENCE_ELEMENT_GROUPS
+	ON EPPI_WEB.DBO.tb_REFERENCE_ELEMENT_GROUPS.ELEMENT_GROUP_ID = EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_GROUP_ID
+INNER JOIN REVIEWER.DBO.TB_SET ON
+	REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID =
+			'EX' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ELEMENT_GROUPS.ELEMENT_GROUP_ID AS NVARCHAR(8)) COLLATE Latin1_General_CI_AS
+
+
+-- TRANSFER ITEMS IN TB_REFERENCE_ITEM_FOR_SCREENING
+insert into tb_ITEM
+(
+	TITLE, PARENT_TITLE, 
+	OLD_ITEM_ID, ABSTRACT,
+	COMMENTS, [TYPE_ID]
+)
+
+select 
+	TITLE = Case
+		WHEN (title_analytic is not null) then title_analytic
+		else TITLE_MONO
+	END,
+	PARENT_TITLE = Case
+		When (TITLE_MONO is not null) then TITLE_MONO
+		When (SERIES_TITLE is not null) then SERIES_TITLE
+		When (JOURNAL is not null) then JOURNAL	
+		else ''
+	END,
+	'SCR' + CAST(ITEM_ID AS NVARCHAR(10)),
+	ABSTRACT = CASE 
+		WHEN (ABSTRACT is null) then ''
+		ELSE ABSTRACT
+	END,
+	COMMENTS = CASE
+		WHEN (NOTES is not null AND EXTENT_OF_WORK is not null AND CONTACT_DETAILS is not null)
+			THEN LTRIM(RTRIM(convert(nvarchar(max), NOTES) + ' ' + EXTENT_OF_WORK + ' ' + CONTACT_DETAILS))
+		ELSE ''
+	end,
+	0
+from eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING
+WHERE eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING.REVIEW_ID = 'REV373'
+
+INSERT INTO TB_ITEM_REVIEW(ITEM_ID, REVIEW_ID, IS_INCLUDED, IS_DELETED)
+SELECT TB_ITEM.ITEM_ID, TB_REVIEW.REVIEW_ID, 'FALSE', 'FALSE' FROM TB_ITEM
+INNER JOIN eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING
+	ON 'SCR' + CAST(eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING.ITEM_ID AS NVARCHAR(10)) = TB_ITEM.OLD_ITEM_ID COLLATE Latin1_General_CI_AS
+INNER JOIN TB_REVIEW ON TB_REVIEW.OLD_REVIEW_ID = eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING.REVIEW_ID COLLATE Latin1_General_CI_AS
+	AND eppi_web.dbo.tb_REFERENCE_ITEM_FOR_SCREENING.REVIEW_ID = 'REV373'
+	-- REV373 is the DCMS review
+	
+declare @ITEM_ID BIGINT
+declare	@ATTRIBUTE_ID BIGINT
+declare	@SET_ID INT
+declare	@CONTACT_ID INT
+DECLARE @REVIEW_ID INT
+Declare textCursor2 CURSOR READ_ONLY FOR
+SELECT DISTINCT TB_ITEM.ITEM_ID, SET_ID, TB_CONTACT.CONTACT_ID, ATTRIBUTE_ID, TB_REVIEW.REVIEW_ID
+FROM EPPI_WEB.DBO.tb_REFERENCE_ITEM_ELEMENTS
+INNER JOIN REVIEWER.DBO.TB_ITEM ON
+	REVIEWER.DBO.TB_ITEM.OLD_ITEM_ID = 'SCR' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ITEM_ELEMENTS.ITEM_ID AS NVARCHAR(10)) COLLATE Latin1_General_CI_AS
+INNER JOIN EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS ON
+	EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_ID = EPPI_WEB.DBO.tb_REFERENCE_ITEM_ELEMENTS.ELEMENT_ID
+INNER JOIN REVIEWER.DBO.TB_SET ON
+	REVIEWER.DBO.TB_SET.OLD_GUIDELINE_ID = 'EX' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_GROUP_ID AS NVARCHAR(8)) COLLATE Latin1_General_CI_AS
+	AND EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_ID = EPPI_WEB.DBO.tb_REFERENCE_ITEM_ELEMENTS.ELEMENT_ID
+INNER JOIN REVIEWER.DBO.TB_CONTACT ON
+	REVIEWER.DBO.TB_CONTACT.OLD_CONTACT_ID = EPPI_WEB.DBO.tb_REFERENCE_ITEM_ELEMENTS.CONTACT_ID COLLATE Latin1_General_CI_AS
+INNER JOIN TB_ATTRIBUTE ON
+	TB_ATTRIBUTE.OLD_ATTRIBUTE_ID = 'EX' + CAST(EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_ID AS NVARCHAR(8)) COLLATE Latin1_General_CI_AS
+INNER JOIN eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS ON
+	eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS.ELEMENT_GROUP_ID = EPPI_WEB.DBO.tb_REFERENCE_ELEMENTS.ELEMENT_GROUP_ID
+INNER JOIN TB_REVIEW ON
+	TB_REVIEW.OLD_REVIEW_ID = eppi_web.dbo.tb_REFERENCE_ELEMENT_GROUPS.REVIEW_ID  COLLATE Latin1_General_CI_AS
+Open textCursor2
+Fetch next from textCursor2 into  @ITEM_ID, @SET_ID, @CONTACT_ID, @ATTRIBUTE_ID, @REVIEW_ID
+While @@FETCH_STATUS = 0
+Begin
+          exec DBO.st_ItemAttributeInsertSimple @ITEM_ID, @SET_ID, @CONTACT_ID, @ATTRIBUTE_ID, '', @REVIEW_ID
+			Fetch next from textCursor2 into @ITEM_ID, @SET_ID, @CONTACT_ID, @ATTRIBUTE_ID, @REVIEW_ID
+End
+Close textCursor2
+Deallocate textCursor2
+
+
+-- ************************************ cleaning data **********************************************
+
+update tb_set 
+set set_name = rtrim(set_name)
+
+update TB_ITEM_ATTRIBUTE
+set ADDITIONAL_TEXT = dbo.fn_CLEAN_SIMPLE_TEXT(ADDITIONAL_TEXT)
+
+update TB_ITEM
+set TITLE = dbo.fn_CLEAN_SIMPLE_TEXT(title)
+
+update TB_ITEM
+set ABSTRACT = dbo.fn_CLEAN_SIMPLE_TEXT(abstract)
+
+update TB_ITEM
+set publisher = dbo.fn_CLEAN_SIMPLE_TEXT(publisher)
+
+-- **************************************************************************************************
+
+
+INSERT INTO TB_CONTACT(CONTACT_NAME, USERNAME, PASSWORD)
+VALUES('Guest meta-analyst', 'meta', 'analysis')
+
+-- this is a quick workaround: we need tb_source and tb_item_source to have at least one line from the start
+INSERT INTO TB_SOURCE(SOURCE_NAME, REVIEW_ID) VALUES ('PlaceHolder', 1)
+INSERT INTO TB_ITEM_SOURCE(ITEM_ID, SOURCE_ID) VALUES (1, 1)
+
+INSERT INTO TB_REVIEW_CONTACT(CONTACT_ID, REVIEW_ID)
+SELECT DISTINCT CONTACT_ID, 281 FROM TB_CONTACT
+WHERE old_contact_id = 'JAMES'
+
+-- ************************* Insert Import Filter Rules ************************** --
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER] ON
+INSERT [dbo].[TB_IMPORT_FILTER] ([IMPORT_FILTER_ID], [IMPORT_FILTER_NAME], [IMPORT_FILTER_NOTES], [STARTOFNEWREC], [TYPEFIELD], [STARTOFNEWFIELD], [TITLE], [PTITLE], [SHORTTITLE], [DATE], [MONTH], [AUTHOR], [PARENTAUTHOR], [STANDARDN], [CITY], [PUBLISHER], [INSTITUTION], [VOLUME], [ISSUE], [EDITION], [STARTPAGE], [ENDPAGE], [PAGES], [AVAILABILITY], [URL], [ABSTRACT], [OLD_ITEM_ID], [NOTES], [DEFAULTTYPECODE]) VALUES (3, N'RIS', NULL, N'TY  -', N'TY  -', N'[A-Z][0-Z]  -', N'(T1|TI|CT)  -', N'(JA|JF|T2|BT|T3)  -', N'(T1|TI|CT)  -', N'[YP][1Y]  -', N'Y2  -', N'A[U1]  -', N'(A2|ED)  -', N'SN  -', N'CY  -', N'PB  -', N'\\M\\w', N'VL  -', N'(IS|CP)  -', N'\\M\\w', N'SP  -', N'EP  -', N'\\M\\w', N'AV  -', N'(UR|L1|L2)  -', N'(N2|AB)  -', N'U1  -', N'N1  -', 0)
+INSERT [dbo].[TB_IMPORT_FILTER] ([IMPORT_FILTER_ID], [IMPORT_FILTER_NAME], [IMPORT_FILTER_NOTES], [STARTOFNEWREC], [TYPEFIELD], [STARTOFNEWFIELD], [TITLE], [PTITLE], [SHORTTITLE], [DATE], [MONTH], [AUTHOR], [PARENTAUTHOR], [STANDARDN], [CITY], [PUBLISHER], [INSTITUTION], [VOLUME], [ISSUE], [EDITION], [STARTPAGE], [ENDPAGE], [PAGES], [AVAILABILITY], [URL], [ABSTRACT], [OLD_ITEM_ID], [NOTES], [DEFAULTTYPECODE]) VALUES (4, N'PubMed', NULL, N'PMID-', N'PT  -', N'^[A-Za-z][A-Za-z][A-Za-z\s][A-Za-z\s]-', N'(T1|TI|CT)  -', N'JT  -', N'(T1|TI|CT)  -', N'DP  -', N'\\M\\w', N'A[U1]  -', N'(A2|ED)  -', N'IS  -', N'PL  -', N'PB  -', N'CN  -', N'VI  -', N'IP  -', N'\\M\\w', N'SP  -', N'EP  -', N'PG  -', N'AV  -', N'(UR|L1|L2)  -', N'(N2|AB)  -', N'\\M\\w', N'GN  -', 0)
+INSERT [dbo].[TB_IMPORT_FILTER] ([IMPORT_FILTER_ID], [IMPORT_FILTER_NAME], [IMPORT_FILTER_NOTES], [STARTOFNEWREC], [TYPEFIELD], [STARTOFNEWFIELD], [TITLE], [PTITLE], [SHORTTITLE], [DATE], [MONTH], [AUTHOR], [PARENTAUTHOR], [STANDARDN], [CITY], [PUBLISHER], [INSTITUTION], [VOLUME], [ISSUE], [EDITION], [STARTPAGE], [ENDPAGE], [PAGES], [AVAILABILITY], [URL], [ABSTRACT], [OLD_ITEM_ID], [NOTES], [DEFAULTTYPECODE]) VALUES (5, N'RefWorks', NULL, N'^RT ', N'RT ', N'^[A-Z][0-Z] ', N'T1 ', N'(JF|T2) ', N'T1|ST ', N'YR ', N'FD ', N'A1 ', N'A[2-5] ', N'SN ', N'PP ', N'PB ', N'\\M\\w', N'VL ', N'IS ', N'ED ', N'SP ', N'OP ', N'\\M\\w', N'AV ', N'UL ', N'AB ', N'\\M\\w', N'NO ', 12)
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER] OFF
+
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ON
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (7, 3, N'Edition', N'VL  -', 2)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (8, 3, N'Volume', NULL, 2)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (9, 3, N'Edition', N'VL  -', 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (10, 3, N'Volume', NULL, 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (11, 3, N'Institution', N'PB  -', 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (12, 3, N'Publisher', NULL, 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (13, 4, N'Edition', N'VL  -', 2)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (14, 4, N'Volume', NULL, 2)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (15, 4, N'Edition', N'VL  -', 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (16, 4, N'Volume', NULL, 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (17, 4, N'Institution', N'PB  -', 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (18, 4, N'Publisher', NULL, 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (19, 5, N'Institution', N'PB ', 4)
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] ([TB_IMPORT_FILTER_TYPE_RULE_ID], [IMPORT_FILTER_ID], [RULE_NAME], [RULE_REGEX], [TYPE_CODE]) VALUES (20, 5, N'Publisher', NULL, 4)
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER_TYPE_RULE] OFF
+
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ON
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (21, 3, 0, N'JOUR|JFULL')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (22, 3, 1, N'RPRT|PAMP|PCOMM|UNPB')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (23, 3, 2, N'BOOK')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (24, 3, 3, N'CHAP')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (25, 3, 4, N'THES')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (26, 3, 5, N'CONF')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (27, 3, 6, N'ELEC|ICOMM')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (28, 3, 8, N'ADVS|VIDEO|ART|MPCT|MUSIC|SOUND|SLIDE')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (29, 3, 10, N'MGZN|NEWS')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (30, 3, 12, N'ABST|BILL|CASE|COMP|CTLG|DATA|GEN|HEAR|INPR|MAP|PAT|STAT|UNBILl')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (31, 4, 0, N'Journal Article')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (32, 5, 0, N'Journal Article|Journal, Electronic|Abstract')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (33, 5, 1, N'Report|Unpublished Material|Personal Communication')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (34, 5, 2, N'Book, Edited|Book, Whole|Monograph')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (35, 5, 3, N'Book, Section')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (36, 5, 4, N'Dissertation|Thesis|Dissertation/Thesis|Dissertation/Thesis, Unpublished|Dissertation, Unpublished|Thesis, Unpublished')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (37, 5, 5, N'Conference Proceedings')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (38, 5, 6, N'Web Page')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (39, 5, 8, N'Artwork|Motion Picture|Music Score|Sound Recording|Video/DVD|Video|DVD')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (40, 5, 9, N'Grant')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (41, 5, 10, N'Magazine Article|Newspaper Article')
+INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] ([IMPORT_FILTER_TYPE_MAP_ID], [IMPORT_FILTER_ID], [TYPE_CODE], [TYPE_REGEX]) VALUES (42, 5, 12, N'Bills/Resolutions|Bills|Resolutions|Case/Court Decisions|Case Decisions|Court Decisions|Computer Program|Generic|Hearing|Laws|Laws/Statutes|Statutes|Map|Online Discussion Forum|Patent')
+SET IDENTITY_INSERT [dbo].[TB_IMPORT_FILTER_TYPE_MAP] OFF
+-- *********************** END OF Filter Rules ************************* --
+-- *********************** INSERT default server message *************** --
+INSERT INTO [ReviewerAdmin].[dbo].[TB_LATEST_SERVER_MESSAGE] ([MESSAGE]) VALUES ('Normal.')
+GO

@@ -1,0 +1,2079 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DevExpress.AgMenu.v10.1</name>
+    </assembly>
+    <members>
+        <member name="T:DevExpress.AgMenu.AgMenuItemContainerTemplateSelector">
+
+            <summary>
+                <para>Enables application of an item template, based on custom logic.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemContainerTemplateSelector.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuItemContainerTemplateSelector class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemContainerTemplateSelector.GetTemplate(DevExpress.AgMenu.AgMenuItemBase,System.Type,DevExpress.AgMenu.AgMenuTemplateList)">
+            <summary>
+                <para>When overridden in a derived class, returns a <see cref="T:System.Windows.Controls.ControlTemplate"/> based on custom logic, and applies it to the specified menu item.
+</para>
+            </summary>
+            <param name="item">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> object or descendant that represents the menu item to which the returned template will be applied.
+
+            </param>
+            <param name="itemType">
+		The menu item's type.
+
+            </param>
+            <param name="itemContainerTemplates">
+		An <see cref="T:DevExpress.AgMenu.AgMenuTemplateList"/> object that contains templates used to display menu items.
+
+            </param>
+            <returns>A <see cref="T:System.Windows.Controls.ControlTemplate"/> object representing the template used to display the specified menu item.
+</returns>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemPopupAnimateEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuItem.PopupAnimate"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemPopupAnimateEventHandler.Invoke(System.Object,DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuItem.PopupAnimate"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgMenu.AgMenuItem.PopupAnimate"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs.#ctor(System.Boolean)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuItemPopupAnimateEventArgs class.
+</para>
+            </summary>
+            <param name="isShowing">
+		<b>true</b> if a submenu should be shown; otherwise, <b>false</b>. This value is assigned to the <see cref="P:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs.IsShowing"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs.Handled">
+            <summary>
+                <para>Gets or sets whether an event was handled. If it was handled, default animation isn't required.
+</para>
+            </summary>
+            <value><b>true</b> if default animation isn't required; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemPopupAnimateEventArgs.IsShowing">
+            <summary>
+                <para>Gets whether a submenu is shown.
+
+</para>
+            </summary>
+            <value><b>true</b> if a submenu should be shown; <b>false</b> if a submenu should be hidden.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility">
+
+            <summary>
+                <para>For internal use.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility.None">
+            <summary>
+                <para>For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility.ReplaceIcon">
+            <summary>
+                <para>For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility.ShowCheckInSeparateArea">
+            <summary>
+                <para>For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility.ShowEmptyCheckArea">
+            <summary>
+                <para>For internal use.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuCheckAreaDisplayMode">
+
+            <summary>
+                <para>Lists values that specify when and where the check area is displayed within a menu.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuCheckAreaDisplayMode.AlwaysShowCheckArea">
+            <summary>
+                <para><para>The check are is always shown.</para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuCheckAreaDisplayMode.ReplaceIcon">
+            <summary>
+                <para><para>If a menu item is checked, the check area replaces the item's icon.</para>
+<para></para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuCheckAreaDisplayMode.ShowCheckAreaIfChecked">
+            <summary>
+                <para><para>The check area is displayed if at least one item in a menu is checked.</para>
+<para></para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgPopupMenu">
+
+            <summary>
+                <para>Represents a popup menu.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgPopupMenu class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.CloseAllSubMenus">
+            <summary>
+                <para>Hides the submenus currently being opened.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.CloseUp">
+            <summary>
+                <para>Hides the current popup menu.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.Container">
+            <summary>
+                <para>Gets or sets a container that displays the current popup menu on top of existing Silverlight content.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Controls.Primitives.Popup"/> object that displays the current popup menu on top of existing Silverlight content.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.GetOrientation">
+            <summary>
+                <para>Returns the orientation of the popup menu.
+</para>
+            </summary>
+            <returns>The <see cref="F:System.Windows.Controls.Orientation.Vertical"/> value.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.GetVisiblePopupMenu(System.Int32)">
+            <summary>
+                <para>Gets the specified pupup menu currently being displayed.
+</para>
+            </summary>
+            <param name="index">
+		An integer value that identifies the required menu.
+
+            </param>
+            <returns>An <see cref="T:DevExpress.AgMenu.AgPopupMenu"/> object that represents the specified popup menu.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.IsPopupMenu">
+            <summary>
+                <para>Gets whether the current menu is the popup menu.
+</para>
+            </summary>
+            <value>Always <b>true</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.MenuPopup">
+            <summary>
+                <para>This member supports the internal infrastructure and isn't intended to be used directly from your code.
+</para>
+            </summary>
+            <value>@nbsp;
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.ParentMenu">
+            <summary>
+                <para>Gets a menu which owns the current menu.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuBase"/> descendant that represents the menu which owns the current menu. <b>null</b> (<b>Nothing</b> in Visual Basic) if the current menu is the root menu.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.Popup">
+            <summary>
+                <para>Displays the popup menu.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.Popup(System.Windows.UIElement,System.Windows.Point)">
+            <summary>
+                <para>Displays the popup menu at the specified position.
+</para>
+            </summary>
+            <param name="popupElement">
+		The menu owner.
+
+            </param>
+            <param name="position">
+		A <see cref="T:System.Windows.Point"/> structure that specifies the screen point at which the popup menu is shown.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgPopupMenu.Popup(System.Windows.UIElement,System.Windows.Rect)">
+            <summary>
+                <para>Displays the popup menu relative to the popup element.
+</para>
+            </summary>
+            <param name="popupElement">
+		The owner element.
+
+            </param>
+            <param name="popupElementRect">
+		A <see cref="T:System.Windows.Rect"/> structure that specifies the popup element's boundaries.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.PopupAlign">
+            <summary>
+                <para>Gets or sets the alignment of the menu relative to its popup element.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Controls.Orientation"/> enumeration value that specifies the alignment of the menu relative to its popup element.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.PopupElement">
+            <summary>
+                <para>Gets or sets an element associated with the current menu.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.UIElement"/> descendant associated with the current menu.
+
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.PopupElementRect">
+            <summary>
+                <para>Gets or sets the bounding rectangle of the popup element associated with the current menu.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Rect"/> structure that represents the popup element's bounding rectangle.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.PopupOffset">
+            <summary>
+                <para>Gets or sets the offset from the popup element. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Thickness"/> structure that describes the thickness of a frame around a menu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgPopupMenu.PopupOffsetProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgPopupMenu.PopupOffset"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgPopupMenu.VisiblePopupMenuCount">
+            <summary>
+                <para>Gets the number of popup menus currently being shown.
+</para>
+            </summary>
+            <value>An integer value that specifies the number of popup menus currently being displayed.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuTemplateListItem">
+
+            <summary>
+                <para>Represents a template container.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuTemplateListItem.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuTemplateListItem class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuTemplateListItem.Key">
+            <summary>
+                <para>Indicates which menu items are represented by the current AgMenuTemplateListItem object.
+</para>
+            </summary>
+            <value>An object that identifies menu items represented by the current AgMenuTemplateListItem object.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuTemplateListItem.Template">
+            <summary>
+                <para>Gets or sets a template used to display a menu and its items.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Controls.ControlTemplate"/> object that represents the template used to display a menu and its items.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuTemplateList">
+
+            <summary>
+                <para>Represents a collection of <see cref="T:DevExpress.AgMenu.AgMenuTemplateListItem"/> objects.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuTemplateList.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuTemplateList class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuSubMenuStyleSelector">
+
+            <summary>
+                <para>Enables application of a submenu style, based on custom logic.
+
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuSubMenuStyleSelector.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuSubMenuStyleSelector class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuSubMenuStyleSelector.SelectStyle(DevExpress.AgMenu.AgPopupMenu)">
+            <summary>
+                <para>When overridden in a derived class, returns a <see cref="T:System.Windows.Style"/> based on custom logic.
+</para>
+            </summary>
+            <param name="subMenu">
+		An <see cref="T:DevExpress.AgMenu.AgPopupMenu"/> object that represents the submenu.
+
+            </param>
+            <returns>A <see cref="T:System.Windows.Style"/> object that represents the style used to render the specified submenu.
+</returns>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuSubItemDataTemplate">
+
+            <summary>
+                <para>Describes the visual structure of subitems.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuSubItemDataTemplate.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuSubItemDataTemplate class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuSubItemDataTemplate.HeaderTemplate">
+            <summary>
+                <para>Gets or sets a template for displaying the headers of subitems.
+
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.DataTemplate"/> object that describes the structure of item headers.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuSubItemDataTemplate.ItemsSource">
+            <summary>
+                <para>Gets or sets a collection used to generate nested items for  the current template's corresponding subitem .
+
+</para>
+            </summary>
+            <value>The collection used to generate nested items for the current subitem.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuSubItemDataTemplate.ItemTemplate">
+            <summary>
+                <para>Gets or sets a template that displays child items.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.DataTemplate"/> object that describes the structure of child items.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuSeparator">
+
+            <summary>
+                <para>Represents the separator item.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuSeparator.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuSeparator class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuPopupEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupOpened"/> and <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupClosed"/> events.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuPopupEventHandler.Invoke(System.Object,DevExpress.AgMenu.AgMenuPopupEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupOpened"/> and <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupClosed"/> events.
+</para>
+            </summary>
+            <param name="sender">
+		The event source.
+
+            </param>
+            <param name="e">
+		An <see cref="T:DevExpress.AgMenu.AgMenuPopupEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuPopupEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupOpened"/> and <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupClosed"/> events.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuPopupEventArgs.#ctor(DevExpress.AgMenu.AgMenuItemBase)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuPopupEventArgs class.
+</para>
+            </summary>
+            <param name="popupOwnerItem">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the item which owns the submenu currently being opened or closed. This value is assigned to the <see cref="P:DevExpress.AgMenu.AgMenuPopupEventArgs.PopupOwnerItem"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuPopupEventArgs.PopupOwnerItem">
+            <summary>
+                <para>Gets a menu item which owns the submenu currently being opened or closed.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the item which owns the submenu currently being opened or closed. <b>null</b> (<b>Nothing</b> in Visual Basic) if a popup menu has been opened or closed.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuPopupAnimateEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupAnimate"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuPopupAnimateEventHandler.Invoke(System.Object,DevExpress.AgMenu.AgMenuPopupAnimateEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupAnimate"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event sender.
+
+            </param>
+            <param name="e">
+		An <see cref="T:DevExpress.AgMenu.AgMenuPopupAnimateEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuPopupAnimateEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgMenu.AgMenuBase.PopupAnimate"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuPopupAnimateEventArgs.#ctor(DevExpress.AgMenu.AgMenuItemBase,System.Boolean)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuPopupAnimateEventArgs class with the specified settings.
+</para>
+            </summary>
+            <param name="popupOwnerItem">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the parent item whose submenu should be animated. <b>null</b> (<b>Nothing</b> in Visual Basic) if the root menu should be animated.
+
+            </param>
+            <param name="isShowing">
+		<b>true</b> if a menu should be shown; <b>false</b> if a menu should be hidden.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuPopupAnimateEventArgs.Handled">
+            <summary>
+                <para>Gets or sets whether an event was handled. If it was handled, default animation isn't required.
+</para>
+            </summary>
+            <value><b>true</b> if default animation isn't required; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuPopupAnimateEventArgs.IsShowing">
+            <summary>
+                <para>Gets whether a menu is shown.
+
+</para>
+            </summary>
+            <value><b>true</b> if a menu should be shown; <b>false</b> if a menu should be hidden.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuLoader">
+
+            <summary>
+                <para>Enables creation of a menu from a file, in XML format.
+
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuLoader.#ctor(System.IO.Stream)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuLoader class with the specified stream, from which a menu is created.
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object that contains XML data, from which a menu is created.
+
+            </param>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuLoader.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuLoader class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuLoader.LoadXML(System.IO.Stream)">
+            <summary>
+                <para>Creates a menu from the specified stream.
+
+</para>
+            </summary>
+            <param name="stream">
+		A <see cref="T:System.IO.Stream"/> object that contains XML data from which a menu is created.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuLoader.Source">
+            <summary>
+                <para>Gets or sets the name of the application's resource from which a menu is created.
+</para>
+            </summary>
+            <value>A <see cref="T:System.String"/> value that specifies the name of the application's resource.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemBeforePopupEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuItem.BeforePopup"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemBeforePopupEventHandler.Invoke(System.Object,DevExpress.AgMenu.AgMenuItemBeforePopupEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuItem.BeforePopup"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event source.
+
+            </param>
+            <param name="e">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBeforePopupEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemBeforePopupEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgMenu.AgMenuItem.BeforePopup"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemBeforePopupEventArgs.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuItemBeforePopupEventArgs class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBeforePopupEventArgs.Cancel">
+            <summary>
+                <para>Gets or sets whether the current action should be canceled.
+</para>
+            </summary>
+            <value><b>true</b> to prevent a submenu from being shown; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemBase">
+
+            <summary>
+                <para>Represents the base class for classes that represent menu items.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemBase.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuItemBase class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemBase.CanFocus">
+            <summary>
+                <para>Indicates whether the current item can be focused.
+</para>
+            </summary>
+            <returns>Always <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Header">
+            <summary>
+                <para>Gets or sets the menu item's header. This is a dependency property.
+</para>
+            </summary>
+            <value>An object that represents the item's header.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.HeaderProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.Header"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.HeaderTemplate">
+            <summary>
+                <para>Gets or sets a template used to display the content of the item's header. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.DataTemplate"/> object that contains a template used to display the item header's content.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.HeaderTemplateProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.HeaderTemplate"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Icon">
+            <summary>
+                <para>Gets or sets the item's icon. This is a dependency property.
+</para>
+            </summary>
+            <value>An object that represents the icon displayed within the menu item.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.IconProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.Icon"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.IsDroppedDown">
+            <summary>
+                <para>Gets whether the current item's submenu is shown.
+</para>
+            </summary>
+            <value>Always <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.IsSubItem">
+            <summary>
+                <para>Gets whether the current menu item has child items.
+</para>
+            </summary>
+            <value>Always <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Item">
+            <summary>
+                <para>Gets an object that represents the current menu item.
+</para>
+            </summary>
+            <value>An object that represents the current menu item.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Items">
+            <summary>
+                <para>Gets a collection of items owned by the current item.
+</para>
+            </summary>
+            <value>The collection of submenu items.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.ItemsSource">
+            <summary>
+                <para>Gets or sets a collection used to generate nested items for the current item.
+</para>
+            </summary>
+            <value>The collection used to generate nested items for the current item.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Menu">
+            <summary>
+                <para>Gets a menu which owns the current item.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuBase"/> descendant that represents the menu which owns the current item.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.MenuOrientation">
+            <summary>
+                <para>Gets a value that specifies the orientation of the menu which owns the current item. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Controls.Orientation"/> value that specifies the orientation of the menu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.MenuOrientationProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.MenuOrientation"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItemBase.OnApplyTemplate">
+            <summary>
+                <para>Called after the template is completely generated and attached to the visual tree.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.ParentItem">
+            <summary>
+                <para>Gets the parent menu item.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the parent menu item. <b>null</b> (<b>Nothing</b> in Visual Basic) if the current item is the root menu item.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.Position">
+            <summary>
+                <para>Gets the current item's position among other items in a menu. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemPosition"/> enumeration value that specifies the item's position in a menu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.PositionProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.Position"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.State">
+            <summary>
+                <para>Gets the menu item's current state.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemState"/> enumeration value that specifies the menu item's current state.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.SubMenu">
+            <summary>
+                <para>Gets a submenu currently being opened, which is owned by the current item.
+</para>
+            </summary>
+            <value>Always <b>null</b> (<b>Nothing</b> in Visual Basic).
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItemBase.ViewStyle">
+            <summary>
+                <para>Gets the item's view style. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemViewStyle"/> enumeration value that specifies the item's view style.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemBase.ViewStyleProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItemBase.ViewStyle"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItem">
+
+            <summary>
+                <para>Represents a menu item within menu controls.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItem.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuItem class with default settings.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.BeforePopup">
+            <summary>
+                <para>Occurs when the item's sub menu is about to be displayed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItem.CanFocus">
+            <summary>
+                <para>Indicates whether the current item can be focused.
+</para>
+            </summary>
+            <returns><b>true</b> if the menu item can be focused; otherwise, <b>false</b>.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.CheckAreaVisibility">
+            <summary>
+                <para>Gets a value that specifies where and when the check area is displayed within a menu. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemCheckAreaVisibility"/> enumeration value that specifies where and when the check area is displayed within a menu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.CheckAreaVisibilityProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.CheckAreaVisibility"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.Checked">
+            <summary>
+                <para>Occurs after the current menu item has been checked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.Click">
+            <summary>
+                <para>Occurs when the current menu item is clicked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.ClosePopupOnClick">
+            <summary>
+                <para>Gets or sets whether all submenus are closed after the current menu item has been clicked. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> to close all submenus after the item has been clicked; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.ClosePopupOnClickProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.ClosePopupOnClick"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.Group">
+            <summary>
+                <para>Gets or sets a value that identifies a radio group to which the current item belongs. This is a dependency property.
+</para>
+            </summary>
+            <value>An object that identifies the radio group to which the current item belongs.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.GroupProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.Group"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.IsCheckable">
+            <summary>
+                <para>Gets or sets whether the current item represents a check item. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> to enable item checking; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.IsCheckableProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.IsCheckable"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.IsChecked">
+            <summary>
+                <para>Gets or sets whether the current item is checked. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> to check the item; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.IsCheckedProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.IsChecked"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.IsDroppedDown">
+            <summary>
+                <para>Gets or sets whether the current item's submenu is shown.
+</para>
+            </summary>
+            <value><b>true</b> to show the item's submenu; otherwise, <b>false</b>.
+
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.IsRadioItem">
+            <summary>
+                <para>Gets or sets whether a menu item functions like a radio button. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> if the check item represents a radio button; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.IsRadioItemProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.IsRadioItem"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.IsSubItem">
+            <summary>
+                <para>Gets whether the current menu item has child items.
+
+</para>
+            </summary>
+            <value><b>true</b> if the current item is a subitem; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.Items">
+            <summary>
+                <para>Gets a collection of items owned by the current item.
+</para>
+            </summary>
+            <value>The collection of submenu items.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.ItemsSource">
+            <summary>
+                <para>Gets or sets a collection used to generate nested items for the current item.
+</para>
+            </summary>
+            <value>The collection used to generate nested items for the current item.
+</value>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuItem.OnApplyTemplate">
+            <summary>
+                <para>Called after the template is completely generated and attached to the visual tree.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.PopupAnimate">
+            <summary>
+                <para>Enables you to provide a custom animation effect when a submenu is being shown or hidden.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.State">
+            <summary>
+                <para>Gets the menu item's current state.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemState"/> enumeration value that specifies the menu item's current state.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.SubMenu">
+            <summary>
+                <para>Gets a submenu currently being opened, which is owned by the current item.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgPopupMenu"/> object that represents the submenu which is owned by the current item.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.SubMenuClosed">
+            <summary>
+                <para>Occurs after the item's submenu has been closed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.SubMenuOpened">
+            <summary>
+                <para>Occurs after the item's submenu has been opened.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.SubMenuStyle">
+            <summary>
+                <para>Gets or sets the style used to render the item's submenu. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Style"/> object that represents the style used to render the item's submenu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.SubMenuStyleProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.SubMenuStyle"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuItem.SubMenuStyleSelector">
+            <summary>
+                <para>Gets or sets an object that applies a submenu style based on custom logic. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuSubMenuStyleSelector"/> descendant that applies a submenu style based on custom logic.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItem.SubMenuStyleSelectorProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuItem.SubMenuStyleSelector"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuItem.Unchecked">
+            <summary>
+                <para>Occurs after the current menu item has been unchecked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuEventEventArgs">
+
+            <summary>
+                <para>Provides data for events that concern manipulations on menu items.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuEventEventArgs.#ctor(DevExpress.AgMenu.AgMenuItemBase)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuEventEventArgs class.
+</para>
+            </summary>
+            <param name="item">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the menu item currently being processed. This value is assigned to the <see cref="P:DevExpress.AgMenu.AgMenuEventEventArgs.Item"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuEventEventArgs.Item">
+            <summary>
+                <para>Gets the processed menu item.
+</para>
+            </summary>
+            <value>A <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the menu item currently being processed.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuBeforePopupEventHandler">
+
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.BeforePopup"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBeforePopupEventHandler.Invoke(System.Object,DevExpress.AgMenu.AgMenuBeforePopupEventArgs)">
+            <summary>
+                <para>Represents a method that will handle the <see cref="E:DevExpress.AgMenu.AgMenuBase.BeforePopup"/> event.
+</para>
+            </summary>
+            <param name="sender">
+		The event source.
+
+            </param>
+            <param name="e">
+		A <see cref="T:DevExpress.AgMenu.AgMenuBeforePopupEventArgs"/> object that contains event data.
+
+            </param>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuBeforePopupEventArgs">
+
+            <summary>
+                <para>Provides data for the <see cref="E:DevExpress.AgMenu.AgMenuBase.BeforePopup"/> event.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBeforePopupEventArgs.#ctor(DevExpress.AgMenu.AgMenuItemBase)">
+            <summary>
+                <para>Initializes a new instance of the AgMenuBeforePopupEventArgs class.
+</para>
+            </summary>
+            <param name="popupOwnerItem">
+		An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that owns a popup menu which is about to be displayed. This value is assigned to the <see cref="P:DevExpress.AgMenu.AgMenuPopupEventArgs.PopupOwnerItem"/> property.
+
+            </param>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBeforePopupEventArgs.Cancel">
+            <summary>
+                <para>Gets or sets whether the current action should be canceled.
+</para>
+            </summary>
+            <value><b>true</b> to prevent a submenu from being shown; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuBase">
+
+            <summary>
+                <para>Represents the base class for menu controls (<see cref="T:DevExpress.AgMenu.AgMenu"/> and <see cref="T:DevExpress.AgMenu.AgPopupMenu"/>).
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenuBase class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.AllowSelectItems">
+            <summary>
+                <para>Gets or sets whether menu items can be selected. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> to allow menu items to be selected; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.AllowSelectItemsProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.AllowSelectItems"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.BeforePopup">
+            <summary>
+                <para>Occurs when a popup or submenu is about to be displayed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.CheckAreaDisplayMode">
+            <summary>
+                <para>Gets or sets a value that specifies where and when the check area is displayed within a menu. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuCheckAreaDisplayMode"/> enumeration value that specifies the check area display mode.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.CheckAreaDisplayModeProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.CheckAreaDisplayMode"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.CloseAllSubMenus">
+            <summary>
+                <para>Hides all submenus currently being opened.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.CloseSubMenus">
+            <summary>
+                <para>Hides nested submenus owned by the current menu.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.DefaultPopupDelay">
+            <summary>
+                <para>The default time interval between the time an end-user highlights a sub item via mouse, and a sub menu is shown. To change the popup delay, use the <see cref="P:DevExpress.AgMenu.AgMenuBase.PopupDelay"/> property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.GetDroppedDownItem">
+            <summary>
+                <para>Returns a menu item which owns the submenu currently being opened.
+
+</para>
+            </summary>
+            <returns>An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the subitem displayed within the current menu, and which owns the submenu currently being opened. <b>null</b> (<b>Nothing</b> in Visual Basic) if there is no submenu currently being opened.
+</returns>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.GetOrientation">
+            <summary>
+                <para>Returns the orientation of the menu.
+</para>
+            </summary>
+            <returns>A <see cref="T:System.Windows.Controls.Orientation"/> value that specifies the orientation of the menu.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.HighlightedItem">
+            <summary>
+                <para>Gets the highlighted menu item.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the menu item located under the mouse pointer. <b>null</b> (<b>Nothing</b> in Visual Basic) if no item is highlighted.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.IconAreaBounds">
+            <summary>
+                <para>Gets the icon area bounds. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Rect"/> structure that describes the width, height, and location of an icon area.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.IconAreaBoundsProperty">
+            <summary>
+                <para>Identifies the  dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.IsPopupMenu">
+            <summary>
+                <para>Gets whether the menu is a popup or submenu.
+</para>
+            </summary>
+            <value><b>true</b> if the menu is a popup or submenu; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.IsRootMenu">
+            <summary>
+                <para>Gets whether the current menu is the root menu.
+</para>
+            </summary>
+            <value><b>true</b> if the current menu is at the top level in a menu hierarchy; <b>false</b> if the current menu is a submenu.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.Item(System.Int32)">
+            <summary>
+                <para>Provides indexed access to the collection of root items.
+</para>
+            </summary>
+            <param name="i">
+		An integer value that specifies the item's position within the collection.
+
+            </param>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the root item at the specified index.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.ItemChecked">
+            <summary>
+                <para>Occurs after a menu item has been checked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.ItemClick">
+            <summary>
+                <para>Occurs when a menu item is clicked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplates">
+            <summary>
+                <para>Provides access to the templates that specify the appearance of menu items. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuTemplateList"/> object that contains templates.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplateSelector">
+            <summary>
+                <para>Gets or sets an object that applies menu item templates based on custom logic. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemContainerTemplateSelector"/> object that applies menu item templates based on custom logic.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplateSelectorProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplateSelector"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplatesProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplates"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.ItemUnchecked">
+            <summary>
+                <para>Occurs after a menu item has been unchecked.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenuBase.OnApplyTemplate">
+            <summary>
+                <para>Called after the template is completely generated and attached to the visual tree.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.OpenSubMenuOnClick">
+            <summary>
+                <para>Gets or sets whether submenus are opened by clicking the corresponding subitem.
+</para>
+            </summary>
+            <value><b>true</b> to open a submenu by clicking the corresponding subitem; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.ParentMenu">
+            <summary>
+                <para>Gets a menu which owns the current menu.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuBase"/> descendant that represents the parent menu. <b>null</b> (<b>Nothing</b> in Visual Basic) if the current menu is the root menu.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.PopupAnimate">
+            <summary>
+                <para>Enables you to provide a custom animation effect when a menu (popup or submenu) is being shown or hidden.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.PopupAnimationType">
+            <summary>
+                <para>Gets or sets the type of animation used for submenus. 
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgPopupAnimationType"/> enumeration value that specifies the animation type.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.PopupClosed">
+            <summary>
+                <para>Occurs when a submenu or popup menu is closed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.PopupDelay">
+            <summary>
+                <para>Gets or sets the time interval between the time an end-user highlights a sub item via mouse, and a sub menu is shown.
+
+</para>
+            </summary>
+            <value>A <see cref="T:System.TimeSpan"/> structure that represents a time interval.
+</value>
+
+
+        </member>
+        <member name="E:DevExpress.AgMenu.AgMenuBase.PopupOpened">
+            <summary>
+                <para>Occurs after a submenu or popup menu has been opened.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.RootMenu">
+            <summary>
+                <para>Gets the top level menu in a menu hierarchy.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuBase"/> descendant that represents the root menu.
+</value>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.ScrollButtonClickMode">
+            <summary>
+                <para>Gets or sets a value that specifies the action used to scroll items in a submenu. This is a dependency property.
+
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuScrollButtonClickMode"/> enumeration value that specifies the action used to scroll subitems.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.ScrollButtonClickModeProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.ScrollButtonClickMode"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.SelectedItem">
+            <summary>
+                <para>Gets or sets a menu item currently being selected. This is a dependency property.
+
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuItemBase"/> descendant that represents the selected menu item. <b>null</b> (<b>Nothing</b> in Visual Basic) if item selection is disabled.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.SelectedItemProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.SelectedItem"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.SubMenuStyle">
+            <summary>
+                <para>Gets or sets the style used to render submenus. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Style"/> object that represents the style used to render submenus.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.SubMenuStyleProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.SubMenuStyle"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.SubMenuStyleSelector">
+            <summary>
+                <para>Gets or sets an object that applies a submenu style based on custom logic. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuSubMenuStyleSelector"/> descendant that applies a submenu style based on custom logic.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.SubMenuStyleSelectorProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.SubMenuStyleSelector"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.Templates">
+            <summary>
+                <para>Provides access to the templates that specify the menu's appearance. This is a dependency property.
+</para>
+            </summary>
+            <value>An <see cref="T:DevExpress.AgMenu.AgMenuTemplateList"/> object that contains templates.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.TemplatesProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.Templates"/> dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenuBase.UseItemContainerTemplatesForSubMenu">
+            <summary>
+                <para>Gets or sets whether templates contained within the <see cref="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplates"/> collection are used to display sub menus. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> if templates contained within <see cref="P:DevExpress.AgMenu.AgMenuBase.ItemContainerTemplates"/> can be used to display sub menu items; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuBase.UseItemContainerTemplatesForSubMenuProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenuBase.UseItemContainerTemplatesForSubMenu"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenu">
+
+            <summary>
+                <para>Represents a menu control.
+</para>
+            </summary>
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenu.#ctor">
+            <summary>
+                <para>Initializes a new instance of the AgMenu class.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="M:DevExpress.AgMenu.AgMenu.GetOrientation">
+            <summary>
+                <para>Returns the orientation of the menu.
+</para>
+            </summary>
+            <returns>A <see cref="T:System.Windows.Controls.Orientation"/> value that specifies the orientation of the menu.
+</returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenu.IsMultiline">
+            <summary>
+                <para>Gets or sets whether menu items are arranged into several lines when their total width exceeds the menu's width. This is a dependency property.
+</para>
+            </summary>
+            <value><b>true</b> to arranged menu items into multiple lines when the menu's width is too small to accommodate them all; otherwise, <b>false</b>.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenu.IsMultilineProperty">
+            <summary>
+                <para>Identifies the  dependency property.
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="P:DevExpress.AgMenu.AgMenu.Orientation">
+            <summary>
+                <para>Gets or sets the orientation of the menu. This is a dependency property.
+</para>
+            </summary>
+            <value>A <see cref="T:System.Windows.Controls.Orientation"/> value that specifies the orientation of the menu.
+</value>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenu.OrientationProperty">
+            <summary>
+                <para>Identifies the <see cref="P:DevExpress.AgMenu.AgMenu.Orientation"/> dependency property. 
+</para>
+            </summary>
+            <returns> [To be supplied] </returns>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgPopupAnimationType">
+
+            <summary>
+                <para>Lists values that specify the type of animation used for submenus.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgPopupAnimationType.Fade">
+            <summary>
+                <para>A menu is faded in.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgPopupAnimationType.None">
+            <summary>
+                <para>A menu is shown immediately without any visual effects.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgPopupAnimationType.Scroll">
+            <summary>
+                <para><para>A menu scrolls, from top to bottom assuming that its parent menu is oriented horizontally. If the screen does not provide enough room, a menu scrolls from bottom to top.</para>
+
+<para>If the parent menu is oriented vertically, a submenu scrolls to the right. If the screen does not provide enough room, a menu scrolls to the left.</para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgPopupAnimationType.Slide">
+            <summary>
+                <para><para>A menu slides down, from top to bottom assuming that its parent menu is oriented horizontally. If the screen does not provide enough room, a menu slides up from bottom to top.</para>
+
+<para>If the parent menu is oriented vertically, a submenu slides right. If the screen does not provide enough room, a menu slides left.</para>
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuScrollButtonClickMode">
+
+            <summary>
+                <para>Lists values that specify the action used to scroll items in a submenu.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuScrollButtonClickMode.Click">
+            <summary>
+                <para>An end-user should click a scroll button to scroll menu items.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuScrollButtonClickMode.Hover">
+            <summary>
+                <para>An end-user should hover the mouse pointer over a scroll button to scroll menu items.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemViewStyle">
+
+            <summary>
+                <para>Lists values that specify a menu item's view style.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemViewStyle.MenuItem">
+            <summary>
+                <para>An item represents a button item in a Menu.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemViewStyle.MenuSubItem">
+            <summary>
+                <para>An item represents a subitem in a Menu.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemViewStyle.PopupMenuItem">
+            <summary>
+                <para>An item represents a button item in a Popup Menu (or submenu).
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemViewStyle.PopupMenuSubItem">
+            <summary>
+                <para>An item represents a subitem in a Popup Menu (or submenu).
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemState">
+
+            <summary>
+                <para>Lists values that specify a menu item's state.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.Disabled">
+            <summary>
+                <para>A menu item is disabled and does not respond to end-user actions. To disable a menu item, set its <b>IsEnabled</b> property to <b>false</b>.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.DroppedDown">
+            <summary>
+                <para>A menu item is dropped down, its submenu is shown.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.Hot">
+            <summary>
+                <para>A menu item is highlighted when the mouse enters its boundaries.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.Normal">
+            <summary>
+                <para>A menu item is displayed in its normal state, no end-user action is being performed on it.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.Pressed">
+            <summary>
+                <para>A menu item is currently being pressed.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemState.Selected">
+            <summary>
+                <para>A menu item is currently being selected.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="T:DevExpress.AgMenu.AgMenuItemPosition">
+
+            <summary>
+                <para>Lists values that specify an item's position among other items in a menu.
+</para>
+            </summary>
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemPosition.First">
+            <summary>
+                <para>A menu item is the first item in a menu. If a menu is oriented horizontally, the menu item is the left most item among other items. If a menu is oriented vertically, the menu item is the top most item.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemPosition.Last">
+            <summary>
+                <para>A menu item is the last item in a menu. If a menu is oriented horizontally, the menu item is the right most item among other items. If a menu is oriented vertically, the menu item is displayed at the bottom.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemPosition.Middle">
+            <summary>
+                <para>A menu item isn't the first or the last menu item.
+</para>
+            </summary>
+
+
+        </member>
+        <member name="F:DevExpress.AgMenu.AgMenuItemPosition.Single">
+            <summary>
+                <para>A menu contains only one menu item.
+</para>
+            </summary>
+
+
+        </member>
+    </members>
+</doc>

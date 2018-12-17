@@ -1,0 +1,104 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7DFCEBB5-5C37-45A6-8277-8347FC838BD9}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\DeployR7.4.dll = Solution Items\DeployR7.4.dll
+		Solution Items\DeployRBroker7.4.dll = Solution Items\DeployRBroker7.4.dll
+		Solution Items\DevExpress.AgMenu.v10.1.dll = Solution Items\DevExpress.AgMenu.v10.1.dll
+		Solution Items\DevExpress.AgMenu.v10.1.xml = Solution Items\DevExpress.AgMenu.v10.1.xml
+		Solution Items\DevExpress.Data.v10.1.dll = Solution Items\DevExpress.Data.v10.1.dll
+		Solution Items\DevExpress.Data.v10.1.xml = Solution Items\DevExpress.Data.v10.1.xml
+		Solution Items\DevExpress.RichEdit.v10.1.Core.dll = Solution Items\DevExpress.RichEdit.v10.1.Core.dll
+		Solution Items\DevExpress.RichEdit.v10.1.Core.xml = Solution Items\DevExpress.RichEdit.v10.1.Core.xml
+		Solution Items\DevExpress.Xpf.Core.v10.1.dll = Solution Items\DevExpress.Xpf.Core.v10.1.dll
+		Solution Items\DevExpress.Xpf.Core.v10.1.xml = Solution Items\DevExpress.Xpf.Core.v10.1.xml
+		Solution Items\DevExpress.Xpf.RichEdit.v10.1.dll = Solution Items\DevExpress.Xpf.RichEdit.v10.1.dll
+		Solution Items\DevExpress.Xpf.RichEdit.v10.1.Extensions.dll = Solution Items\DevExpress.Xpf.RichEdit.v10.1.Extensions.dll
+		Solution Items\DevExpress.Xpf.RichEdit.v10.1.xml = Solution Items\DevExpress.Xpf.RichEdit.v10.1.xml
+		Solution Items\DevExpress.Xpf.SpellChecker.v10.1.Core.dll = Solution Items\DevExpress.Xpf.SpellChecker.v10.1.Core.dll
+		Solution Items\DevExpress.Xpf.SpellChecker.v10.1.Core.xml = Solution Items\DevExpress.Xpf.SpellChecker.v10.1.Core.xml
+		Solution Items\DevExpress.Xpf.SpellChecker.v10.1.dll = Solution Items\DevExpress.Xpf.SpellChecker.v10.1.dll
+		Solution Items\DevExpress.Xpf.SpellChecker.v10.1.xml = Solution Items\DevExpress.Xpf.SpellChecker.v10.1.xml
+		Solution Items\EPPIiFilter.dll = Solution Items\EPPIiFilter.dll
+		Solution Items\Graphs1.dll = Solution Items\Graphs1.dll
+		Solution Items\ICSharpCode.SharpZipLib.dll = Solution Items\ICSharpCode.SharpZipLib.dll
+		Solution Items\MindFusion.Diagramming.Silverlight.dll = Solution Items\MindFusion.Diagramming.Silverlight.dll
+		Solution Items\MindFusion.Graphs.Silverlight.dll = Solution Items\MindFusion.Graphs.Silverlight.dll
+		Solution Items\Newtonsoft.Json.dll = Solution Items\Newtonsoft.Json.dll
+		Solution Items\RefParsingLib.dll = Solution Items\RefParsingLib.dll
+		Solution Items\SharpZipLib.dll = Solution Items\SharpZipLib.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EppiReviewer4", "EppiReviewer4\EppiReviewer4.csproj", "{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CC3D9B09-6A73-4918-8167-15A391C84936} = {CC3D9B09-6A73-4918-8167-15A391C84936}
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146} = {C0B5D82A-01BC-4F41-8056-6F2D8FB80146}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfHostPortal", "WcfHostPortal\WcfHostPortal.csproj", "{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CC3D9B09-6A73-4918-8167-15A391C84936} = {CC3D9B09-6A73-4918-8167-15A391C84936}
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146} = {C0B5D82A-01BC-4F41-8056-6F2D8FB80146}
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF} = {A8B232FF-1177-4411-9BD8-7E546AC1C9AF}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{CC3D9B09-6A73-4918-8167-15A391C84936}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircularRelationshipGraph", "CircularRelationshipGraph\CircularRelationshipGraph.csproj", "{51CFA1CE-A376-4058-940C-70AE8400DD00}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Release|x64.ActiveCfg = Release|x64
+		{A8B232FF-1177-4411-9BD8-7E546AC1C9AF}.Release|x64.Build.0 = Release|x64
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Debug|x64.ActiveCfg = Debug|x64
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Debug|x64.Build.0 = Debug|x64
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Release|x64.ActiveCfg = Release|x64
+		{41F0B96F-FFE4-4C7A-851F-7311A795AC8F}.Release|x64.Build.0 = Release|x64
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Debug|x64.ActiveCfg = Debug|x64
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Debug|x64.Build.0 = Debug|x64
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Release|x64.ActiveCfg = Release|x64
+		{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}.Release|x64.Build.0 = Release|x64
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Debug|x64.ActiveCfg = Debug|x64
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Debug|x64.Build.0 = Debug|x64
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Release|x64.ActiveCfg = Release|x64
+		{CC3D9B09-6A73-4918-8167-15A391C84936}.Release|x64.Build.0 = Release|x64
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51CFA1CE-A376-4058-940C-70AE8400DD00}.Release|x64.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

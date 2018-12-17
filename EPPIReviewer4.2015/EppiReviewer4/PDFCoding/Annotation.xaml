@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="EppiReviewer4.xAnnotation"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+     d:DesignWidth="98" d:DesignHeight="345">
+
+    <Grid x:Name="element" MouseLeftButtonDown="Rectangle_MouseLeftButtonDown" 
+                   MouseMove="Rectangle_MouseMove"
+                   MouseLeftButtonUp="Rectangle_MouseLeftButtonUp"
+          LostMouseCapture="element_LostMouseCapture">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="15"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7"></ColumnDefinition>
+            <ColumnDefinition Width="87"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+
+        <Rectangle x:Name="rect" Fill="#FFeeeeff" Stroke="#FF000000" RadiusX="6" RadiusY="6" Grid.Column="1" Grid.Row="0" />
+        <TextBlock x:Name="text" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="85"
+                   Text="this is a long smaple text: I need to see what happens with overflow" TextWrapping="Wrap" Margin="2" Grid.Column="1" Grid.Row="0" />
+        <Path Fill="#FFeeeeff" Stretch="Fill" Stroke="#FF000000" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0"  Grid.Column="0" Grid.Row="0" 
+              Grid.ColumnSpan="2" Grid.RowSpan="2" Width="39" Height="16.5"
+		Data="M22,11 L0,23 11,11 "/>
+    </Grid>
+    
+</UserControl>

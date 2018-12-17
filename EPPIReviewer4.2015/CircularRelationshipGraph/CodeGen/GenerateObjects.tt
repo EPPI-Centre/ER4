@@ -1,0 +1,161 @@
+﻿<#@ template language="C#" hostSpecific="true" debug="true" #>
+<#@ output extension="cs" #>
+<#@ import namespace="System.Text.RegularExpressions"#>
+<#@ include file="Util.tt" #>
+<#@ include file="EnvDTE.tt" #>
+<#@ include file="Includes.tt" #>
+<#
+
+var project = FindProjectHost();
+
+// capture the generated output so far, and use for each class file 
+Includes = this.GenerationEnvironment.ToString(); 
+this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+
+// generate the snippet attributes
+GenerateAttributes(project);
+
+project = FindProjectHost();
+
+int lastSlash = project.FileName.LastIndexOf(@"\");
+string projectPath = project.FileName.Substring(0,lastSlash);
+
+AllElements = GetProjectItems(project).SelectMany(item => GetCodeElements(item)).ToList();
+
+// iterate over the files in the project
+foreach(ProjectItem projectItem in GetProjectItems(project))
+{
+	// find any classes that have a 'snippet' attribute
+	var classes = GetCodeElements(projectItem)
+											.Where(el => el.Kind == vsCMElement.vsCMElementClass)
+                      .Cast<CodeClass>()
+                      .Where(cl => Attributes(cl).Any(at => at.Name.StartsWith("Snippet")));
+
+	foreach(var clazz in classes)
+	{
+	  // generate the snippet
+		GenerateClass(clazz);
+
+		int lastDot = projectItem.FileNames[0].LastIndexOf(@".");
+	  string filePath = projectItem.FileNames[0].Substring(0, lastDot);
+		string generatedFileName = filePath + "_Generated.cs";
+
+		SaveOutput(generatedFileName, project);
+	}
+}
+
+#>
+<#+
+
+public List<CodeElement> AllElements { get; set; }
+
+public string Includes { get; set; }
+
+/// <summary
+/// Generates a class with snippets
+/// </summary>
+private void GenerateClass(CodeClass clazz)
+{
+  string classNamespace = clazz.Namespace.Name;
+  string className =  clazz.FullName.Substring(clazz.FullName.LastIndexOf(".")+1);
+	string classVisiblity = GetClassVisiblityString(clazz);
+	#>
+
+<#= Includes #>
+namespace <#= classNamespace #>
+{
+  <#= classVisiblity #> partial class <#= className #>  
+  {
+	<#+
+	  // iterate over all the 'snippet' attributes
+	  var attributes = Attributes(clazz).Where(at => at.Name.StartsWith("Snippet"));
+	  foreach(var attribute in attributes)
+  	{
+	    GenerateSnippet(attribute);
+	  }
+	#>
+	}
+}
+	<#+
+}
+
+/// <summary
+/// Generates the given snippet
+/// </summary>
+private void GenerateSnippet(CodeAttribute attribute)
+{
+  // locate the attribute class 
+  CodeClass attributeClass = AllElements.Where(el => el.Kind == vsCMElement.vsCMElementClass)
+												.Cast<CodeClass>()
+												.Where(d => d.Name==attribute.Name).First();
+												
+  var snippetFields = Members(attributeClass).Where(m => m.Kind == vsCMElement.vsCMElementVariable);
+
+  var values = new Dictionary<string, string>();
+	foreach(CodeElement field in snippetFields)
+	{
+		var text = GetElementText(field);
+
+		// extract the default values from the snippet attribute
+		Regex regex = new Regex("= \"(.*?)\"");
+    Match match = regex.Match(text);
+		var defaultValue = match.Groups[1].Value;
+		values[field.Name] = defaultValue;
+
+		// extract instance values from the CodeAttribute		
+    regex = new Regex(field.Name + @"\s*=\s*(@""(?:[^""]|"""")*""|""(?:\\.|[^\\""])*"")");
+    match = regex.Match(attribute.Value);
+    if (match.Success)
+    {
+			string literalValue = match.Groups[1].Value;
+			if (!literalValue.StartsWith("@"))
+			{
+			  literalValue = literalValue.Substring(1, literalValue.Length - 2);
+        values[field.Name] = StringFromCSharpLiteral(literalValue);
+			}
+			else
+			{
+			  literalValue = literalValue.Substring(2, literalValue.Length - 3);
+        values[field.Name] = StringFromVerbatimLiteral(literalValue);
+			}
+    }		
+	}
+
+	// extract the snippet
+	var snippetMethod = Members(attributeClass).Where(m => m.Name=="GetSnippet").Single();	
+	var snippetText = GetElementText(snippetMethod);
+	var firstQuote = snippetText.IndexOf("\"");
+	var lastQuote = snippetText.IndexOf(@"$end$");
+	snippetText = snippetText.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+	snippetText = snippetText.Replace("\"\"", "\"");
+	
+	foreach(var value in values)
+	{
+    snippetText = snippetText.Replace("$"+value.Key+"$", value.Value);	
+	}
+
+	#><#=snippetText#><#+
+}
+
+/// <summary
+/// Generates attributes for all codesnippets within the given project.
+/// </summary>
+public void GenerateAttributes(Project project)
+{
+	// extract the path
+	int lastSlash = project.FileName.LastIndexOf(@"\");
+	string projectPath = project.FileName.Substring(0,lastSlash);
+
+	// find all the ProjectItems which are code snippets
+	var snippets = GetProjectItems(project).Where(item => item.FileNames[0].EndsWith("snippet"));
+
+	// apply the XSLT file which generates attributes
+	foreach(ProjectItem item in snippets)
+	{
+		string filename = item.FileNames[0];
+		string attributeFilename = filename.Substring(0, filename.Length - 8) + ".cs";
+		RunTransform(projectPath + @"\CodeGen\SnippetToAttribute.xslt", 
+								filename, attributeFilename, project);
+	}
+}
+#>

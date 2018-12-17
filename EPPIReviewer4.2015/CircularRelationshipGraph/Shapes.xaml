@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="CircularRelationshipGraph.Shapes"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"             
+    xmlns:local="clr-namespace:CircularRelationshipGraph"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300" d:DesignWidth="400">
+
+  <Canvas x:Name="LayoutRoot" Background="White">
+
+    <Ellipse Width="5" Height="5"
+             Canvas.Left="225" Canvas.Top="125" Fill="Black"/>
+    <local:NodeConnection From="200,200" To="300,100" Via="225,125"
+                          Stroke="Black" StrokeThickness="5" />
+
+  </Canvas>
+</UserControl>

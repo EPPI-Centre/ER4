@@ -1,0 +1,83 @@
+<%@ Control Language="C#" %>
+
+<%@ Register Assembly="ComponentArt.Web.UI" Namespace="ComponentArt.Web.UI" TagPrefix="ComponentArt" %>
+
+<ComponentArt:Dialog
+  ID="SpellCheckDialog"
+  RunAt="server"
+  AllowDrag="true"
+  AllowResize="false"
+  Modal="false"
+  Alignment="MiddleCentre"
+  Width="456"
+  Height="307"
+  ContentCssClass="dlg-spell">
+
+  <Content>
+    <div class="ttl" onmousedown="<%=SpellCheckDialog.ClientID%>.StartDrag(event);">
+      <div class="ttlt">
+        <div class="ttlt-l"></div>
+        <div class="ttlt-m">
+          <a class="close" href="javascript:void(0);" onclick="<%=SpellChecker.ClientID %>.DialogClose();<%=SpellCheckDialog.ClientID %>.close();this.blur();return false;"></a>
+          <span>Check Spelling</span>
+        </div>
+        <div class="ttlt-r"></div>
+      </div>
+
+      <div class="ttlb">
+        <div class="ttlb-l"><span></span></div>
+        <div class="ttlb-m"><span></span></div>
+        <div class="ttlb-r"><span></span></div>
+      </div>
+    </div>
+
+    <div class="con">
+      <div class="con-l"></div>
+      <div class="con-m">
+
+        <div class="highlight">
+          <div class="label">Not in Dictionary:</div>
+          <div class="text" id="<%=this.ClientID%>_SpellCheckDialog_Html"></div>
+          <div class="f-r">
+            <a onclick="<%=SpellChecker.ClientID%>.dialogIgnore();this.blur();return false;" href="javascript:void(0);" class="btn105"><span>Ignore Once</span></a>
+            <a onclick="<%=SpellChecker.ClientID%>.dialogIgnoreAll();this.blur();return false;" href="javascript:void(0);" class="btn105"><span>Ignore All</span></a>
+            <a onclick="<%=SpellChecker.ClientID%>.dialogAdd();this.blur();return false;" href="javascript:void(0);" class="btn105"><span>Add to Dictionary</span></a>
+          </div>
+        </div>
+
+        <div class="suggest">
+          <div class="label">Suggestions:</div>
+          <div class="wordlist" id="<%=this.ClientID%>_SpellCheckDialog_Suggestions"></div>
+          <div class="f-r">
+            <a onclick="<%=SpellChecker.ClientID%>.dialogChange(document.getElementById('<%=this.ClientID%>_SpellCheckDialog_Replacement').value);this.blur();return false;" href="javascript:void(0);" class="btn105"><span>Change</span></a>
+            <a onclick="<%=SpellChecker.ClientID%>.dialogChangeAll(document.getElementById('<%=this.ClientID%>_SpellCheckDialog_Replacement').value);this.blur();return false;" href="javascript:void(0);" class="btn105"><span>Change All</span></a>
+          </div>
+          <div class="row"><span class="label">Change to:</span><input type="text" id="<%=this.ClientID%>_SpellCheckDialog_Replacement" /></div>
+        </div>
+
+      </div>
+      <div class="con-r"></div>
+    </div>
+
+    <div class="ftr">
+      <div class="ftr-l"></div>
+      <div class="ftr-m">
+        <a onclick="<%=SpellChecker.ClientID %>.DialogClose();<%=SpellCheckDialog.ClientID %>.close();this.blur();return false;" href="javascript:void(0);" class="btn70 f-r"><span>Close</span></a>
+      </div>
+      <div class="ftr-r"></div>
+    </div>
+  </Content>
+</ComponentArt:Dialog>
+
+<ComponentArt:SpellCheck runat="server" ID="SpellChecker" ControlToCheck="ctl00_ContentPlaceHolder1_edFurtherDetails"  ShowDialog="false" ErrorCssClass="error">
+  <ClientEvents>
+    <DialogComplete EventHandler="dialogComplete" />
+    <DialogUpdateNeeded EventHandler="updateDialog" />
+  </ClientEvents>
+</ComponentArt:SpellCheck>
+
+<script type="text/javascript">
+
+<%=SpellChecker.ClientID %>.ParentControlID = "<%=this.ClientID %>";
+
+</script>

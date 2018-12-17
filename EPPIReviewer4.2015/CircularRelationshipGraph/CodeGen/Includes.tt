@@ -1,0 +1,9 @@
+﻿<#@ template language="C#" #>
+
+<# // the following template outputs code that is added to the start of every generated file #>
+using System.ComponentModel;
+using System.Windows;
+using System.Collections.Generic;
+using CircularRelationshipGraph.Data;
+using System.Windows.Media;
+using System.Windows.Controls.DataVisualization;

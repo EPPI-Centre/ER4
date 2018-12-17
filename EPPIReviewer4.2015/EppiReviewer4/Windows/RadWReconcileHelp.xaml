@@ -1,0 +1,74 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWReconcileHelp"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Reconciliation Quick guide"
+                   Width="600"
+                   CanClose="True"
+                   CanMove="False" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="22"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <!--
+    NOTES:
+    Header = Text in the header
+    Height and Width: can be omitted, Window will be large enough to show the contents
+    IsRestricted: forces the window inside the visible area
+    ResizeMode: should normally be False
+    RestoreMinimizedLocation: makes the window remember where it was before being minimised, it's pointless if can't be minimised, moved or resized
+    RestrictedAreaMargin: the margin from the browser edges useful for maximised windows
+    WindowStartupLocation: to be used for windows that are not maximised, CenterScreen is a safe bet
+    WindowState: maximise or normal?
+    -->
+    <!--HOW TO:
+        1) Take the inner code of the original window and paste it so to replace the <Grid /> tag below. Keep track of the x:Name attribute for later ref.
+        2) Find the properties of the original window in the original XAML and use them to set them in the initial declaration above. 
+           This is about things like "header", "CanMove" and so on.
+        3) Look at the pasted code, some elements will not be recognised as they will need a namespace pointer such as 
+            xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+            in the declaration. Copy & Paste the needed pointers from the original XAML file.
+        4) Find all Resources that are used in bindings. Search for their name in the original XAML file. 
+            1. If they are not there in the original file, they are already in App.xaml, you can forget them.
+            2. if they are in the original file, and the current window is the only one that uses them, move them in the local Resources element.
+            3. If they are in the original file, but used more than once, you can either replicate them here (*!*) or move them into App.xaml
+        5) If 2. or 3., fix references to them in (original)code-behind. See code behind of this page for details.
+    -->
+    <telerik:RadWindow.Resources>
+
+    </telerik:RadWindow.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="34" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <RichTextBox Grid.Column="0" Grid.Row="0" IsReadOnly="True" >
+            <Paragraph>The '
+                <Bold>Reconciliation</Bold> ' interface is designed to simplify the task of
+                <Bold>reconciling</Bold> disagreements.
+            </Paragraph>
+            <Paragraph>It is particularly suitable for dealing with <Bold>screening disagreements</Bold>.
+            </Paragraph>
+            <Paragraph>In this window you will have access to all items marked as 'disagreements' at the time the comparison was created.</Paragraph>
+            <Paragraph>The interface allows you to see what codes have been applied to each item by each reviewer.</Paragraph>
+            <Paragraph>Clicking on a code will make the full path of the code visible, as well as any content in the 'Info box'.</Paragraph>
+            <Paragraph>Buttons provide the ability to
+                <Bold>complete</Bold> 
+                the coding for a given Item and Reviewer or to
+                <Bold>un-complete</Bold> 
+                already completed codings.</Paragraph>
+            <Paragraph>Already completed items are shown with a green background and will display the 'completed' symbol in the column of the reviewer whose coding 
+                is the completed version (if they were part of the comparison).</Paragraph>
+            <Paragraph>You can resize the Item Detail area at the bottom of the screen to maximise your viewing area. 
+                Any downloaded documents for the selected item will be listed at the bottom of the window.</Paragraph>
+        </RichTextBox>
+        <Button Grid.Column="0" Grid.Row="1" Width="50" Click="Button_Click" Margin="4">OK</Button>
+    </Grid>
+</telerik:RadWindow>

@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogItemReportWriter"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    >
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Please select the code set(s) that you would like to use for this report. If you have many items selected, it may take a little white to retrieve all the data." Margin="6,6,6,6" TextWrapping="Wrap"></TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Select code set" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+
+        <telerikGridView:RadGridView x:Name="GridSelectCodeSets" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=TwoWay}"
+                                    AutoGenerateColumns="False" ShowGroupPanel="False" RowIndicatorVisibility="Collapsed" SelectionMode="Multiple" >
+            <telerikGridView:RadGridView.Columns>
+                <telerikGridView:GridViewSelectColumn UniqueName="columnSelectCodeSet" Width="Auto">
+                </telerikGridView:GridViewSelectColumn>
+                <telerikGridView:GridViewDataColumn Width="*" Header="Code set" DataMemberBinding="{Binding SetName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+            </telerikGridView:RadGridView.Columns>
+        </telerikGridView:RadGridView>
+        <cslaXAML:BusyAnimation x:Name="BusyLoadingItemReportWriter" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" />
+        <TextBlock x:Name="TextBlockCurrentStatus" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Margin="6,6,6,6"></TextBlock>
+        <CheckBox x:Name="chkbxExportJSON" IsChecked="False" Content="Export Results as JSON text file?"  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="8,1,1,1"/>
+        <Button x:Name="cmdRunItemReportWriter" Grid.Row="4" Grid.Column="1" Content="Get report(s)" Width="90" Margin="6,6,6,6" HorizontalAlignment="Right" Click="cmdRunItemReportWriter_Click"></Button>
+
+    </Grid>
+</UserControl>

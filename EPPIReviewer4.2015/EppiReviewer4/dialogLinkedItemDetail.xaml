@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogLinkedItemDetail"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+             xmlns:local="clr-namespace:EppiReviewer4"
+             xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    >
+    
+    <UserControl.Resources>
+        <cslaXAML:CslaDataProvider x:Key="ItemData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.Item, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItem"
+                           DataChanged="CslaDataProvider_DataChanged"
+                           />
+        
+    </UserControl.Resources>
+    
+    <Grid x:Name="BaseLayout">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="100"></RowDefinition>
+        </Grid.RowDefinitions>
+        <cslaXAML:BusyAnimation x:Name="busyDocList" IsRunning="{Binding Source={StaticResource ItemData},Path=IsBusy}"></cslaXAML:BusyAnimation>
+        <ScrollViewer x:Name="ScrollViewerCitationDetails" Grid.Row="1">
+            <local:dialogItemDetails x:Name="dialogLinkedItemDetailsControl" IsEnabled="False"></local:dialogItemDetails>
+        </ScrollViewer>
+        
+        
+    </Grid>
+</UserControl>

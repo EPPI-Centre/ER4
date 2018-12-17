@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogAxialCoding"
+    xmlns:telerikInput="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Input"
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"  
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking"
+    x:Name="CodingHome"
+    xmlns:RichTextBoxUI="clr-namespace:Telerik.Windows.Controls.RichTextBoxUI;assembly=Telerik.Windows.Controls.RichTextBoxUI"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"         
+    xmlns:local="clr-namespace:EppiReviewer4"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    >
+    <UserControl.Resources>
+        
+    </UserControl.Resources>
+    <Grid>
+        <radDock:RadDocking AllowUnsafeMode="True">
+            <radDock:RadSplitContainer InitialPosition="DockedLeft" Width="300">
+                <radDock:RadPaneGroup x:Name="PaneGroupCodeSets">
+                    <radDock:RadDocumentPane Header="Codes" Title="Codes" CanUserClose="False" CanFloat="False" CanUserPin="False">
+                        <Grid x:Name="CodingGrid">
+                            <local:CodesTreeControl x:Name="TreeControl" ControlContext="AxialCoding"></local:CodesTreeControl>
+                        </Grid>
+                    </radDock:RadDocumentPane>
+                </radDock:RadPaneGroup>
+            </radDock:RadSplitContainer>
+
+            <radDock:RadSplitContainer x:Name="RightContainer" InitialPosition="DockedRight" Width="300">
+                <radDock:RadPaneGroup x:Name="Group3">
+                    <radDock:RadPane x:Name="PaneTextItems" Header="Coded text">
+                        <ScrollViewer Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="0" HorizontalAlignment="Right" />
+                                <TextBlock x:Name="TextBlockAttributeName" Grid.Row="0" HorizontalAlignment="Left" FontWeight="Bold"></TextBlock>
+                                <telerikNavigation:RadTreeView Grid.Row="1" x:Name="TreeViewDocuments" SelectionMode="Single" IsExpandOnSingleClickEnabled="True"
+                                              SelectionChanged="TreeViewDocuments_SelectionChanged" IsEditable="False" IsDragDropEnabled="False"></telerikNavigation:RadTreeView>
+                            </Grid>
+                        </ScrollViewer>
+                    </radDock:RadPane>
+
+                </radDock:RadPaneGroup>
+            </radDock:RadSplitContainer>
+
+            <radDock:RadDocking.DocumentHost>
+                <radDock:RadSplitContainer>
+                    <radDock:RadPaneGroup x:Name="PaneItemDetails">
+                        <radDock:RadDocumentPane Header="Text document" Title="Text document" Width="150" CanUserClose="False" CanFloat="False">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock x:Name="TextBlockDocDetails" Grid.Row="0" FontWeight="Bold" TextWrapping="Wrap"></TextBlock>
+                                <!--<rich:RichEdit Grid.Row="1" x:Name="rich" IsReadOnly="True" ShowCaretInReadOnly="False">
+                                </rich:RichEdit>-->
+                                <telerik:RadRichTextBox Name="rich" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="False" 
+                                Grid.Row="1" 
+                                 IsSpellCheckingEnabled="False" IsImageMiniToolBarEnabled="False"
+                                IsSelectionMiniToolBarEnabled="False"
+                                />
+                                <RichTextBoxUI:RadRichTextBoxStatusBar AssociatedRichTextBox="{Binding ElementName=rich, Mode=OneTime}" 
+                                                  HorizontalAlignment="Right" Background="BlueViolet" HorizontalContentAlignment="Right"  
+                                               Grid.Row="2"/>
+                                
+                            </Grid>
+                        </radDock:RadDocumentPane>                        
+
+                    </radDock:RadPaneGroup>
+                </radDock:RadSplitContainer>
+            </radDock:RadDocking.DocumentHost>
+
+        </radDock:RadDocking>
+
+        
+
+    </Grid>
+
+</UserControl>

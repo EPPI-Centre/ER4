@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using ERxWebClient2.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using EPPIDataServices.Helpers;
+
+namespace ERxWebClient2.Controllers
+{
+    [Authorize]
+    [Route("api/[controller]")]
+    public class CodesetController : CSLAController
+    {
+
+        private readonly ILogger _logger;
+        
+        public CodesetController(ILogger<CodesetController> logger)
+        {
+            _logger = logger;
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult CodesetsByReview()
+        {
+
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                ReviewSetsList res = dp.Fetch();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error");
+                throw;
+            }
+
+
+            //not using CSLA object!! this needs revising
+            //SetCSLAUser();
+            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            //List<ReviewSet> res = new List<ReviewSet>();
+            //using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
+            //{
+            //    SqlParameter RevID = new SqlParameter("@REVIEW_ID", ri.ReviewId);
+            //    try
+            //    {
+            //        using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(conn, "st_ReviewSets", RevID))
+            //        {
+            //            if (reader != null)
+            //            {
+            //                res = ReviewSet.GetReviewSets(conn, reader);
+            //            }
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Program.Logger.LogSQLException(e, "Error fetching list of codesets", RevID);
+            //    }
+            //}
+            //return (IEnumerable<ReviewSet>)res;
+        }
+
+    }
+}

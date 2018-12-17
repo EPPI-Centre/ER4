@@ -1,0 +1,217 @@
+﻿
+<%@ Page Language="C#" AutoEventWireUp="true" %>
+<%@ import Namespace="System.Threading" %>
+<%@ import Namespace="System.Data" %>
+<%@ import Namespace="System.Data.OleDb" %>
+<%@ import Namespace="ComponentArt.Web.UI" %>
+<% Response.ContentType = "text/xml"; %>
+<%@ OutputCache Location="None" %>
+
+<script language="C#" runat="server">
+    
+void Page_Load(Object sender,EventArgs e)
+{
+    ComponentArt.Web.UI.TreeView TreeView1 = new ComponentArt.Web.UI.TreeView();
+
+    // Node.ID = ATTRIBUTE_SET_ID
+    // Node.Text = ATTRIBUTE_NAME
+    // Node.Value = ATTRIBUTE_ID
+    // Node.ToolTip = SET_ID
+    
+    string side = Request.QueryString.Get("Side");
+    string level = Request.QueryString.Get("Level");
+    string AttrID = Request.QueryString.Get("ID");
+    string AttrSetID = Request.QueryString.Get("ASID");
+    string reviewID = Request.QueryString.Get("ReviewID");
+    string webDatabaseID = Request.QueryString.Get("webDatabaseID");
+    string SID = Request.QueryString.Get("SID");
+    
+    IDataReader idr = null;
+    IDataReader idr1 = null;
+
+
+    // levels
+    // 0. codeset level (indentified by SET_ID). 
+    // 1. just below codeset (have PARENT_ATTRIBUTE_ID = 0)
+    // 2. child levels that can go for ever (these have a PARENT_ATTRIBUTE_ID)
+    
+    
+    bool isAdmDB = true;
+    switch (side)
+    {
+        case "ER":
+            if (AttrID == null)
+                AttrID = "0";
+            if (level == "0")
+                level = "1";
+            else level = "1";
+            idr = Utils.GetReader(isAdmDB, "st_WDAttrDataGet", level, AttrID, SID);
+            while (idr.Read())
+            {
+                ComponentArt.Web.UI.TreeViewNode newNode = new ComponentArt.Web.UI.TreeViewNode();
+                if (idr["ATTRIBUTE_NAME"].ToString().Length > 50)
+                    newNode.Text = Server.HtmlEncode(idr["ATTRIBUTE_NAME"].ToString().Substring(0, 50) + "...");
+                else
+                    newNode.Text = Server.HtmlEncode(idr["ATTRIBUTE_NAME"].ToString());
+                newNode.ID = idr["ATTRIBUTE_ID"].ToString();
+                newNode.Selectable = false;
+                newNode.DraggingEnabled = false;
+                //
+                newNode.ToolTip = Server.HtmlEncode(idr["ATTRIBUTE_NAME"].ToString());
+                if (level == "0")
+                    level = "1";
+                else level = "1";
+
+                idr1 = Utils.GetReader(isAdmDB, "st_WDAttrCountChildren", idr["ATTRIBUTE_ID"].ToString(), level);
+                
+                newNode.Value = level;
+                if (idr1.Read())
+                {
+                    if (idr1["NUM_CHILDREN"].ToString() != "0")
+                    {
+                        newNode.ContentCallbackUrl = "WebDBXmlRetrieve.aspx?Side=ER&Level=" + level + "&ID=" +
+                            idr["ATTRIBUTE_ID"].ToString() + "&SID=" + SID;
+                    }
+                }
+                level = Request.QueryString.Get("Level");
+                idr1.Close();                   
+                TreeView1.Nodes.Add(newNode);
+            }
+            idr.Close();
+            break;
+
+        case "ERIncludeCode":
+            if (AttrID == null)
+                AttrID = "0";
+            if (level == "0")
+                level = "1";
+            else level = "1";
+            //if (AttrID == null)
+            //    AttrID = "0";
+            idr = Utils.GetReader(isAdmDB, "st_WDAttrDataGet", level, AttrID, SID);
+            while (idr.Read())
+            {
+                ComponentArt.Web.UI.TreeViewNode newNode = new ComponentArt.Web.UI.TreeViewNode();
+                newNode.Text = Server.HtmlEncode(idr["ATTRIBUTE_NAME"].ToString());
+                newNode.ID = idr["ATTRIBUTE_ID"].ToString();
+                newNode.Selectable = false;
+                if (level == "0")
+                    level = "1";
+                else level = "1";
+
+                idr1 = Utils.GetReader(isAdmDB, "st_WDAttrCountChildren", idr["ATTRIBUTE_ID"].ToString(), level);
+
+                newNode.Value = level;
+                if (idr1.Read())
+                {
+                    if (idr1["NUM_CHILDREN"].ToString() != "0")
+                    {
+                        newNode.ContentCallbackUrl = "WebDBXmlRetrieve.aspx?Side=ERIncludeCode&Level=" + level + "&ID=" +
+                            idr["ATTRIBUTE_ID"].ToString() + "&SID=" + SID;
+                        newNode.Selectable = false;
+                    }
+                    else
+                    {
+                        newNode.Selectable = true;
+                    }
+                }
+                level = Request.QueryString.Get("Level");
+                idr1.Close();
+                TreeView1.Nodes.Add(newNode);
+            }
+            idr.Close();
+            break;
+            
+        case "WD":
+            //idr = Utils.GetReader(isAdmDB, "st_WDAttrDataGetFromWD", level, AttrID, webDatabaseID);
+            idr = Utils.GetReader(isAdmDB, "st_WDAttrDataGetFromWD", AttrID, AttrSetID, webDatabaseID);
+            // this gets the data of the children of what we clicked on
+            while (idr.Read())
+            {
+                ComponentArt.Web.UI.TreeViewNode newNode = new ComponentArt.Web.UI.TreeViewNode();
+                newNode.Text = Server.HtmlEncode(idr["ATTRIBUTE_NAME"].ToString());
+                newNode.ID = idr["ATTRIBUTE_SET_ID"].ToString();
+                string test = idr["PARENT_ATTRIBUTE_ID"].ToString();
+                string test1 = idr["ATTRIBUTE_ID"].ToString();
+                newNode.Selectable = true;
+                newNode.EditingEnabled = true;
+
+                //level = "1";
+                //idr1 = Utils.GetReader(isAdmDB, "st_WDAttrCountChildrenFromWD", idr["ATTRIBUTE_ID"].ToString(), idr["PARENT_ATTRIBUTE_ID"].ToString(), level);
+                idr1 = Utils.GetReader(isAdmDB, "st_WDAttrCountChildrenFromWD", idr["ATTRIBUTE_ID"].ToString(),
+                    idr["ATTRIBUTE_SET_ID"].ToString(), idr["PARENT_ATTRIBUTE_ID"].ToString());
+                
+                //newNode.Value = level;
+                newNode.Value = idr["ATTRIBUTE_SET_ID"].ToString();
+                newNode.ToolTip = idr["SET_ID"].ToString();
+                if (idr1.Read())
+                {
+                    string test2 = idr1["NUM_CHILDREN"].ToString();
+                    if (idr1["NUM_CHILDREN"].ToString() != "0")
+                    {
+                        //newNode.ContentCallbackUrl = "WebDBXmlRetrieve.aspx?Side=WD&webDatabaseID=" + webDatabaseID + "&Level=" + level + "&ID=" +
+                        //    idr["ATTRIBUTE_ID"].ToString() + "&ASID=" + idr["ATTRIBUTE_SET_ID"].ToString();
+                        newNode.ContentCallbackUrl = "WebDBXmlRetrieve.aspx?Side=WD" +
+                            "&webDatabaseID=" + webDatabaseID +
+                            "&ID=" + idr["ATTRIBUTE_ID"].ToString() +
+                            "&SID=" + idr["SET_ID"].ToString().Trim() +
+                            "&ASID=" + idr["ATTRIBUTE_SET_ID"].ToString();
+                        //newNode.Selectable = false;
+                    }
+                    else
+                    {
+                        //newNode.Selectable = true;
+                    }
+                }
+                //level = Request.QueryString.Get("Level");
+                idr1.Close();
+                TreeView1.Nodes.Add(newNode);
+            }
+            idr.Close();
+            
+            
+            
+            /*
+            idr = Utils.GetReader(isAdmDB, "st_WDAttrDataGetFromWD", level, AttrID, webDatabaseID);
+            while (idr.Read())
+            {
+                ComponentArt.Web.UI.TreeViewNode newNode = new ComponentArt.Web.UI.TreeViewNode();
+                newNode.Text = idr["ATTRIBUTE_NAME"].ToString();
+                newNode.ID = idr["ATTRIBUTE_ID"].ToString();
+                
+                if (level == "0")
+                    level = "1";
+                else level = "1";
+
+                idr1 = Utils.GetReader(isAdmDB, "st_WDAttrCountChildrenFromWD", idr["ATTRIBUTE_ID"].ToString(), level);
+                
+                newNode.Value = level;
+                if (idr1.Read())
+                {
+                    if (idr1["NUM_CHILDREN"].ToString() != "0")
+                    {
+                        newNode.ContentCallbackUrl = "WebDBXmlRetrieve.aspx?Side=WD&webDatabaseID=" + webDatabaseID + "&Level=" + level + "&ID=" +
+                            idr["ATTRIBUTE_ID"].ToString();
+                    }
+                }
+                level = Request.QueryString.Get("Level");
+                idr1.Close();                   
+                TreeView1.Nodes.Add(newNode);
+            }
+            idr.Close();
+            */
+            break;
+            
+        default:
+            break;
+    }
+    Response.Clear();
+    Response.ClearHeaders();
+    Response.AddHeader("Pragma", "no-cache");
+    Response.Expires = -1;
+    Response.ContentType = "text/xml";
+    
+    Response.Write(TreeView1.GetXml());
+}
+</script>
+

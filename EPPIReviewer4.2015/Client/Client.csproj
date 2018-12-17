@@ -1,0 +1,812 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C0B5D82A-01BC-4F41-8056-6F2D8FB80146}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BusinessLibrary</RootNamespace>
+    <AssemblyName>BusinessLibrary</AssemblyName>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>false</ThrowErrorsInValidation>
+    <SccProjectName>%24/FirstRoot/EPPIReviewer4.2015/EppiReviewer4</SccProjectName>
+    <SccLocalPath>..</SccLocalPath>
+    <SccAuxPath>https://sergiograziosi.visualstudio.com/defaultcollection</SccAuxPath>
+    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>DEBUG;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>Bin\Debug\BusinessLibrary.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>Bin\Release\BusinessLibrary.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Csla, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Core.4.3.13\lib\sl50\Csla.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Csla.Xaml, Version=4.3.13.0, Culture=neutral, PublicKeyToken=93be5fdc093e4c30, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSLA-Silverlight.4.3.13\lib\sl50\Csla.Xaml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpZipLib">
+      <HintPath>..\Solution Items\SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="mscorlib" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\System.Windows.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs">
+      <Link>BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs">
+      <Link>BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs">
+      <Link>BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ArchieReviewPrepareCommand.cs">
+      <Link>BusinessClasses\ArchieReviewPrepareCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ArchieReviewUndoCheckoutCommand.cs">
+      <Link>BusinessClasses\ArchieReviewUndoCheckoutCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeMoveCommand.cs">
+      <Link>BusinessClasses\AttributeMoveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeSet.cs">
+      <Link>BusinessClasses\AttributeSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeSetDeleteCommand.cs">
+      <Link>BusinessClasses\AttributeSetDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeSetDeleteWarningCommand.cs">
+      <Link>BusinessClasses\AttributeSetDeleteWarningCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeSetList.cs">
+      <Link>BusinessClasses\AttributeSetList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeTypes.cs">
+      <Link>BusinessClasses\AttributeTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeTypesFactory.cs">
+      <Link>BusinessClasses\AttributeTypesFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AttributeUpdateCommand.cs">
+      <Link>BusinessClasses\AttributeUpdateCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\AuthorsHandling.cs">
+      <Link>BusinessClasses\AuthorsHandling.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\BulkCompleteUncompleteCommand.cs">
+      <Link>BusinessClasses\BulkCompleteUncompleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\CheckTicketExpirationCommand.cs">
+      <Link>BusinessClasses\CheckTicketExpirationCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierCommand.cs">
+      <Link>BusinessClasses\ClassifierCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierCreateCodesCommand.cs">
+      <Link>BusinessClasses\ClassifierCreateCodesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierModel.cs">
+      <Link>BusinessClasses\ClassifierModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierModelList.cs">
+      <Link>BusinessClasses\ClassifierModelList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Comparison.cs">
+      <Link>BusinessClasses\Comparison.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonAttribute.cs">
+      <Link>BusinessClasses\ComparisonAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonAttributeList.cs">
+      <Link>BusinessClasses\ComparisonAttributeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonCompleteCommand.cs">
+      <Link>BusinessClasses\ComparisonCompleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonList.cs">
+      <Link>BusinessClasses\ComparisonList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonScreeningCompleteCommand.cs">
+      <Link>BusinessClasses\ComparisonScreeningCompleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ComparisonStatsCommand.cs">
+      <Link>BusinessClasses\ComparisonStatsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Contact.cs">
+      <Link>BusinessClasses\Contact.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Cryptography.cs">
+      <Link>BusinessClasses\Cryptography.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Diagram.cs">
+      <Link>BusinessClasses\Diagram.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\DiagramList.cs">
+      <Link>BusinessClasses\DiagramList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ExportItemToRISString.cs">
+      <Link>BusinessClasses\ExportItemToRISString.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\GetItemsWithTheseCodesCommand.cs">
+      <Link>BusinessClasses\GetItemsWithTheseCodesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs">
+      <Link>BusinessClasses\GetLatestUpdateMsgCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ImportItems.cs">
+      <Link>BusinessClasses\ImportItems.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ImportURLsCommand.cs">
+      <Link>BusinessClasses\ImportURLsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Item.cs">
+      <Link>BusinessClasses\Item.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemArm.cs">
+      <Link>BusinessClasses\ItemArm.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemArmDeleteWarningCommand.cs">
+      <Link>BusinessClasses\ItemArmDeleteWarningCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemArmList.cs">
+      <Link>BusinessClasses\ItemArmList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeBulkDeleteCommand.cs">
+      <Link>BusinessClasses\ItemAttributeBulkDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeBulkSaveCommand.cs">
+      <Link>BusinessClasses\ItemAttributeBulkSaveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeCountsCommand.cs">
+      <Link>BusinessClasses\ItemAttributeCountsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeFullTextDetails.cs">
+      <Link>BusinessClasses\ItemAttributeFullTextDetails.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs">
+      <Link>BusinessClasses\ItemAttributeFullTextDetailsList .cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributePDF.cs">
+      <Link>BusinessClasses\ItemAttributePDF.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributePDFList.cs">
+      <Link>BusinessClasses\ItemAttributePDFList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributePDFResetCommand.cs">
+      <Link>BusinessClasses\ItemAttributePDFResetCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs">
+      <Link>BusinessClasses\ItemAttributesAllFullTextDetailsList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeSaveCommand.cs">
+      <Link>BusinessClasses\ItemAttributeSaveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeText.cs">
+      <Link>BusinessClasses\ItemAttributeText.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeTextList.cs">
+      <Link>BusinessClasses\ItemAttributeTextList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemAttributeTextSaveCommand.cs">
+      <Link>BusinessClasses\ItemAttributeTextSaveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDeleteUndeleteCommand.cs">
+      <Link>BusinessClasses\ItemDeleteUndeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocument.cs">
+      <Link>BusinessClasses\ItemDocument.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocumentDeleteCommand.cs">
+      <Link>BusinessClasses\ItemDocumentDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocumentList.cs">
+      <Link>BusinessClasses\ItemDocumentList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocumentSaveBinCommand.cs">
+      <Link>BusinessClasses\ItemDocumentSaveBinCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocumentSaveCommand.cs">
+      <Link>BusinessClasses\ItemDocumentSaveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicate.cs">
+      <Link>BusinessClasses\ItemDuplicate.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateDirtyGroup.cs">
+      <Link>BusinessClasses\ItemDuplicateDirtyGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateDirtyGroupMember.cs">
+      <Link>BusinessClasses\ItemDuplicateDirtyGroupMember.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateGroup.cs">
+      <Link>BusinessClasses\ItemDuplicateGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateGroupMember.cs">
+      <Link>BusinessClasses\ItemDuplicateGroupMember.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs">
+      <Link>BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateList.cs">
+      <Link>BusinessClasses\ItemDuplicateList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateManualGroupMember.cs">
+      <Link>BusinessClasses\ItemDuplicateManualGroupMember.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateReadOnlyGroup.cs">
+      <Link>BusinessClasses\ItemDuplicateReadOnlyGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateReadOnlyGroupList.cs">
+      <Link>BusinessClasses\ItemDuplicateReadOnlyGroupList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicatesReadOnly.cs">
+      <Link>BusinessClasses\ItemDuplicatesReadOnly.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicatesReadOnlyList.cs">
+      <Link>BusinessClasses\ItemDuplicatesReadOnlyList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDuplicateUnDUPCommand.cs">
+      <Link>BusinessClasses\ItemDuplicateUnDUPCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemIncludeExcludeCommand.cs">
+      <Link>BusinessClasses\ItemIncludeExcludeCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemLink.cs">
+      <Link>BusinessClasses\ItemLink.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemLinkList.cs">
+      <Link>BusinessClasses\ItemLinkList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemList.cs">
+      <Link>BusinessClasses\ItemList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemSet.cs">
+      <Link>BusinessClasses\ItemSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemSetBulkCompleteCommand.cs">
+      <Link>BusinessClasses\ItemSetBulkCompleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemSetCompleteCommand.cs">
+      <Link>BusinessClasses\ItemSetCompleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemSetList.cs">
+      <Link>BusinessClasses\ItemSetList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemSetListAll.cs">
+      <Link>BusinessClasses\ItemSetListAll.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemTypeNVL.cs">
+      <Link>BusinessClasses\ItemTypeNVL.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
+      <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalyse.cs">
+      <Link>BusinessClasses\MetaAnalyse.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysis.cs">
+      <Link>BusinessClasses\MetaAnalysis.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisList.cs">
+      <Link>BusinessClasses\MetaAnalysisList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisModerator.cs">
+      <Link>BusinessClasses\MetaAnalysisModerator.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisModeratorList.cs">
+      <Link>BusinessClasses\MetaAnalysisModeratorList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisModeratorReference.cs">
+      <Link>BusinessClasses\MetaAnalysisModeratorReference.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisModeratorReferenceList.cs">
+      <Link>BusinessClasses\MetaAnalysisModeratorReferenceList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MetaAnalysisRunInRCommand.cs">
+      <Link>BusinessClasses\MetaAnalysisRunInRCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Outcome.cs">
+      <Link>BusinessClasses\Outcome.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeItemAttribute.cs">
+      <Link>BusinessClasses\OutcomeItemAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeItemAttributeList.cs">
+      <Link>BusinessClasses\OutcomeItemAttributeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeItemAttributesSaveCommand.cs">
+      <Link>BusinessClasses\OutcomeItemAttributesSaveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeItemList.cs">
+      <Link>BusinessClasses\OutcomeItemList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeList.cs">
+      <Link>BusinessClasses\OutcomeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\OutcomeListTraining.cs">
+      <Link>BusinessClasses\OutcomeListTraining.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\PerformClusterCommand.cs">
+      <Link>BusinessClasses\PerformClusterCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\PerformRandomAllocateCommand.cs">
+      <Link>BusinessClasses\PerformRandomAllocateCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\PubMedSearch.cs">
+      <Link>BusinessClasses\PubMedSearch.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyArchieReview.cs">
+      <Link>BusinessClasses\ReadOnlyArchieReview.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyArchieReviewList.cs">
+      <Link>BusinessClasses\ReadOnlyArchieReviewList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyAttributeSet.cs">
+      <Link>BusinessClasses\ReadOnlyAttributeSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyAttributeSetList.cs">
+      <Link>BusinessClasses\ReadOnlyAttributeSetList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyAttributeTextAllItems.cs">
+      <Link>BusinessClasses\ReadOnlyAttributeTextAllItems.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyAttributeTextAllItemsList.cs">
+      <Link>BusinessClasses\ReadOnlyAttributeTextAllItemsList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyImportFilterRule.cs">
+      <Link>BusinessClasses\ReadOnlyImportFilterRule.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyImportFilterRuleList.cs">
+      <Link>BusinessClasses\ReadOnlyImportFilterRuleList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttribute.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequency.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttributeChildFrequency.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttributeChildFrequencyList.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttributeChildFrequencyList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttributeCrosstab.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttributeCrosstab.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttributeCrosstabList.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttributeCrosstabList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyItemAttributeList.cs">
+      <Link>BusinessClasses\ReadOnlyItemAttributeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReview.cs">
+      <Link>BusinessClasses\ReadOnlyReview.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewList.cs">
+      <Link>BusinessClasses\ReadOnlyReviewList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetControl.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetControl.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetControlList.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetControlList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetIntervention.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetIntervention.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetInterventionList.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetInterventionList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetOutcome.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetOutcome.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyReviewSetOutcomeList.cs">
+      <Link>BusinessClasses\ReadOnlyReviewSetOutcomeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlySetType.cs">
+      <Link>BusinessClasses\ReadOnlySetType.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlySetTypeList.cs">
+      <Link>BusinessClasses\ReadOnlySetTypeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlySource.cs">
+      <Link>BusinessClasses\ReadOnlySource.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlySourceList.cs">
+      <Link>BusinessClasses\ReadOnlySourceList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyTemplateReview.cs">
+      <Link>BusinessClasses\ReadOnlyTemplateReview.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReadOnlyTemplateReviewList.cs">
+      <Link>BusinessClasses\ReadOnlyTemplateReviewList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Report.cs">
+      <Link>BusinessClasses\Report.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportColumn.cs">
+      <Link>BusinessClasses\ReportColumn.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportColumnCode.cs">
+      <Link>BusinessClasses\ReportColumnCode.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportColumnCodeList.cs">
+      <Link>BusinessClasses\ReportColumnCodeList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportColumnList.cs">
+      <Link>BusinessClasses\ReportColumnList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportData.cs">
+      <Link>BusinessClasses\ReportData.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportExecuteCommand.cs">
+      <Link>BusinessClasses\ReportExecuteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReportList.cs">
+      <Link>BusinessClasses\ReportList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Review.cs">
+      <Link>BusinessClasses\Review.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewContactList.cs">
+      <Link>BusinessClasses\ReviewContactList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewContactNVL.cs">
+      <Link>BusinessClasses\ReviewContactNVL.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewContactNVLFactory.cs">
+      <Link>BusinessClasses\ReviewContactNVLFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewInfo.cs">
+      <Link>BusinessClasses\ReviewInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSet.cs">
+      <Link>BusinessClasses\ReviewSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetCheckCodingStatusCommand.cs">
+      <Link>BusinessClasses\ReviewSetCheckCodingStatusCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetCopyCommand.cs">
+      <Link>BusinessClasses\ReviewSetCopyCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetDeleteCommand.cs">
+      <Link>BusinessClasses\ReviewSetDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetMoveCommand.cs">
+      <Link>BusinessClasses\ReviewSetMoveCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetsList.cs">
+      <Link>BusinessClasses\ReviewSetsList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewSetUpdateCommand.cs">
+      <Link>BusinessClasses\ReviewSetUpdateCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewStatisticsCodeSet.cs">
+      <Link>BusinessClasses\ReviewStatisticsCodeSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewStatisticsCodeSetList.cs">
+      <Link>BusinessClasses\ReviewStatisticsCodeSetList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewStatisticsCountsCommand.cs">
+      <Link>BusinessClasses\ReviewStatisticsCountsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewStatisticsReviewer.cs">
+      <Link>BusinessClasses\ReviewStatisticsReviewer.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ReviewStatisticsReviewerList.cs">
+      <Link>BusinessClasses\ReviewStatisticsReviewerList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Search.cs">
+      <Link>BusinessClasses\Search.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchCodesCommand.cs">
+      <Link>BusinessClasses\SearchCodesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchCodeSetCheckCommand.cs">
+      <Link>BusinessClasses\SearchCodeSetCheckCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchCombineCommand.cs">
+      <Link>BusinessClasses\SearchCombineCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchDeleteCommand.cs">
+      <Link>BusinessClasses\SearchDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchForUploadedFilesCommand.cs">
+      <Link>BusinessClasses\SearchForUploadedFilesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchFreeTextCommand.cs">
+      <Link>BusinessClasses\SearchFreeTextCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchIDsCommand.cs">
+      <Link>BusinessClasses\SearchIDsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchImportedIDsCommand.cs">
+      <Link>BusinessClasses\SearchImportedIDsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchList.cs">
+      <Link>BusinessClasses\SearchList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchNullAbstract.cs">
+      <Link>BusinessClasses\SearchNullAbstract.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchVisualise.cs">
+      <Link>BusinessClasses\SearchVisualise.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchVisualiseList.cs">
+      <Link>BusinessClasses\SearchVisualiseList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchWeightedTermsCommand.cs">
+      <Link>BusinessClasses\SearchWeightedTermsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Source.cs">
+      <Link>BusinessClasses\Source.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SourceDeleteCommand.cs">
+      <Link>BusinessClasses\SourceDeleteCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SourceDeleteForeverCommand.cs">
+      <Link>BusinessClasses\SourceDeleteForeverCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SourceList.cs">
+      <Link>BusinessClasses\SourceList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\StatFunctions.cs">
+      <Link>BusinessClasses\StatFunctions.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Term.cs">
+      <Link>BusinessClasses\Term.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TermList.cs">
+      <Link>BusinessClasses\TermList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\Training.cs">
+      <Link>BusinessClasses\Training.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingList.cs">
+      <Link>BusinessClasses\TrainingList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingNextItem.cs">
+      <Link>BusinessClasses\TrainingNextItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingPreviousItem.cs">
+      <Link>BusinessClasses\TrainingPreviousItem.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingProcessTermsCommand.cs">
+      <Link>BusinessClasses\TrainingProcessTermsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingProcessText.cs">
+      <Link>BusinessClasses\TrainingProcessText.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingReviewerTerm.cs">
+      <Link>BusinessClasses\TrainingReviewerTerm.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingReviewerTermList.cs">
+      <Link>BusinessClasses\TrainingReviewerTermList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingRunCommand.cs">
+      <Link>BusinessClasses\TrainingRunCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteria.cs">
+      <Link>BusinessClasses\TrainingScreeningCriteria.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteriaList.cs">
+      <Link>BusinessClasses\TrainingScreeningCriteriaList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs">
+      <Link>BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TrainingSetScreeningCodeSetCommand.cs">
+      <Link>BusinessClasses\TrainingSetScreeningCodeSetCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TranslationCommand.cs">
+      <Link>BusinessClasses\TranslationCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\WorkAllocation.cs">
+      <Link>BusinessClasses\WorkAllocation.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\WorkAllocationContactList.cs">
+      <Link>BusinessClasses\WorkAllocationContactList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\WorkAllocationList.cs">
+      <Link>BusinessClasses\WorkAllocationList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Compression\CompressionUtility.cs">
+      <Link>Compression\CompressionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Security\ArchieIdentity.cs">
+      <Link>Security\ArchieIdentity.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Security\CreateER4ContactViaArchieCommand.cs">
+      <Link>Security\CreateER4ContactViaArchieCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Security\CredentialsCriteria.cs">
+      <Link>Security\CredentialsCriteria.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Security\ReviewerIdentity.cs">
+      <Link>Security\ReviewerIdentity.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Security\ReviewerPrincipal.cs">
+      <Link>Security\ReviewerPrincipal.cs</Link>
+    </Compile>
+    <Compile Include="Compression\CompressedProxy.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

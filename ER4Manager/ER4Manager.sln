@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "ER4Manager_1\", "{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}"
+	ProjectSection(WebsiteProperties) = preProject
+		SccProjectName = "SAK"
+		SccAuxPath = "SAK"
+		SccLocalPath = "SAK"
+		SccProvider = "SAK"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
+		Debug.AspNetCompiler.VirtualPath = "/ER4Manager"
+		Debug.AspNetCompiler.PhysicalPath = "ER4Manager_1\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\ER4Manager\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/ER4Manager"
+		Release.AspNetCompiler.PhysicalPath = "ER4Manager_1\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\ER4Manager\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50813"
+		SlnRelativePath = "ER4Manager_1\"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files et al", "Files et al", "{4EC9F3C4-CF06-497C-865A-155A0817D161}"
+	ProjectSection(SolutionItems) = preProject
+		Additional files\ComponentArt.Charting.lic = Additional files\ComponentArt.Charting.lic
+		Additional files\ComponentArt.UIFramework.lic = Additional files\ComponentArt.UIFramework.lic
+		Additional files\ComponentArt.Web.UI.dll = Additional files\ComponentArt.Web.UI.dll
+		Additional files\ComponentArt.Web.UI.dll.refresh = Additional files\ComponentArt.Web.UI.dll.refresh
+		Additional files\ComponentArt.Web.UI.lic = Additional files\ComponentArt.Web.UI.lic
+		Additional files\Telerik.Web.UI.dll = Additional files\Telerik.Web.UI.dll
+		Additional files\Telerik.Web.UI.Skins.dll = Additional files\Telerik.Web.UI.Skins.dll
+		Additional files\Telerik.Web.UI.xml = Additional files\Telerik.Web.UI.xml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQL Changes Manager", "..\ERCentralAPI\SQL Changes Manager\SQL Changes Manager.csproj", "{FB60901E-3BBE-4DDE-84D4-BF2F6B1CA435}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{13BD3B4A-13D7-4324-BDC2-D3C283341CE4}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{FB60901E-3BBE-4DDE-84D4-BF2F6B1CA435}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB60901E-3BBE-4DDE-84D4-BF2F6B1CA435}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB60901E-3BBE-4DDE-84D4-BF2F6B1CA435}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB60901E-3BBE-4DDE-84D4-BF2F6B1CA435}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7080A6D5-F1CC-4693-91A5-C6C4BFD7F3AF}
+	EndGlobalSection
+EndGlobal

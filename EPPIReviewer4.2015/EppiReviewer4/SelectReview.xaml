@@ -1,0 +1,193 @@
+﻿<UserControl 
+    xmlns:Controls="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    x:Class="EppiReviewer4.SelectReview"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:wc="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+    xmlns:EppiReviewer4="clr-namespace:EppiReviewer4"
+    xmlns:telerik="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls"
+    xmlns:telerikNavigation="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Navigation" 
+    MinHeight="200"
+    MinWidth="200"
+    >
+    <UserControl.Resources>
+        <helper:LoginToReviewIsEn x:Key="LoginToReviewIsEnK"/>
+        <helper:LoginToArchieReviewIsEn x:Key="LoginToArchieReviewIsEn" />
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
+        <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
+        <!--<cslaXAML:CslaDataProvider x:Key="ReviewsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReadOnlyReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           PropertyChanged="CslaDataProvider_PropertyChanged"
+                           DataChanged="CslaDataProvider_DataChanged"
+                           FactoryMethod="GetReviewList"
+                             />
+        <cslaXAML:CslaDataProvider x:Key="ArchieReviewsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ReadOnlyArchieReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           DataChanged="ArchieReviewsProvider_DataChanged"
+                           FactoryMethod="GetReviewList"
+                             />-->
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="ActionButton" Content="Go" Tag="{Binding ReviewId}" Click="ActionButton_Click" IsEnabled="{Binding ContactReviewRoles, Converter={StaticResource LoginToReviewIsEnK}}"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleArchieCheckout">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="ActionButtonArchieCheckout" Content="Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieCheckout_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleArchieActions">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <Button x:Name="ActionButtonArchieCheckout" Content="Check Out" Click="ActionButtonArchieCheckout_Click"
+                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
+                            <Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
+                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>
+                            <Button x:Name="ActionButtonArchieOpen" Content="Open" Tag="{Binding ReviewId}" Click="ActionButtonArchieOpen_Click"
+                                    IsEnabled="{Binding ContactReviewRoles, Converter={StaticResource LoginToArchieReviewIsEn}}"
+                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="csArchieCodeOnlyBt">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="btArchieCodeOnly" ToolTipService.ToolTip="Coding Only" Tag="{Binding ReviewId}" Click="btArchieCodeOnly_Click" Margin="2"
+                                IsEnabled="{Binding isLocal}">
+                            <Image Width="16" Height="16" Source="Icons/CodingOnly.png"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="csCodeOnlyBt">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="btCodeOnly" ToolTipService.ToolTip="Coding Only" Tag="{Binding ReviewId}" Click="btCodeOnly_Click" Margin="2">
+                            <Image Width="16" Height="16" Source="Icons/CodingOnly.png"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="GridHost" MinWidth="385" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!--<Grid x:Name="TextBlockLoading" Margin="1" Visibility="Collapsed" Background="White" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Loading..." FontSize="18" Foreground="Maroon" FontWeight="Bold" Grid.Column="0" Grid.Row="0"/>
+            <Image Source="Icons/EPPI-Centre_logo.png" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Top" Width="80" Height="45"
+                   Grid.Column="0" Grid.Row="1"/>
+            <StackPanel  Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Background="White" Grid.Column="1" Grid.Row="1" >
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="EPPI-Reviewer 4" FontWeight="Black"/>
+                    <TextBlock Text=" is developed and maintained by the EPPI-Centre"/>
+                </StackPanel>
+                <TextBlock Text="of the Institute of Education at the University of London, UK."/>
+                <StackPanel>
+                    <TextBlock Text="To find out more about the work of the EPPI-Centre please visit our website"/>
+                    <HyperlinkButton Content="http://eppi.ioe.ac.uk" NavigateUri="http://eppi.ioe.ac.uk" TargetName="_blank" Margin="2"/>
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>-->
+        <cslaXAML:BusyAnimation x:Name="busyanimation" Height="40" Width="40" IsRunning="False" ></cslaXAML:BusyAnimation>
+        <telerikNavigation:RadTabControl x:Name="Tabhost">
+            <telerikNavigation:RadTabItem x:Name="er4ReviewsTab" Header="Reviews in EPPI-Reviewer" IsSelected="True" Visibility="Collapsed">
+                <Grid x:Name="selrevG" ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" HorizontalAlignment="Center" >
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="MainRow" Height="*"/>
+                    <RowDefinition x:Name="ExpRow" Height="30"/>
+                        <RowDefinition x:Name="ExpRow2" Height="auto"/>
+                    </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition MinWidth="260" />
+                </Grid.ColumnDefinitions>
+                    <Controls:RadGridView x:Name="GridViewReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0"  Grid.ColumnSpan="2" VerticalAlignment="Top"
+                              HorizontalAlignment="Center" SizeChanged="GridViewReviewList_SizeChanged"
+                              ItemsSource="{Binding Source={StaticResource ReviewsData}, Path=Data}" AutoGenerateColumns="False" DataLoaded="RadGridView_DataLoaded"
+                              RowIndicatorVisibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+                    <Controls:RadGridView.Columns>
+                        <Controls:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyle}" Width="45" Header="Select" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="500" ></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="ID" DataMemberBinding="{Binding ReviewId}" Width="40"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Last Logon" DataMemberBinding="{Binding LastAccess}" Width="120"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn IsVisible="True" IsFilterable="False" Width="35" IsSortable="False" CellStyle="{StaticResource csCodeOnlyBt}" Header="" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
+                    </Controls:RadGridView.Columns>
+                </Controls:RadGridView>
+                    <StackPanel  Grid.Row="1" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Top" Margin="2">
+                        <Button x:Name="NewRevBT" Content="Create New Review" IsEnabled="False" Click="Button_Click" Margin="1"/>
+                    </StackPanel>
+                    <StackPanel  Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="1">
+                        <TextBox x:Name="newReviewTB" ToolTipService.ToolTip="Type a name for the new review"  
+                                         HorizontalAlignment="Stretch" IsEnabled="False"
+                                         TextChanged="newReviewTB_TextChanged" Margin="2,1,2,1"/>
+                    </StackPanel>
+                    <StackPanel x:Name="LogonToRevIDstackp" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"
+                                Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Center">
+                        <TextBox x:Name="LogonToRevIDTB" ToolTipService.ToolTip="Type a Review_ID" Width="50" KeyDown="LogonToRevIDTB_KeyDown" Margin="2" HorizontalAlignment="Center"/>
+                        <Button x:Name="LogonToRevIDBT" Content="Logon to RevID" IsEnabled="False" Click="LogonToRevIDBT_Click" Margin="10,1,1,1" HorizontalAlignment="Center"/>
+                        <EppiReviewer4:ArchieLogin x:Name="ArchieLogonControl"/>
+                    </StackPanel>
+                    <StackPanel x:Name="ShowReadOnlyMessage" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Visibility="Collapsed"
+                                Orientation="Vertical" HorizontalAlignment="Left" Margin="2">
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Sorry, your account is Exipred.</TextBlock>
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Since you have never created any review, there is nothing that can be done here (no data to access in "Read-only").</TextBlock>
+                        <TextBlock TextAlignment="Left" TextWrapping="Wrap"> Please head back to the EPPI-Reviewer gateway and purchase a subscription and/or create a new account.</TextBlock>
+                    </StackPanel>
+
+                </Grid>
+            </telerikNavigation:RadTabItem>
+            <telerikNavigation:RadTabItem  x:Name="ArchieReviewsTab" Header="Archie Reviews" IsSelected="False" Visibility="Collapsed" >
+                <Controls:RadGridView x:Name="GridViewArchieReviewList" ShowGroupPanel="False" Grid.Row="0"  Grid.Column="0" VerticalAlignment="Top"
+                                  HorizontalAlignment="Center" AutoGenerateColumns="False"
+                                  ItemsSource="{Binding Source={StaticResource ArchieReviewsData}, Path=Data}" 
+                                  RowIndicatorVisibility="Collapsed" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+                    <Controls:RadGridView.Columns>
+                        <Controls:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleArchieActions}" Width="100" Header="Select" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="10*" ></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Is Local" DataMemberBinding="{Binding isLocal}" Width="40" IsVisible="False"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Is Editable" DataMemberBinding="{Binding isCheckedOutHere}" Width="40" IsVisible="False"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="EPPI ID" DataMemberBinding="{Binding ReviewId}" Width="60"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Stage" DataMemberBinding="{Binding Stage}" Width="20" IsVisible="False"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Status" DataMemberBinding="{Binding Status}" Width="20" IsVisible="False"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Archie ID" DataMemberBinding="{Binding ArchieReviewId}" Width="120" IsVisible="False"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn Header="Archie CD" DataMemberBinding="{Binding ArchieReviewCD}" Width="5*"></Controls:GridViewDataColumn>
+                        <Controls:GridViewDataColumn IsVisible="True" IsFilterable="False" Width="35" IsSortable="False" CellStyle="{StaticResource csArchieCodeOnlyBt}" Header="" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
+                    </Controls:RadGridView.Columns>
+                </Controls:RadGridView>
+            </telerikNavigation:RadTabItem>
+        </telerikNavigation:RadTabControl>
+    </Grid>
+</UserControl>
