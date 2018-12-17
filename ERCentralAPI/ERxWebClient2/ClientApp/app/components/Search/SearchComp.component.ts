@@ -33,11 +33,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService,
 		private reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
-		private buildModelService: BuildModelService,
+		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 	) {
 	}
-	
+	public get DataSourceModel(): GridDataResult {
+		return {
+			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
+			total: this._buildModelService.ClassifierModelList.length,
+		};
+	}
+
 	public OpenClassifierScreen(ML: boolean) {
 
 		if (ML) {
@@ -453,7 +459,8 @@ export class SearchComp implements OnInit, OnDestroy {
     public sort: SortDescriptor[] = [{
         field: 'hitsNo',
         dir: 'desc'
-    }];
+	}];
+
     public sortChange(sort: SortDescriptor[]): void {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
@@ -486,6 +493,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
 			this.reviewInfoService.Fetch();
+			this._buildModelService.Fetch();
             this._searchService.Fetch();
 
 		}

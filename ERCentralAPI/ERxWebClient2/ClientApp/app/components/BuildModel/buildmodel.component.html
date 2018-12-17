@@ -13,7 +13,7 @@
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-info col-md-9" id="dropdownBasic1" ngbDropdownToggle>{{selectedModelDropDown1}}</button>
 					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-						<codesets ></codesets>
+						<codesetTreeMain></codesetTreeMain>
 					</div>
 				</div>
 			</div>
@@ -22,7 +22,7 @@
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-primary col-md-9" id="dropdownBasic2" ngbDropdownToggle>{{selectedModelDropDown2}}</button>
 					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic2">
-						<codesets></codesets>
+						<codesetTreeMain></codesetTreeMain>
 					</div>
 				</div>
 			</div>
@@ -33,7 +33,12 @@
 				</div>
 			</div>
 			<div class="col-md-12 row font-weight-bold form-group">
-				<button (click)="BuildModel(modelName, selectedSearchDropDown1, selectedSearchDropDown2)" class="btn btn-lg btn-primary"> Build Model</button>
+				<div class="col-md-6">
+					<button (click)="BuildModel(modelName, selectedSearchDropDown1, selectedSearchDropDown2)" class="btn btn-lg btn-primary"> Build Model</button>
+				</div>
+				<div class="col-md-6">
+					<button (click)="IamVerySorryRefresh()" class="btn btn-lg btn-warning"> Refresh Models</button>
+				</div>
 			</div>
 		</div>
 

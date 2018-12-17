@@ -48,6 +48,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.sort = sort;
 		console.log('sorting?' + this.sort[0].field + " ");
 	}
+	BackToMain() {
+		this.router.navigate(['Main']);
+	}
 
 	ngOnInit() {
 
@@ -60,41 +63,45 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 
 	}
+	IamVerySorryRefresh() {
+
+		this._buildModelService.Fetch();
+
+	}
 	SetAttrOn(node: any) {
 
 		//alert(node.name);
-		this.selectedModelDropDown1 = node.name;
-		let id: string = node.id;
-		let a: number = id.indexOf('A');
-		if (a != -1) {
-			let tmp: string = id.substr(a+1, id.length - a);
-			this.DD1 = tmp;
-			//alert(tmp);
+		if (node != null) {
+			this.selectedModelDropDown1 = node.name;
+			let id: string = node.id;
+			let a: number = id.indexOf('A');
+			if (a != -1) {
+				let tmp: string = id.substr(a+1, id.length - a);
+				this.DD1 = tmp;
+				//alert(tmp);
+				}
 		}
 		
 	}
 	SetAttrNotOn(node: any) {
 
-		//alert(node.name);
-		this.selectedModelDropDown2 = node.name;
-		let id: string = node.id;
-		let a: number = id.indexOf('A');
-		if (a != -1) {
-			let tmp: string = id.substr(a+1, id.length - a);
-			this.DD2 = tmp;
-			//alert(tmp);
+		if (node != null) {
+			//alert(node.name);
+			this.selectedModelDropDown2 = node.name;
+			let id: string = node.id;
+			let a: number = id.indexOf('A');
+			if (a != -1) {
+				let tmp: string = id.substr(a+1, id.length - a);
+				this.DD2 = tmp;
+				//alert(tmp);
+			}
 		}
-
 	}
 
 	BuildModel(title: string, attrOn: string, attrNotOn: string) {
 
-		alert('dd1 is: ' + this.DD1 + ' DD2 is: ' + this.DD2);
-
 
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
-
-			alert('got in here');
 
 			this._classifierService.Create(title, this.DD1, this.DD2, this._classifierService.ConnectionId);
 		}
@@ -125,9 +132,4 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	 //       this._CurrentModelDateofSearch = newDate;
 	 //   }
 
-	BackToMain() {
-
-        this.router.navigate(['mainFullReview']);
-
-	}
 }

@@ -40,7 +40,7 @@ export class ClassifierService extends BusyAwareService {
 
 		let body = JSON.stringify({ MVCClassifierCommand: MVCcmd });
 
-		alert('press F12 check log');
+		//alert('press F12 check log');
 		console.log('is ti null? ==> ' + MVCcmd.revInfo.reviewName);
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
@@ -50,7 +50,7 @@ export class ClassifierService extends BusyAwareService {
 		)
 				 .subscribe(result => {
 				
-					 alert('what the hell: ' + result);
+					 //alert('what the hell: ' + result);
 					 
 					 console.log(result)
 				 },

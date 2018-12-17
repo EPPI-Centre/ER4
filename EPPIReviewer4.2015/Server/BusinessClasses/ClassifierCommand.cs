@@ -28,7 +28,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using CsvHelper;
-//using AspNetCore.Http.Extensions;
+using AspNetCore.Http.Extensions;
+
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
@@ -844,7 +845,7 @@ namespace BusinessLibrary.BusinessClasses
 					return;
 				}
 
-				string jobId = await response.Content.ReadAsAsync<string>();
+				string jobId = await response.Content.ReadAsJsonAsync<string>();
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -866,7 +867,7 @@ namespace BusinessLibrary.BusinessClasses
 						return;
 					}
 
-					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
 					{
 						done = true;

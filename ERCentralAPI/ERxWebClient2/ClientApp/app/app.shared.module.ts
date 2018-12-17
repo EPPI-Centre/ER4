@@ -51,6 +51,7 @@ import { PubMedComponent } from './components/Sources/PubMed.component';
 import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsEditor.component';
 import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeMain.component';
 import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
+import { BuildModelComponent } from './components/BuildModel/buildmodel.component';
 
 
 @NgModule({
@@ -78,7 +79,8 @@ import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeE
 		StatusBarComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
-        SourcesComponent,
+		SourcesComponent,
+		BuildModelComponent,
         ImportReferencesFileComponent,
         PubMedComponent,
         intropageComponent,
@@ -119,7 +121,8 @@ import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeE
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
-            { path: 'sources', component: SourcesComponent },
+			{ path: 'sources', component: SourcesComponent },
+			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
