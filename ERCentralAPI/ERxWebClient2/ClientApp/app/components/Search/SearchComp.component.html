@@ -14,98 +14,96 @@
 	</tbody>
 </table>-->
 
+
 <div class="containsAtoolbar">
 	<kendo-toolbar style="background-color: steelblue;">
 		<kendo-toolbar-button [text]="'New Search'" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Refresh Search'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Delete Search'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Combine'" (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseExample2"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Delete Selected'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
+		<kendo-toolbar-splitbutton [text]="'Combine'" (buttonClick)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
 		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 
 <div id="collapseExample" [ngbCollapse]="!isCollapsed" class="col-md-12">
 	<div class="card">
-		<div class="card-body">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-md-2 font-italic"><h5> Find Documents: </h5></div>
-					<div class="col-md-7">
-						<div ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-primary col-md-8" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
-							<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-								<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
-								<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
-								<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
-								<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-								<button (click)="nextDropDownList(5, 'That have at least one code from this set')" class="dropdown-item">That have at least one code from this set</button>
-								<button (click)="nextDropDownList(6, 'That dont have any codes from this set')" class="dropdown-item">That don't have any codes from this set</button>
-								<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
-								<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
-								<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
-								<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
-							</div>
-						</div>
-
-						<div *ngIf="(selectedSearchDropDown == 'With this code' )
-						||   (selectedSearchDropDown == 'Without this code' )">
-							<!--<codesets class="col-md-8"></codesets>-->
-						</div>
-
-						<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
-						||		selectedSearchDropDown == 'That dont have any codes from this set') "
-							 ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
-							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
-							</div>
+		<div class="container-fluid card-body">
+			<div class="row">
+				<div class="col-md-7 m-0 p-0">
+					<div ngbDropdown>
+						<button class="btn btn-primary col-md-7" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+							<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+							<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+							<button (click)="nextDropDownList(5, 'That have at least one code from this set')" class="dropdown-item">That have at least one code from this set</button>
+							<button (click)="nextDropDownList(6, 'That dont have any codes from this set')" class="dropdown-item">That don't have any codes from this set</button>
+							<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+							<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+							<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+							<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
 						</div>
 					</div>
-					<div *ngIf="reviewSetsService.selectedNode" class="col-md-3"> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</div>
-					<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 
-						<div>
-							<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
-							<input [(ngModel)]="commaIDs"
-								   class="col-md-8 bg-light border-dark form-control pull-right"
-								   type="text" name="CommaIDs"
-								   placeholder="IDs"><br>
-						</div>
+					<div *ngIf="(selectedSearchDropDown == 'With this code' )
+					||   (selectedSearchDropDown == 'Without this code' )">
+						<!--<codesets class="col-md-8"></codesets>-->
 					</div>
-					<div class="col-md-12">
-						<div class="col-md-4"></div>
-						<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-							 class="col-md-8  pull-right">
-							<div>
-								<div>
-									<input [(ngModel)]="searchText"
-										   class="col-md-11 bg-light border-dark form-control m-3"
-										   type="text" name="SearchText"
-										   placeholder="search text"><br>
-								</div>
-								<h3 class="col-md-12 font-italic text-center">IN</h3>
-								<div ngbDropdown class="d-inline-block col-md-12">
-									<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
-									<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-										<button (click)="setSearchTextDropDown('TitleAbstract')" class="dropdown-item">Title and abstract</button>
-										<button (click)="setSearchTextDropDown('Title')" class="dropdown-item">Title only</button>
-										<button (click)="setSearchTextDropDown('Abstract')" class="dropdown-item">Abstract only</button>
-										<button (click)="setSearchTextDropDown('AdditionalText')" class="dropdown-item">Additional text</button>
-										<button (click)="setSearchTextDropDown('UploadedDocs')" class="dropdown-item">Uploaded documents</button>
-										<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
-										<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
-									</div>
-								</div>
-							</div>
-						</div>
 
+					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
+					||		selectedSearchDropDown == 'That dont have any codes from this set') "
+						 ngbDropdown class="d-inline-block col-md-12">
+						<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+							<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+						</div>
 					</div>
 				</div>
+
+				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
+					<div>
+						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
+						<input [(ngModel)]="commaIDs"
+							   class="col-md-8 bg-light border-dark form-control pull-right"
+							   type="text" name="CommaIDs"
+							   placeholder="IDs"><br>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="col-md-4"></div>
+					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
+						 class="col-md-8  pull-right">
+						<div>
+							<div>
+								<input [(ngModel)]="searchText"
+									   class="col-md-11 bg-light border-dark form-control m-3"
+									   type="text" name="SearchText"
+									   placeholder="search text"><br>
+							</div>
+							<h3 class="col-md-12 font-italic text-center">IN</h3>
+							<div ngbDropdown class="d-inline-block col-md-12">
+								<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+								<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+									<button (click)="setSearchTextDropDown('TitleAbstract')" class="dropdown-item">Title and abstract</button>
+									<button (click)="setSearchTextDropDown('Title')" class="dropdown-item">Title only</button>
+									<button (click)="setSearchTextDropDown('Abstract')" class="dropdown-item">Abstract only</button>
+									<button (click)="setSearchTextDropDown('AdditionalText')" class="dropdown-item">Additional text</button>
+									<button (click)="setSearchTextDropDown('UploadedDocs')" class="dropdown-item">Uploaded documents</button>
+									<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+									<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
 			</div>
+			<span *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
 			<div class="row">
 				<div class="col-md-4"></div>
 				<div class="col-md-12">
-					<table class="table table-striped table-light col-md-4">
+					<table class="col-md-4">
 						<tr class="col-md-4">
 							<td>
 								<input name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl"><br />
@@ -149,22 +147,42 @@
 	</table>
 </div>
 <div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
-	<table class="table col-md-12">
-		<tr>
-			<td>
-				<button class="btn btn-outline-success col-md-7">&nbsp; RUN MACHINE LEARNING </button>
-			</td>
-			<td>
-				<p class="col-md-6" (click)="getLogicSearches()">&nbsp; or stuff</p>
-			</td>
-			<td>
-				<p class=" col-md-6" (click)="getLogicSearches()">&nbsp; other stuff</p>
-			</td>
-			<td>
-				<p class="col-md-6" (click)="getLogicSearches()">&nbsp;stuff</p>
-			</td>
-		</tr>
-	</table>
+	<div class="row">
+		<div class=" col-md-6">
+			<div class="form-group card-body">
+				<p class="font-weight-bold">Select a  Models:</p>
+				<div class="btn-group-vertical" role="group" aria-label="Basic example">
+					<button (click)="SelectModel('Cochrane RCT')" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
+					<button  (click)="SelectModel('Economic Evaluation')" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
+					<button  (click)="SelectModel('Systematic Review')" type="button" class="btn btn-outline-primary">Systematic Review</button>
+					<button  (click)="SelectModel('Original RCT')" type="button" class="btn btn-outline-primary">Original RCT</button>
+					<button type="button" class="btn btn-outline-primary" (click)="isCollapsed4 = !isCollapsed4" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 pull-right">
+			<table id="collapseExample4" [ngbCollapse]="!isCollapsed4" class="table table-responsive table-striped">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Applies</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>asdfsaf</td>
+						<td>zxfasd</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+		<div class="form-group card-body col-md-12">
+		<p class="font-weight-bold">Run Models</p>
+			<button [disabled]="!ModelSelected"
+					type="button" class="btn btn-success">Run Selected Model</button>
+	</div>
+	
 </div>
 <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.isBusy"
 			[data]="DataSource" [height]="410"

@@ -8,6 +8,9 @@ import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-an
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { ClassifierService } from '../services/classifier.service';
+import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import { BuildModelService } from '../services/buildmodel.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -24,24 +27,70 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService,
+		public ItemListService: ItemListService,
+		private reviewInfoService: ReviewInfoService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
 		private reviewSetsService: ReviewSetsService,
+		private classifierService: ClassifierService,
+		private buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 	) {
 	}
-
+	
 	public OpenClassifierScreen(ML: boolean) {
 
 		if (ML) {
 			alert('need to open a relevant screen');
+			// for now harcode values and send the variables ot the controller
+			// in order to test that we can get a dotnetcore version
+			//working
+			// need to remove this...
+			this.classifierService.Create('','','', '');
+
+
 		} else {
+
 			alert('do nothing here');
 		}
 	}
 
+
+	SelectModel(model: string) {
+
+		this.ModelSelected = true;
+		alert('you selected model: ' + model);
+
+	}
+
+	public data: Array<any> = [{
+		text: 'AND',
+		click: () => {
+			this.getLogicSearches('AND');
+			alert('AND');
+		}
+	}, {
+		text: 'OR',
+			click: () => {
+				this.getLogicSearches('OR');
+				alert('OR');
+			}
+	}, {
+		text: 'NOT',
+			click: () => {
+				this.getLogicSearches('NOT');
+				alert('NOT');
+			}
+	}, {
+		text: 'NOT (excluded)',
+			click: () => {
+				this.getLogicSearches('NOT (excluded)');
+				alert('NOT (excluded)');
+			}
+	}];
+
 	private _searchInclOrExcl: string = '';
+	public ModelSelected: boolean = false;
 
 	public get searchInclOrExcl(): string {
 
@@ -71,15 +120,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public set logic(value: string) {
 
-		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
 
-		//if (value == 'true' || value == 'false')
-		//{
-		//	this._logic = value;
-		//}
-		//else {
-		//	console.log("I'm not doing it :-P ", value);
-		//}
 
 		alert('got inside here');
 		this._searchService.cmdSearches._included = 'true';
@@ -444,7 +485,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 		else {
 
-			//this._searchInclOrExcl = 'true';
+			this.reviewInfoService.Fetch();
             this._searchService.Fetch();
 
 		}

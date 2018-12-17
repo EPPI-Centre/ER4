@@ -27,6 +27,8 @@ using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Diagnostics;
+using CsvHelper;
+//using AspNetCore.Http.Extensions;
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
@@ -286,6 +288,7 @@ namespace BusinessLibrary.BusinessClasses
 				// upload data to blob
 				CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 				CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
+				
 				CloudBlockBlob blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
 					+ ".csv");
 				//blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
@@ -306,7 +309,7 @@ namespace BusinessLibrary.BusinessClasses
 				_returnMessage = "Successful upload of data";
 
 				await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
-
+				// er4ml isharedkey =true
 				CloudBlobClient blobClientStats = storageAccount.CreateCloudBlobClient();
 				CloudBlobContainer containerStats = blobClient.GetContainerReference("attributemodels");
 				CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
@@ -323,8 +326,15 @@ namespace BusinessLibrary.BusinessClasses
 
 					byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 #else
-					var test = await blockBlob.DownloadTextAsync();
-					byte[] myFile = Encoding.UTF8.GetBytes(test);
+					bool check = await blockBlob.ExistsAsync();
+					string x = "";
+					if (check)
+					{
+						var test = blockBlob.DownloadTextAsync();
+						x = await test;
+						
+					}
+					byte[] myFile = Encoding.UTF8.GetBytes(x);
 #endif
 
 
@@ -347,12 +357,30 @@ namespace BusinessLibrary.BusinessClasses
 						}
 					}
 #else
-					//not implemented yet
 
+					using (TextReader tr = new StreamReader(ms))
+					{
+						//not implemented yet
+						var csv = new CsvReader(tr);
+						csv.Read();
+						csv.ReadHeader();
+						while (csv.Read())
+						{
+							var record = csv.GetRecord<SVMModel>();
+							accuracy = GetSafeValue(record.accuracy.ToString());
+							auc = GetSafeValue(record.auc.ToString());
+							precision = GetSafeValue(record.precision.ToString());
+							recall = GetSafeValue(record.recall.ToString());
+						}
+
+
+						//var records = csv.GetRecords(anonymousTypeDefinition);
+					}
+	
 #endif
 
 				}
-				catch
+				catch(Exception e)
 				{
 					_returnMessage = "BuildFailed";
 					_title += " (failed)";
@@ -365,12 +393,13 @@ namespace BusinessLibrary.BusinessClasses
 				using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
 				{
 					command2.CommandType = System.Data.CommandType.StoredProcedure;
+					
 					command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
 					command2.Parameters.Add(new SqlParameter("@TITLE", _title));
-					command2.Parameters.Add(new SqlParameter("@ACCURACY", accuracy));
-					command2.Parameters.Add(new SqlParameter("@AUC", auc));
-					command2.Parameters.Add(new SqlParameter("@PRECISION", precision));
-					command2.Parameters.Add(new SqlParameter("@RECALL", recall));
+					command2.Parameters.AddWithValue("@ACCURACY", accuracy);
+					command2.Parameters.AddWithValue("@AUC", auc);
+					command2.Parameters.AddWithValue("@PRECISION",  precision);
+					command2.Parameters.AddWithValue("@RECALL",  recall);
 					command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
 					command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
 					command2.ExecuteNonQuery();
@@ -805,7 +834,7 @@ namespace BusinessLibrary.BusinessClasses
 
 				// submit the job
 
-#if (!CSLA_NETCORE)
+//#if (!CSLA_NETCORE)
 
 				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
 
@@ -865,10 +894,70 @@ namespace BusinessLibrary.BusinessClasses
 						Thread.Sleep(1000); // Wait one second
 					}
 				}
-#else
-			// not implemented
+//#else
 
-#endif
+
+
+//				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
+
+//				if (!response.IsSuccessStatusCode)
+//				{
+//					await WriteFailedResponse(response);
+//					return;
+//				}
+
+//				string jobId = await response.Content.ReadAsAsync<string>();
+
+//				// start the job
+//				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+//				if (!response.IsSuccessStatusCode)
+//				{
+//					await WriteFailedResponse(response);
+//					return;
+//				}
+
+//				string jobLocation = BaseUrl + "/" + jobId + "?api-version=2.0";
+//				Stopwatch watch = Stopwatch.StartNew();
+//				bool done = false;
+//				while (!done)
+//				{
+//					response = await client.GetAsync(jobLocation);
+//					if (!response.IsSuccessStatusCode)
+//					{
+//						await WriteFailedResponse(response);
+//						return;
+//					}
+
+//					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+//					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
+//					{
+//						done = true;
+//						await client.DeleteAsync(jobLocation);
+//					}
+//					switch (status.StatusCode)
+//					{
+//						case BatchScoreStatusCode.NotStarted:
+//							break;
+//						case BatchScoreStatusCode.Running:
+//							break;
+//						case BatchScoreStatusCode.Failed:
+//							done = true;
+//							break;
+//						case BatchScoreStatusCode.Cancelled:
+//							done = true;
+//							break;
+//						case BatchScoreStatusCode.Finished:
+//							done = true;
+//							break;
+//					}
+
+//					if (!done)
+//					{
+//						Thread.Sleep(1000); // Wait one second
+//					}
+//				}
+
+//#endif
 
 
 			}
@@ -882,3 +971,13 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 			}
 		}
+
+
+public class SVMModel
+{
+	public double accuracy { get; set; }
+	public double auc { get; set; }
+	public double precision { get; set; }
+	public double recall { get; set; }
+	
+}
