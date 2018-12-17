@@ -23,15 +23,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class SourceDeleteForeverCommand : CommandBase<SourceDeleteForeverCommand>
     {
-#if SILVERLIGHT
     public SourceDeleteForeverCommand(){}
-#else
-        protected SourceDeleteForeverCommand() { }
-#endif
 
         private int _SourceId;
-
-
         public int SourceId
         {
             get { return _SourceId; }
@@ -63,6 +57,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_SourceDeleteForever", connection))
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    int revID = ri.ReviewId;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@srcID", _SourceId));
                     command.CommandTimeout = 60;

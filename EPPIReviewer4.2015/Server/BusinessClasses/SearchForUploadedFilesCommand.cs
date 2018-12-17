@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SearchForUploadedFilesCommand(){}
 #else
-        protected SearchForUploadedFilesCommand() { }
+        public SearchForUploadedFilesCommand() { }
 #endif
 
         private string _title;
