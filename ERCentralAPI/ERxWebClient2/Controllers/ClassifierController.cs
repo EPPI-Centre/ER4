@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.SignalR;
-using TableDependency.SqlClient.Base;
-using TableDependency.SqlClient;
-using TableDependency.SqlClient.Base.Enums;
-using TableDependency.SqlClient.Base.EventArgs;
 using Csla;
 
 

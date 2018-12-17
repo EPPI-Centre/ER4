@@ -28,6 +28,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using CsvHelper;
+using AspNetCore.Http.Extensions;
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
