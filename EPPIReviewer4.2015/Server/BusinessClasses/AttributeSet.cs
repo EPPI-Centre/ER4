@@ -293,6 +293,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ParentAttributeId
         {
             get

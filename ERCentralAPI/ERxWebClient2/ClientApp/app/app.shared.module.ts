@@ -50,12 +50,12 @@ import { SourcesComponent } from './components/Sources/sources.component';
 import { PubMedComponent } from './components/Sources/PubMed.component';
 import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsEditor.component';
 import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeMain.component';
+import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
 
 
 @NgModule({
     declarations: [
 		AppComponent,
-        CodesetTreeMainComponent,
 		SearchComp,
         frequenciesComp,
         frequenciesResultsComp,
@@ -63,7 +63,9 @@ import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeM
 		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
+        CodesetTreeMainComponent,
         CodesetTreeCodingComponent,
+        CodesetTreeEditComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,

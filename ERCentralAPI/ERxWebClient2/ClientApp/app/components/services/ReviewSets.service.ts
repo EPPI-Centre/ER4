@@ -163,7 +163,8 @@ export class ReviewSetsService extends BusyAwareService {
             newAtt.attribute_type = iAtt.attributeType;
             newAtt.attribute_type_id = iAtt.AttributeTypeId;
 			newAtt.attribute_set_desc = iAtt.attributeSetDescription;
-			newAtt.attributeSetId = iAtt.attributeSetId;
+            newAtt.attributeSetId = iAtt.attributeSetId;
+            newAtt.parent_attribute_id = iAtt.parentAttributeId;
             newAtt.attribute_desc = iAtt.attributeDescription;
             newAtt.set_id = iAtt.setId;
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
@@ -353,7 +354,8 @@ export interface singleNode {
     nodeType: string;//codeset or attribute?
     subTypeName: string;//screening, admin, normal; selectable, non selectable, etc.
 	description: string;
-	attributeSetId: number;
+    attributeSetId: number;
+    parent: number;
 
     isSelected: boolean;
     additionalText: string;
@@ -377,6 +379,9 @@ export class ReviewSet implements singleNode {
     public get subTypeName(): string {
         if (this.setType) return this.setType.setTypeName;
         else return "";
+    }
+    public get parent(): number {
+        return -1;//it's used only in attribues, ReviewSets have no parent!
     }
     public description: string = "";
     setType: iSetType | null = null ;
@@ -413,6 +418,9 @@ export class SetAttribute implements singleNode {
     }
     public get subTypeName(): string {
          return this.attribute_type;
+    }
+    public get parent(): number {
+        return this.parent_attribute_id;
     }
     parent_attribute_id: number = -1;;
     attribute_type_id: number = -1;;
@@ -454,6 +462,7 @@ export interface iAttributeSet {
     AttributeTypeId: number;
     attributeName: string;
     attributeDescription: string;
+    parentAttributeId: number;
     attributes: iAttributesList;
     isSelected: boolean;
     setId: number;
