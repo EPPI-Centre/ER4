@@ -491,55 +491,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 		else {
 
-			this._hubConnection = new HubConnectionBuilder().withUrl("http://localhost:12345/notify").build();
-			this._hubConnection
-				.start()
-				.then(() => {
-					console.log('Connection started!')
-					var hub = this._hubConnection;
-					if (hub != null) {
-						let url: string = hub["connection"].transport.webSocket.url;
-						let tmp: number = url.indexOf('=');
-						let id = url.substr(tmp + 1, url.length - tmp);
-						this.classifierService.ConnectionId = id;
-						alert(id);
-					}
-
-				})
-				.catch(err => console.log('Error while establishing connection :('));
-
-			this._hubConnection.on('BroadcastMessage', (type: string, payload: string) => {
-
-				alert('BM has type:' + type + ' and payload is: ' + payload);
-
-				if (type === 'A') {
-
-					this.notificationService.show({
-						content: 'The custom model has been sent to Azure: ' + type,
-						animation: { type: 'slide', duration: 400 },
-						position: { horizontal: 'center', vertical: 'top' },
-						type: { style: 'success', icon: true },
-						closable: true
-					});
-				}
-
-				if (type === 'C' ) {
-					this.notificationService.show({
-						content: 'The custom model run on Azure has come back successfully ' + type,
-						animation: { type: 'slide', duration: 400 },
-						position: { horizontal: 'center', vertical: 'top' },
-						type: { style: 'success', icon: true },
-						closable: true
-					});
-				} 
-
-
-				//}
-				
-				this.msgs.push({ severity: type, summary: payload });
-				this.buildModelService.Fetch();
-			});
-
 			this.reviewInfoService.Fetch();
             this._searchService.Fetch();
 

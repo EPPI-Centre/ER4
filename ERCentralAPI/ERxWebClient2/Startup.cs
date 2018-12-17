@@ -47,16 +47,6 @@ namespace ERxWebClient2
                     };
                 });
 
-            services.AddSingleton(Configuration);
-			services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
-			{
-				builder
-					.AllowAnyMethod()
-					.AllowAnyHeader()
-					.WithOrigins("http://localhost:4200");
-			}));
-
-			services.AddSignalR();
 
 			services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
@@ -69,8 +59,7 @@ namespace ERxWebClient2
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-
-
+			
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -87,11 +76,7 @@ namespace ERxWebClient2
             app.UseAuthentication();
 
 			app.UseStaticFiles();
-			app.UseCors("CorsPolicy");
-			app.UseSignalR(routes =>
-			{
-				routes.MapHub<NotifyHub>("/notify");
-			});
+
 			app.UseMvc(routes =>
             {
                 routes.MapRoute(
