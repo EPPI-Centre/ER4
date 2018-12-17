@@ -10,7 +10,7 @@ import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
+import { CodesetTreeCodingComponent, CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';

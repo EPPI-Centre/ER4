@@ -7,7 +7,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo } from './ReviewInfo.service';
-import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
+import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
 import { ModalService } from './modal.service';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { BusyAwareService } from '../helpers/BusyAwareService';

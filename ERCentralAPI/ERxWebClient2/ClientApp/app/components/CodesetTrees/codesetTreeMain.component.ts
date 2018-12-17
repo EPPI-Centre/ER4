@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
-    selector: 'codesets',
+    selector: 'codesetTreeMain',
     styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
@@ -27,10 +27,10 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-    templateUrl: './codesets.component.html'
+    templateUrl: './codesetTreeMain.component.html'
 })
 
-export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,

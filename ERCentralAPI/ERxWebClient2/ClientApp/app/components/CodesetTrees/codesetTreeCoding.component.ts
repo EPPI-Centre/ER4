@@ -13,7 +13,7 @@ import { TreeNode } from '@angular/router/src/utils/tree';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 
 @Component({
-    selector: 'reviewsets',
+    selector: 'codesetTreeCoding',
     styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
@@ -26,9 +26,9 @@ import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-    templateUrl: './reviewsets.component.html'
+    templateUrl: './codesetTreeCoding.component.html'
 })
-export class ReviewSetsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,

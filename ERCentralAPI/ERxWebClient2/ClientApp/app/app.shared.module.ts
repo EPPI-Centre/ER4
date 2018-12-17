@@ -6,7 +6,7 @@ import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
 import { AppComponent } from './components/app/app.component';
 import { HomeComponent } from './components/home/home.component';
-import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
+import { CodesetTreeCodingComponent, InfoBoxModalContent } from './components/CodesetTrees/codesetTreeCoding.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { MainFullReviewComponent } from './components/main/mainfull.component';
@@ -27,7 +27,6 @@ import { ItemCodingFullComp } from './components/coding/codingFull.component';
 import { itemDetailsComp } from './components/itemDetails/itemDetails.component';
 import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatistics.component';
 import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
-import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
 import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
@@ -49,13 +48,14 @@ import { ROSourcesListComponent } from './components/Sources/ROSourcesList.compo
 import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { SourcesComponent } from './components/Sources/sources.component';
 import { PubMedComponent } from './components/Sources/PubMed.component';
-import { ReviewSetsEditorComponent } from './components/reviewsets/reviewSetsEditor.component';
+import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsEditor.component';
+import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeMain.component';
 
 
 @NgModule({
     declarations: [
 		AppComponent,
-		CodesetTreeComponent,
+        CodesetTreeMainComponent,
 		SearchComp,
         frequenciesComp,
         frequenciesResultsComp,
@@ -63,7 +63,7 @@ import { ReviewSetsEditorComponent } from './components/reviewsets/reviewSetsEdi
 		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
-        ReviewSetsComponent,
+        CodesetTreeCodingComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
@@ -114,7 +114,6 @@ import { ReviewSetsEditorComponent } from './components/reviewsets/reviewSetsEdi
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
-            { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
