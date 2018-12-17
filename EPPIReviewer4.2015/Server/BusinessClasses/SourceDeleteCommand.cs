@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public SourceDeleteCommand(){}
 #else
-        protected SourceDeleteCommand() { }
+        public SourceDeleteCommand() { }
 #endif
 
         private int _SourceId;

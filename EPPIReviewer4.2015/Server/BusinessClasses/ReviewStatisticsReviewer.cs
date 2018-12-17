@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private ReviewStatisticsReviewer() { }
+        public ReviewStatisticsReviewer() { }
 #endif
 
         public override string ToString()
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        public static readonly  PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -52,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", ""));
+        public static readonly  PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", ""));
         public string ContactName
         {
             get
@@ -61,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
+        public static readonly  PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", ""));
+        public static readonly  PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", ""));
         public string SetName
         {
             get
@@ -79,7 +79,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted"));
+        public static readonly  PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted"));
         public bool IsCompleted
         {
             get
@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> NumItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("NumItems", "NumItems"));
+        public static readonly  PropertyInfo<int> NumItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("NumItems", "NumItems"));
         public int NumItems
         {
             get

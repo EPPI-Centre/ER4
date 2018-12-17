@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ReadOnlyImportFilterRuleList() { }
 #else
-        private ReadOnlyImportFilterRuleList() { }
+        public ReadOnlyImportFilterRuleList() { }
 #endif
 
         internal static ReadOnlyImportFilterRuleList NewReadOnlyImportFilterRuleList()

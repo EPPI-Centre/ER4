@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ReviewStatisticsCountsCommand() { }
 #else
-        protected ReviewStatisticsCountsCommand() { }
+        public ReviewStatisticsCountsCommand() { }
 #endif
 
         private int _itemsIncluded;

@@ -10,8 +10,6 @@ import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
-import { Message } from 'primeng/api';
 import { BuildModelService } from '../services/buildmodel.service';
 
 @Component({
@@ -39,11 +37,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		private notificationService: NotificationService,
 	) {
 	}
-
-	public _hubConnection?: HubConnection;
-	msgs: Message[] = [];
-
-
+	
 	public OpenClassifierScreen(ML: boolean) {
 
 		if (ML) {

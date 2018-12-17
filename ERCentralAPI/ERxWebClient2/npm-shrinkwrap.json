@@ -504,6 +504,79 @@
         "tslib": "^1.9.0"
       }
     },
+    "@progress/kendo-angular-grid": {
+      "version": "3.10.2",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-grid/-/kendo-angular-grid-3.10.2.tgz",
+      "integrity": "sha512-/gIWOaVFScFl5hoe5AydV+r8Xmwdnq/Pmt6YtZ4tWJwj3Fe6SGstyY86rpyYuOsGenzO95OC0Lqg9gHGTnHTPA==",
+      "requires": {
+        "@progress/kendo-angular-pdf-export": "^1.0.0",
+        "@progress/kendo-angular-resize-sensor": "^3.1.2",
+        "@progress/kendo-file-saver": "^1.0.0",
+        "@progress/kendo-schematics": "^0.2.1",
+        "@telerik/kendo-draggable": "^1.9.0",
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-layout": {
+      "version": "3.2.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-layout/-/kendo-angular-layout-3.2.0.tgz",
+      "integrity": "sha512-IFRRFUAZ85OBRV5IDHyO56dwhON6pJsjgWTg+Rb7Vo4QZZNnCHjTYECRiRHtHy2RFpt34YcLN4TcOwOEYCkcog==",
+      "requires": {
+        "@progress/kendo-schematics": "^0.2.0",
+        "@telerik/kendo-draggable": "^1.5.1",
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-notification": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-notification/-/kendo-angular-notification-1.1.1.tgz",
+      "integrity": "sha512-unA6++vr3lemGN6GpLTYrF1peK+DXGuugC8XIQ+Hw3cOd4NnZxVyjg1C5EcTIwl8yPSFdNhSiwVnDOAtXYEJzQ==",
+      "requires": {
+        "@progress/kendo-schematics": "^0.2.0",
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-pdf-export": {
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-pdf-export/-/kendo-angular-pdf-export-1.2.0.tgz",
+      "integrity": "sha512-ZQrlHsPr4ePzcauLRbnWvKuAssla1RGIISLfIqWpQ44Yf2xMwsnHEUaTS4d+g4/Y5a1cnYIuVElpTcViTTpSVw==",
+      "requires": {
+        "@progress/kendo-file-saver": "^1.0.1",
+        "@progress/kendo-schematics": "^0.2.0",
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-angular-resize-sensor": {
+      "version": "3.1.2",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-resize-sensor/-/kendo-angular-resize-sensor-3.1.2.tgz",
+      "integrity": "sha512-Wf9HS6zSGGo19dJBYin6PGYs87pqqpgFjDHKSCj+qZqAQRcnTHfGZMz1JvRNOZIVyS7mUFIbRZxP486e9vvTSA==",
+      "requires": {
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-data-query": {
+      "version": "1.5.0",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-data-query/-/kendo-data-query-1.5.0.tgz",
+      "integrity": "sha512-/uEE+5FUjQ/NGnGPZSr+7lLHN/5QAf9E/tWjLyVuNM/UyLfc9Q8QlLQmEL16ML8FiE0JssgIwbnOtkrSUO6O7Q==",
+      "requires": {
+        "tslib": "^1.7.0"
+      }
+    },
+    "@progress/kendo-file-saver": {
+      "version": "1.0.7",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-file-saver/-/kendo-file-saver-1.0.7.tgz",
+      "integrity": "sha512-8tsho/+DATzfTW4BBaHrkF3C3jqH2/bQ+XbjqA0KfmTiBRVK6ygK+tkvkYeDhFlQBbJ02MmJlEC6OmXvXRFkUg=="
+    },
+    "@progress/kendo-schematics": {
+      "version": "0.2.5",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-schematics/-/kendo-schematics-0.2.5.tgz",
+      "integrity": "sha512-F9ZXPhDoHGQ5MIUTGn7NkEgX5RV6eBfLVtv0yOCKxZpTF6VkYWAnKFYhQFCFgHJsDGPMZtcT2hB1MHntIYIipA=="
+    },
+    "@telerik/kendo-draggable": {
+      "version": "1.9.0",
+      "resolved": "https://registry.npmjs.org/@telerik/kendo-draggable/-/kendo-draggable-1.9.0.tgz",
+      "integrity": "sha512-B5zi4iLQdaSvpF0dFi1/u8Ej037nTsqTkW+FaZxyhCawfR+b1d8OSw9nQZtSeFW7VYvHwElPKCYXgV50NLMzrA=="
+    },
     "@types/chai": {
       "version": "4.1.4",
       "resolved": "https://registry.npmjs.org/@types/chai/-/chai-4.1.4.tgz",
@@ -2218,6 +2291,39 @@
       "resolved": "https://registry.npmjs.org/chardet/-/chardet-0.5.0.tgz",
       "integrity": "sha1-/jrHPADD2GX/zAKgaC4sILagYCk=",
       "dev": true
+    },
+    "chart.js": {
+      "version": "2.7.3",
+      "resolved": "https://registry.npmjs.org/chart.js/-/chart.js-2.7.3.tgz",
+      "integrity": "sha512-3+7k/DbR92m6BsMUYP6M0dMsMVZpMnwkUyNSAbqolHKsbIzH2Q4LWVEHHYq7v0fmEV8whXE0DrjANulw9j2K5g==",
+      "requires": {
+        "chartjs-color": "^2.1.0",
+        "moment": "^2.10.2"
+      }
+    },
+    "chartjs-color": {
+      "version": "2.2.0",
+      "resolved": "https://registry.npmjs.org/chartjs-color/-/chartjs-color-2.2.0.tgz",
+      "integrity": "sha1-hKL7dVeH7YXDndbdjHsdiEKbrq4=",
+      "requires": {
+        "chartjs-color-string": "^0.5.0",
+        "color-convert": "^0.5.3"
+      },
+      "dependencies": {
+        "color-convert": {
+          "version": "0.5.3",
+          "resolved": "http://registry.npmjs.org/color-convert/-/color-convert-0.5.3.tgz",
+          "integrity": "sha1-vbbGnOZg+t/+CwAHzER+G59ygr0="
+        }
+      }
+    },
+    "chartjs-color-string": {
+      "version": "0.5.0",
+      "resolved": "https://registry.npmjs.org/chartjs-color-string/-/chartjs-color-string-0.5.0.tgz",
+      "integrity": "sha512-amWNvCOXlOUYxZVDSa0YOab5K/lmEhbFNKI55PWc4mlv28BDzA7zaoQTGxSBgJMHIW+hGX8YUrvw/FH4LyhwSQ==",
+      "requires": {
+        "color-name": "^1.0.0"
+      }
     },
     "check-error": {
       "version": "1.0.2",
@@ -6555,6 +6661,11 @@
       "resolved": "https://registry.npmjs.org/mobx-angular/-/mobx-angular-2.1.1.tgz",
       "integrity": "sha1-1eNlOayyABht1aEXCAa0d2uai4g="
     },
+    "moment": {
+      "version": "2.23.0",
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.23.0.tgz",
+      "integrity": "sha512-3IE39bHVqFbWWaPOMHZF98Q9c3LDKGTmypMiTM2QygGXXElkFWIH7GxfmlwmY2vwa+wmNsoYZmG2iusf1ZjJoA=="
+    },
     "move-concurrently": {
       "version": "1.0.1",
       "resolved": "https://registry.npmjs.org/move-concurrently/-/move-concurrently-1.0.1.tgz",
@@ -6650,6 +6761,14 @@
       "resolved": "https://registry.npmjs.org/next-tick/-/next-tick-1.0.0.tgz",
       "integrity": "sha1-yobR/ogoFpsBICCOPchCS524NCw=",
       "dev": true
+    },
+    "ng2-charts": {
+      "version": "1.6.0",
+      "resolved": "https://registry.npmjs.org/ng2-charts/-/ng2-charts-1.6.0.tgz",
+      "integrity": "sha512-9w0WH69x5/nuqC1og2WaY39NbaBqTGIP1+5gZaH7/KPN6UEPonNg/pYnsIVklLj1DWPWXKa8+XXIJZ1jy5nLxg==",
+      "requires": {
+        "chart.js": "^2.6.0"
+      }
     },
     "nice-try": {
       "version": "1.0.4",

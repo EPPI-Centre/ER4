@@ -25,7 +25,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlySource() { }
 #else
-        private ReadOnlySource() { }
+        public ReadOnlySource() { }
 #endif
 
         // only gets name and id at the moment to save server resources (used in dialog coding to display the source name for an item)
@@ -36,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<ReadOnlySource, Int64>(ItemId));
         }
 
-        private static PropertyInfo<string> Source_NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Source_Name", "Source_Name"));
+        public static readonly  PropertyInfo<string> Source_NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Source_Name", "Source_Name"));
         public string Source_Name
         {
             get
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Total_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Total_Items", "Total_Items"));
+        public static readonly  PropertyInfo<int> Total_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Total_Items", "Total_Items"));
         public int Total_Items
         {
             get
@@ -54,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Deleted_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Deleted_Items", "Deleted_Items"));
+        public static readonly  PropertyInfo<int> Deleted_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Deleted_Items", "Deleted_Items"));
         public int Deleted_Items
         {
             get
@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Deleted_ItemsProperty);
             }
         }
-        private static PropertyInfo<int> DuplicatesProperty = RegisterProperty<int>(new PropertyInfo<int>("Duplicates", "Duplicates"));
+        public static readonly  PropertyInfo<int> DuplicatesProperty = RegisterProperty<int>(new PropertyInfo<int>("Duplicates", "Duplicates"));
         public int Duplicates
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(DuplicatesProperty);
             }
         }
-        private static PropertyInfo<int> Source_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("Source_ID", "Source_ID"));
+        public static readonly  PropertyInfo<int> Source_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("Source_ID", "Source_ID"));
         public int Source_ID
         {
             get
@@ -78,7 +78,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Source_IDProperty);
             }
         }
-        private static PropertyInfo<bool> IsDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsDeleted", "IsDeleted"));
+        public static readonly  PropertyInfo<bool> IsDeletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsDeleted", "IsDeleted"));
         public bool IsDeleted
         {
             get

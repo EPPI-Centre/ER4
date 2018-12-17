@@ -33,7 +33,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ReviewStatisticsReviewerList() { }
 #else
-        private ReviewStatisticsReviewerList() { }
+        public ReviewStatisticsReviewerList() { }
 #endif
 
 

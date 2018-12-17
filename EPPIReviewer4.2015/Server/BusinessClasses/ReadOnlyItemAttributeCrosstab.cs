@@ -25,10 +25,10 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyItemAttributeCrosstab() { }
 #else
-        private ReadOnlyItemAttributeCrosstab() { }
+        public ReadOnlyItemAttributeCrosstab() { }
 #endif
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly  PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -37,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
+        public static readonly  PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
         public string AttributeName
         {
             get
@@ -46,7 +46,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field1Property = RegisterProperty<int>(new PropertyInfo<int>("Field1", "Field1", 0));
+        public static readonly  PropertyInfo<int> Field1Property = RegisterProperty<int>(new PropertyInfo<int>("Field1", "Field1", 0));
         public int Field1
         {
             get
@@ -55,7 +55,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field2Property = RegisterProperty<int>(new PropertyInfo<int>("Field2", "Field2", 0));
+        public static readonly  PropertyInfo<int> Field2Property = RegisterProperty<int>(new PropertyInfo<int>("Field2", "Field2", 0));
         public int Field2
         {
             get
@@ -64,7 +64,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field3Property = RegisterProperty<int>(new PropertyInfo<int>("Field3", "Field3", 0));
+        public static readonly  PropertyInfo<int> Field3Property = RegisterProperty<int>(new PropertyInfo<int>("Field3", "Field3", 0));
         public int Field3
         {
             get
@@ -73,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field4Property = RegisterProperty<int>(new PropertyInfo<int>("Field4", "Field4", 0));
+        public static readonly  PropertyInfo<int> Field4Property = RegisterProperty<int>(new PropertyInfo<int>("Field4", "Field4", 0));
         public int Field4
         {
             get
@@ -82,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field5Property = RegisterProperty<int>(new PropertyInfo<int>("Field5", "Field5", 0));
+        public static readonly  PropertyInfo<int> Field5Property = RegisterProperty<int>(new PropertyInfo<int>("Field5", "Field5", 0));
         public int Field5
         {
             get
@@ -91,7 +91,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field6Property = RegisterProperty<int>(new PropertyInfo<int>("Field6", "Field6", 0));
+        public static readonly  PropertyInfo<int> Field6Property = RegisterProperty<int>(new PropertyInfo<int>("Field6", "Field6", 0));
         public int Field6
         {
             get
@@ -100,7 +100,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field7Property = RegisterProperty<int>(new PropertyInfo<int>("Field7", "Field7", 0));
+        public static readonly  PropertyInfo<int> Field7Property = RegisterProperty<int>(new PropertyInfo<int>("Field7", "Field7", 0));
         public int Field7
         {
             get
@@ -109,7 +109,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field8Property = RegisterProperty<int>(new PropertyInfo<int>("Field8", "Field8", 0));
+        public static readonly  PropertyInfo<int> Field8Property = RegisterProperty<int>(new PropertyInfo<int>("Field8", "Field8", 0));
         public int Field8
         {
             get
@@ -118,7 +118,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field9Property = RegisterProperty<int>(new PropertyInfo<int>("Field9", "Field9", 0));
+        public static readonly  PropertyInfo<int> Field9Property = RegisterProperty<int>(new PropertyInfo<int>("Field9", "Field9", 0));
         public int Field9
         {
             get
@@ -127,7 +127,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field10Property = RegisterProperty<int>(new PropertyInfo<int>("Field10", "Field10", 0));
+        public static readonly  PropertyInfo<int> Field10Property = RegisterProperty<int>(new PropertyInfo<int>("Field10", "Field10", 0));
         public int Field10
         {
             get
@@ -136,7 +136,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field11Property = RegisterProperty<int>(new PropertyInfo<int>("Field11", "Field11", 0));
+        public static readonly  PropertyInfo<int> Field11Property = RegisterProperty<int>(new PropertyInfo<int>("Field11", "Field11", 0));
         public int Field11
         {
             get
@@ -145,7 +145,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field12Property = RegisterProperty<int>(new PropertyInfo<int>("Field12", "Field12", 0));
+        public static readonly  PropertyInfo<int> Field12Property = RegisterProperty<int>(new PropertyInfo<int>("Field12", "Field12", 0));
         public int Field12
         {
             get
@@ -154,7 +154,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field13Property = RegisterProperty<int>(new PropertyInfo<int>("Field13", "Field13", 0));
+        public static readonly  PropertyInfo<int> Field13Property = RegisterProperty<int>(new PropertyInfo<int>("Field13", "Field13", 0));
         public int Field13
         {
             get
@@ -163,7 +163,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field14Property = RegisterProperty<int>(new PropertyInfo<int>("Field14", "Field14", 0));
+        public static readonly  PropertyInfo<int> Field14Property = RegisterProperty<int>(new PropertyInfo<int>("Field14", "Field14", 0));
         public int Field14
         {
             get
@@ -172,7 +172,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field15Property = RegisterProperty<int>(new PropertyInfo<int>("Field15", "Field15", 0));
+        public static readonly  PropertyInfo<int> Field15Property = RegisterProperty<int>(new PropertyInfo<int>("Field15", "Field15", 0));
         public int Field15
         {
             get
@@ -181,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field16Property = RegisterProperty<int>(new PropertyInfo<int>("Field16", "Field16", 0));
+        public static readonly  PropertyInfo<int> Field16Property = RegisterProperty<int>(new PropertyInfo<int>("Field16", "Field16", 0));
         public int Field16
         {
             get
@@ -190,7 +190,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field17Property = RegisterProperty<int>(new PropertyInfo<int>("Field17", "Field17", 0));
+        public static readonly  PropertyInfo<int> Field17Property = RegisterProperty<int>(new PropertyInfo<int>("Field17", "Field17", 0));
         public int Field17
         {
             get
@@ -199,7 +199,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field18Property = RegisterProperty<int>(new PropertyInfo<int>("Field18", "Field18", 0));
+        public static readonly  PropertyInfo<int> Field18Property = RegisterProperty<int>(new PropertyInfo<int>("Field18", "Field18", 0));
         public int Field18
         {
             get
@@ -208,7 +208,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field19Property = RegisterProperty<int>(new PropertyInfo<int>("Field19", "Field19", 0));
+        public static readonly  PropertyInfo<int> Field19Property = RegisterProperty<int>(new PropertyInfo<int>("Field19", "Field19", 0));
         public int Field19
         {
             get
@@ -217,7 +217,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field20Property = RegisterProperty<int>(new PropertyInfo<int>("Field20", "Field20", 0));
+        public static readonly  PropertyInfo<int> Field20Property = RegisterProperty<int>(new PropertyInfo<int>("Field20", "Field20", 0));
         public int Field20
         {
             get
@@ -226,7 +226,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field21Property = RegisterProperty<int>(new PropertyInfo<int>("Field21", "Field21", 0));
+        public static readonly  PropertyInfo<int> Field21Property = RegisterProperty<int>(new PropertyInfo<int>("Field21", "Field21", 0));
         public int Field21
         {
             get
@@ -235,7 +235,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field22Property = RegisterProperty<int>(new PropertyInfo<int>("Field22", "Field22", 0));
+        public static readonly  PropertyInfo<int> Field22Property = RegisterProperty<int>(new PropertyInfo<int>("Field22", "Field22", 0));
         public int Field22
         {
             get
@@ -244,7 +244,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field23Property = RegisterProperty<int>(new PropertyInfo<int>("Field23", "Field23", 0));
+        public static readonly  PropertyInfo<int> Field23Property = RegisterProperty<int>(new PropertyInfo<int>("Field23", "Field23", 0));
         public int Field23
         {
             get
@@ -253,7 +253,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field24Property = RegisterProperty<int>(new PropertyInfo<int>("Field24", "Field24", 0));
+        public static readonly  PropertyInfo<int> Field24Property = RegisterProperty<int>(new PropertyInfo<int>("Field24", "Field24", 0));
         public int Field24
         {
             get
@@ -262,7 +262,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field25Property = RegisterProperty<int>(new PropertyInfo<int>("Field25", "Field25", 0));
+        public static readonly  PropertyInfo<int> Field25Property = RegisterProperty<int>(new PropertyInfo<int>("Field25", "Field25", 0));
         public int Field25
         {
             get
@@ -271,7 +271,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field26Property = RegisterProperty<int>(new PropertyInfo<int>("Field26", "Field26", 0));
+        public static readonly  PropertyInfo<int> Field26Property = RegisterProperty<int>(new PropertyInfo<int>("Field26", "Field26", 0));
         public int Field26
         {
             get
@@ -280,7 +280,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field27Property = RegisterProperty<int>(new PropertyInfo<int>("Field27", "Field27", 0));
+        public static readonly  PropertyInfo<int> Field27Property = RegisterProperty<int>(new PropertyInfo<int>("Field27", "Field27", 0));
         public int Field27
         {
             get
@@ -289,7 +289,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field28Property = RegisterProperty<int>(new PropertyInfo<int>("Field28", "Field28", 0));
+        public static readonly  PropertyInfo<int> Field28Property = RegisterProperty<int>(new PropertyInfo<int>("Field28", "Field28", 0));
         public int Field28
         {
             get
@@ -298,7 +298,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field29Property = RegisterProperty<int>(new PropertyInfo<int>("Field29", "Field29", 0));
+        public static readonly  PropertyInfo<int> Field29Property = RegisterProperty<int>(new PropertyInfo<int>("Field29", "Field29", 0));
         public int Field29
         {
             get
@@ -307,7 +307,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field30Property = RegisterProperty<int>(new PropertyInfo<int>("Field30", "Field30", 0));
+        public static readonly  PropertyInfo<int> Field30Property = RegisterProperty<int>(new PropertyInfo<int>("Field30", "Field30", 0));
         public int Field30
         {
             get
@@ -316,7 +316,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field31Property = RegisterProperty<int>(new PropertyInfo<int>("Field31", "Field31", 0));
+        public static readonly  PropertyInfo<int> Field31Property = RegisterProperty<int>(new PropertyInfo<int>("Field31", "Field31", 0));
         public int Field31
         {
             get
@@ -325,7 +325,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field32Property = RegisterProperty<int>(new PropertyInfo<int>("Field32", "Field32", 0));
+        public static readonly  PropertyInfo<int> Field32Property = RegisterProperty<int>(new PropertyInfo<int>("Field32", "Field32", 0));
         public int Field32
         {
             get
@@ -334,7 +334,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field33Property = RegisterProperty<int>(new PropertyInfo<int>("Field33", "Field33", 0));
+        public static readonly  PropertyInfo<int> Field33Property = RegisterProperty<int>(new PropertyInfo<int>("Field33", "Field33", 0));
         public int Field33
         {
             get
@@ -343,7 +343,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field34Property = RegisterProperty<int>(new PropertyInfo<int>("Field34", "Field34", 0));
+        public static readonly  PropertyInfo<int> Field34Property = RegisterProperty<int>(new PropertyInfo<int>("Field34", "Field34", 0));
         public int Field34
         {
             get
@@ -352,7 +352,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field35Property = RegisterProperty<int>(new PropertyInfo<int>("Field35", "Field35", 0));
+        public static readonly  PropertyInfo<int> Field35Property = RegisterProperty<int>(new PropertyInfo<int>("Field35", "Field35", 0));
         public int Field35
         {
             get
@@ -361,7 +361,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field36Property = RegisterProperty<int>(new PropertyInfo<int>("Field36", "Field36", 0));
+        public static readonly  PropertyInfo<int> Field36Property = RegisterProperty<int>(new PropertyInfo<int>("Field36", "Field36", 0));
         public int Field36
         {
             get
@@ -370,7 +370,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field37Property = RegisterProperty<int>(new PropertyInfo<int>("Field37", "Field37", 0));
+        public static readonly  PropertyInfo<int> Field37Property = RegisterProperty<int>(new PropertyInfo<int>("Field37", "Field37", 0));
         public int Field37
         {
             get
@@ -379,7 +379,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field38Property = RegisterProperty<int>(new PropertyInfo<int>("Field38", "Field38", 0));
+        public static readonly  PropertyInfo<int> Field38Property = RegisterProperty<int>(new PropertyInfo<int>("Field38", "Field38", 0));
         public int Field38
         {
             get
@@ -388,7 +388,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field39Property = RegisterProperty<int>(new PropertyInfo<int>("Field39", "Field39", 0));
+        public static readonly  PropertyInfo<int> Field39Property = RegisterProperty<int>(new PropertyInfo<int>("Field39", "Field39", 0));
         public int Field39
         {
             get
@@ -397,7 +397,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field40Property = RegisterProperty<int>(new PropertyInfo<int>("Field40", "Field40", 0));
+        public static readonly  PropertyInfo<int> Field40Property = RegisterProperty<int>(new PropertyInfo<int>("Field40", "Field40", 0));
         public int Field40
         {
             get
@@ -406,7 +406,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field41Property = RegisterProperty<int>(new PropertyInfo<int>("Field41", "Field41", 0));
+        public static readonly  PropertyInfo<int> Field41Property = RegisterProperty<int>(new PropertyInfo<int>("Field41", "Field41", 0));
         public int Field41
         {
             get
@@ -415,7 +415,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field42Property = RegisterProperty<int>(new PropertyInfo<int>("Field42", "Field42", 0));
+        public static readonly  PropertyInfo<int> Field42Property = RegisterProperty<int>(new PropertyInfo<int>("Field42", "Field42", 0));
         public int Field42
         {
             get
@@ -424,7 +424,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field43Property = RegisterProperty<int>(new PropertyInfo<int>("Field43", "Field43", 0));
+        public static readonly  PropertyInfo<int> Field43Property = RegisterProperty<int>(new PropertyInfo<int>("Field43", "Field43", 0));
         public int Field43
         {
             get
@@ -433,7 +433,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field44Property = RegisterProperty<int>(new PropertyInfo<int>("Field44", "Field44", 0));
+        public static readonly  PropertyInfo<int> Field44Property = RegisterProperty<int>(new PropertyInfo<int>("Field44", "Field44", 0));
         public int Field44
         {
             get
@@ -442,7 +442,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field45Property = RegisterProperty<int>(new PropertyInfo<int>("Field45", "Field45", 0));
+        public static readonly  PropertyInfo<int> Field45Property = RegisterProperty<int>(new PropertyInfo<int>("Field45", "Field45", 0));
         public int Field45
         {
             get
@@ -451,7 +451,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field46Property = RegisterProperty<int>(new PropertyInfo<int>("Field46", "Field46", 0));
+        public static readonly  PropertyInfo<int> Field46Property = RegisterProperty<int>(new PropertyInfo<int>("Field46", "Field46", 0));
         public int Field46
         {
             get
@@ -460,7 +460,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field47Property = RegisterProperty<int>(new PropertyInfo<int>("Field47", "Field47", 0));
+        public static readonly  PropertyInfo<int> Field47Property = RegisterProperty<int>(new PropertyInfo<int>("Field47", "Field47", 0));
         public int Field47
         {
             get
@@ -469,7 +469,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field48Property = RegisterProperty<int>(new PropertyInfo<int>("Field48", "Field48", 0));
+        public static readonly  PropertyInfo<int> Field48Property = RegisterProperty<int>(new PropertyInfo<int>("Field48", "Field48", 0));
         public int Field48
         {
             get
@@ -478,7 +478,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field49Property = RegisterProperty<int>(new PropertyInfo<int>("Field49", "Field49", 0));
+        public static readonly  PropertyInfo<int> Field49Property = RegisterProperty<int>(new PropertyInfo<int>("Field49", "Field49", 0));
         public int Field49
         {
             get
@@ -487,7 +487,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> Field50Property = RegisterProperty<int>(new PropertyInfo<int>("Field50", "Field50", 0));
+        public static readonly  PropertyInfo<int> Field50Property = RegisterProperty<int>(new PropertyInfo<int>("Field50", "Field50", 0));
         public int Field50
         {
             get

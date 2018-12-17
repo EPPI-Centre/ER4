@@ -641,7 +641,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }            
             return OutO;
         }
-        private static string cleanup(string inStr)
+        public static string cleanup(string inStr)
         {
             Regex rx = new Regex(@"(\s\s+)|(\r\n)|(\n)");
             return rx.Replace(inStr, " ");
@@ -794,7 +794,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }*/
             return res;
         }
-        private static string monthstr(string MonIn)
+        public static string monthstr(string MonIn)
         {
             string result = "";
             MonIn = MonIn.Trim();
@@ -809,14 +809,14 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
             return result;
         }
-        private static string monthstr(int MonIn)
+        public static string monthstr(int MonIn)
         {
             string[] calend = new string[] {"January", "February", "March", "April", "May", "June", "July", 
                 "August", "September", "October", "November", "December"};
             if (0 < MonIn & 13 > MonIn) return calend[MonIn - 1];
             else return "";
         }
-        private static List<string> splitme(string DataIn, Regex rExp)
+        public static List<string> splitme(string DataIn, Regex rExp)
         {
             int lastmatch = 0;
             int len = DataIn.Length;
@@ -899,8 +899,9 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
     [Serializable]
     public class ItemIncomingData : ReadOnlyBase<ItemIncomingData>
     {
-        #region set_and_get
-        private static PropertyInfo<int> Type_idProperty = RegisterProperty<int>(new PropertyInfo<int>("Type_id", "Type_id", 14));
+		
+		#region set_and_get
+		public static readonly PropertyInfo<int> Type_idProperty = RegisterProperty<int>(new PropertyInfo<int>("Type_id", "Type_id", 14));
         public int Type_id
         {
             get { return GetProperty(Type_idProperty); }
@@ -910,7 +911,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(Type_idProperty, value);
             }
         }
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get { return GetProperty(TitleProperty); }
@@ -920,7 +921,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(TitleProperty, value);
             }
         }
-        private static PropertyInfo<string> Parent_titleProperty = RegisterProperty<string>(new PropertyInfo<string>("Parent_title", "Parent_title", string.Empty));
+        public static readonly PropertyInfo<string> Parent_titleProperty = RegisterProperty<string>(new PropertyInfo<string>("Parent_title", "Parent_title", string.Empty));
         public string Parent_title
         {
             get { return GetProperty(Parent_titleProperty); }
@@ -930,7 +931,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(Parent_titleProperty, value);
             }
         }
-        private static PropertyInfo<string> Short_titleProperty = RegisterProperty<string>(new PropertyInfo<string>("Short_title", "Short_title", string.Empty));
+        public static readonly PropertyInfo<string> Short_titleProperty = RegisterProperty<string>(new PropertyInfo<string>("Short_title", "Short_title", string.Empty));
         public string Short_title
         {
             get { return GetProperty(Short_titleProperty); }
@@ -944,19 +945,19 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(Short_titleProperty, value);
             }
         }
-        private static PropertyInfo<AuthorsHandling.AutorsList> AuthorsLiProperty = RegisterProperty<AuthorsHandling.AutorsList>(new PropertyInfo<AuthorsHandling.AutorsList>("AuthorsLi", "AuthorsLi"));
+        public static readonly PropertyInfo<AuthorsHandling.AutorsList> AuthorsLiProperty = RegisterProperty<AuthorsHandling.AutorsList>(new PropertyInfo<AuthorsHandling.AutorsList>("AuthorsLi", "AuthorsLi"));
         public AuthorsHandling.AutorsList AuthorsLi
         {
             get { return GetProperty(AuthorsLiProperty); }
             set { LoadProperty(AuthorsLiProperty, value); }
         }
-        private static PropertyInfo<MobileList<AuthorsHandling.AutH>> pAuthorsLiProperty = RegisterProperty<MobileList<AuthorsHandling.AutH>>(new PropertyInfo<MobileList<AuthorsHandling.AutH>>("pAuthorsLi", "pAuthorsLi"));
+        public static readonly PropertyInfo<MobileList<AuthorsHandling.AutH>> pAuthorsLiProperty = RegisterProperty<MobileList<AuthorsHandling.AutH>>(new PropertyInfo<MobileList<AuthorsHandling.AutH>>("pAuthorsLi", "pAuthorsLi"));
         public MobileList<AuthorsHandling.AutH> pAuthorsLi
         {
             get { return GetProperty(pAuthorsLiProperty); }
             set { LoadProperty(pAuthorsLiProperty, value); }
         }
-        private static PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year", string.Empty));
+        public static readonly PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year", string.Empty));
         public string Year
         {
             get { return GetProperty(YearProperty); }
@@ -972,7 +973,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(YearProperty, value);
             }
         }
-        private static PropertyInfo<string> MonthProperty = RegisterProperty<string>(new PropertyInfo<string>("Month", "Month", string.Empty));
+        public static readonly PropertyInfo<string> MonthProperty = RegisterProperty<string>(new PropertyInfo<string>("Month", "Month", string.Empty));
         public string Month
         {
             get { return GetProperty(MonthProperty); }
@@ -989,7 +990,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(MonthProperty, value);
             }
         }
-        private static PropertyInfo<string> Standard_numberProperty = RegisterProperty<string>(new PropertyInfo<string>("Standard_number", "Standard_number", string.Empty));
+        public static readonly PropertyInfo<string> Standard_numberProperty = RegisterProperty<string>(new PropertyInfo<string>("Standard_number", "Standard_number", string.Empty));
         public string Standard_number
         {
             get { return GetProperty(Standard_numberProperty); }
@@ -999,7 +1000,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(Standard_numberProperty, value);
             }
         }
-        private static PropertyInfo<string> CityProperty = RegisterProperty<string>(new PropertyInfo<string>("City", "City", string.Empty));
+        public static readonly PropertyInfo<string> CityProperty = RegisterProperty<string>(new PropertyInfo<string>("City", "City", string.Empty));
         public string City
         {
             get { return GetProperty(CityProperty); }
@@ -1009,7 +1010,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(CityProperty, value);
             }
         }
-        private static PropertyInfo<string> CountryProperty = RegisterProperty<string>(new PropertyInfo<string>("Country", "Country", string.Empty));
+        public static readonly PropertyInfo<string> CountryProperty = RegisterProperty<string>(new PropertyInfo<string>("Country", "Country", string.Empty));
         public string Country
         {
             get { return GetProperty(CountryProperty); }
@@ -1019,7 +1020,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(CountryProperty, value);
             }
         }
-        private static PropertyInfo<string> PublisherProperty = RegisterProperty<string>(new PropertyInfo<string>("Publisher", "Publisher", string.Empty));
+        public static readonly PropertyInfo<string> PublisherProperty = RegisterProperty<string>(new PropertyInfo<string>("Publisher", "Publisher", string.Empty));
         public string Publisher
         {
             get { return GetProperty(PublisherProperty); }
@@ -1029,7 +1030,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(PublisherProperty, value);
             }
         }
-        private static PropertyInfo<string> InstitutionProperty = RegisterProperty<string>(new PropertyInfo<string>("Institution", "Institution", string.Empty));
+        public static readonly PropertyInfo<string> InstitutionProperty = RegisterProperty<string>(new PropertyInfo<string>("Institution", "Institution", string.Empty));
         public string Institution
         {
             get { return GetProperty(InstitutionProperty); }
@@ -1039,7 +1040,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(InstitutionProperty, value);
             }
         }
-        private static PropertyInfo<string> VolumeProperty = RegisterProperty<string>(new PropertyInfo<string>("Volume", "Volume", string.Empty));
+        public static readonly PropertyInfo<string> VolumeProperty = RegisterProperty<string>(new PropertyInfo<string>("Volume", "Volume", string.Empty));
         public string Volume
         {
             get { return GetProperty(VolumeProperty); }
@@ -1049,7 +1050,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(VolumeProperty, value);
             }
         }
-        private static PropertyInfo<string> PagesProperty = RegisterProperty<string>(new PropertyInfo<string>("Pages", "Pages", string.Empty));
+        public static readonly PropertyInfo<string> PagesProperty = RegisterProperty<string>(new PropertyInfo<string>("Pages", "Pages", string.Empty));
         public string Pages
         {
             get { return GetProperty(PagesProperty); }
@@ -1059,7 +1060,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(PagesProperty, value);
             }
         }
-        private static PropertyInfo<string> EditionProperty = RegisterProperty<string>(new PropertyInfo<string>("Edition", "Edition", string.Empty));
+        public static readonly PropertyInfo<string> EditionProperty = RegisterProperty<string>(new PropertyInfo<string>("Edition", "Edition", string.Empty));
         public string Edition
         {
             get { return GetProperty(EditionProperty); }
@@ -1069,7 +1070,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(EditionProperty, value);
             }
         }
-        private static PropertyInfo<string> IssueProperty = RegisterProperty<string>(new PropertyInfo<string>("Issue", "Issue", string.Empty));
+        public static readonly PropertyInfo<string> IssueProperty = RegisterProperty<string>(new PropertyInfo<string>("Issue", "Issue", string.Empty));
         public string Issue
         {
             get { return GetProperty(IssueProperty); }
@@ -1079,7 +1080,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(IssueProperty, value);
             }
         }
-        private static PropertyInfo<string> AvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("Availability", "Availability", string.Empty));
+        public static readonly PropertyInfo<string> AvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("Availability", "Availability", string.Empty));
         public string Availability
         {
             get { return GetProperty(AvailabilityProperty); }
@@ -1089,7 +1090,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(AvailabilityProperty, value);
             }
         }
-        private static PropertyInfo<string> UrlProperty = RegisterProperty<string>(new PropertyInfo<string>("Url", "Url", string.Empty));
+        public static readonly PropertyInfo<string> UrlProperty = RegisterProperty<string>(new PropertyInfo<string>("Url", "Url", string.Empty));
         public string Url
         {
             get { return GetProperty(UrlProperty); }
@@ -1099,7 +1100,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(UrlProperty, value);
             }
         }
-        private static PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract", string.Empty));
+        public static readonly PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract", string.Empty));
         public string Abstract
         {
             get
@@ -1111,13 +1112,13 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 LoadProperty(AbstractProperty, value);
             }
         }
-        private static PropertyInfo<string> CommentsProperty = RegisterProperty<string>(new PropertyInfo<string>("Comments", "Comments", string.Empty));
+        public static readonly PropertyInfo<string> CommentsProperty = RegisterProperty<string>(new PropertyInfo<string>("Comments", "Comments", string.Empty));
         public string Comments
         {
             get { return GetProperty(CommentsProperty); }
             set { LoadProperty(CommentsProperty, value); }
         }
-        private static PropertyInfo<string> OldItemIdProperty = RegisterProperty<string>(new PropertyInfo<string>("OldItemId", "OldItemId", string.Empty));
+        public static readonly PropertyInfo<string> OldItemIdProperty = RegisterProperty<string>(new PropertyInfo<string>("OldItemId", "OldItemId", string.Empty));
         public string OldItemId
         {
             get { return GetProperty(OldItemIdProperty); }
@@ -1127,7 +1128,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(OldItemIdProperty, value);
             }
         }
-        private static PropertyInfo<string> DOIProperty = RegisterProperty<string>(new PropertyInfo<string>("DOI", "DOI", string.Empty));
+        public static readonly PropertyInfo<string> DOIProperty = RegisterProperty<string>(new PropertyInfo<string>("DOI", "DOI", string.Empty));
         public string DOI
         {
             get { return GetProperty(DOIProperty); }
@@ -1137,7 +1138,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else LoadProperty(DOIProperty, value);
             }
         }
-        private static PropertyInfo<string> KeywordsProperty = RegisterProperty<string>(new PropertyInfo<string>("Keywords", "Keywords", string.Empty));
+        public static readonly PropertyInfo<string> KeywordsProperty = RegisterProperty<string>(new PropertyInfo<string>("Keywords", "Keywords", string.Empty));
         public string Keywords
         {
             get { return GetProperty(KeywordsProperty); }
@@ -1158,7 +1159,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
 #if SILVERLIGHT
         public ItemIncomingData(){}
 #else
-        private ItemIncomingData() { }
+        public ItemIncomingData() { }
         
 #endif
         public void buildShortTitle()
@@ -1217,7 +1218,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
 #if SILVERLIGHT
         public IncomingItemsList(){}
 #else
-        private IncomingItemsList() { }
+        public IncomingItemsList() { }
         private bool savedAll = false;
 #endif
         internal static IncomingItemsList NewIncomingItemsList()
@@ -1229,7 +1230,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             return returnValue;
         }
         
-        private static PropertyInfo<MobileList<ItemIncomingData>> IncomingItemsProperty = RegisterProperty<MobileList<ItemIncomingData>>(new PropertyInfo<MobileList<ItemIncomingData>>("IncomingItems", "IncomingItems"));
+        public static readonly PropertyInfo<MobileList<ItemIncomingData>> IncomingItemsProperty = RegisterProperty<MobileList<ItemIncomingData>>(new PropertyInfo<MobileList<ItemIncomingData>>("IncomingItems", "IncomingItems"));
         public MobileList<ItemIncomingData> IncomingItems
         {
             get
@@ -1241,7 +1242,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(IncomingItemsProperty, value);
             }
         }
-        private static PropertyInfo<string> SourceNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceName", "SourceName"));
+        public static readonly PropertyInfo<string> SourceNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceName", "SourceName"));
         public string SourceName
         {
             get
@@ -1254,7 +1255,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else SetProperty(SourceNameProperty, value);
             }
         }
-        private static PropertyInfo<int> FilterIDProperty = RegisterProperty<int>(new PropertyInfo<int>("FilterID", "FilterID"));
+        public static readonly PropertyInfo<int> FilterIDProperty = RegisterProperty<int>(new PropertyInfo<int>("FilterID", "FilterID"));
         public int FilterID
         {
             get
@@ -1266,7 +1267,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(FilterIDProperty, value);
             }
         }
-        private static PropertyInfo<int> SourceIDProperty = RegisterProperty<int>(new PropertyInfo<int>("SourceID", "SourceID"));
+        public static readonly PropertyInfo<int> SourceIDProperty = RegisterProperty<int>(new PropertyInfo<int>("SourceID", "SourceID"));
         public int SourceID
         {
             get
@@ -1278,7 +1279,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(SourceIDProperty, value);
             }
         }
-        private static PropertyInfo<string> SourceDBProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceDB", "SourceDB"));
+        public static readonly PropertyInfo<string> SourceDBProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceDB", "SourceDB"));
         public string SourceDB
         {
             get
@@ -1292,7 +1293,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 
             }
         }
-        private static PropertyInfo<string> SearchDescrProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchDescr", "SearchDescr"));
+        public static readonly PropertyInfo<string> SearchDescrProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchDescr", "SearchDescr"));
         public string SearchDescr
         {
             get
@@ -1305,7 +1306,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else SetProperty(SearchDescrProperty, value);
             }
         }
-        private static PropertyInfo<string> SearchStrProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchStr", "SearchStr"));
+        public static readonly PropertyInfo<string> SearchStrProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchStr", "SearchStr"));
         public string SearchStr
         {
             get
@@ -1318,7 +1319,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else SetProperty(SearchStrProperty, value);
             }
         }
-        private static PropertyInfo<string> NotesProperty = RegisterProperty<string>(new PropertyInfo<string>("NotesStr", "NotesStr"));
+        public static readonly PropertyInfo<string> NotesProperty = RegisterProperty<string>(new PropertyInfo<string>("NotesStr", "NotesStr"));
         public string Notes
         {
             get
@@ -1331,7 +1332,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 else SetProperty(NotesProperty, value);
             }
         }
-        private static PropertyInfo<DateTime> DateOfSearchProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfSearch", "DateOfSearch"));
+        public static readonly PropertyInfo<DateTime> DateOfSearchProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfSearch", "DateOfSearch"));
         public DateTime DateOfSearch
         {
             get
@@ -1343,7 +1344,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(DateOfSearchProperty, value);
             }
         }
-        private static PropertyInfo<DateTime> DateOfImportProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfImport", "DateOfImport"));
+        public static readonly PropertyInfo<DateTime> DateOfImportProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfImport", "DateOfImport"));
         public DateTime DateOfImport
         {
             get
@@ -1355,7 +1356,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(DateOfImportProperty, value);
             }
         }
-        private static PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
+        public static readonly PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
         public bool Included
         {
             get
@@ -1367,7 +1368,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(IncludedProperty, value);
             }
         }
-        private static PropertyInfo<bool> IsLastProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLast", "IsLast", true));
+        public static readonly PropertyInfo<bool> IsLastProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsLast", "IsLast", true));
         public bool IsLast
         {
             get
@@ -1379,7 +1380,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(IsLastProperty, value);
             }
         }
-        private static PropertyInfo<bool> IsFirstProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFirst", "IsFirst", true));
+        public static readonly PropertyInfo<bool> IsFirstProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsFirst", "IsFirst", true));
         public bool IsFirst
         {
             get
