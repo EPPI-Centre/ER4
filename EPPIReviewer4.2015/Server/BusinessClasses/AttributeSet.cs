@@ -336,6 +336,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> AttributeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeOrder", "Attribute Order", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int AttributeOrder
         {
             get
