@@ -28,12 +28,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using CsvHelper;
-using AspNetCore.Http.Extensions;
+
 
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
-
+#else
+using AspNetCore.Http.Extensions;
 #endif
 
 using System.Data;
@@ -498,12 +499,12 @@ namespace BusinessLibrary.BusinessClasses
 				using (var fileStream = System.IO.File.OpenRead(fileName))
 				{
 
+
 #if (!CSLA_NETCORE)
 					blockBlobData.UploadFromStream(fileStream);
-
 #else
-					// not implemented
 
+					await blockBlobData.UploadFromFileAsync(fileName);
 #endif
 
 				}
@@ -515,18 +516,18 @@ namespace BusinessLibrary.BusinessClasses
 				if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
 				{
 					// load RCTs
-					DataTable RCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
+					DataTable RCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv").Result;
 					_title = "Cochrane RCT Classifier: may be RCTs";
 					LoadResultsIntoDatabase(RCTs, connection, ri);
 
 					// load non-RCTs
-					DataTable nRCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
+					DataTable nRCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv").Result;
 					_title = "Cochrane RCT Classifier: unlikely to be RCTs";
 					LoadResultsIntoDatabase(nRCTs, connection, ri);
 				}
 				else
 				{
-					DataTable Scores = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+					DataTable Scores = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv").Result;
 					LoadResultsIntoDatabase(Scores, connection, ri);
 				}
 
@@ -534,7 +535,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private DataTable DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
+		private async Task<DataTable> DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
 		{
 			CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
 			CloudBlobContainer container2 = blobClient2.GetContainerReference(container);
@@ -542,11 +543,19 @@ namespace BusinessLibrary.BusinessClasses
 
 #if (!CSLA_NETCORE)
 
-			byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-#else
-			var test = blockBlob.DownloadTextAsync();
-			byte[] myFile = Encoding.UTF8.GetBytes(test.Result);
+				byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 
+#else
+
+				bool check = await blockBlob.ExistsAsync();
+				string x = "";
+				if (check)
+				{
+					var test = blockBlob.DownloadTextAsync();
+					x = await test;
+
+				}
+				byte[] myFile = Encoding.UTF8.GetBytes(x);
 #endif
 
 			MemoryStream ms = new MemoryStream(myFile);
@@ -598,7 +607,43 @@ namespace BusinessLibrary.BusinessClasses
 			}
 
 #else
-			//not implemented
+
+			using (TextReader tr = new StreamReader(ms))
+			{
+				//not implemented yet
+				var csv = new CsvReader(tr);
+				csv.Read();
+				csv.ReadHeader();
+				while (csv.Read())
+				{
+					var record = csv.GetRecords<DataTable>();
+					if (record.Count() == 3)
+					{
+
+						// Not finished implementing...!
+
+						//if (record.ElementAt(0). == "1")
+						//{
+						//	data[0] = "0.999999";
+						//}
+						//else if (data[0] == "0")
+						//{
+						//	data[0] = "0.000001";
+						//}
+						//else if (data[0].Length > 2 && data[0].Contains("E"))
+						//{
+						//	double dbl = 0;
+						//	double.TryParse(data[0], out dbl);
+						//	//if (dbl == 0.0) throw new Exception("Gotcha!");
+						//	data[0] = dbl.ToString("F10");
+						//}
+						//dt.Rows.Add(data);
+					}
+				}
+
+
+				//var records = csv.GetRecords(anonymousTypeDefinition);
+			}
 
 #endif
 
@@ -835,7 +880,6 @@ namespace BusinessLibrary.BusinessClasses
 
 				// submit the job
 
-//#if (!CSLA_NETCORE)
 
 				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
 
@@ -845,7 +889,12 @@ namespace BusinessLibrary.BusinessClasses
 					return;
 				}
 
+#if (!CSLA_NETCORE)
+				string jobId = await response.Content.ReadAsAsync<string>();
+#else
 				string jobId = await response.Content.ReadAsJsonAsync<string>();
+
+#endif
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -867,7 +916,13 @@ namespace BusinessLibrary.BusinessClasses
 						return;
 					}
 
-					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
+#if (!CSLA_NETCORE)
+					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+#else
+				BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
+
+#endif
+
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
 					{
 						done = true;

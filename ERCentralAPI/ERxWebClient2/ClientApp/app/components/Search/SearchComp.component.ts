@@ -37,11 +37,29 @@ export class SearchComp implements OnInit, OnDestroy {
 		private notificationService: NotificationService,
 	) {
 	}
+	public modelNum: number = 0;
+
 	public get DataSourceModel(): GridDataResult {
 		return {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
+	}
+
+	SetModelSelection(num: number) {
+
+		this.modelNum = num;
+
+	}
+
+	RunModel(num: number) {
+
+		this.ModelSelected = true;
+		// need to set a modeltitle
+		// need to set a modelid
+
+		alert(num + ' was selected!!');
+
 	}
 
 	public OpenClassifierScreen(ML: boolean) {
@@ -60,8 +78,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			alert('do nothing here');
 		}
 	}
-
-
+	
 	SelectModel(model: string) {
 
 		this.ModelSelected = true;
