@@ -22,11 +22,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class AttributeMoveCommand : CommandBase<AttributeMoveCommand>
     {
-#if SILVERLIGHT
-    public AttributeMoveCommand(){}
-#else
-        protected AttributeMoveCommand() { }
-#endif
+        public AttributeMoveCommand(){}
 
         private Int64 _FromId;
         private Int64 _ToId;

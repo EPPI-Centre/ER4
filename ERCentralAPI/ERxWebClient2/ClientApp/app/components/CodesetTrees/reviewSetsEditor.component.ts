@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, Input, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewSetsService, iSetType, ReviewSet } from '../services/ReviewSets.service';
+import { ReviewSetsService, iSetType, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 
 @Component({
@@ -25,15 +25,14 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             this.ReviewSetsEditingService.FetchSetTypes();
         }
     }
+    private ActivityPanelName: string = "";
     public get ReviewSets(): ReviewSet[] {
         return this.ReviewSetsService.ReviewSets;
     }
-    private _CurrentReviewSet: ReviewSet | null = null;
-    public get CurrentReviewSet(): ReviewSet | null {
-        return this._CurrentReviewSet;
-    }
-    SelectReviewSet(rs: ReviewSet) {
-        this._CurrentReviewSet = rs;
+    
+    public get CurrentNode(): singleNode | null {
+        if (!this.ReviewSetsService.selectedNode) return null;
+        else return this.ReviewSetsService.selectedNode;
     }
     IsServiceBusy(): boolean {
         if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy) return true;
@@ -43,7 +42,25 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.HasWriteRights && !this.ReviewSetsService.IsBusy && !this.ReviewSetsEditingService.IsBusy) return true;
         else return false;
     }
-    
+    CanChangeSelectedCode(): boolean {
+        if (this.ActivityPanelName == "") return true;
+        else return false;
+    }
+    SetIsSelected(): boolean {
+        if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "ReviewSet") return true;
+        else return false;
+    }
+    AttributeIsSelected(): boolean {
+        if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
+        else return false;
+    }
+    private _ShowAddCode: boolean = false;
+    ShowActivity(activityName: string) {
+        this.ActivityPanelName = activityName;
+    }
+    CancelActivity() {
+        this.ActivityPanelName = "";
+    }
     BackToMain() {
         this.router.navigate(['Main']);
     }

@@ -66,6 +66,31 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }, () => { this.RemoveBusy("SaveReviewSet");}
         );
     }
+    public MoveSetAttribute(attributeSetId: number,
+        fromId: number,
+        toId: number,
+        attributeorder: number) {
+        this._BusyMethods.push("MoveSetAttribute");
+        let rsC: AttributeSetMoveCommand = {
+            FromId: fromId,
+            ToId: toId,
+            AttributeSetId: attributeSetId,
+            attributeOrder: attributeorder
+        }
+        //console.log("saving reviewSet via command", rs, rsC);
+        this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/AttributeSetMove', rsC).subscribe(
+            data => {
+                this.RemoveBusy("MoveSetAttribute");
+                //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+                //this._IsBusy = false;
+            }, error => {
+                this.RemoveBusy("MoveSetAttribute");
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+            }, () => {
+                
+            }
+        );
+    }
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -77,4 +102,11 @@ export interface ReviewSetUpdateCommand
     SetName: string;
     setOrder: number;
     setDescription: string;
+}
+
+export interface AttributeSetMoveCommand {
+    FromId: number;
+    ToId: number;
+    AttributeSetId: number;
+    attributeOrder: number;
 }

@@ -86,6 +86,27 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult AttributeSetMove([FromBody] AttributeMoveCommandJSON data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    AttributeMoveCommand cmd = new AttributeMoveCommand(data.FromId, data.ToId, data.AttributeSetId, data.attributeOrder);
+                    DataPortal<AttributeMoveCommand> dp = new DataPortal<AttributeMoveCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(data);//if no error, all should be OK.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running ReviewSetUpdateCommand");
+                throw;
+            }
+        }
     }
     public class ReviewSetUpdateCommandJSON
     {
@@ -96,5 +117,12 @@ namespace ERxWebClient2.Controllers
         public string setDescription;
         public bool CodingIsFinal;//normal or comparison mode
         public bool AllowCodingEdits; //AllowCodingEdits can edit this codeset...
+    }
+    public class AttributeMoveCommandJSON
+    {
+        public Int64 FromId;
+        public Int64 ToId;
+        public Int64 AttributeSetId;
+        public int attributeOrder;
     }
 }

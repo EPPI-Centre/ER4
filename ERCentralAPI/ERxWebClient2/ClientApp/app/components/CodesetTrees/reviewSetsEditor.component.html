@@ -7,9 +7,40 @@
 </div>
 <kendo-splitter orientation="horizontal">
     <kendo-splitter-pane>
-        <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
+        <div class="pane-content">
+            <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
+            <div *ngIf="!SetIsSelected() && !AttributeIsSelected()">
+                To Edit a node in the code tree, please select the desired node in the right-hand side tree.
+            </div>
+            <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">
+                <div class="containsAtoolbar row m-0">
+                    <kendo-toolbar >
+                        <kendo-toolbar-button [text]="'Edit CodeSet'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Delete CodeSet'"></kendo-toolbar-button>
+                        <span class="w-100"></span>
+                    </kendo-toolbar>
+                </div>
+            </div>
+            <div *ngIf="AttributeIsSelected()" class="container pl-0 pr-0">
+                <div class="containsAtoolbar row m-0">
+                    <kendo-toolbar >
+                        <kendo-toolbar-button [text]="'Edit Code'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Delete Code'"></kendo-toolbar-button>
+                    </kendo-toolbar>
+                </div>
+            </div>
+            <div *ngIf="CurrentNode">
+                Name: {{CurrentNode.name}}<br />
+                Main Type: {{CurrentNode.nodeType}}<br />
+                Sub-Type: {{CurrentNode.subTypeName}}<br />
+                Description: {{CurrentNode.description}}<br />
+            </div>
+        </div>
+
     </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">
-        <codesetTreeEdit [CanWrite]="CanWrite()" [IsServiceBusy]="IsServiceBusy()"></codesetTreeEdit>
+        <codesetTreeEdit [CanWrite]="CanWrite()" [IsServiceBusy]="IsServiceBusy() && CanChangeSelectedCode()"></codesetTreeEdit>
     </kendo-splitter-pane>
 </kendo-splitter>

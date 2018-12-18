@@ -166,7 +166,8 @@ export class ReviewSetsService extends BusyAwareService {
             newAtt.attributeSetId = iAtt.attributeSetId;
             newAtt.parent_attribute_id = iAtt.parentAttributeId;
             newAtt.attribute_desc = iAtt.attributeDescription;
-            newAtt.set_id = iAtt.setId;
+            newAtt.set_id = iAtt.setId; 
+            newAtt.attribute_order = iAtt.attributeOrder;
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
             result.push(newAtt);
         }
