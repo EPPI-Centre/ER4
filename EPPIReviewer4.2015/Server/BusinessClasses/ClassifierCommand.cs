@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using Csla;
@@ -608,43 +609,49 @@ namespace BusinessLibrary.BusinessClasses
 
 #else
 
+
 			using (TextReader tr = new StreamReader(ms))
 			{
 				//not implemented yet
 				var csv = new CsvReader(tr);
 				csv.Read();
-				csv.ReadHeader();
+				//csv.ReadHeader();
+
+				int incr = 0;
 				while (csv.Read())
 				{
-					var record = csv.GetRecords<DataTable>();
-					if (record.Count() == 3)
+
+					var SCORE = csv.GetField(0);
+					var ITEM_ID = csv.GetField(1);
+					var REVIEW_ID = csv.GetField(2);
+
+					//for (int i = 0; i < records.Count(); i++)
+					//{
+
+					if (SCORE == "1")
 					{
-
-						// Not finished implementing...!
-
-						//if (record.ElementAt(0). == "1")
-						//{
-						//	data[0] = "0.999999";
-						//}
-						//else if (data[0] == "0")
-						//{
-						//	data[0] = "0.000001";
-						//}
-						//else if (data[0].Length > 2 && data[0].Contains("E"))
-						//{
-						//	double dbl = 0;
-						//	double.TryParse(data[0], out dbl);
-						//	//if (dbl == 0.0) throw new Exception("Gotcha!");
-						//	data[0] = dbl.ToString("F10");
-						//}
-						//dt.Rows.Add(data);
+						SCORE = "0.999999";
 					}
+					else if (SCORE == "0")
+					{
+						SCORE = "0.000001";
+					}
+					else if (SCORE.Length > 2 && SCORE.Contains("E"))
+					{
+						double dbl = 0;
+						double.TryParse(SCORE, out dbl);
+
+						SCORE = dbl.ToString("F10");
+					}
+
+					DataRow row = dt.NewRow();
+					row["SCORE"]= SCORE;
+					row["ITEM_ID"] = ITEM_ID;
+					row["REVIEW_ID"] = REVIEW_ID;
+					dt.Rows.Add(row);
+
 				}
-
-
-				//var records = csv.GetRecords(anonymousTypeDefinition);
 			}
-
 #endif
 
 			return dt;
@@ -695,6 +702,7 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				connection.Close();
 			}
+
 			// now remove the blob from Azure. the fact that it's always tied to the reviewId means that people can't delete the public classifiers (RCT / DARE)
 			CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
 			CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -919,7 +927,7 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
 					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
 #else
-				BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
+					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
 
 #endif
 
@@ -1018,11 +1026,6 @@ namespace BusinessLibrary.BusinessClasses
 
 			}
 		}
-
-
-
-
-
 
 #endif
 			}

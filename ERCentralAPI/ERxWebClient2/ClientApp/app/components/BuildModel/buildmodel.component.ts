@@ -103,7 +103,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
 
-			this._classifierService.Create(title, this.DD1, this.DD2, this._classifierService.ConnectionId);
+			this._classifierService.Create(title, this.DD1, this.DD2);
 		}
 	}
 

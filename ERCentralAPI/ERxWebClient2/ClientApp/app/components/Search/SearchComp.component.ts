@@ -38,6 +38,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	) {
 	}
 	public modelNum: number = 0;
+	public modelTitle: string = '';
+	public ModelId = -1;
+	public mode: number = 0;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -47,18 +50,49 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	SetModelSelection(num: number) {
-
+		this.ModelSelected = true;
 		this.modelNum = num;
-
 	}
 
-	RunModel(num: number) {
-
+	SetMode(num: number) {
 		this.ModelSelected = true;
-		// need to set a modeltitle
-		// need to set a modelid
+		this.mode = num;
+	}
 
-		alert(num + ' was selected!!');
+	RunModel() {
+
+
+		this.modelNum = this.mode;
+
+		alert(this.modelNum);
+
+			if (this.modelNum == 1) {
+
+				this.modelTitle = 'RCT';
+
+			} else if (this.modelNum == 2) {
+
+				this.modelTitle = 'Systematic review';
+				this.ModelId = -2;
+			} else if (this.modelNum == 3) {
+
+				this.modelTitle = 'Economic evaluation';
+				this.ModelId = -3;
+			} else if (this.modelNum == 4) {
+
+				this.modelTitle = 'New Cochrane RCT classifier model';
+				this.ModelId = -4;
+			} else {
+
+			}
+
+		//These two change based on what selection has been chosen
+		let AttributeId: number = -1;
+		let SourceId: number = -2;
+
+		alert(this.modelTitle + ' ' + AttributeId + ' ' + this.ModelId + ' ' + SourceId);
+		// call service with http call here somewhere...
+		this.classifierService.Apply(this.modelTitle, AttributeId, this.ModelId, SourceId);
 
 	}
 
@@ -70,7 +104,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			// in order to test that we can get a dotnetcore version
 			//working
 			// need to remove this...
-			this.classifierService.Create('','','', '');
+			this.classifierService.Create('','','');
 
 
 		} else {

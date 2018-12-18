@@ -147,39 +147,38 @@
 	</table>
 </div>
 <div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
-	<div class="row">
-		<div class="col-md-3">
-			<div class="form-group card-body">
-				<p class="font-weight-bold">Select a  Model:</p>
+	<div class="form-group card-body col-md-12 row">
+
+			<p class="font-weight-bold">Select a  Model:</p>
+			<div class="form-group card-body col-md-3 col-sm-4">
 				<div class="btn-group-vertical" role="group" aria-label="Basic example">
-					<button  (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
-					<button  (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
+					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
+					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
 					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
 					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
 					<button type="button" class="btn btn-outline-primary" (click)="isCollapsed4 = !isCollapsed4" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
 				</div>
 			</div>
-		</div>
 
-		<div class="col-md-9" id="collapseExample6" [ngbCollapse]="!isCollapsed6">
-			<div class="form-group card-body col-md-4 row">
-				<p class="font-weight-bold">Choose method to apply:</p>
-				<input (click)="RunModel(1)" class="col-md-4"  type="radio" name="mode" id="opt1" [(ngModel)]="mode" value="1">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to all items in review
-				</label>
-				<input (click)="RunModel(2)" class="col-md-4" type="radio" name="mode" id="opt2" [(ngModel)]="mode" value="2">
-				<label class="form-check-label ">
-					&nbsp;&nbsp; Apply to items with this code
-				</label>
-				<input (click)="RunModel(3)" class="col-md-4" type="radio" name="mode" id="opt3" [(ngModel)]="mode" value="3">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to items from this source
-				</label>
+			<div id="collapseExample6" [ngbCollapse]="!isCollapsed6">
+				<div class="form-group card-body col-md-8 col-sm-4">
+					<p class="font-weight-bold">Choose method to apply:</p>
+					<input class="col-md-4" type="radio" name="mode" id="opt1" [(ngModel)]="mode" value="1">
+					<label class="form-check-label ">
+						&nbsp;&nbsp;Apply to all items in review
+					</label>
+					<input class="col-md-4" type="radio" name="mode" id="opt2" [(ngModel)]="mode" value="2">
+					<label class="form-check-label ">
+						&nbsp;&nbsp; Apply to items with this code
+					</label>
+					<input class="col-md-4" type="radio" name="mode" id="opt3" [(ngModel)]="mode" value="3">
+					<label class="form-check-label ">
+						&nbsp;&nbsp;Apply to items from this source
+					</label>
+				</div>
 			</div>
-		</div>
 
-		<div class="col-md-9 pull-right" id="collapseExample4" [ngbCollapse]="!isCollapsed4">
+			<div class="col-md-9 pull-right" id="collapseExample4" [ngbCollapse]="!isCollapsed4">
 				<kendo-grid [data]="DataSourceModel" [height]="410"
 							[sort]="sort"
 							(sortChange)="sortChange($event)"
@@ -218,11 +217,11 @@
 					</kendo-grid-column>
 				</kendo-grid>
 			</div>
-
 		</div>
+
 		<div class="form-group card-body col-md-12">
 			<p class="font-weight-bold">Run Models</p>
-			<button [disabled]="!ModelSelected"
+			<button (click)="RunModel()" [disabled]="!ModelSelected"
 					type="button" class="btn btn-success">
 				Run Selected Model
 			</button>

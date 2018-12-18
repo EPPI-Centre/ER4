@@ -48,8 +48,7 @@ namespace ERxWebClient2.Controllers
 			}
 
 		}
-
-
+		
 		[HttpPost("[action]")]
 		public async Task<IActionResult> GetClassifierAsync([FromBody] MVCClassifierCommand MVCcmd)
 		{
@@ -86,14 +85,51 @@ namespace ERxWebClient2.Controllers
 
 		}
 
+
+		[HttpPost("[action]")]
+		public async Task<IActionResult> ApplyClassifierAsync([FromBody] MVCClassifierCommand MVCcmd)
+		{
+			try
+			{
+
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				ClassifierCommand cmd = new ClassifierCommand(
+						MVCcmd._title
+						, -1
+						, -1
+						, MVCcmd._attributeId
+						, MVCcmd._modelId
+						, MVCcmd._sourceId
+					);
+				cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+
+				DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+
+				cmd = await dp.ExecuteAsync(cmd);
+
+				return Ok(cmd);
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "A ClassifierCommand issue");
+				throw;
+			}
+
+		}
+		
 		public class MVCClassifierCommand
 		{
-			public string ConnectionId { get; set; }
 			public string _title { get; set; }
 			public Int64 _attributeIdOn { get; set; }
 			public Int64 _attributeIdNotOn { get; set; }
 			public Int64 _attributeIdClassifyTo { get; set; }
 			public int _sourceId { get; set; }
+			public int _modelId { get; set; }
+			public int _attributeId { get; set; }
+			public int _classifierId { get; set; }
 			public MVCReviewInfo revInfo { get; set; }
 
 		}
