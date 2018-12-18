@@ -64,6 +64,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		this.modelNum = this.mode;
 
+		// hardcode for test
+		this.modelNum = 4;
+
 		alert(this.modelNum);
 
 			if (this.modelNum == 1) {
