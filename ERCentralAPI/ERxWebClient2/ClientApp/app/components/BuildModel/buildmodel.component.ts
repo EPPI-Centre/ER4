@@ -100,7 +100,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	BuildModel(title: string, attrOn: string, attrNotOn: string) {
 
-
+		this.IamVerySorryRefresh();
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
 
 			this._classifierService.Create(title, this.DD1, this.DD2);

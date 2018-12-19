@@ -99,10 +99,11 @@ namespace ERxWebClient2.Controllers
 						MVCcmd._title
 						, -1
 						, -1
-						, MVCcmd._attributeId
-						, MVCcmd._modelId
+						, MVCcmd._attributeIdClassifyTo
+						, MVCcmd._classifierId
 						, MVCcmd._sourceId
 					);
+
 				cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
 				DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
@@ -123,9 +124,9 @@ namespace ERxWebClient2.Controllers
 		public class MVCClassifierCommand
 		{
 			public string _title { get; set; }
-			public Int64 _attributeIdOn { get; set; }
-			public Int64 _attributeIdNotOn { get; set; }
-			public Int64 _attributeIdClassifyTo { get; set; }
+			public int _attributeIdOn { get; set; }
+			public int _attributeIdNotOn { get; set; }
+			public int _attributeIdClassifyTo { get; set; }
 			public int _sourceId { get; set; }
 			public int _modelId { get; set; }
 			public int _attributeId { get; set; }

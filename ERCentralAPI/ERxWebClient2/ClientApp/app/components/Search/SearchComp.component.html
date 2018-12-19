@@ -1,20 +1,3 @@
-<!--<table class="table col-md-12">
-	<tbody class="col-md-12">
-		<tr class="col-md-12">
-
-			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed = !isCollapsed"
-				[attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
-				<i class="fa fa-search" aria-hidden="true"></i> New Search
-			</td>
-			<td class="btn  text-white bg-primary col-md-2" (click)="refreshSearches()"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh Search</td>
-			<td class="btn text-white bg-primary col-md-2" (click)="DeleteSearchSelected()"><i class="fa fa-trash RedIcon" aria-hidden="true"></i> Delete Search</td>
-			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseExample2"><i class="fa fa-bullseye" aria-hidden="true"></i>Combine</td>
-			<td class="btn  text-white bg-primary col-md-2" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3"><i class="fa fa-pie-chart" aria-hidden="true"></i>CLASSIFY</td>
-		</tr>
-	</tbody>
-</table>-->
-
-
 <div class="containsAtoolbar">
 	<kendo-toolbar style="background-color: steelblue;">
 		<kendo-toolbar-button [text]="'New Search'" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
@@ -99,7 +82,7 @@
 
 				</div>
 			</div>
-			<span *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</span>
+			<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 			<div class="row">
 				<div class="col-md-4"></div>
 				<div class="col-md-12">
@@ -149,83 +132,99 @@
 <div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
 	<div class="form-group card-body col-md-12 row">
 
-			<p class="font-weight-bold">Select a  Model:</p>
-			<div class="form-group card-body col-md-3 col-sm-4">
-				<div class="btn-group-vertical" role="group" aria-label="Basic example">
-					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
-					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
-					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
-					<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
-					<button type="button" class="btn btn-outline-primary" (click)="isCollapsed4 = !isCollapsed4" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
-				</div>
-			</div>
-
-			<div id="collapseExample6" [ngbCollapse]="!isCollapsed6">
-				<div class="form-group card-body col-md-8 col-sm-4">
-					<p class="font-weight-bold">Choose method to apply:</p>
-					<input class="col-md-4" type="radio" name="mode" id="opt1" [(ngModel)]="mode" value="1">
-					<label class="form-check-label ">
-						&nbsp;&nbsp;Apply to all items in review
-					</label>
-					<input class="col-md-4" type="radio" name="mode" id="opt2" [(ngModel)]="mode" value="2">
-					<label class="form-check-label ">
-						&nbsp;&nbsp; Apply to items with this code
-					</label>
-					<input class="col-md-4" type="radio" name="mode" id="opt3" [(ngModel)]="mode" value="3">
-					<label class="form-check-label ">
-						&nbsp;&nbsp;Apply to items from this source
-					</label>
-				</div>
-			</div>
-
-			<div class="col-md-9 pull-right" id="collapseExample4" [ngbCollapse]="!isCollapsed4">
-				<kendo-grid [data]="DataSourceModel" [height]="410"
-							[sort]="sort"
-							(sortChange)="sortChange($event)"
-							(remove)="removeHandler($event)">
-
-					<kendo-grid-column [sortable]="false" field="add" width="50"
-									   [headerStyle]="{'text-align': 'center'}"
-									   [style]="{'text-align': 'center'}">
-						<ng-template kendoGridHeaderTemplate let-dataItem>
-							<input style="zoom: 1.2;"
-								   type="checkbox"
-								   name="selectAll"
-								   (change)="selectAllSearchesChange($event)"
-								   [checked]="allSearchesSelected" />
-						</ng-template>
-						<ng-template kendoGridCellTemplate let-dataItem>
-							<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-								   type="checkbox"
-								   field="selected"
-								   [checked]="dataItem.add" />
-						</ng-template>
-					</kendo-grid-column>
-					<kendo-grid-column field="modelTitle" title="Title">
-					</kendo-grid-column>
-					<kendo-grid-column field="attributeOn" title="Att On">
-					</kendo-grid-column>
-					<kendo-grid-column field="attributeNotOn" title="Att Not On">
-					</kendo-grid-column>
-					<kendo-grid-column field="accuracy" title="Accuracy">
-					</kendo-grid-column>
-					<kendo-grid-column field="auc" title="AUC">
-					</kendo-grid-column>
-					<kendo-grid-column field="precision" title="Precision">
-					</kendo-grid-column>
-					<kendo-grid-column field="recall" title="Recall">
-					</kendo-grid-column>
-				</kendo-grid>
+		<p class="font-weight-bold">Select a  Model:</p>
+		<div class="form-group card-body col-md-3 col-sm-4">
+			<div class="btn-group-vertical" role="group" aria-label="Basic example">
+				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
+				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
+				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
+				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
+				<button type="button" class="btn btn-outline-primary" (click)="isCollapsed4 = !isCollapsed4" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
 			</div>
 		</div>
 
-		<div class="form-group card-body col-md-12">
-			<p class="font-weight-bold">Run Models</p>
-			<button (click)="RunModel()" [disabled]="!ModelSelected"
-					type="button" class="btn btn-success">
-				Run Selected Model
-			</button>
+		<div id="collapseExample6" [ngbCollapse]="!isCollapsed6">
+			<div class="form-group card-body col-md-8 col-sm-4">
+				<p class="font-weight-bold">Choose method to apply:</p>
+				<input class="col-md-4" type="radio" name="mode" id="opt1" [(ngModel)]="mode" value="1">
+				<label class="form-check-label ">
+					&nbsp;&nbsp;Apply to all items in review
+				</label>
+				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="mode" id="opt2" [(ngModel)]="mode" value="2">
+				<label class="form-check-label ">
+					&nbsp;&nbsp;Apply to items with this code
+				</label>
+
+				<input (click)="chooseSourceDD()" class="col-md-4" type="radio" name="mode" id="opt3" [(ngModel)]="mode" value="3">
+				<label class="form-check-label ">
+					&nbsp;&nbsp;Apply to items from this source
+				</label>
+			</div>
 		</div>
+
+		<div *ngIf="mode == 3"
+			 class="col-md-8  pull-right">
+			<div>
+				<div ngbDropdown class="d-inline-block col-md-8">
+					<select class="btn btn-secondary col-md-8" id="dropdownBasicSources" 
+							ngbDropdownToggle [(ngModel)]="selected">
+						<option [value]="item.source_ID" *ngFor="let item of _listSources">
+							{{item.source_Name}}
+						</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-9 pull-right" id="collapseExample4" [ngbCollapse]="!isCollapsed4">
+			<kendo-grid [data]="DataSourceModel" [height]="410"
+						[sort]="sort"
+						(sortChange)="sortChange($event)"
+						(remove)="removeHandler($event)">
+
+				<kendo-grid-column [sortable]="false" field="add" width="50"
+								   [headerStyle]="{'text-align': 'center'}"
+								   [style]="{'text-align': 'center'}">
+					<ng-template kendoGridHeaderTemplate let-dataItem>
+						<input style="zoom: 1.2;"
+							   type="checkbox"
+							   name="selectAll"
+							   (change)="selectAllSearchesChange($event)"
+							   [checked]="allSearchesSelected" />
+					</ng-template>
+					<ng-template kendoGridCellTemplate let-dataItem>
+						<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+							   type="checkbox"
+							   field="selected"
+							   [checked]="dataItem.add" />
+					</ng-template>
+				</kendo-grid-column>
+				<kendo-grid-column field="modelTitle" title="Title">
+				</kendo-grid-column>
+				<kendo-grid-column field="attributeOn" title="Att On">
+				</kendo-grid-column>
+				<kendo-grid-column field="attributeNotOn" title="Att Not On">
+				</kendo-grid-column>
+				<kendo-grid-column field="accuracy" title="Accuracy">
+				</kendo-grid-column>
+				<kendo-grid-column field="auc" title="AUC">
+				</kendo-grid-column>
+				<kendo-grid-column field="precision" title="Precision">
+				</kendo-grid-column>
+				<kendo-grid-column field="recall" title="Recall">
+				</kendo-grid-column>
+			</kendo-grid>
+		</div>
+	</div>
+
+	<div class="form-group card-body col-md-12">
+		<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
+		<p class="font-weight-bold">Run Models</p>
+		<button (click)="RunModel()" [disabled]="!ModelSelected"
+				type="button" class="btn btn-success">
+			Run Selected Model
+		</button>
+	</div>
 
 	</div>
 

@@ -126,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
 		{
 			if (_title == "DeleteThisModel~~")
 			{
-				DeleteModel();
+				DeleteModelAsync();
 				return;
 			}
 			if (_attributeIdOn + _attributeIdNotOn != -2)
@@ -330,14 +330,14 @@ namespace BusinessLibrary.BusinessClasses
 					byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 #else
 					bool check = await blockBlob.ExistsAsync();
-					string x = "";
+					string strResult = "";
 					if (check)
 					{
-						var test = blockBlob.DownloadTextAsync();
-						x = await test;
+						var downloadTask = blockBlob.DownloadTextAsync();
+						strResult = await downloadTask;
 						
 					}
-					byte[] myFile = Encoding.UTF8.GetBytes(x);
+					byte[] myFile = Encoding.UTF8.GetBytes(strResult);
 #endif
 
 
@@ -408,7 +408,7 @@ namespace BusinessLibrary.BusinessClasses
 					command2.ExecuteNonQuery();
 					if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
 					{
-						DeleteModel();
+						DeleteModelAsync();
 					}
 				}
 				connection.Close();
@@ -517,18 +517,18 @@ namespace BusinessLibrary.BusinessClasses
 				if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
 				{
 					// load RCTs
-					DataTable RCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv").Result;
+					DataTable RCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
 					_title = "Cochrane RCT Classifier: may be RCTs";
 					LoadResultsIntoDatabase(RCTs, connection, ri);
 
 					// load non-RCTs
-					DataTable nRCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv").Result;
+					DataTable nRCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
 					_title = "Cochrane RCT Classifier: unlikely to be RCTs";
 					LoadResultsIntoDatabase(nRCTs, connection, ri);
 				}
 				else
 				{
-					DataTable Scores = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv").Result;
+					DataTable Scores = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
 					LoadResultsIntoDatabase(Scores, connection, ri);
 				}
 
@@ -549,14 +549,14 @@ namespace BusinessLibrary.BusinessClasses
 #else
 
 				bool check = await blockBlob.ExistsAsync();
-				string x = "";
+				string strResult = "";
 				if (check)
 				{
-					var test = blockBlob.DownloadTextAsync();
-					x = await test;
+					var downloadTask = blockBlob.DownloadTextAsync();
+					strResult = await downloadTask;
 
 				}
-				byte[] myFile = Encoding.UTF8.GetBytes(x);
+				byte[] myFile = Encoding.UTF8.GetBytes(strResult);
 #endif
 
 			MemoryStream ms = new MemoryStream(myFile);
@@ -612,21 +612,15 @@ namespace BusinessLibrary.BusinessClasses
 
 			using (TextReader tr = new StreamReader(ms))
 			{
-				//not implemented yet
 				var csv = new CsvReader(tr);
 				csv.Read();
-				//csv.ReadHeader();
-
-				int incr = 0;
+			
 				while (csv.Read())
 				{
 
 					var SCORE = csv.GetField(0);
 					var ITEM_ID = csv.GetField(1);
 					var REVIEW_ID = csv.GetField(2);
-
-					//for (int i = 0; i < records.Count(); i++)
-					//{
 
 					if (SCORE == "1")
 					{
@@ -687,7 +681,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private void DeleteModel()
+		private async Task DeleteModelAsync()
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
@@ -716,8 +710,8 @@ namespace BusinessLibrary.BusinessClasses
 				blockBlobModel.Delete();
 				blockBlobStats.Delete();
 #else
-				blockBlobModel.DeleteAsync();
-				blockBlobStats.DeleteAsync();
+				await blockBlobModel.DeleteAsync();
+				await blockBlobStats.DeleteAsync();
 
 #endif
 

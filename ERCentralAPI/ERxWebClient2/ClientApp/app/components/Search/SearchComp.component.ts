@@ -11,6 +11,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
+import { SourcesService } from '../services/sources.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -31,16 +32,21 @@ export class SearchComp implements OnInit, OnDestroy {
 		private reviewInfoService: ReviewInfoService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private reviewSetsService: ReviewSetsService,
+		private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
+		private _sourcesService: SourcesService
 	) {
 	}
 	public modelNum: number = 0;
 	public modelTitle: string = '';
 	public ModelId = -1;
 	public mode: number = 0;
+	public AttributeId = 0;
+	public SourceId = 0;
+	private _listSources: any[] = [];
+	public selected?: ReadOnlySource;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -50,9 +56,29 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	SetModelSelection(num: number) {
+
 		this.ModelSelected = true;
 		this.modelNum = num;
 	}
+
+	chooseCodeMessage() {
+
+
+		this.notificationService.show({
+			content: 'Please use the tree on the right hand side to choose a code',
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: "warning", icon: true },
+			closable: true
+		});
+
+	}
+
+	chooseSourceDD() {
+
+		this._listSources = this._sourcesService.ReviewSources;
+	}
+
 
 	SetMode(num: number) {
 		this.ModelSelected = true;
@@ -61,14 +87,32 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	RunModel() {
 
+		this.AttributeId = -1;
+		this.SourceId = -2;
 
-		this.modelNum = this.mode;
+		if (this.mode == 1) {
+			// standard
 
-		// hardcode for test
-		this.modelNum = 4;
+		} else if (this.mode == 2) {
 
-		alert(this.modelNum);
+			//then set the attributeid to begin with
+			this.AttributeId = this._reviewSetsService.selectedNode ? Number(this._reviewSetsService.selectedNode.id.substr(1, this._reviewSetsService.selectedNode.id.length-1))  : -1;
+			
+		} else if (this.mode == 3) {
+			// not implmented
+			
+			this.SourceId = Number(this.selected);
+			alert(this.SourceId);
 
+		} else {
+			//
+			alert('You must apply the model to some items');
+			return;
+		}
+
+
+		alert('The model number is: ' + this.modelNum);
+		
 			if (this.modelNum == 1) {
 
 				this.modelTitle = 'RCT';
@@ -77,25 +121,24 @@ export class SearchComp implements OnInit, OnDestroy {
 
 				this.modelTitle = 'Systematic review';
 				this.ModelId = -2;
+
 			} else if (this.modelNum == 3) {
 
 				this.modelTitle = 'Economic evaluation';
 				this.ModelId = -3;
+
 			} else if (this.modelNum == 4) {
 
 				this.modelTitle = 'New Cochrane RCT classifier model';
 				this.ModelId = -4;
+
 			} else {
 
 			}
 
-		//These two change based on what selection has been chosen
-		let AttributeId: number = -1;
-		let SourceId: number = -2;
-
-		alert(this.modelTitle + ' ' + AttributeId + ' ' + this.ModelId + ' ' + SourceId);
+		alert(this.modelTitle + ' ' + this.AttributeId + ' ' + this.ModelId + ' ' + this.SourceId);
 		// call service with http call here somewhere...
-		this.classifierService.Apply(this.modelTitle, AttributeId, this.ModelId, SourceId);
+		this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 
 	}
 
@@ -324,12 +367,12 @@ export class SearchComp implements OnInit, OnDestroy {
 				this.withCode = false;
 			}
 
-			if (this.reviewSetsService.selectedNode != undefined) {
+			if (this._reviewSetsService.selectedNode != undefined) {
 
-				let tmpID: number = this.reviewSetsService.selectedNode.attributeSetId;
-				this.attributeNames = this.reviewSetsService.selectedNode.name;
+				let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
+				this.attributeNames = this._reviewSetsService.selectedNode.name;
 				this._searchService.cmdSearches._answers = String(tmpID);
-				alert(this.reviewSetsService.selectedNode);
+				alert(this._reviewSetsService.selectedNode);
 
 				searchTitle = this.withCode == true ?
 					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
@@ -417,7 +460,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			case 1: {
 
 				typeElement = 'warning';
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				this.notificationService.show({
 					content: 'Please use the tree on the right hand side to choose a code',
 					animation: { type: 'slide', duration: 400 },
@@ -428,7 +471,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				break;
 			}
 			case 2: {
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				typeElement = 'warning';
 				this.notificationService.show({
 					content: 'Please use the tree on the right hand side to choose a code',
@@ -449,23 +492,23 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 			case 5: {
 
-				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 					.map(
 						(y: ReviewSet) => {
 							return y.name;
 						}
 					);
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			case 6: {
-				this.CodeSets = this.reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+				this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 					.map(
 						(y: ReviewSet) => {
 							return y.name;
 						}
 					);
-				this.dropDownList = this.reviewSetsService.ReviewSets;
+				this.dropDownList = this._reviewSetsService.ReviewSets;
 				break;
 			}
 			default: {
@@ -476,7 +519,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public setSearchCodeSetDropDown(codeSetName: string) {
 
-		this.selectedSearchCodeSetDropDown = this.reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
+		this.selectedSearchCodeSetDropDown = this._reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
 			.map(
 				(y: ReviewSet) => {
 
@@ -546,6 +589,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 		else {
 
+			this._sourcesService.FetchSources();
 			this.reviewInfoService.Fetch();
 			this._buildModelService.Fetch();
             this._searchService.Fetch();
@@ -553,4 +597,13 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 
+}
+
+export interface ReadOnlySource {
+	source_ID: number;
+	source_Name: string;
+	total_Items: number;
+	deleted_Items: number;
+	duplicates: number;
+	isDeleted: boolean;
 }
