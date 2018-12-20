@@ -83,7 +83,7 @@
                                   [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" (click)="CreateNewCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodesetFrom.dirty || !IsNewSetNameValid() ">
+                        <button type="submit" (click)="CreateNewCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodesetFrom.dirty || !IsNewSetNameValid() || !CanWrite() ">
                             Create
                         </button>
                         <button class="btn btn-outline-secondary ml-1"
@@ -100,7 +100,9 @@
                     <div>This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
                     <div>
                         <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
-                        <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()" style="width:80px;">Yes</button>
+                        <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()" 
+                                [disabled]="!CanWrite() "
+                                style="width:80px;">Yes</button>
                     </div>
                 </div>
                 <form class="row" #EditCodesetFrom="ngForm">
@@ -110,6 +112,7 @@
                     <div class="form-group col-7 row">
                         <div>Codeset Name</div>
                         <input type="text" class="form-control" id="SetName"
+                               [disabled]="!CanWrite()"
                                [(ngModel)]="CurrentNode.set_name" name="set_name"
                                #name="ngModel">
                         <div [hidden]="IsEditingNodeNameValid()"
@@ -119,27 +122,39 @@
                     </div>
                     <div class="col-12">
                         <div class="row">
-                            <div>Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
-                            <button class="btn btn-outline-danger btn-sm" (click)="ShowChangeDataEntryClicked()">Change</button>
+                            <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
+                            <button *ngIf="SetTypeCanChangeDataEntryMode()" class="btn btn-outline-danger btn-sm ml-1 mb-1" 
+                                    [disabled]="!CanWrite()"
+                                    (click)="ShowChangeDataEntryClicked()">Change</button>
                         </div>
                         <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
-                            change data-entry mode goes here <button class="btn btn-outline-danger btn-sm" (click)="HideChangeDataEntry()">Cancel</button>
+                            <div>{{ChangeDataEntryModeMessage}}</div>
+                            <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()">Cancel</button>
+                            <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                Yes, change to
+                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" (click)="DoChangeDataEntry()">
+                                    {{DestinationDataEntryMode}}
+                                </button>
+                                mode.
+                            </div>
                         </div>
                     </div>
                     <div class="form-group col-12">
                         <label for="newSetDescription">Description</label>
-                        <textarea class="form-control" id="newSetDescription"
+                        <textarea class="form-control" id="newSetDescription" [disabled]="!CanWrite()"
                                   [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid() ">
+                        <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2" 
+                                [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid()|| !CanWrite()">
                             Save
                         </button>
                         <button class="btn btn-outline-secondary ml-1"
                                 (click)="CancelActivity()">
                             Cancel
                         </button>
-                        <button class="btn btn-outline-danger ml-1" (click)="ShowDeleteCodesetClicked()">Delete Codeset...</button>
+                        <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
+                                [disabled]="!CanWrite()">Delete Codeset...</button>
                     </div>
                 </form>
                 Name: {{CurrentNode.name}}<br />

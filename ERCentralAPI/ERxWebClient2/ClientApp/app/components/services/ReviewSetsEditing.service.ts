@@ -158,36 +158,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
-    public SetChangeDataEntryCheck(SetId: number, AttributeSetId: number): Promise<number> {//get how many items have coding in a codeset or section therein
-        this._BusyMethods.push("AttributeOrSetDeleteCheck");
-        let ErrMsg = "Something went wrong: could not check how many items wou. \r\n If the problem persists, please contact EPPISupport.";
-        let body: AttributeOrSetDeleteCheckCommandJSON = {
-            attributeSetId: AttributeSetId,
-            setId: SetId
-        };
-        return this._httpC.post<number>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body).toPromise()
-            .then(
-                (result) => {
-                    //console.log("ReviewSetCheckCodingStatus", result);
-                    this.RemoveBusy("AttributeOrSetDeleteCheck");
-                    return result;
-                }
-                , (error) => {
-                    console.log("ReviewSetCheckCodingStatus Err", error);
-                    this.RemoveBusy("AttributeOrSetDeleteCheck");
-                    this.modalService.GenericErrorMessage(ErrMsg);
-                    return -1;
-                }
-            )
-            .catch(
-                (error) => {
-                    console.log("ReviewSetCheckCodingStatus catch", error);
-                    this.RemoveBusy("AttributeOrSetDeleteCheck");
-                    this.modalService.GenericErrorMessage(ErrMsg);
-                    return -1;
-                }
-            );
-    }
+    
     public MoveSetAttribute(attributeSetId: number,
         fromId: number,
         toId: number,
@@ -213,6 +184,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
         );
     }
+
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry
         this._BusyMethods.push("ReviewSetCheckCodingStatus");
         let ErrMsg = "Something went wrong: could not check the coding status of this set. \r\n If the problem persists, please contact EPPISupport.";
@@ -225,7 +197,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     return result;
                 }
                 , (error) => {
-                    //console.log("ReviewSetCheckCodingStatus Err", error);
+                    console.log("ReviewSetCheckCodingStatus Err", error);
                     this.RemoveBusy("ReviewSetCheckCodingStatus");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;
@@ -233,7 +205,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             )
             .catch(
                 (error) => {
-                    //console.log("ReviewSetCheckCodingStatus catch", error);
+                    console.log("ReviewSetCheckCodingStatus catch", error);
                     this.RemoveBusy("ReviewSetCheckCodingStatus");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;

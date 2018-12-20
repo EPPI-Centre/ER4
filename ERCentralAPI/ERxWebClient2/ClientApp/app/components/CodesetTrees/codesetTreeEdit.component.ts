@@ -19,7 +19,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
                 @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsService: ReviewSetsService,
-        private ReviewSetsEditingService: ReviewSetsEditingService,
+        private ReviewSetsEditingService: ReviewSetsEditingService
     ) { }
     ngOnInit() {
         
