@@ -13,20 +13,20 @@
                             </ng-template>
                             <ng-template kendoTabContent>
                                 <div class="containsAtoolbar">
-                                    <kendo-toolbar class="customk-toolbar">
-                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
-                                        <!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
-                                    </kendo-toolbar>
+									<kendo-toolbar class="customk-toolbar">
+										<kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+
+										<!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
+	<kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
+	<kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+									</kendo-toolbar>
                                 </div>
                                 <div class="row m-1">
                                     <div class="col-md-7 p-0 pr-1">
                                         <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                     </div>
                                     <div class="col-md-5 p-0">
-                                        <div class="card card-body mt-2 bg-light ">
+                                        <div class="card card-body bg-light ">
                                             {{MyInfoMessage()}}
                                         </div>
                                         <div class="card card-body ReviewsBg  mt-2 ">
@@ -101,7 +101,7 @@
                
             </kendo-splitter-pane>
             <kendo-splitter-pane [collapsible]="true" size="30%" class="bg-light">
-                <codesetTreeMain></codesetTreeMain>
+                <codesets></codesets>
             </kendo-splitter-pane>
         </kendo-splitter>
         <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using Csla;
@@ -27,10 +28,14 @@ using System.Text.RegularExpressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Diagnostics;
+using CsvHelper;
+
+
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
-
+#else
+using AspNetCore.Http.Extensions;
 #endif
 
 using System.Data;
@@ -121,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
 		{
 			if (_title == "DeleteThisModel~~")
 			{
-				DeleteModel();
+				DeleteModelAsync();
 				return;
 			}
 			if (_attributeIdOn + _attributeIdNotOn != -2)
@@ -286,6 +291,7 @@ namespace BusinessLibrary.BusinessClasses
 				// upload data to blob
 				CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 				CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
+				
 				CloudBlockBlob blockBlobData = container.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId + "ModelId" + modelId.ToString()
 					+ ".csv");
 				//blockBlobData.UploadText(data.ToString()); // I'm not convinced there's not a better way of doing this - seems expensive to convert to string??
@@ -306,7 +312,7 @@ namespace BusinessLibrary.BusinessClasses
 				_returnMessage = "Successful upload of data";
 
 				await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
-
+				// er4ml isharedkey =true
 				CloudBlobClient blobClientStats = storageAccount.CreateCloudBlobClient();
 				CloudBlobContainer containerStats = blobClient.GetContainerReference("attributemodels");
 				CloudBlockBlob blockBlob = containerStats.GetBlockBlobReference(TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" +
@@ -323,8 +329,15 @@ namespace BusinessLibrary.BusinessClasses
 
 					byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 #else
-					var test = await blockBlob.DownloadTextAsync();
-					byte[] myFile = Encoding.UTF8.GetBytes(test);
+					bool check = await blockBlob.ExistsAsync();
+					string strResult = "";
+					if (check)
+					{
+						var downloadTask = blockBlob.DownloadTextAsync();
+						strResult = await downloadTask;
+						
+					}
+					byte[] myFile = Encoding.UTF8.GetBytes(strResult);
 #endif
 
 
@@ -347,12 +360,30 @@ namespace BusinessLibrary.BusinessClasses
 						}
 					}
 #else
-					//not implemented yet
 
+					using (TextReader tr = new StreamReader(ms))
+					{
+						//not implemented yet
+						var csv = new CsvReader(tr);
+						csv.Read();
+						csv.ReadHeader();
+						while (csv.Read())
+						{
+							var record = csv.GetRecord<SVMModel>();
+							accuracy = GetSafeValue(record.accuracy.ToString());
+							auc = GetSafeValue(record.auc.ToString());
+							precision = GetSafeValue(record.precision.ToString());
+							recall = GetSafeValue(record.recall.ToString());
+						}
+
+
+						//var records = csv.GetRecords(anonymousTypeDefinition);
+					}
+	
 #endif
 
 				}
-				catch
+				catch(Exception e)
 				{
 					_returnMessage = "BuildFailed";
 					_title += " (failed)";
@@ -365,18 +396,19 @@ namespace BusinessLibrary.BusinessClasses
 				using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModel", connection))
 				{
 					command2.CommandType = System.Data.CommandType.StoredProcedure;
+					
 					command2.Parameters.Add(new SqlParameter("@MODEL_ID", modelId));
 					command2.Parameters.Add(new SqlParameter("@TITLE", _title));
-					command2.Parameters.Add(new SqlParameter("@ACCURACY", accuracy));
-					command2.Parameters.Add(new SqlParameter("@AUC", auc));
-					command2.Parameters.Add(new SqlParameter("@PRECISION", precision));
-					command2.Parameters.Add(new SqlParameter("@RECALL", recall));
+					command2.Parameters.AddWithValue("@ACCURACY", accuracy);
+					command2.Parameters.AddWithValue("@AUC", auc);
+					command2.Parameters.AddWithValue("@PRECISION",  precision);
+					command2.Parameters.AddWithValue("@RECALL",  recall);
 					command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
 					command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
 					command2.ExecuteNonQuery();
 					if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
 					{
-						DeleteModel();
+						DeleteModelAsync();
 					}
 				}
 				connection.Close();
@@ -468,12 +500,12 @@ namespace BusinessLibrary.BusinessClasses
 				using (var fileStream = System.IO.File.OpenRead(fileName))
 				{
 
+
 #if (!CSLA_NETCORE)
 					blockBlobData.UploadFromStream(fileStream);
-
 #else
-					// not implemented
 
+					await blockBlobData.UploadFromFileAsync(fileName);
 #endif
 
 				}
@@ -485,18 +517,18 @@ namespace BusinessLibrary.BusinessClasses
 				if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
 				{
 					// load RCTs
-					DataTable RCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
+					DataTable RCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv");
 					_title = "Cochrane RCT Classifier: may be RCTs";
 					LoadResultsIntoDatabase(RCTs, connection, ri);
 
 					// load non-RCTs
-					DataTable nRCTs = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
+					DataTable nRCTs = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv");
 					_title = "Cochrane RCT Classifier: unlikely to be RCTs";
 					LoadResultsIntoDatabase(nRCTs, connection, ri);
 				}
 				else
 				{
-					DataTable Scores = DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
+					DataTable Scores = await DownloadResults(storageAccount, "attributemodels", TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv");
 					LoadResultsIntoDatabase(Scores, connection, ri);
 				}
 
@@ -504,7 +536,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private DataTable DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
+		private async Task<DataTable> DownloadResults(CloudStorageAccount storageAccount, string container, string filename)
 		{
 			CloudBlobClient blobClient2 = storageAccount.CreateCloudBlobClient();
 			CloudBlobContainer container2 = blobClient2.GetContainerReference(container);
@@ -512,11 +544,19 @@ namespace BusinessLibrary.BusinessClasses
 
 #if (!CSLA_NETCORE)
 
-			byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
-#else
-			var test = blockBlob.DownloadTextAsync();
-			byte[] myFile = Encoding.UTF8.GetBytes(test.Result);
+				byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 
+#else
+
+				bool check = await blockBlob.ExistsAsync();
+				string strResult = "";
+				if (check)
+				{
+					var downloadTask = blockBlob.DownloadTextAsync();
+					strResult = await downloadTask;
+
+				}
+				byte[] myFile = Encoding.UTF8.GetBytes(strResult);
 #endif
 
 			MemoryStream ms = new MemoryStream(myFile);
@@ -568,8 +608,44 @@ namespace BusinessLibrary.BusinessClasses
 			}
 
 #else
-			//not implemented
 
+
+			using (TextReader tr = new StreamReader(ms))
+			{
+				var csv = new CsvReader(tr);
+				csv.Read();
+			
+				while (csv.Read())
+				{
+
+					var SCORE = csv.GetField(0);
+					var ITEM_ID = csv.GetField(1);
+					var REVIEW_ID = csv.GetField(2);
+
+					if (SCORE == "1")
+					{
+						SCORE = "0.999999";
+					}
+					else if (SCORE == "0")
+					{
+						SCORE = "0.000001";
+					}
+					else if (SCORE.Length > 2 && SCORE.Contains("E"))
+					{
+						double dbl = 0;
+						double.TryParse(SCORE, out dbl);
+
+						SCORE = dbl.ToString("F10");
+					}
+
+					DataRow row = dt.NewRow();
+					row["SCORE"]= SCORE;
+					row["ITEM_ID"] = ITEM_ID;
+					row["REVIEW_ID"] = REVIEW_ID;
+					dt.Rows.Add(row);
+
+				}
+			}
 #endif
 
 			return dt;
@@ -605,7 +681,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 		}
 
-		private void DeleteModel()
+		private async Task DeleteModelAsync()
 		{
 			using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
 			{
@@ -620,6 +696,7 @@ namespace BusinessLibrary.BusinessClasses
 				}
 				connection.Close();
 			}
+
 			// now remove the blob from Azure. the fact that it's always tied to the reviewId means that people can't delete the public classifiers (RCT / DARE)
 			CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
 			CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -633,8 +710,8 @@ namespace BusinessLibrary.BusinessClasses
 				blockBlobModel.Delete();
 				blockBlobStats.Delete();
 #else
-				blockBlobModel.DeleteAsync();
-				blockBlobStats.DeleteAsync();
+				await blockBlobModel.DeleteAsync();
+				await blockBlobStats.DeleteAsync();
 
 #endif
 
@@ -805,7 +882,6 @@ namespace BusinessLibrary.BusinessClasses
 
 				// submit the job
 
-#if (!CSLA_NETCORE)
 
 				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
 
@@ -815,7 +891,12 @@ namespace BusinessLibrary.BusinessClasses
 					return;
 				}
 
+#if (!CSLA_NETCORE)
 				string jobId = await response.Content.ReadAsAsync<string>();
+#else
+				string jobId = await response.Content.ReadAsJsonAsync<string>();
+
+#endif
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -837,7 +918,13 @@ namespace BusinessLibrary.BusinessClasses
 						return;
 					}
 
+#if (!CSLA_NETCORE)
 					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+#else
+					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
+
+#endif
+
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
 					{
 						done = true;
@@ -865,20 +952,85 @@ namespace BusinessLibrary.BusinessClasses
 						Thread.Sleep(1000); // Wait one second
 					}
 				}
-#else
-			// not implemented
+//#else
 
-#endif
+
+
+//				var response = await client.PostAsJsonAsync(BaseUrl + "?api-version=2.0", request);
+
+//				if (!response.IsSuccessStatusCode)
+//				{
+//					await WriteFailedResponse(response);
+//					return;
+//				}
+
+//				string jobId = await response.Content.ReadAsAsync<string>();
+
+//				// start the job
+//				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
+//				if (!response.IsSuccessStatusCode)
+//				{
+//					await WriteFailedResponse(response);
+//					return;
+//				}
+
+//				string jobLocation = BaseUrl + "/" + jobId + "?api-version=2.0";
+//				Stopwatch watch = Stopwatch.StartNew();
+//				bool done = false;
+//				while (!done)
+//				{
+//					response = await client.GetAsync(jobLocation);
+//					if (!response.IsSuccessStatusCode)
+//					{
+//						await WriteFailedResponse(response);
+//						return;
+//					}
+
+//					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+//					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
+//					{
+//						done = true;
+//						await client.DeleteAsync(jobLocation);
+//					}
+//					switch (status.StatusCode)
+//					{
+//						case BatchScoreStatusCode.NotStarted:
+//							break;
+//						case BatchScoreStatusCode.Running:
+//							break;
+//						case BatchScoreStatusCode.Failed:
+//							done = true;
+//							break;
+//						case BatchScoreStatusCode.Cancelled:
+//							done = true;
+//							break;
+//						case BatchScoreStatusCode.Finished:
+//							done = true;
+//							break;
+//					}
+
+//					if (!done)
+//					{
+//						Thread.Sleep(1000); // Wait one second
+//					}
+//				}
+
+//#endif
 
 
 			}
 		}
 
-
-
-
-
-
 #endif
 			}
 		}
+
+
+public class SVMModel
+{
+	public double accuracy { get; set; }
+	public double auc { get; set; }
+	public double precision { get; set; }
+	public double recall { get; set; }
+	
+}

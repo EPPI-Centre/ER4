@@ -21,7 +21,7 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 
 
 @Component({
-    selector: 'mainComp',
+    selector: 'mainfull',
     templateUrl: './mainfull.component.html'
     ,styles: [`
                 .pane-content { padding: 0em 1em; margin: 1;}
@@ -76,10 +76,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //index: number
         //title: string
 	}
-	BuildModel() {
-		this.router.navigate(['BuildModel']);
 
-	}
 
     ngOnInit() {
 
@@ -250,12 +247,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return msg;
        
     }
-    EditCodeSets() {
-        this.router.navigate(['EditCodeSets']);
-    }
+    
     GoToSources() {
         this.router.navigate(['sources']);
-    }
+	}
+	BuildModel() {
+		this.router.navigate(['BuildModel']);
+
+	}
     ngOnDestroy() {
         //this.Clear();
         if (this.subOpeningReview) {
