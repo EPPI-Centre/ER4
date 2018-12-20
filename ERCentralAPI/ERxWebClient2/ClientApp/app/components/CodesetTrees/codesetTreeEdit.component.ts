@@ -30,13 +30,23 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         }
     }
     @ViewChild('tree') treeComponent!: TreeComponent;
-    @Input() CanWrite: boolean = false;
-    @Input() IsServiceBusy: boolean = false;
+    @Input() CanChangeSelectedCode: boolean = true;
+    @Input() CanWriteAndServicesIdle: boolean = false;
     options: ITreeOptions = {
         childrenField: 'attributes',
         displayField: 'name',
         allowDrag: false,
 
+    }
+    public CanWrite(): boolean {
+        if (this.CanChangeSelectedCode) {
+            console.log("1: ", this.CanWriteAndServicesIdle);
+            return this.CanWriteAndServicesIdle;
+        }
+        else {
+            console.log("2: ", false);
+            return false;
+        }
     }
     public get ReviewSets(): ReviewSet[] {
         return this.ReviewSetsService.ReviewSets;
@@ -79,9 +89,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
             });
         }
     }
-
-    AddCodeSet() {
-        alert("Not Yet!");
+    RefreshLocalTree() {
+        this.treeComponent.treeModel.update();
     }
     MoveUpNode(node: singleNode) {
         if (node.nodeType == 'ReviewSet') {

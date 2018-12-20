@@ -126,9 +126,7 @@
             </div>
             <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small">
                 <tbody>
-                    <tr>
-                        <th class="p-0" style="min-width:100px;">Name</th>
-                    </tr>
+                    
                     <tr *ngFor="let ROsource of ReviewSources" class="p-0"
                         [hidden]="HideManuallyCreatedItems(ROsource)">
                         <td class="p-1 align-middle">
