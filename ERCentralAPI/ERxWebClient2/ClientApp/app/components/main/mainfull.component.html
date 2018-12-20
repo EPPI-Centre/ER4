@@ -6,7 +6,7 @@
             <kendo-splitter-pane [collapsible]="false" class="">
 
                 <kendo-splitter-pane>
-                    <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+                    <kendo-tabstrip #tabstrip [keepTabContent]="true">
                         <kendo-tabstrip-tab [selected]="true">
                             <ng-template kendoTabTitle>
                                 <b>Review</b>&nbsp;home
@@ -26,7 +26,7 @@
                                         <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                     </div>
                                     <div class="col-md-5 p-0">
-                                        <div class="card card-body bg-light ">
+                                        <div class="card card-body mt-2 bg-light ">
                                             {{MyInfoMessage()}}
                                         </div>
                                         <div class="card card-body ReviewsBg  mt-2 ">

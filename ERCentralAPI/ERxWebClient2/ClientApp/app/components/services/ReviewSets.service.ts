@@ -137,6 +137,13 @@ export class ReviewSetsService extends BusyAwareService {
         }
         return result;
     }
+    public static digestJsonReviewSet(data: iReviewSet): ReviewSet {
+        let interim: iReviewSet[] = [];
+        interim.push(data);
+        let PreResult: ReviewSet[] = this.digestJSONarray(interim);
+        if (PreResult.length > 0) return PreResult[0];
+        else return new ReviewSet();
+    }
     public static digestLocalJSONarray(data: any[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         for (let Itemset of data) {

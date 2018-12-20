@@ -5,23 +5,24 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ReviewInfoService {
+export class ReviewInfoService extends BusyAwareService{
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        this._ReviewInfo = new ReviewInfo();
+        super();
     }
 
 
-    private _ReviewInfo: ReviewInfo;
+    private _ReviewInfo: ReviewInfo = new ReviewInfo();;
     public get ReviewInfo(): ReviewInfo {
         //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
         //    return this._ReviewInfo;
@@ -42,10 +43,15 @@ export class ReviewInfoService {
     }
 
     public Fetch() {
+        this._BusyMethods.push("Fetch");
         this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
             this._ReviewInfo = rI;
+            this.RemoveBusy("Fetch");
             //this.Save();
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+        }, error => {
+            this.RemoveBusy("Fetch");
+            this.modalService.SendBackHomeWithError(error);
+        }
         );
     }
 

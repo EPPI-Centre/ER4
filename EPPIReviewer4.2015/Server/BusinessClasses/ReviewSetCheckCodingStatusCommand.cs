@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewSetCheckCodingStatusCommand : CommandBase<ReviewSetCheckCodingStatusCommand>
     {
-#if SILVERLIGHT
-    public ReviewSetCheckCodingStatusCommand(){}
-#else
-        protected ReviewSetCheckCodingStatusCommand() { }
-#endif
+        public ReviewSetCheckCodingStatusCommand(){}
 
         private int _num_problematic;
         private int _SetId;
