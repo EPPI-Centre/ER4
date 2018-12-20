@@ -55,6 +55,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		};
 	}
 
+	CanOnlySelectRoots() {
+		return true;
+	}
+
 	SetModelSelection(num: number) {
 
 		this.ModelSelected = true;
@@ -102,16 +106,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			// not implmented
 			
 			this.SourceId = Number(this.selected);
-			alert(this.SourceId);
 
 		} else {
 			//
 			alert('You must apply the model to some items');
 			return;
 		}
-
-
-		alert('The model number is: ' + this.modelNum);
 		
 			if (this.modelNum == 1) {
 
@@ -136,27 +136,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			}
 
-		alert(this.modelTitle + ' ' + this.AttributeId + ' ' + this.ModelId + ' ' + this.SourceId);
-		// call service with http call here somewhere...
 		this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 
-	}
-
-	public OpenClassifierScreen(ML: boolean) {
-
-		if (ML) {
-			alert('need to open a relevant screen');
-			// for now harcode values and send the variables ot the controller
-			// in order to test that we can get a dotnetcore version
-			//working
-			// need to remove this...
-			this.classifierService.Create('','','');
-
-
-		} else {
-
-			alert('do nothing here');
-		}
 	}
 	
 	SelectModel(model: string) {
@@ -223,9 +204,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public set logic(value: string) {
 
-
-
-		alert('got inside here');
 		this._searchService.cmdSearches._included = 'true';
 		this._searchService.cmdSearches._title = "159 AND 158";
 		this._searchService.cmdSearches._logicType = "AND";
@@ -261,9 +239,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			}
 		}
-		alert(lstStrSearchNos);
-		//need some logic around the checkbox selection for title and searches
-		//these should be separated by a comma
 		this._searchService.cmdSearches._title = lstStrSearchNos;
 		this._searchService.cmdSearches._logicType = logicChoice;
 		this._searchService.cmdSearches._searches = lstStrSearchIds;
@@ -322,8 +297,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 		
 		this._searchService.Fetch();
-
-		//this.gridData = process(this.DataSource.data, this.stateAdd);
 	}
 	
 	DeleteSearchSelected() {
@@ -351,8 +324,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
 		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
 		this._searchService.cmdSearches._included = String(searchBool);
-
-		//alert('model ang value: ' + searchBool + ' value being passed is: ' + this._searchService.cmdSearches._included);
 
 		this._searchService.cmdSearches._withCodes = String(this.withCode);
 		this._searchService.cmdSearches._searchId = 0;
@@ -459,27 +430,29 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			case 1: {
 
-				typeElement = 'warning';
+				//typeElement = 'warning';
 				this.dropDownList = this._reviewSetsService.ReviewSets;
-				this.notificationService.show({
-					content: 'Please use the tree on the right hand side to choose a code',
-					animation: { type: 'slide', duration: 400 },
-					position: { horizontal: 'center', vertical: 'top' },
-					type: { style: typeElement, icon: true },
-					closable: true
-				});
+				//this.notificationService.show({
+				//	content: 'Please use the tree on the right hand side to choose a code',
+				//	animation: { type: 'slide', duration: 400 },
+				//	position: { horizontal: 'center', vertical: 'top' },
+				//	type: { style: typeElement, icon: true },
+				//	closable: true
+				//});
+
 				break;
 			}
 			case 2: {
 				this.dropDownList = this._reviewSetsService.ReviewSets;
-				typeElement = 'warning';
-				this.notificationService.show({
-					content: 'Please use the tree on the right hand side to choose a code',
-					animation: { type: 'slide', duration: 400 },
-					position: { horizontal: 'center', vertical: 'top' },
-					type: { style: typeElement, icon: true },
-					closable: true
-				});
+				//typeElement = 'warning';
+				//this.notificationService.show({
+				//	content: 'Please use the tree on the right hand side to choose a code',
+				//	animation: { type: 'slide', duration: 400 },
+				//	position: { horizontal: 'center', vertical: 'top' },
+				//	type: { style: typeElement, icon: true },
+				//	closable: true
+				//});
+
 				break;
 			}
 			case 3: {

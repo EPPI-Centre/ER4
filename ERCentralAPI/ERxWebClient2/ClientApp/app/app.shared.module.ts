@@ -52,6 +52,7 @@ import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsE
 import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeMain.component';
 import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
 import { BuildModelComponent } from './components/BuildModel/buildmodel.component';
+import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelector.component';
 
 
 @NgModule({
@@ -66,7 +67,8 @@ import { BuildModelComponent } from './components/BuildModel/buildmodel.componen
 		itemDetailsPaginatorComp,
         CodesetTreeMainComponent,
         CodesetTreeCodingComponent,
-        CodesetTreeEditComponent,
+		CodesetTreeEditComponent,
+		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,

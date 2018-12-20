@@ -42,6 +42,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace BusinessLibrary.BusinessClasses
 {
+
     [Serializable]
     public class TrainingRunCommand : CommandBase<TrainingRunCommand>
     {
@@ -219,7 +220,8 @@ namespace BusinessLibrary.BusinessClasses
 #else
                 Task<bool> task2 = blockBlobData.ExistsAsync();
                 while (!task2.IsCompleted) Thread.Sleep(100);
-                bool blockBlobDataExistsRes = task2.Result;
+                bool blockBlobDataExistsRes =  task2.Result;
+
                 if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobDataExistsRes)
 #endif
                 {//vectorise if:
@@ -633,7 +635,7 @@ namespace BusinessLibrary.BusinessClasses
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
             {
-                UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
+                await UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
                 //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
                 justIndexed = true;
             }
@@ -893,4 +895,5 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
                 }
-            }
+
+}

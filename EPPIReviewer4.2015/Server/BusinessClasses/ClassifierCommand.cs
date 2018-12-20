@@ -122,11 +122,11 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-		protected override void DataPortal_Execute()
+		protected override async void DataPortal_Execute()
 		{
 			if (_title == "DeleteThisModel~~")
 			{
-				DeleteModelAsync();
+				await DeleteModelAsync();
 				return;
 			}
 			if (_attributeIdOn + _attributeIdNotOn != -2)
@@ -242,7 +242,9 @@ namespace BusinessLibrary.BusinessClasses
 
 				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
-
+				// This may need to be changed for production
+				// 19-12-2018 Sergio mentions this file will not
+				// be necessary come the use of sql machine learning
 				string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
 
@@ -329,6 +331,7 @@ namespace BusinessLibrary.BusinessClasses
 
 					byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 #else
+					// This is not being handled correctly
 					bool check = await blockBlob.ExistsAsync();
 					string strResult = "";
 					if (check)
@@ -408,7 +411,7 @@ namespace BusinessLibrary.BusinessClasses
 					command2.ExecuteNonQuery();
 					if (Convert.ToInt32(command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Value) == 0)
 					{
-						DeleteModelAsync();
+						await DeleteModelAsync();
 					}
 				}
 				connection.Close();
@@ -454,7 +457,7 @@ namespace BusinessLibrary.BusinessClasses
 
 				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
-
+				// same as comment above for same line
 				string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
 
@@ -547,8 +550,8 @@ namespace BusinessLibrary.BusinessClasses
 				byte[] myFile = Encoding.UTF8.GetBytes(blockBlob.DownloadText());
 
 #else
-
-				bool check = await blockBlob.ExistsAsync();
+			// same as comment above for same line
+			bool check = await blockBlob.ExistsAsync();
 				string strResult = "";
 				if (check)
 				{

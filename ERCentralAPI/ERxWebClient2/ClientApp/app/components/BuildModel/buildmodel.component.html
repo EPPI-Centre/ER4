@@ -13,7 +13,7 @@
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-info col-md-9" id="dropdownBasic1" ngbDropdownToggle>{{selectedModelDropDown1}}</button>
 					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-						<codesetTreeMain></codesetTreeMain>
+						<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
@@ -22,7 +22,7 @@
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-primary col-md-9" id="dropdownBasic2" ngbDropdownToggle>{{selectedModelDropDown2}}</button>
 					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic2">
-						<codesetTreeMain></codesetTreeMain>
+						<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>

@@ -38,6 +38,12 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			total: this._buildModelService.ClassifierModelList.length,
 		};
 	}
+	
+	CanOnlySelectRoots() {
+
+		return true;
+
+	}
 
 	public sort: SortDescriptor[] = [{
 		field: 'modelId',
@@ -70,7 +76,6 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	SetAttrOn(node: any) {
 
-		//alert(node.name);
 		if (node != null) {
 			this.selectedModelDropDown1 = node.name;
 			let id: string = node.id;
@@ -78,7 +83,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			if (a != -1) {
 				let tmp: string = id.substr(a+1, id.length - a);
 				this.DD1 = tmp;
-				//alert(tmp);
+
 				}
 		}
 		
@@ -112,24 +117,5 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     }
  
   
-	 //   private _CurrentModelDateofSearch: Date | null = null;
-		//public get CurrentModelDateofSearch(): Date | null{
-
-	 //       if (true) {
-	 //           return null;
-	 //       }
-	 //       else if (this._CurrentModelDateofSearch == null) {
-	 //           try {
-	 //               //this._CurrentModelDateofSearch = new Date(this._CurrentModel.dateOfSerach);
-	 //           } catch { this._CurrentModelDateofSearch = null;}
-	 //       }
-	 //       return this._CurrentModelDateofSearch;
-	 //   }
-
-
-
-	 //   public set CurrentModelDateofSearch(newDate: Date | null) {
-	 //       this._CurrentModelDateofSearch = newDate;
-	 //   }
-
+	 
 }
