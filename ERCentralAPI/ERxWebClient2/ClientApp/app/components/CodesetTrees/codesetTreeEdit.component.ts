@@ -167,8 +167,9 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
             let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
             if (!Set) return;
             index = Set.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
-            if (index <= 0) {
+            if (index < 0) {
                 //oh! should not happen... do nothing?
+                console.log("MoveDownAttribute fail 1", index);
                 return;
             }
             swapper = Set.attributes[index + 1];
@@ -178,7 +179,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
             let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
             if (!Parent) return;
             index = Parent.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
-            if (index <= 0) {
+            if (index < 0) {
                 //oh! should not happen... do nothing?
                 return;
             }

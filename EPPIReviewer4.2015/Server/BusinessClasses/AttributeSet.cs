@@ -309,6 +309,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> AttributeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeTypeId", "AttributeTypeId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int AttributeTypeId
         {
             get
