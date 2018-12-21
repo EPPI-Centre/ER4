@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
-    selector: 'codesets',
+    selector: 'codesetSelector',
     styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
@@ -27,10 +27,10 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-    templateUrl: './codesets.component.html'
+    templateUrl: './codesetSelector.component.html'
 })
 
-export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewInit {
    constructor(private router: Router,
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -39,21 +39,8 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	) { }
 	
-	//@ViewChild('ManualModal') private ManualModal: any;
-
-	@Input() tabSelected: string = '';
-
-	//@ViewChild('tabset') tabset!: NgbTabset;
-
-	//@ViewChild(NgbTabset) set content(content: ViewContainerRef) {
-	//	this.tabSet = content;
-	//};
-
-	public showManualModal: boolean = false;
-
-	sub: Subscription = new Subscription();
-
-	public smallTree: string = '';
+	@Input() rootsOnly: boolean = false;
+	//@Input() attributesOnly: boolean = false;
 
 	ngOnInit() {
 
@@ -62,35 +49,29 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 		else {
 
-			//this._eventEmitter.tabChange.subscribe(
-
-			//	(res: any) => {
-
-			//		if (res.nextId == 'SearchListTab') {
-
-			//			this.smallTree = 'true';
-			//			this._eventEmitter.codingTreeVar = true;
-
-			//		};
-			//	}
-
-			//);
         }
 	}
-	
-	options: ITreeOptions = {
-        childrenField: 'attributes', 
+
+
+	optionsRoot: ITreeOptions = {
+        //childrenField: 'attributes', 
         displayField: 'name',
 		allowDrag: false,
 		
+	}
+
+	options: ITreeOptions = {
+		childrenField: 'attributes', 
+		displayField: 'name',
+		allowDrag: false,
+
 	}
 
 	@ViewChild('tree') treeComponent!: TreeComponent;
 	
 	ngAfterViewInit() {
 
-		//alert(this.tabSet);
-		
+	
 	}
 
     get nodes(): singleNode[] | null {
@@ -103,7 +84,8 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
         else {
             return null;
         }
-    }
+	}
+
 
 	rootsCollect() {
 
@@ -115,8 +97,11 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
 			rootsArr[i] = this.treeComponent.treeModel.roots[i];
+
 			console.log(rootsArr[i]);
 		}
+
+		return rootsArr;
 
 	}
 
@@ -197,9 +182,7 @@ export class CodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 
     ngOnDestroy() {
-        //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
-		this.sub.unsubscribe();
-        //console.log('killing reviewSets comp');
+
     }
 }
 

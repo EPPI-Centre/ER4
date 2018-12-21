@@ -34,11 +34,7 @@ export class ClassifierService extends BusyAwareService {
 
 		this._BusyMethods.push("Fetch");
 
-		let body = JSON.stringify({ MVCClassifierCommand: MVCcmd });
-
-		//alert('press F12 check log');
-		console.log('is ti null? ==> ' + MVCcmd.revInfo.reviewName);
-
+		
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
 		this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/GetClassifierAsync',
@@ -48,7 +44,7 @@ export class ClassifierService extends BusyAwareService {
 				
 					 //alert('what the hell: ' + result);
 					 
-					 console.log(result)
+					 //console.log(result)
 				 },
 				 error => {
 					 this.modalService.GenericError(error);
@@ -72,10 +68,6 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
 
 		this._BusyMethods.push("Fetch");
-
-		//let body = JSON.stringify({ MVCClassifierCommand: MVCcmd });
-
-		//console.log('is ti null? ==> ' + MVCcmd.revInfo.reviewName);
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
