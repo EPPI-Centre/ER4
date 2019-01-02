@@ -29,6 +29,38 @@ import { armsComp } from '../arms/armsComp.component';
                 button.disabled {
                     color:black; 
                     }
+
+                .vertical-text {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    left: -23px;
+                    float: left;
+                }
+                .vertical-text-R {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    right: -18px;
+                    float: left;
+                }
+                .codesInSmallScreen {
+                 position:absolute; 
+                 left: 0; z-index:2000;
+                  top: 106px;
+                transition: transform 0.31s;
+                transform-origin:left;
+                }
+                .codesInSmallScreen.hide {
+                  transform:scaleX(0);
+                }
+                .codesInSmallScreen.show {
+                  width:99.5%;
+                  transform:scaleX(1);
+                }  
+               
             `]
 
 })
@@ -44,14 +76,20 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService
     ) { }
-    //Style for the hide/show codes button
-                //.vertical-text {
-                //    position: fixed;
-                //    top: 50 %;
-                //    transform: rotate(90deg);
-                //    left: -23px;
-                //    float: left;
-                //}
+//     .codesInSmallScreen.collapse{
+//    display: block!important;
+//    transition: all .25s ease -in -out;
+//}
+
+//                .codesInSmallScreen.collapse {
+//    opacity: 0;
+//    height: 0;
+//}
+
+//                .codesInSmallScreen.collapse.show {
+//    opacity: 1;
+//    height: 100 %;
+//}
     
     @ViewChild('cmp')
     private ArmsCompRef!: any;
@@ -73,21 +111,21 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('ItemDetailsCmp')
     private ItemDetailsCompRef!: any;
 
-    //public innerWidth: any = 900;
-    //@HostListener('window:resize', ['$event'])
-    //onResize(event: any) {
-    //    this.innerWidth = window.innerWidth;
-    //}
-    //IsSmallScreen(): boolean {
-    //    if (this.innerWidth && this.innerWidth < 768) {
-    //        return true;
-    //    }
-    //    else return false;
-    //}
-    //public ShowCodesInSmallScreen: boolean = false;
-    //public ShowHideCodes() {
-    //    this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
-    //}
+    public innerWidth: any = 900;
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+        this.innerWidth = window.innerWidth;
+    }
+    IsSmallScreen(): boolean {
+        if (this.innerWidth && this.innerWidth <= 900) {
+            return true;
+        }
+        else return false;
+    }
+    public ShowCodesInSmallScreen: boolean = false;
+    public ShowHideCodes() {
+        this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
+    }
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -104,7 +142,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnInit() {
 
-
+        this.innerWidth = window.innerWidth;
 		//this.route.params.subscribe(params => {
 
 		//	alert(params);

@@ -61,6 +61,6 @@ export class HomeComponent implements OnInit {
 class versionInfo {
     date: string = "";
     description: string = "";
-    uRL: string = "";
+    url: string = "";
     versionN: string = "";
 }

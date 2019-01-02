@@ -85,10 +85,13 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     
     ShowDeleteCodeset: boolean = false;
     ShowDeleteCodesetClicked() {
-        if (this.ActivityPanelName == "EditCodeSet") {
+        //console.log('0');
+        if (this.ActivityPanelName == "EditCodeset") {
             if (this.CurrentNode) {
+                //console.log('1');
                 let Set: ReviewSet = this.CurrentNode as ReviewSet;
                 if (Set) {
+                    //console.log('2');
                     this._appliedCodes = -1;
                     this.ShowDeleteCodeset = true;
                     this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(Set.set_id, 0).then(
