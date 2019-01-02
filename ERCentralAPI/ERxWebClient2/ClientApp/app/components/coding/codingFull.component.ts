@@ -110,7 +110,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     
     
-    private GetItem() {
+    public GetItem() {
 
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {

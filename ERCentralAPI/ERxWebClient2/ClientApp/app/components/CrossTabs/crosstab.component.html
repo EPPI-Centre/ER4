@@ -22,7 +22,7 @@
     </div>
     <div class="row m-1 p-0">
         <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
-        <div class="col-4 border"><b [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{selectedFilterAttribute?.name}}&nbsp;</b></div>
+        <div class="col-4 border"><b>{{selectedFilterAttribute?.name}}&nbsp;</b></div>
         <div class="col-4">
             <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
             <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>

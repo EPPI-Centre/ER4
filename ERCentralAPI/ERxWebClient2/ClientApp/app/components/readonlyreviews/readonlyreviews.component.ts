@@ -26,13 +26,13 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     constructor(private router: Router,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
-		private _readonlyreviewsService: readonlyreviewsService,
+		public _readonlyreviewsService: readonlyreviewsService,
 		private modalService: ModalService
 
 	) {
 		
     }
-
+    allowUnsort: boolean = true;
 
 	//@ViewChild(MatSort) sort1!: MatSort;
 

@@ -32,7 +32,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		private reviewInfoService: ReviewInfoService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private _reviewSetsService: ReviewSetsService,
+		public _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
@@ -46,7 +46,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	public AttributeId = 0;
 	public SourceId = 0;
 	private _listSources: any[] = [];
-	public selected?: ReadOnlySource;
+    public selected?: ReadOnlySource;
+    public isCollapsed: boolean = false;
+    public isCollapsed2: boolean = false;
+    public isCollapsed3: boolean = false;
+    public isCollapsed4: boolean = false;
+    //public isCollapsed6: boolean = false;
+    public isCollapsed6: boolean = false;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -58,7 +64,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	CanOnlySelectRoots() {
 		return true;
 	}
+    CombineSearches() {
+        alert("Not implemented!");
+    }
+    removeHandler(event: any) {
 
+        alert("Not implemented!");
+    }
 	SetModelSelection(num: number) {
 
 		this.ModelSelected = true;
