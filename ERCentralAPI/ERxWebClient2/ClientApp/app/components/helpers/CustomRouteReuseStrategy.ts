@@ -27,10 +27,10 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
     //these are pages that will always mean the user is going to log on a review in order to reach mainfull.
     //thus, we never store mainfull when going to one of these. This is to avoid leaking components that report "shouldDetach == true"
-    private KillDestinations: string[] = ["main", "home", "intropage"];
+    private KillDestinations: string[] = ["maincodingonly", "home", "intropage"];//all lower case!!!
 
     //IMPORTANT! We statically "keep" only these routes, all the others are not recyled...
-    private routesToCache: string[] = ["mainFullReview"];
+    private routesToCache: string[] = ["main"];//all lower case!!!
     private GoingTo: string = "";
     /** 
      * Determines whether or not the current route should be reused
@@ -73,9 +73,10 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
         //IMPORTANT! Do not mark current page as in need of detaching when we are going to a page in KillDestinations.
         //when reaching these pages, we'll have to "logintoreview" in order to return to mainfull, so we don't want to store current mainfull.
         //however, if this method returns true, ngOnDestroy isn't called and we leak: instance remains alive (memory leak) and worse, we leak subscriptions!
-        if (this.KillDestinations.indexOf(this.GoingTo) > -1) return false;
+        if (this.KillDestinations.indexOf(this.GoingTo.toLowerCase()) > -1) return false;
         if (route.routeConfig && route.routeConfig.path) {
-            if (this.routesToCache.indexOf(route.routeConfig.path) > -1) {
+            //console.log("should detatch?", route.routeConfig, this.routesToCache);
+            if (this.routesToCache.indexOf(route.routeConfig.path.toLowerCase()) > -1) {
                 console.log("shouldDetach, will return true!!!!!!!!!!!!!!!!!", route);
                 return true;
             }
