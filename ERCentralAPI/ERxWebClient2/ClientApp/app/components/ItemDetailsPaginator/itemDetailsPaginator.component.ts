@@ -42,7 +42,11 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 	//public item?: Item;
 	//public itemId = new Subject<number>();
-	public itemID: number = 0;
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
+    
     private subGotScreeningItem: Subscription | null = null;
     @Output() ItemChanged = new EventEmitter();
     @Output() GoToNextScreeningItemClicked = new EventEmitter();
@@ -52,7 +56,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 
 	ngOnInit() {
-        if (this.item) this.itemID = this.item.itemId;
+        //if (this.item) this.itemID = this.item.itemId;
 	}
 	
 	
@@ -94,7 +98,8 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		
 		return this.ItemListService.hasPrevious(this.itemID);
 	}
-	MyHumanIndex(): number {
+    public get MyHumanIndex(): number {
+        console.log('MyHumanIndex called', this.itemID);
 		if (this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) == -1) {
 			return 1;
 		} else {
@@ -148,10 +153,10 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
         if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
         else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', item.itemId]);
 		this.item = item;
-		if (this.item.itemId != this.itemID) {
+		//if (this.item.itemId != this.itemID) {
 
-			this.itemID = this.item.itemId;
-        }
+		//	this.itemID = this.item.itemId;
+  //      }
   
         this.ItemChanged.emit();
 		//this.GetItemCoding();

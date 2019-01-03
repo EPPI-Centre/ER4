@@ -191,7 +191,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get searchInclOrExcl(): string {
 
 		this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		console.log('I get it', this._searchInclOrExcl);
+		//console.log('I get it', this._searchInclOrExcl);
 
 		return this._searchInclOrExcl;
 	}
@@ -209,7 +209,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get logic(): string {
 
 		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		console.log('I get it', this._logic);
+		//console.log('I get it', this._logic);
 
 		return this._logic;
 	}

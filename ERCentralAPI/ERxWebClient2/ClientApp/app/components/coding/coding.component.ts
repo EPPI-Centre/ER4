@@ -98,10 +98,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
-    public itemID: number = 0;
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
     private itemString: string = '0';
     public item?: Item;
-    public itemId = new Subject<number>();
     
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
@@ -196,7 +198,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.PriorityScreeningService.NextItem();
         }
         else {
-            this.itemID = +this.itemString;
+            //this.itemID = +this.itemString;
             this.item = this.ItemListService.getItem(this.itemID);
 
             this.IsScreening = false;
@@ -229,7 +231,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     public GotScreeningItem() {
         //console.log('got Screening Item');
         this.item = this.PriorityScreeningService.CurrentItem;
-        this.itemID = this.item.itemId;
+        //this.itemID = this.item.itemId;
         this.GetItemCoding();
     }
     private GetItemCoding() {
@@ -317,7 +319,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        this.itemID = -1;
+        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
@@ -329,10 +331,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcodingOnly', item.itemId]);
         this.item = item;
-        if (this.item.itemId != this.itemID) {
+        //if (this.item.itemId != this.itemID) {
 
-            this.itemID = this.item.itemId;
-        }
+        //    this.itemID = this.item.itemId;
+        //}
         //this.GetItemCoding();
     }
     BackToMain() {
