@@ -111,7 +111,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     
     
     public GetItem() {
-
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
             if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
@@ -122,7 +121,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else {
             //this.itemID = +this.itemString;
             this.item = this.ItemListService.getItem(+this.itemString);
-
             this.IsScreening = false;
             this.GetItemCoding();
             //this.ItemListService.eventChange(this.itemID);
@@ -168,7 +166,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
     }
     SetCoding() {
-        console.log('set coding');
+        //console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
         if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
@@ -176,7 +174,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     SetArmCoding(armId: number) {
-        console.log('change Arm');
+        //console.log('change Arm');
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }

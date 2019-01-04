@@ -99,7 +99,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		return this.ItemListService.hasPrevious(this.itemID);
 	}
     public get MyHumanIndex(): number {
-        console.log('MyHumanIndex called', this.itemID);
+        //console.log('MyHumanIndex called', this.itemID);
 		if (this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) == -1) {
 			return 1;
 		} else {

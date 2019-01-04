@@ -22,12 +22,15 @@ if (module.hot) {
     let ngModule: NgModuleRef<any>;
     module.hot.accept();
 
-    modulePromise1().then(mod => ngModule = mod);
+    modulePromise1().then(mod => {
+        ngModule = mod;
+        ngModule.destroy(); console.log("Self destruct!");
+    });
     module.hot.dispose(() => {
         const appRef: ApplicationRef = ngModule.injector.get(ApplicationRef);
         const elements = appRef.components.map(c => c.location.nativeElement);
         const makeVisible = createNewHosts(elements);
-        ngModule.destroy();
+        
         makeVisible();
     });
 } else {

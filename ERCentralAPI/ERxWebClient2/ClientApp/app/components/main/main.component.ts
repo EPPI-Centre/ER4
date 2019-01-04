@@ -45,7 +45,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-
+    private InstanceId: number = Math.random();
     private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
@@ -76,6 +76,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     subOpeningReview: Subscription | null = null;
     ngOnInit() {
+
+        console.log("MainCodingOnly init:", this.InstanceId);
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         //this.ReviewInfoService.Fetch();
         this.ReviewSetsService.GetReviewSets();

@@ -38,7 +38,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService
 	) {
-	}
+    }
+    //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
 	public modelTitle: string = '';
 	public ModelId = -1;
@@ -566,14 +567,12 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-
-	ngOnInit() {
-
+    ngOnInit() {
+        //console.log("SearchComp init:", this.InstanceId);
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
 		}
 		else {
-
 			this._sourcesService.FetchSources();
 			this.reviewInfoService.Fetch();
 			this._buildModelService.Fetch();
