@@ -53,6 +53,8 @@ import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeM
 import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
 import { BuildModelComponent } from './components/BuildModel/buildmodel.component';
 import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelector.component';
+import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importCodesetsWizard.component';
+import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
 
 
 @NgModule({
@@ -67,7 +69,9 @@ import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelec
 		itemDetailsPaginatorComp,
         CodesetTreeMainComponent,
         CodesetTreeCodingComponent,
-		CodesetTreeEditComponent,
+        CodesetTreeEditComponent,
+        ImportCodesetsWizardComponent,
+        codesetTree4CopyComponent,
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
@@ -129,6 +133,7 @@ import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelec
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+            { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

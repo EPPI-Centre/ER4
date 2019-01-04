@@ -24,11 +24,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewSetCopyCommand : CommandBase<ReviewSetCopyCommand>
     {
-#if SILVERLIGHT
-    public ReviewSetCopyCommand(){}
-#else
-        protected ReviewSetCopyCommand() { }
-#endif
+        public ReviewSetCopyCommand(){}
+
 
         private int _ReviewSetId;
         private int _SetOrder;

@@ -256,6 +256,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     GoToSources() {
         this.router.navigate(['sources']);
     }
+    ImportCodesetClick() {
+        this.router.navigate(['ImportCodesets']);
+    }
     ngOnDestroy() {
         //this.Clear();
         if (this.subOpeningReview) {

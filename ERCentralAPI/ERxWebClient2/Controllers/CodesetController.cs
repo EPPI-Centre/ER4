@@ -285,6 +285,45 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult ReviewSetCopy([FromBody] ReviewSetCopyCommandJSON data)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewSetCopyCommand res = new ReviewSetCopyCommand(data.reviewSetId, data.order);
+                    DataPortal<ReviewSetCopyCommand> dp = new DataPortal<ReviewSetCopyCommand>();
+                    res = dp.Execute(res);
+                    return Ok(data);//nothing new to send back, command worked.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running ReviewSetCreate");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult GetReviewSetsForCopying([FromBody] SingleBoolCriteria GetPrivateSets)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())//not strictly necessary, but why give this away to readonly users?
+                {
+                    DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                    ReviewSetsList data = dp.Fetch(new SingleCriteria<ReviewSetsList, bool>(GetPrivateSets.Value));
+                    return Ok(data);//nothing new to send back, command worked.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running GetReviewSetsForCopying");
+                throw;
+            }
+        }
     }
 
     public class ReviewSetUpdateCommandJSON
@@ -339,5 +378,10 @@ namespace ERxWebClient2.Controllers
         //two fields used as input only when updating
         public Int64 attributeSetId;
         public Int64 attributeId;
+    }
+    public class ReviewSetCopyCommandJSON
+    {
+        public int reviewSetId;
+        public int order;
     }
 }

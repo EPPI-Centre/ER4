@@ -32,15 +32,45 @@ export class ReviewSetsEditingService extends BusyAwareService {
     {
         return this._SetTypes;
     }
+    private _ReviewSets4Copy: ReviewSet[] = [];
+    public get ReviewSets4Copy(): ReviewSet[] {
+        return this._ReviewSets4Copy;
+    }
+    public clearReReviewSets4Copy() {
+        this._ReviewSets4Copy = [];
+    }
     public FetchSetTypes() {
         this._BusyMethods.push("FetchSetTypes");
         this._httpC.get<iSetType[]>(this._baseUrl + 'api/Codeset/SetTypes').subscribe(
             (res) => {
                 this._SetTypes = res;
+                this.RemoveBusy("FetchSetTypes");
             }
-            , error => { this.modalService.GenericError(error); }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchSetTypes");}
             , () => {
                 this.RemoveBusy("FetchSetTypes");
+            }
+        );
+    }
+    private _ReadOnlyTemplateReviews: ReadOnlyTemplateReview[] = [];
+    public get ReadOnlyTemplateReviews(): ReadOnlyTemplateReview[] {
+        return this._ReadOnlyTemplateReviews;
+    }
+    public FetchReviewTemplates() {
+        this._BusyMethods.push("FetchReviewTemplates");
+        this._httpC.get<ReadOnlyTemplateReview[]>(this._baseUrl + 'api/Review/GetReadOnlyTemplateReviews').subscribe(
+            (res) => {
+                this._ReadOnlyTemplateReviews = res;
+                this.RemoveBusy("FetchReviewTemplates");
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchReviewTemplates");
+            }
+            , () => {
+                this.RemoveBusy("FetchReviewTemplates");
             }
         );
     }
@@ -110,7 +140,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     return result;
                 }
                 , (error) => {
-                    console.log("ReviewSetCheckCodingStatus Err", error);
+                    console.log("AttributeOrSetDeleteCheck Err", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;
@@ -118,7 +148,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             )
             .catch(
                 (error) => {
-                    console.log("ReviewSetCheckCodingStatus catch", error);
+                    console.log("AttributeOrSetDeleteCheck catch", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;
@@ -323,6 +353,108 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
+    public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
+        this._BusyMethods.push("ReviewSetCopy");
+        let ErrMsg = "Something went wrong: could not copy a codeset. \r\n If the problem persists, please contact EPPISupport.";
+        let command = new ReviewSetCopyCommand();
+        command.order = Order;
+        command.reviewSetId = ReviewSetId;
+        console.log("ReviewSetCopy:", command);
+        return this._httpC.post<ReviewSetCopyCommand>(this._baseUrl + 'api/Codeset/ReviewSetCopy', command).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("ReviewSetCopy");
+                    if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+                    console.log("I am returning this:", result);
+                    return result;
+                }
+                , (error) => {
+                    console.log("ReviewSetCopy Err", error);
+                    this.RemoveBusy("ReviewSetCopy");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    command.reviewSetId = command.reviewSetId * -1;//signal it didn't work
+                    return command;
+                }
+            )
+            .catch(
+                (error) => {
+                    console.log("ReviewSetCopy catch", error);
+                    this.RemoveBusy("ReviewSetCopy");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    command.reviewSetId = command.reviewSetId * -1;//signal it didn't work
+                    return command;
+                }
+            );
+    }
+    public async ImportReviewTemplate(template: ReadOnlyTemplateReview) {
+        this._BusyMethods.push("ImportReviewTemplate");
+        if (!template || !template.reviewSetIds || template.reviewSetIds.length < 1) return; //nothing to be done!
+        else {
+            let ord: number = this.ReviewSetsService.ReviewSets.length;
+            const rsid = template.reviewSetIds[0];
+            await this.ReviewSetCopy(rsid, ord).then(
+                async (value) => {
+                    //console.log("ImportReviewTemplate", value);
+                    await this.interimImportReviewTemplate(template, value, 0);
+                    return;
+                },
+                (reject) => {
+                    console.log("ImportReviewTemplate rejected!", reject);
+                    this.RemoveBusy("ImportReviewTemplate");
+                }
+            ).catch(
+                (error) => {
+                    this.RemoveBusy("ImportReviewTemplate");
+                    console.log("ImportReviewTemplate catch", error);
+                }
+            );
+        }
+    }
+    private async interimImportReviewTemplate(template: ReadOnlyTemplateReview, rscComm: ReviewSetCopyCommand, currentInd: number) {
+        console.log("interimImportReviewTemplate", template, rscComm, currentInd);
+        if (rscComm.reviewSetId < 1) {
+            //an error happened (error was shown), stop here
+            this.ReviewSetsService.GetReviewSets();
+            this.RemoveBusy("ImportReviewTemplate");
+            return;
+        }
+        else {
+            currentInd = currentInd + 1;
+            if (currentInd >= template.reviewSetIds.length) {
+                //all done, stop here
+                this.ReviewSetsService.GetReviewSets();
+                this.RemoveBusy("ImportReviewTemplate");
+                console.log("Importing codesets completed.");
+                return;
+            }
+            else {
+                const rsid = template.reviewSetIds[currentInd];
+                await this.ReviewSetCopy(rsid, rscComm.order+1).then(
+                    async (value) => {//RECURSION ALERT!
+                        await this.interimImportReviewTemplate(template, value, currentInd);
+                    }
+                );
+            }
+        }
+    }
+
+    public FetchReviewSets4Copy(fetchPrivateSets: boolean) {
+        this._BusyMethods.push("FetchReviewSets4Copy");
+        let body = JSON.stringify({ Value: fetchPrivateSets });
+        this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body).subscribe(
+            (res) => {
+                this._ReviewSets4Copy = ReviewSetsService.digestJSONarray(res);
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+            , () => {
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+        );
+    }
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -373,4 +505,14 @@ export class Attribute4Saving {
     originalAttributeID: number = 0;
     setId: number = 0;
     attributeOrder: number = 0;
+}
+export interface ReadOnlyTemplateReview {
+    templateId: number;
+    templateName: string;
+    templateDescription: string;
+    reviewSetIds: number[];
+}
+export class  ReviewSetCopyCommand {
+    public reviewSetId: number = -1;
+    public order: number = 0;
 }

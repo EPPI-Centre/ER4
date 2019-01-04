@@ -59,6 +59,22 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-               
+        [HttpGet("[action]")]
+        public IActionResult GetReadOnlyTemplateReviews()
+        {
+            try
+            {
+                SetCSLAUser();
+                ReadOnlyTemplateReviewList res = new ReadOnlyTemplateReviewList();
+                DataPortal<ReadOnlyTemplateReviewList> dp = new DataPortal<ReadOnlyTemplateReviewList>();
+                res = dp.Fetch();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetReadOnlyTemplateReviews data portal error");
+                throw;
+            }
+        }
     }
 }
