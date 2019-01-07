@@ -1,17 +1,11 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forEach } from '@angular/router/src/utils/collection';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
-import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ArmsService } from '../services/arms.service';
+import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { frequenciesService } from '../services/frequencies.service';
-import { Injectable, EventEmitter } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { EventEmitterService } from '../services/EventEmitter.service';
+
 
 @Component({
     selector: 'codesetSelector',
@@ -60,12 +54,23 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		
 	}
 
+	actionMapping: IActionMapping = {
+		mouse: {
+			click: TREE_ACTIONS.TOGGLE_ACTIVE_MULTI
+		},
+		keys: {
+			[KEYS.ENTER]: (tree, node, $event) => alert(`This is ${node.data.name}`)
+		}
+	}
+
 	options: ITreeOptions = {
 		childrenField: 'attributes', 
 		displayField: 'name',
 		allowDrag: false,
+		actionMapping: this.actionMapping
 
 	}
+		
 
 	@ViewChild('tree') treeComponent!: TreeComponent;
 	
@@ -150,6 +155,8 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
+
+		//alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
 
 		//alert(JSON.stringify(stuff));
 		console.log(JSON.stringify(node));

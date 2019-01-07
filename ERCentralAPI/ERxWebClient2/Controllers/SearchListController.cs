@@ -50,16 +50,22 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchIDsCommand cmd = new SearchIDsCommand(
-					cmdIn._title, cmdIn._included
-					);
-				DataPortal<SearchIDsCommand> dp = new DataPortal<SearchIDsCommand>();
-				cmd = dp.Execute(cmd);
+					SearchIDsCommand cmd = new SearchIDsCommand(
+						cmdIn._title, cmdIn._included
+						);
+					DataPortal<SearchIDsCommand> dp = new DataPortal<SearchIDsCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -76,16 +82,22 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
-					cmdIn._title, cmdIn._included
-					);
-				DataPortal<SearchImportedIDsCommand> dp = new DataPortal<SearchImportedIDsCommand>();
-				cmd = dp.Execute(cmd);
+					SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
+						cmdIn._title, cmdIn._included
+						);
+					DataPortal<SearchImportedIDsCommand> dp = new DataPortal<SearchImportedIDsCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -101,16 +113,23 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
-					cmdIn._included
-				);
-				DataPortal<SearchNullAbstractCommand> dp = new DataPortal<SearchNullAbstractCommand>();
-				cmd = dp.Execute(cmd);
+					SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
+						cmdIn._included
+					);
+					DataPortal<SearchNullAbstractCommand> dp = new DataPortal<SearchNullAbstractCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -127,16 +146,23 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (SetCSLAUser4Writing())
+				{
+						ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 			
-				SearchCodesCommand cmd = new SearchCodesCommand(
-					cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
-					);
-				DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
-				cmd = dp.Execute(cmd);
+					SearchCodesCommand cmd = new SearchCodesCommand(
+						cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
+						);
+					DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -152,18 +178,25 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
-					cmdIn._title,
-					cmdIn._included,
-					false
-					);
-				DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
-				cmd = dp.Execute(cmd);
+					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+						cmdIn._title,
+						cmdIn._included,
+						false
+						);
+					DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -178,18 +211,26 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				if(SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
-					cmdIn._title,
-					cmdIn._included,
-					true
-					);
-				DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
-				cmd = dp.Execute(cmd);
+					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+						cmdIn._title,
+						cmdIn._included,
+						true
+						);
+					DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+				return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
@@ -204,17 +245,25 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if(SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchFreeTextCommand cmd = new SearchFreeTextCommand(
-					cmdIn._title, cmdIn._included, cmdIn._searchText
-					);
-				DataPortal<SearchFreeTextCommand> dp = new DataPortal<SearchFreeTextCommand>();
-				cmd = dp.Execute(cmd);
+					SearchFreeTextCommand cmd = new SearchFreeTextCommand(
+						cmdIn._title, cmdIn._included, cmdIn._searchText
+						);
+					DataPortal<SearchFreeTextCommand> dp = new DataPortal<SearchFreeTextCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
-			}
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+					return Forbid();
+				}
+		}
 			catch (Exception e)
 			{
 				_logger.LogException(e, "GetSearches data portal error");
@@ -230,20 +279,28 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if(SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
-					cmdIn._setID,
-					cmdIn._included,
-					cmdIn._withCodes,
-					cmdIn._title
-					);
-				DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
-				cmd = dp.Execute(cmd);
+					SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
+						cmdIn._setID,
+						cmdIn._included,
+						cmdIn._withCodes,
+						cmdIn._title
+						);
+					DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+				return Forbid();
 			}
+		}
 			catch (Exception e)
 			{
 				_logger.LogException(e, "GetSearches data portal error");

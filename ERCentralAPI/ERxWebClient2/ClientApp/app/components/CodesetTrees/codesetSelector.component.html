@@ -1,31 +1,31 @@
+<!--(activate)="NodeSelected($event.node.data)"-->
 
 <div class="bg-light" *ngIf="rootsOnly" style="max-height: 800px; height:680px; ">
-	<tree-root #tree class="bg-dark"  *ngIf="nodes" [nodes]="nodes" [options]="optionsRoot" style="max-height: 800px;"
-			   (activate)="NodeSelected($event.node.data)">
+	<tree-root #tree class="bg-dark" *ngIf="nodes" [nodes]="nodes" [options]="optionsRoot" style="max-height: 800px;"
+			   (select)="NodeSelected($event.node.data)">
 		<ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
-			<!---->
-			<span *ngIf="node.data.nodeType == 'ReviewSet'" 
+			<span *ngIf="node.data.nodeType == 'ReviewSet'"
 				  [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                             'AdminSet' : node.data.subTypeName == 'Administration',
                             'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                            }">{{node.data.name}}
+                            }">
+				{{node.data.name}}
 			</span>
 		</ng-template>
 	</tree-root>
 </div>
 
 <div class="bg-light" *ngIf="!rootsOnly" style="max-height: 800px; height:680px; ">
-	<tree-root  #tree  class="bg-dark" *ngIf="nodes" [nodes]="nodes" 
+	<tree-root #tree class="bg-dark" *ngIf="nodes" [nodes]="nodes"
 			   [options]="options" style="max-height: 800px;"
 			   (activate)="NodeSelected($event.node.data)">
 		<ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
 			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                             'AdminSet' : node.data.subTypeName == 'Administration',
                             'ExcludeCode' : node.data.subTypeName == 'Exclude'
-                            }">{{node.data.name}}
+                            }">
+				{{node.data.name}}
 			</span>
 		</ng-template>
 	</tree-root>
 </div>
-
-<!--<button (click)="rootsCollect()">TESTING</button>-->

@@ -1,10 +1,10 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar style="background-color: steelblue;">
-		<kendo-toolbar-button [text]="'New Search'" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
 		<kendo-toolbar-splitbutton [text]="'Combine'" (buttonClick)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="isCollapsed3 = !isCollapsed3" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 
@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-md-7 m-0 p-0">
 					<div ngbDropdown>
-						<button class="btn btn-primary col-md-7" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
+						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
@@ -31,22 +31,23 @@
 
 					<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )" 
-						 ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-info col-md-8" id="dropdownTree" ngbDropdownToggle></button>
+						 ngbDropdown>
+						<button class="btn btn-info col-md-7" id="dropdownTree" ngbDropdownToggle>{{_reviewSetsService.selectedNode?.name}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownTree">
 								<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
 					</div>
 
-						<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
+					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
 							 ngbDropdown class="d-inline-block col-md-12">
 							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 							</div>
-						</div>
 					</div>
+
+				</div>
 
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div>
@@ -86,7 +87,7 @@
 
 				</div>
 			</div>
-			<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
+			<!--<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>-->
 			<div class="row">
 				<div class="col-md-4"></div>
 				<div class="col-md-12">
@@ -135,15 +136,14 @@
 </div>
 <div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
 	<div class="form-group card-body col-md-12 row">
-
-		<p class="font-weight-bold">Select a  Model:</p>
+		<p class="font-weight-bold">Select a Model:</p>
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
-				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
-				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
-				<button (click)="isCollapsed6 = !isCollapsed6 ; SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
-				<button type="button" class="btn btn-outline-primary" (click)="isCollapsed4 = !isCollapsed4" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
+				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
+				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
+				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
+				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
 			</div>
 		</div>
 
@@ -167,9 +167,9 @@
 		</div>
 
 		<div *ngIf="mode == 3"
-			 class="col-md-8  pull-right">
+			 class="form-group col-md-8 pull-right">
 			<div>
-				<div ngbDropdown class="d-inline-block col-md-8">
+				<div ngbDropdown>
 					<select class="btn btn-secondary col-md-8" id="dropdownBasicSources" 
 							ngbDropdownToggle [(ngModel)]="selected">
 						<option [value]="item.source_ID" *ngFor="let item of _listSources">
