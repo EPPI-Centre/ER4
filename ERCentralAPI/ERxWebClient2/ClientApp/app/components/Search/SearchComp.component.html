@@ -38,15 +38,16 @@
 							</div>
 					</div>
 
-						<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
+					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
 							 ngbDropdown class="d-inline-block col-md-12">
 							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 							</div>
-						</div>
 					</div>
+
+				</div>
 
 				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
 					<div>
