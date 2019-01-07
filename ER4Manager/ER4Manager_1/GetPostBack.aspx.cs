@@ -69,6 +69,7 @@ public partial class GetPostBack : System.Web.UI.Page
         string[] dec = Request.UserHostAddress.Split('.');
         if (dec.Length != 4) return false;
         if (dec[0] == "213" && dec[1] == "206" && (dec[2] == "140" || dec[2] == "141" || dec[2] == "142" || dec[2] == "143")) return true;
+        if (dec[0] == "194" && dec[1] == "73" && dec[2] == "8") return true;
         return false;
     }
     protected bool VerifyWPMPostback(string content)
