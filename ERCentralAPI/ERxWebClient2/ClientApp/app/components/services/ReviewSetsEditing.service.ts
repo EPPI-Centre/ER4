@@ -1,7 +1,7 @@
 ﻿import { Component, Inject, Injectable } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, race } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { iSetType, ReviewSetsService, ReviewSet, iReviewSet } from './ReviewSets.service';
+import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
@@ -32,15 +32,45 @@ export class ReviewSetsEditingService extends BusyAwareService {
     {
         return this._SetTypes;
     }
+    private _ReviewSets4Copy: ReviewSet[] = [];
+    public get ReviewSets4Copy(): ReviewSet[] {
+        return this._ReviewSets4Copy;
+    }
+    public clearReReviewSets4Copy() {
+        this._ReviewSets4Copy = [];
+    }
     public FetchSetTypes() {
         this._BusyMethods.push("FetchSetTypes");
         this._httpC.get<iSetType[]>(this._baseUrl + 'api/Codeset/SetTypes').subscribe(
             (res) => {
                 this._SetTypes = res;
+                this.RemoveBusy("FetchSetTypes");
             }
-            , error => { this.modalService.GenericError(error); }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchSetTypes");}
             , () => {
                 this.RemoveBusy("FetchSetTypes");
+            }
+        );
+    }
+    private _ReadOnlyTemplateReviews: ReadOnlyTemplateReview[] = [];
+    public get ReadOnlyTemplateReviews(): ReadOnlyTemplateReview[] {
+        return this._ReadOnlyTemplateReviews;
+    }
+    public FetchReviewTemplates() {
+        this._BusyMethods.push("FetchReviewTemplates");
+        this._httpC.get<ReadOnlyTemplateReview[]>(this._baseUrl + 'api/Review/GetReadOnlyTemplateReviews').subscribe(
+            (res) => {
+                this._ReadOnlyTemplateReviews = res;
+                this.RemoveBusy("FetchReviewTemplates");
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchReviewTemplates");
+            }
+            , () => {
+                this.RemoveBusy("FetchReviewTemplates");
             }
         );
     }
@@ -110,7 +140,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     return result;
                 }
                 , (error) => {
-                    console.log("ReviewSetCheckCodingStatus Err", error);
+                    console.log("AttributeOrSetDeleteCheck Err", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;
@@ -118,7 +148,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             )
             .catch(
                 (error) => {
-                    console.log("ReviewSetCheckCodingStatus catch", error);
+                    console.log("AttributeOrSetDeleteCheck catch", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return -1;
@@ -212,6 +242,219 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
+    public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
+        this._BusyMethods.push("SaveNewAttribute");
+        let ErrMsg = "Something went wrong: it appears that the Code was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
+        if (Att.set_id < 1) {
+            //bad! can't do this...
+            this.modalService.GenericErrorMessage(ErrMsg);
+            this.RemoveBusy("SaveNewAttribute"); 
+            return new Promise<null>((resolve, reject) => { setTimeout(reject, 1, null) });
+        }
+        let Data: Attribute4Saving = new Attribute4Saving();
+        Data.attributeType = Att.attribute_type;
+        Data.attributeTypeId = Att.attribute_type_id;
+        Data.attributeName = Att.attribute_name;
+        Data.contactId = this.ReviewerIdentityService.reviewerIdentity.userId;
+        Data.attributeSetDescription = Att.attribute_set_desc;
+        Data.parentAttributeId = Att.parent_attribute_id;
+        Data.setId = Att.set_id;
+        Data.attributeOrder = Att.order;
+        //console.log("saving reviewSet via command", rs, rsC);
+        return this._httpC.post<iAttributeSet>(this._baseUrl + 'api/Codeset/AttributeCreate', Data).toPromise()
+            .then((res) => { 
+                this.RemoveBusy("SaveNewAttribute"); 
+                Att.attribute_id = res.attributeId;
+                Att.attributeSetId = res.attributeSetId;
+                return Att; 
+            },
+                (err) => {
+                    this.RemoveBusy("SaveNewAttribute");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return null;
+                })
+            .catch((err) => {
+                this.modalService.GenericErrorMessage(ErrMsg);
+                this.RemoveBusy("SaveNewAttribute");
+                return null;
+            });
+    }
+    public UpdateAttribute(Att: SetAttribute): Promise<boolean> {
+        this._BusyMethods.push("UpdateAttribute");
+        let ErrMsg = "Something went wrong: it appears that the Code was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
+        if (Att.set_id < 1) {
+            //bad! can't do this...
+            this.modalService.GenericErrorMessage(ErrMsg);
+            this.RemoveBusy("UpdateAttribute");
+            return new Promise<boolean>((resolve, reject) => { setTimeout(reject, 1, false) });
+        }
+        
+        let Data: Attribute4Saving = new Attribute4Saving();
+        Data.attributeId = Att.attribute_id;
+        Data.attributeSetId = Att.attributeSetId;
+        Data.attributeType = Att.attribute_type;
+        Data.attributeTypeId = Att.attribute_type_id;
+        Data.attributeName = Att.attribute_name;
+        //Data.contactId = this.ReviewerIdentityService.reviewerIdentity.userId;
+        Data.attributeSetDescription = Att.attribute_set_desc;
+        Data.parentAttributeId = Att.parent_attribute_id;
+        Data.setId = Att.set_id;
+        Data.attributeOrder = Att.order;
+        //console.log("saving reviewSet via command", rs, rsC);
+        return this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data).toPromise()
+            .then((res) => {
+                this.RemoveBusy("UpdateAttribute");
+                return res;
+            },
+            (err) => {
+                console.log("Error Updating Attribute:", err);
+                    this.RemoveBusy("UpdateAttribute");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return false;
+                })
+            .catch((err) => {
+                console.log("Error Updating Attribute (catch):", err);
+                this.modalService.GenericErrorMessage(ErrMsg);
+                this.RemoveBusy("UpdateAttribute");
+                return false;
+            });
+    }
+    public SetAttributeDelete(Att: SetAttribute): Promise<AttributeDeleteCommand> {
+        this._BusyMethods.push("ReviewSetDelete");
+        let ErrMsg = "Something went wrong: could not check the coding status of this code (and children). \r\n If the problem persists, please contact EPPISupport.";
+        let command = {
+            attributeSetId: Att.attributeSetId,
+            attributeId: Att.attribute_id,
+            parentAttributeId: Att.parent_attribute_id,
+            attributeOrder: Att.order,
+            successful: false
+        };
+        console.log(command);
+        return this._httpC.post<AttributeDeleteCommand>(this._baseUrl + 'api/Codeset/AttributeDelete', command).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("ReviewSetDelete");
+                    if (!result.successful) this.modalService.GenericErrorMessage(ErrMsg);
+                    return result;
+                }
+                , (error) => {
+                    console.log("ReviewSetDelete Err", error);
+                    this.RemoveBusy("ReviewSetDelete");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return command;
+                }
+            )
+            .catch(
+                (error) => {
+                    console.log("ReviewSetDelete catch", error);
+                    this.RemoveBusy("ReviewSetDelete");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return command;
+                }
+            );
+    }
+    public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
+        this._BusyMethods.push("ReviewSetCopy");
+        let ErrMsg = "Something went wrong: could not copy a codeset. \r\n If the problem persists, please contact EPPISupport.";
+        let command = new ReviewSetCopyCommand();
+        command.order = Order;
+        command.reviewSetId = ReviewSetId;
+        console.log("ReviewSetCopy:", command);
+        return this._httpC.post<ReviewSetCopyCommand>(this._baseUrl + 'api/Codeset/ReviewSetCopy', command).toPromise()
+            .then(
+                (result) => {
+                    this.RemoveBusy("ReviewSetCopy");
+                    if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+                    console.log("I am returning this:", result);
+                    return result;
+                }
+                , (error) => {
+                    console.log("ReviewSetCopy Err", error);
+                    this.RemoveBusy("ReviewSetCopy");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    command.reviewSetId = command.reviewSetId * -1;//signal it didn't work
+                    return command;
+                }
+            )
+            .catch(
+                (error) => {
+                    console.log("ReviewSetCopy catch", error);
+                    this.RemoveBusy("ReviewSetCopy");
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    command.reviewSetId = command.reviewSetId * -1;//signal it didn't work
+                    return command;
+                }
+            );
+    }
+    public async ImportReviewTemplate(template: ReadOnlyTemplateReview) {
+        this._BusyMethods.push("ImportReviewTemplate");
+        if (!template || !template.reviewSetIds || template.reviewSetIds.length < 1) return; //nothing to be done!
+        else {
+            let ord: number = this.ReviewSetsService.ReviewSets.length;
+            const rsid = template.reviewSetIds[0];
+            await this.ReviewSetCopy(rsid, ord).then(
+                async (value) => {
+                    //console.log("ImportReviewTemplate", value);
+                    await this.interimImportReviewTemplate(template, value, 0);
+                    return;
+                },
+                (reject) => {
+                    console.log("ImportReviewTemplate rejected!", reject);
+                    this.RemoveBusy("ImportReviewTemplate");
+                }
+            ).catch(
+                (error) => {
+                    this.RemoveBusy("ImportReviewTemplate");
+                    console.log("ImportReviewTemplate catch", error);
+                }
+            );
+        }
+    }
+    private async interimImportReviewTemplate(template: ReadOnlyTemplateReview, rscComm: ReviewSetCopyCommand, currentInd: number) {
+        console.log("interimImportReviewTemplate", template, rscComm, currentInd);
+        if (rscComm.reviewSetId < 1) {
+            //an error happened (error was shown), stop here
+            this.ReviewSetsService.GetReviewSets();
+            this.RemoveBusy("ImportReviewTemplate");
+            return;
+        }
+        else {
+            currentInd = currentInd + 1;
+            if (currentInd >= template.reviewSetIds.length) {
+                //all done, stop here
+                this.ReviewSetsService.GetReviewSets();
+                this.RemoveBusy("ImportReviewTemplate");
+                console.log("Importing codesets completed.");
+                return;
+            }
+            else {
+                const rsid = template.reviewSetIds[currentInd];
+                await this.ReviewSetCopy(rsid, rscComm.order+1).then(
+                    async (value) => {//RECURSION ALERT!
+                        await this.interimImportReviewTemplate(template, value, currentInd);
+                    }
+                );
+            }
+        }
+    }
+
+    public FetchReviewSets4Copy(fetchPrivateSets: boolean) {
+        this._BusyMethods.push("FetchReviewSets4Copy");
+        let body = JSON.stringify({ Value: fetchPrivateSets });
+        this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body).subscribe(
+            (res) => {
+                this._ReviewSets4Copy = ReviewSetsService.digestJSONarray(res);
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+            , () => {
+                this.RemoveBusy("FetchReviewSets4Copy");
+            }
+        );
+    }
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -239,7 +482,37 @@ export interface ReviewSetDeleteCommand {
     setId: number;
     order: number;
 }
+export interface AttributeDeleteCommand {
+    attributeSetId: number;
+    attributeId: number;
+    parentAttributeId: number;
+    attributeOrder: number;
+    successful: boolean;
+}
 export interface AttributeOrSetDeleteCheckCommandJSON {
     attributeSetId: number;
     setId: number;
+}
+export class Attribute4Saving {
+    attributeSetId: number = 0;
+    attributeId: number = 0;
+    attributeSetDescription: string = "";
+    attributeType: string = "";
+    attributeTypeId: number = 0;
+    attributeName: string = "";
+    contactId: number = 0;
+    parentAttributeId: number = 0;
+    originalAttributeID: number = 0;
+    setId: number = 0;
+    attributeOrder: number = 0;
+}
+export interface ReadOnlyTemplateReview {
+    templateId: number;
+    templateName: string;
+    templateDescription: string;
+    reviewSetIds: number[];
+}
+export class  ReviewSetCopyCommand {
+    public reviewSetId: number = -1;
+    public order: number = 0;
 }

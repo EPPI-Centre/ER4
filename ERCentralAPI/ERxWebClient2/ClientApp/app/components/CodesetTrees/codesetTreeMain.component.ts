@@ -77,7 +77,9 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 			//);
         }
 	}
-	
+    public get IsServiceBusy(): boolean {
+        return this.ReviewSetsService.IsBusy;
+    }
 	options: ITreeOptions = {
         childrenField: 'attributes', 
         displayField: 'name',

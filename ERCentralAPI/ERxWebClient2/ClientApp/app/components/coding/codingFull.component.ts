@@ -5,19 +5,15 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { CodesetTreeCodingComponent, CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
-import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
-import { armsComp } from '../arms/armsComp.component';
-
 
 @Component({
    
@@ -54,7 +50,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
-    public itemID: number = 0;
+    
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
     private itemString: string = '0';
     public item?: Item;
     public itemId = new Subject<number>();
@@ -90,12 +90,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
 				this.GetItem();
-				console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+				//console.log('coding full sajdhfkjasfdh: ' + this.itemID);
             });
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    console.log('ItemCodingService data changed event caught');
+                    //console.log('ItemCodingService data changed event caught');
                     if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
                         this.SetCoding();
                     }
@@ -110,18 +110,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     
     
-    private GetItem() {
-
+    public GetItem() {
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
             if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
             this.IsScreening = true;
+            console.log("asking for next screening item");
             this.PriorityScreeningService.NextItem();
         }
         else {
-            this.itemID = +this.itemString;
-            this.item = this.ItemListService.getItem(this.itemID);
-
+            //this.itemID = +this.itemString;
+            this.item = this.ItemListService.getItem(+this.itemString);
             this.IsScreening = false;
             this.GetItemCoding();
             //this.ItemListService.eventChange(this.itemID);
@@ -153,7 +152,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public GotScreeningItem() {
         //console.log('got Screening Item');
         this.item = this.PriorityScreeningService.CurrentItem;
-        this.itemID = this.item.itemId;
+        //this.itemID = this.item.itemId;
         this.GetItemCoding();
     }
     private GetItemCoding() {
@@ -167,7 +166,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
     }
     SetCoding() {
-        console.log('set coding');
+        //console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
         if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
@@ -175,7 +174,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     SetArmCoding(armId: number) {
-        console.log('change Arm');
+        //console.log('change Arm');
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }
@@ -242,7 +241,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        this.itemID = -1;
+        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
@@ -254,10 +253,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
-        if (this.item.itemId != this.itemID) {
-
-            this.itemID = this.item.itemId;
-        }
+        //if (this.item.itemId != this.itemID) {
+        //    //console.log("set new ItemID:" , this.item.itemId);
+        //    this.itemID = this.item.itemId;
+        //}
         //this.GetItemCoding();
     }
     BackToMain() {

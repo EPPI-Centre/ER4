@@ -5,7 +5,8 @@
  * modified By Sergio Graziosi from 26/11/2018...
  */
 
-import { ActivatedRouteSnapshot, RouteReuseStrategy, DetachedRouteHandle } from '@angular/router';
+import { ActivatedRouteSnapshot, RouteReuseStrategy, DetachedRouteHandle, OutletContext } from '@angular/router';
+import { OnDestroy, ComponentRef } from '@angular/core';
 
 /** Interface for object which can store both: 
  * An ActivatedRouteSnapshot, which is useful for determining whether or not you should attach a route (see this.shouldAttach)
@@ -16,7 +17,7 @@ interface RouteStorageObject {
     handle: DetachedRouteHandle;
 }
 
-export class CustomRouteReuseStrategy implements RouteReuseStrategy {
+export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
 
     /** 
      * Object which will store RouteStorageObjects indexed by keys
@@ -27,10 +28,10 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
     //these are pages that will always mean the user is going to log on a review in order to reach mainfull.
     //thus, we never store mainfull when going to one of these. This is to avoid leaking components that report "shouldDetach == true"
-    private KillDestinations: string[] = ["main", "home", "intropage"];
+    private KillDestinations: string[] = ["maincodingonly", "home", "intropage"];//all lower case!!!
 
     //IMPORTANT! We statically "keep" only these routes, all the others are not recyled...
-    private routesToCache: string[] = ["mainFullReview"];
+    private routesToCache: string[] = ["main"];//all lower case!!!
     private GoingTo: string = "";
     /** 
      * Determines whether or not the current route should be reused
@@ -73,9 +74,10 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
         //IMPORTANT! Do not mark current page as in need of detaching when we are going to a page in KillDestinations.
         //when reaching these pages, we'll have to "logintoreview" in order to return to mainfull, so we don't want to store current mainfull.
         //however, if this method returns true, ngOnDestroy isn't called and we leak: instance remains alive (memory leak) and worse, we leak subscriptions!
-        if (this.KillDestinations.indexOf(this.GoingTo) > -1) return false;
+        if (this.KillDestinations.indexOf(this.GoingTo.toLowerCase()) > -1) return false;
         if (route.routeConfig && route.routeConfig.path) {
-            if (this.routesToCache.indexOf(route.routeConfig.path) > -1) {
+            //console.log("should detatch?", route.routeConfig, this.routesToCache);
+            if (this.routesToCache.indexOf(route.routeConfig.path.toLowerCase()) > -1) {
                 console.log("shouldDetach, will return true!!!!!!!!!!!!!!!!!", route);
                 return true;
             }
@@ -100,7 +102,9 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
         console.log( "store component for reuse:", storedRoute, "into: ", this.storedRoutes );
         // routes are stored by path - the key is the path name, and the handle is stored under it so that you can only ever have one object stored for a single path
-        if (route.routeConfig && route.routeConfig.path) this.storedRoutes[route.routeConfig.path] = storedRoute;
+        if (route.routeConfig && route.routeConfig.path) {
+            this.storedRoutes[route.routeConfig.path] = storedRoute;
+        }
     }
 
     /**
@@ -162,6 +166,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
     //SG Added: method to clear current saved pages...
     public Clear() {
         console.log('clearing cached component instances.', this.storedRoutes);
+        //this.deactivateAllHandles();
         //while (this.storedRoutes != {}) {
         //    this.storedRoutes[0]
         //}
@@ -182,6 +187,51 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
         //}
         this.storedRoutes = {};
     }
+
+    //Added by SG, see: https://github.com/angular/angular/issues/16713
+    ngOnDestroy() {
+        this.deactivateAllHandles();
+    }
+    public deactivateAllHandles() {
+        for (var comK in this.storedRoutes) {
+            let rso = this.storedRoutes[comK];
+            if (rso) {
+                this.DestroyThis(rso);
+            }
+        }
+        //for (const key in this.handlers) {
+        //    this.deactivateOutlet(this.handlers[key])
+        //}
+        //this.handlers = {}
+    }
+    private DestroyThis(rso: RouteStorageObject) {
+        console.log("Destroying RouteStorageObject:", rso);
+        let handle: any = rso.handle;
+        let ref: any = handle['componentRef'];
+        if (ref) {
+            ref.destroy();
+        }
+    }
+    // Todo: we manually destroy the component view here. Since RouteReuseStrategy is experimental, it
+    // could break anytime the protocol change. We should alter this once the protocol change.
+    //private deactivateOutlet(handle: DetachedRouteHandle): void {
+    //    const componentRef: ComponentRef<any> = handle['componentRef'] as ComponentRef<any>;
+    //    if (componentRef) {
+    //        componentRef.destroy()
+    //    }
+    //}
+    //private deactivateOutlet2(handle: DetachedRouteHandle): void {
+    //    let contexts: Map<string, OutletContext> = handle['contexts'];
+    //    contexts.forEach((context: OutletContext, key: string) => {
+    //        if (context.outlet) {
+    //            // Destroy the component
+    //            context.outlet.deactivate();
+    //            // Destroy the contexts for all the outlets that were in the component
+    //            context.children.onOutletDeactivated();
+    //        }
+    //    });
+    //}
+
 
     /** 
      * This nasty bugger finds out whether the objects are _traditionally_ equal to each other, like you might assume someone else would have put this function in vanilla JS already

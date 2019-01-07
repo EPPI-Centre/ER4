@@ -29,6 +29,38 @@ import { armsComp } from '../arms/armsComp.component';
                 button.disabled {
                     color:black; 
                     }
+
+                .vertical-text {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    left: -23px;
+                    float: left;
+                }
+                .vertical-text-R {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    right: -18px;
+                    float: left;
+                }
+                .codesInSmallScreen {
+                 position:absolute; 
+                 left: 0; z-index:2000;
+                  top: 106px;
+                transition: transform 0.31s;
+                transform-origin:left;
+                }
+                .codesInSmallScreen.hide {
+                  transform:scaleX(0);
+                }
+                .codesInSmallScreen.show {
+                  width:99.5%;
+                  transform:scaleX(1);
+                }  
+               
             `]
 
 })
@@ -44,14 +76,20 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService
     ) { }
-    //Style for the hide/show codes button
-                //.vertical-text {
-                //    position: fixed;
-                //    top: 50 %;
-                //    transform: rotate(90deg);
-                //    left: -23px;
-                //    float: left;
-                //}
+//     .codesInSmallScreen.collapse{
+//    display: block!important;
+//    transition: all .25s ease -in -out;
+//}
+
+//                .codesInSmallScreen.collapse {
+//    opacity: 0;
+//    height: 0;
+//}
+
+//                .codesInSmallScreen.collapse.show {
+//    opacity: 1;
+//    height: 100 %;
+//}
     
     @ViewChild('cmp')
     private ArmsCompRef!: any;
@@ -60,10 +98,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
-    public itemID: number = 0;
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
     private itemString: string = '0';
     public item?: Item;
-    public itemId = new Subject<number>();
     
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
@@ -73,21 +113,21 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('ItemDetailsCmp')
     private ItemDetailsCompRef!: any;
 
-    //public innerWidth: any = 900;
-    //@HostListener('window:resize', ['$event'])
-    //onResize(event: any) {
-    //    this.innerWidth = window.innerWidth;
-    //}
-    //IsSmallScreen(): boolean {
-    //    if (this.innerWidth && this.innerWidth < 768) {
-    //        return true;
-    //    }
-    //    else return false;
-    //}
-    //public ShowCodesInSmallScreen: boolean = false;
-    //public ShowHideCodes() {
-    //    this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
-    //}
+    public innerWidth: any = 900;
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+        this.innerWidth = window.innerWidth;
+    }
+    IsSmallScreen(): boolean {
+        if (this.innerWidth && this.innerWidth <= 900) {
+            return true;
+        }
+        else return false;
+    }
+    public ShowCodesInSmallScreen: boolean = false;
+    public ShowHideCodes() {
+        this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
+    }
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -104,7 +144,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnInit() {
 
-
+        this.innerWidth = window.innerWidth;
 		//this.route.params.subscribe(params => {
 
 		//	alert(params);
@@ -149,7 +189,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     
     
-    private GetItem() {
+    public GetItem() {
 
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
@@ -158,8 +198,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.PriorityScreeningService.NextItem();
         }
         else {
-            this.itemID = +this.itemString;
-            this.item = this.ItemListService.getItem(this.itemID);
+            //this.itemID = +this.itemString;
+            this.item = this.ItemListService.getItem(+this.itemString);
 
             this.IsScreening = false;
             this.GetItemCoding();
@@ -191,7 +231,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     public GotScreeningItem() {
         //console.log('got Screening Item');
         this.item = this.PriorityScreeningService.CurrentItem;
-        this.itemID = this.item.itemId;
+        //this.itemID = this.item.itemId;
         this.GetItemCoding();
     }
     private GetItemCoding() {
@@ -207,7 +247,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 
     }
     SetCoding() {
-        console.log('set coding');
+        //console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
         if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
@@ -215,7 +255,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     SetArmCoding(armId: number) {
-        console.log('change Arm');
+        //console.log('change Arm');
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }
@@ -279,7 +319,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        this.itemID = -1;
+        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
@@ -291,10 +331,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcodingOnly', item.itemId]);
         this.item = item;
-        if (this.item.itemId != this.itemID) {
+        //if (this.item.itemId != this.itemID) {
 
-            this.itemID = this.item.itemId;
-        }
+        //    this.itemID = this.item.itemId;
+        //}
         //this.GetItemCoding();
     }
     BackToMain() {

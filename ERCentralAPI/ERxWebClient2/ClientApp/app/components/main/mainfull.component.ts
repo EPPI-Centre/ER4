@@ -62,7 +62,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
-    
+    private InstanceId: number = Math.random();
 	public crossTabResult: any | 'none';
 	//public selectedAttributeSetF: any | 'none';
 	
@@ -82,7 +82,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
     ngOnInit() {
-
+        console.log("MainComp init:", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
@@ -218,7 +218,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //    this.GetStats();
     //}
     GetStats() {
-        console.log('getting stats (mainfull)');
+        console.log('getting stats (mainfull):', this.InstanceId);
         this.codesetStatsServ.GetReviewStatisticsCountsCommand();
         this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
     }
@@ -255,6 +255,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     GoToSources() {
         this.router.navigate(['sources']);
+    }
+    ImportCodesetClick() {
+        this.router.navigate(['ImportCodesets']);
     }
     ngOnDestroy() {
         //this.Clear();

@@ -207,6 +207,123 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult AttributeCreate([FromBody] AttributeSetCreateOrUpdateJSON data)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    AttributeSet newCode = new AttributeSet();
+                    newCode.Attributes = new AttributeSetList();
+                    newCode.AttributeDescription = "";//????
+                    newCode.AttributeId = data.attributeId;
+                    newCode.AttributeName = data.attributeName;
+                    newCode.AttributeOrder = data.attributeOrder;
+                    newCode.AttributeSetDescription = data.attributeSetDescription;
+                    //newCode.AttributeSetId = data.attributeSetId;
+                    newCode.AttributeTypeId = data.attributeTypeId;
+                    newCode.ContactId = data.contactId;
+                    newCode.OriginalAttributeID = data.originalAttributeID;
+                    newCode.ParentAttributeId = data.parentAttributeId;
+                    newCode.SetId = data.setId;
+                    newCode = newCode.Save();
+                    return Ok(newCode);//will be used on client side!
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running AttributeCreate");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult AttributeUpdate([FromBody] AttributeSetCreateOrUpdateJSON data)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {//GetReviewSet(int criteria)
+                    //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    AttributeUpdateCommand cmd = new AttributeUpdateCommand(data.attributeId, 
+                        data.attributeSetId, 
+                        data.attributeTypeId, 
+                        data.attributeName, 
+                        data.attributeSetDescription, 
+                        data.attributeOrder);
+                    DataPortal<AttributeUpdateCommand> dp = new DataPortal<AttributeUpdateCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(true);//no point sending back anything, it worked...
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running AttributeUpdate");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult AttributeDelete([FromBody] AttributeDeleteCommandJSON jsonCMD)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    AttributeSetDeleteCommand cmd = new AttributeSetDeleteCommand(jsonCMD.attributeSetId, jsonCMD.parentAttributeId, jsonCMD.attributeId, jsonCMD.attributeOrder);
+                    DataPortal<AttributeSetDeleteCommand> dp = new DataPortal<AttributeSetDeleteCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(cmd);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running AttributeDelete");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult ReviewSetCopy([FromBody] ReviewSetCopyCommandJSON data)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewSetCopyCommand res = new ReviewSetCopyCommand(data.reviewSetId, data.order);
+                    DataPortal<ReviewSetCopyCommand> dp = new DataPortal<ReviewSetCopyCommand>();
+                    res = dp.Execute(res);
+                    return Ok(data);//nothing new to send back, command worked.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running ReviewSetCreate");
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult GetReviewSetsForCopying([FromBody] SingleBoolCriteria GetPrivateSets)
+        {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
+            try
+            {
+                if (SetCSLAUser4Writing())//not strictly necessary, but why give this away to readonly users?
+                {
+                    DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
+                    ReviewSetsList data = dp.Fetch(new SingleCriteria<ReviewSetsList, bool>(GetPrivateSets.Value));
+                    return Ok(data);//nothing new to send back, command worked.
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running GetReviewSetsForCopying");
+                throw;
+            }
+        }
     }
 
     public class ReviewSetUpdateCommandJSON
@@ -234,9 +351,37 @@ namespace ERxWebClient2.Controllers
         public int setId;
         public int order;
     }
+    public class AttributeDeleteCommandJSON
+    {
+        public Int64 attributeSetId;
+        public Int64 attributeId;
+        public Int64 parentAttributeId;
+        public int attributeOrder;
+        public bool successful;
+    }
     public class AttributeOrSetDeleteCheckCommandJSON
     {
         public Int64 attributeSetId;
         public int setId;
+    }
+    public class AttributeSetCreateOrUpdateJSON
+    {
+        public int setId;
+        public Int64 parentAttributeId;
+        public int attributeTypeId;
+        //AttributeSetDescription
+        public int attributeOrder;
+        public string attributeName;
+        public string attributeSetDescription;
+        public int contactId;
+        public Int64 originalAttributeID;
+        //two fields used as input only when updating
+        public Int64 attributeSetId;
+        public Int64 attributeId;
+    }
+    public class ReviewSetCopyCommandJSON
+    {
+        public int reviewSetId;
+        public int order;
     }
 }

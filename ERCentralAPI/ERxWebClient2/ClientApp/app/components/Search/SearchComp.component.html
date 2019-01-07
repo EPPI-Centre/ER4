@@ -109,7 +109,7 @@
 			</div>
 			<div class="row">
 				<button type="button" class="btn btn-outline-primary col-md-4"
-						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl)">
+						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
 					Search
 				</button>
 			</div>
@@ -233,7 +233,7 @@
 
 	</div>
 
-<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.isBusy"
+<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 			[data]="DataSource" [height]="410"
 			[rowClass]="rowCallback"
 			[sortable]="{
@@ -289,5 +289,5 @@
 	</kendo-grid-column>
 </kendo-grid>
 
-<div *ngIf="_searchService && _searchService.SearchList && _searchService.isBusy">Loading items...</div>
+<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 

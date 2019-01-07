@@ -32,13 +32,14 @@ export class SearchComp implements OnInit, OnDestroy {
 		private reviewInfoService: ReviewInfoService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
-		private _reviewSetsService: ReviewSetsService,
+		public _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService
 	) {
-	}
+    }
+    //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
 	public modelTitle: string = '';
 	public ModelId = -1;
@@ -46,7 +47,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	public AttributeId = 0;
 	public SourceId = 0;
 	private _listSources: any[] = [];
-	public selected?: ReadOnlySource;
+    public selected?: ReadOnlySource;
+    public isCollapsed: boolean = false;
+    public isCollapsed2: boolean = false;
+    public isCollapsed3: boolean = false;
+    public isCollapsed4: boolean = false;
+    //public isCollapsed6: boolean = false;
+    public isCollapsed6: boolean = false;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -58,7 +65,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	CanOnlySelectRoots() {
 		return true;
 	}
+    CombineSearches() {
+        alert("Not implemented!");
+    }
+    removeHandler(event: any) {
 
+        alert("Not implemented!");
+    }
 	SetModelSelection(num: number) {
 
 		this.ModelSelected = true;
@@ -179,7 +192,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get searchInclOrExcl(): string {
 
 		this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		console.log('I get it', this._searchInclOrExcl);
+		//console.log('I get it', this._searchInclOrExcl);
 
 		return this._searchInclOrExcl;
 	}
@@ -197,7 +210,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get logic(): string {
 
 		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		console.log('I get it', this._logic);
+		//console.log('I get it', this._logic);
 
 		return this._logic;
 	}
@@ -554,14 +567,12 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-
-	ngOnInit() {
-
+    ngOnInit() {
+        //console.log("SearchComp init:", this.InstanceId);
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
 		}
 		else {
-
 			this._sourcesService.FetchSources();
 			this.reviewInfoService.Fetch();
 			this._buildModelService.Fetch();

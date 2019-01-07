@@ -48,9 +48,11 @@
   <ItemGroup>
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeMoveCommand.cs" Link="Models\AttributeMoveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetDeleteCommand.cs" Link="Models\AttributeSetDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetDeleteWarningCommand.cs" Link="Models\AttributeSetDeleteWarningCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetList.cs" Link="Models\AttributeSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeUpdateCommand.cs" Link="Models\AttributeUpdateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CheckTicketExpirationCommand.cs" Link="Models\CheckTicketExpirationCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCommand.cs" Link="Models\ClassifierCommand.cs" />
@@ -92,8 +94,11 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetTypeList.cs" Link="Models\ReadOnlySetTypeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySource.cs" Link="Models\ReadOnlySource.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySourceList.cs" Link="Models\ReadOnlySourceList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReview.cs" Link="Models\ReadOnlyTemplateReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReviewList.cs" Link="Models\ReadOnlyTemplateReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetCheckCodingStatusCommand.cs" Link="Models\ReviewSetCheckCodingStatusCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetCopyCommand.cs" Link="Models\ReviewSetCopyCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetDeleteCommand.cs" Link="Models\ReviewSetDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />

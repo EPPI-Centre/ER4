@@ -44,7 +44,10 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		return true;
 
 	}
+    removeHandler(event: any) {
 
+        alert("Not implemented!");
+    }
 	public sort: SortDescriptor[] = [{
 		field: 'modelId',
 		dir: 'desc'
@@ -103,7 +106,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	BuildModel(title: string, attrOn: string, attrNotOn: string) {
+	BuildModel(title: string) {
 
 		this.IamVerySorryRefresh();
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {

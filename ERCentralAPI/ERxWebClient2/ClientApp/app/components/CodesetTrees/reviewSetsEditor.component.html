@@ -16,7 +16,7 @@
                         <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
-                To Edit a node in the code tree, please select the desired node in the right-hand side tree.
+                <div class="card alert alert-primary m-4">To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
             </div>
 
             <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">
@@ -25,8 +25,7 @@
                         <kendo-toolbar-button [text]="'Import Codesets'"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Edit CodeSet'" (click)="ShowActivity('EditCodeset')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Delete CodeSet'"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
             </div>
@@ -35,21 +34,20 @@
                     <kendo-toolbar>
                         <kendo-toolbar-button [text]="'Import Codesets'"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Codeset'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Edit Code'"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Delete Code'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
             </div>
             <div *ngIf="CurrentNode">
-                Name: {{CurrentNode.name}}<br />
+                Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
             </div>
             <div *ngIf="ActivityPanelName == 'AddCodeSet'" class="container card card-body bg-light">
                 <form class="row" #NewCodesetFrom="ngForm">
                     <div class="col-5">
                         <div class="form-group">
                             <label for="Codeset_Type">Codeset Type</label>
-                            <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="TypeChanged($event.target.value)" name="Codeset_Type">
+                            <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="CodesetTypeChanged($event.target.value)" name="Codeset_Type">
                                 <option *ngFor="let type of SetTypes" [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
                                     {{type.setTypeName}}
                                 </option>
@@ -72,10 +70,13 @@
                             Name is required
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div *ngIf="NewSetTypeCanChangeDataEntryMode()" class="col-12">
                         Data Entry Mode:
                         <input type="radio" [value]="true" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Normal</b>
                         <input type="radio" [value]="false" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Comparison</b>
+                    </div>
+                    <div *ngIf="!NewSetTypeCanChangeDataEntryMode()" class="col-12">
+                        Data Entry Mode: <strong>Normal</strong>.
                     </div>
                     <div class="form-group col-12">
                         <label for="newSetDescription">Description</label>
@@ -87,22 +88,23 @@
                             Create
                         </button>
                         <button class="btn btn-outline-secondary ml-1"
-                                (click)="CancelActivity()">
+                                (click)="CancelActivity()" style="width:200px;">
                             Cancel
                         </button>
                     </div>
                 </form>
             </div>
             <div *ngIf="ActivityPanelName == 'EditCodeset'" class="container card card-body bg-light">
-                EditCodeset...<br />
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
                     <div>Are you sure you want to delete '{{CurrentNode.name}}' and all its codes?</div>
                     <div>This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
                     <div>
                         <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
-                        <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()" 
+                        <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()"
                                 [disabled]="!CanWrite() "
-                                style="width:80px;">Yes</button>
+                                style="width:80px;">
+                            Yes
+                        </button>
                     </div>
                 </div>
                 <form class="row" #EditCodesetFrom="ngForm">
@@ -123,9 +125,11 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
-                            <button *ngIf="SetTypeCanChangeDataEntryMode()" class="btn btn-outline-danger btn-sm ml-1 mb-1" 
+                            <button *ngIf="SetTypeCanChangeDataEntryMode()" class="btn btn-outline-danger btn-sm ml-1 mb-1"
                                     [disabled]="!CanWrite()"
-                                    (click)="ShowChangeDataEntryClicked()">Change</button>
+                                    (click)="ShowChangeDataEntryClicked()">
+                                Change
+                            </button>
                         </div>
                         <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
                             <div>{{ChangeDataEntryModeMessage}}</div>
@@ -145,24 +149,118 @@
                                   [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2" 
+                        <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2"
                                 [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid()|| !CanWrite()">
                             Save
                         </button>
                         <button class="btn btn-outline-secondary ml-1"
-                                (click)="CancelActivity()">
+                                (click)="CancelActivity(EditCodesetFrom.dirty)" style="width:200px;">
                             Cancel
                         </button>
                         <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
-                                [disabled]="!CanWrite()">Delete Codeset...</button>
+                                [disabled]="!CanWrite()">
+                            Delete Codeset...
+                        </button>
                     </div>
                 </form>
-                Name: {{CurrentNode.name}}<br />
-                Main Type: {{CurrentNode.nodeType}}<br />
-                Sub-Type: {{CurrentNode.subTypeName}}<br />
-                Description: {{CurrentNode.description}}<br />
             </div>
+
+            <div *ngIf="ActivityPanelName == 'AddCode'" class="container card card-body bg-light">
+                <form class="row" #NewCodeFrom="ngForm">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="Codeset_Type">Code Type</label>
+                            <select #CodeTypeSelect class="col-md-6 form-control" name="NewCode_Type">
+                                <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
+                                    {{type.value}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="source_Name">Code Name</label>
+                        <input type="text" class="form-control" id="AttName"
+                               [(ngModel)]="NewCode.attribute_name" name="attribute_name"
+                               #name="ngModel">
+                        <div [hidden]="IsNewCodeNameValid()"
+                             class="alert alert-danger">
+                            Name is required
+                        </div>
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="newSetDescription">Description</label>
+                        <textarea class="form-control" id="newSetDescription"
+                                  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
+                            Create
+                        </button>
+                        <button class="btn btn-outline-secondary ml-1"
+                                (click)="CancelActivity()" style="width:200px;">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
             </div>
+            <div *ngIf="ActivityPanelName == 'EditCode'" class="container card card-body bg-light">
+                <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
+                    <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
+                    <div>This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+                    <div>Also all codes assigned to '{{UpdatingCode.attribute_name}}' children (if any) will be lost.</div>
+                    <div>
+                        <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
+                        <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
+                                [disabled]="!CanWrite() "
+                                style="width:80px;">
+                            Yes
+                        </button>
+                    </div>
+                </div>
+                <form class="row" #EditCodeFrom="ngForm">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="Codeset_Type">Code Type</label>
+                            <select #EditCodeTypeSelect class="col-md-6 form-control"
+                                    (change)="AttributeTypeChanged($event.target.value)" name="Code_Type"
+                                     [(ngModel)]="UpdatingCode.attribute_type_id">
+                                <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                                    {{type.value}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="source_Name">Code Name</label>
+                        <input type="text" class="form-control" id="AttName"
+                               [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
+                               #name="ngModel">
+                        <div [hidden]="IsNewCodeNameValid()"
+                             class="alert alert-danger">
+                            Name is required
+                        </div>
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="newSetDescription">Description</label>
+                        <textarea class="form-control" id="newSetDescription"
+                                  [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
+                            Update
+                        </button>
+                        <button class="btn btn-outline-secondary ml-1"
+                                (click)="CancelActivity(EditCodeFrom.dirty)" style="width:200px;">
+                            Cancel
+                        </button>
+                        <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
+                                [disabled]="!CanWrite()">
+                            Delete Code...
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
 </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">

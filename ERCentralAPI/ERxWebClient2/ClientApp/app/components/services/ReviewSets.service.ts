@@ -39,25 +39,25 @@ export class ReviewSetsService extends BusyAwareService {
     private CurrentArmID: number = 0;
     public selectedNode: singleNode | null = null;
 	public CanWriteCoding(attribute: singleNode): boolean {
-        console.log('CanWriteCoding?');
+        //console.log('CanWriteCoding?');
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
-            console.log("can't edit coding, reason 1");
+            //console.log("can't edit coding, reason 1");
             return false;
         }
         else if ((this.IsBusy) || !this.ReviewerIdentityService.HasWriteRights) {
-            console.log("can't edit coding, reason 2", this._BusyMethods);
+            //console.log("can't edit coding, reason 2", this._BusyMethods);
             return false;
         }
         else if (this.CurrentArmID > 0 && (attribute.subTypeName == 'Include' || attribute.subTypeName == 'Exclude'))
         {
-            console.log("can't edit coding, reason 3");
+            //console.log("can't edit coding, reason 3");
             return false;
         }
         let FullAttribute: SetAttribute | null = this.FindAttributeById(+attribute.id.substring(1));
         if (FullAttribute) {
             let Set = this.FindSetById(FullAttribute.set_id);
             if (Set && Set.itemSetIsLocked) {
-                console.log("can't edit coding, reason 4");
+                //console.log("can't edit coding, reason 4");
                 return false;
             }
         }
@@ -168,7 +168,7 @@ export class ReviewSetsService extends BusyAwareService {
             newAtt.attribute_name = iAtt.attributeName;
             newAtt.order = iAtt.attributeOrder;
             newAtt.attribute_type = iAtt.attributeType;
-            newAtt.attribute_type_id = iAtt.AttributeTypeId;
+            newAtt.attribute_type_id = iAtt.attributeTypeId;
 			newAtt.attribute_set_desc = iAtt.attributeSetDescription;
             newAtt.attributeSetId = iAtt.attributeSetId;
             newAtt.parent_attribute_id = iAtt.parentAttributeId;
@@ -279,6 +279,24 @@ export class ReviewSetsService extends BusyAwareService {
             }
         }
         return result;
+    }
+    public AttributeCurrentLevel(Att: SetAttribute): number {
+        if (Att.parent == 0) return 1;//no need to do complicated stuff!
+        let BadRes:number = 10000;//default is big 
+        let interim: number = 2;
+        let currentParent: SetAttribute | null = this.FindAttributeById(Att.parent_attribute_id);
+        if (currentParent && currentParent.parent_attribute_id == 0) return interim;//again, keep it simple while you can.
+        while (interim < 100 && currentParent && currentParent.parent_attribute_id > 0) {
+            interim++;
+            currentParent = this.FindAttributeById(currentParent.parent_attribute_id);
+            //console.log("AttributeCurrentLevel... ", interim, currentParent);
+        }
+        if (currentParent) {
+            //console.log("AttributeCurrentLevel did work:", interim);
+            return interim;
+        }
+        //console.log("AttributeCurrentLevel did NOT work:", interim, currentParent, Att);
+        return BadRes;
     }
     private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
@@ -467,7 +485,7 @@ export interface iAttributeSet {
     attributeId: number;
     attributeSetDescription: string;
     attributeType: string;
-    AttributeTypeId: number;
+    attributeTypeId: number;
     attributeName: string;
     attributeDescription: string;
     parentAttributeId: number;

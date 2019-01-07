@@ -83,8 +83,8 @@ export class PriorityScreeningService {
         //otherwise ask for "next in list", which will reserve the item (TrainingNextItem)
         //console.log(this.CurrentItem == null);
         //console.log(this.CurrentItem.itemId == 0);
-        //console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
-        //console.log(this.ScreenedItemIds.length);
+        console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+        console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
 
         if ((this.CurrentItem == null || this.CurrentItem.itemId == 0) || (this.ScreenedItemIds.indexOf(this.CurrentItem.itemId) == this.ScreenedItemIds.length - 1)) {
             this.FetchNextItem();
@@ -119,13 +119,15 @@ export class PriorityScreeningService {
 
     private FetchScreenedItem(index: number) {
         let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
+        //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+        //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
         this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
             body).toPromise().then(
             success => {
 
                     this.CurrentItem = success.item;
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-                    if (currentIndex != -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);
+                    if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
                     this.CurrentItemIndex = currentIndex;
                     //return this.CurrentItem;
                     this.gotItem.emit();
