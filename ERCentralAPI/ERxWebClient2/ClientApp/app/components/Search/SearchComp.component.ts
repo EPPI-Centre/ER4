@@ -71,8 +71,25 @@ export class SearchComp implements OnInit, OnDestroy {
     removeHandler(event: any) {
 
         alert("Not implemented!");
-    }
+	}
+	NewSearch() {
+
+		this.isCollapsed = !this.isCollapsed;
+		this.isCollapsed3 = false;
+		this.isCollapsed4 = false;
+	}
+	Classify() {
+
+		this.isCollapsed = false;
+		this.isCollapsed3 = !this.isCollapsed3;
+		this.isCollapsed4 = false;
+
+	}
 	SetModelSelection(num: number) {
+
+		this.isCollapsed = false;
+		this.isCollapsed2 = false;
+		this.isCollapsed4 = false;
 
 		if (this.isCollapsed6 && num == this.modelNum ) {
 
@@ -223,6 +240,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public set logic(value: string) {
 
+		alert('Check this method named: "logic..."');
 		this._searchService.cmdSearches._included = 'true';
 		this._searchService.cmdSearches._title = "159 AND 158";
 		this._searchService.cmdSearches._logicType = "AND";
@@ -233,35 +251,36 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	getLogicSearches(logicChoice: string) {
 
-		//alert('got inside here: ' + logicChoice);
-		if (logicChoice == 'NOT (excluded)') {
-			this._searchService.cmdSearches._included = 'false';
-			logicChoice = 'NOT';
+		if (this.CanWrite()) {
+			//alert('got inside here: ' + logicChoice);
+			if (logicChoice == 'NOT (excluded)') {
+				this._searchService.cmdSearches._included = 'false';
+				logicChoice = 'NOT';
 
-		} else {
-			this._searchService.cmdSearches._included = 'true';
-		}
-
-		let lstStrSearchIds = '';
-		let lstStrSearchNos = '';
-		for (var i = 0; i < this.DataSource.data.length; i++) {
-
-			if (this.DataSource.data[i].add == true) {
-
-				if (lstStrSearchIds == "") {
-					lstStrSearchIds = this.DataSource.data[i].searchId;
-					lstStrSearchNos = this.DataSource.data[i].searchNo;
-				} else {
-					lstStrSearchIds += ',' + this.DataSource.data[i].searchId ;
-					lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSource.data[i].searchNo;
-				}
-
+			} else {
+				this._searchService.cmdSearches._included = 'true';
 			}
+
+			let lstStrSearchIds = '';
+			let lstStrSearchNos = '';
+			for (var i = 0; i < this.DataSource.data.length; i++) {
+
+				if (this.DataSource.data[i].add == true) {
+					if (lstStrSearchIds == "") {
+						lstStrSearchIds = this.DataSource.data[i].searchId;
+						lstStrSearchNos = this.DataSource.data[i].searchNo;
+					} else {
+						lstStrSearchIds += ',' + this.DataSource.data[i].searchId ;
+						lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSource.data[i].searchNo;
+					}
+				}
+			}
+			this._searchService.cmdSearches._title = lstStrSearchNos;
+			this._searchService.cmdSearches._logicType = logicChoice;
+			this._searchService.cmdSearches._searches = lstStrSearchIds;
+			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+
 		}
-		this._searchService.cmdSearches._title = lstStrSearchNos;
-		this._searchService.cmdSearches._logicType = logicChoice;
-		this._searchService.cmdSearches._searches = lstStrSearchIds;
-		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
 	}
 	
 	private canWrite: boolean = true;
@@ -272,6 +291,16 @@ export class SearchComp implements OnInit, OnDestroy {
 	public selectedSearchCodeSetDropDown: string = '';
 	public CodeSets: any[] = [];
 
+	CanWrite(): boolean {
+	
+		if (this.ReviewerIdentityServ.HasWriteRights && !this._searchService.IsBusy) {
+
+			return true;
+		} else {
+
+			return false;
+		}
+	}
 	public get IsReadOnly(): boolean {
 		return this.canWrite;
 	}
@@ -321,7 +350,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	DeleteSearchSelected() {
 
 		// Need to check if user has rights to delete
-
 		let lstStrSearchIds = '';
 
 		for (var i = 0; i < this.DataSource.data.length; i++) {
@@ -330,7 +358,9 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 		}
 		console.log(lstStrSearchIds);
-		this._searchService.Delete(lstStrSearchIds);
+		if (this.CanWrite()) {
+			this._searchService.Delete(lstStrSearchIds);
+		}
 	}
 	
 	public withCode: boolean = false;
@@ -340,103 +370,107 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
-		this.selectedSearchTextDropDown = selectedSearchTextDropDown;
-		let searchTitle: string = '';
-		let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
-		let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
-		this._searchService.cmdSearches._included = String(searchBool);
+		if (this.CanWrite) {
 
-		this._searchService.cmdSearches._withCodes = String(this.withCode);
-		this._searchService.cmdSearches._searchId = 0;
+			this.selectedSearchTextDropDown = selectedSearchTextDropDown;
+			let searchTitle: string = '';
+			let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
+			let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+			this._searchService.cmdSearches._included = String(searchBool);
 
-		if (firstNum == true || secNum == true) {
+			this._searchService.cmdSearches._withCodes = String(this.withCode);
+			this._searchService.cmdSearches._searchId = 0;
 
-			if (firstNum) {
+			if (firstNum == true || secNum == true) {
 
-				this.withCode = true;
-			} else {
+				if (firstNum) {
 
-				this.withCode = false;
+					this.withCode = true;
+				} else {
+
+					this.withCode = false;
+				}
+
+				if (this._reviewSetsService.selectedNode != undefined) {
+
+					let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
+					this.attributeNames = this._reviewSetsService.selectedNode.name;
+					this._searchService.cmdSearches._answers = String(tmpID);
+					alert(this._reviewSetsService.selectedNode);
+
+					searchTitle = this.withCode == true ?
+						"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
+
+
+					this._searchService.cmdSearches._title = searchTitle;
+					this._searchService.cmdSearches._withCodes = String(this.withCode);
+
+					this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
+
+				}
 			}
 
-			if (this._reviewSetsService.selectedNode != undefined) {
+			if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
 
-				let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
-				this.attributeNames = this._reviewSetsService.selectedNode.name;
-				this._searchService.cmdSearches._answers = String(tmpID);
-				alert(this._reviewSetsService.selectedNode);
-
-				searchTitle = this.withCode == true ?
-					"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
+				this._searchService.cmdSearches._IDs = this.commaIDs;
+				this._searchService.cmdSearches._title = this.commaIDs;
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchIDs');
 
 
+			}
+			if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+
+				this._searchService.cmdSearches._IDs = this.commaIDs;
+				this._searchService.cmdSearches._title = this.commaIDs;
+
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchImportedIDs');
+
+
+			}
+			if (selectedSearchDropDown == 'Containing this text') {
+
+				this._searchService.cmdSearches._title = this.searchText;
+				//this._searchService.cmdSearches._included = Boolean(searchBool);
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
+			}
+			if (selectedSearchDropDown == 'That have at least one code from this set') {
+
+				this._searchService.cmdSearches._withCodes = 'true';
+				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
+
+			}
+			if (selectedSearchDropDown == 'That dont have any codes from this set') {
+
+				this._searchService.cmdSearches._withCodes = 'false';
+				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
+
+			}
+			if (selectedSearchDropDown == 'Without an abstract') {
+
+				alert(selectedSearchDropDown);
 				this._searchService.cmdSearches._title = searchTitle;
-				this._searchService.cmdSearches._withCodes = String(this.withCode);
 
-				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
 
 			}
-		}
 
-		if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+			if (selectedSearchDropDown == 'Without any documents uploaded') {
 
-			this._searchService.cmdSearches._IDs = this.commaIDs;
-			this._searchService.cmdSearches._title = this.commaIDs;
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchIDs');
+				//alert(selectedSearchDropDown);
+				this._searchService.cmdSearches._title = 'Without any documents uploaded';
 
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
 
-		}
-		if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+			}
+			if (selectedSearchDropDown == 'With at least one document uploaded') {
 
-			this._searchService.cmdSearches._IDs = this.commaIDs;
-			this._searchService.cmdSearches._title = this.commaIDs;
+				this._searchService.cmdSearches._title = 'With at least one document uploaded.';
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchImportedIDs');
-
-
-		}
-		if (selectedSearchDropDown == 'Containing this text') {
-
-			this._searchService.cmdSearches._title = this.searchText;
-			//this._searchService.cmdSearches._included = Boolean(searchBool);
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
-		}
-		if (selectedSearchDropDown == 'That have at least one code from this set') {
-
-			this._searchService.cmdSearches._withCodes = 'true';
-			this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
-
-		}
-		if (selectedSearchDropDown == 'That dont have any codes from this set') {
-
-			this._searchService.cmdSearches._withCodes = 'false';
-			this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
-
-		}
-		if (selectedSearchDropDown == 'Without an abstract') {
-
-			alert(selectedSearchDropDown);
-			this._searchService.cmdSearches._title = searchTitle;
-
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
-
-		}
-
-		if (selectedSearchDropDown == 'Without any documents uploaded') {
-
-			//alert(selectedSearchDropDown);
-			this._searchService.cmdSearches._title = 'Without any documents uploaded';
-
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
-
-		}
-		if (selectedSearchDropDown == 'With at least one document uploaded') {
-
-			this._searchService.cmdSearches._title = 'With at least one document uploaded.';
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
+			}
 
 		}
 	}
@@ -575,12 +609,14 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-    ngOnInit() {
+	ngOnInit() {
+
         //console.log("SearchComp init:", this.InstanceId);
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 			this.router.navigate(['home']);
 		}
 		else {
+
 			this._sourcesService.FetchSources();
 			this.reviewInfoService.Fetch();
 			this._buildModelService.Fetch();

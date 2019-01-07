@@ -156,7 +156,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	NodeSelected(node: singleNode) {
 
-		alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
+		//alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
 
 		//alert(JSON.stringify(stuff));
 		console.log(JSON.stringify(node));
