@@ -16,7 +16,7 @@
                                     <kendo-toolbar class="customk-toolbar">
                                         <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
                                         <kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
                                         <!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
                                         <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
                                         <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
@@ -102,7 +102,7 @@
                
             </kendo-splitter-pane>
             <kendo-splitter-pane [collapsible]="true" size="30%" class="bg-light">
-                <codesetTreeMain></codesetTreeMain>
+                <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
             </kendo-splitter-pane>
         </kendo-splitter>
         <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>

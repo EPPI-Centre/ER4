@@ -316,6 +316,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         else return false;
     }
     ShowActivity(activityName: string) {
+        if (this._ActivityPanelName != "") this.CancelActivity(true);
         this._ActivityPanelName = activityName;
     }
     CancelActivity(refreshTree?: boolean) {
