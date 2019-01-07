@@ -74,6 +74,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	NewSearch() {
 
+		this.mode = 0;
 		this.isCollapsed = !this.isCollapsed;
 		this.isCollapsed3 = false;
 		this.isCollapsed4 = false;
@@ -83,6 +84,13 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.isCollapsed = false;
 		this.isCollapsed3 = !this.isCollapsed3;
 		this.isCollapsed4 = false;
+		this.isCollapsed6 = false;
+
+	}
+	CustomModels() {
+
+		this.isCollapsed3 = true;
+		this.isCollapsed4 = !this.isCollapsed4
 
 	}
 	SetModelSelection(num: number) {
@@ -95,7 +103,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		} else {
 
-			this.isCollapsed6 = !this.isCollapsed6;
+			this.isCollapsed6 = true;
 		}
 		this.ModelSelected = true;
 		this.modelNum = num;
@@ -116,6 +124,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	chooseSourceDD() {
 
+		this._reviewSetsService.selectedNode = null;
 		this._listSources = this._sourcesService.ReviewSources;
 	}
 
@@ -238,16 +247,16 @@ export class SearchComp implements OnInit, OnDestroy {
 		return this._logic;
 	}
 
-	public set logic(value: string) {
+	//public set logic(value: string) {
 
-		alert('Check this method named: "logic..."');
-		this._searchService.cmdSearches._included = 'true';
-		this._searchService.cmdSearches._title = "159 AND 158";
-		this._searchService.cmdSearches._logicType = "AND";
-		this._searchService.cmdSearches._searches = "21712,21711";
-		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
-		this._logic = value;
-	}
+	//	alert('Check this method named: "logic..."');
+	//	this._searchService.cmdSearches._included = 'true';
+	//	this._searchService.cmdSearches._title = "159 AND 158";
+	//	this._searchService.cmdSearches._logicType = "AND";
+	//	this._searchService.cmdSearches._searches = "21712,21711";
+	//	this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+	//	this._logic = value;
+	//}
 
 	getLogicSearches(logicChoice: string) {
 
