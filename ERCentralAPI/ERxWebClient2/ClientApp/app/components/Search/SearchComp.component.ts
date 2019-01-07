@@ -74,6 +74,12 @@ export class SearchComp implements OnInit, OnDestroy {
     }
 	SetModelSelection(num: number) {
 
+		if (this.isCollapsed6 && num == this.modelNum ) {
+
+		} else {
+
+			this.isCollapsed6 = !this.isCollapsed6;
+		}
 		this.ModelSelected = true;
 		this.modelNum = num;
 	}
@@ -313,6 +319,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	
 	DeleteSearchSelected() {
+
+		// Need to check if user has rights to delete
 
 		let lstStrSearchIds = '';
 
