@@ -52,7 +52,6 @@ export class SearchComp implements OnInit, OnDestroy {
     public isCollapsed2: boolean = false;
     public isCollapsed3: boolean = false;
     public isCollapsed4: boolean = false;
-    //public isCollapsed6: boolean = false;
     public isCollapsed6: boolean = false;
 
 	public get DataSourceModel(): GridDataResult {
@@ -65,13 +64,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	CanOnlySelectRoots() {
 		return true;
 	}
-    CombineSearches() {
-        alert("Not implemented!");
-    }
-    removeHandler(event: any) {
+ //   CombineSearches() {
+ //       alert("Not implemented!");
+ //   }
+ //   removeHandler(event: any) {
 
-        alert("Not implemented!");
-	}
+ //       alert("Not implemented!");
+	//}
 	NewSearch() {
 
 		this.mode = 0;
@@ -81,6 +80,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	Classify() {
 
+		this._reviewSetsService.selectedNode = null;
 		this.isCollapsed = false;
 		this.isCollapsed3 = !this.isCollapsed3;
 		this.isCollapsed4 = false;
@@ -110,8 +110,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	chooseCodeMessage() {
-
-
 		this.notificationService.show({
 			content: 'Please use the tree on the right hand side to choose a code',
 			animation: { type: 'slide', duration: 400 },
@@ -119,16 +117,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			type: { style: "warning", icon: true },
 			closable: true
 		});
-
 	}
-
 	chooseSourceDD() {
 
 		this._reviewSetsService.selectedNode = null;
 		this._listSources = this._sourcesService.ReviewSources;
 	}
-
-
 	SetMode(num: number) {
 		this.ModelSelected = true;
 		this.mode = num;
@@ -180,16 +174,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			} else {
 
 			}
-
-		this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
-
+		if (this.CanWrite()) {
+			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
+		}
 	}
 	
 	SelectModel(model: string) {
-
 		this.ModelSelected = true;
-		alert('you selected model: ' + model);
-
+		//alert('you selected model: ' + model);
 	}
 
 	public data: Array<any> = [{
@@ -202,19 +194,19 @@ export class SearchComp implements OnInit, OnDestroy {
 		text: 'OR',
 			click: () => {
 				this.getLogicSearches('OR');
-				alert('OR');
+				//alert('OR');
 			}
 	}, {
 		text: 'NOT',
 			click: () => {
 				this.getLogicSearches('NOT');
-				alert('NOT');
+				//alert('NOT');
 			}
 	}, {
 		text: 'NOT (excluded)',
 			click: () => {
 				this.getLogicSearches('NOT (excluded)');
-				alert('NOT (excluded)');
+				//alert('NOT (excluded)');
 			}
 	}];
 
@@ -590,6 +582,7 @@ export class SearchComp implements OnInit, OnDestroy {
         };
 	}
 
+	// Need to ask Sergio about this sort part
     public sort: SortDescriptor[] = [{
         field: 'hitsNo',
         dir: 'desc'
