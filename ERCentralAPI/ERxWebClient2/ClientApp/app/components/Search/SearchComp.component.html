@@ -32,16 +32,16 @@
 					<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )" 
 						 ngbDropdown>
-						<button class="btn btn-info col-md-7" id="dropdownTree" ngbDropdownToggle>{{_reviewSetsService.selectedNode?.name}}</button>
-							<div ngbDropdownMenu aria-labelledby="dropdownTree">
-								<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
+							<div class="dropdown-menu"  id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+								<codesetSelector (click)="testeroo()"  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-							 ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+							 ngbDropdown >
+							<button class="btn btn-info col-md-7" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 							</div>
@@ -260,15 +260,15 @@
 				   [checked]="dataItem.add" />
 		</ng-template>
 	</kendo-grid-column>
-	<kendo-grid-column field="searchNo" title="No" width="140">
+	<kendo-grid-column field="searchNo" title="No" width="50">
 	</kendo-grid-column>
-	<kendo-grid-column field="title" title="Name" width="250">
+	<kendo-grid-column field="title" title="Name" width="150">
 	</kendo-grid-column>
-	<kendo-grid-column field="contactName" title="Created By" width="140">
+	<kendo-grid-column field="contactName" title="Created By" width="75">
 	</kendo-grid-column>
-	<kendo-grid-column field="searchDate" title="Date" width="120">
+	<kendo-grid-column field="searchDate" title="Date" width="75">
 	</kendo-grid-column>
-	<kendo-grid-column width="250" class="btn-link font-weight-bold"
+	<kendo-grid-column width="50" class="btn-link font-weight-bold"
 					   field="hitsNo" title="Hits" >
 		<ng-template kendoGridCellTemplate let-dataItem>
 			<div (click)="SearchGetItemList(dataItem)">
@@ -278,7 +278,7 @@
 	</kendo-grid-column>
 	<kendo-grid-column field="isClassifierResult" 
 					   class="btn-link font-weight-bold"
-					   title="Classifier" width="250">
+					   title="Classifier" width="50">
 		<ng-template kendoGridCellTemplate let-dataItem>
 			<div (click)="OpenClassifierVisualisation(dataItem)"
 				 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">

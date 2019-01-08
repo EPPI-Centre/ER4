@@ -51,7 +51,8 @@ export class SearchComp implements OnInit, OnDestroy {
     public LogicSection: boolean = false;
     public ModelSection: boolean = false;
     public modelResultsSection: boolean = false;
-    public radioButtonApplyModelSection: boolean = false;
+	public radioButtonApplyModelSection: boolean = false;
+	public isCollapsed: boolean = false;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -125,11 +126,11 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._listSources = this._sourcesService.ReviewSources;
 	}
 
-	SetMode(num: number) {
+	//SetMode(num: number) {
 
-		this.ModelSelected = true;
-		this.mode = num.toString();
-	}
+	//	this.ModelSelected = true;
+	//	this.mode = num.toString();
+	//}
 
 	RunModel() {
 
@@ -558,6 +559,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			)[0];
 	}
 
+	public testeroo(event: any) {
+
+		//if (this._reviewSetsService.selectedNode != null) {
+
+		//	this.isCollapsed = !this.isCollapsed
+		//}
+	}
+
 	public setSearchTextDropDown(heading: string) {
 
 		this.selectedSearchTextDropDown = heading;
@@ -584,7 +593,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	// Need to ask Sergio about this sort part
     public sort: SortDescriptor[] = [{
-        field: 'hitsNo',
+		field: 'searchNo',
         dir: 'desc'
 	}];
 
