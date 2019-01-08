@@ -52,8 +52,6 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
 					SearchIDsCommand cmd = new SearchIDsCommand(
 						cmdIn._title, cmdIn._included
 						);

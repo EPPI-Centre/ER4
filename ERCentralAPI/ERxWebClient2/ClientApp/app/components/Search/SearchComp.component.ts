@@ -64,13 +64,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	CanOnlySelectRoots() {
 		return true;
 	}
- //   CombineSearches() {
- //       alert("Not implemented!");
- //   }
- //   removeHandler(event: any) {
+    CombineSearches() {
+        alert("Not implemented!");
+    }
+    removeHandler(event: any) {
 
- //       alert("Not implemented!");
-	//}
+        alert("Not implemented!");
+	}
 	NewSearch() {
 
 		this.mode = 0;
@@ -284,7 +284,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 	
-	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
 	public selectedSearchDropDown: string = '';
@@ -302,9 +301,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			return false;
 		}
 	}
-	public get IsReadOnly(): boolean {
-		return this.canWrite;
-	}
+	
     public selectedAll: boolean = false;
 	public modalClass: boolean = false;
 
@@ -592,7 +589,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
     }
-
+	OpenClassifierVisualisation(search: Search) {
+	}
 	ngOnDestroy() {
 	}
 	

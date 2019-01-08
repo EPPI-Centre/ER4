@@ -3,7 +3,7 @@
 		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (buttonClick)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
+		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
 		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
@@ -280,7 +280,7 @@
 					   class="btn-link font-weight-bold"
 					   title="Classifier" width="250">
 		<ng-template kendoGridCellTemplate let-dataItem>
-			<div (click)="OpenClassifierScreen(dataItem.isClassifierResult)"
+			<div (click)="OpenClassifierVisualisation(dataItem)"
 				 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
 				{{dataItem.isClassifierResult}}
 			</div>
