@@ -46,6 +46,8 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
         }
     }
     @Input() IsStandalone: boolean = true;
+    @Output()
+    PleaseCloseMe = new EventEmitter();
     public WizStep: number = 1;
     public get TemplateReviews(): ReadOnlyTemplateReview[] {
         return this.ReviewSetsEditingService.ReadOnlyTemplateReviews;
@@ -82,6 +84,7 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
             if (this.IsStandalone) this.BackToMain();
             else {
                 //somehow close itself...
+                this.PleaseCloseMe.emit();
             }
         }
         if (this.WizStep >= 2) {
@@ -146,8 +149,24 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
     SelectSet4Copy(set: ReviewSet) {
         this._SelectedSet4Copy = set;
     }
-    ImportSelectedSet() {
+    async ImportSelectedSet() {
+        if (!this._SelectedSet4Copy) return;
+        else {
+            this.ReviewSetsEditingService.ReviewSetCopy(this._SelectedSet4Copy.reviewSetId, this.ReviewSetsService.ReviewSets.length).then(
+                (result) => {
+                    if (result.reviewSetId < 0) {
+                        console.log("Copy single codeset failed (in service):", this._SelectedSet4Copy, result);
+                    }
+                    else this.ReviewSetsService.GetReviewSets();
+                }
+                , (reject) => {
+                    console.log("Copy single codeset failed (reject):", this._SelectedSet4Copy, reject);
+                }
 
+            ).catch(error => {
+                console.log("Copy single codeset failed (catch):", this._SelectedSet4Copy, error);
+                });
+        }
     }
     BackToMain() {
         this.router.navigate(['Main']);

@@ -43,6 +43,7 @@ export class codesetTree4CopyComponent implements OnInit, OnDestroy {
         }
 	}
     @Input() SelectedCodeset: ReviewSet | null = null;
+    @Input() MaxHeight: number = 600;
 	options: ITreeOptions = {
         childrenField: 'attributes', 
         displayField: 'name',

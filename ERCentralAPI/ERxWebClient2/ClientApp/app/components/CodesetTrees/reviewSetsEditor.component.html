@@ -2,17 +2,15 @@
 <button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
-<!--<div *ngFor="let type of SetTypes">
-    ID: {{type.setTypeId}} - Name: {{type.setTypeName}} - allowed types N: {{type.allowedCodeTypes.length}}
-</div>-->
-<kendo-splitter orientation="horizontal">
+
+<kendo-splitter *ngIf="ActivityPanelName != 'ImportCodesets'" orientation="horizontal">
     <kendo-splitter-pane>
         <div class="pane-content">
             <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
             <div *ngIf="!SetIsSelected() && !AttributeIsSelected()">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codesets'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
@@ -22,7 +20,7 @@
             <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codesets'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Edit CodeSet'" (click)="ShowActivity('EditCodeset')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
@@ -32,7 +30,7 @@
             <div *ngIf="AttributeIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codesets'"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Codeset'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
@@ -269,3 +267,4 @@
         </div>
     </kendo-splitter-pane>
 </kendo-splitter>
+<importCodesetsWizard *ngIf="ActivityPanelName == 'ImportCodesets'" [IsStandalone]="false" (PleaseCloseMe)="CancelActivity()"></importCodesetsWizard>
