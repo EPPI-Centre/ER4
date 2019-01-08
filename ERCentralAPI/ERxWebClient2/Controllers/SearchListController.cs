@@ -29,7 +29,6 @@ namespace ERxWebClient2.Controllers
 			try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<SearchList> dp = new DataPortal<SearchList>();
 				SearchList result = dp.Fetch();
@@ -38,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "GetSearches data portal error");
+                _logger.LogException(e, "Getting a searches list has an error");
                 throw;
             }
 
@@ -67,7 +66,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Creating searches using IDs has an error");
 				throw;
 			}
 
@@ -82,8 +81,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
 						cmdIn._title, cmdIn._included
 						);
@@ -99,7 +97,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Searches based on imported IDs has failed");
 				throw;
 			}
 
@@ -113,8 +111,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
 						cmdIn._included
 					);
@@ -131,7 +128,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Creating searches with no abstract has failed");
 				throw;
 			}
 
@@ -146,8 +143,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-						ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-			
+						
 					SearchCodesCommand cmd = new SearchCodesCommand(
 						cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
 						);
@@ -164,7 +160,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Search codes has failed");
 				throw;
 			}
 
@@ -178,8 +174,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if (SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
 						cmdIn._title,
 						cmdIn._included,
@@ -198,7 +193,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Searches containing no files has failed");
 				throw;
 			}
 
@@ -211,8 +206,7 @@ namespace ERxWebClient2.Controllers
 			{
 				if(SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
 						cmdIn._title,
 						cmdIn._included,
@@ -232,7 +226,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Searches containing just one file has failed");
 				throw;
 			}
 		}
@@ -245,8 +239,7 @@ namespace ERxWebClient2.Controllers
 			{
                 if(SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchFreeTextCommand cmd = new SearchFreeTextCommand(
 						cmdIn._title, cmdIn._included, cmdIn._searchText
 						);
@@ -264,7 +257,7 @@ namespace ERxWebClient2.Controllers
 		}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Creating searches based on text has failed");
 				throw;
 			}
 
@@ -279,8 +272,7 @@ namespace ERxWebClient2.Controllers
 			{
                 if(SetCSLAUser4Writing())
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+					
 					SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
 						cmdIn._setID,
 						cmdIn._included,
@@ -301,7 +293,7 @@ namespace ERxWebClient2.Controllers
 		}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Searches with a code set check has failed");
 				throw;
 			}
 
@@ -314,8 +306,7 @@ namespace ERxWebClient2.Controllers
 			try
 			{
 				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+				
 				SearchCombineCommand cmd = new SearchCombineCommand(
 					cmdIn._title,
 					cmdIn._searches,
@@ -329,7 +320,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Searches based on logic parameters has failed");
 				throw;
 			}
 		}
@@ -352,7 +343,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Deletion of searches has failed");
 				throw;
 			}
 		}

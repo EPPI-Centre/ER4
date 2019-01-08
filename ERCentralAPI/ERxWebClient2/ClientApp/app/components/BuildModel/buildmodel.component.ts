@@ -23,7 +23,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _reviewSetsService: ReviewSetsService,
 		//private ReviewerIdentityServ: ReviewerIdentityService,
 		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService
+		public _buildModelService: BuildModelService,
+		private notificationService: NotificationService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -112,7 +113,20 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
 
 			this._classifierService.Create(title, this.DD1, this.DD2);
+			this.IamVerySorryRefresh();
+			this.showBuildModelMessage();
 		}
+	}
+	showBuildModelMessage() {
+
+		this.notificationService.show({
+			content: 'Your model has been sent to Azure for Building',
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: "info", icon: true },
+			closable: true
+		});
+
 	}
 
     ngAfterViewInit() {
