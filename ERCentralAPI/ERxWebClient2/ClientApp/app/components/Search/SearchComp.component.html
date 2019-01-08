@@ -3,12 +3,12 @@
 		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (buttonClick)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
+		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 
-<div id="collapseExample" [ngbCollapse]="!isCollapsed" class="col-md-12">
+<div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-md-12">
 	<div class="card">
 		<div class="container-fluid card-body">
 			<div class="row">
@@ -32,16 +32,16 @@
 					<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )" 
 						 ngbDropdown>
-						<button class="btn btn-info col-md-7" id="dropdownTree" ngbDropdownToggle>{{_reviewSetsService.selectedNode?.name}}</button>
-							<div ngbDropdownMenu aria-labelledby="dropdownTree">
-								<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
+							<div class="dropdown-menu"  id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+								<codesetSelector (click)="testeroo()"  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-							 ngbDropdown class="d-inline-block col-md-12">
-							<button class="btn btn-info col-md-8" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+							 ngbDropdown >
+							<button class="btn btn-info col-md-7" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 							</div>
@@ -116,7 +116,7 @@
 		</div>
 	</div>
 </div>
-<div id="collapseExample2" [ngbCollapse]="!isCollapsed2">
+<div id="LogicSection" [ngbCollapse]="!LogicSection">
 	<table class="table col-md-12">
 		<tr>
 			<td>
@@ -134,32 +134,32 @@
 		</tr>
 	</table>
 </div>
-<div id="collapseExample3" [ngbCollapse]="!isCollapsed3">
+<div id="ModelSection" [ngbCollapse]="!ModelSection">
 	<div class="form-group card-body col-md-12 row">
 		<p class="font-weight-bold">Select a Model:</p>
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!isCollapsed6" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
-				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!isCollapsed4" aria-controls="collapseExample4">Show Custom Models</button>
+				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
+				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
+				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
+				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!isCollapsed4" aria-controls="modelResultsSection">Show Custom Models</button>
 			</div>
 		</div>
 
-		<div id="collapseExample6" [ngbCollapse]="!isCollapsed6">
+		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
 			<div class="form-group card-body col-md-8 col-sm-4">
 				<p class="font-weight-bold">Choose method to apply:</p>
-				<input class="col-md-4" type="radio" name="mode" id="opt1" [(ngModel)]="mode" value="1">
+				<input class="col-md-4" type="radio" name="ApplyRB"  [(ngModel)]="mode" value="1">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to all items in review
 				</label>
-				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="mode" id="opt2" [(ngModel)]="mode" value="2">
+				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="ApplyRB"  [(ngModel)]="mode" value="2">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to items with this code
 				</label>
 
-				<input (click)="chooseSourceDD()" class="col-md-4" type="radio" name="mode" id="opt3" [(ngModel)]="mode" value="3">
+				<input (click)="chooseSourceDD()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="3">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to items from this source
 				</label>
@@ -180,7 +180,7 @@
 			</div>
 		</div>
 
-		<div class="col-md-9 pull-right" id="collapseExample4" [ngbCollapse]="!isCollapsed4">
+		<div class="col-md-9 pull-right" id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
 			<kendo-grid [data]="DataSourceModel" [height]="410"
 						[sort]="sort"
 						(sortChange)="sortChange($event)"
@@ -233,7 +233,7 @@
 	</div>
 
 <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
-			[data]="DataSource" [height]="410"
+			[data]="DataSourceSearches" [height]="410"
 			[rowClass]="rowCallback"
 			[sortable]="{
 	allowUnsort: allowUnsort,
@@ -260,15 +260,15 @@
 				   [checked]="dataItem.add" />
 		</ng-template>
 	</kendo-grid-column>
-	<kendo-grid-column field="searchNo" title="No" width="140">
+	<kendo-grid-column field="searchNo" title="No" width="50">
 	</kendo-grid-column>
-	<kendo-grid-column field="title" title="Name" width="250">
+	<kendo-grid-column field="title" title="Name" width="150">
 	</kendo-grid-column>
-	<kendo-grid-column field="contactName" title="Created By" width="140">
+	<kendo-grid-column field="contactName" title="Created By" width="75">
 	</kendo-grid-column>
-	<kendo-grid-column field="searchDate" title="Date" width="120">
+	<kendo-grid-column field="searchDate" title="Date" width="75">
 	</kendo-grid-column>
-	<kendo-grid-column width="250" class="btn-link font-weight-bold"
+	<kendo-grid-column width="50" class="btn-link font-weight-bold"
 					   field="hitsNo" title="Hits" >
 		<ng-template kendoGridCellTemplate let-dataItem>
 			<div (click)="SearchGetItemList(dataItem)">
@@ -278,9 +278,9 @@
 	</kendo-grid-column>
 	<kendo-grid-column field="isClassifierResult" 
 					   class="btn-link font-weight-bold"
-					   title="Classifier" width="250">
+					   title="Classifier" width="50">
 		<ng-template kendoGridCellTemplate let-dataItem>
-			<div (click)="OpenClassifierScreen(dataItem.isClassifierResult)"
+			<div (click)="OpenClassifierVisualisation(dataItem)"
 				 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
 				{{dataItem.isClassifierResult}}
 			</div>

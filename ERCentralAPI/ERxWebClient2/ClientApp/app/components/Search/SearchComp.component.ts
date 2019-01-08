@@ -43,17 +43,16 @@ export class SearchComp implements OnInit, OnDestroy {
 	public modelNum: number = 0;
 	public modelTitle: string = '';
 	public ModelId = -1;
-	public mode: number = 0;
 	public AttributeId = 0;
 	public SourceId = 0;
 	private _listSources: any[] = [];
     public selected?: ReadOnlySource;
-    public isCollapsed: boolean = false;
-    public isCollapsed2: boolean = false;
-    public isCollapsed3: boolean = false;
-    public isCollapsed4: boolean = false;
-    //public isCollapsed6: boolean = false;
-    public isCollapsed6: boolean = false;
+	public NewSearchSection: boolean = false;
+    public LogicSection: boolean = false;
+    public ModelSection: boolean = false;
+    public modelResultsSection: boolean = false;
+	public radioButtonApplyModelSection: boolean = false;
+	public isCollapsed: boolean = false;
 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -61,7 +60,6 @@ export class SearchComp implements OnInit, OnDestroy {
 			total: this._buildModelService.ClassifierModelList.length,
 		};
 	}
-
 	CanOnlySelectRoots() {
 		return true;
 	}
@@ -72,46 +70,48 @@ export class SearchComp implements OnInit, OnDestroy {
 
         alert("Not implemented!");
 	}
+
+	public mode: string = '1';
+
 	NewSearch() {
 
-		this.mode = 0;
-		this.isCollapsed = !this.isCollapsed;
-		this.isCollapsed3 = false;
-		this.isCollapsed4 = false;
+		this.mode = '0';
+		this.NewSearchSection = !this.NewSearchSection;
+		this.ModelSection = false;
+		this.modelResultsSection = false;
 	}
 	Classify() {
 
-		this.isCollapsed = false;
-		this.isCollapsed3 = !this.isCollapsed3;
-		this.isCollapsed4 = false;
-		this.isCollapsed6 = false;
+		this._reviewSetsService.selectedNode = null;
+		this.NewSearchSection = false;
+		this.ModelSection = !this.ModelSection;
+		this.modelResultsSection = false;
+		this.radioButtonApplyModelSection = false;
 
 	}
 	CustomModels() {
 
-		this.isCollapsed3 = true;
-		this.isCollapsed4 = !this.isCollapsed4
+		this.ModelSection = true;
+		this.modelResultsSection = !this.modelResultsSection
 
 	}
 	SetModelSelection(num: number) {
 
-		this.isCollapsed = false;
-		this.isCollapsed2 = false;
-		this.isCollapsed4 = false;
+		this.NewSearchSection = false;
+		this.LogicSection = false;
+		this.modelResultsSection = false;
 
-		if (this.isCollapsed6 && num == this.modelNum ) {
+		if (this.radioButtonApplyModelSection && num == this.modelNum ) {
 
 		} else {
 
-			this.isCollapsed6 = true;
+			this.radioButtonApplyModelSection = true;
 		}
 		this.ModelSelected = true;
 		this.modelNum = num;
 	}
 
 	chooseCodeMessage() {
-
-
 		this.notificationService.show({
 			content: 'Please use the tree on the right hand side to choose a code',
 			animation: { type: 'slide', duration: 400 },
@@ -119,35 +119,33 @@ export class SearchComp implements OnInit, OnDestroy {
 			type: { style: "warning", icon: true },
 			closable: true
 		});
-
 	}
-
 	chooseSourceDD() {
 
 		this._reviewSetsService.selectedNode = null;
 		this._listSources = this._sourcesService.ReviewSources;
 	}
 
+	//SetMode(num: number) {
 
-	SetMode(num: number) {
-		this.ModelSelected = true;
-		this.mode = num;
-	}
+	//	this.ModelSelected = true;
+	//	this.mode = num.toString();
+	//}
 
 	RunModel() {
 
 		this.AttributeId = -1;
 		this.SourceId = -2;
 
-		if (this.mode == 1) {
+		if (this.mode == '1') {
 			// standard
 
-		} else if (this.mode == 2) {
+		} else if (this.mode == '2') {
 
 			//then set the attributeid to begin with
 			this.AttributeId = this._reviewSetsService.selectedNode ? Number(this._reviewSetsService.selectedNode.id.substr(1, this._reviewSetsService.selectedNode.id.length-1))  : -1;
 			
-		} else if (this.mode == 3) {
+		} else if (this.mode == '3') {
 			// not implmented
 			
 			this.SourceId = Number(this.selected);
@@ -180,16 +178,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			} else {
 
 			}
-
-		this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
-
+		if (this.CanWrite()) {
+			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
+		}
 	}
 	
 	SelectModel(model: string) {
-
 		this.ModelSelected = true;
-		alert('you selected model: ' + model);
-
+		//alert('you selected model: ' + model);
 	}
 
 	public data: Array<any> = [{
@@ -202,23 +198,23 @@ export class SearchComp implements OnInit, OnDestroy {
 		text: 'OR',
 			click: () => {
 				this.getLogicSearches('OR');
-				alert('OR');
+				//alert('OR');
 			}
 	}, {
 		text: 'NOT',
 			click: () => {
 				this.getLogicSearches('NOT');
-				alert('NOT');
+				//alert('NOT');
 			}
 	}, {
 		text: 'NOT (excluded)',
 			click: () => {
 				this.getLogicSearches('NOT (excluded)');
-				alert('NOT (excluded)');
+				//alert('NOT (excluded)');
 			}
 	}];
 
-	private _searchInclOrExcl: string = '';
+	private _searchInclOrExcl: string = 'true';
 	public ModelSelected: boolean = false;
 
 	public get searchInclOrExcl(): string {
@@ -272,15 +268,15 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			let lstStrSearchIds = '';
 			let lstStrSearchNos = '';
-			for (var i = 0; i < this.DataSource.data.length; i++) {
+			for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
 
-				if (this.DataSource.data[i].add == true) {
+				if (this.DataSourceSearches.data[i].add == true) {
 					if (lstStrSearchIds == "") {
-						lstStrSearchIds = this.DataSource.data[i].searchId;
-						lstStrSearchNos = this.DataSource.data[i].searchNo;
+						lstStrSearchIds = this.DataSourceSearches.data[i].searchId;
+						lstStrSearchNos = this.DataSourceSearches.data[i].searchNo;
 					} else {
-						lstStrSearchIds += ',' + this.DataSource.data[i].searchId ;
-						lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSource.data[i].searchNo;
+						lstStrSearchIds += ',' + this.DataSourceSearches.data[i].searchId ;
+						lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
 					}
 				}
 			}
@@ -292,7 +288,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 	
-	private canWrite: boolean = true;
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
 	public selectedSearchDropDown: string = '';
@@ -310,9 +305,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			return false;
 		}
 	}
-	public get IsReadOnly(): boolean {
-		return this.canWrite;
-	}
+	
     public selectedAll: boolean = false;
 	public modalClass: boolean = false;
 
@@ -330,21 +323,21 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (e.target.checked) {
 			this.allSearchesSelected = true;
 			
-			for (let i = 0; i < this.DataSource.data.length; i++) {
+			for (let i = 0; i < this.DataSourceSearches.data.length; i++) {
 				
-				this.DataSource.data[i].add = true;
+				this.DataSourceSearches.data[i].add = true;
 			}
 		} else {
 			this.allSearchesSelected = false;
 			
-			for (let i = 0; i < this.DataSource.data.length; i++) {
+			for (let i = 0; i < this.DataSourceSearches.data.length; i++) {
 
-				this.DataSource.data[i].add = false;
+				this.DataSourceSearches.data[i].add = false;
 			}
 		}
 	}
 
-	public get DataSource(): GridDataResult {
+	public get DataSourceSearches(): GridDataResult {
 		return {
 			data: orderBy(this._searchService.SearchList, this.sort),
 			total: this._searchService.SearchList.length,
@@ -361,9 +354,9 @@ export class SearchComp implements OnInit, OnDestroy {
 		// Need to check if user has rights to delete
 		let lstStrSearchIds = '';
 
-		for (var i = 0; i < this.DataSource.data.length; i++) {
-			if (this.DataSource.data[i].add == true) {
-				lstStrSearchIds += this.DataSource.data[i].searchId + ',' ;
+		for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
+			if (this.DataSourceSearches.data[i].add == true) {
+				lstStrSearchIds += this.DataSourceSearches.data[i].searchId + ',' ;
 			}
 		}
 		console.log(lstStrSearchIds);
@@ -566,6 +559,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			)[0];
 	}
 
+	public testeroo(event: any) {
+
+		//if (this._reviewSetsService.selectedNode != null) {
+
+		//	this.isCollapsed = !this.isCollapsed
+		//}
+	}
+
 	public setSearchTextDropDown(heading: string) {
 
 		this.selectedSearchTextDropDown = heading;
@@ -590,8 +591,9 @@ export class SearchComp implements OnInit, OnDestroy {
         };
 	}
 
+	// Need to ask Sergio about this sort part
     public sort: SortDescriptor[] = [{
-        field: 'hitsNo',
+		field: 'searchNo',
         dir: 'desc'
 	}];
 
@@ -599,7 +601,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
     }
-
+	OpenClassifierVisualisation(search: Search) {
+	}
 	ngOnDestroy() {
 	}
 	

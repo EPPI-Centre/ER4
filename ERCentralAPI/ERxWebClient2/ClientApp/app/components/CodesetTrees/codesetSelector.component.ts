@@ -70,7 +70,6 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		actionMapping: this.actionMapping
 
 	}
-		
 
 	@ViewChild('tree') treeComponent!: TreeComponent;
 	
