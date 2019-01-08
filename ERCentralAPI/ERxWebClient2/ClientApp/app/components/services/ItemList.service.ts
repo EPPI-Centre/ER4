@@ -1,7 +1,7 @@
 import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of, Subscription, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, of, Subscription, Subject, BehaviorSubject, timer } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { isPlatformServer, isPlatformBrowser } from '@angular/common';
@@ -12,6 +12,7 @@ import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -27,8 +28,13 @@ export class ItemListService extends BusyAwareService {
         private ModalService: ModalService
     ) {
         super();
+        //this.timerObj = timer(5000, 5000).pipe(
+        //    takeUntil(this.killTrigger));
+        //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
     }
-    
+    //public timerObj: any | undefined;
+    //private killTrigger: Subject<void> = new Subject();
+    //private ID: number = Math.random();
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;

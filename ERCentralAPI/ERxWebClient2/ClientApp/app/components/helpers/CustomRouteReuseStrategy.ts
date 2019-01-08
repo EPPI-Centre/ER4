@@ -207,9 +207,11 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
     private DestroyThis(rso: RouteStorageObject) {
         console.log("Destroying RouteStorageObject:", rso);
         let handle: any = rso.handle;
-        let ref: any = handle['componentRef'];
-        if (ref) {
-            ref.destroy();
+        if (handle) {
+            let ref: any = handle['componentRef'];
+            if (ref) {
+                ref.destroy();
+            }
         }
     }
     // Todo: we manually destroy the component view here. Since RouteReuseStrategy is experimental, it

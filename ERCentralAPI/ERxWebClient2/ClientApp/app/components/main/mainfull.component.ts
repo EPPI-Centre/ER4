@@ -82,7 +82,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
     ngOnInit() {
-        console.log("MainComp init:", this.InstanceId);
+        console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
@@ -261,6 +261,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
         //this.Clear();
+        console.log("destroy MainFull..");
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();			
         }
