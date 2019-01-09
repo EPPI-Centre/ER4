@@ -106,7 +106,16 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			}
 		}
 	}
+	public isCollapsed: boolean = false;
+	public isCollapsed2: boolean = false;
+	CloseBMDropDown1() {
 
+		this.isCollapsed = false;
+	}
+	CloseBMDropDown2() {
+
+		this.isCollapsed2 = false;
+	}
 	BuildModel(title: string) {
 
 		this.IamVerySorryRefresh();
