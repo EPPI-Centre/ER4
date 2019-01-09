@@ -64,6 +64,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {
 
+		this.selectedModelDropDown1 = '';
+		this.selectedModelDropDown2 = '';
+
 		// Load the nodes here
 		this.reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
@@ -71,7 +74,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	ngOnDestroy() {
 
-
+		this._reviewSetsService.selectedNode = null;
 	}
 	IamVerySorryRefresh() {
 
@@ -140,8 +143,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
     ngAfterViewInit() {
 
-    }
- 
-  
+	}
+
+
 	 
 }
