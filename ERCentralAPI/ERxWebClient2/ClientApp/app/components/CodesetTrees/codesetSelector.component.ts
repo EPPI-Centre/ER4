@@ -32,8 +32,23 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
        private ReviewSetsService: ReviewSetsService,
 
 	) { }
-	
-	@Input() rootsOnly: boolean = false;
+
+	@Input() MaxHeight: number = 400;
+	@Input() rootsOnly: boolean = false;//obsolete
+	@Input() IsMultiSelect: boolean = false;
+	@Input() WhatIsSelectable: string = "All";
+	//"All": can select any type of node
+	//"AttributeSet":Codes(AttributeSet) only
+	//"ReviewSet":Codesets(ReviewSet) only
+	//"NodeWithChildren":Anything that does have children
+	//"CanHaveChildren": any node that is allowed to contain children(future)
+
+
+	public SelectedNodeData: singleNode | null = null;
+	public SelectedNodesData: singleNode[] = [];
+	public SelectedCodeDescription: string = "";
+	@ViewChild('tree') treeComponent!: TreeComponent;
+	@Output() selectedNodeInTree: EventEmitter<null> = new EventEmitter();
 	//@Input() attributesOnly: boolean = false;
 
 	ngOnInit() {
@@ -72,8 +87,6 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	}
 
-	@ViewChild('tree') treeComponent!: TreeComponent;
-	@Output() selectedNodeInTree: EventEmitter<null> = new EventEmitter();
 
 	ngAfterViewInit() {
 
@@ -152,12 +165,9 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		}
 		//console.log('A root: ' + this.treeComponent.treeModel.roots[0].doForAll(x => x.expand()))
 	}
-	    
-    public SelectedNodeData: singleNode | null = null;
-	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
-
+		console.log(JSON.stringify(node));
 		//alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
 
 		//alert(JSON.stringify(stuff));
@@ -185,17 +195,44 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 
 		//}
+
+		//@Input() rootsOnly: boolean = false;//obsolete
+		//@Input() IsMultiSelect: boolean = false;
+		//@Input() WhatIsSelectable: string = "All";
+		//"All": can select any type of node
+		//"AttributeSet":Codes(AttributeSet) only
+		//"ReviewSet":Codesets(ReviewSet) only
+		//"NodeWithChildren":Anything that does have children
+		//"CanHaveChildren": any node that is allowed to contain children(future)
+		//alert(this.IsMultiSelect);
+		//alert(this.WhatIsSelectable);
+		// So far six possible paths of logic
 		if (node.nodeType == "SetAttribute") {
+
 			console.log(JSON.stringify(node));
 			this.ReviewSetsService.selectedNode = node;
 			this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 			// and raise event to close the drop down
 			this.selectedNodeInTree.emit();
 
-		} else {
+		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 			// it must be a root node hence we should do nothing...
 
+
+		} else if (this.IsMultiSelect == false) {
+			// ALL
+
+		} else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
+
+
+		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == true) {
+
+
+		} else if ( this.IsMultiSelect == true) {
+
+
 		}
+
     }
 
     ngOnDestroy() {

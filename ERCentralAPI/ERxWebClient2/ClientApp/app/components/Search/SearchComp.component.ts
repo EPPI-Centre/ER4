@@ -20,7 +20,6 @@ import { SourcesService } from '../services/sources.service';
        .k-grid tr.even { background-color: white; }
        .k-grid tr.odd { background-color: light-grey; }
    `],
-
 })
 
 export class SearchComp implements OnInit, OnDestroy {
@@ -75,7 +74,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	NewSearch() {
 
-		this.mode = '0';
+		this.mode = '1';
 		this.NewSearchSection = !this.NewSearchSection;
 		this.ModelSection = false;
 		this.modelResultsSection = false;
@@ -490,29 +489,11 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			case 1: {
 
-				//typeElement = 'warning';
 				this.dropDownList = this._reviewSetsService.ReviewSets;
-				//this.notificationService.show({
-				//	content: 'Please use the tree on the right hand side to choose a code',
-				//	animation: { type: 'slide', duration: 400 },
-				//	position: { horizontal: 'center', vertical: 'top' },
-				//	type: { style: typeElement, icon: true },
-				//	closable: true
-				//});
-
 				break;
 			}
 			case 2: {
 				this.dropDownList = this._reviewSetsService.ReviewSets;
-				//typeElement = 'warning';
-				//this.notificationService.show({
-				//	content: 'Please use the tree on the right hand side to choose a code',
-				//	animation: { type: 'slide', duration: 400 },
-				//	position: { horizontal: 'center', vertical: 'top' },
-				//	type: { style: typeElement, icon: true },
-				//	closable: true
-				//});
-
 				break;
 			}
 			case 3: {
@@ -560,14 +541,6 @@ export class SearchComp implements OnInit, OnDestroy {
 					return y.name;
 				}
 			)[0];
-	}
-
-	public testeroo(event: any) {
-
-		//if (this._reviewSetsService.selectedNode != null) {
-
-		//	this.isCollapsed = !this.isCollapsed
-		//}
 	}
 
 	public setSearchTextDropDown(heading: string) {

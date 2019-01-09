@@ -196,7 +196,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         //safety first, if anything didn't work as expexcted return false;
         if (!this.CanWrite()) return false;
         else {
-            if (!this.CurrentNode) return false;//??
+			if (!this.CurrentNode) return false;//??
+			//move the below to ReviewSetsService;
             else if (this.CurrentNode.nodeType == "ReviewSet" && this.CurrentNode.allowEditingCodeset) return true;
             else if (this.CurrentNode.nodeType == "SetAttribute") {
                 let Att: SetAttribute = this.CurrentNode as SetAttribute;
@@ -208,7 +209,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                     return maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att);
                 }
                 else return false;
-            }
+			}
+			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
         }
         return false;
     }
