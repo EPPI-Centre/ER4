@@ -40,7 +40,6 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "Getting a searches list has an error");
                 throw;
             }
-
 		}
 
 		[HttpPost("[action]")]

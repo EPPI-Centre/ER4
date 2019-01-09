@@ -33,8 +33,8 @@
 						||  (selectedSearchDropDown == 'Without this code' )" 
 						 ngbDropdown>
 						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
-							<div class="dropdown-menu"  id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-								<codesetSelector (click)="testeroo()"  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+							<div class="dropdown-menu"  id="collapseCodeTree" [ngbCollapse]="!isCollapsed"  >
+								<codesetSelector (selectedNodeInTree)="testero1()" (click)="testeroo()"  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
 					</div>
 
@@ -143,7 +143,7 @@
 				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
 				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
 				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
-				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!isCollapsed4" aria-controls="modelResultsSection">Show Custom Models</button>
+				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
 			</div>
 		</div>
 
@@ -166,7 +166,7 @@
 			</div>
 		</div>
 
-		<div *ngIf="mode == 3"
+		<div *ngIf="mode == '3'"
 			 class="form-group col-md-8 pull-right">
 			<div>
 				<div ngbDropdown>

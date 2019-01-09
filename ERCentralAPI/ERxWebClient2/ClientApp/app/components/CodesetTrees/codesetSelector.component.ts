@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -67,16 +67,19 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		childrenField: 'attributes', 
 		displayField: 'name',
 		allowDrag: false,
-		actionMapping: this.actionMapping
+		// use this when a multi select is needed
+		//actionMapping: this.actionMapping
 
 	}
 
 	@ViewChild('tree') treeComponent!: TreeComponent;
-	
+	@Output() selectedNodeInTree: EventEmitter<null> = new EventEmitter();
+
 	ngAfterViewInit() {
 
 	
 	}
+
 
     get nodes(): singleNode[] | null {
 
@@ -158,7 +161,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		//alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
 
 		//alert(JSON.stringify(stuff));
-		console.log(JSON.stringify(node));
+		
 
 		//if (this._eventEmitter.codingTreeVar == true) {
 
@@ -182,10 +185,18 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 
 		//}
+		if (node.nodeType == "SetAttribute") {
+			console.log(JSON.stringify(node));
+			this.ReviewSetsService.selectedNode = node;
+			this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+			// and raise event to close the drop down
+			this.selectedNodeInTree.emit();
 
-       this.ReviewSetsService.selectedNode = node;
-        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-	}
+		} else {
+			// it must be a root node hence we should do nothing...
+
+		}
+    }
 
     ngOnDestroy() {
 
