@@ -1,8 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
@@ -19,9 +17,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
-  //      private notificationService: NotificationService,
 		private _reviewSetsService: ReviewSetsService,
-		//private ReviewerIdentityServ: ReviewerIdentityService,
 		public reviewSetsService: ReviewSetsService,
 		public _buildModelService: BuildModelService,
 		private notificationService: NotificationService
@@ -66,8 +62,6 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
-
-		// Load the nodes here
 		this.reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
 
