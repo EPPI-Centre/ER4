@@ -77,6 +77,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	SetAttrOn(node: any) {
 
+
 		if (node != null) {
 			this.selectedModelDropDown1 = node.name;
 			let id: string = node.id;

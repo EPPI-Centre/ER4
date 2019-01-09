@@ -11,18 +11,18 @@
 				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</label>-->
 				Learn to apply this code:&nbsp;&nbsp;&nbsp;&nbsp;
 				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
+					<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
 					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-						<codesetSelector (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						<codesetSelector [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
 			<div class="font-weight-bold col-md-12 row form-group">
 				Distinguish from this code:
 				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
+					<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
 					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
-						<codesetSelector (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						<codesetSelector [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>

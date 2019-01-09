@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-md-7 m-0 p-0">
 					<div ngbDropdown>
-						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle>{{selectedSearchDropDown}}</button>
+						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle  (click)="dropdownBasic1 = !dropdownBasic1;isCollapsed=false ">{{selectedSearchDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
@@ -32,10 +32,10 @@
 					<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )" 
 						 ngbDropdown>
-						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
-							<div class="dropdown-menu"  id="collapseCodeTree" [ngbCollapse]="!isCollapsed"  >
-								<codesetSelector (selectedNodeInTree)="CloseCodeDropDown()"  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-							</div>
+						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
+						<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+							<codesetSelector [MaxHeight]="500" (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						</div>
 					</div>
 
 					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
