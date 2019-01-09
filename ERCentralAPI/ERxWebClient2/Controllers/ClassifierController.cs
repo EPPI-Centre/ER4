@@ -50,31 +50,37 @@ namespace ERxWebClient2.Controllers
 		}
 		
 		[HttpPost("[action]")]
-		public async Task<IActionResult> GetClassifierAsync([FromBody] MVCClassifierCommand MVCcmd)
+		public async Task<IActionResult> ClassifierAsync([FromBody] MVCClassifierCommand MVCcmd)
 		{
-			
+
 
 			try
 			{
-				
-				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				
-				ClassifierCommand cmd = new ClassifierCommand(
-						MVCcmd._title
-						, MVCcmd._attributeIdOn
-						, MVCcmd._attributeIdNotOn
-						, MVCcmd._attributeIdClassifyTo
-						, _classifierId
-						, MVCcmd._sourceId
-					);
-				cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					ClassifierCommand cmd = new ClassifierCommand(
+							MVCcmd._title
+							, MVCcmd._attributeIdOn
+							, MVCcmd._attributeIdNotOn
+							, MVCcmd._attributeIdClassifyTo
+							, _classifierId
+							, MVCcmd._sourceId
+						);
+					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-				cmd = await dp.ExecuteAsync(cmd);
+					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
 
-				return Ok(cmd);
+					cmd = await dp.ExecuteAsync(cmd);
+
+					return Ok(cmd);
+
+				}
+				else
+				{
+					return Forbid();
+				}
 
 			}
 			catch (Exception e)
@@ -91,26 +97,33 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					ClassifierCommand cmd = new ClassifierCommand(
+							MVCcmd._title
+							, -1
+							, -1
+							, MVCcmd._attributeIdClassifyTo
+							, MVCcmd._classifierId
+							, MVCcmd._sourceId
+						);
 
-				ClassifierCommand cmd = new ClassifierCommand(
-						MVCcmd._title
-						, -1
-						, -1
-						, MVCcmd._attributeIdClassifyTo
-						, MVCcmd._classifierId
-						, MVCcmd._sourceId
-					);
+					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-				cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
 
-				DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					cmd = await dp.ExecuteAsync(cmd);
 
-				cmd = await dp.ExecuteAsync(cmd);
+					return Ok(cmd);
 
-				return Ok(cmd);
+				}
+				else
+				{
+
+					return Forbid();
+				}
 
 			}
 			catch (Exception e)
