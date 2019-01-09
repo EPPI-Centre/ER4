@@ -157,6 +157,12 @@
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="UserTempUploads\.placeholder">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <!-- <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') "> -->
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist')">
     <!-- Ensure Node.js is installed -->

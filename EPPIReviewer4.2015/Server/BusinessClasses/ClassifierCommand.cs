@@ -242,13 +242,16 @@ namespace BusinessLibrary.BusinessClasses
 
 				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
-				// This may need to be changed for production
-				// 19-12-2018 Sergio mentions this file will not
-				// be necessary come the use of sql machine learning
-				string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                // This may need to be changed for production
+                // 19-12-2018 Sergio mentions this file will not
+                // be necessary come the use of sql machine learning
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                //SG Edit. WAS:
+                //string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
 
-				using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetTrainingData", connection))
 				{
 					command.CommandType = System.Data.CommandType.StoredProcedure;
 					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -457,11 +460,14 @@ namespace BusinessLibrary.BusinessClasses
 
 				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
-				// same as comment above for same line
-				string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                string fileName = tmpDir.FullName + "/ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+                //string fileName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
 
-				using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
+                using (SqlCommand command = new SqlCommand("st_ClassifierGetClassificationData", connection))// also deletes data from the classification temp table
 				{
 					command.CommandType = System.Data.CommandType.StoredProcedure;
 					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));

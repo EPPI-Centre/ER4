@@ -196,9 +196,8 @@ export class ReviewerIdentityService implements OnDestroy {
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
-                    this.OpeningNewReview.emit();
-
                     this.router.navigate(['Main']);
+                    this.OpeningNewReview.emit();
                 }
             }
                 , error => {
@@ -245,7 +244,7 @@ export class ReviewerIdentityService implements OnDestroy {
 
         let user: string = String(this.reviewerIdentity.userId);
         let guid: string = this.reviewerIdentity.ticket;
-        console.log("check timer:", this.ID, user, guid);
+        //console.log("check timer:", this.ID, user, guid);
         this.LogonTicketCheckAPI(user, guid).then(
             success => {
                 if (success.result == "Valid") {
