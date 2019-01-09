@@ -80,9 +80,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.ModelSection = false;
 		this.modelResultsSection = false;
 	}
-	testero1() {
-		this.isCollapsed = true;
-		alert('Do something...!');
+	CloseCodeDropDown() {
+		this.isCollapsed = false;
 	}
 	Classify() {
 
