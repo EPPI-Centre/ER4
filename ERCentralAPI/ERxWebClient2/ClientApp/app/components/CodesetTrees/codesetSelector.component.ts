@@ -168,34 +168,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	NodeSelected(node: singleNode) {
 		console.log(JSON.stringify(node));
-		//alert(JSON.stringify(this.treeComponent.treeModel.getActiveNodes()));
-
-		//alert(JSON.stringify(stuff));
 		
-
-		//if (this._eventEmitter.codingTreeVar == true) {
-
-		//	if (node.nodeType != 'ReviewSet') {
-
-		//		//this._eventEmitter.nodeSelected = true;
-		//		//this.SelectedNodeData = node;
-		//		//this._eventEmitter.nodeName = node.name;
-		//		//alert('this has the correct number: ' + this._eventEmitter.nodeName);
-		//		//this._eventEmitter.sendMessage(node);
-  //              this.ReviewSetsService.selectedNode = node;
-		//		this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-		//	}
-			
-		//} else {
-
-		//	console.log(node.name + ' =====> ' + node.nodeType + ' blah ' + this.smallTree);
-		//	//this.SelectedNodeData = node;
-		//	//this._eventEmitter.sendMessage(node);
-        //  this.ReviewSetsService.selectedNode = node;
-		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-
-		//}
-
 		//@Input() rootsOnly: boolean = false;//obsolete
 		//@Input() IsMultiSelect: boolean = false;
 		//@Input() WhatIsSelectable: string = "All";
@@ -204,32 +177,35 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		//"ReviewSet":Codesets(ReviewSet) only
 		//"NodeWithChildren":Anything that does have children
 		//"CanHaveChildren": any node that is allowed to contain children(future)
+
 		//alert(this.IsMultiSelect);
 		//alert(this.WhatIsSelectable);
-		// So far six possible paths of logic
-		if (node.nodeType == "SetAttribute") {
 
-			console.log(JSON.stringify(node));
-			this.ReviewSetsService.selectedNode = node;
-			this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-			// and raise event to close the drop down
-			this.selectedNodeInTree.emit();
+		// So far six possible paths of logic
+		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
+			if (node.nodeType == "SetAttribute") {
+				console.log(JSON.stringify(node));
+				this.ReviewSetsService.selectedNode = node;
+				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+				// and raise event to close the drop down
+				this.selectedNodeInTree.emit();
+			}
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 			// it must be a root node hence we should do nothing...
-
+			alert('you cannot select these roots here!');
 
 		} else if (this.IsMultiSelect == false) {
 			// ALL
 
 		} else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
-
+			alert('you cannot use multiselect here 1');
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == true) {
-
+			alert('you cannot use multiselect here 2');
 
 		} else if ( this.IsMultiSelect == true) {
-
+			alert('you cannot use multiselect here 3');
 
 		}
 
