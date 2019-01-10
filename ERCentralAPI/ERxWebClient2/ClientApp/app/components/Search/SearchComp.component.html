@@ -34,7 +34,7 @@
 						 ngbDropdown>
 						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
 						<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-							<codesetSelector [MaxHeight]="500" (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+							<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 						</div>
 					</div>
 
