@@ -208,7 +208,13 @@ export class ItemListService extends BusyAwareService {
     public FetchWithCrit(crit: Criteria, listDescription: string) {
         this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
-        console.log(this._Criteria.listType);
+        if (this._ItemList && this._ItemList.pagesize > 0
+            && this._ItemList.pagesize <= 4000
+            && this._ItemList.pagesize != crit.pageSize
+        ) {
+            crit.pageSize = this._ItemList.pagesize;
+        }
+        console.log("FetchWithCrit", this._Criteria.listType);
         this.ListDescription = listDescription;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(
@@ -227,6 +233,7 @@ export class ItemListService extends BusyAwareService {
         }
     }
     public FetchNextPage() {
+        
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
