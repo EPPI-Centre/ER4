@@ -1,6 +1,6 @@
 <div class="container-fluid " resizable>
     <HeaderComponent  PageTitle=""></HeaderComponent>
-    
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
     <div class="mt-1 ">
         <kendo-splitter orientation="horizontal">
             <kendo-splitter-pane [collapsible]="false" class="">
@@ -18,8 +18,8 @@
                                         <kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
                                         <kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
                                         <!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+                        <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
                                     </kendo-toolbar>
                                 </div>
                                 <div class="row m-1">
@@ -64,10 +64,10 @@
                         <kendo-tabstrip-tab [title]="'Items'">
                             <ng-template kendoTabContent>
                                 <div class="containsAtoolbar">
-									<kendo-toolbar style="background-color: #f5f6fa;">
-										<kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
-										<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
-									</kendo-toolbar>
+                                    <kendo-toolbar style="background-color: #f5f6fa;">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
+                                    </kendo-toolbar>
                                 </div>
                                 <div class="card card-body bg-light">
                                     <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
@@ -96,13 +96,27 @@
                             </ng-template>
                         </kendo-tabstrip-tab>
                     </kendo-tabstrip>
+                    <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
+                        <div class="small">
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                            Codes
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                        </div>
+                    </button>
+                    <button *ngIf="CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
+                        <div class="small">
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                            Codes
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                        </div>
+                    </button>
                 </kendo-splitter-pane>
-
-
-               
             </kendo-splitter-pane>
-            <kendo-splitter-pane [collapsible]="true" size="30%" class="bg-light">
+            <kendo-splitter-pane [collapsed]="CodesAreCollapsed" size="30%" class="bg-light">
                 <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
+                <div *ngIf="(!this.reviewSetsService.ReviewSets || this.reviewSetsService.ReviewSets.length == 0) && !IsServiceBusy && ReviewerIdentityServ.HasWriteRights" >
+                    <button class="btn btn-outline-success btn-sm p-0 mb-1" (click)="ImportCodesetClick()"><span class="ml-1 mr-1">Click Here</span></button> to Import Codesets from templates.
+                </div>
             </kendo-splitter-pane>
         </kendo-splitter>
         <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>

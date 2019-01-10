@@ -1,18 +1,11 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of, Subscription, Subject, BehaviorSubject, timer } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient,  } from '@angular/common/http';
 import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
-import { forEach } from '@angular/router/src/utils/collection';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { takeUntil } from 'rxjs/operators';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Injectable({
     providedIn: 'root',
@@ -111,6 +104,7 @@ export class ItemListService extends BusyAwareService {
    
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
+        items.items = orderBy(items.items, this.sort); 
         this._ItemList = items;
         this._Criteria = crit;
         //this.Save();
@@ -259,6 +253,19 @@ export class ItemListService extends BusyAwareService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
+
+    public sort: SortDescriptor[] = [{
+        field: 'shortTitle',
+        dir: 'asc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting items by ' + this.sort[0].field + " ");
+        this._ItemList.items = orderBy(this._ItemList.items, this.sort);
+    }
+
+
+
     //public Save() {
     //    if (this._ItemList.items.length > 0) {
     //        localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));

@@ -32,19 +32,15 @@ export class ItemListComp implements OnInit {
         //console.log("AAA", (orderBy(this.ItemListService.ItemList.items, this.sort)[0] as Item).itemId
         //, this.ItemListService.ItemList.items.length);
         return {
-            data: orderBy(this.ItemListService.ItemList.items, this.sort),
+            data: this.ItemListService.ItemList.items,
             total: this.ItemListService.ItemList.items.length 
         };
     }
-    public sort: SortDescriptor[] = [{
-        field: 'shortTitle',
-        dir: 'asc'
-    }];
+    public get sort(): SortDescriptor[] {
+        return this.ItemListService.sort;
+    }
     public sortChange(sort: SortDescriptor[]): void {
-
-        this.sort = sort;
-        console.log('sorting items by ' + this.sort[0].field + " ");
-        //this.loadProducts();
+        this.ItemListService.sortChange(sort);
     }
 
     
