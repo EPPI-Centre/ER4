@@ -6,6 +6,8 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
+import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
+
 
 @Component({
     selector: 'BuildModelComp',
@@ -19,8 +21,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _classifierService: ClassifierService,
 		private _reviewSetsService: ReviewSetsService,
 		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService,
-		private notificationService: NotificationService
+		public _buildModelService: BuildModelService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -114,27 +115,15 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.isCollapsed2 = false;
 	}
-	BuildModel(title: string) {
+	async BuildModel(title: string) {
 
-		this.IamVerySorryRefresh();
 		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
 
-			this._classifierService.Create(title, this.DD1, this.DD2);
-			this.IamVerySorryRefresh();
-			this.showBuildModelMessage();
+			await this._classifierService.CreateAsync(title, this.DD1, this.DD2);
 		}
+		
 	}
-	showBuildModelMessage() {
 
-		this.notificationService.show({
-			content: 'Your model has been sent to Azure for Building',
-			animation: { type: 'slide', duration: 400 },
-			position: { horizontal: 'center', vertical: 'top' },
-			type: { style: "info", icon: true },
-			closable: true
-		});
-
-	}
 
     ngAfterViewInit() {
 

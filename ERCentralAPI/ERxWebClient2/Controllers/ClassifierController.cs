@@ -50,7 +50,7 @@ namespace ERxWebClient2.Controllers
 		}
 		
 		[HttpPost("[action]")]
-		public async Task<IActionResult> ClassifierAsync([FromBody] MVCClassifierCommand MVCcmd)
+		public IActionResult Classifier([FromBody] MVCClassifierCommand MVCcmd)
 		{
 
 
@@ -72,8 +72,8 @@ namespace ERxWebClient2.Controllers
 
 					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
 
-					cmd = await dp.ExecuteAsync(cmd);
-
+					cmd = dp.Execute(cmd);
+					
 					return Ok(cmd);
 
 				}

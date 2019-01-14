@@ -94,6 +94,7 @@
     "angular-tree-component": "^7.2.1",
     "angular4-table": "0.0.0",
     "bower": "^1.8.4",
+    "circular-json": "^0.5.9",
     "datatables.net": "^1.10.19",
     "datatables.net-dt": "^1.10.19",
     "font-awesome": "^4.7.0",
