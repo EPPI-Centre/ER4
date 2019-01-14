@@ -157,30 +157,37 @@ export class SearchComp implements OnInit, OnDestroy {
 			alert('You must apply the model to some items');
 			return;
 		}
+
 		
-			if (this.modelNum == 1) {
+		if (this.modelNum == 1) {
 
-				this.modelTitle = 'RCT';
+			this.modelTitle = 'RCT';
 
-			} else if (this.modelNum == 2) {
+		} else if (this.modelNum == 2) {
 
-				this.modelTitle = 'Systematic review';
-				this.ModelId = -2;
+			this.modelTitle = 'Systematic review';
+			this.ModelId = -2;
 
-			} else if (this.modelNum == 3) {
+		} else if (this.modelNum == 3) {
 
-				this.modelTitle = 'Economic evaluation';
-				this.ModelId = -3;
+			this.modelTitle = 'Economic evaluation';
+			this.ModelId = -3;
 
-			} else if (this.modelNum == 4) {
+		} else if (this.modelNum == 4) {
 
-				this.modelTitle = 'New Cochrane RCT classifier model';
-				this.ModelId = -4;
+			this.modelTitle = 'New Cochrane RCT classifier model';
+			this.ModelId = -4;
 
-			} else {
+		} else {
 
-			}
+			// must be a custom model!!
+			// hardcode for now
+			//this.modelTitle = 't89';
+			//this.ModelId = ??
+		}
+
 		if (this.CanWrite()) {
+
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 		}
 	}
@@ -312,6 +319,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public modalClass: boolean = false;
 
 	allSearchesSelected: boolean = false;
+	allModelsSelected: boolean = false;
 	// bound to header checkbox
 
 	stateAdd: State = {
@@ -335,6 +343,25 @@ export class SearchComp implements OnInit, OnDestroy {
 			for (let i = 0; i < this.DataSourceSearches.data.length; i++) {
 
 				this.DataSourceSearches.data[i].add = false;
+			}
+		}
+	}
+
+	selectAllModelsChange(e: any): void {
+
+		if (e.target.checked) {
+			this.allModelsSelected = true;
+
+			for (let i = 0; i < this.DataSourceModel.data.length; i++) {
+
+				this.DataSourceModel.data[i].add = true;
+			}
+		} else {
+			this.allModelsSelected = false;
+
+			for (let i = 0; i < this.DataSourceModel.data.length; i++) {
+
+				this.DataSourceModel.data[i].add = false;
 			}
 		}
 	}
@@ -557,6 +584,20 @@ export class SearchComp implements OnInit, OnDestroy {
 		} else {
 			this._searchService.searchToBeDeleted = '';
 		}
+	};
+
+	public checkboxModelClicked(dataItem: any) {
+		
+		dataItem.add = !dataItem.add;
+		
+		if (dataItem.add == true) {
+			this.ModelSelected = true;
+			this.modelTitle = dataItem.modelTitle;
+			this.ModelId = dataItem.modelId;
+			console.log(this.modelTitle);
+			console.log(this.ModelId);
+		} 
+
 	};
 
     public rowCallback(context: RowClassArgs) {

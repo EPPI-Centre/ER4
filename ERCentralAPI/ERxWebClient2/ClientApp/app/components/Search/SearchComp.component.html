@@ -179,7 +179,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="col-md-9 pull-right" id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
 			<kendo-grid [data]="DataSourceModel" [height]="410"
 						[sort]="sort"
@@ -193,15 +192,17 @@
 						<input style="zoom: 1.2;"
 							   type="checkbox"
 							   name="selectAll"
-							   (change)="selectAllSearchesChange($event)"
-							   [checked]="allSearchesSelected" />
+							   (change)="selectAllModelsChange($event)"
+							   [checked]="allModelsSelected" />
 					</ng-template>
 					<ng-template kendoGridCellTemplate let-dataItem>
-						<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+						<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
 							   type="checkbox"
 							   field="selected"
 							   [checked]="dataItem.add" />
 					</ng-template>
+				</kendo-grid-column>
+				<kendo-grid-column field="modelId" title="ModelID">
 				</kendo-grid-column>
 				<kendo-grid-column field="modelTitle" title="Title">
 				</kendo-grid-column>
