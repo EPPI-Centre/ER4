@@ -14,7 +14,7 @@
 			<div class="row">
 				<div class="col-md-7 m-0 p-0">
 					<div ngbDropdown>
-						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle  (click)="dropdownBasic1 = !dropdownBasic1;isCollapsed=false ">{{selectedSearchDropDown}}</button>
+						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle  (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>

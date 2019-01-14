@@ -1,33 +1,135 @@
 <div class="border-0">
-    <paginatorComp class="row ml-1"></paginatorComp>
+    <div class="row ml-1">
+        <paginatorComp class=""></paginatorComp>
+        <div class="btn btn-link btn-sm p-0 ml-2" style="align-self: center;" (click)="ToggleOptionsPanel()">
+            <span *ngIf="ShowOptions">Close</span>
+            <span *ngIf="!ShowOptions">View</span>
+            Options
+        </div>
 
-    <div *ngIf="ItemListService.ListDescription != ''"
-         class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
-        <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
     </div>
+    <div *ngIf="ShowOptions"
+         class="alert alert-secondary row col-12">
+        <div class="col-12 col-sm-6 font-weight-bold">List Options:</div>
+        <div class="col-12 col-sm-6">
+            Page size: <kendo-numerictextbox *ngIf="LocalPageSize >=1"
+                                  [(ngModel)]="LocalPageSize"
+                                  [min]="1" [format]="'n0'"
+                                  [max]="4000"
+                                  [autoCorrect]="true"
+                                  class="border border-dark rounded"
+                                  style="width: 110px;"></kendo-numerictextbox>
+            <button *ngIf="this.ItemListService
+                    && this.ItemListService.ItemList
+                    && this.ItemListService.ItemList.pagesize
+                    && this.ItemListService.ItemList.pagesize != LocalPageSize" class="btn btn-outline-danger btn-sm ml-1 mb-1"
+                    (click)="ApplyNewPageSize()">
+                Apply Change
+            </button>
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowId" />
+            Document ID
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowImportedId" />
+            Your document ID
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowShortTitle" />
+            Short title
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowAuthors" />
+            Authors
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowTitle" />
+            Title
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowYear" />
+            Year
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowJournal" />
+            Journal
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowDocType" />
+            Document type
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowInfo" />
+            Info
+        </div>
+        <div class="col-12 col-sm-6">
+            <input class="m-1" type="checkbox" [(ngModel)]="ShowScore" />
+            Score
+        </div>
 
-    <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
-                id="testKendoGrid" [data]="DataSource" [height]="610"
-                [sortable]="{
+    </div>
+        <div *ngIf="ItemListService.ListDescription != ''"
+             class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
+            <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
+        </div>
+
+        <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
+                    id="testKendoGrid" [data]="DataSource" [height]="610"
+                    [sortable]="{
             allowUnsort: allowUnsort,
             mode: 'single'
             }"
-                [sort]="sort"
-                (sortChange)="sortChange($event)">
+                    [sort]="sort"
+                    (sortChange)="sortChange($event)">
 
-        <kendo-grid-column field="searchId" title="ID" width="72">
-            <ng-template kendoGridCellTemplate let-dataItem>
-                <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button><br />(Id:&nbsp;{{ dataItem.itemId }})
-            </ng-template>
-        </kendo-grid-column>
-        <kendo-grid-column field="shortTitle" title="Short Title" width="108">
-        </kendo-grid-column>
-        <kendo-grid-column field="title" title="Title" width="288">
-        </kendo-grid-column>
-        <kendo-grid-column field="year" title="Year" width="36">
-        </kendo-grid-column>
-    </kendo-grid>
-    <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.IsBusy">Loading items...</div>
-    <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy">Items list is empty...</div>
-    <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
-</div>
+            <kendo-grid-column title="&nbsp;" width="44"
+                               [style]="{'text-align': 'center', 'padding': '0px', 'min-width' :'44px', 'width' :'44px', 'max-width' :'44px'}"
+                               [headerStyle]="{'text-align': 'center', 'padding': '0px', 'min-width' :'44px', 'width' :'44px', 'max-width' :'44px'}">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column [sortable]="false" field="isSelected" width="33"
+                               [headerStyle]="{'text-align': 'center'}"
+                               [style]="{'text-align': 'center'}">
+                <ng-template kendoGridHeaderTemplate let-dataItem>
+                    <input style="zoom: 1.2;"
+                           type="checkbox"
+                           name="selectAll"
+                           [(ngModel)]="allItemsSelected" />
+                </ng-template>
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+                           type="checkbox"
+                           field="isSelected"
+                           [checked]="dataItem.isSelected" />
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="itemStatus" title="&nbsp;" width="33">
+            </kendo-grid-column>
+            <kendo-grid-column field="itemId" title="ID" width="68" [hidden]="!ShowId">
+            </kendo-grid-column>
+            <kendo-grid-column field="oldItemId" title="Imported ID" width="68" [hidden]="!ShowImportedId">
+            </kendo-grid-column>
+            <kendo-grid-column field="shortTitle" title="Short Title" width="158" [hidden]="!ShowShortTitle">
+            </kendo-grid-column>
+            <kendo-grid-column field="authors" title="Authors" width="218" [hidden]="!ShowAuthors">
+            </kendo-grid-column>
+            <kendo-grid-column field="title" title="Title" width="388" [hidden]="!ShowTitle">
+            </kendo-grid-column>
+            <kendo-grid-column field="year" title="Year" width="66" [hidden]="!ShowYear">
+            </kendo-grid-column>
+            <kendo-grid-column field="parentTitle" title="Journal" width="78" [hidden]="!ShowJournal">
+            </kendo-grid-column>
+            <kendo-grid-column field="typeName" title="Doc Type" width="68" [hidden]="!ShowDocType">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeAdditionalText" title="Info" width="68" [hidden]="!ShowInfo">
+            </kendo-grid-column>
+            <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
+            </kendo-grid-column>
+        </kendo-grid>
+        <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.IsBusy">Loading items...</div>
+        <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy">Items list is empty...</div>
+        <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
+    </div>

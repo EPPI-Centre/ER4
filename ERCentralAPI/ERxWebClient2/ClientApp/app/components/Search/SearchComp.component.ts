@@ -52,7 +52,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelResultsSection: boolean = false;
 	public radioButtonApplyModelSection: boolean = false;
 	public isCollapsed: boolean = false;
-
+    //public dropdownBasic1: boolean = 
 	public get DataSourceModel(): GridDataResult {
 		return {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),

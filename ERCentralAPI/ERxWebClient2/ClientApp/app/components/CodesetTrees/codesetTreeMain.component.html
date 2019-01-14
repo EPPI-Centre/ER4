@@ -1,6 +1,6 @@
 
 <p *ngIf="IsServiceBusy"><em>Loading...</em></p>
-<p *ngIf="!nodes || nodes.length == 0"><em>Review Contains no Codesets...</em></p>
+<p *ngIf="(!nodes || nodes.length == 0) && !IsServiceBusy"><em>Review Contains no Codesets...</em></p>
 <!--style="max-height: 800px; height:680px"   ng-style="_eventEmitter.testVar == 'true' ? {'width':'250px'} : {'width':'500px'}"-->
 <div class="bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
 	<tree-root class="bg-dark"  *ngIf="nodes" [nodes]="nodes" [options]="options" 

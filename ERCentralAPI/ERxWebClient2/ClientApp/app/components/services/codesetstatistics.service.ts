@@ -4,12 +4,13 @@ import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
 import { Subject } from 'rxjs';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class CodesetStatisticsService {
+export class CodesetStatisticsService extends BusyAwareService {
 
     constructor(
         private _http: HttpClient,
@@ -18,7 +19,7 @@ export class CodesetStatisticsService {
         private reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-       
+        super();
     }
 
     private _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
@@ -118,21 +119,27 @@ export class CodesetStatisticsService {
 	}
 
     public GetReviewStatisticsCountsCommand() {
-
-       this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
-           data => {    
-               
+        this._BusyMethods.push("GetReviewStatisticsCountsCommand");
+        this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
+           data => {
                this._ReviewStats = data;
                //this.Save();
                this.GetCompletedSetsEmit.emit(data);
-               
+               this.RemoveBusy("GetReviewStatisticsCountsCommand");
                return data;
+            },
+            (error) => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("GetReviewStatisticsCountsCommand");
+            },
+            () => {
+                this.RemoveBusy("GetReviewStatisticsCountsCommand");
             }
         );
     }
 
     public GetReviewSetsCodingCounts(completed: boolean, trigger: Subject<any>) {
-
+        this._BusyMethods.push("GetReviewSetsCodingCounts");
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
             body).subscribe(
@@ -143,17 +150,23 @@ export class CodesetStatisticsService {
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 //this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);
-               
+                this.RemoveBusy("GetReviewSetsCodingCounts");
                 this.GetReviewSetsIncompleteCodingCounts(false, trigger);
 
-            }, error => { this.modalService.SendBackHomeWithError(error); }
+            }, error => {
+                this.modalService.SendBackHomeWithError(error);
+                this.RemoveBusy("GetReviewSetsCodingCounts");
+            }
+            , () => {
+                this.RemoveBusy("GetReviewSetsCodingCounts");
+            }
 
         );
 
     }
 
     public GetReviewSetsIncompleteCodingCounts(completed: boolean, trigger: Subject<any>) {
-
+        this._BusyMethods.push("GetReviewSetsIncompleteCodingCounts");
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
             body).subscribe(result => {
@@ -164,9 +177,15 @@ export class CodesetStatisticsService {
                 this.GetIncompleteSetsEmit.emit(result);
                 this.formateSets();
                 //console.log(this._tmpCodesets);
+                this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
                 trigger.next();
 
-            }, error => { this.modalService.SendBackHomeWithError(error); }
+            }, error => {
+                this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
+                this.modalService.SendBackHomeWithError(error);
+            }, () => {
+                this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
+            }
         );
 
         

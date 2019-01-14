@@ -28,6 +28,15 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
                 .ReviewsBg {
                     background-color:#f1f1f8 !important; 
                 }
+                .vertical-text {
+                    position: fixed;
+                    top: 50%;
+                    z-index:1002;
+                    transform: rotate(90deg);
+                    right: -23px;
+                    float: right;
+                }
+
         `]
      ,providers: []
 
@@ -52,6 +61,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //@ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
+    public get IsServiceBusy(): boolean {
+        return (this.reviewSetsService.IsBusy ||
+            this.ItemListService.IsBusy ||  
+            this.codesetStatsServ.IsBusy ||
+            this.SourcesService.IsBusy);
+    }
 	
 	tabsInitialized: boolean = false;
 
@@ -63,23 +78,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
     private InstanceId: number = Math.random();
-	public crossTabResult: any | 'none';
+    public crossTabResult: any | 'none';
+    public CodesAreCollapsed: boolean = true;
 	//public selectedAttributeSetF: any | 'none';
 	
     	
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
-	
-	
-    setTabSelected(tabSelect: SelectEvent) {
-		//nothing for now, selectEvent is like this:
-        //index: number
-        //title: string
-	}
-	BuildModel() {
-		this.router.navigate(['BuildModel']);
-
-	}
 
     ngOnInit() {
         console.log("MainComp init: ", this.InstanceId);
@@ -101,6 +106,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) this.Reload();
         //this.searchService.Fetch();
     }
+    ShowHideCodes() {
+        this.CodesAreCollapsed = !this.CodesAreCollapsed;
+    }
+    setTabSelected(tabSelect: SelectEvent) {
+		//nothing for now, selectEvent is like this:
+        //index: number
+        //title: string
+	}
+	BuildModel() {
+		this.router.navigate(['BuildModel']);
+	}
 
 	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
 		

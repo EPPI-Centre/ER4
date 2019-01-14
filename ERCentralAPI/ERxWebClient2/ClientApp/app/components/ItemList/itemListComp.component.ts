@@ -5,6 +5,7 @@ import { WorkAllocation, WorkAllocationContactListService } from '../services/Wo
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { _localeFactory } from '@angular/core/src/application_module';
 
 @Component({
     selector: 'ItemListComp',
@@ -19,37 +20,100 @@ export class ItemListComp implements OnInit {
     ) {
 
     }
-    onSubmit(f: string) {
+    ngOnInit() {
+
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+            //this.loadDefault.emit();
+        }
 
     }
+   
     //private sub: any;
     //@Output() loadDefault = new EventEmitter();
 
     @Input() Context: string | undefined;
+    public ShowOptions: boolean = false;
+    public ShowId: boolean = true;
+    public ShowImportedId: boolean = false;
+    public ShowShortTitle: boolean = true;
+    public ShowTitle: boolean = true;
+    public ShowYear: boolean = true;
+    public ShowAuthors: boolean = false;
+    public ShowJournal: boolean = false;
+    public ShowDocType: boolean = false;
+    public ShowInfo: boolean = false;
+    public ShowScore: boolean = false;
+    public get allItemsSelected(): boolean {
+        //console.log("get allItemsSelected:", this.ItemListService.ItemList.items);
+        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
+                if (this.ItemListService.ItemList.items[i].isSelected == false) return false;
+        }
+        return true;
+    }
+    public set allItemsSelected(val: boolean) {
+        //console.log("aset llItemsSelected:", val);
+        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
+            this.ItemListService.ItemList.items[i].isSelected = val;
+            }
+    }
+    private _LocalPageSize: number | null = null;
+    public get LocalPageSize(): number {
+        //console.log("get LocalPageSize", this._LocalPageSize);
+        if (this._LocalPageSize == null && this.ItemListService.ItemList) {
+            this._LocalPageSize = this.ItemListService.ItemList.pagesize;
+        }
+        else if (this._LocalPageSize == null) return -1;
+        else return this._LocalPageSize;
+        return this._LocalPageSize
+    }
+    public set LocalPageSize(val: number) {
+        //console.log("set LocalPageSize", val);
+        if (val < 1) val = 1;
+        if (val > 4000) val = 4000;
+        this._LocalPageSize = val;
+    }
+    ApplyNewPageSize() {
+        if (!this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.pagesize) return;
+        else if (this._LocalPageSize == this.ItemListService.ItemList.pagesize) return;
+        else {
+            //we want to change the page size, we'll change it
+            if (this.ItemListService.ItemList && this._LocalPageSize && this.ItemListService.ListCriteria) {
+                this.ItemListService.ItemList.pagesize = this._LocalPageSize;
+                this.ItemListService.ListCriteria.pageSize = this._LocalPageSize;
+                console.log("Changes", this.ItemListService.ListCriteria, this.ItemListService.ItemList.pagesize, this._LocalPageSize);
+                //finally, can we get the current page?
+                let newMaxPage = Math.floor(this.ItemListService.ItemList.totalItemCount / this._LocalPageSize);
+                let Remainder = this.ItemListService.ItemList.totalItemCount % this._LocalPageSize;
+                if (Remainder > 0) newMaxPage++;
+                if (newMaxPage > 0) newMaxPage--;
+                if (this.ItemListService.ListCriteria.pageNumber > newMaxPage) this.ItemListService.ListCriteria.pageNumber = newMaxPage;
+                this.ItemListService.Refresh();
+            }
+        }
+    }
     public get DataSource(): GridDataResult {
         //console.log('UI read itemList', this.sort);
         //if (this.ItemListService.ItemList.items[0]) 
         //console.log("AAA", (orderBy(this.ItemListService.ItemList.items, this.sort)[0] as Item).itemId
         //, this.ItemListService.ItemList.items.length);
         return {
-            data: orderBy(this.ItemListService.ItemList.items, this.sort),
+            data: this.ItemListService.ItemList.items,
             total: this.ItemListService.ItemList.items.length 
         };
     }
-    public sort: SortDescriptor[] = [{
-        field: 'shortTitle',
-        dir: 'asc'
-    }];
+    public get sort(): SortDescriptor[] {
+        return this.ItemListService.sort;
+    }
     public sortChange(sort: SortDescriptor[]): void {
-
-        this.sort = sort;
-        console.log('sorting items by ' + this.sort[0].field + " ");
-        //this.loadProducts();
+        this.ItemListService.sortChange(sort);
     }
 
     
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
-	
+        //this.allItemsSelected = false;
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
@@ -81,18 +145,8 @@ export class ItemListComp implements OnInit {
         } 
 	}
 
-    ngOnInit() {
-
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-        else {
-            //this.loadDefault.emit();
-        }
-
-	}
-    nextPage() {
     
+    nextPage() {
         this.ItemListService.FetchNextPage();
     }
     prevPage() {
@@ -105,7 +159,23 @@ export class ItemListComp implements OnInit {
     lastPage() {
         this.ItemListService.FetchLastPage();
     }
-        
+    ToggleOptionsPanel() {
+        this.ShowOptions = !this.ShowOptions;
+    }
+    //selectAllItems(e: any): void {
+    //    if (e.target.checked) {
+    //        this.allItemsSelected = true;
+    //        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
+    //            this.ItemListService.ItemList.items[i].isSelected = true;
+    //        }
+    //    }
+    //    else {
+    //        this.allItemsSelected = false;
+    //        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
+    //            this.ItemListService.ItemList.items[i].isSelected= false;
+    //        }
+    //    }
+    //}
 }
 
 
