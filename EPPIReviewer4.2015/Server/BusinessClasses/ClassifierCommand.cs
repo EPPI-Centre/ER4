@@ -188,8 +188,7 @@ namespace BusinessLibrary.BusinessClasses
 				//}
 			}
 		}
-
-
+		
 		private static string CleanText(Csla.Data.SafeDataReader reader, string field)
 		{
 			string text = reader.GetString(field);

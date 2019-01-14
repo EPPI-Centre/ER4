@@ -71,7 +71,7 @@ export class ClassifierService extends BusyAwareService {
 
 				if (result.returnMessage == '') {
 
-					this.showBuildModelMessage('Your model has been sent to Azure for Building');
+					this.showBuildModelMessage('request was submitted');
 
 				} else {
 
@@ -86,9 +86,7 @@ export class ClassifierService extends BusyAwareService {
 			}, () => {
 				this.RemoveBusy("Fetch");
 			}
-
 		);
-		
 	}
 	
 	Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number) {
@@ -112,8 +110,8 @@ export class ClassifierService extends BusyAwareService {
 		)
 			.subscribe(result => {
 				
-				console.log(result)
-			},
+					console.log(result)
+				},
 				error => {
 					this.modalService.GenericError(error);
 				}

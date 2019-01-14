@@ -52,8 +52,7 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult Classifier([FromBody] MVCClassifierCommand MVCcmd)
 		{
-
-
+			
 			try
 			{
 				if (SetCSLAUser4Writing())
