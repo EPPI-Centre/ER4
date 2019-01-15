@@ -74,7 +74,39 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	public selectedRows(e: any) {
-		console.log("selected:", e.selectedRows);
+
+		if (e.selectedRows[0] != undefined ) {
+			console.log("selected:", e.selectedRows[0].dataItem);
+			this.ModelSelected = true;
+			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
+			this.ModelId = e.selectedRows[0].dataItem.modelId;
+
+		} else {
+
+			console.log("selected:", e.selectedRows);
+			this.modelTitle = '';
+			this.ModelId = 0;
+			this.ModelSelected = false;
+		}
+		
+		//console.log(JSON.stringify(dataItem));
+
+		//dataItem.add = !dataItem.add;
+
+		//if (dataItem.add == true) {
+
+		//	this.ModelSelected = true;
+		//	this.modelTitle = dataItem.modelTitle;
+		//	this.ModelId = dataItem.modelId;
+		//	console.log(this.modelTitle);
+		//	console.log(this.ModelId);
+		//} else {
+
+		//	this.modelTitle = '';
+		//	this.ModelId = 0;
+		//	this.ModelSelected = false;
+		//}
+			   
 	}
 
     //public dropdownBasic1: boolean = 
@@ -120,7 +152,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	CustomModels() {
 
-		alert(this.modelTitle);
 		if (this.modelTitle == '') {
 
 			this.ModelSelected = false;
@@ -609,33 +640,33 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	};
 
-	public checkboxModelClicked(dataItem: any) {
+	//public checkboxModelClicked(dataItem: any) {
 
-		console.log(JSON.stringify(dataItem));
+	//	console.log(JSON.stringify(dataItem));
 
-		//if (this.modelTitle != null && this.modelTitle != dataItem.modelTitle) {
-		//	this.modelTitle = dataItem.modelTitle;
-		//	this.ModelId = dataItem.modelId;
+	//	//if (this.modelTitle != null && this.modelTitle != dataItem.modelTitle) {
+	//	//	this.modelTitle = dataItem.modelTitle;
+	//	//	this.ModelId = dataItem.modelId;
 
-		//}
+	//	//}
 
-		dataItem.add = !dataItem.add;
+	//	dataItem.add = !dataItem.add;
 		
-		if (dataItem.add == true) {
+	//	if (dataItem.add == true) {
 
-			this.ModelSelected = true;
-			this.modelTitle = dataItem.modelTitle;
-			this.ModelId = dataItem.modelId;
-			console.log(this.modelTitle);
-			console.log(this.ModelId);
-		} else {
+	//		this.ModelSelected = true;
+	//		this.modelTitle = dataItem.modelTitle;
+	//		this.ModelId = dataItem.modelId;
+	//		console.log(this.modelTitle);
+	//		console.log(this.ModelId);
+	//	} else {
 
-			this.modelTitle = '';
-			this.ModelId = 0;
-			this.ModelSelected = false;
-		}
+	//		this.modelTitle = '';
+	//		this.ModelId = 0;
+	//		this.ModelSelected = false;
+	//	}
 
-	};
+	//};
 
     public rowCallback(context: RowClassArgs) {
         const isEven = context.index % 2 == 0;
