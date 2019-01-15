@@ -220,11 +220,14 @@ export class ItemListService extends BusyAwareService {
             .subscribe(
                 list => {
                 this._Criteria.totalItems = this.ItemList.totalItemCount;
-
+                    this.RemoveBusy("FetchWithCrit");
                 this.SaveItems(list, this._Criteria);
-                }, error => { this.ModalService.GenericError(error); }
+            }, error => {
+                this.ModalService.GenericError(error);
+                this.RemoveBusy("FetchWithCrit");
+            }
             , () => { this.RemoveBusy("FetchWithCrit"); }
-            );
+        );
     }
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {

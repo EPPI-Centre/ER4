@@ -350,12 +350,12 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = "";
     }
     CodesetTypeChanged(typeId: number) {
-        //this.NewSetSelectedTypeId = typeId;
-        //let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
-        //if (current) {
-        //    this._NewReviewSet.setType = current;
-        //    if (!current.allowComparison) this._NewReviewSet.codingIsFinal = true;
-        //}
+        this.NewSetSelectedTypeId = typeId;
+        let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
+        if (current) {
+            this._NewReviewSet.setType = current;
+            if (!current.allowComparison) this._NewReviewSet.codingIsFinal = true;
+        }
     }
     IsNewSetNameValid() {
         if (this._NewReviewSet.set_name.trim() != "") return true;
