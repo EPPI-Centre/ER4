@@ -136,6 +136,7 @@ export class ReviewerIdentityService implements OnDestroy {
         //1. we logout (this._reviewerIdentity.ticket == ""), timer still ticks, comes here, but we shouldn't check the ticket...
         //2. we change review, ticket changes, we should not check the old ticket...
         //special "return" value below tells the timer to kill itself!
+        //console.log('Logon ticket API call, myID', this.ID);
         if (this._reviewerIdentity.ticket == ""
             || this._reviewerIdentity.ticket != g
         ) {
@@ -230,14 +231,19 @@ export class ReviewerIdentityService implements OnDestroy {
         else return 100;
     }
     private StartLogonTicketTimer() {
+        //console.log("StartLogonTicketTimer");
         this.timerObj = timer(15000, 45000).pipe(
             takeUntil(this.killTrigger));
         if (this.LogonTicketTimerSubscription) this.LogonTicketTimerSubscription.unsubscribe();
         this.LogonTicketTimerSubscription = this.timerObj.subscribe(() => this.LogonTicketCheckTimer());
     }
     private KillLogonTicketTimer() {
+        //console.log("KillLogonTicketTimer");//, this.LogonTicketTimerSubscription, this.killTrigger);
         if (this.LogonTicketTimerSubscription) this.LogonTicketTimerSubscription.unsubscribe();//make extra sure we don't oversubscribe!
-        if (this.killTrigger) this.killTrigger.next();//kills the timer
+        if (this.killTrigger) {
+            //console.log("this.killTrigger.next();");
+            this.killTrigger.next();//kills the timer
+        }
         this.timerObj = undefined;
     }
     private LogonTicketCheckTimer() {
@@ -247,15 +253,24 @@ export class ReviewerIdentityService implements OnDestroy {
         //console.log("check timer:", this.ID, user, guid);
         this.LogonTicketCheckAPI(user, guid).then(
             success => {
+                //console.log("LogonTicketCheckAPI success:", success)
                 if (success.result == "Valid") {
                     this.UpdateStatus(success.serverMessage);
                 }
                 else if (success.result == "no (local) user") {
                     console.log('Silently killing the timer, user is out (or changed review)!')
-                    if (this.timerObj) this.KillLogonTicketTimer();
+                    if (this.timerObj) {
+                        this.reviewerIdentity.ticket = "";
+                        this.reviewerIdentity.userId = 0;
+                        this.KillLogonTicketTimer();
+                    }
                 }
                 else {
-                    if (this.timerObj) this.KillLogonTicketTimer();
+                    if (this.timerObj) {
+                        this.reviewerIdentity.ticket = "";
+                        this.reviewerIdentity.userId = 0;
+                        this.KillLogonTicketTimer();
+                    }
                     let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
                     switch (success.result) {
                         case "Expired":
@@ -279,17 +294,23 @@ export class ReviewerIdentityService implements OnDestroy {
                     msg += "You will be asked to logon again when you close this message."
 
                     //this.modalMsg = msg;
-                    this.modalService.SendBackHomeWithError(msg);
+                    this.modalService.SendBackHome(msg);
                     //this.openMsgAndSendHome(this.content);
                 }
             },
             error => {
-                if (this.timerObj) this.KillLogonTicketTimer();
+                console.log("LogonTicketCheckAPI error:", error);
+                if (this.timerObj) {
+                    this.reviewerIdentity.ticket = "";
+                    this.reviewerIdentity.userId = 0;
+                    this.KillLogonTicketTimer();
+                }
                 this.handleError(error.status);
             });
     }
     //used by the logonTicket Check...
     private handleError(error: any) {
+        //console.log("handling LogonTicket check Error:", error);
         let httpErrorCode = error;
         let msg: string = "";
         switch (httpErrorCode) {
@@ -310,10 +331,10 @@ export class ReviewerIdentityService implements OnDestroy {
 
                 break;
             default:
-                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes.';
+                msg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes.';
 
         }
-        this.modalService.SendBackHomeWithError(msg);
+        this.modalService.SendBackHome(msg);
         //this.openMsgAndSendHome(this.content);
     }
     ngOnDestroy() {

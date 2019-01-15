@@ -12,7 +12,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     <h4 class="modal-title">{{title}}</h4>
   </div>
   <div class="modal-body">
-    <p>{{prompt}}</p>
+    <p [innerHTML]="prompt"></p>
   </div>
   <div class="modal-footer">
       <button type="button"

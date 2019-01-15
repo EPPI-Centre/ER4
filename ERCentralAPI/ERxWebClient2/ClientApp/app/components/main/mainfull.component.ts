@@ -62,6 +62,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
     public get IsServiceBusy(): boolean {
+        //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
             this.ItemListService.IsBusy ||  
             this.codesetStatsServ.IsBusy ||
