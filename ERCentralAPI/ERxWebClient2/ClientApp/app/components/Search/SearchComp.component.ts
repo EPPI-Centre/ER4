@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search, SearchCodeCommand } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { RowClassArgs, GridDataResult, GridComponent  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, GridComponent, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -25,6 +25,7 @@ import { SourcesService } from '../services/sources.service';
 export class SearchComp implements OnInit, OnDestroy {
 
 
+
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService,
@@ -37,7 +38,11 @@ export class SearchComp implements OnInit, OnDestroy {
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService
 	) {
-    }
+		
+	}
+
+
+
     //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
 	public modelTitle: string = '';
@@ -52,6 +57,26 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelResultsSection: boolean = false;
 	public radioButtonApplyModelSection: boolean = false;
 	public isCollapsed: boolean = false;
+
+	public modeModels: SelectableMode = 'single';
+
+	public selectableSettings: SelectableSettings = {
+		checkboxOnly: true,
+		mode: 'single'
+	};
+
+	public setSelectableSettings(): void {
+
+		this.selectableSettings = {
+			checkboxOnly: true,
+			mode: 'single'
+		};
+	}
+
+	public selectedRows(e: any) {
+		console.log("selected:", e.selectedRows);
+	}
+
     //public dropdownBasic1: boolean = 
 	public get DataSourceModel(): GridDataResult {
 		return {
@@ -78,6 +103,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.NewSearchSection = !this.NewSearchSection;
 		this.ModelSection = false;
 		this.modelResultsSection = false;
+		this.radioButtonApplyModelSection = false;
 	}
 	CloseCodeDropDown() {
 		this.isCollapsed = false;
@@ -88,11 +114,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.NewSearchSection = false;
 		this.ModelSection = !this.ModelSection;
 		this.modelResultsSection = false;
-		this.radioButtonApplyModelSection = false;
+		this.radioButtonApplyModelSection = true;
 
 	}
+
 	CustomModels() {
 
+		alert(this.modelTitle);
+		if (this.modelTitle == '') {
+
+			this.ModelSelected = false;
+		}
 		this.ModelSection = true;
 		this.modelResultsSection = !this.modelResultsSection
 
@@ -103,13 +135,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.LogicSection = false;
 		this.modelResultsSection = false;
 
-		if (this.radioButtonApplyModelSection && num == this.modelNum ) {
-
-		} else {
-
-			this.radioButtonApplyModelSection = true;
+		if (this.modelNum !=4) {
+			this.ModelSelected = true;
 		}
-		this.ModelSelected = true;
+
 		this.modelNum = num;
 	}
 
@@ -127,12 +156,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._reviewSetsService.selectedNode = null;
 		this._listSources = this._sourcesService.ReviewSources;
 	}
-
-	//SetMode(num: number) {
-
-	//	this.ModelSelected = true;
-	//	this.mode = num.toString();
-	//}
 
 	RunModel() {
 
@@ -347,24 +370,24 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 
-	selectAllModelsChange(e: any): void {
+	//selectAllModelsChange(e: any): void {
 
-		if (e.target.checked) {
-			this.allModelsSelected = true;
+	//	if (e.target.checked) {
+	//		this.allModelsSelected = true;
 
-			for (let i = 0; i < this.DataSourceModel.data.length; i++) {
+	//		for (let i = 0; i < this.DataSourceModel.data.length; i++) {
 
-				this.DataSourceModel.data[i].add = true;
-			}
-		} else {
-			this.allModelsSelected = false;
+	//			this.DataSourceModel.data[i].add = true;
+	//		}
+	//	} else {
+	//		this.allModelsSelected = false;
 
-			for (let i = 0; i < this.DataSourceModel.data.length; i++) {
+	//		for (let i = 0; i < this.DataSourceModel.data.length; i++) {
 
-				this.DataSourceModel.data[i].add = false;
-			}
-		}
-	}
+	//			this.DataSourceModel.data[i].add = false;
+	//		}
+	//	}
+	//}
 
 	public get DataSourceSearches(): GridDataResult {
 		return {
@@ -587,16 +610,30 @@ export class SearchComp implements OnInit, OnDestroy {
 	};
 
 	public checkboxModelClicked(dataItem: any) {
-		
+
+		console.log(JSON.stringify(dataItem));
+
+		//if (this.modelTitle != null && this.modelTitle != dataItem.modelTitle) {
+		//	this.modelTitle = dataItem.modelTitle;
+		//	this.ModelId = dataItem.modelId;
+
+		//}
+
 		dataItem.add = !dataItem.add;
 		
 		if (dataItem.add == true) {
+
 			this.ModelSelected = true;
 			this.modelTitle = dataItem.modelTitle;
 			this.ModelId = dataItem.modelId;
 			console.log(this.modelTitle);
 			console.log(this.ModelId);
-		} 
+		} else {
+
+			this.modelTitle = '';
+			this.ModelId = 0;
+			this.ModelSelected = false;
+		}
 
 	};
 

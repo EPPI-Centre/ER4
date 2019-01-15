@@ -150,11 +150,11 @@
 		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
 			<div class="form-group card-body col-md-8 col-sm-4">
 				<p class="font-weight-bold">Choose method to apply:</p>
-				<input class="col-md-4" type="radio" name="ApplyRB"  [(ngModel)]="mode" value="1">
+				<input class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to all items in review
 				</label>
-				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="ApplyRB"  [(ngModel)]="mode" value="2">
+				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="2">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to items with this code
 				</label>
@@ -170,7 +170,7 @@
 			 class="form-group col-md-8 pull-right">
 			<div>
 				<div ngbDropdown>
-					<select class="btn btn-secondary col-md-8" id="dropdownBasicSources" 
+					<select class="btn btn-secondary col-md-8" id="dropdownBasicSources"
 							ngbDropdownToggle [(ngModel)]="selected">
 						<option [value]="item.source_ID" *ngFor="let item of _listSources">
 							{{item.source_Name}}
@@ -179,29 +179,51 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-9 pull-right" id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
-			<kendo-grid [data]="DataSourceModel" [height]="410"
-						[sort]="sort"
-						(sortChange)="sortChange($event)"
-						(remove)="removeHandler($event)">
+		
 
-				<kendo-grid-column [sortable]="false" field="add" width="50"
+		<div class="col-md-9 pull-right" id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
+			<kendo-grid [data]="DataSourceModel"
+						[selectable]="selectableSettings"
+						[height]="410"
+						[sort]="sort"
+						[kendoGridSelectBy]="'modelId'"
+						(sortChange)="sortChange($event)"
+						(remove)="removeHandler($event)"
+						(selectionChange)="selectedRows($event)">
+
+				<!--<kendo-grid-column [sortable]="false" field="add" width="50"
 								   [headerStyle]="{'text-align': 'center'}"
 								   [style]="{'text-align': 'center'}">
 					<ng-template kendoGridHeaderTemplate let-dataItem>
-						<input style="zoom: 1.2;"
-							   type="checkbox"
-							   name="selectAll"
-							   (change)="selectAllModelsChange($event)"
-							   [checked]="allModelsSelected" />
-					</ng-template>
-					<ng-template kendoGridCellTemplate let-dataItem>
-						<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-							   type="checkbox"
-							   field="selected"
-							   [checked]="dataItem.add" />
-					</ng-template>
-				</kendo-grid-column>
+		<input style="zoom: 1.2;"
+			   type="checkbox"
+			   name="selectAll"
+			   (change)="selectAllModelsChange($event)"
+			   [checked]="allModelsSelected" />
+	</ng-template>
+			<ng-template kendoGridCellTemplate let-dataItem>
+				<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+					   type="checkbox"
+					   field="selected"
+					   [checked]="dataItem.add" />
+			</ng-template>
+				</kendo-grid-column>-->
+				<!--<ng-template kendoGridCellTemplate let-dataItem>
+		<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+			   type="checkbox"
+			   field="selected"
+			   [checked]="dataItem.add" />
+	</ng-template>-->
+				<!--<kendo-grid-column>
+		<ng-template kendoGridCellTemplate let-dataItem>
+			<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+				   type="checkbox"
+				   field="selected"
+				   disabled
+				   [checked]="dataItem.add" />
+		</ng-template>
+	</kendo-grid-column>-->
+				<kendo-grid-checkbox-column></kendo-grid-checkbox-column>
 				<kendo-grid-column field="modelId" title="ModelID">
 				</kendo-grid-column>
 				<kendo-grid-column field="modelTitle" title="Title">
