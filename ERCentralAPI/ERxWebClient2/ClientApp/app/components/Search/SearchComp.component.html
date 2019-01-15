@@ -139,11 +139,11 @@
 		<p class="font-weight-bold">Select a Model:</p>
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" type="button" class="btn btn-outline-primary">Original RCT</button>
-				<button type="button" class="btn btn-outline-primary" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
+				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn"  [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
+				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
+				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
 			</div>
 		</div>
 
@@ -180,7 +180,7 @@
 			</div>
 		</div>
 
-		<div class="col-md-9 pull-right" id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
+		<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
 			<kendo-grid [data]="DataSourceModel"
 						[selectable]="selectableSettings"
 						[height]="410"
@@ -191,50 +191,50 @@
 						(selectionChange)="selectedRows($event)">
 
 				<!--<kendo-grid-column [sortable]="false" field="add" width="50"
-								   [headerStyle]="{'text-align': 'center'}"
-								   [style]="{'text-align': 'center'}">
-					<ng-template kendoGridHeaderTemplate let-dataItem>
-		<input style="zoom: 1.2;"
-			   type="checkbox"
-			   name="selectAll"
-			   (change)="selectAllModelsChange($event)"
-			   [checked]="allModelsSelected" />
-	</ng-template>
-			<ng-template kendoGridCellTemplate let-dataItem>
-				<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-					   type="checkbox"
-					   field="selected"
-					   [checked]="dataItem.add" />
-			</ng-template>
-				</kendo-grid-column>-->
+											   [headerStyle]="{'text-align': 'center'}"
+											   [style]="{'text-align': 'center'}">
+								<ng-template kendoGridHeaderTemplate let-dataItem>
+					<input style="zoom: 1.2;"
+						   type="checkbox"
+						   name="selectAll"
+						   (change)="selectAllModelsChange($event)"
+						   [checked]="allModelsSelected" />
+				</ng-template>
+						<ng-template kendoGridCellTemplate let-dataItem>
+							<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+								   type="checkbox"
+								   field="selected"
+								   [checked]="dataItem.add" />
+						</ng-template>
+							</kendo-grid-column>-->
 				<!--<ng-template kendoGridCellTemplate let-dataItem>
-		<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-			   type="checkbox"
-			   field="selected"
-			   [checked]="dataItem.add" />
-	</ng-template>-->
+					<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+						   type="checkbox"
+						   field="selected"
+						   [checked]="dataItem.add" />
+				</ng-template>-->
 				<!--<kendo-grid-column>
-		<ng-template kendoGridCellTemplate let-dataItem>
-			<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-				   type="checkbox"
-				   field="selected"
-				   disabled
-				   [checked]="dataItem.add" />
-		</ng-template>
-	</kendo-grid-column>-->
-				<kendo-grid-checkbox-column></kendo-grid-checkbox-column>
+					<ng-template kendoGridCellTemplate let-dataItem>
+						<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
+							   type="checkbox"
+							   field="selected"
+							   disabled
+							   [checked]="dataItem.add" />
+					</ng-template>
+				</kendo-grid-column>-->
+				<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
 				<kendo-grid-column field="modelId" title="ModelID">
 				</kendo-grid-column>
 				<kendo-grid-column field="modelTitle" title="Title">
 				</kendo-grid-column>
-				<kendo-grid-column field="attributeOn" title="Att On">
+				<kendo-grid-column field="attributeOn" title="Applies">
 				</kendo-grid-column>
-				<kendo-grid-column field="attributeNotOn" title="Att Not On">
+				<kendo-grid-column field="attributeNotOn" title="Compared with">
 				</kendo-grid-column>
-				<kendo-grid-column field="accuracy" title="Accuracy">
+				<!--<kendo-grid-column field="accuracy" title="Accuracy">
 				</kendo-grid-column>
 				<kendo-grid-column field="auc" title="AUC">
-				</kendo-grid-column>
+				</kendo-grid-column>-->
 				<kendo-grid-column field="precision" title="Precision">
 				</kendo-grid-column>
 				<kendo-grid-column field="recall" title="Recall">
@@ -252,63 +252,63 @@
 		</button>
 	</div>
 
-	</div>
 
-<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
-			[data]="DataSourceSearches" [height]="410"
-			[rowClass]="rowCallback"
-			[sortable]="{
+	<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+				[data]="DataSourceSearches" [height]="410"
+				[rowClass]="rowCallback"
+				[sortable]="{
 	allowUnsort: allowUnsort,
 	mode: 'single'
 	}"
-			[sort]="sort"
-			(sortChange)="sortChange($event)"
-			(remove)="removeHandler($event)">
+				[sort]="sort"
+				(sortChange)="sortChange($event)"
+				(remove)="removeHandler($event)">
 
-	<kendo-grid-column [sortable]="false" field="add" width="50"
-					   [headerStyle]="{'text-align': 'center'}"
-					   [style]="{'text-align': 'center'}">
-		<ng-template kendoGridHeaderTemplate let-dataItem>
-			<input style="zoom: 1.2;"
-				   type="checkbox"
-				   name="selectAll"
-				   (change)="selectAllSearchesChange($event)"
-				   [checked]="allSearchesSelected" />
-		</ng-template>
-		<ng-template kendoGridCellTemplate let-dataItem>
-			<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-				   type="checkbox"
-				   field="selected"
-				   [checked]="dataItem.add" />
-		</ng-template>
-	</kendo-grid-column>
-	<kendo-grid-column field="searchNo" title="No" width="50">
-	</kendo-grid-column>
-	<kendo-grid-column field="title" title="Name" width="150">
-	</kendo-grid-column>
-	<kendo-grid-column field="contactName" title="Created By" width="75">
-	</kendo-grid-column>
-	<kendo-grid-column field="searchDate" title="Date" width="75">
-	</kendo-grid-column>
-	<kendo-grid-column width="50" class="btn-link font-weight-bold"
-					   field="hitsNo" title="Hits" >
-		<ng-template kendoGridCellTemplate let-dataItem>
-			<div (click)="SearchGetItemList(dataItem)">
-				{{dataItem.hitsNo}}
-			</div>
-		</ng-template>
-	</kendo-grid-column>
-	<kendo-grid-column field="isClassifierResult" 
-					   class="btn-link font-weight-bold"
-					   title="Classifier" width="50">
-		<ng-template kendoGridCellTemplate let-dataItem>
-			<div (click)="OpenClassifierVisualisation(dataItem)"
-				 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
-				{{dataItem.isClassifierResult}}
-			</div>
-		</ng-template>
-	</kendo-grid-column>
-</kendo-grid>
+		<kendo-grid-column [sortable]="false" field="add" width="50"
+						   [headerStyle]="{'text-align': 'center'}"
+						   [style]="{'text-align': 'center'}">
+			<ng-template kendoGridHeaderTemplate let-dataItem>
+				<input style="zoom: 1.2;"
+					   type="checkbox"
+					   name="selectAll"
+					   (change)="selectAllSearchesChange($event)"
+					   [checked]="allSearchesSelected" />
+			</ng-template>
+			<ng-template kendoGridCellTemplate let-dataItem>
+				<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+					   type="checkbox"
+					   field="selected"
+					   [checked]="dataItem.add" />
+			</ng-template>
+		</kendo-grid-column>
+		<kendo-grid-column field="searchNo" title="No" width="50">
+		</kendo-grid-column>
+		<kendo-grid-column field="title" title="Name" width="150">
+		</kendo-grid-column>
+		<kendo-grid-column field="contactName" title="Created By" width="75">
+		</kendo-grid-column>
+		<kendo-grid-column field="searchDate" title="Date" width="75">
+		</kendo-grid-column>
+		<kendo-grid-column width="50" class="btn-link font-weight-bold"
+						   field="hitsNo" title="Hits">
+			<ng-template kendoGridCellTemplate let-dataItem>
+				<div (click)="SearchGetItemList(dataItem)">
+					{{dataItem.hitsNo}}
+				</div>
+			</ng-template>
+		</kendo-grid-column>
+		<kendo-grid-column field="isClassifierResult"
+						   class="btn-link font-weight-bold"
+						   title="Classifier" width="50">
+			<ng-template kendoGridCellTemplate let-dataItem>
+				<div (click)="OpenClassifierVisualisation(dataItem)"
+					 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+					{{dataItem.isClassifierResult}}
+				</div>
+			</ng-template>
+		</kendo-grid-column>
+	</kendo-grid>
 
+</div>
 <div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 

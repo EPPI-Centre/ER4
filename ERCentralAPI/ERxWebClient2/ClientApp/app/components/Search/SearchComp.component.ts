@@ -156,6 +156,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			this.ModelSelected = false;
 		}
+		this.modelNum = 5;
 		this.ModelSection = true;
 		this.modelResultsSection = !this.modelResultsSection
 
