@@ -242,15 +242,23 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         if (!this.ReviewSetsService.ReviewSets || this.ReviewSetsService.ReviewSets.length < 1) return false;
         else if (node.nodeType == 'ReviewSet') {
             //console.log("AAAAAAAAA", node);
-            if (node.order != this.ReviewSetsService.ReviewSets.length - 1) return true;
+            if (node.order != this.ReviewSetsService.ReviewSets.length - 1) return true;//even if the set can't be edited, I can still move it up or down...
             else return false;
         }
         else {//this is an attribute, more work needed...
             let SetAtt = node as SetAttribute;
             if (SetAtt) {
+                //first of all: is the set editable?
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    if (MySet.allowEditingCodeset == false) return false;//otherwise do the other checks...
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
                 if (SetAtt.parent == 0) {
                     //att is in the root.
-                    let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
                     if (MySet) {
                         if (SetAtt.order != MySet.attributes.length - 1) return true;
                         else return false;
@@ -278,6 +286,14 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         else {//this is an attribute, more work needed...
             let SetAtt = node as SetAttribute;
             if (SetAtt) {
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    if (MySet.allowEditingCodeset == false) return false;//otherwise do the other checks...
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
                 if (SetAtt.parent == 0) {
                     //att is in the root.
                     let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);

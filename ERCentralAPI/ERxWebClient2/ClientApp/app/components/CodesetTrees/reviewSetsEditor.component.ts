@@ -309,6 +309,29 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public get CanEditSelectedNode(): boolean {
+        if (!this.CanWrite()) return false;
+        if (!this.CurrentNode) return false;//??
+        else if (this.CurrentNode.nodeType == 'ReviewSet') {
+            //console.log("AAAAAAAAA", node);
+            return this.CurrentNode.allowEditingCodeset;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = this.CurrentNode as SetAttribute;
+            if (SetAtt) {
+                //is the set editable?
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    return MySet.allowEditingCodeset;
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
     SetIsSelected(): boolean {
         if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "ReviewSet") return true;
         else return false;
@@ -559,6 +582,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 });
     }
     BackToMain() {
+        this.ReviewSetsService.GetReviewSets();
         this.router.navigate(['Main']);
     }
     ngOnDestroy() {

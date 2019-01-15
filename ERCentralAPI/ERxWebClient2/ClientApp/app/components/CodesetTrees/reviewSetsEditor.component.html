@@ -32,7 +32,7 @@
                     <kendo-toolbar>
                         <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Codeset'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="CanEditSelectedNode" [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
@@ -68,7 +68,7 @@
                             Name is required
                         </div>
                     </div>
-                    <div *ngIf="NewSetTypeCanChangeDataEntryMode()" class="col-12">
+                    <div *ngIf="NewSetTypeCanChangeDataEntryMode()" class="col-6">
                         Data Entry Mode:
                         <input type="radio" [value]="true" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Normal</b>
                         <input type="radio" [value]="false" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Comparison</b>
@@ -99,7 +99,7 @@
                     <div>
                         <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
                         <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()"
-                                [disabled]="!CanWrite() "
+                                [disabled]="!CanEditSelectedNode"
                                 style="width:80px;">
                             Yes
                         </button>
@@ -107,12 +107,19 @@
                 </div>
                 <form class="row" #EditCodesetFrom="ngForm">
                     <div class="col-5">
-                        Codeset Type: {{CurrentNode.subTypeName}}.
+                        <div>Codeset Type: {{CurrentNode.subTypeName}}.</div>
+                        <div>
+                            Can edit?
+                            <input class="m-1" id="CanEditCB" name="CanEditCB" type="checkbox" [(ngModel)]="CurrentNode.allowEditingCodeset"
+                                   [disabled]="!CanWrite()" />
+                            <span *ngIf="CurrentNode.allowEditingCodeset" class="small font-weight-bold">(Yes)</span>
+                            <span *ngIf="!CurrentNode.allowEditingCodeset" class="small font-weight-bold">(No)</span>
+                        </div>
                     </div>
                     <div class="form-group col-7 row">
                         <div>Codeset Name</div>
                         <input type="text" class="form-control" id="SetName"
-                               [disabled]="!CanWrite()"
+                               [disabled]="!CanEditSelectedNode"
                                [(ngModel)]="CurrentNode.set_name" name="set_name"
                                #name="ngModel">
                         <div [hidden]="IsEditingNodeNameValid()"
@@ -124,7 +131,7 @@
                         <div class="row">
                             <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
                             <button *ngIf="SetTypeCanChangeDataEntryMode()" class="btn btn-outline-danger btn-sm ml-1 mb-1"
-                                    [disabled]="!CanWrite()"
+                                    [disabled]="!CanEditSelectedNode"
                                     (click)="ShowChangeDataEntryClicked()">
                                 Change
                             </button>
@@ -134,7 +141,8 @@
                             <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()">Cancel</button>
                             <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
                                 Yes, change to
-                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" (click)="DoChangeDataEntry()">
+                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" 
+                                        [disabled]="!CanEditSelectedNode" (click)="DoChangeDataEntry()">
                                     {{DestinationDataEntryMode}}
                                 </button>
                                 mode.
@@ -143,7 +151,7 @@
                     </div>
                     <div class="form-group col-12">
                         <label for="newSetDescription">Description</label>
-                        <textarea class="form-control" id="newSetDescription" [disabled]="!CanWrite()"
+                        <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
                                   [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
                     </div>
                     <div class="col-12">
@@ -156,7 +164,7 @@
                             Cancel
                         </button>
                         <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
-                                [disabled]="!CanWrite()">
+                                [disabled]="!CanEditSelectedNode">
                             Delete Codeset...
                         </button>
                     </div>
@@ -168,7 +176,8 @@
                     <div class="col-12">
                         <div class="form-group">
                             <label for="Codeset_Type">Code Type</label>
-                            <select #CodeTypeSelect class="col-md-6 form-control" name="NewCode_Type">
+                            <select #CodeTypeSelect class="col-md-6 form-control" name="NewCode_Type"
+                                    [disabled]="!CurrentCodeCanHaveChildren">
                                 <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
                                     {{type.value}}
                                 </option>
@@ -177,7 +186,7 @@
                     </div>
                     <div class="form-group col-12">
                         <label for="source_Name">Code Name</label>
-                        <input type="text" class="form-control" id="AttName"
+                        <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
                                [(ngModel)]="NewCode.attribute_name" name="attribute_name"
                                #name="ngModel">
                         <div [hidden]="IsNewCodeNameValid()"
@@ -187,11 +196,11 @@
                     </div>
                     <div class="form-group col-12">
                         <label for="newSetDescription">Description</label>
-                        <textarea class="form-control" id="newSetDescription"
+                        <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
                                   [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
                     </div>
                     <div class="col-12">
-                        <button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
+                        <button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFrom.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
                             Create
                         </button>
                         <button class="btn btn-outline-secondary ml-1"
