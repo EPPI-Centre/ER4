@@ -1,21 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
-using Csla.Data;
-using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
-using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -33,15 +23,12 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         public IActionResult GetSearches()
         {
-
-		
 			try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<SearchList> dp = new DataPortal<SearchList>();
 				SearchList result = dp.Fetch();
@@ -50,9 +37,99 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "GetSearches data portal error");
+                _logger.LogException(e, "Getting a searches list has an error");
                 throw;
             }
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchIDs([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					SearchIDsCommand cmd = new SearchIDsCommand(
+						cmdIn._title, cmdIn._included
+						);
+					DataPortal<SearchIDsCommand> dp = new DataPortal<SearchIDsCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Creating searches using IDs has an error");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult SearchImportedIDs([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					
+					SearchImportedIDsCommand cmd = new SearchImportedIDsCommand(
+						cmdIn._title, cmdIn._included
+						);
+					DataPortal<SearchImportedIDsCommand> dp = new DataPortal<SearchImportedIDsCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches based on imported IDs has failed");
+				throw;
+			}
+
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchNoAbstract([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					
+					SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
+						cmdIn._included
+					);
+					DataPortal<SearchNullAbstractCommand> dp = new DataPortal<SearchNullAbstractCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Creating searches with no abstract has failed");
+				throw;
+			}
 
 		}
 
@@ -63,25 +140,189 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-			
-				SearchCodesCommand cmd = new SearchCodesCommand(
-					cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
-					);
-				DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
-				cmd = dp.Execute(cmd);
+				if (SetCSLAUser4Writing())
+				{
+						
+					SearchCodesCommand cmd = new SearchCodesCommand(
+						cmdIn._title, cmdIn._answers, cmdIn._included, cmdIn._withCodes
+						);
+					DataPortal <SearchCodesCommand> dp = new DataPortal<SearchCodesCommand>();
+					cmd = dp.Execute(cmd);
 
-				return Ok(cmd.SearchId);
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Search codes has failed");
 				throw;
 			}
 
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult SearchNoFiles([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					
+					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+						cmdIn._title,
+						cmdIn._included,
+						false
+						);
+					DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+				}
+				else
+				{
+
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches containing no files has failed");
+				throw;
+			}
+
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchOneFile([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				if(SetCSLAUser4Writing())
+				{
+					
+					SearchForUploadedFilesCommand cmd = new SearchForUploadedFilesCommand(
+						cmdIn._title,
+						cmdIn._included,
+						true
+						);
+					DataPortal<SearchForUploadedFilesCommand> dp = new DataPortal<SearchForUploadedFilesCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+				return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches containing just one file has failed");
+				throw;
+			}
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult SearchText([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+                if(SetCSLAUser4Writing())
+				{
+					
+					SearchFreeTextCommand cmd = new SearchFreeTextCommand(
+						cmdIn._title, cmdIn._included, cmdIn._searchText
+						);
+					DataPortal<SearchFreeTextCommand> dp = new DataPortal<SearchFreeTextCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+					return Forbid();
+				}
+		}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Creating searches based on text has failed");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult SearchCodeSetCheck([FromBody] CodeCommand cmdIn)
+		{
+
+			try
+			{
+                if(SetCSLAUser4Writing())
+				{
+					
+					SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
+						cmdIn._setID,
+						cmdIn._included,
+						cmdIn._withCodes,
+						cmdIn._title
+						);
+					DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd.SearchId);
+
+				}
+				else
+				{
+
+				return Forbid();
+			}
+		}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches with a code set check has failed");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult SearchCodeLogic([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				SetCSLAUser();
+				
+				SearchCombineCommand cmd = new SearchCombineCommand(
+					cmdIn._title,
+					cmdIn._searches,
+					cmdIn._logicType,
+					cmdIn._included
+					);
+				DataPortal<SearchCombineCommand> dp = new DataPortal<SearchCombineCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches based on logic parameters has failed");
+				throw;
+			}
+		}
 
 		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
@@ -101,7 +342,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "GetSearches data portal error");
+				_logger.LogException(e, "Deletion of searches has failed");
 				throw;
 			}
 		}
@@ -109,11 +350,16 @@ namespace ERxWebClient2.Controllers
 
 	public class CodeCommand
 	{
+		public string _logicType = "";
+		public int _setID = 0;
+		public string _searchText = "";
+		public string _IDs = "";
 		public string _title = "";
 		public string _answers = "";
 		public bool _included = false;
 		public bool _withCodes = false;
 		public int _searchId = 0;
+		public string _searches = "";
 	}
 }
 

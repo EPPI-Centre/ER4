@@ -1,6 +1,7 @@
-import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
+import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
 
@@ -8,60 +9,64 @@ import { Observable } from 'rxjs';
 
 })
 
-export class searchService {
+export class searchService extends BusyAwareService {
 
     constructor(
         private _httpC: HttpClient,
+        private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
-    
+        ) {
+        super();
+    }
+
+
+
+	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
+
 	private _SearchList: Search[] = [];
-	@Output() searchesChanged = new EventEmitter();
-    public crit: CriteriaSearch = new CriteriaSearch();
-	public searchToBeDeleted: string = '';
+	//@Output() searchesChanged = new EventEmitter();
+    //public crit: CriteriaSearch = new CriteriaSearch();
+	public searchToBeDeleted: string = '';//WHY string?
 
 	public get SearchList(): Search[] {
-		if (this._SearchList.length == 0) {
 
-			const SearchListJson = localStorage.getItem('SearchList');
-			let SearchList: Search[] = SearchListJson !== null ? JSON.parse(SearchListJson) : [];
-			if (SearchList == undefined || SearchList == null || SearchList.length == 0) {
-				return this._SearchList;
-            }
-            else {
-				this._SearchList = SearchList;
-            }
-        }
 		return this._SearchList;
 
     }
     
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
-        this.Save();
-        this.searchesChanged.emit();
-    }
-
-	Fetch() {
-
-		 this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/GetSearches',
-			this.crit)
-
-			.subscribe(result => {
-
-					console.log('AAAAgot inside searches: ' + this.crit.SetId);
-					this.SearchList = result;
-					console.log(this._SearchList.length);
-					this.Save();
-				
-					this.searchesChanged.emit();
-
-				//return result;
-
-				}
-		 );
+        //this.searchesChanged.emit();
 	}
 
+	//private _isBusy: boolean = false;
+	//public get isBusy(): boolean {
+	//	//console.log('Search list, isbusy? ' + this._isBusy);
+	//	return this._isBusy;
+	//}
+
+    Fetch() {
+        this._BusyMethods.push("Fetch");
+		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
+			 .subscribe(result => {
+				
+					console.log('alkjshdf askljdfh' + JSON.stringify(result));
+					this.SearchList = result;
+					//this.searchesChanged.emit();
+             },
+             error => {
+                 this.modalService.GenericError(error);
+                 this.Clear();
+             }
+             , () => {
+                 this.RemoveBusy("Fetch");
+             }
+		 );
+	}
+    private Clear() {
+        //this.crit = new CriteriaSearch();
+        //this._isBusy = false;
+    }
 	public removeHandler({ sender, dataItem }: { sender: any, dataItem: any}) {
 		
 		let searchId: string = this.searchToBeDeleted;
@@ -71,91 +76,68 @@ export class searchService {
 		sender.cancelCell();
 
 	}
-
-
+	
 	Delete(value: string) {
 
-		value = value.substr(1, value.length - 2);
-		alert(value);
+        this._BusyMethods.push("Delete");
 		let body = JSON.stringify({ Value: value });
-		//alert(body);
 		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			body)
-
 			.subscribe(result => {
 
 					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
 					this.SearchList.splice(tmpIndex, 1);
-					console.log(this._SearchList.length);
-					this.Save();
+					this.Fetch();
+			}, error => { this.modalService.GenericError(error); }
+            , () => {
+                this.RemoveBusy("Delete");
+            }
+			
+		);
 
-				}
-			);
 	}
 
-
-	FetchSearchCodes(cmd: SearchCodeCommand) {
-
-		console.log(cmd);
-		this._httpC.post<Search[]>(this._baseUrl + 'api/SearchList/SearchCodes',
+	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
+        this._BusyMethods.push("CreateSearch");
+		apiStr = 'api/SearchList/' + apiStr;
+		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
 
 			.subscribe(result => {
-
-				console.log('silly call to the server again: ' + JSON.stringify(result));
-
-				//this.crit.AttributeId = result;
-				//this.crit.FilterAttributeId = result;
-				//this.crit.Included = result;
-				//this.crit.SetId = result;
-
 				this.Fetch();
+			}, error => { this.modalService.GenericError(error); }
+            , () => {
+                this.RemoveBusy("CreateSearch");
+            }
 
-				//this.SearchList = result;
-				//console.log(this._SearchList.length);
-				//this.Save();
-				//console.log(result);
-				//this.searchesChanged.emit();
-
-				//return result;
-
-			}
-		);
+			);
 	}
-
-    public Save() {
-		if (this._SearchList.length > 0)
-			localStorage.setItem('SearchList', JSON.stringify(this._SearchList));
-		else if (localStorage.getItem('SearchList'))
-			localStorage.removeItem('SearchList');
-    }
 }
 
 export class Search {
 
+	searchNo: number = 0;
 	selected: boolean = false;
 	searchId: number = 0;
 	hitsNo: number = 0;
 	title: string = '';
 	searchDate: string = '';
 	contactName: string = '';
+	isClassifierResult: boolean = false;
+
 }
 
-export class CriteriaSearch {
-	
-	AttributeId: string = '0';
-	SetId: string ='0';
-	Included: boolean = false;
-	FilterAttributeId: number = 0;
-	
-}
+export class SearchCodeCommand {
 
-export interface SearchCodeCommand {
-
-	_title: string;
-	_answers: string ;
-	_included: boolean ;
-	_withCodes: boolean ;
-	_searchId: number ;
+	public _searches: string = '';
+	public _logicType: string = '';
+	public _setID: number = 0;
+	public _searchText: string = '';
+	public _IDs: string = '';
+	public _title: string = '';
+	public _answers: string = '';
+	public _included: string = 'false';
+	public _withCodes: string = 'false';
+	public _searchId: number = 0;
 
 }

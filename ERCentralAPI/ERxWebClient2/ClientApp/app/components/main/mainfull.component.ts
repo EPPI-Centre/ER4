@@ -8,26 +8,35 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
-import { NgbTabset, NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { crosstabService } from '../services/crosstab.service';
-import { searchService, SearchCodeCommand, Search } from '../services/search.service';
-import { InfoBoxModalContent } from '../reviewsets/reviewsets.component';
-import { GridComponent, GridModule } from '@progress/kendo-angular-grid';
+import { searchService } from '../services/search.service';
+import { SourcesService } from '../services/sources.service';
+import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
+
 
 
 @Component({
-    selector: 'mainfull',
+    selector: 'mainComp',
     templateUrl: './mainfull.component.html'
     ,styles: [`
                 .pane-content { padding: 0em 1em; margin: 1;}
-               .ReviewsBg {
+                .ReviewsBg {
                     background-color:#f1f1f8 !important; 
                 }
+                .vertical-text {
+                    position: fixed;
+                    top: 50%;
+                    z-index:1002;
+                    transform: rotate(90deg);
+                    right: -23px;
+                    float: right;
+                }
+
         `]
      ,providers: []
 
@@ -41,101 +50,74 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _httpC: HttpClient,
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
-		private _eventEmitter: EventEmitterService
-		, private frequenciesService: frequenciesService
+        private _eventEmitter: EventEmitterService,
+		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-		, private _searchService: searchService,
-		private modalService: NgbModal
+        , private _searchService: searchService
+        , private SourcesService: SourcesService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
-    @ViewChild('tabset') tabset!: NgbTabset;
+    @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
+    //@ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 
+    public get IsServiceBusy(): boolean {
+        //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
+        return (this.reviewSetsService.IsBusy ||
+            this.ItemListService.IsBusy ||  
+            this.codesetStatsServ.IsBusy ||
+            this.SourcesService.IsBusy);
+    }
 	
 	tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
+    public isSourcesPanelCollapsed = false;
     public isReviewPanelCollapsed = false;
     public isWorkAllocationsPanelCollapsed = false;
     private statsSub: Subscription = new Subscription();
-    
-	public crossTabResult: any | 'none';
+    private InstanceId: number = Math.random();
+    public crossTabResult: any | 'none';
+    public CodesAreCollapsed: boolean = true;
 	//public selectedAttributeSetF: any | 'none';
 	
     	
-    dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
-	alertT() {
-		this.tabset.select('ItemListTab');
-	}
-	
-	setTabSelected(tab: any) {
 
-		//this.tabSelected = tab;
-		//this._eventEmitter.tabSelected(tab);
-
-		//alert(JSON.stringify(tab));
-		//alert(message);
-	}
-
-	openNewSearchModal() {
-	
-		let modalComp = this.modalService.open(SearchesModalContent, { size: 'lg', centered: true });
-	
-			modalComp.componentInstance.InfoBoxTextInput = 'tester';
-			modalComp.componentInstance.focus(null);
-
-			modalComp.result.then(() => {
-
-				//data.additionalText = infoTxt;
-				//if (!data.isSelected) {
-
-					
-				//	this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);
-				//}
-				//else {
-		
-				//	this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);
-				//}
-			},
-				() => {
-
-					alert('testing 123 correct');
-				}
-			);
-	}
-
-
-
-	ngOnInit() {
-
+    ngOnInit() {
+        console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
-                this.tabset.select('ItemListTab');
-			}
-		)
-		
-        this.dtOptions = {
-            pagingType: 'full_numbers',
-            paging: false,
-            searching: false,
-            scrollY: "350px"
-		};
+                this.tabstrip.selectTab(1);
+            }
+        )
+
 
         //this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
         );
-		if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-			|| (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
+        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-		) this.Reload();
-		//this.searchService.Fetch();
+        ) this.Reload();
+        //this.searchService.Fetch();
     }
+    ShowHideCodes() {
+        this.CodesAreCollapsed = !this.CodesAreCollapsed;
+    }
+    setTabSelected(tabSelect: SelectEvent) {
+		//nothing for now, selectEvent is like this:
+        //index: number
+        //title: string
+	}
+	BuildModel() {
+		this.router.navigate(['BuildModel']);
+	}
 
 	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
 		
@@ -163,28 +145,34 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
         else return '&darr;';
 	}
-
+    public get SourcesPanelTogglingSymbol(): string {
+        if (this.isSourcesPanelCollapsed) return '&uarr;';
+        else return '&darr;';
+    }
 	ngAfterViewInit() {
 		this.tabsInitialized = true;
 		console.log('tabs initialised');
 	}
 	IncludedItemsList() {
-		let cr: Criteria = new Criteria();
-		cr.listType = 'StandardItemList';
-		this.ItemListService.FetchWithCrit(cr, "Included Items");
-	
-		this.tabset.select('ItemListTab');
-	}
+        this.IncludedItemsListNoTabChange();
+		this.tabstrip.selectTab(1);
+    }
+    IncludedItemsListNoTabChange() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        this.ItemListService.FetchWithCrit(cr, "Included Items");
+    }
+
 	ExcludedItemsList() {
 		let cr: Criteria = new Criteria();
 		cr.listType = 'StandardItemList';
 		cr.onlyIncluded = false;
 		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
 		console.log('selecting tab 2...');
-		this.tabset.select('ItemListTab');
+		this.tabstrip.selectTab(1);
 	}
 	GoToItemList() {
-		this.tabset.select('ItemListTab');
+		this.tabstrip.selectTab(1);
 	}
 	LoadWorkAllocList(workAlloc: WorkAllocation) {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
@@ -194,7 +182,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.tabsInitialized) {
 			console.log('tabs experiment');
 
-			this.tabset.select('ItemListTab');
+			this.tabstrip.selectTab(1);
 		}
 	}
     toggleReviewPanel() {
@@ -202,6 +190,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     toggleWorkAllocationsPanel() {
         this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
+    }
+    toggleSourcesPanel() {
+        if (!this.isSourcesPanelCollapsed) {
+            this.SourcesService.FetchSources();
+        }
+        this.isSourcesPanelCollapsed = !this.isSourcesPanelCollapsed;
     }
     getDaysLeftAccount() {
 
@@ -221,15 +215,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	
 	
 
-	Reload() {
+    Reload() {
         this.Clear();
-        console.log('get rev sets in mainfull');
+        console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
+        this
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         else console.log("work allocs comp is undef :-(");
+        if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
+            this.IncludedItemsListNoTabChange();
     }
+    //GetStatsFromSubscription() {
+    //    //we unsubscribe here as we won't use this again.
+    //    if (this.statsSub) {
+    //        console.log("(mainfull GetStatsFromSubscription) I should not happen more than once");
+    //        this.statsSub.unsubscribe();
+    //        this.statsSub = new Subscription();
+    //    }
+    //    this.GetStats();
+    //}
     GetStats() {
-        console.log('getting stats (mainfull)');
+        console.log('getting stats (mainfull):', this.InstanceId);
         this.codesetStatsServ.GetReviewStatisticsCountsCommand();
         this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
     }
@@ -261,9 +267,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return msg;
        
     }
-
+    EditCodeSets() {
+        this.router.navigate(['EditCodeSets']);
+    }
+    GoToSources() {
+        this.router.navigate(['sources']);
+    }
+    ImportCodesetClick() {
+        this.router.navigate(['ImportCodesets']);
+    }
     ngOnDestroy() {
-        this.Clear();
+        //this.Clear();
+        console.log("destroy MainFull..");
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();			
         }
@@ -274,164 +289,5 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 export class RadioButtonComp {
 	IncEnc = true;
 }
-@Component({
-	selector: 'ngbd-SearchesModal-content',
-	templateUrl: './SearchesModal.component.html'
-})
-export class SearchesModalContent implements SearchCodeCommand {
 
-	@ViewChild('SearchesModal')
-
-	//InfoBoxText!: ElementRef;
-
-	private canWrite: boolean = true;
-	public dropDownList: any = null;
-	public showTextBox: boolean = false;
-	public showDropDown2: boolean = true;
-	public selectedSearchDropDown: string = '';
-	public nodeSelected: boolean = false;
-	public selectedNodeDataName: string = '';
-
-	_title: string = '';
-	_answers: string = '';
-	_included: boolean = false;
-	_withCodes: boolean = false;;
-	_searchId: number = 0;
-
-	public get IsReadOnly(): boolean {
-
-		return this.canWrite;
-
-	}
-	constructor(public activeModal: NgbActiveModal,
-		private reviewSetsService: ReviewSetsService,
-		private _eventEmitter: EventEmitterService,
-		private _searchService: searchService
-	) { }
-
-	test() {
-
-		alert('hello again');
-
-	}
-
-	public cmdSearches: SearchCodeCommand = {
-
-		_title : '',
-		_answers : '',
-		_included : false,
-		_withCodes : false,
-		_searchId : 0
-	};
-
-	callSearches(selectedSearchDropDown: string, searchBool: boolean) {
-
-		// api call to SearchListController for the SearchCodes
-		this.cmdSearches._title = selectedSearchDropDown
-			//'Not coded with: control (comparison TP)';
-		this.cmdSearches._answers = ''; //'83962';
-		this.cmdSearches._included =  Boolean(searchBool);
-		this.cmdSearches._withCodes = false;
-		this.cmdSearches._searchId = 0;
-
-		console.log('variables: ' + selectedSearchDropDown + ', ' + searchBool);
-
-		this._searchService.FetchSearchCodes(this.cmdSearches);
-
-		this.activeModal.dismiss();
-	}
-
-
-
-	public nextDropDownList(num: number, val: string) {
-
-		//console.log('got here');
-		this.showDropDown2 = true;
-		this.showTextBox = false;
-		this.selectedSearchDropDown = val;
-		switch (num) {
-
-			case 1: {
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 2: {
-				//statements; 
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 3: {
-				//With these internal IDs (comma separated) show text box
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = true;
-				break;
-			}
-			case 4: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = true;
-				this.showTextBox = true;
-				break;
-			}
-			case 5: {
-				//that have at least one code from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
-				this.showDropDown2 = true;
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				break;
-			}
-			case 6: {
-				//that don't have any codes from this set
-				this._eventEmitter.nodeSelected = false;
-				this.showTextBox = false;
-				this.showDropDown2 = true;
-				this.dropDownList = this.reviewSetsService.ReviewSets;
-				break;
-			}
-			case 7: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = true;
-				this.showTextBox = false;
-				break;
-			}
-			case 8: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 9: {
-				//statements;
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			case 10: {
-				//statements; 
-				this._eventEmitter.nodeSelected = false;
-				this.showDropDown2 = false;
-				this.showTextBox = false;
-				break;
-			}
-			default: {
-				//statements; 
-				break;
-			}
-		}
-	}
-
-	public focus(canWrite: boolean) {
-		this.canWrite = canWrite;
-		//this.InfoBoxText.nativeElement.focus();
-	}
-}
 

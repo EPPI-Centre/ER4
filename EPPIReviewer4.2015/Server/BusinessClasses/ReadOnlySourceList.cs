@@ -22,7 +22,7 @@ namespace BusinessLibrary.BusinessClasses
     public class ReadOnlySourceList : ReadOnlyBase<ReadOnlySourceList> //ReadOnlyListBase<ReadOnlySourceList, ReadOnlySource>
     {
         //private int _SourcelessItems;
-        private static PropertyInfo<int> Sourceless_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Sourceless_Items", "Sourceless_Items"));
+        public static readonly PropertyInfo<int> Sourceless_ItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("Sourceless_Items", "Sourceless_Items"));
         public int Sourceless_Items
         {
             get
@@ -30,7 +30,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(Sourceless_ItemsProperty);
             }
         }
-        private static PropertyInfo<MobileList<ReadOnlySource>> SourcesProperty = RegisterProperty(new PropertyInfo<MobileList<ReadOnlySource>>("Sources", "Sources"));
+        public static readonly PropertyInfo<MobileList<ReadOnlySource>> SourcesProperty = RegisterProperty(new PropertyInfo<MobileList<ReadOnlySource>>("Sources", "Sources"));
         public MobileList<ReadOnlySource> Sources
         {
             get
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlySourceList() { }
 #else
-        private ReadOnlySourceList() 
+        public ReadOnlySourceList() 
         {
             LoadProperty( SourcesProperty, new MobileList<ReadOnlySource>());
         }

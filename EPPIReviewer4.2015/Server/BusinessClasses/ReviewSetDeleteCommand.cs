@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewSetDeleteCommand : CommandBase<ReviewSetDeleteCommand>
     {
-#if SILVERLIGHT
-    public ReviewSetDeleteCommand(){}
-#else
-        protected ReviewSetDeleteCommand() { }
-#endif
+        public ReviewSetDeleteCommand(){}
 
         private Int64 _ReviewSetId;
         private bool _successful;
@@ -51,12 +47,14 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_ReviewSetId", _ReviewSetId);
             info.AddValue("_successful", _successful);
+            info.AddValue("_Order", _Order);
             info.AddValue("_SetId", _SetId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _ReviewSetId = info.GetValue<Int64>("_ReviewSetId");
             _successful = info.GetValue<bool>("_successful");
+            _Order = info.GetValue<int>("_Order");
             _SetId = info.GetValue<int>("_SetId");
         }
 

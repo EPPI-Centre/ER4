@@ -69,6 +69,7 @@ public partial class GetPostBack : System.Web.UI.Page
         string[] dec = Request.UserHostAddress.Split('.');
         if (dec.Length != 4) return false;
         if (dec[0] == "213" && dec[1] == "206" && (dec[2] == "140" || dec[2] == "141" || dec[2] == "142" || dec[2] == "143")) return true;
+        if (dec[0] == "194" && dec[1] == "73" && dec[2] == "8") return true;
         return false;
     }
     protected bool VerifyWPMPostback(string content)
@@ -82,7 +83,7 @@ public partial class GetPostBack : System.Web.UI.Page
             if (!idr.Read()) return false;//if no bill is found, return insuccess
             double tot = Math.Round(double.Parse(idr["DUE_PRICE"].ToString()), 2) + Math.Round(double.Parse(idr["VAT"].ToString()), 2);
             idr.Close();
-            if (msgid != Utils.getMD5Hash(Utils.WPMclientID + billID + tot.ToString("F2"))) return false;
+            if (msgid != Utils.getMD5HashUCL(Utils.UCLWPMclientID + billID + tot.ToString("F2"))) return false;
             //third, match bill with postback
             XElement X2 = Xe.Element("transaction");
             double wpmPaid = double.Parse(X2.Element("totalpaid").Value);

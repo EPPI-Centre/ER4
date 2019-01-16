@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { TreeModule } from 'angular-tree-component';
 import { AppComponent } from './components/app/app.component';
 import { HomeComponent } from './components/home/home.component';
-import { ReviewSetsComponent, InfoBoxModalContent } from './components/reviewsets/reviewsets.component';
+import { CodesetTreeCodingComponent, InfoBoxModalContent } from './components/CodesetTrees/codesetTreeCoding.component';
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
-import { MainFullReviewComponent, SearchesModalContent } from './components/mainfull/mainfull.component';
+import { MainFullReviewComponent } from './components/main/mainfull.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
@@ -27,10 +27,8 @@ import { ItemCodingFullComp } from './components/coding/codingFull.component';
 import { itemDetailsComp } from './components/itemDetails/itemDetails.component';
 import { ReviewStatisticsComp } from './components/reviewStatistics/reviewstatistics.component';
 import { itemDetailsPaginatorComp } from './components/ItemDetailsPaginator/itemDetailsPaginator.component';
-import { CodesetTreeComponent } from './components/CodesetTree/codesets.component';
 import { frequenciesResultsComp } from './components/Frequencies/frequenciesResults.component';
 import { EventEmitterService } from './components/services/EventEmitter.service';
-import { WebApiObservableService } from './components/services/httpQuery.service';
 import { CrossTabsComp } from './components/CrossTabs/crosstab.component';
 import { ChartsModule } from 'ng2-charts'
 import { SearchComp } from './components/Search/SearchComp.component';
@@ -38,20 +36,43 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 import { LayoutModule } from '@progress/kendo-angular-layout';
-import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { InputsModule } from '@progress/kendo-angular-inputs';
+import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
+import { ToolBarModule } from '@progress/kendo-angular-toolbar';
+import { DialogsModule  } from '@progress/kendo-angular-dialog';
+import { frequenciesComp } from './components/Frequencies/frequencies.component';
+import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
+import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
+import { ROSourcesListComponent } from './components/Sources/ROSourcesList.component';
+import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
+import { SourcesComponent } from './components/Sources/sources.component';
+import { PubMedComponent } from './components/Sources/PubMed.component';
+import { ReviewSetsEditorComponent } from './components/CodesetTrees/reviewSetsEditor.component';
+import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeMain.component';
+import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
+import { BuildModelComponent } from './components/BuildModel/buildmodel.component';
+import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelector.component';
+import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importCodesetsWizard.component';
+import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
+
 
 @NgModule({
     declarations: [
 		AppComponent,
-		CodesetTreeComponent,
-        SearchComp,
+		SearchComp,
         frequenciesComp,
-		frequenciesResultsComp,
+        frequenciesResultsComp,
+        ReviewSetsEditorComponent,
 		CrossTabsComp,
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
-        ReviewSetsComponent,
+        CodesetTreeMainComponent,
+        CodesetTreeCodingComponent,
+        CodesetTreeEditComponent,
+        ImportCodesetsWizardComponent,
+        codesetTree4CopyComponent,
+		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
@@ -61,19 +82,25 @@ import { ChartModule } from '@progress/kendo-angular-charts';
         ItemCodingFullComp,
         itemDetailsComp,
         paginatorComp,
-        StatusBarComponent,
+		StatusBarComponent,
 		InfoBoxModalContent,
-		SearchesModalContent,
         ItemDocListComp,
+		SourcesComponent,
+		BuildModelComponent,
+        ImportReferencesFileComponent,
+        PubMedComponent,
         intropageComponent,
         ModalDialogComponent,
         HeaderComponent,
+        ROSourcesListComponent,
         MainFullReviewComponent,
         MainComponent
 	],
-
-	providers: [EventEmitterService, WebApiObservableService ],
-    entryComponents: [InfoBoxModalContent, ModalDialogComponent, SearchesModalContent],
+    providers: [
+        EventEmitterService,
+		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
+    ],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
@@ -85,20 +112,28 @@ import { ChartModule } from '@progress/kendo-angular-charts';
 		BrowserAnimationsModule,
 		ChartsModule,
         ReactiveFormsModule,
-        TreeModule,
+		TreeModule,
         GridModule,
         ChartModule,
+        DialogsModule,
+        ToolBarModule,
+        InputsModule,
+        NotificationModule,
+        DatePickerModule,
         LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
-            { path: 'reviewsets', component: ReviewSetsComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
-            { path: 'mainFullReview', component: MainFullReviewComponent }, 
-            { path: 'main', component: MainComponent }, 
+            { path: 'Main', component: MainFullReviewComponent }, 
+            { path: 'MainCodingOnly', component: MainComponent }, 
+			{ path: 'sources', component: SourcesComponent },
+			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
-            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },//intropage
+            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
+            { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+            { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

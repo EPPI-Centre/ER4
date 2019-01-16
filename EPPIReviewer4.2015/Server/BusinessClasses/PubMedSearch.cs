@@ -28,11 +28,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class PubMedSearch : BusinessBase<PubMedSearch>
     {
-#if SILVERLIGHT
-    public PubMedSearch(){}
-#else
-        protected PubMedSearch() { }
-#endif
+        public PubMedSearch(){}
         
         public static void GetPubMedSearch(string QueStr, EventHandler<DataPortalResult<PubMedSearch>> handler)
         {
@@ -40,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch(new SingleCriteria<PubMedSearch, string>(QueStr));
         }
-        private static PropertyInfo<string> QueryStrProperty = RegisterProperty<string>(new PropertyInfo<string>("QueryStr", "QueryStr"));
+        public static readonly PropertyInfo<string> QueryStrProperty = RegisterProperty<string>(new PropertyInfo<string>("QueryStr", "QueryStr"));
         public string QueryStr
         {
             get
@@ -52,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(QueryStrProperty, value);
             }
         }
-        private static PropertyInfo<string> WebEnvProperty = RegisterProperty<string>(new PropertyInfo<string>("WebEnv", "WebEnv"));
+        public static readonly PropertyInfo<string> WebEnvProperty = RegisterProperty<string>(new PropertyInfo<string>("WebEnv", "WebEnv"));
         public string WebEnv
         {
             get
@@ -65,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<int> QueMaxProperty = RegisterProperty<int>(new PropertyInfo<int>("QueMax", "QueMax"));
+        public static readonly PropertyInfo<int> QueMaxProperty = RegisterProperty<int>(new PropertyInfo<int>("QueMax", "QueMax"));
         public int QueMax
         {
             get
@@ -77,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(QueMaxProperty, value);
             }
         }
-        private static PropertyInfo<int> showStartProperty = RegisterProperty<int>(new PropertyInfo<int>("showStart", "showStart"));
+        public static readonly PropertyInfo<int> showStartProperty = RegisterProperty<int>(new PropertyInfo<int>("showStart", "showStart"));
         public int showStart
         {
             get
@@ -89,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(showStartProperty, value);
             }
         }
-        private static PropertyInfo<int> showEndProperty = RegisterProperty<int>(new PropertyInfo<int>("showEnd", "showEnd"));
+        public static readonly PropertyInfo<int> showEndProperty = RegisterProperty<int>(new PropertyInfo<int>("showEnd", "showEnd"));
         public int showEnd
         {
             get
@@ -101,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(showEndProperty, value);
             }
         }
-        private static PropertyInfo<int> saveStartProperty = RegisterProperty<int>(new PropertyInfo<int>("saveStart", "saveStart"));
+        public static readonly PropertyInfo<int> saveStartProperty = RegisterProperty<int>(new PropertyInfo<int>("saveStart", "saveStart"));
         public int saveStart
         {
             get
@@ -113,7 +109,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(saveStartProperty, value);
             }
         }
-        private static PropertyInfo<int> saveEndProperty = RegisterProperty<int>(new PropertyInfo<int>("saveEnd", "saveEnd"));
+        public static readonly PropertyInfo<int> saveEndProperty = RegisterProperty<int>(new PropertyInfo<int>("saveEnd", "saveEnd"));
         public int saveEnd
         {
             get
@@ -125,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(saveEndProperty, value);
             }
         }
-        private static PropertyInfo<string> SummaryProperty = RegisterProperty<string>(new PropertyInfo<string>("Summary", "Summary"));
+        public static readonly PropertyInfo<string> SummaryProperty = RegisterProperty<string>(new PropertyInfo<string>("Summary", "Summary"));
         public string Summary
         {
             get
@@ -137,7 +133,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SummaryProperty, value);
             }
         }
-        private static PropertyInfo<MobileList<string>> SavedIndexesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("SavedIndexes", "SavedIndexes"));
+        public static readonly PropertyInfo<MobileList<string>> SavedIndexesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("SavedIndexes", "SavedIndexes"));
         public MobileList<string> SavedIndexes
         {
             get
@@ -149,13 +145,13 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SavedIndexesProperty, value);
             }
         }
-        private static PropertyInfo<IncomingItemsList> ItemsListProperty = RegisterProperty<IncomingItemsList>(new PropertyInfo<IncomingItemsList>("ItemsList", "ItemsList"));
+        public static readonly PropertyInfo<IncomingItemsList> ItemsListProperty = RegisterProperty<IncomingItemsList>(new PropertyInfo<IncomingItemsList>("ItemsList", "ItemsList"));
         public IncomingItemsList ItemsList
         {
             get { return GetProperty(ItemsListProperty); }
             set { SetProperty(ItemsListProperty, value); }
         }
-        private static PropertyInfo<int> QueryKeyProperty = RegisterProperty<int>(new PropertyInfo<int>("QueryKey", "QueryKey"));
+        public static readonly PropertyInfo<int> QueryKeyProperty = RegisterProperty<int>(new PropertyInfo<int>("QueryKey", "QueryKey"));
         public int QueryKey
         {
             get
@@ -233,7 +229,7 @@ namespace BusinessLibrary.BusinessClasses
             else
             {//fetch some results to show to the user
                 showStart = 0;
-                showEnd = showStart + 40;
+                showEnd = showStart + 39;
                 if (ItemsList == null)
                 {
                     ItemsList = IncomingItemsList.NewIncomingItemsList();
@@ -250,7 +246,7 @@ namespace BusinessLibrary.BusinessClasses
                 Summary = "Search in PubMed for \""
                         + (criteria.Value.Length > 200 ? "[...long query...]" : criteria.Value)
                         + "\" returned approximately " + QueMax + " Items.\r\n";
-                Summary += "Dislpaying first " + showEnd + " Items.\r\n";
+                Summary += "Dislpaying first " + (showEnd + 1) + " Items.\r\n";
             }
             //second go: if QueryKey, NewWebEnv, QueMax are already set
                 //if saveStart&End are set saveresults
@@ -322,12 +318,12 @@ namespace BusinessLibrary.BusinessClasses
             if (toSave && ItemsList != null && ItemsList.IncomingItems.Count > 0)
             {
                 ItemsList.Saved += new EventHandler<SavedEventArgs>(ItemsList_Saved);
-                ItemsList.Save();
+                IncomingItemsList throwaway = ItemsList.Save();
             }
             else
             {
                 Summary = "Search in PubMed for \"" + ItemsList.SearchStr + "\" returned " + QueMax + " Items.\r\n";
-                Summary += "Dislpaying Items from N° " + showStart + " to N° " + showEnd + ".\r\n";
+                Summary += "Dislpaying Items from N° " + (showStart + 1) + " to N° " + (showEnd + 1) + ".\r\n";
             }
         }
         
@@ -828,25 +824,25 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ContinueCriteria : Csla.CriteriaBase<ContinueCriteria>
     {
-        /*private static PropertyInfo<bool> OnlyIncludedProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("OnlyIncluded", "OnlyIncluded"));
+        /*public static readonly PropertyInfo<bool> OnlyIncludedProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("OnlyIncluded", "OnlyIncluded"));
         public bool OnlyIncluded
         {
             get { return ReadProperty(OnlyIncludedProperty); }
         }
 
-        private static PropertyInfo<bool> ShowDeletedProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("ShowDeleted", "ShowDeleted"));
+        public static readonly PropertyInfo<bool> ShowDeletedProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("ShowDeleted", "ShowDeleted"));
         public bool ShowDeleted
         {
             get { return ReadProperty(ShowDeletedProperty); }
         }
 
-        private static PropertyInfo<int> SourceIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("SourceId", "SourceId"));
+        public static readonly PropertyInfo<int> SourceIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("SourceId", "SourceId"));
         public Int64 SourceId
         {
             get { return ReadProperty(SourceIdProperty); }
         }
 
-        private static PropertyInfo<string> AttributeSetIdListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("AttributeSetIdList", "AttributeSetIdList"));
+        public static readonly PropertyInfo<string> AttributeSetIdListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("AttributeSetIdList", "AttributeSetIdList"));
         public string AttributeSetIdList
         {
             get { return ReadProperty(AttributeSetIdListProperty); }

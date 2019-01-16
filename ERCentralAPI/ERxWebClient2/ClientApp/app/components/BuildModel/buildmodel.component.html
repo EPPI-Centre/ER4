@@ -1,0 +1,86 @@
+<HeaderComponent PageTitle="Build Model"></HeaderComponent>
+<button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    Close/back
+</button>
+
+<div class="container col-md-12 form">
+	<p hidden>{{reviewSetsService.selectedNode?.name}}</p>
+	<div class="col-md-12 row card">
+		<div class="card-body bg-light col-md-12 form-group">
+			<div class="font-weight-bold col-md-12 row form-group">
+				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</label>-->
+				Learn to apply this code:&nbsp;&nbsp;&nbsp;&nbsp;
+				<div ngbDropdown class="d-inline-block col-md-9">
+					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
+					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+			</div>
+			<div class="font-weight-bold col-md-12 row form-group">
+				Distinguish from this code:
+				<div ngbDropdown class="d-inline-block col-md-9">
+					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
+					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-12 row font-weight-bold form-group">
+				Name for your model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<div class="col-md-4">
+					<input [(ngModel)]="modelName" type="text" class="bg-light form-control col-md-12" />
+				</div>
+			</div>
+			<div class="col-md-12 row font-weight-bold form-group">
+				<div class="col-md-4">
+					<button (click)="BuildModel(modelName)" class="btn btn-lg btn-primary"> Build Model</button>
+				</div>
+				<div class="col-md-4">
+					<button (click)="IamVerySorryRefresh()" class="btn btn-lg btn-warning"> Refresh Models</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-12">
+			<kendo-grid [data]="DataSource" [height]="410"
+						[sort]="sort"
+						(sortChange)="sortChange($event)"
+						(remove)="removeHandler($event)">
+
+				<kendo-grid-column [sortable]="false" field="add" width="50"
+								   [headerStyle]="{'text-align': 'center'}"
+								   [style]="{'text-align': 'center'}">
+					<ng-template kendoGridHeaderTemplate let-dataItem>
+						<input style="zoom: 1.2;"
+							   type="checkbox"
+							   name="selectAll"
+							   (change)="selectAllSearchesChange($event)"
+							   [checked]="allSearchesSelected" />
+					</ng-template>
+					<ng-template kendoGridCellTemplate let-dataItem>
+						<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+							   type="checkbox"
+							   field="selected"
+							   [checked]="dataItem.add" />
+					</ng-template>
+				</kendo-grid-column>
+				<kendo-grid-column field="modelTitle" title="Title">
+				</kendo-grid-column>
+				<kendo-grid-column field="attributeOn" title="Att On">
+				</kendo-grid-column>
+				<kendo-grid-column field="attributeNotOn" title="Att Not On">
+				</kendo-grid-column>
+				<kendo-grid-column field="accuracy" title="Accuracy">
+				</kendo-grid-column>
+				<kendo-grid-column field="auc" title="AUC">
+				</kendo-grid-column>
+				<kendo-grid-column field="precision" title="Precision">
+				</kendo-grid-column>
+				<kendo-grid-column field="recall" title="Recall">
+				</kendo-grid-column>
+			</kendo-grid>
+		</div>
+	</div>
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

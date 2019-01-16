@@ -10,7 +10,6 @@ import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
@@ -43,16 +42,21 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	
 	//public item?: Item;
 	//public itemId = new Subject<number>();
-	public itemID: number = 0;
-	private subGotScreeningItem: Subscription | null = null;
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
+    
+    private subGotScreeningItem: Subscription | null = null;
     @Output() ItemChanged = new EventEmitter();
+    @Output() GoToNextScreeningItemClicked = new EventEmitter();
     @Input() IsScreening: boolean = false;
     @Input() item: Item | undefined;
     @Input() Context: string = "CodingFull";
 	
 
 	ngOnInit() {
-        if (this.item) this.itemID = this.item.itemId;
+        //if (this.item) this.itemID = this.item.itemId;
 	}
 	
 	
@@ -82,18 +86,20 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 	}
 	
     public GotScreeningItem() {
-
         //this.item = this.PriorityScreeningService.CurrentItem;
         //this.itemID = this.item.itemId;
         //this.GetItemCoding();
     }
-	
+    public GetScreeningItem() {
+        this.GoToNextScreeningItemClicked.emit();
+    }
 	private _hasPrevious: boolean | null = null;
 	hasPrevious(): boolean {
 		
 		return this.ItemListService.hasPrevious(this.itemID);
 	}
-	MyHumanIndex(): number {
+    public get MyHumanIndex(): number {
+        //console.log('MyHumanIndex called', this.itemID);
 		if (this.ItemListService.ItemList.items.findIndex(found => found.itemId == this.itemID) == -1) {
 			return 1;
 		} else {
@@ -147,16 +153,16 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
         if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
         else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', item.itemId]);
 		this.item = item;
-		if (this.item.itemId != this.itemID) {
+		//if (this.item.itemId != this.itemID) {
 
-			this.itemID = this.item.itemId;
-        }
+		//	this.itemID = this.item.itemId;
+  //      }
   
         this.ItemChanged.emit();
 		//this.GetItemCoding();
 	}
 	BackToMain() {
-		this.router.navigate(['mainFullReview']);
+		this.router.navigate(['Main']);
 	}
 	
 	ngOnDestroy() {

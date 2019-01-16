@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
@@ -10,7 +10,7 @@ import { WorkAllocation } from '../services/WorkAllocationContactList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewSetsComponent, CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
+import { CodesetTreeCodingComponent, CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
 import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
@@ -29,6 +29,38 @@ import { armsComp } from '../arms/armsComp.component';
                 button.disabled {
                     color:black; 
                     }
+
+                .vertical-text {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    left: -23px;
+                    float: left;
+                }
+                .vertical-text-R {
+                    position: fixed;
+                    top: 50%;
+                    z-index:2002;
+                    transform: rotate(90deg);
+                    right: -18px;
+                    float: left;
+                }
+                .codesInSmallScreen {
+                 position:absolute; 
+                 left: 0; z-index:2000;
+                  top: 106px;
+                transition: transform 0.31s;
+                transform-origin:left;
+                }
+                .codesInSmallScreen.hide {
+                  transform:scaleX(0);
+                }
+                .codesInSmallScreen.show {
+                  width:99.5%;
+                  transform:scaleX(1);
+                }  
+               
             `]
 
 })
@@ -44,7 +76,21 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService
     ) { }
-   
+//     .codesInSmallScreen.collapse{
+//    display: block!important;
+//    transition: all .25s ease -in -out;
+//}
+
+//                .codesInSmallScreen.collapse {
+//    opacity: 0;
+//    height: 0;
+//}
+
+//                .codesInSmallScreen.collapse.show {
+//    opacity: 1;
+//    height: 100 %;
+//}
+    
     @ViewChild('cmp')
     private ArmsCompRef!: any;
 
@@ -52,10 +98,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
-    public itemID: number = 0;
+    public get itemID(): number {
+        if (this.item) return this.item.itemId;
+        else return -1;
+    }
     private itemString: string = '0';
     public item?: Item;
-    public itemId = new Subject<number>();
     
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
@@ -65,8 +113,21 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('ItemDetailsCmp')
     private ItemDetailsCompRef!: any;
 
-
-
+    public innerWidth: any = 900;
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+        this.innerWidth = window.innerWidth;
+    }
+    IsSmallScreen(): boolean {
+        if (this.innerWidth && this.innerWidth <= 900) {
+            return true;
+        }
+        else return false;
+    }
+    public ShowCodesInSmallScreen: boolean = false;
+    public ShowHideCodes() {
+        this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
+    }
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -81,17 +142,30 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
 
-    ngOnInit() {
-        //console.log('init!');
+	ngOnInit() {
+
+        this.innerWidth = window.innerWidth;
+		//this.route.params.subscribe(params => {
+
+		//	alert(params);
+
+		//	if (params['itemId']) {
+
+		//		alert(params['itemId']);
+		//	}
+		//});
+
         
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
         else {
-            this.ArmsCompRef.armChangedEE.subscribe(() => {
-                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
-                else this.SetArmCoding(0);
-            });
+            //if (this.ArmsCompRef) {
+                this.ArmsCompRef.armChangedEE.subscribe(() => {
+                    if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+                    else this.SetArmCoding(0);
+                });
+            //}
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
 				this.GetItem();
@@ -100,8 +174,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList && this.ItemCodingService.ItemCodingList.length > 0) {
-                        console.log('data changed event caught');
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+                        //console.log('data changed event caught');
                         this.SetCoding();
                     }
                 }
@@ -115,7 +189,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     
     
-    private GetItem() {
+    public GetItem() {
 
         this.WipeHighlights();
         if (this.itemString == 'PriorityScreening') {
@@ -124,8 +198,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.PriorityScreeningService.NextItem();
         }
         else {
-            this.itemID = +this.itemString;
-            this.item = this.ItemListService.getItem(this.itemID);
+            //this.itemID = +this.itemString;
+            this.item = this.ItemListService.getItem(+this.itemString);
 
             this.IsScreening = false;
             this.GetItemCoding();
@@ -157,32 +231,31 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     public GotScreeningItem() {
         //console.log('got Screening Item');
         this.item = this.PriorityScreeningService.CurrentItem;
-        this.itemID = this.item.itemId;
+        //this.itemID = this.item.itemId;
         this.GetItemCoding();
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
-            this.ArmsCompRef.CurrentItem = this.item;
+            //if (this.ArmsCompRef) {
+                this.ArmsCompRef.CurrentItem = this.item;
+            //}
             this.armservice.FetchArms(this.item);
         }
         this.ItemCodingService.Fetch(this.itemID);    
 
     }
     SetCoding() {
-        console.log('change something');
-        if (this.ItemCodingService.ItemCodingList.length == 0) {
-            this.ReviewSetsService.clearItemData();
-            console.log('change: clearonly');
-            return;
-        }
+        //console.log('set coding');
         this.SetHighlights();
         this.ReviewSetsService.clearItemData();
+        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
         if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
         else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
     }
     SetArmCoding(armId: number) {
-        console.log('change Arm');
+        //console.log('change Arm');
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
     }
@@ -246,7 +319,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        this.itemID = -1;
+        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
@@ -258,15 +331,15 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcodingOnly', item.itemId]);
         this.item = item;
-        if (this.item.itemId != this.itemID) {
+        //if (this.item.itemId != this.itemID) {
 
-            this.itemID = this.item.itemId;
-        }
+        //    this.itemID = this.item.itemId;
+        //}
         //this.GetItemCoding();
     }
     BackToMain() {
         this.clearItemData();
-        this.router.navigate(['main']);
+        this.router.navigate(['MainCodingOnly']);
     }
     ItemAttributeSave(data: CheckBoxClickedEventData) {
         
@@ -335,6 +408,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             cmd.itemAttributeId = itemAtt.itemAttributeId;
         }
         SubError = this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => {
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             //do something if command ended with an error
             //console.log('Error handling');
             alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
@@ -385,6 +459,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             }
             
             this.SetCoding();
+            this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             console.log('set dest');
             SubSuccess.unsubscribe();
             SubError.unsubscribe();

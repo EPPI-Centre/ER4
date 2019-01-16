@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
 
 @Component({
     selector: 'home',
@@ -45,6 +45,7 @@ export class HomeComponent implements OnInit {
     }
     ngOnInit() {
         localStorage.clear();
+        this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
         this.getVinfo();
     }
     getVinfo() {
@@ -60,6 +61,6 @@ export class HomeComponent implements OnInit {
 class versionInfo {
     date: string = "";
     description: string = "";
-    uRL: string = "";
+    url: string = "";
     versionN: string = "";
 }

@@ -293,6 +293,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ParentAttributeId
         {
             get
@@ -306,6 +309,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> AttributeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeTypeId", "AttributeTypeId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int AttributeTypeId
         {
             get
@@ -333,6 +339,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> AttributeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeOrder", "Attribute Order", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int AttributeOrder
         {
             get

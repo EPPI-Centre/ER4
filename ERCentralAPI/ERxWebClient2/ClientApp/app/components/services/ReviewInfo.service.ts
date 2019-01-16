@@ -5,56 +5,62 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ReviewInfoService {
+export class ReviewInfoService extends BusyAwareService{
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        this._ReviewInfo = new ReviewInfo();
+        super();
     }
 
 
-    private _ReviewInfo: ReviewInfo;
+    private _ReviewInfo: ReviewInfo = new ReviewInfo();;
     public get ReviewInfo(): ReviewInfo {
-        if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
-            return this._ReviewInfo;
-        }
-        else {
-            const RevInfoJson = localStorage.getItem('ReviewInfo');
-            let rev_Info: ReviewInfo = RevInfoJson !== null ? JSON.parse(RevInfoJson) : new ReviewInfo();
+        //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
+        //    return this._ReviewInfo;
+        //}
+        //else {
+        //    const RevInfoJson = localStorage.getItem('ReviewInfo');
+        //    let rev_Info: ReviewInfo = RevInfoJson !== null ? JSON.parse(RevInfoJson) : new ReviewInfo();
   
-            if (rev_Info == undefined || rev_Info == null || rev_Info.reviewId == 0) {
+        //    if (rev_Info == undefined || rev_Info == null || rev_Info.reviewId == 0) {
 
-                return this._ReviewInfo;
-            }
-            else {
-                this._ReviewInfo = rev_Info;
-            }
-        }
+        //        return this._ReviewInfo;
+        //    }
+        //    else {
+        //        this._ReviewInfo = rev_Info;
+        //    }
+        //}
         return this._ReviewInfo;
     }
 
     public Fetch() {
+        this._BusyMethods.push("Fetch");
         this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
             this._ReviewInfo = rI;
-            this.Save();
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+            this.RemoveBusy("Fetch");
+            //this.Save();
+        }, error => {
+            this.RemoveBusy("Fetch");
+            this.modalService.SendBackHomeWithError(error);
+        }
         );
     }
 
-    public Save() {
-        if (this.ReviewInfo != null)
-            localStorage.setItem('ReviewInfo', JSON.stringify(this.ReviewInfo));
-        else if (localStorage.getItem('ReviewInfo'))//to be confirmed!! 
-            localStorage.removeItem('ReviewInfo');
-    }
+    //public Save() {
+    //    if (this.ReviewInfo != null)
+    //        localStorage.setItem('ReviewInfo', JSON.stringify(this.ReviewInfo));
+    //    else if (localStorage.getItem('ReviewInfo'))//to be confirmed!! 
+    //        localStorage.removeItem('ReviewInfo');
+    //}
 }
 
 export class ReviewInfo {

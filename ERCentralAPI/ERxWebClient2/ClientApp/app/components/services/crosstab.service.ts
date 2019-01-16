@@ -20,50 +20,57 @@ export class crosstabService {
     
 	private _CrossTab: CrossTab = new CrossTab();
 	@Output() codeSelectedChanged = new EventEmitter();
-	public testResult: CrossTab = new CrossTab();
-	public NXaxis: number = 0;
+	//public Result: CrossTab = new CrossTab();
+    public NXaxis: number = 0;
+
+    //fields below are needed to get the correct data when clicking through to obtain and ItemList, they complement what's in the Criteria object.
+    public filterSetId: number = 0;
+    public filterName: string = "";
+    public attributeNameXAxis: string = "";
+    public attributeNameYAxis: string = "";
+
     private _Crit: CriteriaCrosstab = new CriteriaCrosstab();
 
 	private _fieldNames: string[] = [];
 
 	public get CrossTab(): CrossTab {
 		
-		if (this._CrossTab.yRows == null || this._CrossTab.yRows == undefined || this._CrossTab.yRows.length == 0) {
+  //      if (!this._CrossTab.yRows) {
 
+  //          console.log('Got crosstab from LS!!!!!!!!!!!!!');
+		//	const CrossTabJson = localStorage.getItem('CrossTab');
 
-			const CrossTabJson = localStorage.getItem('CrossTab');
+		//	let CrossTab: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
+		//	if (CrossTab == undefined || CrossTab == null) {
 
-			let CrossTab: CrossTab = CrossTabJson !== null ? JSON.parse(CrossTabJson) : [];
-			if (CrossTab == undefined || CrossTab == null) {
+  //              console.log('1Got crosstab from LS!!!!!!!!!!!!!');
+		//		return this._CrossTab;
+  //          }
+		//	else {
 
-
-				return this._CrossTab;
-            }
-			else {
-
-
-				this._CrossTab = CrossTab;
-            }
-		}
+  //              console.log('2Got crosstab from LS!!!!!!!!!!!!!');
+		//		this._CrossTab = CrossTab;
+  //          }
+		//}
 		return this._CrossTab;
 	}
 
 	public get fieldNames(): string[] {
 
 
-		if (this._fieldNames == null || this._fieldNames == undefined || this._fieldNames.length == 0) {
+		//if (this._fieldNames == null || this._fieldNames == undefined || this._fieldNames.length == 0) {
 
-			const fieldNamesJson = localStorage.getItem('fieldNames');
+		//	const fieldNamesJson = localStorage.getItem('fieldNames');
 
-			let fieldNames: string[] = fieldNamesJson !== null ? JSON.parse(fieldNamesJson) : [];
-			if (fieldNames.length == 0 || fieldNames == null) {
+		//	let fieldNames: string[] = fieldNamesJson !== null ? JSON.parse(fieldNamesJson) : [];
+		//	if (fieldNames.length == 0 || fieldNames == null) {
 
-				return this._fieldNames;
-			}
-			else {
-				this._fieldNames = fieldNames;
-			}
-		}
+		//		return this._fieldNames;
+		//	}
+		//	else {
+		//		this._fieldNames = fieldNames;
+		//	}
+		//}
 		return this._fieldNames;
 
 	}
@@ -71,20 +78,20 @@ export class crosstabService {
     public get crit(): CriteriaCrosstab {
 
 
-		if (this._Crit == null) {
+		//if (this._Crit == null) {
 
-			const CriteriaJson = localStorage.getItem('Criteria');
+		//	const CriteriaJson = localStorage.getItem('Criteria');
 
-            let Criteria: CriteriaCrosstab = CriteriaJson !== null ? JSON.parse(CriteriaJson) : [];
-			if (Criteria == undefined || Criteria == null) {
+  //          let Criteria: CriteriaCrosstab = CriteriaJson !== null ? JSON.parse(CriteriaJson) : [];
+		//	if (Criteria == undefined || Criteria == null) {
 
-				return this._Crit;
-			}
-			else {
+		//		return this._Crit;
+		//	}
+		//	else {
 
-				this._Crit = Criteria;
-			}
-		}
+		//		this._Crit = Criteria;
+		//	}
+		//}
 		return this._Crit;
 
 	}
@@ -107,7 +114,8 @@ export class crosstabService {
 		this._Crit = cr;
 
 	}
-
+    //we need to get data as "any" because first two params can be of types ReviewSet or SetAttribute, so it's hard to keep things strongly typed
+    //(unless we're happy to refactor by overloading/multiplying Fetch method)
 	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any ) {
 
 		let AttributeIdXaxis: number = 0;
@@ -116,18 +124,18 @@ export class crosstabService {
 		let AttributeIdYaxis: number = 0;
 		let SetIdYaxis: number = 0;
 		let yAxisAttributes: SetAttribute[] = [];
-
+        this._CrossTab = new CrossTab();
+        this._fieldNames = [];
 		if (selectedNodeDataX.nodeType == 'ReviewSet') {
 
 			AttributeIdXaxis = 0;
 			SetIdXaxis = selectedNodeDataX.set_id;
 			this.NXaxis = selectedNodeDataX.attributes.length;
 			xAxisAttributes = selectedNodeDataX.attributes;
-			this.testResult.xHeaders = xAxisAttributes.map(x => x.attribute_name);
-			this.testResult.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
-
-			console.log('crosstabcheck \n  ' + AttributeIdXaxis + ' \n  ' + SetIdXaxis + '\n  '
-				+ this.NXaxis + '\n ' + xAxisAttributes.map(x => x.attribute_name));
+            this._CrossTab.xHeaders = xAxisAttributes.map(x => x.attribute_name);
+            this._CrossTab.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
+			//console.log('crosstabcheck2 \n  ' + AttributeIdXaxis + ' \n  ' + SetIdXaxis + '\n  '
+			//	+ this.NXaxis + '\n ' + xAxisAttributes.map(x => x.attribute_name));
 
 		} else {
 
@@ -135,19 +143,17 @@ export class crosstabService {
 			SetIdXaxis = selectedNodeDataX.set_id;
 			this.NXaxis = selectedNodeDataX.attributes.length;
 			xAxisAttributes = selectedNodeDataX.attributes;
-			this.testResult.xHeaders = xAxisAttributes.map(x => x.attribute_name);
-			this.testResult.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
+            this._CrossTab.xHeaders = xAxisAttributes.map(x => x.attribute_name);
+            this._CrossTab.xHeadersID = xAxisAttributes.map(x => x.attribute_id);
 
-		}
-
+        }
+        //console.log('logging xheaders:');
+        //for (let xh of this._CrossTab.xHeaders) console.log(xh);
 		if (selectedNodeDataY.nodeType == 'ReviewSet') {
 
 			AttributeIdYaxis = 0;
 			SetIdYaxis = selectedNodeDataY.set_id;
-			yAxisAttributes = selectedNodeDataY.attributes;
-
-
-
+			yAxisAttributes 
 		} else {
 
 			AttributeIdYaxis = selectedNodeDataY.attribute_id;
@@ -156,14 +162,19 @@ export class crosstabService {
 
 		}
 
-		console.log('crosstabcheck2345 \n  ' + this.crit      + ' ewrt \n ' + this.crit.nxaxis);
+		//console.log('crosstabcheck2345 \n  ' + this.crit      + ' ewrt \n ' + this.crit.nxaxis);
 
 		this.crit.attributeIdYAxis = AttributeIdYaxis;
-		this.crit.setIdYAxis = SetIdYaxis;
+        this.crit.setIdYAxis = SetIdYaxis;
+        this.attributeNameYAxis = selectedNodeDataY.name;
 		this.crit.attributeIdXAxis = AttributeIdXaxis;
-		this.crit.setIdXAxis = SetIdXaxis;
-		if (selectedFilter != null) {
-			this.crit.attributeIdFilter = selectedFilter;
+        this.crit.setIdXAxis = SetIdXaxis;
+        this.attributeNameXAxis = selectedNodeDataX.name;
+
+        if (selectedFilter && selectedFilter.attribute_id ) {
+            this.crit.attributeIdFilter = selectedFilter.attribute_id;
+            this.filterSetId = selectedFilter.set_id;
+            this.filterName = selectedFilter.name;
 		} else {
 			this.crit.attributeIdFilter = 0;
 		}
@@ -172,45 +183,48 @@ export class crosstabService {
 		this.crit.nxaxis = this.NXaxis;
 
 
-		console.log('crosstabcheck \n  ' + this.crit.attributeIdYAxis + ' \n  ' + this.crit.yAxisSetId + '\n  '
-			+ this.crit.xAxisAttributeId + ' \n ' + this.crit.xAxisSetId );
+		//console.log('crosstabcheck \n  ' + this.crit.attributeIdYAxis + ' \n  ' + this.crit.yAxisSetId + '\n  '
+		//	+ this.crit.xAxisAttributeId + ' \n ' + this.crit.xAxisSetId );
 		
 		return this._httpC.post<ReadOnlyItemAttributeCrosstab[]>(this._baseUrl + 'api/CrossTab/GetCrossTabs',
 			this.crit).subscribe(result => {
 
-					this.testResult.yRows = result;
-					this.CrossTab = this.testResult;
-					this.CrossTab.attributeIdXAxis = this.crit.xAxisAttributeId;
-					this.CrossTab.attributeIdYAxis = this.crit.yAxisAttributeId;
-					this.CrossTab.setIdXAxis = this.crit.setIdXAxis;
-					this.CrossTab.setIdYAxis = this.crit.setIdYAxis;
-					for (var i = 1; i <= Math.min(this.NXaxis, 50); i++)
-					{
-						this.fieldNames[i-1] = "field" + i;
-						
-					}
-					this.Save();
-					console.log(result);
+                this._CrossTab.yRows = result;
+                //this.CrossTab = this.Result;
+                this._CrossTab.attributeIdXAxis = this.crit.attributeIdXAxis;
+                this._CrossTab.attributeIdYAxis = this.crit.attributeIdYAxis;
+                this._CrossTab.setIdXAxis = this.crit.setIdXAxis;
+                this._CrossTab.setIdYAxis = this.crit.setIdYAxis;
+                //console.log('n axis len: ' + this.NXaxis);
+				for (var i = 1; i <= Math.min(this.NXaxis, 50); i++)
+				{
+					this._fieldNames[i-1] = "field" + i;
+                    //console.log("field" + i);
+				}
+				this.Save();
+				//console.log('fieldnames len: ' + this._fieldNames.length);
 				}
 			);
     }
 
 	public Save() {
 
-		if (this._CrossTab.yRows != undefined)
-			localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
-		else if (localStorage.getItem('CrossTab'))
-			localStorage.removeItem('CrossTab');
+  //      if (this._CrossTab.yRows) {
+  //          console.log("saving crosstab main data");
+  //          localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
+  //      }
+		//else if (localStorage.getItem('CrossTab'))
+		//	localStorage.removeItem('CrossTab');
 
-		if (this._fieldNames != null)
-			localStorage.setItem('fieldNames', JSON.stringify(this._fieldNames));
-		else if (localStorage.getItem('fieldNames'))
-			localStorage.removeItem('fieldNames');
+		//if (this._fieldNames != null)
+		//	localStorage.setItem('fieldNames', JSON.stringify(this._fieldNames));
+		//else if (localStorage.getItem('fieldNames'))
+		//	localStorage.removeItem('fieldNames');
 
-		if (this._Crit != null)
-			localStorage.setItem('Criteria', JSON.stringify(this._Crit));
-		else if (localStorage.getItem('Criteria'))
-			localStorage.removeItem('Criteria');
+		//if (this._Crit != null)
+		//	localStorage.setItem('Criteria', JSON.stringify(this._Crit));
+		//else if (localStorage.getItem('Criteria'))
+		//	localStorage.removeItem('Criteria');
     }
 }
 
@@ -234,79 +248,79 @@ export class CriteriaCrosstab {
 	setIdXAxis: number = 0;
 	attributeIdYAxis: number = 0;
 	setIdYAxis: number = 0;
-	attributeIdFilter: number = 0;
+	attributeIdFilter: number = 0;//want
 	setIdFilter: number = 0;
 	nxaxis: number = 0;
-	onlyIncluded: boolean = true;
-	showDeleted: boolean = false;
-	sourceId: number = 0;
-	searchId: number = 0;
-	xAxisSetId: number = 0;
-	xAxisAttributeId: number = 0;
-	yAxisSetId: number = 0;
-	yAxisAttributeId: number = 0;
-	filterSetId: number = 0;
-	filterAttributeId: number = 0;
-	attributeSetIdList: string = "";
-	listType: string = "";
-	attributeid: number = 0;
+	//onlyIncluded: boolean = true;
+	//showDeleted: boolean = false;
+	//sourceId: number = 0;
+	//searchId: number = 0;
+	//xAxisSetId: number = 0;
+	//xAxisAttributeId: number = 0;
+	//yAxisSetId: number = 0;
+	//yAxisAttributeId: number = 0;
+	//filterSetId: number = 0;
+	//filterAttributeId: number = 0;
+	//attributeSetIdList: string = "";
+	//listType: string = "";
+	//attributeid: number = 0;
 
 }
 
 
 export class ReadOnlyItemAttributeCrosstab {
 
-	AttributeId: number = 0;
-	AttributeName: string = '';
-	Field1: number = 0;
-	Field2: number = 0;
-	Field3: number = 0;
-	Field4: number = 0;
-	Field5: number = 0;
-	Field6: number = 0;
-	Field7: number = 0;
-	Field8: number = 0;
-	Field9: number = 0;
-	Field10: number = 0;
-	Field11: number = 0;
-	Field12: number = 0;
-	Field13: number = 0;
-	Field14: number = 0;
-	Field15: number = 0;
-	Field16: number = 0;
-	Field17: number = 0;
-	Field18: number = 0;
-	Field19: number = 0;
-	Field20: number = 0;
-	Field21: number = 0;
-	Field22: number = 0;
-	Field23: number = 0;
-	Field24: number = 0;
-	Field25: number = 0;
-	Field26: number = 0;
-	Field27: number = 0;
-	Field28: number = 0;
-	Field29: number = 0;
-	Field30: number = 0;
-	Field31: number = 0;
-	Field32: number = 0;
-	Field33: number = 0;
-	Field34: number = 0;
-	Field35: number = 0;
-	Field36: number = 0;
-	Field37: number = 0;
-	Field38: number = 0;
-	Field39: number = 0;
-	Field40: number = 0;
-	Field41: number = 0;
-	Field42: number = 0;
-	Field43: number = 0;
-	Field44: number = 0;
-	Field45: number = 0;
-	Field46: number = 0;
-	Field47: number = 0;
-	Field48: number = 0;
-	Field49: number = 0;
-	Field50: number = 0;
+	attributeId: number = 0;
+	attributeName: string = '';
+	field1: number = 0;
+	field2: number = 0;
+	field3: number = 0;
+	field4: number = 0;
+	field5: number = 0;
+	field6: number = 0;
+	field7: number = 0;
+	field8: number = 0;
+	field9: number = 0;
+	field10: number = 0;
+	field11: number = 0;
+	field12: number = 0;
+	field13: number = 0;
+	field14: number = 0;
+	field15: number = 0;
+	field16: number = 0;
+	field17: number = 0;
+	field18: number = 0;
+	field19: number = 0;
+	field20: number = 0;
+	field21: number = 0;
+	field22: number = 0;
+	field23: number = 0;
+	field24: number = 0;
+	field25: number = 0;
+	field26: number = 0;
+	field27: number = 0;
+	field28: number = 0;
+	field29: number = 0;
+	field30: number = 0;
+	field31: number = 0;
+	field32: number = 0;
+	field33: number = 0;
+	field34: number = 0;
+	field35: number = 0;
+	field36: number = 0;
+	field37: number = 0;
+	field38: number = 0;
+	field39: number = 0;
+	field40: number = 0;
+	field41: number = 0;
+	field42: number = 0;
+	field43: number = 0;
+	field44: number = 0;
+	field45: number = 0;
+	field46: number = 0;
+	field47: number = 0;
+	field48: number = 0;
+	field49: number = 0;
+	field50: number = 0;
 
 }

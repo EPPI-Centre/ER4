@@ -26,7 +26,7 @@ namespace ERxWebClient2.Controllers
 
         private readonly ILogger _logger;
 
-        public CrossTabController(ILogger<ReviewController> logger)
+        public CrossTabController(ILogger<CrossTabController> logger)
         {
 
             _logger = logger;

@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
+
 const treeShakableModules = [
     '@angular/animations',
     '@angular/common',
@@ -23,7 +24,7 @@ const nonTreeShakableModules = [
     //'es6-shim',
     //'event-source-polyfill',
     //'jquery',
-    './CSS/ERx.css',
+	'./CSS/ERx.css',
     'font-awesome/css/font-awesome.css',
     'angular-tree-component/dist/angular-tree-component.css',
     '@progress/kendo-theme-bootstrap/dist/all.css'
@@ -79,7 +80,16 @@ module.exports = (env) => {
         module: {
             rules: [
                 { test: /\.css(\?|$)/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) },
-                { test: /path.join(__dirname, 'CSS', 'ERx.css')/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) }
+				{ test: /path.join(__dirname, 'CSS', 'ERx.css')/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) },
+				{
+					test: /\.less/,
+					use: ExtractTextPlugin.extract({
+						fallback: 'style-loader',
+						use: ['css-loader', 'less-loader']
+					}),
+					include: path.resolve(__dirname, 'src/style')
+				},
+		
             ]
         },
         plugins: [

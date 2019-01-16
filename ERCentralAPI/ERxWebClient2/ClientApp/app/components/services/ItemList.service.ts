@@ -1,115 +1,118 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of, Subscription, Subject, BehaviorSubject } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient,  } from '@angular/common/http';
 import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
-import { forEach } from '@angular/router/src/utils/collection';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Injectable({
     providedIn: 'root',
     }
 )
 
-export class ItemListService {
+export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService,
         private _PriorityScreeningService: PriorityScreeningService,
         private ModalService: ModalService
-    ) { }
+    ) {
+        super();
+        //this.timerObj = timer(5000, 5000).pipe(
+        //    takeUntil(this.killTrigger));
+        //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
+    }
+    //public timerObj: any | undefined;
+    //private killTrigger: Subject<void> = new Subject();
+    //private ID: number = Math.random();
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
-        if (this._IsInScreeningMode === null) {
-            const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
-            let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
-            if (iism === null ) {
-                return false;
-            }
-            else {
-                //console.log("Got ItemsList from LS");
-                this.IsInScreeningMode = iism;
-            }
-        }
+        //if (this._IsInScreeningMode === null) {
+        //    const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
+        //    let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
+        //    if (iism === null ) {
+        //        return false;
+        //    }
+        //    else {
+        //        //console.log("Got ItemsList from LS");
+        //        this.IsInScreeningMode = iism;
+        //    }
+        //}
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
         else return false;
     }
     public set IsInScreeningMode(state: boolean) {
         this._IsInScreeningMode = state;
-        this.Save();
+        //this.Save();
 	}
-
-
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
 	public get ItemList(): ItemList {
 	
-		if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
-			//console.log('in here 2');
-            const listJson = localStorage.getItem('ItemsList');
-            let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-			if (list == undefined || list == null || list.items.length == 0) {
-				//console.log('in here 3: ' + this._ItemList.items.length);
-                return this._ItemList;
-            }
-            else {
-                console.log("Got ItemsList from LS");
-                this._ItemList = list;
-            }
-        }
+		//if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
+		//	//console.log('in here 2');
+  //          const listJson = localStorage.getItem('ItemsList');
+  //          let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
+		//	if (list == undefined || list == null || list.items.length == 0) {
+		//		//console.log('in here 3: ' + this._ItemList.items.length);
+  //              return this._ItemList;
+  //          }
+  //          else {
+  //              console.log("Got ItemsList from LS");
+  //              this._ItemList = list;
+  //          }
+  //      }
         return this._ItemList;
     }
     public get ListCriteria(): Criteria {
-        if (this._Criteria.listType == "") {
-            const critJson = localStorage.getItem('ItemsListCriteria');
-            let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
-            if (crit == undefined || crit == null) {
-                return this._Criteria;
-            }
-            else {
-                //console.log("Got Criteria from LS");
-                this._Criteria = crit;
-            }
-        }
+        //if (this._Criteria.listType == "") {
+        //    const critJson = localStorage.getItem('ItemsListCriteria');
+        //    let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
+        //    if (crit == undefined || crit == null) {
+        //        return this._Criteria;
+        //    }
+        //    else {
+        //        //console.log("Got Criteria from LS");
+        //        this._Criteria = crit;
+        //    }
+        //}
         return this._Criteria;
     }
     public get currentItem(): Item {
-        if (this._currentItem) return this._currentItem;
-        else {
-            const currentItemJson = localStorage.getItem('currentItem');
-            this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
-        }
+        //if (this._currentItem) return this._currentItem;
+        //else {
+        //    const currentItemJson = localStorage.getItem('currentItem');
+        //    this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
+        //}
         return this._currentItem;
     }
-    private SaveCurrentItem() {
-        if (this._currentItem) {
-            localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
-        }
-        else if (localStorage.getItem('currentItem')) {
-            localStorage.removeItem('currentItem');
-        }
-    }
+    //private SaveCurrentItem() {
+    //    if (this._currentItem) {
+    //        localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
+    //    }
+    //    else if (localStorage.getItem('currentItem')) {
+    //        localStorage.removeItem('currentItem');
+    //    }
+    //}
 
    
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
+        items.items = orderBy(items.items, this.sort); 
         this._ItemList = items;
         this._Criteria = crit;
-        this.Save();
+        //this.Save();
     }
     private ChangingItem(newItem: Item) {
+        //console.log('ChangingItem');
         this._currentItem = newItem;
-        this.SaveCurrentItem();
+        //this.SaveCurrentItem();
         this.ItemChanged.emit();
     }
     public getItem(itemId: number): Item {
@@ -176,7 +179,7 @@ export class ItemListService {
         //}
     }
     public getNext(itemId: number): Item {
-      
+        //console.log('getNext');
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {
@@ -200,19 +203,31 @@ export class ItemListService {
             return new Item();
         }
     }
-    public ListDescription: string = "";
-    public FetchWithCrit(crit: Criteria, listDescription: string) {
-        console.log(crit.listType);
-        this._Criteria = crit;
-        console.log(this._Criteria.listType);
-        this.ListDescription = listDescription;
-            this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(list => {
-                this._Criteria.totalItems = this.ItemList.totalItemCount;
+	public ListDescription: string = "";
 
+    public FetchWithCrit(crit: Criteria, listDescription: string) {
+        this._BusyMethods.push("FetchWithCrit");
+        this._Criteria = crit;
+        if (this._ItemList && this._ItemList.pagesize > 0
+            && this._ItemList.pagesize <= 4000
+            && this._ItemList.pagesize != crit.pageSize
+        ) {
+            crit.pageSize = this._ItemList.pagesize;
+        }
+        console.log("FetchWithCrit", this._Criteria.listType);
+        this.ListDescription = listDescription;
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(
+                list => {
+                this._Criteria.totalItems = this.ItemList.totalItemCount;
+                    this.RemoveBusy("FetchWithCrit");
                 this.SaveItems(list, this._Criteria);
-            }, error => { this.ModalService.GenericError(error);}
-            );
+            }, error => {
+                this.ModalService.GenericError(error);
+                this.RemoveBusy("FetchWithCrit");
+            }
+            , () => { this.RemoveBusy("FetchWithCrit"); }
+        );
     }
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
@@ -221,6 +236,7 @@ export class ItemListService {
         }
     }
     public FetchNextPage() {
+        
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
@@ -247,25 +263,38 @@ export class ItemListService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    public Save() {
-        if (this._ItemList.items.length > 0) {
-            localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
-        }
-        else if (localStorage.getItem('ItemsList')) {
-            localStorage.removeItem('ItemsList');
-        }
-        if (this._Criteria.listType != "") {
-            localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
-        }
-        else if (localStorage.getItem('ItemsListCriteria')) {
-            localStorage.removeItem('ItemsListCriteria');
-        }
-        if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
-        else if (localStorage.getItem('ItemListIsInScreeningMode')) {
-            localStorage.removeItem('ItemListIsInScreeningMode');
-        }
-        this.SaveCurrentItem();
+
+    public sort: SortDescriptor[] = [{
+        field: 'shortTitle',
+        dir: 'asc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting items by ' + this.sort[0].field + " ");
+        this._ItemList.items = orderBy(this._ItemList.items, this.sort);
     }
+
+
+
+    //public Save() {
+    //    if (this._ItemList.items.length > 0) {
+    //        localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
+    //    }
+    //    else if (localStorage.getItem('ItemsList')) {
+    //        localStorage.removeItem('ItemsList');
+    //    }
+    //    if (this._Criteria.listType != "") {
+    //        localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
+    //    }
+    //    else if (localStorage.getItem('ItemsListCriteria')) {
+    //        localStorage.removeItem('ItemsListCriteria');
+    //    }
+    //    if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
+    //    else if (localStorage.getItem('ItemListIsInScreeningMode')) {
+    //        localStorage.removeItem('ItemListIsInScreeningMode');
+    //    }
+    //    this.SaveCurrentItem();
+    //}
 
 }
 

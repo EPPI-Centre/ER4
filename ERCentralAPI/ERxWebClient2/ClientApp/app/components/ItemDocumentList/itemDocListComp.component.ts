@@ -48,16 +48,18 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         }
         else {
 
-            this.sub = this.itemListService.ItemChanged.subscribe(
-                    () => {
-                        this.ItemDocsService.FetchDocList(this.itemID);
-                    }
-            );
-            this.sub = this.priorityScreeningService.gotItem.subscribe(
-                () => {
-                    this.ItemDocsService.FetchDocList(this.itemID);
-                }
-            );
+            //this.sub = this.itemListService.ItemChanged.subscribe(
+            //    () => {
+            //            console.log("ItemChanged, get docs, via subscription.");
+            //            this.ItemDocsService.FetchDocList(this.itemID);
+            //        }
+            //);
+            //this.sub = this.priorityScreeningService.gotItem.subscribe(
+            //    () => {
+            //        console.log("ItemChanged, get docs, via subscription. 2");
+            //        this.ItemDocsService.FetchDocList(this.itemID);
+            //    }
+            //);
         }
     }
     

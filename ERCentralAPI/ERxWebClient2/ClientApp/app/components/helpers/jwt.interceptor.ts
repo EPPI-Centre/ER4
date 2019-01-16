@@ -2,16 +2,19 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
+import { ReviewerIdentity, ReviewerIdentityService } from '../services/revieweridentity.service';
  
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
+    constructor(private ReviewerIdentityServ: ReviewerIdentityService) {}
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-        const userJson = localStorage.getItem('currentErUser');
+        //const userJson = localStorage.getItem('currentErUser');
         
-        let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-        
+        //let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
+
+        const currentUser: ReviewerIdentity = this.ReviewerIdentityServ.reviewerIdentity;
+
         if (request.method == 'POST') {
             if (currentUser && currentUser.token) {
                 request = request.clone({

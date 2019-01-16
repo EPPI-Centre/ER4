@@ -29,6 +29,9 @@ namespace BusinessLibrary.BusinessClasses
             return SetTypeName;
         }
         public static readonly PropertyInfo<int> SetTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetTypeId", "SetTypeId", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int SetTypeId
         {
             get
@@ -55,6 +58,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<bool> AllowComparisonProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowComparison", "AllowComparison"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool AllowComparison
         {
             get
@@ -63,6 +69,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<bool> AllowRandomAllocationProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowRandomAllocation", "AllowRandomAllocation"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool AllowRandomAllocation
         {
             get
@@ -72,6 +81,9 @@ namespace BusinessLibrary.BusinessClasses
         }
         
         public static readonly PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int MaxDepth
         {
             get
@@ -80,6 +92,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<AttributeTypes> AllowedCodeTypesProperty = RegisterProperty<AttributeTypes>(new PropertyInfo<AttributeTypes>("AllowedCodeTypes", "AllowedCodeTypes"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public AttributeTypes AllowedCodeTypes
         {
             get
@@ -88,6 +103,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<MobileList<int>> AllowedSetTypesID4PasteProperty = RegisterProperty<MobileList<int>>(new PropertyInfo<MobileList<int>>("AllowedSetTypesID4Paste", "AllowedSetTypesID4Paste"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public MobileList<int> AllowedSetTypesID4Paste
         {
             get

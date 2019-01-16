@@ -2,17 +2,50 @@
     <!--<HeaderComponent style="vertical-align:top;
     margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
      width:99.6%;"></HeaderComponent>-->
-    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;"></HeaderComponent>
-    <div class="h-100 mh-100 pr-0 ">
-        <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
-            <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
+    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details"></HeaderComponent>
+    <div class="h-100 mh-100 pr-0" >
+        <div class=""
+             [ngClass]="{'bg-light':IsSmallScreen(),
+                    'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
+            <button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
+                <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                Codes
+                <i class="fa fa-arrow-up" aria-hidden="true"></i>
+            </button>
+            <!--[ngbCollapse]="IsSmallScreen() && !ShowCodesInSmallScreen"-->
+            <div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
+                             ,'col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
+                             , 'show':IsSmallScreen() && ShowCodesInSmallScreen
+                            , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
+
+                <button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success float-right vertical-text-R" (click)="ShowHideCodes()">
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                    Codes
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                </button>
                 <ArmsComp #cmp class="card-text"></ArmsComp>
-                <reviewsets class="bg-light"></reviewsets>
+                <codesetTreeCoding class="bg-light"></codesetTreeCoding>
             </div>
+            <!--<div *ngIf="IsSmallScreen()" class="bg-light" style="position:absolute; left: 0; z-index:2000;">
+        <button *ngIf="!ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
+            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+            Codes
+            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+        </button>
+        <button *ngIf="ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
+            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+            Codes
+            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+        </button>
+        <div *ngIf="ShowCodesInSmallScreen" class="rounded border border-success w-100">
+            <ArmsComp #cmpSmall class="card-text"></ArmsComp>
+            <codesetTreeCoding class="bg-light"></codesetTreeCoding>
+        </div>
+    </div>-->
             <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end row">
-                <div class="row ml-1 mt-0 mr-0 w-100 d-flex">
-                    <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()"></itemDetailsPaginator>
-                    <div class="col-lg-6 col-12 col-md-12 col-xl-6 col-sm-12 pr-0 pl-0
+                <div class="row ml-1 mt-0 mr-0 w-100 d-flex justify-content-between">
+                    <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"></itemDetailsPaginator>
+                    <div class="pr-0 pl-0
                                      order-lg-last
                                      order-xl-last
                                      order-md-first

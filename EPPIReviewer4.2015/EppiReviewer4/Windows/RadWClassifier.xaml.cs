@@ -171,6 +171,11 @@ namespace EppiReviewer4
                 modelTitle = "Economic evaluation";
                 ModelId = -3;
             }
+            if (rbApplyNewRCTModel.IsChecked == true)
+            {
+                modelTitle = "New Cochrane RCT classifier model";
+                ModelId = -4;
+            }
             Int64 AttributeId = -1; // the attributeID we might be limiting the application of model to. -1 == apply to whole review
             int SourceId = -2;//source_id == -1 means "sourceless items"
 

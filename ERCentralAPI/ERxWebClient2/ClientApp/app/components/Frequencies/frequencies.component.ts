@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { ReviewerIdentityService } from "../services/revieweridentity.service";
 import { ItemListService } from "../services/ItemList.service";
 import { ActivatedRoute } from "@angular/router";
-import { ReviewSetsService, singleNode } from "../services/ReviewSets.service";
+import { ReviewSetsService, singleNode, SetAttribute } from "../services/ReviewSets.service";
 import { EventEmitterService } from "../services/EventEmitter.service";
 import { frequenciesService } from "../services/frequencies.service";
 
@@ -19,7 +19,7 @@ export class frequenciesComp implements OnInit {
         private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
         private route: ActivatedRoute,
-        private reviewSetsService: ReviewSetsService,
+        public reviewSetsService: ReviewSetsService,
         private frequenciesService: frequenciesService,
         private _eventEmitter: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
@@ -35,7 +35,7 @@ export class frequenciesComp implements OnInit {
         return this.reviewSetsService.selectedNode;
     }
     public chosenNode: singleNode | null = null;
-    public chosenFilter: singleNode | null = null;
+    public chosenFilter: SetAttribute | null = null;
 
     fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
         //console.log('NoneOfTheAboveCB:' + this.NoneOfTheAboveCB);
@@ -71,7 +71,8 @@ export class frequenciesComp implements OnInit {
     }
     
     SetFilter() {
-        this.chosenFilter = this.reviewSetsService.selectedNode;
+        if (this.reviewSetsService.selectedNode && this.reviewSetsService.selectedNode.nodeType == "SetAttribute")
+            this.chosenFilter = this.reviewSetsService.selectedNode as SetAttribute;
     }
 
     clearChosenNode() {
