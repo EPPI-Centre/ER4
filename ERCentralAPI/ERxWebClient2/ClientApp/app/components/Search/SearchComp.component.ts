@@ -23,9 +23,7 @@ import { SourcesService } from '../services/sources.service';
 })
 
 export class SearchComp implements OnInit, OnDestroy {
-
-
-
+	   
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService,
@@ -40,7 +38,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	) {
 		
 	}
-
 
 
     //private InstanceId: number = Math.random();
@@ -71,6 +68,11 @@ export class SearchComp implements OnInit, OnDestroy {
 			checkboxOnly: true,
 			mode: 'single'
 		};
+	}
+
+	HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
+		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
+		else return false;
 	}
 
 	public selectedRows(e: any) {
@@ -185,8 +187,10 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	chooseSourceDD() {
 
+		//If only required once this is okay; else we are repeating ViewModel code across the app
 		this._reviewSetsService.selectedNode = null;
-		this._listSources = this._sourcesService.ReviewSources;
+		this._listSources = this._sourcesService.ReviewSources.filter(x => this.HideManuallyCreatedItems(x) == false ? x : x.source_Name = 'Manually Created Source');
+		console.log('Blah: ' + this._listSources.values);
 	}
 
 	RunModel() {
