@@ -140,7 +140,7 @@
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
 				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn"  [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
 				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
 				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
 				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
@@ -251,7 +251,7 @@
 			Run Selected Model
 		</button>
 	</div>
-	
+</div>
 	<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 				[data]="DataSourceSearches" [height]="410"
 				[rowClass]="rowCallback"
@@ -308,6 +308,6 @@
 		</kendo-grid-column>
 	</kendo-grid>
 
-</div>
+
 <div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 
