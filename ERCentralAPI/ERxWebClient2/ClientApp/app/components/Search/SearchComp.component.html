@@ -246,7 +246,7 @@
 	<div class="form-group card-body col-md-12">
 		<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 		<p class="font-weight-bold">Run Models</p>
-		<button (click)="RunModel()" [disabled]="!ModelSelected"
+		<button (click)="openConfirmationDialog()" [disabled]="!ModelSelected"
 				type="button" class="btn btn-success">
 			Run Selected Model
 		</button>

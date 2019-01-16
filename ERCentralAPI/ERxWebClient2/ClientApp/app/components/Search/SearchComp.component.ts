@@ -196,16 +196,19 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	public openConfirmationDialog() {
-		this.confirmationDialogService.confirm('Please confirm..', 'Do you really want to ... ?')
-			.then((confirmed) => console.log('User confirmed:', confirmed))
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?')
+			.then(
+				(confirmed) =>
+				{
+					console.log('User confirmed:', confirmed);
+					this.RunModel();
+				}
+		)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
 	RunModel() {
 
-		this.confirmationDialogService.confirm('Please confirm..', 'Do you really want to ... ?')
-			.then((confirmed) => console.log('User confirmed:', confirmed))
-			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 
 		this.AttributeId = -1;
 		this.SourceId = -2;
@@ -260,6 +263,14 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (this.CanWrite()) {
 
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
+			//Very sorry notification show
+			this.notificationService.show({
+				content: 'Please refresh the models list to check if it is updated',
+				animation: { type: 'slide', duration: 400 },
+				position: { horizontal: 'center', vertical: 'top' },
+				type: { style: "warning", icon: true },
+				closable: true
+			});
 		}
 	}
 	
