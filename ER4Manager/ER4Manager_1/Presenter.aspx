@@ -238,8 +238,10 @@
                             </td>
                             <td style="width: 40%" valign="top">
                                 <strong>Include &#39;completed&#39; studies with this code</strong><br />
+                                <div style="border: 1px solid #333333; margin: 2px; padding: 5px; background-color: #E9E9E9">
                                 <asp:Label ID="lblIncludeCode" runat="server" 
                                     Text="No code selected (include all 'completed' studies)"></asp:Label>
+                                </div>
                             </td>
                         </tr>
                     </table>
@@ -264,7 +266,7 @@
                     ID="gvReview" runat="server" 
                     AutoGenerateColumns="False" Width="800px" onrowcommand="gvReview_RowCommand" 
                      DataKeyNames="REVIEW_ID" 
-                EnableModelValidation="True" onrowediting="gvReview_RowEditing">
+                EnableModelValidation="True" onrowediting="gvReview_RowEditing" OnRowDataBound="gvReview_RowDataBound">
                     <Columns>
                         <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                         <HeaderStyle BackColor="#B6C6D6" />
@@ -303,7 +305,7 @@
                 <asp:GridView ID="gvReviewNonShareable" runat="server" 
                     AutoGenerateColumns="False" Width="800px" 
                     onrowcommand="gvReviewNonShareable_RowCommand" 
-                DataKeyNames="REVIEW_ID" EnableModelValidation="True">
+                DataKeyNames="REVIEW_ID" EnableModelValidation="True" OnRowDataBound="gvReviewNonShareable_RowDataBound">
                     <Columns>
                         <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                         <HeaderStyle BackColor="#B6C6D6"  />
