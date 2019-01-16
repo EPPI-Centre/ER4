@@ -55,6 +55,7 @@ import { BuildModelComponent } from './components/BuildModel/buildmodel.componen
 import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelector.component';
 import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importCodesetsWizard.component';
 import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
+import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
 
 
 @NgModule({
@@ -94,17 +95,18 @@ import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree
         HeaderComponent,
         ROSourcesListComponent,
         MainFullReviewComponent,
-        MainComponent
+		MainComponent,
+		ConfirmationDialogComponent
 	],
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
-	entryComponents: [InfoBoxModalContent, ModalDialogComponent],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
-        CommonModule,
+		CommonModule,
         NgbModule,
         HttpModule,
 		FormsModule,

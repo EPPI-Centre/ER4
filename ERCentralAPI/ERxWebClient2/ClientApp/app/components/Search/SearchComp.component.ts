@@ -9,9 +9,10 @@ import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-qu
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import {  ReviewInfoService } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -34,7 +35,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
-		private _sourcesService: SourcesService
+		private _sourcesService: SourcesService,
+		private confirmationDialogService: ConfirmationDialogService
 	) {
 		
 	}
@@ -193,7 +195,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		console.log('Blah: ' + this._listSources.values);
 	}
 
+	public openConfirmationDialog() {
+		this.confirmationDialogService.confirm('Please confirm..', 'Do you really want to ... ?')
+			.then((confirmed) => console.log('User confirmed:', confirmed))
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
 	RunModel() {
+
+		this.confirmationDialogService.confirm('Please confirm..', 'Do you really want to ... ?')
+			.then((confirmed) => console.log('User confirmed:', confirmed))
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 
 		this.AttributeId = -1;
 		this.SourceId = -2;
