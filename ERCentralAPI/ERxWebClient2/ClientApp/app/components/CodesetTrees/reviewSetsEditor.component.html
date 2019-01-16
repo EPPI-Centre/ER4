@@ -44,7 +44,7 @@
                 <form class="row" #NewCodesetFrom="ngForm">
                     <div class="col-5">
                         <div class="form-group">
-                            <label for="Codeset_Type">Codeset Type</label>
+                            <label for="Codeset_Type">Codeset Type*</label>
                             <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="CodesetTypeChanged($event.target.value)" name="Codeset_Type">
                                 <option *ngFor="let type of SetTypes" [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
                                     {{type.setTypeName}}
@@ -53,20 +53,20 @@
                         </div>
                     </div>
                     <div class="col-7">
-                        <div><strong>Description:</strong></div>
+                        <div>Type Description:</div>
                         <div class="alert alert-light">
                             {{NewSetSelectedTypeDescription}}
                         </div>
                     </div>
                     <div class="form-group col-12">
-                        <label for="source_Name">Codeset Name</label>
+                        <label for="source_Name">Codeset Name*</label>
                         <input type="text" class="form-control" id="SetName"
                                [(ngModel)]="NewReviewSet.set_name" name="set_name"
                                #name="ngModel">
-                        <div [hidden]="IsNewSetNameValid()"
-                             class="alert alert-danger">
+                        <span [hidden]="IsNewSetNameValid()"
+                             class="alert alert-danger small p-1">
                             Name is required
-                        </div>
+                        </span>
                     </div>
                     <div *ngIf="NewSetTypeCanChangeDataEntryMode()" class="col-6">
                         Data Entry Mode:
@@ -76,8 +76,8 @@
                     <div *ngIf="!NewSetTypeCanChangeDataEntryMode()" class="col-12">
                         Data Entry Mode: <strong>Normal</strong>.
                     </div>
-                    <div class="form-group col-12">
-                        <label for="newSetDescription">Description</label>
+                    <div class="form-group col-12 mt-2">
+                        <label for="newSetDescription">Description (optional)</label>
                         <textarea class="form-control" id="newSetDescription"
                                   [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
                     </div>
@@ -108,27 +108,34 @@
                 <form class="row" #EditCodesetFrom="ngForm">
                     <div class="col-5">
                         <div>Codeset Type: {{CurrentNode.subTypeName}}.</div>
-                        <div>
-                            Can edit?
+                        <div >
+                            <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
+                            <kendo-switch name="CanEditSW" class="small small mt-1"
+                                          [(ngModel)]="CurrentNode.allowEditingCodeset"
+                                          [onLabel]="'No'"
+                                          [offLabel]="'Yes'"></kendo-switch>
+                            </span>
+                            <br />
+                            <!--Can edit?
                             <input class="m-1" id="CanEditCB" name="CanEditCB" type="checkbox" [(ngModel)]="CurrentNode.allowEditingCodeset"
                                    [disabled]="!CanWrite()" />
                             <span *ngIf="CurrentNode.allowEditingCodeset" class="small font-weight-bold">(Yes)</span>
-                            <span *ngIf="!CurrentNode.allowEditingCodeset" class="small font-weight-bold">(No)</span>
+                            <span *ngIf="!CurrentNode.allowEditingCodeset" class="small font-weight-bold">(No)</span>-->
                         </div>
                     </div>
                     <div class="form-group col-7 row">
-                        <div>Codeset Name</div>
+                        <div>Codeset Name*</div>
                         <input type="text" class="form-control" id="SetName"
                                [disabled]="!CanEditSelectedNode"
                                [(ngModel)]="CurrentNode.set_name" name="set_name"
                                #name="ngModel">
-                        <div [hidden]="IsEditingNodeNameValid()"
-                             class="alert alert-danger">
+                        <span [hidden]="IsEditingNodeNameValid()"
+                             class="alert alert-danger small p-1">
                             Name is required
-                        </div>
+                        </span>
                     </div>
                     <div class="col-12">
-                        <div class="row">
+                        <div class="row pl-3">
                             <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
                             <button *ngIf="SetTypeCanChangeDataEntryMode()" class="btn btn-outline-danger btn-sm ml-1 mb-1"
                                     [disabled]="!CanEditSelectedNode"
@@ -149,8 +156,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group col-12">
-                        <label for="newSetDescription">Description</label>
+                    <div class="form-group col-12 mt-2">
+                        <label for="newSetDescription">Description (optional)</label>
                         <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
                                   [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
                     </div>
@@ -175,7 +182,7 @@
                 <form class="row" #NewCodeFrom="ngForm">
                     <div class="col-12">
                         <div class="form-group">
-                            <label for="Codeset_Type">Code Type</label>
+                            <label for="Codeset_Type">Code Type*</label>
                             <select #CodeTypeSelect class="col-md-6 form-control" name="NewCode_Type"
                                     [disabled]="!CurrentCodeCanHaveChildren">
                                 <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
@@ -185,17 +192,17 @@
                         </div>
                     </div>
                     <div class="form-group col-12">
-                        <label for="source_Name">Code Name</label>
+                        <label for="source_Name">Code Name*</label>
                         <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
                                [(ngModel)]="NewCode.attribute_name" name="attribute_name"
                                #name="ngModel">
-                        <div [hidden]="IsNewCodeNameValid()"
-                             class="alert alert-danger">
+                        <span [hidden]="IsNewCodeNameValid()"
+                              class="alert alert-danger small p-1">
                             Name is required
-                        </div>
+                        </span>
                     </div>
-                    <div class="form-group col-12">
-                        <label for="newSetDescription">Description</label>
+                    <div class="form-group col-12 mt-2">
+                        <label for="newSetDescription">Description (optional)</label>
                         <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
                                   [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
                     </div>
@@ -227,7 +234,7 @@
                 <form class="row" #EditCodeFrom="ngForm">
                     <div class="col-12">
                         <div class="form-group">
-                            <label for="Codeset_Type">Code Type</label>
+                            <label for="Codeset_Type">Code Type*</label>
                             <select #EditCodeTypeSelect class="col-md-6 form-control"
                                     (change)="AttributeTypeChanged($event.target.value)" name="Code_Type"
                                      [(ngModel)]="UpdatingCode.attribute_type_id">
@@ -238,17 +245,17 @@
                         </div>
                     </div>
                     <div class="form-group col-12">
-                        <label for="source_Name">Code Name</label>
+                        <label for="source_Name">Code Name*</label>
                         <input type="text" class="form-control" id="AttName"
                                [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
                                #name="ngModel">
-                        <div [hidden]="IsNewCodeNameValid()"
-                             class="alert alert-danger">
+                        <span [hidden]="IsNewCodeNameValid()"
+                             class="alert alert-danger small p-1">
                             Name is required
-                        </div>
+                        </span>
                     </div>
                     <div class="form-group col-12">
-                        <label for="newSetDescription">Description</label>
+                        <label for="newSetDescription">Description (optional)</label>
                         <textarea class="form-control" id="newSetDescription"
                                   [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
                     </div>

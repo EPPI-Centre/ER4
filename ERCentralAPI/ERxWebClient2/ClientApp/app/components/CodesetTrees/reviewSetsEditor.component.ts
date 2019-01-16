@@ -10,9 +10,13 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'ReviewSetsEditor',
     templateUrl: './reviewSetsEditor.component.html',
-    providers: []
+    providers: [],
+    styles: [`.k-switch-label-off {    
+                    color:black;
+                }
+        `],
 })
-
+    
 export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
 
    

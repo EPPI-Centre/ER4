@@ -85,9 +85,12 @@ ul.k-tabstrip-items {
 ul.k-tabstrip-items li.k-item.k-state-active {
     border-color: rgba(33,37,41,0.45);
 }
-
-
-
+.brightSwitch .k-switch-label-off {
+    color: orange;
+}
+.brightSwitch .k-switch-off .k-switch-handle{
+    background-color:orange;
+}
 /*
     disable controls within a given element hack.
     see https://stackoverflow.com/questions/50385048/disable-all-button-and-links-in-a-div
