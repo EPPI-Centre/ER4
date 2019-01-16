@@ -15,6 +15,7 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Telerik.Web.UI;
+using System.Drawing;
 
 public partial class Presenter : System.Web.UI.Page
 {
@@ -616,8 +617,8 @@ public partial class Presenter : System.Web.UI.Page
             {
                 Utils.SetSessionString("WebDatabaseID", ddlWebDatabases.SelectedValue);
                 // to work locally start ER4WebDB in another session and get the localhost number
-                //hlWebDBUrl.NavigateUrl = "http://localhost:57035/ER4WebDB/Intro.aspx?ID=" + ddlWebDatabases.SelectedValue;
-                //hlWebDBUrl.Text = "http://localhost:57035/ER4WebDB/Intro.aspx?ID=" + ddlWebDatabases.SelectedValue;
+                //hlWebDBUrl.NavigateUrl = "http://localhost:58215/Intro.aspx?ID=" + ddlWebDatabases.SelectedValue;
+                //hlWebDBUrl.Text = "http://localhost:58215/Intro.aspx?ID=" + ddlWebDatabases.SelectedValue;
 
                 // this is what should be there when running live
                 hlWebDBUrl.NavigateUrl = "http://eppi.ioe.ac.uk/webdatabases4/Intro.aspx?ID=" + ddlWebDatabases.SelectedValue;
@@ -1362,6 +1363,34 @@ public partial class Presenter : System.Web.UI.Page
             // level = 0 e.Node.Value = attribute_set_id (i.e. ''), e.Node.ID = attribute_id, e.Node.ToolTip = set_id
             // level > 0 e.Node.Value = attribute_set_id,           e.Node.ID = attribute_set_id, e.Node.ToolTip = set_id
             e.Node.Text = e.Text;
+        }
+    }
+
+    protected void gvReview_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_WDGetWebDatabases", e.Row.Cells[0].Text);
+            if (idr.Read())
+            {
+                e.Row.BackColor = System.Drawing.Color.Cyan;
+            }
+            idr.Close();
+        }
+    }
+
+    protected void gvReviewNonShareable_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_WDGetWebDatabases", e.Row.Cells[0].Text);
+            if (idr.Read())
+            {
+                e.Row.BackColor = System.Drawing.Color.Cyan;
+            }
+            idr.Close();
         }
     }
 }
