@@ -170,7 +170,7 @@
 			 class="form-group col-md-8 pull-right">
 			<div>
 				<div ngbDropdown>
-					<select class="btn btn-secondary col-md-8" id="dropdownBasicSources"
+					<select class="btn btn-secondary col-md-4" id="dropdownBasicSources"
 							ngbDropdownToggle [(ngModel)]="selected">
 						<option [value]="item.source_ID" *ngFor="let item of _listSources">
 							{{item.source_Name}}
@@ -246,13 +246,12 @@
 	<div class="form-group card-body col-md-12">
 		<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 		<p class="font-weight-bold">Run Models</p>
-		<button (click)="RunModel()" [disabled]="!ModelSelected"
+		<button (click)="openConfirmationDialog()" [disabled]="!ModelSelected"
 				type="button" class="btn btn-success">
 			Run Selected Model
 		</button>
 	</div>
-
-
+	
 	<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 				[data]="DataSourceSearches" [height]="410"
 				[rowClass]="rowCallback"

@@ -9,9 +9,10 @@ import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-qu
 import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import {  ReviewInfoService } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -23,9 +24,7 @@ import { SourcesService } from '../services/sources.service';
 })
 
 export class SearchComp implements OnInit, OnDestroy {
-
-
-
+	   
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService,
@@ -36,11 +35,11 @@ export class SearchComp implements OnInit, OnDestroy {
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
-		private _sourcesService: SourcesService
+		private _sourcesService: SourcesService,
+		private confirmationDialogService: ConfirmationDialogService
 	) {
 		
 	}
-
 
 
     //private InstanceId: number = Math.random();
@@ -71,6 +70,11 @@ export class SearchComp implements OnInit, OnDestroy {
 			checkboxOnly: true,
 			mode: 'single'
 		};
+	}
+
+	HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
+		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
+		else return false;
 	}
 
 	public selectedRows(e: any) {
@@ -185,11 +189,26 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	chooseSourceDD() {
 
+		//If only required once this is okay; else we are repeating ViewModel code across the app
 		this._reviewSetsService.selectedNode = null;
-		this._listSources = this._sourcesService.ReviewSources;
+		this._listSources = this._sourcesService.ReviewSources.filter(x => this.HideManuallyCreatedItems(x) == false ? x : x.source_Name = 'Manually Created Source');
+		console.log('Blah: ' + this._listSources.values);
+	}
+
+	public openConfirmationDialog() {
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?')
+			.then(
+				(confirmed) =>
+				{
+					console.log('User confirmed:', confirmed);
+					this.RunModel();
+				}
+		)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
 	RunModel() {
+
 
 		this.AttributeId = -1;
 		this.SourceId = -2;
@@ -244,6 +263,14 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (this.CanWrite()) {
 
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
+			//Very sorry notification show
+			this.notificationService.show({
+				content: 'Please refresh the models list to check if it is updated',
+				animation: { type: 'slide', duration: 400 },
+				position: { horizontal: 'center', vertical: 'top' },
+				type: { style: "warning", icon: true },
+				closable: true
+			});
 		}
 	}
 	
