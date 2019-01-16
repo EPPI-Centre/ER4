@@ -63,9 +63,9 @@
                         <kendo-tabstrip-tab [title]="'References'">
                             <ng-template kendoTabContent>
                                 <div class="containsAtoolbar">
-                                    <kendo-toolbar style="background-color: #f5f6fa;">
-                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
-                                        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-button>
+                                    <kendo-toolbar class="small" style="background-color: #f5f6fa;">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
                                         <kendo-toolbar-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
                                                                    [disabled]="!CanGetItemsWithThisCode"
                                                                    [data]="ItemsWithThisCodeDDData"

@@ -138,7 +138,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.showDeleted = false;
         cr.pageNumber = 0;
         let ListDescription: string = "";
-        ListDescription = CurrentAtt.attribute_name + ".";
+        if (Included) ListDescription = CurrentAtt.attribute_name + ".";
+        else ListDescription = CurrentAtt.attribute_name + " (excluded).";
         cr.attributeid = CurrentAtt.attribute_id;
         cr.sourceId = 0;
         cr.listType = "StandardItemList";
