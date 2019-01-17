@@ -8,7 +8,7 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
@@ -81,9 +81,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private InstanceId: number = Math.random();
     public crossTabResult: any | 'none';
     public CodesAreCollapsed: boolean = true;
+    public ItemsWithThisCodeDDData: Array<any> = [{
+        text: 'With this Code (Excluded)',
+        click: () => {
+            this.ListItemsWithThisCode(false);
+        }
+    }];
 	//public selectedAttributeSetF: any | 'none';
-	
-    	
+    public get selectedNode(): singleNode | null {
+        return this.reviewSetsService.selectedNode;
+    }
+    public get CanGetItemsWithThisCode(): boolean {
+        if (this.selectedNode && this.selectedNode.nodeType == "SetAttribute") return true;
+        else return false;
+    }	
 	dtTrigger: Subject<any> = new Subject();
 	tabSelected: any = null;
 
@@ -118,7 +129,24 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
 	}
-
+    ListItemsWithThisCode(Included: boolean) {
+        if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
+        let CurrentAtt = this.selectedNode as SetAttribute;
+        if (!CurrentAtt) return;
+        let cr: Criteria = new Criteria();
+        cr.onlyIncluded = Included;
+        cr.showDeleted = false;
+        cr.pageNumber = 0;
+        let ListDescription: string = "";
+        if (Included) ListDescription = CurrentAtt.attribute_name + ".";
+        else ListDescription = CurrentAtt.attribute_name + " (excluded).";
+        cr.attributeid = CurrentAtt.attribute_id;
+        cr.sourceId = 0;
+        cr.listType = "StandardItemList";
+        cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
+        this.ItemListService.FetchWithCrit(cr, ListDescription);
+        //this._eventEmitter.PleaseSelectItemsListTab.emit();
+    }
 	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
 		
 	//	if (!selectedNodeDataF || selectedNodeDataF == undefined) {
