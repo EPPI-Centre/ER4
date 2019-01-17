@@ -4,17 +4,17 @@
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
 		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-md-12">
-	<div class="card">
-		<div class="container-fluid card-body">
-			<div class="row">
-				<div class="col-md-7 m-0 p-0">
+	<div class="">
+		<div class="container-fluid">
+			<div class="row" >
+				<div class="col-md-5 m-0 p-0" style="min-width: 500px;">
 					<div ngbDropdown>
-						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle  (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
+						<button class="btn btn-primary col-7" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
 							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
@@ -28,41 +28,37 @@
 							<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
 						</div>
 					</div>
-
-					<div *ngIf="(selectedSearchDropDown == 'With this code')
-						||  (selectedSearchDropDown == 'Without this code' )" 
-						 ngbDropdown>
-                        <button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
-						<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-							<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-						</div>
-					</div>
-
-					<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
-							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-							 ngbDropdown >
-							<button class="btn btn-info col-md-7" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
-							<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-								<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
-							</div>
-					</div>
-
 				</div>
-
-				<div *ngIf="showTextBox" class="d-inline-block col-md-12 m-3">
+				<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
+							||	selectedSearchDropDown == 'That dont have any codes from this set') "
+					 ngbDropdown class="col-md-5">
+					<button class="btn btn-info col-md-7" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+						<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+					</div>
+				</div>
+				<div *ngIf="(selectedSearchDropDown == 'With this code')
+						||  (selectedSearchDropDown == 'Without this code' )"
+					 ngbDropdown class="col-md-5">
+					<button class="btn btn-info  dropdown-toggle col-md-7" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
+					<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+										 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+				<div *ngIf="showTextBox" class="d-inline-block col-md-5 m-0 p-0">
 					<div>
-						<b class="col-md-4 font-italic">Comma-Separated list of IDs:</b>
+						<b class="col-md-2 font-italic">Comma-Separated list of IDs:</b>
 						<input [(ngModel)]="commaIDs"
-							   class="col-md-8 bg-light border-dark form-control pull-right"
+							   class="col-md-6 bg-light border-dark form-control pull-right"
 							   type="text" name="CommaIDs"
 							   placeholder="IDs"><br>
 					</div>
 				</div>
-				<div class="col-md-12">
+				<div class="col-md-7 p-0 m-0">
 					<div class="col-md-4"></div>
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-						 class="col-md-8 pull-right">
+						 class="col-md-8">
 						<div>
 							<div>
 								<input [(ngModel)]="searchText"
@@ -108,11 +104,14 @@
 					</table>
 				</div>
 			</div>
-			<div class="row">
-				<button type="button" class="btn btn-outline-primary col-md-4"
-						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-					Search
-				</button>
+			<div class="container">
+				<div class="row" style="min-width: 500px;">
+					<button type="button" class="btn btn-outline-primary col-md-4"
+							(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
+						&nbsp;&nbsp;&nbsp;	Search&nbsp;&nbsp;&nbsp;
+					</button>
+				</div>
+				<div class="col-9"></div>
 			</div>
 		</div>
 	</div>

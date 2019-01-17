@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -454,7 +454,15 @@ export class SearchComp implements OnInit, OnDestroy {
 			this._searchService.Delete(lstStrSearchIds);
 		}
 	}
-	
+	public convertToIncEx(incEx: boolean): string  {
+
+		if (incEx == true) {
+			return 'included';
+		} else {
+			return 'excluded'
+		}
+
+	}
 	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
@@ -491,7 +499,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
 
-					this._searchService.cmdSearches._title = searchTitle;
+					this._searchService.cmdSearches._title = searchTitle ;
 					this._searchService.cmdSearches._withCodes = String(this.withCode);
 
 					this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
@@ -707,22 +715,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-	ngOnInit() {
 
-        //console.log("SearchComp init:", this.InstanceId);
-		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-			this.router.navigate(['home']);
-		}
-		else {
-
-			this._reviewSetsService.selectedNode = null;
-			this._sourcesService.FetchSources();
-			this.reviewInfoService.Fetch();
-			this._buildModelService.Fetch();
-            this._searchService.Fetch();
-
-		}
-	}
 
 }
 
