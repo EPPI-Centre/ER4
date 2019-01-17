@@ -2,7 +2,7 @@
 	<kendo-toolbar style="background-color: steelblue;">
 		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Delete Selected'" (click)="DeleteSearchSelected()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
 		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
 		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
@@ -61,7 +61,7 @@
 				<div class="col-md-12">
 					<div class="col-md-4"></div>
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-						 class="col-md-8  pull-right">
+						 class="col-md-8 pull-right">
 						<div>
 							<div>
 								<input [(ngModel)]="searchText"
@@ -73,11 +73,11 @@
 							<div ngbDropdown class="d-inline-block col-md-12">
 								<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 								<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-									<button (click)="setSearchTextDropDown('TitleAbstract')" class="dropdown-item">Title and abstract</button>
-									<button (click)="setSearchTextDropDown('Title')" class="dropdown-item">Title only</button>
-									<button (click)="setSearchTextDropDown('Abstract')" class="dropdown-item">Abstract only</button>
-									<button (click)="setSearchTextDropDown('AdditionalText')" class="dropdown-item">Additional text</button>
-									<button (click)="setSearchTextDropDown('UploadedDocs')" class="dropdown-item">Uploaded documents</button>
+									<button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
+									<button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
+									<button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
+									<button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
+									<button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
 									<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
 									<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
 								</div>
@@ -139,10 +139,10 @@
 		<p class="font-weight-bold">Select a Model:</p>
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" aria-controls="collapseExample6" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
+				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
+				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
 				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
 			</div>
 		</div>
@@ -190,38 +190,6 @@
 						(remove)="removeHandler($event)"
 						(selectionChange)="selectedRows($event)">
 
-				<!--<kendo-grid-column [sortable]="false" field="add" width="50"
-											   [headerStyle]="{'text-align': 'center'}"
-											   [style]="{'text-align': 'center'}">
-								<ng-template kendoGridHeaderTemplate let-dataItem>
-					<input style="zoom: 1.2;"
-						   type="checkbox"
-						   name="selectAll"
-						   (change)="selectAllModelsChange($event)"
-						   [checked]="allModelsSelected" />
-				</ng-template>
-						<ng-template kendoGridCellTemplate let-dataItem>
-							<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-								   type="checkbox"
-								   field="selected"
-								   [checked]="dataItem.add" />
-						</ng-template>
-							</kendo-grid-column>-->
-				<!--<ng-template kendoGridCellTemplate let-dataItem>
-					<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-						   type="checkbox"
-						   field="selected"
-						   [checked]="dataItem.add" />
-				</ng-template>-->
-				<!--<kendo-grid-column>
-					<ng-template kendoGridCellTemplate let-dataItem>
-						<input style="zoom: 1.2;" (click)="checkboxModelClicked(dataItem)"
-							   type="checkbox"
-							   field="selected"
-							   disabled
-							   [checked]="dataItem.add" />
-					</ng-template>
-				</kendo-grid-column>-->
 				<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
 				<kendo-grid-column field="modelId" title="ModelID">
 				</kendo-grid-column>
@@ -252,7 +220,7 @@
 		</button>
 	</div>
 </div>
-	<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 				[data]="DataSourceSearches" [height]="410"
 				[rowClass]="rowCallback"
 				[sortable]="{
@@ -263,16 +231,16 @@
 				(sortChange)="sortChange($event)"
 				(remove)="removeHandler($event)">
 
-		<kendo-grid-column [sortable]="false" field="add" width="50"
+		<kendo-grid-column [sortable]="false"  width="50"
 						   [headerStyle]="{'text-align': 'center'}"
 						   [style]="{'text-align': 'center'}">
-			<ng-template kendoGridHeaderTemplate let-dataItem>
+			<!--<ng-template kendoGridHeaderTemplate let-dataItem>
 				<input style="zoom: 1.2;"
 					   type="checkbox"
 					   name="selectAll"
 					   (change)="selectAllSearchesChange($event)"
 					   [checked]="allSearchesSelected" />
-			</ng-template>
+			</ng-template>-->
 			<ng-template kendoGridCellTemplate let-dataItem>
 				<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
 					   type="checkbox"
