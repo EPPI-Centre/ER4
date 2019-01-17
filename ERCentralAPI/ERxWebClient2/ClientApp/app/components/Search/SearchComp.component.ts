@@ -226,7 +226,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				(confirmed) =>
 				{
 					console.log('User confirmed:', confirmed);
-					this.RunModel();
+					if (confirmed) this.RunModel();
 				}
 		)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));

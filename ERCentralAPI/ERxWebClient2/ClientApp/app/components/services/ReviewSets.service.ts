@@ -369,6 +369,44 @@ export class ReviewSetsService extends BusyAwareService {
             }
         );
     }
+    public ExecuteItemAttributeBulkInsertCommand(cmd: ItemAttributeBulkSaveCommand) {
+        this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
+        //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
+        //thus, we don't simply remove it when the API call ends.
+        this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkInsertCommand', cmd).subscribe(
+            data => {
+                this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
+                //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+                //this._IsBusy = false;
+            }, error => {
+                console.log("error in ExecuteItemAttributeBulkInsertCommand:", error);
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+                this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
+            },
+            () => {
+                this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
+            }
+        );
+    }
+    public ExecuteItemAttributeBulkDeleteCommand(cmd: ItemAttributeBulkSaveCommand) {
+        this._BusyMethods.push("ExecuteItemAttributeBulkDeleteCommand");
+        //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
+        //thus, we don't simply remove it when the API call ends.
+        this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkDeleteCommand', cmd).subscribe(
+            data => {
+                this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
+                //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+                //this._IsBusy = false;
+            }, error => {
+                console.log("error in ExecuteItemAttributeBulkDeleteCommand:", error);
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+                this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
+            },
+            () => {
+                this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
+            }
+        );
+    }
 }
 
 export interface singleNode {
@@ -520,5 +558,11 @@ export class ItemAttributeSaveCommand {
     
     public revInfo: ReviewInfo | null = null;
 }
-
+export class ItemAttributeBulkSaveCommand {
+    //used to delete/insert coding in bulk (goes to different methods AND enpoints depending on "delete/insert")
+    public attributeId: number = 0;
+    public setId: number = 0;
+    public itemIds: string = "";
+    public searchIds: string = "";
+}
 
