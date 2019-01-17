@@ -1,10 +1,10 @@
-import { Component, OnInit, Input, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
-import { searchService, Search, SearchCodeCommand } from '../services/search.service';
+import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { RowClassArgs, GridDataResult, GridComponent, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -99,7 +99,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public selectedRows(e: any) {
 
-		if (e.selectedRows[0] != undefined ) {
+		if (e.selectedRows[0] != undefined) {
+
 			console.log("selected:", e.selectedRows[0].dataItem);
 			this.ModelSelected = true;
 			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
@@ -112,28 +113,8 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelId = 0;
 			this.ModelSelected = false;
 		}
-		
-		//console.log(JSON.stringify(dataItem));
+ 	}
 
-		//dataItem.add = !dataItem.add;
-
-		//if (dataItem.add == true) {
-
-		//	this.ModelSelected = true;
-		//	this.modelTitle = dataItem.modelTitle;
-		//	this.ModelId = dataItem.modelId;
-		//	console.log(this.modelTitle);
-		//	console.log(this.ModelId);
-		//} else {
-
-		//	this.modelTitle = '';
-		//	this.ModelId = 0;
-		//	this.ModelSelected = false;
-		//}
-			   
-	}
-
-    //public dropdownBasic1: boolean = 
 	public get DataSourceModel(): GridDataResult {
 		return {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
@@ -220,6 +201,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		console.log('Blah: ' + this._listSources.values);
 	}
 
+	public openConfirmationDialogDeleteSearches() {
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected search ?')
+			.then(
+				(confirmed) => {
+					console.log('User confirmed:', confirmed);
+					this.DeleteSearchSelected();
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
 	public openConfirmationDialog() {
 		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?')
 			.then(
@@ -279,10 +271,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		} else {
 
-			// must be a custom model!!
-			// hardcode for now
-			//this.modelTitle = 't89';
-			//this.ModelId = ??
 		}
 
 		if (this.CanWrite()) {
@@ -336,7 +324,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get searchInclOrExcl(): string {
 
 		this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		//console.log('I get it', this._searchInclOrExcl);
 
 		return this._searchInclOrExcl;
 	}
@@ -353,27 +340,13 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public get logic(): string {
 
-		//this._searchService.cmdSearches._included = this._searchInclOrExcl;
-		//console.log('I get it', this._logic);
-
 		return this._logic;
 	}
 
-	//public set logic(value: string) {
-
-	//	alert('Check this method named: "logic..."');
-	//	this._searchService.cmdSearches._included = 'true';
-	//	this._searchService.cmdSearches._title = "159 AND 158";
-	//	this._searchService.cmdSearches._logicType = "AND";
-	//	this._searchService.cmdSearches._searches = "21712,21711";
-	//	this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
-	//	this._logic = value;
-	//}
-
 	getLogicSearches(logicChoice: string) {
 
-		if (this.CanWrite()) {
-			//alert('got inside here: ' + logicChoice);
+		if (this.CanWrite() && this.checkBoxSelected == true) {
+
 			if (logicChoice == 'NOT (excluded)') {
 				this._searchService.cmdSearches._included = 'false';
 				logicChoice = 'NOT';
@@ -383,13 +356,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 
 			let lstStrSearchIds = '';
-			let lstStrSearchNos = '';
+			let lstStrSearchNos = logicChoice;
+			alert(logicChoice);
 			for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
 
 				if (this.DataSourceSearches.data[i].add == true) {
 					if (lstStrSearchIds == "") {
 						lstStrSearchIds = this.DataSourceSearches.data[i].searchId;
-						lstStrSearchNos = this.DataSourceSearches.data[i].searchNo;
+						lstStrSearchNos = logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
 					} else {
 						lstStrSearchIds += ',' + this.DataSourceSearches.data[i].searchId ;
 						lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
@@ -397,6 +371,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				}
 			}
 			this._searchService.cmdSearches._title = lstStrSearchNos;
+
 			this._searchService.cmdSearches._logicType = logicChoice;
 			this._searchService.cmdSearches._searches = lstStrSearchIds;
 			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
@@ -427,7 +402,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	allSearchesSelected: boolean = false;
 	allModelsSelected: boolean = false;
-	// bound to header checkbox
 
 	stateAdd: State = {
 		// will hold grid state
@@ -453,25 +427,6 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 		}
 	}
-
-	//selectAllModelsChange(e: any): void {
-
-	//	if (e.target.checked) {
-	//		this.allModelsSelected = true;
-
-	//		for (let i = 0; i < this.DataSourceModel.data.length; i++) {
-
-	//			this.DataSourceModel.data[i].add = true;
-	//		}
-	//	} else {
-	//		this.allModelsSelected = false;
-
-	//		for (let i = 0; i < this.DataSourceModel.data.length; i++) {
-
-	//			this.DataSourceModel.data[i].add = false;
-	//		}
-	//	}
-	//}
 
 	public get DataSourceSearches(): GridDataResult {
 		return {
@@ -499,11 +454,20 @@ export class SearchComp implements OnInit, OnDestroy {
 			this._searchService.Delete(lstStrSearchIds);
 		}
 	}
-	
+	public convertToIncEx(incEx: boolean): string  {
+
+		if (incEx == true) {
+			return 'included';
+		} else {
+			return 'excluded'
+		}
+
+	}
 	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
 		if (this.CanWrite) {
+
 
 			this.selectedSearchTextDropDown = selectedSearchTextDropDown;
 			let searchTitle: string = '';
@@ -535,7 +499,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
 
-					this._searchService.cmdSearches._title = searchTitle;
+					this._searchService.cmdSearches._title = searchTitle ;
 					this._searchService.cmdSearches._withCodes = String(this.withCode);
 
 					this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
@@ -562,8 +526,27 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 			if (selectedSearchDropDown == 'Containing this text') {
 
+				let tmpStr: string = '';
+
+				if (selectedSearchTextDropDown == 'Title and abstract') {
+					tmpStr = 'TitleAbstract'
+				} else if (selectedSearchTextDropDown == 'Title only') {
+					tmpStr = 'Title'
+				} else if (selectedSearchTextDropDown == 'Abstract only') {
+					tmpStr = 'Abstract'
+				} else if (selectedSearchTextDropDown == 'Additional text') {
+					tmpStr = 'AdditionalText'
+				} else if (selectedSearchTextDropDown == 'Uploaded documents') {
+					tmpStr = 'UploadedDocs'
+				} else if (selectedSearchTextDropDown == 'Authors') {
+					tmpStr = 'Authors'
+				} else if (selectedSearchTextDropDown == 'Publication year') {
+					tmpStr = 'PubYear'
+				}
+				this._searchService.cmdSearches._searchText = tmpStr;
+				alert(this._searchService.cmdSearches._searchText);
 				this._searchService.cmdSearches._title = this.searchText;
-				//this._searchService.cmdSearches._included = Boolean(searchBool);
+	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
 			}
 			if (selectedSearchDropDown == 'That have at least one code from this set') {
@@ -583,7 +566,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			}
 			if (selectedSearchDropDown == 'Without an abstract') {
 
-				alert(selectedSearchDropDown);
+				//alert(selectedSearchDropDown);
 				this._searchService.cmdSearches._title = searchTitle;
 
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
@@ -677,44 +660,20 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.selectedSearchTextDropDown = heading;
 		this._searchService.cmdSearches._searchText = heading;
 	}
-		
+
+	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {
 
 		dataItem.add = !dataItem.add;
 		if (dataItem.add == true) {
+			this.checkBoxSelected = true;
 			this._searchService.searchToBeDeleted = dataItem.searchId;
+
 		} else {
+			this.checkBoxSelected = false;
 			this._searchService.searchToBeDeleted = '';
 		}
 	};
-
-	//public checkboxModelClicked(dataItem: any) {
-
-	//	console.log(JSON.stringify(dataItem));
-
-	//	//if (this.modelTitle != null && this.modelTitle != dataItem.modelTitle) {
-	//	//	this.modelTitle = dataItem.modelTitle;
-	//	//	this.ModelId = dataItem.modelId;
-
-	//	//}
-
-	//	dataItem.add = !dataItem.add;
-		
-	//	if (dataItem.add == true) {
-
-	//		this.ModelSelected = true;
-	//		this.modelTitle = dataItem.modelTitle;
-	//		this.ModelId = dataItem.modelId;
-	//		console.log(this.modelTitle);
-	//		console.log(this.ModelId);
-	//	} else {
-
-	//		this.modelTitle = '';
-	//		this.ModelId = 0;
-	//		this.ModelSelected = false;
-	//	}
-
-	//};
 
     public rowCallback(context: RowClassArgs) {
         const isEven = context.index % 2 == 0;
@@ -756,7 +715,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-	
+
 
 }
 

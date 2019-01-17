@@ -61,7 +61,7 @@ export class ClassifierService extends BusyAwareService {
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-		alert('about to send to controller');
+		//alert('about to send to controller');
 
 		return this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
 			MVCcmd, { headers: headers }
