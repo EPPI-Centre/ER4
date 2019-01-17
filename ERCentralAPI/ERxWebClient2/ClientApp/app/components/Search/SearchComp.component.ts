@@ -40,7 +40,20 @@ export class SearchComp implements OnInit, OnDestroy {
 	) {
 		
 	}
+    ngOnInit() {
 
+        //console.log("SearchComp init:", this.InstanceId);
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+            this._reviewSetsService.selectedNode = null;
+            this._sourcesService.FetchSources();
+            //this.reviewInfoService.Fetch();
+            this._buildModelService.Fetch();
+            //this._searchService.Fetch();
+        }
+    }
 
     //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
@@ -457,7 +470,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	   
 	refreshSearches() {
-		
 		this._searchService.Fetch();
 	}
 	
@@ -737,22 +749,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-	ngOnInit() {
-
-        //console.log("SearchComp init:", this.InstanceId);
-		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-			this.router.navigate(['home']);
-		}
-		else {
-
-			this._reviewSetsService.selectedNode = null;
-			this._sourcesService.FetchSources();
-			this.reviewInfoService.Fetch();
-			this._buildModelService.Fetch();
-            this._searchService.Fetch();
-
-		}
-	}
+	
 
 }
 
