@@ -121,9 +121,12 @@ export class SourcesService extends BusyAwareService {
         this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             this._LastUploadOrUpdateStatus = "Success";
+            this.RemoveBusy("ActOnPubMedSearch");
             if (!IsGettingAPreview) this.FetchSources();
         }, error => {
             console.log("something went wrong: ", error);
+            this.RemoveBusy("ActOnPubMedSearch");
+            this.PubMedSearchImported.emit();
             this._LastUploadOrUpdateStatus = "Error";
         }
             , () => {

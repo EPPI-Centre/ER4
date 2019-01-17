@@ -44,7 +44,7 @@ export class ReviewerIdentityService implements OnDestroy {
     private LogonTicketTimerSubscription: Subscription | null = null;
     private _currentStatus: string = 'No message yet.';
     public get currentStatus(): string {
-        console.log("getting status: ")
+        //console.log("getting status: ")
         if (!this.timerObj && this.reviewerIdentity.userId != 0
             && this.reviewerIdentity.reviewId != 0
             && this.reviewerIdentity.ticket
@@ -242,7 +242,7 @@ export class ReviewerIdentityService implements OnDestroy {
         //console.log("KillLogonTicketTimer");//, this.LogonTicketTimerSubscription, this.killTrigger);
         if (this.LogonTicketTimerSubscription) this.LogonTicketTimerSubscription.unsubscribe();//make extra sure we don't oversubscribe!
         if (this.killTrigger) {
-            console.log("this.killTrigger.next();");
+            //console.log("this.killTrigger.next();");
             this.killTrigger.next();//kills the timer
         }
         this.timerObj = undefined;
@@ -254,7 +254,7 @@ export class ReviewerIdentityService implements OnDestroy {
         //console.log("check timer:", this.ID, user, guid);
         this.LogonTicketCheckAPI(user, guid).then(
             success => {
-                console.log("LogonTicketCheckAPI success:", success)
+                //console.log("LogonTicketCheckAPI success:", success)
                 if (success.result == "Valid") {
                     this.UpdateStatus(success.serverMessage);
                 }
@@ -303,7 +303,7 @@ export class ReviewerIdentityService implements OnDestroy {
                 }
             },
             error => {
-                console.log("LogonTicketCheckAPI error:", error);
+                //console.log("LogonTicketCheckAPI error:", error);
                 if (this.timerObj) {
                     this.reviewerIdentity.ticket = "";
                     this.reviewerIdentity.token = "";
