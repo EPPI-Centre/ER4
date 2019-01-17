@@ -6,13 +6,14 @@ import { searchService, Search, SearchCodeCommand } from '../services/search.ser
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { RowClassArgs, GridDataResult, GridComponent, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { ReviewSetsService,  ReviewSet } from '../services/ReviewSets.service';
+import { ReviewSetsService,  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import {  ReviewInfoService } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
 @Component({
 	selector: 'SearchComp',
@@ -71,6 +72,12 @@ export class SearchComp implements OnInit, OnDestroy {
 	public isCollapsed: boolean = false;
 
 	public modeModels: SelectableMode = 'single';
+    public withCode: boolean = false;
+    public attributeNames: string = '';
+    public commaIDs: string = '';
+    public searchText: string = '';
+    public CurrentDropdownSelectedCode: singleNode | null = null;
+    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 
 	public selectableSettings: SelectableSettings = {
 		checkboxOnly: true,
@@ -154,7 +161,11 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.modelResultsSection = false;
 		this.radioButtonApplyModelSection = false;
 	}
-	CloseCodeDropDown() {
+    CloseCodeDropDown() {
+        if (this.WithOrWithoutCodeSelector) {
+            console.log("yes, doing it", this.WithOrWithoutCodeSelector.SelectedNodeData);
+            this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
+        }
 		this.isCollapsed = false;
 	}
 	Classify() {
@@ -489,11 +500,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 	
-	public withCode: boolean = false;
-	public attributeNames: string = '';
-	public commaIDs: string = '';
-	public searchText: string = '';
-
+	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
 		if (this.CanWrite) {
@@ -517,12 +524,12 @@ export class SearchComp implements OnInit, OnDestroy {
 					this.withCode = false;
 				}
 
-				if (this._reviewSetsService.selectedNode != undefined) {
+                if (this.CurrentDropdownSelectedCode != undefined) {
 
-					let tmpID: number = this._reviewSetsService.selectedNode.attributeSetId;
-					this.attributeNames = this._reviewSetsService.selectedNode.name;
+                    let tmpID: number = this.CurrentDropdownSelectedCode.attributeSetId;
+                    this.attributeNames = this.CurrentDropdownSelectedCode.name;
 					this._searchService.cmdSearches._answers = String(tmpID);
-					alert(this._reviewSetsService.selectedNode);
+                    alert(this.CurrentDropdownSelectedCode);
 
 					searchTitle = this.withCode == true ?
 						"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
