@@ -33,28 +33,24 @@ export class searchService extends BusyAwareService {
 		return this._SearchList;
 
     }
-    
+
 	public set SearchList(searches: Search[]) {
 		this._SearchList = searches;
         //this.searchesChanged.emit();
 	}
-
-	//private _isBusy: boolean = false;
-	//public get isBusy(): boolean {
-	//	//console.log('Search list, isbusy? ' + this._isBusy);
-	//	return this._isBusy;
-	//}
+    
 
     Fetch() {
         this._BusyMethods.push("Fetch");
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
-			 .subscribe(result => {
-				
-					console.log('alkjshdf askljdfh' + JSON.stringify(result));
-					this.SearchList = result;
-					//this.searchesChanged.emit();
+             .subscribe(result => {
+                 this.RemoveBusy("Fetch");
+				//console.log('alkjshdf askljdfh' + JSON.stringify(result));
+				this.SearchList = result;
+				//this.searchesChanged.emit();
              },
              error => {
+                 this.RemoveBusy("Fetch");
                  this.modalService.GenericError(error);
                  this.Clear();
              }
@@ -67,15 +63,7 @@ export class searchService extends BusyAwareService {
         //this.crit = new CriteriaSearch();
         //this._isBusy = false;
     }
-	public removeHandler({ sender, dataItem }: { sender: any, dataItem: any}) {
-		
-		let searchId: string = this.searchToBeDeleted;
-		if (searchId != '') {
-			this.Delete(searchId);
-		}
-		sender.cancelCell();
-
-	}
+	
 	
 	Delete(value: string) {
 
@@ -84,11 +72,14 @@ export class searchService extends BusyAwareService {
 		this._httpC.post<string>(this._baseUrl + 'api/SearchList/DeleteSearch',
 			body)
 			.subscribe(result => {
-
-					let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
-					this.SearchList.splice(tmpIndex, 1);
-					this.Fetch();
-			}, error => { this.modalService.GenericError(error); }
+                this.RemoveBusy("Delete");
+				let tmpIndex: any = this.SearchList.findIndex(x => x.searchId == Number(this.searchToBeDeleted));
+				this.SearchList.splice(tmpIndex, 1);
+				this.Fetch();
+            }, error => {
+                this.RemoveBusy("Delete");
+                this.modalService.GenericError(error);
+            }
             , () => {
                 this.RemoveBusy("Delete");
             }
@@ -103,9 +94,13 @@ export class searchService extends BusyAwareService {
 		this._httpC.post<Search[]>(this._baseUrl + apiStr,
 			cmd)
 
-			.subscribe(result => {
+            .subscribe(result => {
+                this.RemoveBusy("CreateSearch");
 				this.Fetch();
-			}, error => { this.modalService.GenericError(error); }
+            }, error => {
+                this.RemoveBusy("CreateSearch");
+                this.modalService.GenericError(error);
+            }
             , () => {
                 this.RemoveBusy("CreateSearch");
             }

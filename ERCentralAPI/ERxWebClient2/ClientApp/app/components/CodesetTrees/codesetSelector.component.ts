@@ -185,7 +185,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
 			if (node.nodeType == "SetAttribute") {
 				console.log(JSON.stringify(node));
-				this.ReviewSetsService.selectedNode = node;
+				this.SelectedNodeData = node;
 				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 				// and raise event to close the drop down
 				this.selectedNodeInTree.emit();

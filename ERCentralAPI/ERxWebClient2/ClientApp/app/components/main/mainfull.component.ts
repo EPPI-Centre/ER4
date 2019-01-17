@@ -96,7 +96,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return false;
     }	
 	dtTrigger: Subject<any> = new Subject();
-	tabSelected: any = null;
 
     ngOnInit() {
         console.log("MainComp init: ", this.InstanceId);
@@ -147,21 +146,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
-	//fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
-		
-	//	if (!selectedNodeDataF || selectedNodeDataF == undefined) {
-
-	//		alert('Please select a code from the tree');
-
-	//	} else {
-
-	//		console.log(selectedNodeDataF.name);
-	//		// need to filter data before calling the below Fetch	
- //           this.frequenciesService.crit.Included = this.freqIncEx == 'true';
-	//		this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
-		
-	//	}
-	//}
+	
 
 	
     public get ReviewPanelTogglingSymbol(): string {
@@ -178,8 +163,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return '&darr;';
     }
 	ngAfterViewInit() {
-		this.tabsInitialized = true;
-		console.log('tabs initialised');
+		//this.tabsInitialized = true;
+		//console.log('tabs initialised');
 	}
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
@@ -206,13 +191,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 		else console.log('attempt failed');
 	}
-	ngOnChanges() {
-		if (this.tabsInitialized) {
-			console.log('tabs experiment');
+	//ngOnChanges() {
+		//if (this.tabsInitialized) {
+		//	console.log('tabs experiment');
 
-			this.tabstrip.selectTab(1);
-		}
-	}
+		//	this.tabstrip.selectTab(1);
+		//}
+	//}
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
     }
@@ -239,9 +224,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         
     };
     subOpeningReview: Subscription | null = null;
-
-	
-	
+    onTabSelect(e: SelectEvent) {
+        if (e.title == 'Search') {
+            this._searchService.Fetch();
+        }
+    }
 
     Reload() {
         this.Clear();

@@ -4,7 +4,7 @@
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
 		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'CLASSIFY'" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 
@@ -32,9 +32,10 @@
 					<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )" 
 						 ngbDropdown>
-						<button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{_reviewSetsService.selectedNode?.name}}</button>
+                        <button class="btn btn-info col-md-7  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
 						<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-							<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+							<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+                                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 						</div>
 					</div>
 
