@@ -315,6 +315,7 @@ export class ReviewSetsService extends BusyAwareService {
     public clearItemData() {
         this._BusyMethods.push("clearItemData");
         for (let set of this._ReviewSets) {
+            set.isSelected = false;
             set.codingComplete = false;
             this.clearItemDataInChildren(set.attributes);
         }

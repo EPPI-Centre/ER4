@@ -81,7 +81,10 @@ export class SourcesService extends BusyAwareService {
                 //let's go and get the first source:
                 this.FetchSource(this._ReviewSources[0].source_ID);
             }
-        }, error => { this.modalService.GenericErrorMessage(error); }
+        }, error => {
+            this.RemoveBusy("FetchSources");
+            this.modalService.GenericErrorMessage(error);
+        }
             , () => {
                 this.gotSource.emit();
                 this.RemoveBusy("FetchSources");
@@ -94,7 +97,10 @@ export class SourcesService extends BusyAwareService {
         this._http.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
             this._Source = result;
             this.gotSource.emit();
-        }, error => { this.modalService.GenericErrorMessage(error); }
+        }, error => {
+            this.RemoveBusy("FetchSource");
+            this.modalService.GenericErrorMessage(error);
+        }
             , () => {
                 this.RemoveBusy("FetchSource");
             }
@@ -295,7 +301,7 @@ export class SourcesService extends BusyAwareService {
         };
         return result;
     }
-    public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
+    public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
         let res: string = "";
         if (IncomingItemAuthors) {

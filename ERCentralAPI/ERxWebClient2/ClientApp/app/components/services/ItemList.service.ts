@@ -101,7 +101,71 @@ export class ItemListService extends BusyAwareService {
     //    }
     //}
 
-   
+    public static GetCitation(Item: Item): string {
+        let retVal: string = "";
+        switch (Item.typeId) {
+            case 1: //Report
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title + "</i>. " + Item.city + ": " + Item.publisher + ". ";
+                break;
+            case 2: //Book, Whole
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title + "</i>. " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 3: //Book, Chapter
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title + ". In <i>" + Item.parentTitle + "</i>, edited by " + ItemListService.CleanAuthors(Item.parentAuthors) + ", " +
+                    Item.pages + ". " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 4: //Dissertation
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.edition + ", " + Item.institution + ".";
+                break;
+            case 5: //Conference Proceedings
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title + ". Paper presented at " + Item.parentTitle + ", " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 6: //Document From Internet Site
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.publisher + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability + "] ") + ".";
+                break;
+            case 7: //Web Site
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title + "</i>. " + Item.publisher + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability + "] ") + ".";
+                break;
+            case 8: //DVD, Video, Media
+                retVal = "\"" + Item.title + "\". " + Item.year + ". " + (Item.availability == "" ? "" : " [" + Item.availability + "] ") +
+                    Item.city + ": " + ItemListService.CleanAuthors(Item.authors) + ".";
+                break;
+            case 9: //Research project
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 10: //Article In A Periodical
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". <i>" + Item.parentTitle + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
+                break;
+            case 11: //Interview
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". ";
+                break;
+            case 12: //Generic
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 14: //Journal, Article
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". <i>" + Item.parentTitle + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
+                break;
+        }
+        console.log("GetCitation for Item: ", Item, retVal);
+        return retVal;
+    }
+    public static CleanAuthors(inputAuthors: string): string {
+        if (inputAuthors != "") {
+            inputAuthors = inputAuthors.replace(" ;", ",");
+            inputAuthors = inputAuthors.replace(";", ",");
+            inputAuthors = inputAuthors.trim();
+            if (inputAuthors.endsWith(',')) inputAuthors = inputAuthors.substring(0, inputAuthors.length -1);
+        }
+        let commaCount = 0;
+        for (let i = 0; i < inputAuthors.length; i++) if (inputAuthors[i] == ',') commaCount++;
+        if (commaCount > 0) {
+            let cI = inputAuthors.lastIndexOf(',');
+            inputAuthors = inputAuthors.substring(0, cI) + " and" + inputAuthors.substring(cI + 1);//.(inputAuthors.LastIndexOf(",") + 1, " and");
+        }
+        return inputAuthors;
+    }
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         items.items = orderBy(items.items, this.sort); 
@@ -274,7 +338,7 @@ export class ItemListService extends BusyAwareService {
         this._ItemList.items = orderBy(this._ItemList.items, this.sort);
     }
     public get HasSelectedItems(): boolean {
-        console.log("HasSelectedItems?", this._ItemList.items[0].isSelected, this._ItemList.items[1].isSelected);
+        //console.log("HasSelectedItems?", this._ItemList.items[0].isSelected, this._ItemList.items[1].isSelected);
         if (this._ItemList.items.findIndex(found => found.isSelected == true) > -1) return true;
         else return false;
     }

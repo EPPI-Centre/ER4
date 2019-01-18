@@ -1,0 +1,21 @@
+<div class="row border border-danger m-1 p-1" style="max-height:800px;overflow:auto">
+    <div class=" col-12 row bg-light m-0 p-0">
+        <div  style="max-height:300px;overflow:auto"  class="col-10">
+            <div *ngFor="let cSet of CodeSets">
+                <input class="m-1" type="checkbox" [(ngModel)]="cSet.isSelected" />
+                <span>{{cSet.name}}</span>
+            </div>
+        </div>
+        <div class="col-2 row justify-content-end">
+            <button (click)="StartQuickReport()" [disabled]="!CanStartReport"
+                    type="button" class="btn btn-success align-self-end">
+                Get Report
+            </button>
+        </div>
+    </div>
+    <div *ngIf="GettingReport" class="col-12 bg-white">
+        {{ReportProgress}}
+    </div>
+    <div *ngIf="!GettingReport" [innerHTML]="ReportHTML">
+    </div>
+</div>

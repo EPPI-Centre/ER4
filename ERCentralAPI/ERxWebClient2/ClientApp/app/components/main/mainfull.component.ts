@@ -76,9 +76,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
-    public isSourcesPanelCollapsed = false;
-    public isReviewPanelCollapsed = false;
-    public isWorkAllocationsPanelCollapsed = false;
+    public isSourcesPanelCollapsed: boolean = false;
+    public isReviewPanelCollapsed: boolean = false;
+    public isWorkAllocationsPanelCollapsed: boolean = false;
     private statsSub: Subscription = new Subscription();
     private InstanceId: number = Math.random();
     public crossTabResult: any | 'none';
@@ -95,6 +95,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.BulkAssignRemoveCodes(false);
         }
     }];
+    private _ShowQuickReport: boolean = false;
+    public get ShowQuickReport(): boolean {
+        if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
+        return this._ShowQuickReport;
+    }
+    public get CanShowQuickReport(): boolean {
+        return this.ItemListService.HasSelectedItems;
+    }
 	//public selectedAttributeSetF: any | 'none';
     public get selectedNode(): singleNode | null {
         return this.reviewSetsService.selectedNode;
@@ -139,6 +147,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
+    }
+    ShowHideQuickReport() {
+        if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
+        else this._ShowQuickReport = !this._ShowQuickReport;
+        console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
     }
     setTabSelected(tabSelect: SelectEvent) {
 		//nothing for now, selectEvent is like this:

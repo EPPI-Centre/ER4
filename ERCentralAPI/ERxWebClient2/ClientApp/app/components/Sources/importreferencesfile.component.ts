@@ -177,7 +177,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = !this.ShowPreviewTable;        
     }
     public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
-        return this.SourcesService.AuthorsString(IncomingItemAuthors);        
+        return SourcesService.LimitedAuthorsString(IncomingItemAuthors);        
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

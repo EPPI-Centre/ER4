@@ -181,7 +181,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
         else return false;
     }
     public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
-        return this.SourcesService.AuthorsString(IncomingItemAuthors);
+        return SourcesService.LimitedAuthorsString(IncomingItemAuthors);
     }
     IsSourceNameValid(): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)

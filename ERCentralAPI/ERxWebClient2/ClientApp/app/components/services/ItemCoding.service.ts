@@ -1,26 +1,29 @@
 import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ItemCodingComp } from '../coding/coding.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Item, ItemListService } from './ItemList.service';
+import { ReviewSet, SetAttribute, ReviewSetsService } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ItemCodingService  {
+export class ItemCodingService extends BusyAwareService {
     @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
-        private ReviewerIdentityService: ReviewerIdentityService 
-        ) { }
+        private ReviewerIdentityService: ReviewerIdentityService
+    ) { super(); }
 
 
     private _ItemCodingList: ItemSet[] = [];
@@ -47,18 +50,180 @@ export class ItemCodingService  {
     }
         
     public Fetch(ItemId: number) {
-
+        this._BusyMethods.push("Fetch");
         //this.itemID.next(ItemId); 
         console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
                 this.ItemCodingList = result;
+                this.RemoveBusy("Fetch");
+                
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
-            }, error => { this.modalService.SendBackHomeWithError(error); }
+            }, error => {
+                if (this.SelfSubscription4QuickCodingReport) {
+                    this.SelfSubscription4QuickCodingReport.unsubscribe();
+                    this.SelfSubscription4QuickCodingReport = null;
+                }
+                this.RemoveBusy("Fetch");
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("Fetch");}
             );
+    }
+    private SelfSubscription4QuickCodingReport: Subscription | null = null;
+    private _CodingReport: string = "";
+    public get CodingReport(): string {
+        return this._CodingReport;
+    }
+    private _ItemsToReport: Item[] = [];
+    private _ReviewSetsToReportOn: ReviewSet[] = [];
+    private _CurrentItemIndex4QuickCodingReport: number = 0;
+    public get QuickCodingReportIsRunning(): boolean {
+        return this._ItemsToReport.length > this._CurrentItemIndex4QuickCodingReport;
+    }
+    public get ProgressOfQuickCodingReport(): string {
+        return "Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
+    }
+    public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[]) {
+        this._ItemsToReport = [];
+        this._ReviewSetsToReportOn = [];
+        if (this.SelfSubscription4QuickCodingReport) {
+            this.SelfSubscription4QuickCodingReport.unsubscribe();
+            this.SelfSubscription4QuickCodingReport = null;
+        }
+        this._CurrentItemIndex4QuickCodingReport = 0;
+        this._CodingReport = "";
+        if (!Items || Items.length < 1) {
+            return;
+        }
+        this._BusyMethods.push("FetchCodingReport");
+        this._ItemsToReport = Items;
+        this._ReviewSetsToReportOn = ReviewSetsToReportOn;
+        this.InterimGetItemCodingForReport();
+    }
+    private InterimGetItemCodingForReport() {
+        if (!this.SelfSubscription4QuickCodingReport) {
+            //initiate recursion, ugh!
+            this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
+                () => {
+                    this.AddToQuickCodingReport();
+                    this._CurrentItemIndex4QuickCodingReport++;
+                    this.InterimGetItemCodingForReport();
+                }//no error handling: any error in this.Fetch(...) sends back home!!
+            );
+        }
+        if (!this.QuickCodingReportIsRunning)  {
+            if (this.SelfSubscription4QuickCodingReport) {
+                this.SelfSubscription4QuickCodingReport.unsubscribe();
+                this.SelfSubscription4QuickCodingReport = null;
+            }
+            return;
+        }
+        else this.Fetch(this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
+    }
+    private AddToQuickCodingReport() {
+        if (this._CodingReport == "") {
+           // this._CodingReport = "Start of report<br />";
+        }
+        const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+        if (!currentItem || currentItem.itemId == 0) return;
+        //this._CodingReport += "Item: "
+        //    + this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId.toString()
+        //    + " contains " + this.ItemCodingList.length + " item sets. <br />";
+        this._CodingReport += "<h4>ID " + currentItem.itemId.toString() + ": " + currentItem.shortTitle + "</h4><br />" +
+            ItemListService.GetCitation(currentItem) + "<br />";
+        if (currentItem.oldItemId != "") {
+            this._CodingReport += "<b>Your ID:</b> " + currentItem.oldItemId + "<br />";
+        }
+        if (currentItem.abstract != "") {
+            this._CodingReport += '<div class="small mt-1"><b>Abstract:</b> ' + currentItem.abstract + "</div>";
+        }
+        this.AddCodingToReport();
+        this._CodingReport += "<hr />";
+    }
+    private AddCodingToReport() {
+        for (let i = 0; i < this._ReviewSetsToReportOn.length; i++)
+        {
+            let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
+            for (let itemSet of this._ItemCodingList)
+            {
+                if (itemSet.setId == this._ReviewSetsToReportOn[i].set_id && itemSet.isCompleted == true) {
+                    this._CodingReport += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>" ;
+                    
+                    if (reviewSet != null) {
+                        this._CodingReport += "<p><h4>" + reviewSet.set_name + "</h4></p><p><ul>";
+                        for(let attributeSet of reviewSet.attributes)
+                        {
+                            this._CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+                        }
+                        this._CodingReport += "</ul></p>";
+                        //this._CodingReport += "<p>" + itemSet.OutcomeItemList.OutcomesTable() + "</p>";
+                    }
+
+                }
+            }
+        }
+    }
+    private writeCodingReportAttributesWithArms(itemSet: ItemSet, attributeSet: SetAttribute) :string {
+        let report: string = "";
+        let roias = itemSet.itemAttributesList.filter(found => found.attributeId == attributeSet.attribute_id);
+        //console.log("roias", roias, itemSet.itemAttributesList, attributeSet.attribute_id);
+        if (roias != null && roias.length > 0) {
+            for(let roia of roias)
+            {
+                let AttributeName = attributeSet.attribute_name;
+                if (roia.armId != 0) {
+                    AttributeName += " [" + roia.armTitle + "]";
+                }
+
+                report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span><br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
+                if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+                    
+                    //report += dialogCoding.addFullTextToComparisonReport(ll);
+                }
+                report += "</li>";
+            }
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += "<ul>";
+                for (let child of attributeSet.attributes)
+                {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        else {
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += '<li class="text-muted">' + attributeSet.attribute_name + "</li>";
+                report += "<ul>";
+                for(let child of attributeSet.attributes)
+                {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        return report;
+    }
+
+    private CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
+        if (itemSet) {
+            for (let roia of itemSet.itemAttributesList) {
+                if (roia.attributeId == attributeSet.attribute_id) return true;
+            }
+            for(let child of attributeSet.attributes)
+            {
+                if (this.CodingReportCheckChildSelected(itemSet, child) == true) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public Save() {
@@ -202,6 +367,12 @@ export class Outcome {
     data13Desc: string = "";
     data14Desc: string = "";
 }
-export class ItemAttributeFullTextDetails {
-
+export interface ItemAttributeFullTextDetails {
+    itemDocumentId: number;
+    isFromPDF: boolean;
+    itemArm: string;
+    docTitle: string;
+    text: string;
+    textTo: number;
+    textFrom: number;
 }

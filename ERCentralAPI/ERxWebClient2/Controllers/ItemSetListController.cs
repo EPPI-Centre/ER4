@@ -68,6 +68,13 @@ namespace ERxWebClient2.Controllers
                 DataPortal<ItemSetList> dp = new DataPortal<ItemSetList>();
                 SingleCriteria<ItemSetList, Int64> criteria = new SingleCriteria<ItemSetList, Int64>(ItemIDCrit.Value);
                 ItemSetList result = dp.Fetch(criteria);
+                foreach (ItemSet iSet in result)
+                {
+                    foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributesList)
+                    {
+                        roia.ItemAttributeFullTextDetails.Sort();
+                    }
+                }
                 //ItemSetList result = dp.Fetch(ItemIDCrit.Value);
                 return Ok(result);
 
