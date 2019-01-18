@@ -99,12 +99,14 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public selectedRows(e: any) {
 
-		if (e.selectedRows[0] != undefined) {
+		if (e.selectedRows[0] != undefined && this.modelNum == 5) {
 
 			console.log("selected:", e.selectedRows[0].dataItem);
-			this.ModelSelected = true;
-			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
-			this.ModelId = e.selectedRows[0].dataItem.modelId;
+
+				this.ModelSelected = true;
+				this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
+				this.ModelId = e.selectedRows[0].dataItem.modelId;
+		
 
 		} else {
 
@@ -172,16 +174,17 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	SetModelSelection(num: number) {
 
+
+		this.modelNum = num;
 		this.NewSearchSection = false;
 		this.LogicSection = false;
 		this.modelResultsSection = false;
 
-		if (this.modelNum != 5) {
+		if (this.modelNum != 5 && this.checkBoxSelected == true) {
 			
 			this.ModelSelected = true;
 		}
 
-		this.modelNum = num;
 	}
 
 	chooseCodeMessage() {
@@ -673,11 +676,16 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		dataItem.add = !dataItem.add;
 		if (dataItem.add == true) {
+
+			if (this.modelNum != 5) {
+				this.ModelSelected = true;
+			}
 			this.checkBoxSelected = true;
 			this._searchService.searchToBeDeleted = dataItem.searchId;
 
 		} else {
 			this.checkBoxSelected = false;
+			this.ModelSelected = false;
 			this._searchService.searchToBeDeleted = '';
 		}
 	};
