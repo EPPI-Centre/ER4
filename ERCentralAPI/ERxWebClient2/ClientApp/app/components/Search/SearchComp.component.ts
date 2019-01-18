@@ -206,7 +206,11 @@ export class SearchComp implements OnInit, OnDestroy {
 			.then(
 				(confirmed) => {
 					console.log('User confirmed:', confirmed);
-					this.DeleteSearchSelected();
+					if (confirmed) {
+						this.DeleteSearchSelected();
+					} else {
+						//alert('did not confirm');
+					}
 				}
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
@@ -218,7 +222,10 @@ export class SearchComp implements OnInit, OnDestroy {
 				(confirmed) =>
 				{
 					console.log('User confirmed:', confirmed);
-					if (confirmed) this.RunModel();
+					if (confirmed) { this.RunModel() }
+					else {
+						//alert('pressed cancel close dialog');
+					};
 				}
 		)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
