@@ -199,7 +199,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (this.modelNum != 5 && this.modelNum != 0) {
 			//console.log('yes step 1');
 			// Need to check for Apply code and apply source are filled if selected...
-			if (this.ApplyCode && this._reviewSetsService.selectedNode != null) {
+			if (this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType =='SetAttribute') {
 				return true;
 			} else if (this.ApplySource && this.selected != null) {
 				return true;
