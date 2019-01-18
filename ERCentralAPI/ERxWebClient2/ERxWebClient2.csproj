@@ -64,6 +64,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArm.cs" Link="Models\ItemArm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArmList.cs" Link="Models\ItemArmList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkDeleteCommand.cs" Link="Models\ItemAttributeBulkDeleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkSaveCommand.cs" Link="Models\ItemAttributeBulkSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetails.cs" Link="Models\ItemAttributeFullTextDetails.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />

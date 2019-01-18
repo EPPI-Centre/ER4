@@ -71,6 +71,10 @@
                                                                    [disabled]="!CanGetItemsWithThisCode"
                                                                    [data]="ItemsWithThisCodeDDData"
                                                                    style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+                                        <kendo-toolbar-splitbutton [text]="'Add Selection to Code'" (buttonClick)="BulkAssignRemoveCodes(true)"
+                                                                   [disabled]="!CanBulkAssignRemoveCodes"
+                                                                   [data]="AddRemoveItemsDDData"
+                                                                   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                                     </kendo-toolbar>
                                 </div>
                                 <div class="card card-body bg-light p-1">

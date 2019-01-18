@@ -8,7 +8,7 @@ import { WorkAllocationContactListComp } from '../WorkAllocationContactList/work
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
@@ -17,6 +17,7 @@ import { crosstabService } from '../services/crosstab.service';
 import { searchService } from '../services/search.service';
 import { SourcesService } from '../services/sources.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 
@@ -55,6 +56,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		, private crosstabService: crosstabService
         , private _searchService: searchService
         , private SourcesService: SourcesService
+        , private ConfirmationDialogService: ConfirmationDialogService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
@@ -87,6 +89,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ListItemsWithThisCode(false);
         }
     }];
+    public AddRemoveItemsDDData: Array<any> = [{
+        text: 'Remove Selection to Code',
+        click: () => {
+            this.BulkAssignRemoveCodes(false);
+        }
+    }];
 	//public selectedAttributeSetF: any | 'none';
     public get selectedNode(): singleNode | null {
         return this.reviewSetsService.selectedNode;
@@ -94,7 +102,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public get CanGetItemsWithThisCode(): boolean {
         if (this.selectedNode && this.selectedNode.nodeType == "SetAttribute") return true;
         else return false;
-    }	
+    }
+    public get CanBulkAssignRemoveCodes(): boolean {
+        if (
+            this.selectedNode
+            && this.selectedNode.nodeType == "SetAttribute"
+            && this.ReviewerIdentityServ.HasWriteRights
+            && this.ItemListService.ItemList
+            && this.ItemListService.ItemList.items
+            && this.ItemListService.ItemList.items.length > 0
+            && this.ItemListService.HasSelectedItems
+        ) return true;
+        else return false;
+    }
 	dtTrigger: Subject<any> = new Subject();
 
     ngOnInit() {
@@ -146,8 +166,64 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
-	
+    BulkAssignRemoveCodes(IsBulkAssign: boolean) {
+        if (!this.reviewSetsService.selectedNode || this.reviewSetsService.selectedNode.nodeType != "SetAttribute") return;
+        else {
+            const SetA = this.reviewSetsService.selectedNode as SetAttribute;
+            if (!SetA) return;
+            else {
+                if (IsBulkAssign
+                    && this.reviewSetsService.selectedNode) {
+                    this.ConfirmationDialogService.confirm("Assign selected ("
+                        + this.ItemListService.SelectedItems.length + ") items ? ", "Are you sure you want to assign all selected items to this ("
+                        + this.reviewSetsService.selectedNode.name + ") code?")
+                        .then((confirm) => {
+                            if (confirm) {
+                                this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
+                            }
+                        });
+                }
+                else if (!IsBulkAssign
+                    && this.reviewSetsService.selectedNode) {
+                    this.ConfirmationDialogService.confirm("Remove selected ("
+                        + this.ItemListService.SelectedItems.length + ") items?", "Are you sure you want to remove all selected items to this ("
+                        + this.reviewSetsService.selectedNode.name + ") code?")
+                        .then((confirm) => {
+                            if (confirm) {
+                                this.BulkDeleteCodes(SetA.attribute_id, SetA.set_id);
+                            }
+                        });
+                }
+            }
+        }
 
+    }
+    private BulkAssingCodes(attributeId:number, setId:number) {
+        const items = this.ItemListService.SelectedItems;
+        let ItemIds: string = "";
+        for (let item of items) {
+            ItemIds += item.itemId.toString() + ",";
+        }
+        ItemIds = ItemIds.substring(0, ItemIds.length - 1);
+        let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
+        cmd.itemIds = ItemIds;
+        cmd.attributeId = attributeId;
+        cmd.setId = setId;
+        this.reviewSetsService.ExecuteItemAttributeBulkInsertCommand(cmd);
+    }
+    private BulkDeleteCodes(attributeId: number, setId: number) {
+        const items = this.ItemListService.SelectedItems;
+        let ItemIds: string = "";
+        for (let item of items) {
+            ItemIds += item.itemId.toString() + ",";
+        }
+        ItemIds = ItemIds.substring(0, ItemIds.length - 1);
+        let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
+        cmd.itemIds = ItemIds;
+        cmd.attributeId = attributeId;
+        cmd.setId = setId;
+        this.reviewSetsService.ExecuteItemAttributeBulkDeleteCommand(cmd);
+    }
 	
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';

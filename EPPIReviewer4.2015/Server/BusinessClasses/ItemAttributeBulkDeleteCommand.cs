@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeBulkDeleteCommand : CommandBase<ItemAttributeBulkDeleteCommand>
     {
-#if SILVERLIGHT
-    public ItemAttributeBulkDeleteCommand(){}
-#else
-        protected ItemAttributeBulkDeleteCommand() { }
-#endif
+        public ItemAttributeBulkDeleteCommand(){}
 
         private Int64 _attributeId;
         private string _itemIds;

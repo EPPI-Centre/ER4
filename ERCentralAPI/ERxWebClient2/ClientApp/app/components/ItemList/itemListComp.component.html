@@ -100,10 +100,10 @@
                            [(ngModel)]="allItemsSelected" />
                 </ng-template>
                 <ng-template kendoGridCellTemplate let-dataItem>
-                    <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+                    <input style="zoom: 1.2;" 
                            type="checkbox"
                            field="isSelected"
-                           [checked]="dataItem.isSelected" />
+                           [(ngModel)]="dataItem.isSelected" />
                 </ng-template>
             </kendo-grid-column>
             <kendo-grid-column field="itemStatus" title="&nbsp;" width="33">
