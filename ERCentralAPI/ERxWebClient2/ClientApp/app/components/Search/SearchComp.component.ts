@@ -153,6 +153,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	Classify() {
 
+		//this.modelNum = 0;
 		this._reviewSetsService.selectedNode = null;
 		this.NewSearchSection = false;
 		this.ModelSection = !this.ModelSection;
@@ -168,26 +169,56 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelSelected = false;
 		}
 		this.modelNum = 5;
-		this.ModelSection = true;
 		this.modelResultsSection = !this.modelResultsSection
 
 	}
 	SetModelSelection(num: number) {
 
-
+		//alert('SelectedNode is: ' + this._reviewSetsService.selectedNode);
 		this.modelNum = num;
 		this.NewSearchSection = false;
 		this.LogicSection = false;
 		this.modelResultsSection = false;
+		//alert('Model Number is: ' + this.modelNum);
+		
+	}
+	//subscribe below
+	
+	public ApplyCode: boolean = false;
+	public ApplyAll: boolean = true;
+	public ApplySource: boolean = false;
 
-		if (this.modelNum != 5 && this.checkBoxSelected == true) {
-			
-			this.ModelSelected = true;
-		}
+	chooseAll() {
+		this.ApplyCode = false;
+		this.ApplyAll = true;
+		this.ApplySource = false;
 
 	}
+	CanApplyModel(): boolean {
 
+		if (this.modelNum != 5 && this.modelNum != 0) {
+			//console.log('yes step 1');
+			// Need to check for Apply code and apply source are filled if selected...
+			if (this.ApplyCode && this._reviewSetsService.selectedNode != null) {
+				return true;
+			} else if (this.ApplySource && this.selected != null) {
+				return true;
+			} else if (this.ApplyAll) {
+				//console.log('yes step 2');
+				return true;
+			}
+		}else 	if (this.modelNum ==5 && this.ModelSelected) {
+			return true;
+		} else {
+			return false;
+		}
+		return false;
+	}
 	chooseCodeMessage() {
+
+		this.ApplyCode = true;
+		this.ApplyAll = false;
+		this.ApplySource = false;
 		this.notificationService.show({
 			content: 'Please use the tree on the right hand side to choose a code',
 			animation: { type: 'slide', duration: 400 },
@@ -198,6 +229,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	chooseSourceDD() {
 
+		this.ApplyCode = false;
+		this.ApplyAll = false;
+		this.ApplySource = true;
 		//If only required once this is okay; else we are repeating ViewModel code across the app
 		this._reviewSetsService.selectedNode = null;
 		this._listSources = this._sourcesService.ReviewSources.filter(x => this.HideManuallyCreatedItems(x) == false ? x : x.source_Name = 'Manually Created Source');

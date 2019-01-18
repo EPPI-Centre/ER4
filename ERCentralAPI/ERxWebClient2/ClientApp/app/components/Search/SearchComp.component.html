@@ -146,7 +146,7 @@
 		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
 			<div class="form-group card-body col-md-8 col-sm-4">
 				<p class="font-weight-bold">Choose method to apply:</p>
-				<input class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
+				<input (click)="chooseAll()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to all items in review
 				</label>
@@ -210,7 +210,7 @@
 	<div class="form-group card-body col-md-12">
 		<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 		<p class="font-weight-bold">Run Models</p>
-		<button (click)="openConfirmationDialog()" [disabled]="!ModelSelected"
+		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
 				type="button" class="btn btn-success">
 			Run Selected Model
 		</button>
