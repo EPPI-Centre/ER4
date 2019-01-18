@@ -675,17 +675,16 @@ export class SearchComp implements OnInit, OnDestroy {
 	public checkboxClicked(dataItem: any) {
 
 		dataItem.add = !dataItem.add;
-		if (dataItem.add == true) {
+		if (dataItem.add == true && this.modelNum == 5) {
 
-			if (this.modelNum != 5) {
-				this.ModelSelected = true;
-			}
+			//this.ModelSelected = true;
 			this.checkBoxSelected = true;
 			this._searchService.searchToBeDeleted = dataItem.searchId;
 
 		} else {
+
 			this.checkBoxSelected = false;
-			this.ModelSelected = false;
+			//this.ModelSelected = false;
 			this._searchService.searchToBeDeleted = '';
 		}
 	};
