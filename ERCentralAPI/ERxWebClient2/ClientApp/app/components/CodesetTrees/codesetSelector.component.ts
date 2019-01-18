@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -29,7 +30,8 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
-       private ReviewSetsService: ReviewSetsService,
+	   private ReviewSetsService: ReviewSetsService,
+	   private _eventEmitterService: EventEmitterService
 
 	) { }
 
@@ -186,6 +188,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 			if (node.nodeType == "SetAttribute") {
 				console.log(JSON.stringify(node));
 				this.SelectedNodeData = node;
+	
 				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 				// and raise event to close the drop down
 				this.selectedNodeInTree.emit();
