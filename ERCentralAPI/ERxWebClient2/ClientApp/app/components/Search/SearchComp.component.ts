@@ -47,9 +47,10 @@ export class SearchComp implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
+
             this._reviewSetsService.selectedNode = null;
-            this._sourcesService.FetchSources();
+            //this._sourcesService.FetchSources();
             //this.reviewInfoService.Fetch();
             this._buildModelService.Fetch();
             //this._searchService.Fetch();
@@ -92,7 +93,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		};
 	}
 
-	HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
+	public HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
 		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
 		else return false;
 	}
@@ -214,6 +215,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		else if (this.modelNum == 5 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
 		{
 			return true;
+
 		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll) {
 
 			return true;
@@ -235,13 +237,21 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	chooseSourceDD() {
 
+		this._sourcesService.FetchSources();
 		this.ApplyCode = false;
 		this.ApplyAll = false;
 		this.ApplySource = true;
 		//If only required once this is okay; else we are repeating ViewModel code across the app
 		this._reviewSetsService.selectedNode = null;
-		this._listSources = this._sourcesService.ReviewSources.filter(x => this.HideManuallyCreatedItems(x) == false ? x : x.source_Name = 'Manually Created Source');
-		console.log('Blah: ' + this._listSources.values);
+		//
+		//console.log('Blah: ' + this._ReviewSources.values);
+	}
+	DisplayFriendlySourceNames(sourceItem: ReadOnlySource) {
+
+		if (this.HideManuallyCreatedItems(sourceItem)) {
+			sourceItem.source_Name = 'Manually Created Source';
+		}
+		return sourceItem.source_Name; 
 	}
 
 	public openConfirmationDialogDeleteSearches() {

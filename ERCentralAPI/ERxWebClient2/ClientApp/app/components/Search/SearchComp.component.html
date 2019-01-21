@@ -162,14 +162,14 @@
 			</div>
 		</div>
 
-		<div *ngIf="mode == '3'"
+		<div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined"
 			 class="form-group col-md-8 pull-right">
 			<div>
 				<div ngbDropdown>
 					<select class="btn btn-secondary col-md-4" id="dropdownBasicSources"
 							ngbDropdownToggle [(ngModel)]="selected">
-						<option [value]="item.source_ID" *ngFor="let item of _listSources">
-							{{item.source_Name}}
+						<option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
+							{{DisplayFriendlySourceNames(item)}}
 						</option>
 					</select>
 				</div>
