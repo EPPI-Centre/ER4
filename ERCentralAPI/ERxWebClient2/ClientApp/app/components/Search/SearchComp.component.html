@@ -15,7 +15,7 @@
 				<div class="col-md-2" style="min-width: 500px;">
 					<div ngbDropdown>
 						<button class="btn btn-primary col-10" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-						<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
 							<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 							<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
 							<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
@@ -31,7 +31,7 @@
 				</div>
 				<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-					 ngbDropdown class="col-md-5" style="min-width: 500px;">
+					 ngbDropdown class="col-md-5 mb-1" style="min-width: 500px;">
 					<button class="btn btn-info col-md-7" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 					<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 						<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
@@ -39,14 +39,14 @@
 				</div>
 				<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )"
-					 ngbDropdown class="col-md-5" style="min-width: 500px;">
+					 ngbDropdown class="col-md-5 mb-1" style="min-width: 500px;">
 					<button class="btn btn-info  dropdown-toggle col-md-7" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
 					<div class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
 										 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
-				<div *ngIf="showTextBox" class="row col-md-6 m-0 p-0" style="min-width: 500px;">
+				<div *ngIf="showTextBox" class="row col-md-6 m-0 p-0 mb-1" style="min-width: 500px;">
 					<div>
 						<b class="col-md-1 font-italic">Comma-Separated list of IDs:</b>
 						<input [(ngModel)]="commaIDs"
@@ -55,7 +55,7 @@
 							   placeholder="IDs"><br>
 					</div>
 				</div>
-				<div class="col-md-2 " style="min-width: 500px;">
+				<div class="col-md-2  mb-1" style="min-width: 500px;">
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
 						 class="col-md-10 p-0 m-0">
 								<input [(ngModel)]="searchText"
@@ -82,17 +82,16 @@
 			</div>
 			<!--<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>-->
 			<div class="row" style="min-width: 500px;">
-				<div class="col-md-4"></div>
-				<div class="col-md-12">
+				<div class="col-md-12 mb-1">
 					<table class="col-md-4">
 						<tr class="col-md-4">
 							<td>
-								<input name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl"><br />
+								<input name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl">
 
 								<b>&nbsp; Included </b>
 							</td>
 							<td>
-								<input name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl"><br />
+								<input name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
 
 								<b>&nbsp; Excluded</b>
 							</td>
@@ -107,7 +106,6 @@
 						Search
 					</button>
 				</div>
-				<div class="col-9"></div>
 			</div>
 		</div>
 	</div>
@@ -183,7 +181,6 @@
 						[sort]="sort"
 						[kendoGridSelectBy]="'modelId'"
 						(sortChange)="sortChange($event)"
-						(remove)="removeHandler($event)"
 						(selectionChange)="selectedRows($event)">
 
 				<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
@@ -224,12 +221,11 @@
 	mode: 'single'
 	}"
 				[sort]="sort"
-				(sortChange)="sortChange($event)"
-				(remove)="removeHandler($event)">
+				(sortChange)="sortChange($event)">
 
-		<kendo-grid-column [sortable]="false"  width="50"
-						   [headerStyle]="{'text-align': 'center'}"
-						   [style]="{'text-align': 'center'}">
+		<kendo-grid-column [sortable]="false" width="33"
+						   [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
+						   [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
 			<!--<ng-template kendoGridHeaderTemplate let-dataItem>
 				<input style="zoom: 1.2;"
 					   type="checkbox"
@@ -244,15 +240,15 @@
 					   [checked]="dataItem.add" />
 			</ng-template>
 		</kendo-grid-column>
-		<kendo-grid-column field="searchNo" title="No" width="50">
+		<kendo-grid-column field="searchNo" title="No" width="60">
 		</kendo-grid-column>
-		<kendo-grid-column field="title" title="Name" width="150">
+		<kendo-grid-column field="title" title="Name" width="360">
 		</kendo-grid-column>
-		<kendo-grid-column field="contactName" title="Created By" width="75">
+		<kendo-grid-column field="contactName" title="Created By" width="140">
 		</kendo-grid-column>
-		<kendo-grid-column field="searchDate" title="Date" width="75">
+		<kendo-grid-column field="searchDate" title="Date" width="140">
 		</kendo-grid-column>
-		<kendo-grid-column width="50" class="btn-link font-weight-bold"
+		<kendo-grid-column width="80" class="btn-link font-weight-bold"
 						   field="hitsNo" title="Hits">
 			<ng-template kendoGridCellTemplate let-dataItem>
 				<div (click)="SearchGetItemList(dataItem)">
@@ -262,7 +258,7 @@
 		</kendo-grid-column>
 		<kendo-grid-column field="isClassifierResult"
 						   class="btn-link font-weight-bold"
-						   title="Classifier" width="50">
+						   title="Classifier" width="80">
 			<ng-template kendoGridCellTemplate let-dataItem>
 				<div (click)="OpenClassifierVisualisation(dataItem)"
 					 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">

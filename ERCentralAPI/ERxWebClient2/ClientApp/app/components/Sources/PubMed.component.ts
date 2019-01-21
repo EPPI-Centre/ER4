@@ -140,7 +140,6 @@ export class PubMedComponent implements OnInit, OnDestroy {
             this.ItemListService.Refresh();
             this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
         }
-        this.SourcesService.ClearIncomingItems4Checking();
         this.back();
     }
     public showUploadedNotification(sourcename: string, status: string): void {

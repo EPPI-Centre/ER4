@@ -7,10 +7,7 @@
             <kendo-splitter-pane>
                     <kendo-tabstrip #tabstrip [keepTabContent]="true"
                                     (tabSelect)="onTabSelect($event)">
-                        <kendo-tabstrip-tab [selected]="true">
-                            <ng-template kendoTabTitle>
-                                <b>Review</b>&nbsp;home
-                            </ng-template>
+                        <kendo-tabstrip-tab [selected]="true" [title]="'Review home'">
                             <ng-template kendoTabContent>
                                 <div class="containsAtoolbar">
                                     <kendo-toolbar class="customk-toolbar">
