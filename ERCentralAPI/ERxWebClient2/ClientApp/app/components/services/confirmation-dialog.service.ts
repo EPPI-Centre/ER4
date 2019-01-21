@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogComponent } from '../ConfirmationDialog/confirmation-dialog.component';
 
@@ -9,7 +9,7 @@ import { ConfirmationDialogComponent } from '../ConfirmationDialog/confirmation-
 
 })
 
-export class ConfirmationDialogService {
+export class ConfirmationDialogService implements OnDestroy {
 
 	constructor(private modalService: NgbModal) { }
 
@@ -26,6 +26,11 @@ export class ConfirmationDialogService {
 		modalRef.componentInstance.btnCancelText = btnCancelText;
 
 		return modalRef.result;
+	}
+
+	ngOnDestroy() {
+
+
 	}
 
 }
