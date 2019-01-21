@@ -1,15 +1,15 @@
 <div class="card">
-	<div class="modal-header bg-info">
+	<div class="modal-header alert-danger">
 		<h4 class="modal-title">{{ title }}</h4>
 		<button type="button" class="close" aria-label="Close" (click)="dismiss()">
 			<span aria-hidden="true">&times;</span>
 		</button>
 	</div>
-	<div class="modal-body">
+	<div class="modal-body bg-white">
 		{{ message }}
 	</div>
-	<div class="modal-footer bg-info">
-		<button type="button" class="btn btn-outline-warning" (click)="decline()">{{ btnCancelText }}</button>
-		<button type="button" class="btn btn-outline-primary" (click)="accept()">{{ btnOkText }}</button>
+	<div class="modal-footer bg-white">
+		<button type="button" class="btn btn-outline-secondary ml-1" (click)="decline()" style="width:200px;">{{ btnCancelText }}</button>
+		<button type="button" class="btn btn-danger ml-3" (click)="accept()">{{ btnOkText }}</button>
 	</div>
 </div>

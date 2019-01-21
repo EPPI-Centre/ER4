@@ -36,7 +36,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
-		private _sourcesService: SourcesService,
+		public _sourcesService: SourcesService,
 		private confirmationDialogService: ConfirmationDialogService
 	) {
 		
@@ -130,10 +130,10 @@ export class SearchComp implements OnInit, OnDestroy {
     CombineSearches() {
         alert("Not implemented!");
     }
-    removeHandler(event: any) {
+ //   removeHandler(event: any) {
 
-        alert("Not implemented!");
-	}
+ //       alert("Not implemented!");
+	//}
 
 	public mode: string = '1';
 
@@ -356,7 +356,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		text: 'AND',
 		click: () => {
 			this.getLogicSearches('AND');
-			alert('AND');
+			//alert('AND');
 		}
 	}, {
 		text: 'OR',
@@ -417,7 +417,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			let lstStrSearchIds = '';
 			let lstStrSearchNos = logicChoice;
-			alert(logicChoice);
+			//alert(logicChoice);
 			for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
 
 				if (this.DataSourceSearches.data[i].add == true) {
@@ -553,7 +553,7 @@ export class SearchComp implements OnInit, OnDestroy {
                     let tmpID: number = this.CurrentDropdownSelectedCode.attributeSetId;
                     this.attributeNames = this.CurrentDropdownSelectedCode.name;
 					this._searchService.cmdSearches._answers = String(tmpID);
-                    alert(this.CurrentDropdownSelectedCode);
+                    //alert(this.CurrentDropdownSelectedCode);
 
 					searchTitle = this.withCode == true ?
 						"Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
@@ -604,7 +604,7 @@ export class SearchComp implements OnInit, OnDestroy {
 					tmpStr = 'PubYear'
 				}
 				this._searchService.cmdSearches._searchText = tmpStr;
-				alert(this._searchService.cmdSearches._searchText);
+				//alert(this._searchService.cmdSearches._searchText);
 				this._searchService.cmdSearches._title = this.searchText;
 	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
