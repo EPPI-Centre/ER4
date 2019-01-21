@@ -222,18 +222,23 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 		return false;
 	}
+	private hideAfter: number = 900;
 	chooseCodeMessage() {
 
-		this.ApplyCode = true;
-		this.ApplyAll = false;
-		this.ApplySource = false;
-		this.notificationService.show({
-			content: 'Please use the tree on the right hand side to choose a code',
-			animation: { type: 'slide', duration: 400 },
-			position: { horizontal: 'center', vertical: 'top' },
-			type: { style: "warning", icon: true },
-			closable: true
-		});
+		if (this.ApplyCode == false) {
+
+			this.ApplyCode = true;
+			this.ApplyAll = false;
+			this.ApplySource = false;
+			this.notificationService.show({
+				content: 'Please use the tree on the right hand side to choose a code',
+				animation: { type: 'fade', duration: 100 },
+				position: { horizontal: 'center', vertical: 'top' },
+				type: { style: "warning", icon: true },
+				closable: true,
+				hideAfter: this.hideAfter
+			});
+		}
 	}
 	chooseSourceDD() {
 
@@ -246,10 +251,10 @@ export class SearchComp implements OnInit, OnDestroy {
 		//
 		//console.log('Blah: ' + this._ReviewSources.values);
 	}
-	DisplayFriendlySourceNames(sourceItem: ReadOnlySource) {
+	DisplayFriendlySourceNames(sourceItem: ReadOnlySource): string  {
 
 		if (this.HideManuallyCreatedItems(sourceItem)) {
-			sourceItem.source_Name = 'Manually Created Source';
+			return 'Manually Created Source';
 		}
 		return sourceItem.source_Name; 
 	}
