@@ -133,10 +133,10 @@
 		<p class="font-weight-bold">Select a Model:</p>
 		<div class="form-group card-body col-md-3 col-sm-4">
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection"  role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
+				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
+				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
+				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
 				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
 			</div>
 		</div>
@@ -173,7 +173,7 @@
 				</div>
 			</div>
 		</div>
-
+		<span *ngIf="_reviewSetsService.selectedNode" class="p-3 m-3 font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 		<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
 			<kendo-grid [data]="DataSourceModel"
 						[selectable]="selectableSettings"
@@ -193,9 +193,9 @@
 				<kendo-grid-column field="attributeNotOn" title="Compared with">
 				</kendo-grid-column>
 				<!--<kendo-grid-column field="accuracy" title="Accuracy">
-				</kendo-grid-column>
-				<kendo-grid-column field="auc" title="AUC">
-				</kendo-grid-column>-->
+			</kendo-grid-column>
+			<kendo-grid-column field="auc" title="AUC">
+			</kendo-grid-column>-->
 				<kendo-grid-column field="precision" title="Precision">
 				</kendo-grid-column>
 				<kendo-grid-column field="recall" title="Recall">
@@ -205,7 +205,6 @@
 	</div>
 
 	<div class="form-group card-body col-md-12">
-		<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
 		<p class="font-weight-bold">Run Models</p>
 		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
 				type="button" class="btn btn-success">
