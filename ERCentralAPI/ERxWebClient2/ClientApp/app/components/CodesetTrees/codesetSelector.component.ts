@@ -169,7 +169,8 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 
 	NodeSelected(node: singleNode) {
-		console.log(JSON.stringify(node));
+
+		//console.log(JSON.stringify(node));
 		
 		//@Input() rootsOnly: boolean = false;//obsolete
 		//@Input() IsMultiSelect: boolean = false;
@@ -192,6 +193,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 				// and raise event to close the drop down
 				this.selectedNodeInTree.emit();
+				this._eventEmitterService.nodeSelected = node;
 			}
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {

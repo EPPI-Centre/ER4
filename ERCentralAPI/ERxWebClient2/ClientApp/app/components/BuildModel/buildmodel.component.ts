@@ -7,6 +7,7 @@ import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -21,7 +22,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _classifierService: ClassifierService,
 		private _reviewSetsService: ReviewSetsService,
 		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService
+		public _buildModelService: BuildModelService,
+		public _eventEmitterService: EventEmitterService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -65,6 +67,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.selectedModelDropDown2 = '';
 		this.reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
+	
 
 	}
 	ngOnDestroy() {
@@ -77,10 +80,10 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	}
 	SetAttrOn(node: any) {
-
-
+		//alert(JSON.stringify(node));
 		if (node != null) {
 			this.selectedModelDropDown1 = node.name;
+
 			let id: string = node.id;
 			let a: number = id.indexOf('A');
 			if (a != -1) {
@@ -92,10 +95,11 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		
 	}
 	SetAttrNotOn(node: any) {
-
+		//alert(JSON.stringify(node));
 		if (node != null) {
 			//alert(node.name);
 			this.selectedModelDropDown2 = node.name;
+		
 			let id: string = node.id;
 			let a: number = id.indexOf('A');
 			if (a != -1) {

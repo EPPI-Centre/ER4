@@ -12,7 +12,7 @@
 				Learn to apply this code:&nbsp;&nbsp;&nbsp;&nbsp;
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
-					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+					<div (click)="SetAttrOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
@@ -21,7 +21,7 @@
 				Distinguish from this code:
 				<div ngbDropdown class="d-inline-block col-md-9">
 					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
-					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
+					<div (click)="SetAttrNotOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
