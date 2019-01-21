@@ -78,8 +78,7 @@ export class SourcesService extends BusyAwareService {
         return this._http.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
             this._ReviewSources = result.sources;
             if (this._Source == null && this._ReviewSources.length > 0) {
-                //let's go and get the first source:
-                this.FetchSource(this._ReviewSources[0].source_ID);
+                this.RemoveBusy("FetchSources");
             }
         }, error => {
             this.RemoveBusy("FetchSources");

@@ -49,7 +49,7 @@ export class SearchComp implements OnInit, OnDestroy {
         }
         else {
             this._reviewSetsService.selectedNode = null;
-            this._sourcesService.FetchSources();
+            //this._sourcesService.FetchSources();//REMEMBER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //this.reviewInfoService.Fetch();
             this._buildModelService.Fetch();
             //this._searchService.Fetch();
