@@ -207,10 +207,16 @@ export class SearchComp implements OnInit, OnDestroy {
 				//console.log('yes step 2');
 				return true;
 			}
-		}else 	if (this.modelNum ==5 && this.ModelSelected) {
+		}else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null)
+		{
 			return true;
-		} else {
-			return false;
+		}
+		else if (this.modelNum == 5 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
+		{
+			return true;
+		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll) {
+
+			return true;
 		}
 		return false;
 	}
