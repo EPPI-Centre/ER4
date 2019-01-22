@@ -165,9 +165,10 @@
 	</table>
 </div>
 <div id="ModelSection" [ngbCollapse]="!ModelSection">
+
 	<div class="form-group card-body col-md-12 row">
-		<p class="font-weight-bold">Select a Model:</p>
-		<div class="form-group card-body col-md-3 col-sm-4">
+		<div class="col-md-3 col-sm-4 p-2">
+			<p class="font-weight-bold">Step1:	Select a Model</p>
 			<div class="btn-group-vertical" role="group" aria-label="Basic example">
 				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
 				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
@@ -178,8 +179,8 @@
 		</div>
 
 		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
-			<div class="form-group card-body col-md-8 col-sm-4">
-				<p class="font-weight-bold">Choose method to apply:</p>
+			<div class="col-md-8 col-sm-4 p-2">
+				<p class="font-weight-bold">Step 2: Choose method to apply</p>
 				<input (click)="chooseAll()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
 				<label class="form-check-label ">
 					&nbsp;&nbsp;Apply to all items in review
@@ -194,54 +195,51 @@
 					&nbsp;&nbsp;Apply to items from this source
 				</label>
 			</div>
-		</div>
-
-		<div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined"
-			 class="form-group col-md-8 pull-right">
-			<div>
-				<div ngbDropdown>
-					<select class="btn btn-secondary col-md-4" id="dropdownBasicSources"
-							ngbDropdownToggle [(ngModel)]="selected">
-						<option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
-							{{DisplayFriendlySourceNames(item)}}
-						</option>
-					</select>
+			<div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
+				<div>
+					<div ngbDropdown>
+						<select class="btn btn-secondary" id="dropdownBasicSources"
+								ngbDropdownToggle [(ngModel)]="selected">
+							<option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
+								{{DisplayFriendlySourceNames(item)}}
+							</option>
+						</select>
+					</div>
 				</div>
 			</div>
 		</div>
+		
 		<span *ngIf="_reviewSetsService.selectedNode" class="p-3 m-3 font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
-		<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
-			<kendo-grid [data]="DataSourceModel"
-						[selectable]="selectableSettings"
-						[height]="410"
-						[sort]="sort"
-						[kendoGridSelectBy]="'modelId'"
-						(sortChange)="sortChange($event)"
-						(selectionChange)="selectedRows($event)">
-
-				<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
-				<kendo-grid-column field="modelId" title="ModelID">
-				</kendo-grid-column>
-				<kendo-grid-column field="modelTitle" title="Title">
-				</kendo-grid-column>
-				<kendo-grid-column field="attributeOn" title="Applies">
-				</kendo-grid-column>
-				<kendo-grid-column field="attributeNotOn" title="Compared with">
-				</kendo-grid-column>
-				<!--<kendo-grid-column field="accuracy" title="Accuracy">
-			</kendo-grid-column>
-			<kendo-grid-column field="auc" title="AUC">
-			</kendo-grid-column>-->
-				<kendo-grid-column field="precision" title="Precision">
-				</kendo-grid-column>
-				<kendo-grid-column field="recall" title="Recall">
-				</kendo-grid-column>
-			</kendo-grid>
-		</div>
 	</div>
+	<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
+		<kendo-grid [data]="DataSourceModel"
+					[selectable]="selectableSettings"
+					[height]="410"
+					[sort]="sort"
+					[kendoGridSelectBy]="'modelId'"
+					(sortChange)="sortChange($event)"
+					(selectionChange)="selectedRows($event)">
 
+			<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
+			<kendo-grid-column field="modelId" title="ModelID">
+			</kendo-grid-column>
+			<kendo-grid-column field="modelTitle" title="Title">
+			</kendo-grid-column>
+			<kendo-grid-column field="attributeOn" title="Applies" >
+			</kendo-grid-column>
+			<kendo-grid-column field="attributeNotOn" title="Compared with">
+			</kendo-grid-column>
+			<!--<kendo-grid-column field="accuracy" title="Accuracy">
+		</kendo-grid-column>
+		<kendo-grid-column field="auc" title="AUC">
+		</kendo-grid-column>-->
+			<kendo-grid-column field="precision" title="Precision">
+			</kendo-grid-column>
+			<kendo-grid-column field="recall" title="Recall">
+			</kendo-grid-column>
+		</kendo-grid>
+	</div>
 	<div class="form-group card-body col-md-12">
-		<p class="font-weight-bold">Run Models</p>
 		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
 				type="button" class="btn btn-success">
 			Run Selected Model
