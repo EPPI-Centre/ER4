@@ -144,13 +144,13 @@ export class ItemCodingService extends BusyAwareService {
         //this._CodingReport += "Item: "
         //    + this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId.toString()
         //    + " contains " + this.ItemCodingList.length + " item sets. <br />";
-        this._CodingReport += "<h4>ID " + currentItem.itemId.toString() + ": " + currentItem.shortTitle + "</h4><br />" +
+        this._CodingReport += "<h4>ID " + currentItem.itemId.toString() + ": " + currentItem.shortTitle.replace(/</g, "&lt;") + "</h4><br />" +
             ItemListService.GetCitation(currentItem) + "<br />";
         if (currentItem.oldItemId != "") {
             this._CodingReport += "<b>Your ID:</b> " + currentItem.oldItemId + "<br />";
         }
         if (currentItem.abstract != "") {
-            this._CodingReport += '<div class="small mt-1"><b>Abstract:</b> ' + currentItem.abstract + "</div>";
+            this._CodingReport += '<div class="small mt-1"><b>Abstract:</b> ' + currentItem.abstract.replace(/</g, "&lt;") + "</div>";
         }
         this.AddCodingToReport();
         this._CodingReport += "<hr />";

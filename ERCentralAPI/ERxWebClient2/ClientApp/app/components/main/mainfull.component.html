@@ -73,8 +73,10 @@
                                                                    [disabled]="!CanBulkAssignRemoveCodes"
                                                                    [data]="AddRemoveItemsDDData"
                                                                    style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
-                                        <kendo-toolbar-button [text]="'Coding Report'" 
-                                                              [disabled]="!CanShowQuickReport" (click)="ShowHideQuickReport()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Coding Report'"
+                                                              [disabled]="!HasSelectedItems" (click)="ShowHideQuickReport()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'To RIS'"
+                                                              [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
                                     </kendo-toolbar>
                                 </div>
                                 <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
