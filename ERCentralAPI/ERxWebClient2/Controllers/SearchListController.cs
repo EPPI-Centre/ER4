@@ -15,7 +15,6 @@ namespace ERxWebClient2.Controllers
     {
 
         private readonly ILogger _logger;
-		private SearchCodesCommand cmd;
 
 		public SearchListController(ILogger<SearchListController> logger)
         {
@@ -105,12 +104,10 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult SearchNoAbstract([FromBody] CodeCommand cmdIn)
 		{
-
 			try
 			{
 				if (SetCSLAUser4Writing())
 				{
-					
 					SearchNullAbstractCommand cmd = new SearchNullAbstractCommand(
 						cmdIn._included
 					);
@@ -304,18 +301,21 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
-				
-				SearchCombineCommand cmd = new SearchCombineCommand(
-					cmdIn._title,
-					cmdIn._searches,
-					cmdIn._logicType,
-					cmdIn._included
-					);
-				DataPortal<SearchCombineCommand> dp = new DataPortal<SearchCombineCommand>();
-				cmd = dp.Execute(cmd);
+                if (SetCSLAUser4Writing())
+                {
 
-				return Ok(cmd);
+                    SearchCombineCommand cmd = new SearchCombineCommand(
+                    cmdIn._title,
+                    cmdIn._searches,
+                    cmdIn._logicType,
+                    cmdIn._included
+                    );
+                    DataPortal<SearchCombineCommand> dp = new DataPortal<SearchCombineCommand>();
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd);
+                }
+                else return Forbid();
 			}
 			catch (Exception e)
 			{

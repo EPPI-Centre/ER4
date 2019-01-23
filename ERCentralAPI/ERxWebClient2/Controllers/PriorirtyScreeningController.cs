@@ -54,10 +54,13 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-                DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
-                TrainingNextItem result = dp.Fetch(new SingleCriteria<TrainingNextItem, int>(crit.Value));
-                return Ok(result);
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
+                    TrainingNextItem result = dp.Fetch(new SingleCriteria<TrainingNextItem, int>(crit.Value));
+                    return Ok(result);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
@@ -71,10 +74,13 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-                DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
-                TrainingPreviousItem result = dp.Fetch(new SingleCriteria<TrainingPreviousItem, Int64>(crit.Value));
-                return Ok(result);
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
+                    TrainingPreviousItem result = dp.Fetch(new SingleCriteria<TrainingPreviousItem, Int64>(crit.Value));
+                    return Ok(result);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
@@ -88,18 +94,21 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-                TrainingRunCommand command = new TrainingRunCommand();
-                DataPortal<ReviewInfo> dpInfo = new DataPortal<ReviewInfo>();
-                ReviewInfo revInfo = dpInfo.Fetch();
-                command.RevInfo = revInfo;
-                DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
-                //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
-                //doIt.Start();
-                TrainingRunCommand result = dp.Execute(command);
+                if (SetCSLAUser4Writing())
+                {
+                    TrainingRunCommand command = new TrainingRunCommand();
+                    DataPortal<ReviewInfo> dpInfo = new DataPortal<ReviewInfo>();
+                    ReviewInfo revInfo = dpInfo.Fetch();
+                    command.RevInfo = revInfo;
+                    DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
+                    //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
+                    //doIt.Start();
+                    TrainingRunCommand result = dp.Execute(command);
 
-                //return Ok(result);
-                return Ok(command);
+                    //return Ok(result);
+                    return Ok(command);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
