@@ -105,56 +105,57 @@ export class ItemListService extends BusyAwareService {
         let retVal: string = "";
         switch (Item.typeId) {
             case 1: //Report
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title + "</i>. " + Item.city + ": " + Item.publisher + ". ";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ". ";
                 break;
             case 2: //Book, Whole
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title + "</i>. " + Item.city + ": " + Item.publisher + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
                 break;
             case 3: //Book, Chapter
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title + ". In <i>" + Item.parentTitle + "</i>, edited by " + ItemListService.CleanAuthors(Item.parentAuthors) + ", " +
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title.replace(/</g, "&lt;") + ". In <i>" + Item.parentTitle.replace(/</g, "&lt;") + "</i>, edited by " + ItemListService.CleanAuthors(Item.parentAuthors) + ", " +
                     Item.pages + ". " + Item.city + ": " + Item.publisher + ".";
                 break;
             case 4: //Dissertation
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.edition + ", " + Item.institution + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.edition.replace(/</g, "&lt;") + ", " + Item.institution.replace(/</g, "&lt;") + ".";
                 break;
             case 5: //Conference Proceedings
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title + ". Paper presented at " + Item.parentTitle + ", " + Item.city + ": " + Item.publisher + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title.replace(/</g, "&lt;") + ". Paper presented at " + Item.parentTitle.replace(/</g, "&lt;") + ", " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
                 break;
             case 6: //Document From Internet Site
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.publisher + ". " + URL +
-                    (Item.availability == "" ? "" : " [Accessed " + Item.availability + "] ") + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
                 break;
             case 7: //Web Site
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title + "</i>. " + Item.publisher + ". " + URL +
-                    (Item.availability == "" ? "" : " [Accessed " + Item.availability + "] ") + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
                 break;
             case 8: //DVD, Video, Media
-                retVal = "\"" + Item.title + "\". " + Item.year + ". " + (Item.availability == "" ? "" : " [" + Item.availability + "] ") +
+                retVal = "\"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.year + ". " + (Item.availability == "" ? "" : " [" + Item.availability.replace(/</g, "&lt;") + "] ") +
                     Item.city + ": " + ItemListService.CleanAuthors(Item.authors) + ".";
                 break;
             case 9: //Research project
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.city + ": " + Item.publisher + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
                 break;
             case 10: //Article In A Periodical
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". <i>" + Item.parentTitle + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". <i>" + Item.parentTitle.replace(/</g, "&lt;") + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
                 break;
             case 11: //Interview
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". ";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". ";
                 break;
             case 12: //Generic
-                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". " + Item.city + ": " + Item.publisher + ".";
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
                 break;
             case 14: //Journal, Article
                 retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". <i>" + Item.parentTitle + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
                 break;
         }
-        console.log("GetCitation for Item: ", Item, retVal);
+        //console.log("GetCitation for Item: ", Item, retVal);
         return retVal;
     }
     public static CleanAuthors(inputAuthors: string): string {
         if (inputAuthors != "") {
             inputAuthors = inputAuthors.replace(" ;", ",");
             inputAuthors = inputAuthors.replace(";", ",");
+            inputAuthors = inputAuthors.replace(/</g, "&lt;");
             inputAuthors = inputAuthors.trim();
             if (inputAuthors.endsWith(',')) inputAuthors = inputAuthors.substring(0, inputAuthors.length -1);
         }
@@ -345,6 +346,167 @@ export class ItemListService extends BusyAwareService {
     public get SelectedItems(): Item[] {
         return this._ItemList.items.filter(found => found.isSelected == true);
     }
+    public SelectedItemsToRIStext(): string {
+        let res: string = "";
+        for (let Itm of this.SelectedItems) {
+            res += ItemListService.ExportItemToRIS(Itm);
+        }
+        console.log("SelectedItemsToRIStext", res);
+        return res;
+    }
+
+    public static ExportItemToRIS(it: Item): string {
+        const calend: string[]  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+            "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const newLine: string = "\r\n";
+        let res: string = "TY  - ";
+        let tmp: string = "";
+        switch (it.typeId) {
+            case 14:
+                res += "JOUR" + newLine;
+                break;
+            case 1:
+                res += "RPRT" + newLine;
+                break;
+            case 2:
+                res += "BOOK" + newLine;
+                break;
+            case 3:
+                res += "CHAP" + newLine;
+                break;
+            case 4:
+                res += "THES" + newLine;
+                break;
+            case 5:
+                res += "CONF" + newLine;
+                break;
+            case 6:
+                res += "ELEC" + newLine;
+                break;
+            case 7:
+                res += "ELEC" + newLine;
+                break;
+            case 8:
+                res += "ADVS" + newLine;
+                break;
+            case 10:
+                res += "MGZN" + newLine;
+                break;
+            default:
+                res += "GEN" + newLine;
+                break;
+        }
+        res += "T1  - " + it.title + newLine;
+        if (it.typeId == 10 || it.typeId == 14)
+            res += "JF  - " + it.parentTitle + newLine;
+        else
+            res += "T2  - " + it.parentTitle + newLine;
+        for(let au of it.authors.split(';'))
+        {
+            tmp = au.trim();
+            if (tmp != "") res += "A1  - " + tmp + newLine;
+        }
+        for(let au of it.parentAuthors.split(';'))
+        {
+            tmp = au.trim();
+            if (tmp != "") res += "A2  - " + tmp + newLine;
+        }
+        res += "KW  - eppi-reviewer4" + newLine
+            + ((it.keywords != null && it.keywords.length > 2) ? it.keywords.trim() + newLine : "");
+        let Month: number | null, Yr: number | null;
+        let tmpDate: string = "";
+        Month = ItemListService.SafeParseInt(it.month);
+        if (!Month || (Month < 1 || Month > 12)) {
+            Month = 1 + it.month.length > 2 ? calend.indexOf(it.month.substring(0, 3)) + 1 : 0;
+        }
+        Yr = this.SafeParseInt(it.year);
+        if (it.year !== "" && Yr) {
+            if (Yr > 0) {
+                if (Yr < 20) Yr += 1900;
+                else if (Yr < 100) Yr += 2000;
+                if ((Yr.toString()).length == 4) {
+                    res += "PY  - " + Yr.toString() + newLine;
+                    if (Month != 0) {
+
+                        tmpDate += it.year + "/" +
+                            ((Month.toString().length == 1 ? "0" + Month.toString() : Month.toString()))
+                            + "//";
+                    }
+                    else {
+                        tmpDate += it.year + "///" + it.month;//"Y1  - " 
+                    }
+                }
+            }
+        }
+        if (tmpDate.length > 0) {
+            res += "DA  - " + tmpDate + newLine;
+            res += "Y1  - " + tmpDate;
+
+
+            //little trick: edition information is supposed to be the additional info at the end of the 
+            //Y1 filed. For Thesis pubtype (4) we use the edition field to hold the thesys type,
+            //the following finishes up the Y1 field keeping all this into account
+
+            if (it.typeId == 4 && it.edition.length > 0)
+                res += newLine + "KW  - " + it.edition + newLine;
+            else if (it.edition.length > 0)
+                res += " " + it.edition + newLine;
+            else res += newLine;
+
+        }
+        else if (it.typeId == 4 && it.edition.length > 0) {
+            res += newLine + "KW  - " + it.edition + newLine;
+        }//end of little trick
+
+        //res += "N2  - " + it.abstract + newLine;
+        res += "AB  - " + it.abstract + newLine;
+        if (it.doi.length > 0) res += "DO  - " + it.doi + newLine;
+        res += "VL  - " + it.volume + newLine;
+        res += "IS  - " + it.issue + newLine;
+        let split = '-';
+        Yr = it.pages.indexOf(split);
+        if (Yr > 0) {
+            let pgs = it.pages.split(split);
+            res += "SP  - " + pgs[0] + newLine;
+            res += "EP  - " + pgs[1] + newLine;
+        }
+        else if (it.pages.length > 0) res += "SP  - " + it.pages + newLine;
+        res += "CY  - " + it.city + (it.country.length > 0 ? " " + it.country : "") + newLine;
+        if (it.url.length > 0)
+            res += "UR  - " + it.url + newLine;
+        if (it.availability.length > 0)
+            res += "AV  - " + it.availability + newLine;
+        if (it.publisher.length > 0)
+            res += "PB  - " + it.publisher + newLine;
+        if (it.standardNumber.length > 0)
+            res += "SN  - " + it.standardNumber + newLine;
+        res += "U1  - " + it.itemId.toString() + newLine;
+        if (it.oldItemId.length > 0)
+            res += "U2  - " + it.oldItemId + newLine;
+
+
+        res += "N1  - " + it.comments + newLine;
+
+        res += "ER  - " + newLine + newLine;
+
+        res = res.replace("     ", " ");
+        res = res.replace("    ", " ");
+        res = res.replace("   ", " ");
+        res = res.replace("   ", " ");
+        return res;
+    }
+    public static SafeParseInt(str: string): number | null {
+        let retValue: number | null = null;
+        if (str !== null) {
+            if (str.length > 0) {
+                let tmp = Number(str);
+                if (!isNaN(tmp)) {
+                    retValue = parseInt(str);
+                }
+            }
+        }
+        return retValue;
+    }
 
 
     //public Save() {
@@ -402,14 +564,14 @@ export class Item {
     issue: string = "";
     isLocal: string = "";
     availability: string = "";
-    uRL: string = "";
+    url: string = "";
     oldItemId: string = "";
     abstract: string = "";
     comments: string = "";
     typeName: string = "";
     authors: string = "";
     parentAuthors: string = "";
-    dOI: string = "";
+    doi: string = "";
     keywords: string = "";
     attributeAdditionalText: string = "";
     rank: number = 0;

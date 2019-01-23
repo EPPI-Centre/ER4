@@ -10,7 +10,6 @@ import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
 import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { crosstabService } from '../services/crosstab.service';
@@ -19,6 +18,7 @@ import { SourcesService } from '../services/sources.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 
 
@@ -106,7 +106,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         return this._ShowQuickReport;
     }
-    public get CanShowQuickReport(): boolean {
+    public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
     }
 	//public selectedAttributeSetF: any | 'none';
@@ -388,6 +388,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ImportCodesetClick() {
         this.router.navigate(['ImportCodesets']);
+    }
+    ToRis() {
+        if (!this.HasSelectedItems) return;
+        const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
+        console.log("ToRis", dataURI)
+        saveAs(dataURI, "ExportedRis.txt");
     }
     ngOnDestroy() {
         //this.Clear();
