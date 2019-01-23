@@ -37,31 +37,31 @@ export class ReviewService extends BusyAwareService {
 	//	this._ClassifierModelList = models;
 	//}
 
-	CreateReview(RevName: string, ContactId: string): number {
+	CreateReview(RevName: string, ContactId: string): Promise<any> {
 
 		//hardcode until this works
 
-        this._BusyMethods.push("CreateReview");
+		this._BusyMethods.push("CreateReview");
 
 		let body = JSON.stringify({ reviewName: RevName, userId: ContactId });
-		this._httpC.post<any>(this._baseUrl + 'api/Review/CreateReview', body
+		return this._httpC.post<any>(this._baseUrl + 'api/Review/CreateReview', body
 		)
-			.subscribe(result => {
-				alert(result);
-				return result;
-			},
-            error => {
-                this.RemoveBusy("CreateReview");
-                this.modalService.GenericError(error);
-            }
-            , () => {
-                this.RemoveBusy("CreateReview");
-            }
-			);
-		return 0;
+			.toPromise();
+
+	
 	}
 
+//	,
+//	error => {
+//	this.modalService.GenericError(error);
+
+//}
+//				, () => {
+//	this.RemoveBusy("CreateReview");
+//}
+
 	ngOnInit() {
+
 	}
 }
 

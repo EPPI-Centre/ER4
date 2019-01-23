@@ -41,17 +41,7 @@ namespace ERxWebClient2.Controllers
 				{
 					Review review = new Review(data.reviewName, data.userId);
 
-					review.Saved += (o, e2) =>
-					{
-						if (e2.NewObject != null)
-						{
-							Review rv = e2.NewObject as Review;
-							//return rv.ReviewId;
-						}
-					};
-
-
-					review.BeginSave();
+					review = review.Save();
 
 					return Ok(review.ReviewId);
 				}
