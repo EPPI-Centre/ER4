@@ -77,7 +77,7 @@
                                                               [disabled]="!CanShowQuickReport" (click)="ShowHideQuickReport()"></kendo-toolbar-button>
                                     </kendo-toolbar>
                                 </div>
-                                <quickcodingreport *ngIf="ShowQuickReport"></quickcodingreport>
+                                <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                                 <div class="card card-body bg-light p-1">
                                     <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                                 </div>

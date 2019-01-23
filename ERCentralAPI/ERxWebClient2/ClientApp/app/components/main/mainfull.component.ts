@@ -18,7 +18,7 @@ import { searchService } from '../services/search.service';
 import { SourcesService } from '../services/sources.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { ReviewService } from '../services/review.service';
+import { ItemCodingService } from '../services/ItemCoding.service';
 
 
 
@@ -53,10 +53,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
         private _eventEmitter: EventEmitterService,
-		public _reviewService: ReviewService
+		private frequenciesService: frequenciesService
+		, private crosstabService: crosstabService
         , private _searchService: searchService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
+        , private ItemCodingService: ItemCodingService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
@@ -97,7 +99,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }];
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
-        if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
+        if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
+            this._ShowQuickReport = false;
+            this.ItemCodingService.Clear();
+            this.reviewSetsService.clearItemData();
+        }
         return this._ShowQuickReport;
     }
     public get CanShowQuickReport(): boolean {
@@ -152,6 +158,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
         else this._ShowQuickReport = !this._ShowQuickReport;
         console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
+    }
+    CloseQuickReport() {
+        this._ShowQuickReport = false;
     }
     setTabSelected(tabSelect: SelectEvent) {
 		//nothing for now, selectEvent is like this:
@@ -379,12 +388,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ImportCodesetClick() {
         this.router.navigate(['ImportCodesets']);
-	}
-	CreateReviewClick() {
-		
-		this.router.navigate(['CreateReview']);
-
-	}
+    }
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");
@@ -398,7 +402,5 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 export class RadioButtonComp {
 	IncEnc = true;
 }
-
-
 
 

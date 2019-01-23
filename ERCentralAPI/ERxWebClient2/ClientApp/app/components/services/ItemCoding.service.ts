@@ -78,6 +78,15 @@ export class ItemCodingService extends BusyAwareService {
     public get CodingReport(): string {
         return this._CodingReport;
     }
+    public Clear() {
+        this._ItemsToReport = [];
+        this._CodingReport = "";
+        this._CurrentItemIndex4QuickCodingReport = 0;
+        if (this.SelfSubscription4QuickCodingReport) {
+            this.SelfSubscription4QuickCodingReport.unsubscribe();
+            this.SelfSubscription4QuickCodingReport = null;
+        }
+    }
     private _ItemsToReport: Item[] = [];
     private _ReviewSetsToReportOn: ReviewSet[] = [];
     private _CurrentItemIndex4QuickCodingReport: number = 0;
@@ -85,7 +94,7 @@ export class ItemCodingService extends BusyAwareService {
         return this._ItemsToReport.length > this._CurrentItemIndex4QuickCodingReport;
     }
     public get ProgressOfQuickCodingReport(): string {
-        return "Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
+        return "Retreiving Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
     }
     public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[]) {
         this._ItemsToReport = [];
@@ -122,13 +131,15 @@ export class ItemCodingService extends BusyAwareService {
             }
             return;
         }
-        else this.Fetch(this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
+        //passing negative item IDs make the ItemList object grab the full text as well as "normal coding"
+        else this.Fetch(-this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
     }
     private AddToQuickCodingReport() {
         if (this._CodingReport == "") {
            // this._CodingReport = "Start of report<br />";
         }
         const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+        console.log("AddToQuickCodingReport", currentItem);
         if (!currentItem || currentItem.itemId == 0) return;
         //this._CodingReport += "Item: "
         //    + this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId.toString()
@@ -145,6 +156,7 @@ export class ItemCodingService extends BusyAwareService {
         this._CodingReport += "<hr />";
     }
     private AddCodingToReport() {
+        console.log("AddCodingToReport", this._ReviewSetsToReportOn.length);
         for (let i = 0; i < this._ReviewSetsToReportOn.length; i++)
         {
             let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
@@ -157,10 +169,12 @@ export class ItemCodingService extends BusyAwareService {
                         this._CodingReport += "<p><h4>" + reviewSet.set_name + "</h4></p><p><ul>";
                         for(let attributeSet of reviewSet.attributes)
                         {
+                            console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
                             this._CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
                         }
                         this._CodingReport += "</ul></p>";
-                        //this._CodingReport += "<p>" + itemSet.OutcomeItemList.OutcomesTable() + "</p>";
+                        console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
                     }
 
                 }
@@ -179,10 +193,11 @@ export class ItemCodingService extends BusyAwareService {
                     AttributeName += " [" + roia.armTitle + "]";
                 }
 
-                report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span><br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
+                report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span>";
+                if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
                 if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
                     
-                    //report += dialogCoding.addFullTextToComparisonReport(ll);
+                    report += this.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
                 }
                 report += "</li>";
             }
@@ -209,6 +224,194 @@ export class ItemCodingService extends BusyAwareService {
             }
         }
         return report;
+    }
+    public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
+        let result: string = "";
+        for (let ftd of list) {
+            result += "<br>" + ftd.docTitle + ": ";
+            if (ftd.isFromPDF) {
+                let rres = ftd.text.replace(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
+                rres = rres.replace(/\[\u00ACe\]/g, "");
+                result += "<span class='small'>" + rres + "</span>";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
+            }
+            else {
+                result += "<code>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
+                    + ")</code>";
+            }
+        }
+        return result;
+    }
+    public OutcomesTable(Outcomes: Outcome[]): string {
+        let retVal: string = "";
+        let i: number = -1;
+
+        let sortedOutcomes = Outcomes.sort(function (a, b) { return a.outcomeTypeId - b.outcomeTypeId });
+        for(let o of sortedOutcomes)
+        {
+            if (i != o.outcomeTypeId) {
+                if (retVal == "") {
+                    retVal = "<p><b>Outcomes</b></p><table class='m-1' border='1'>";
+                }
+                else {
+                    retVal += "</table><table class='m-1' border='1'>";
+                }
+                i = o.outcomeTypeId;
+                retVal += this.GetOutcomeHeaders(o);
+            }
+            retVal +=this.GetOutcomeStats(o);
+        }
+        return retVal + "</table>";
+    }
+    public GetOutcomeHeaders(o: Outcome): string {
+        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>SMD</td><td>SE</td><td>r</td><td>SE</td><td>Odds ratio</td><td>SE</td><td>Risk ratio</td><td>SE</td><td>Risk difference</td><td>SE</td><td>Mean difference</td><td>SE</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SD</td>" +
+                    "<td>Group 2 SD</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Group 1 events</td><td>Group 2 events</td><td>Group 1 no events</td><td>Group 2 no events</td><td>Odds ratio</td><td>SE (log OR)</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SE</td>" +
+                    "<td>Group 2 SE</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 CI lower</td>" +
+                    "<td>Group 1 CI upper</td><td>Group 2 CI lower</td><td>Group 2 CI upper</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>t-value</td>" +
+                    "<td>p-value</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 6: // diagnostic test 2 x 2 table
+                retVal += "<td>True positive</td><td>False positive</td><td>False negative</td><td>True negative</td><td>Diagnostic odds ratio</td><td>SE (log dOR)</td>";
+                break;
+
+            case 7: // correlation coeffiecient r
+                retVal += "<td>Group size</td><td>r</td><td>SE (Z transformed)</td>";
+                break;
+
+            default:
+                break;
+        }
+        return retVal + "<td>Outcome Classifications</td></tr>";
+    }
+
+    public GetOutcomeStats(o: Outcome): string {
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
+            "</td><td>" + o.controlText + "</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>Manual entry</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data11 === 'number' ? o.data11.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data12 === 'number' ? o.data12.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data13 === 'number' ? o.data13.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data14 === 'number' ? o.data14.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Continuous: Ns, means and SD</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Binary: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Continuous: N, Mean, SE</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Continuous: N, Mean, CI</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Continuous: N, t- or p-value</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 6: // binary 2 x 2 table
+                retVal += "<td>Diagnostic test: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 7: // correlation coefficient r
+                retVal += "<td>Correlation coefficient r</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            default:
+                break;
+        }
+
+        retVal += "<td>";
+        for(let OIA of o.outcomeCodes)
+        {
+            retVal += OIA.attributeName + "<br>";
+        }
+        return retVal + "</td></tr>";
     }
 
     private CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
@@ -292,6 +495,8 @@ export class Outcome {
     outcomeId: number = 0;
     itemSetId: number = 0;
     outcomeTypeName: string = "";
+    outcomeTypeId: number = 0;
+    outcomeCodes: OutcomeItemAttribute[] = [];
     itemAttributeIdIntervention: number = 0;
     itemAttributeIdControl: number = 0;
     itemAttributeIdOutcome: number = 0;
@@ -367,6 +572,15 @@ export class Outcome {
     data13Desc: string = "";
     data14Desc: string = "";
 }
+export interface OutcomeItemAttribute {
+    outcomeItemAttributeId: number;
+    outcomeId: number;
+    attributeId: number;
+    additionalText: string;
+    attributeName: string;
+}
+
+
 export interface ItemAttributeFullTextDetails {
     itemDocumentId: number;
     isFromPDF: boolean;
