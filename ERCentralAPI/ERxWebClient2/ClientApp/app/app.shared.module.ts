@@ -140,7 +140,6 @@ import { ReviewComponent } from './components/Review/review.component';
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
 			{ path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-			{ path: 'CreateReview', component: ReviewComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

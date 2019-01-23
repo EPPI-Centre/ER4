@@ -25,6 +25,7 @@
                                         <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                     </div>
                                     <div class="col-md-5 p-0">
+										<ReviewComp [hidden]="ShowNewReview" (onCloseClick)="ShowNewReview = !ShowNewReview"></ReviewComp>
                                         <div class="card card-body mt-2 bg-light ">
                                             {{MyInfoMessage()}}
                                         </div>
