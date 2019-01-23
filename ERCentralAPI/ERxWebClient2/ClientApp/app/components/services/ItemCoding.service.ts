@@ -57,17 +57,15 @@ export class ItemCodingService extends BusyAwareService {
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
                 this.ItemCodingList = result;
-                this.RemoveBusy("Fetch");
-                
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
             }, error => {
+                this.RemoveBusy("Fetch");
                 if (this.SelfSubscription4QuickCodingReport) {
                     this.SelfSubscription4QuickCodingReport.unsubscribe();
                     this.SelfSubscription4QuickCodingReport = null;
                 }
-                this.RemoveBusy("Fetch");
                 this.modalService.SendBackHomeWithError(error);
             }
             , () => { this.RemoveBusy("Fetch");}
@@ -112,6 +110,7 @@ export class ItemCodingService extends BusyAwareService {
         this._ItemsToReport = Items;
         this._ReviewSetsToReportOn = ReviewSetsToReportOn;
         this.InterimGetItemCodingForReport();
+        this.RemoveBusy("FetchCodingReport");
     }
     private InterimGetItemCodingForReport() {
         if (!this.SelfSubscription4QuickCodingReport) {
@@ -258,11 +257,11 @@ export class ItemCodingService extends BusyAwareService {
                 i = o.outcomeTypeId;
                 retVal += this.GetOutcomeHeaders(o);
             }
-            retVal +=this.GetOutcomeStats(o);
+            retVal += this.GetOutcomeInnerTable(o);
         }
         return retVal + "</table>";
     }
-    public GetOutcomeHeaders(o: Outcome): string {
+    private GetOutcomeHeaders(o: Outcome): string {
         let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
@@ -307,7 +306,7 @@ export class ItemCodingService extends BusyAwareService {
         return retVal + "<td>Outcome Classifications</td></tr>";
     }
 
-    public GetOutcomeStats(o: Outcome): string {
+    private GetOutcomeInnerTable(o: Outcome): string {
         let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
         switch (o.outcomeTypeId) {

@@ -394,7 +394,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
         console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
-    }
+    
 	}
 	CreateReviewClick() {
 

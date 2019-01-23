@@ -41,24 +41,22 @@ export class ReviewService extends BusyAwareService {
 
 		//hardcode until this works
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("CreateReview");
 
 		let body = JSON.stringify({ reviewName: RevName, userId: ContactId });
 		this._httpC.post<any>(this._baseUrl + 'api/Review/CreateReview', body
 		)
 			.subscribe(result => {
-
 				alert(result);
 				return result;
-
 			},
-				error => {
-					this.modalService.GenericError(error);
-
-				}
-				, () => {
-					this.RemoveBusy("Fetch");
-				}
+            error => {
+                this.RemoveBusy("CreateReview");
+                this.modalService.GenericError(error);
+            }
+            , () => {
+                this.RemoveBusy("CreateReview");
+            }
 			);
 		return 0;
 	}

@@ -49,9 +49,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             , error => {
                 this.modalService.GenericError(error);
                 this.RemoveBusy("FetchSetTypes");}
-            , () => {
-                this.RemoveBusy("FetchSetTypes");
-            }
+            
         );
     }
     private _ReadOnlyTemplateReviews: ReadOnlyTemplateReview[] = [];
@@ -67,9 +65,6 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
             , error => {
                 this.modalService.GenericError(error);
-                this.RemoveBusy("FetchReviewTemplates");
-            }
-            , () => {
                 this.RemoveBusy("FetchReviewTemplates");
             }
         );
@@ -95,7 +90,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }, error => {
                 this.RemoveBusy("SaveReviewSet");
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-            }, () => { }
+            }
         );
     }
     public SaveNewReviewSet(rs: ReviewSet): Promise<iReviewSet | null> {
@@ -243,14 +238,13 @@ export class ReviewSetsEditingService extends BusyAwareService {
             );
     }
     public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
-        this._BusyMethods.push("SaveNewAttribute");
         let ErrMsg = "Something went wrong: it appears that the Code was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         if (Att.set_id < 1) {
             //bad! can't do this...
             this.modalService.GenericErrorMessage(ErrMsg);
-            this.RemoveBusy("SaveNewAttribute"); 
             return new Promise<null>((resolve, reject) => { setTimeout(reject, 1, null) });
         }
+        this._BusyMethods.push("SaveNewAttribute");
         let Data: Attribute4Saving = new Attribute4Saving();
         Data.attributeType = Att.attribute_type;
         Data.attributeTypeId = Att.attribute_type_id;
@@ -320,7 +314,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             });
     }
     public SetAttributeDelete(Att: SetAttribute): Promise<AttributeDeleteCommand> {
-        this._BusyMethods.push("ReviewSetDelete");
+        this._BusyMethods.push("SetAttributeDelete");
         let ErrMsg = "Something went wrong: could not check the coding status of this code (and children). \r\n If the problem persists, please contact EPPISupport.";
         let command = {
             attributeSetId: Att.attributeSetId,
@@ -333,21 +327,21 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return this._httpC.post<AttributeDeleteCommand>(this._baseUrl + 'api/Codeset/AttributeDelete', command).toPromise()
             .then(
                 (result) => {
-                    this.RemoveBusy("ReviewSetDelete");
+                    this.RemoveBusy("SetAttributeDelete");
                     if (!result.successful) this.modalService.GenericErrorMessage(ErrMsg);
                     return result;
                 }
                 , (error) => {
-                    console.log("ReviewSetDelete Err", error);
-                    this.RemoveBusy("ReviewSetDelete");
+                    console.log("SetAttributeDelete Err", error);
+                    this.RemoveBusy("SetAttributeDelete");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return command;
                 }
             )
             .catch(
                 (error) => {
-                    console.log("ReviewSetDelete catch", error);
-                    this.RemoveBusy("ReviewSetDelete");
+                    console.log("SetAttributeDelete catch", error);
+                    this.RemoveBusy("SetAttributeDelete");
                     this.modalService.GenericErrorMessage(ErrMsg);
                     return command;
                 }
@@ -387,7 +381,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             );
     }
     public async ImportReviewTemplate(template: ReadOnlyTemplateReview) {
-        this._BusyMethods.push("ImportReviewTemplate");
+        this._BusyMethods.push("ImportReviewTemplate");//gets removed in interimImportReviewTemplate, if all goes well...
         if (!template || !template.reviewSetIds || template.reviewSetIds.length < 1) return; //nothing to be done!
         else {
             let ord: number = this.ReviewSetsService.ReviewSets.length;
@@ -411,7 +405,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         }
     }
     private async interimImportReviewTemplate(template: ReadOnlyTemplateReview, rscComm: ReviewSetCopyCommand, currentInd: number) {
-        console.log("interimImportReviewTemplate", template, rscComm, currentInd);
+        //console.log("interimImportReviewTemplate", template, rscComm, currentInd);
         if (rscComm.reviewSetId < 1) {
             //an error happened (error was shown), stop here
             this.ReviewSetsService.GetReviewSets();
@@ -448,9 +442,6 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
             , error => {
                 this.modalService.GenericError(error);
-                this.RemoveBusy("FetchReviewSets4Copy");
-            }
-            , () => {
                 this.RemoveBusy("FetchReviewSets4Copy");
             }
         );

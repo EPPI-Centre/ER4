@@ -79,6 +79,7 @@ export class ReviewSetsService extends BusyAwareService {
             error => {
                 this.modalService.GenericError(error);
                 this.Clear();
+                this.RemoveBusy("GetReviewSets");
             },
              () => { this.RemoveBusy("GetReviewSets");}
         );
@@ -383,9 +384,6 @@ export class ReviewSetsService extends BusyAwareService {
                 console.log("error in ExecuteItemAttributeBulkInsertCommand:", error);
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
                 this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
-            },
-            () => {
-                this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
             }
         );
     }
@@ -401,9 +399,6 @@ export class ReviewSetsService extends BusyAwareService {
             }, error => {
                 console.log("error in ExecuteItemAttributeBulkDeleteCommand:", error);
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-                this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
-            },
-            () => {
                 this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
             }
         );

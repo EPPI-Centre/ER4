@@ -57,7 +57,7 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._title = title;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("CreateAsync");
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
@@ -81,10 +81,10 @@ export class ClassifierService extends BusyAwareService {
 				this.IamVerySorryRefresh();
 			},
 			error => {
+                this.RemoveBusy("CreateAsync");
 				this.modalService.GenericError(error);
-
-			}, () => {
-				this.RemoveBusy("Fetch");
+            }, () => {
+                this.RemoveBusy("CreateAsync");
 			}
 		);
 	}
@@ -101,7 +101,7 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._sourceId = SourceId;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("Apply");
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
@@ -112,11 +112,12 @@ export class ClassifierService extends BusyAwareService {
 				
 					console.log(result)
 				},
-				error => {
-					this.modalService.GenericError(error);
+            error => {
+                this.RemoveBusy("Apply");
+				this.modalService.GenericError(error);
 				}
 				, () => {
-					this.RemoveBusy("Fetch");
+                    this.RemoveBusy("Apply");
 				}
 			);
 	}

@@ -54,9 +54,6 @@ export class searchService extends BusyAwareService {
                  this.modalService.GenericError(error);
                  this.Clear();
              }
-             , () => {
-                 this.RemoveBusy("Fetch");
-             }
 		 );
 	}
     private Clear() {
@@ -80,12 +77,7 @@ export class searchService extends BusyAwareService {
                 this.RemoveBusy("Delete");
                 this.modalService.GenericError(error);
             }
-            , () => {
-                this.RemoveBusy("Delete");
-            }
-			
 		);
-
 	}
 
 	CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
@@ -101,10 +93,6 @@ export class searchService extends BusyAwareService {
                 this.RemoveBusy("CreateSearch");
                 this.modalService.GenericError(error);
             }
-            , () => {
-                this.RemoveBusy("CreateSearch");
-            }
-
 			);
 	}
 }
