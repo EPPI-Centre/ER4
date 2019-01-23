@@ -1,10 +1,11 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
 	selector: 'ReviewComp',
@@ -19,9 +20,12 @@ export class ReviewComponent implements OnInit, OnDestroy {
 		public _buildModelService: BuildModelService,
 		public _eventEmitterService: EventEmitterService,
 		public _reviewService: ReviewService,
-		public _reviewerIdentityServ: ReviewerIdentityService
+		public _reviewerIdentityServ: ReviewerIdentityService,
+		public modalService: ModalService
 	)
 	{ }
+
+	@Output() onCloseClick = new EventEmitter();
 
 	ngOnInit() {
 
@@ -33,20 +37,28 @@ export class ReviewComponent implements OnInit, OnDestroy {
 			return false;
 		}
 	}
-
+	CloseNewReview() {
+		this.onCloseClick.emit(false);
+	}
 	public RevId: number = 0;
 	public reviewN: string = '';
 
-	CreateReview(reviewN: string) {
+	CreateReview() {
 
 		if (this.CanWrite()) {
-				
-			this._reviewService.CreateReview(reviewN, this._reviewerIdentityServ.reviewerIdentity.userId.toString()).then(
+
+			this._reviewService.CreateReview(this.reviewN, this._reviewerIdentityServ.reviewerIdentity.userId.toString()).then(
 				(res: any) => {
 					if (res != null) {
 						this.onFullSubmit(res);
 					}
-				});
+				},
+				(error: any) => {
+					this.modalService.GenericError(error);
+
+				}
+				
+			);
 		}
 	}
 

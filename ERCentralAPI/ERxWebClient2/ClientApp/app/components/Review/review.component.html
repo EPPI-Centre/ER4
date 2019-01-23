@@ -1,23 +1,19 @@
-<HeaderComponent PageTitle="Review"></HeaderComponent>
-<button class="page-link pt-0 pb-1 mb-1 float-right" 
-		style="position:absolute; right: 0; z-index:2000;" 
-		(click)="BackToMain()">
-	Close/back
-</button>
-
 <div class="container col-md-12 form">
 	<div class="col-md-12 row card">
 		<div class="card-body bg-light col-md-12 form-group">
 			<div class="font-weight-bold col-md-12 form-group">
 				New Review Name
-				<input class="form-control col-md-3" type="text" 
-					   id="reviewName" name="ReviewName" 
-					   [(ngModel)]="reviewN"
-					   required/>
-				<button  [disabled]="!CanCreateReview()" (click)="CreateReview(reviewN)" class="btn btn-primary">Create Review</button>
-				<button class="btn btn-danger">Cancel</button>
+				<input class="form-control col-md-7" type="text"
+						id="reviewName" name="ReviewName"
+						[(ngModel)]="reviewN"
+						required />
+				<button [disabled]="!CanCreateReview()" (click)="CreateReview()"
+						class="btn btn-primary">
+					Create Review
+				</button>
+				<button (click)="CloseNewReview()" class="btn btn-danger">Cancel</button>
 			</div>
 		</div>
 	</div>
 </div>
-<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+

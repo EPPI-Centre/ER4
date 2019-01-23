@@ -19,6 +19,7 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
+import { ReviewComponent } from '../Review/review.component';
 
 
 
@@ -396,10 +397,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
         console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
-    }
+	}
+	public ShowNewReview: boolean = true;
 	CreateReviewClick() {
 
-		this.router.navigate(['CreateReview']);
+		this.ShowNewReview = !this.ShowNewReview;
 
 	}
     ngOnDestroy() {
