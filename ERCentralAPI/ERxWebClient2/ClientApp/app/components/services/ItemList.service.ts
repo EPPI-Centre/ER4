@@ -285,7 +285,6 @@ export class ItemListService extends BusyAwareService {
             .subscribe(
                 list => {
                 this._Criteria.totalItems = this.ItemList.totalItemCount;
-                    this.RemoveBusy("FetchWithCrit");
                 this.SaveItems(list, this._Criteria);
             }, error => {
                 this.ModalService.GenericError(error);

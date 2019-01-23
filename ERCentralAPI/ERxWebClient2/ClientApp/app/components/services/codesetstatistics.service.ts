@@ -125,7 +125,6 @@ export class CodesetStatisticsService extends BusyAwareService {
                this._ReviewStats = data;
                //this.Save();
                this.GetCompletedSetsEmit.emit(data);
-               this.RemoveBusy("GetReviewStatisticsCountsCommand");
                return data;
             },
             (error) => {
@@ -150,7 +149,6 @@ export class CodesetStatisticsService extends BusyAwareService {
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 //this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);
-                this.RemoveBusy("GetReviewSetsCodingCounts");
                 this.GetReviewSetsIncompleteCodingCounts(false, trigger);
 
             }, error => {

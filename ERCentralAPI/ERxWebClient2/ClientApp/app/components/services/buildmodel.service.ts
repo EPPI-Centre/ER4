@@ -50,7 +50,7 @@ export class BuildModelService extends BusyAwareService {
 			},
 				error => {
 					this.modalService.GenericError(error);
-
+                    this.RemoveBusy("Fetch");
 				}
 				, () => {
 					this.RemoveBusy("Fetch");
