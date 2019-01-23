@@ -84,6 +84,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> OutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeTypeId", "OutcomeTypeId"));
+        [JsonProperty]
         public int OutcomeTypeId
         {
             get
@@ -543,7 +544,7 @@ namespace BusinessLibrary.BusinessClasses
 
         [NotUndoable]
         public static readonly PropertyInfo<OutcomeItemAttributeList> OutcomeCodesProperty = RegisterProperty<OutcomeItemAttributeList>(new PropertyInfo<OutcomeItemAttributeList>("OutcomeCodes", "OutcomeCodes"));
-
+        [JsonProperty]
         public OutcomeItemAttributeList OutcomeCodes
         {
             get
