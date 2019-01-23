@@ -85,7 +85,6 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
 		public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
 		{
-
 			try
 			{
                 if (SetCSLAUser4Writing())
