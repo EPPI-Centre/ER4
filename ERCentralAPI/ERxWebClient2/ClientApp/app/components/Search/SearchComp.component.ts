@@ -466,7 +466,12 @@ export class SearchComp implements OnInit, OnDestroy {
 				if (this.DataSourceSearches.data[i].add == true) {
 					if (lstStrSearchIds == "") {
 						lstStrSearchIds = this.DataSourceSearches.data[i].searchId;
-						lstStrSearchNos = logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
+						if (logicChoice == 'NOT' || logicChoice == 'NOT(excluded)') {
+							lstStrSearchNos = logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
+						} else {
+							lstStrSearchNos =  this.DataSourceSearches.data[i].searchNo;
+						}
+						
 					} else {
 						lstStrSearchIds += ',' + this.DataSourceSearches.data[i].searchId ;
 						lstStrSearchNos += ' ' + logicChoice + ' ' + this.DataSourceSearches.data[i].searchNo;
