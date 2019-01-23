@@ -395,7 +395,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
     }
-	}
 	CreateReviewClick() {
 
 		this.router.navigate(['CreateReview']);

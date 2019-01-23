@@ -9,9 +9,12 @@
 	<div class="col-md-12 row card">
 		<div class="card-body bg-light col-md-12 form-group">
 			<div class="font-weight-bold col-md-12 form-group">
-				Enter Review Name
-				<input class="form-control col-md-3" type="text" id="reviewName" name="ReviewName" />
-				<button (click)="CreateReview()" class="btn btn-primary">Create Review</button>
+				New Review Name
+				<input class="form-control col-md-3" type="text" 
+					   id="reviewName" name="ReviewName" 
+					   [(ngModel)]="reviewN"
+					   required/>
+				<button  [disabled]="!CanCreateReview()" (click)="CreateReview(reviewN)" class="btn btn-primary">Create Review</button>
 				<button class="btn btn-danger">Cancel</button>
 			</div>
 		</div>
