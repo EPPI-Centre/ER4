@@ -447,8 +447,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	getLogicSearches(logicChoice: string) {
 
+	
 		if (this.CanWrite() && this.checkBoxSelected == true) {
-
+		
 			if (logicChoice == 'NOT (excluded)') {
 				this._searchService.cmdSearches._included = 'false';
 				logicChoice = 'NOT';
@@ -773,12 +774,11 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.checkBoxSelected = true;
 			this._searchService.searchToBeDeleted = dataItem.searchId;
 
-		} else {
-
-			this.checkBoxSelected = false;
-			//this.ModelSelected = false;
-			this._searchService.searchToBeDeleted = '';
 		}
+		if (dataItem.add == true ) {
+			this.checkBoxSelected = true;
+		}
+
 	};
 
     public rowCallback(context: RowClassArgs) {

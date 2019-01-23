@@ -32,7 +32,41 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpGet("[action]")]
+		[HttpPost("[action]")]
+		public IActionResult CreateReview([FromBody] reviewJson data)
+		{
+			if (SetCSLAUser4Writing())
+			{
+				try
+				{
+					Review review = new Review(data.reviewName, data.userId);
+
+					review.Saved += (o, e2) =>
+					{
+						if (e2.NewObject != null)
+						{
+							Review rv = e2.NewObject as Review;
+							//ReviewSelected.Invoke(this, new ReviewSelectedEventArgs(rv.ReviewId, rv.ReviewName));
+						}
+					};
+
+
+					review.BeginSave();
+
+					return Ok(review.ReviewId);
+				}
+				catch (Exception e)
+				{
+					_logger.LogException(e, "Reviews data portal error");
+					throw;
+				}
+			}
+			else
+				return Forbid();
+		}
+
+
+		[HttpGet("[action]")]
         public IActionResult ReadOnlyReviews()//should receive a reviewID!
         {
 
@@ -76,5 +110,12 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-    }
+
+	}
+
+	public class reviewJson
+	{
+		public string reviewName { get; set; }
+		public int userId { get; set; }
+	}
 }

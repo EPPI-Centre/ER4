@@ -57,6 +57,7 @@ import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importC
 import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
 import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
 import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
+import { ReviewComponent } from './components/Review/review.component';
 
 
 @NgModule({
@@ -98,7 +99,8 @@ import { QuickCodingReportComponent } from './components/Reports/quickcodingrepo
         MainFullReviewComponent,
 		MainComponent,
         ConfirmationDialogComponent,
-        QuickCodingReportComponent
+		QuickCodingReportComponent,
+		ReviewComponent
 	],
     providers: [
         EventEmitterService,
@@ -137,7 +139,8 @@ import { QuickCodingReportComponent } from './components/Reports/quickcodingrepo
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
-            { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
+			{ path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
+			{ path: 'CreateReview', component: ReviewComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

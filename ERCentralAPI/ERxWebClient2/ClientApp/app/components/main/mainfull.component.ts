@@ -18,6 +18,7 @@ import { searchService } from '../services/search.service';
 import { SourcesService } from '../services/sources.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { ReviewService } from '../services/review.service';
 
 
 
@@ -52,8 +53,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
         private _eventEmitter: EventEmitterService,
-		private frequenciesService: frequenciesService
-		, private crosstabService: crosstabService
+		public _reviewService: ReviewService
         , private _searchService: searchService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
@@ -379,7 +379,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ImportCodesetClick() {
         this.router.navigate(['ImportCodesets']);
-    }
+	}
+	CreateReviewClick() {
+		
+		this.router.navigate(['CreateReview']);
+
+	}
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");
@@ -393,5 +398,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 export class RadioButtonComp {
 	IncEnc = true;
 }
+
+
 
 
