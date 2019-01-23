@@ -28,7 +28,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	public selectedModelDropDown1: string = '';
 	public selectedModelDropDown2: string = '';
-	public modelName: string = '';
+	public modelNameText: string = '';
 	public DD1: string = '0';
 	public DD2: string = '0';
 
@@ -43,6 +43,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		return true;
 
+	}
+	CanBuildModel() {
+
+		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != '') {
+			return true;
+		}
+		return false;
 	}
     removeHandler(event: any) {
 
@@ -119,11 +126,11 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.isCollapsed2 = false;
 	}
-	async BuildModel(title: string) {
+	async BuildModel(title: any) {
 
-		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
+		if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
 
-			await this._classifierService.CreateAsync(title, this.DD1, this.DD2);
+			await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2);
 		}
 		
 	}

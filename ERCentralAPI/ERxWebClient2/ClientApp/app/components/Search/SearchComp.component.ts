@@ -195,6 +195,43 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.ApplySource = false;
 
 	}
+	CanApplySearch(): boolean {
+
+		// Easy ones do not have a condition in the seacrhes DD
+		// Without an abstract and without any documents uploaded
+		if (this.selectedSearchDropDown == 'Without any documents uploaded') {
+			return true;
+		} else if (this.selectedSearchDropDown == 'Without an abstract') {
+			return true;
+		}
+		// Codes in set options next: ''
+		else if (this.selectedSearchDropDown == 'That have at least one code from this set' && this.selectedSearchCodeSetDropDown != '') {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'That dont have any codes from this set' && this.selectedSearchCodeSetDropDown != '') {
+			return true;
+		}// hard ones based on code selected from tree first : CurrentDropdownSelectedCode
+		else if (this.selectedSearchDropDown == 'With this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'Without this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'With these internal IDs (comma separated)' && this.commaIDs != '') {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'With these imported IDs (comma separated)' && this.commaIDs != '') {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
+			return true;
+		}
+
+		return false;
+
+		// 
+
+	}
 	CanApplyModel(): boolean {
 
 		if (this.modelNum != 5 && this.modelNum != 0) {
@@ -609,7 +646,7 @@ export class SearchComp implements OnInit, OnDestroy {
 					tmpStr = 'PubYear'
 				}
 				this._searchService.cmdSearches._searchText = tmpStr;
-				//alert(this._searchService.cmdSearches._searchText);
+		
 				this._searchService.cmdSearches._title = this.searchText;
 	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
