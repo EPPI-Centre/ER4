@@ -70,6 +70,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return (this.reviewSetsService.IsBusy ||
             this.ItemListService.IsBusy ||  
             this.codesetStatsServ.IsBusy ||
+            this.frequenciesService.IsBusy ||
+            this.crosstabService.IsBusy ||
             this.SourcesService.IsBusy);
     }
 	
