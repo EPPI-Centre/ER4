@@ -29,7 +29,8 @@ export class ReviewComponent implements OnInit, OnDestroy {
 
 
 	}
-	public RevId: number = 0;;
+	public RevId: number = 0;
+
 	CreateReview() {
 
 		// Hardcode these for now...
@@ -37,7 +38,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
 
 		// if the above line is successful then need to call the
 		// readonlyreviewstuff
-		this.onFullSubmit();
+		//this.onFullSubmit();
 
 	}
 	onFullSubmit() {

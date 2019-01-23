@@ -46,7 +46,7 @@ namespace ERxWebClient2.Controllers
 						if (e2.NewObject != null)
 						{
 							Review rv = e2.NewObject as Review;
-							//ReviewSelected.Invoke(this, new ReviewSelectedEventArgs(rv.ReviewId, rv.ReviewName));
+							//return rv.ReviewId;
 						}
 					};
 

@@ -388,7 +388,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ImportCodesetClick() {
         this.router.navigate(['ImportCodesets']);
-    }
+	}
+	CreateReviewClick() {
+
+		this.router.navigate(['CreateReview']);
+
+	}
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");

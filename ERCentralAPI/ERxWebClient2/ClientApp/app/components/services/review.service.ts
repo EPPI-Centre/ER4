@@ -64,10 +64,7 @@ export class ReviewService extends BusyAwareService {
 	}
 
 	ngOnInit() {
-
-		
 	}
-	
 }
 
 
