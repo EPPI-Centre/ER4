@@ -325,6 +325,18 @@ export class SearchComp implements OnInit, OnDestroy {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
+	hasError(searchText: string) {
+
+		//alert(searchText);
+		if (searchText.trim() == '') {
+			return true;
+		} else {
+			return false;
+		}
+		
+		
+	}
+
 	RunModel() {
 
 
