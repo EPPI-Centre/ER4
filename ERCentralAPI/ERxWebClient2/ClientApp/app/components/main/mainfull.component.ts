@@ -325,9 +325,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         
     };
     subOpeningReview: Subscription | null = null;
+    ShowItemsTable: boolean = false;
     onTabSelect(e: SelectEvent) {
         if (e.title == 'Search') {
             this._searchService.Fetch();
+        }
+        if (e.title == 'References') {
+            this.ShowItemsTable = true;
+        } else {
+            this.ShowItemsTable = false;
         }
     }
 

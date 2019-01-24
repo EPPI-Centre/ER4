@@ -82,7 +82,7 @@
                                 </div>
                                 <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                                 <div class="card card-body bg-light p-1">
-                                    <ItemListComp #ItemList Context="FullUI" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                                    <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                                 </div>
                             </ng-template>
                         </kendo-tabstrip-tab>

@@ -338,6 +338,7 @@ export class ItemListService extends BusyAwareService {
         this._ItemList.items = orderBy(this._ItemList.items, this.sort);
     }
     public get HasSelectedItems(): boolean {
+        //return true;
         //console.log("HasSelectedItems?", this._ItemList.items[0].isSelected, this._ItemList.items[1].isSelected);
         if (this._ItemList.items.findIndex(found => found.isSelected == true) > -1) return true;
         else return false;
