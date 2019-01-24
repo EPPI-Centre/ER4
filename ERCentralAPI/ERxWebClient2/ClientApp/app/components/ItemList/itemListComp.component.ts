@@ -35,6 +35,7 @@ export class ItemListComp implements OnInit {
     //@Output() loadDefault = new EventEmitter();
 
     @Input() Context: string | undefined;
+    @Input() ShowItemsTable: boolean = false;
     public ShowOptions: boolean = false;
     public ShowId: boolean = true;
     public ShowImportedId: boolean = false;
@@ -110,8 +111,31 @@ export class ItemListComp implements OnInit {
     public sortChange(sort: SortDescriptor[]): void {
         this.ItemListService.sortChange(sort);
     }
-
-    
+    ChangeSort(fieldName: string): void {
+        let NewSort: SortDescriptor[] = [];
+        if (this.ItemListService.sort.length > 0 && this.ItemListService.sort[0].field == fieldName) {
+            let curr = this.ItemListService.sort[0];
+            if (!curr.dir) curr.dir = 'asc';
+            else if (curr.dir == 'asc') curr.dir = 'desc';
+            else curr.dir = 'asc';
+            NewSort.push(curr);
+        }
+        else {
+            let curr: SortDescriptor = {
+                field: fieldName,
+                dir: 'asc'
+            };
+            NewSort.push(curr);
+        }
+        this.ItemListService.sortChange(NewSort);
+    }
+    sortSymbol(fieldName: string):string {
+        if (this.ItemListService.sort.length > 0 && this.ItemListService.sort[0].field == fieldName) {
+            if (this.ItemListService.sort[0].dir == 'asc') return "&#8593;";
+            else if (this.ItemListService.sort[0].dir == 'desc') return "&#8595;";
+            else return "";
+        } else return "";
+    }
     public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
         //this.allItemsSelected = false;
         let crit = new Criteria();

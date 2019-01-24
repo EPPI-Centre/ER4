@@ -74,7 +74,7 @@
             <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
         </div>
 
-        <kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
+        <!--<kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
                     id="testKendoGrid" [data]="DataSource" [height]="610"
                     [sortable]="{
             allowUnsort: allowUnsort,
@@ -128,7 +128,82 @@
             </kendo-grid-column>
             <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
             </kendo-grid-column>
-        </kendo-grid>
+        </kendo-grid>-->
+        <table *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
+               style="max-height:400px;overflow:auto;">
+            
+        </table>
+        <div style="max-height:400px;overflow:auto;">
+            <table class=" p-1 table table-striped"
+                   *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
+                <thead>
+                    <tr style="">
+                        <th ></th>
+                        <th class="">
+                            <input  class="m-1" style="zoom: 1.2;"
+                                   type="checkbox"
+                                   name="selectAll"
+                                   [(ngModel)]="allItemsSelected" />
+                        </th>
+                        <th class=""><div class="mr-2 ml-2">&nbsp;</div></th>
+                        <th class="" [hidden]="!ShowId" (click)="ChangeSort('itemId')">ID</th>
+                        <th class="" [hidden]="!ShowImportedId" (click)="ChangeSort('oldItemId')">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
+                        <th class="" [hidden]="!ShowShortTitle" (click)="ChangeSort('shortTitle')">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
+                        <th class="" [hidden]="!ShowAuthors" (click)="ChangeSort('authors')">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
+                        <th class="" [hidden]="!ShowTitle" (click)="ChangeSort('title')">Title<span [innerHTML]="sortSymbol('title')"></span></th>
+                        <th class="" [hidden]="!ShowYear" (click)="ChangeSort('year')">Year<span [innerHTML]="sortSymbol('year')"></span></th>
+                        <th class="" [hidden]="!ShowJournal" (click)="ChangeSort('parentTitle')">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
+                        <th class="" [hidden]="!ShowDocType" (click)="ChangeSort('typeName')">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
+                        <th class="" [hidden]="!ShowInfo" (click)="ChangeSort('attributeAdditionalText')">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
+                        <th class="" [hidden]="!ShowScore" (click)="ChangeSort('rank')">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let dataItem of this.ItemListService.ItemList.items" >
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button>
+                        </td>
+                        <td class="">
+                            <input type="checkbox" class="m-1" style="zoom: 1.2;"
+                                   [(ngModel)]="dataItem.isSelected" />
+                        </td>
+                        <td class="">
+                            <div class="mr-2 ml-2">{{dataItem.itemStatus}}</div>
+                        </td>
+                        <td class="" [hidden]="!ShowId" title="Item ID">
+                            {{dataItem.itemId}}
+                        </td>
+                        <td class="" [hidden]="!ShowImportedId"  title="Your ID (Imported)">
+                            {{dataItem.oldItemId}} 
+                        </td>
+                        <td class="" [hidden]="!ShowShortTitle" title="Short Title">
+                            {{dataItem.shortTitle}}
+                        </td>
+                        <td class=" " [hidden]="!ShowAuthors"  title="Authors">
+                            {{dataItem.authors}}
+                        </td>
+                        <td class=" " [hidden]="!ShowTitle" title="Title">
+                            {{dataItem.title}}
+                        </td>
+                        <td class=" " [hidden]="!ShowYear" title="Year">
+                            {{dataItem.year}}
+                        </td>
+                        <td class=" " [hidden]="!ShowJournal" title="Journal / Parent Title">
+                            {{dataItem.parentTitle}}
+                        </td>
+                        <td class=" " [hidden]="!ShowDocType" title="Reference Type">
+                            {{dataItem.typeName}}
+                        </td>
+                        <td class=" " [hidden]="!ShowInfo" title="InfoBox text (only when listing items with this code)">
+                            {{dataItem.attributeAdditionalText}}
+                        </td>
+                        <td class="" [hidden]="!ShowScore" title="Score (ML or text searches)">
+                            {{dataItem.rank}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.IsBusy">Loading items...</div>
         <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy">Items list is empty...</div>
         <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
