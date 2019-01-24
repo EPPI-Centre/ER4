@@ -272,19 +272,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabstrip.selectTab(1);
     }
     IncludedItemsListNoTabChange() {
-        let cr: Criteria = new Criteria();
-        cr.listType = 'StandardItemList';
-        this.ItemListService.FetchWithCrit(cr, "Included Items");
+        this.ItemListService.GetIncludedItems();
     }
-
-	ExcludedItemsList() {
-		let cr: Criteria = new Criteria();
-		cr.listType = 'StandardItemList';
-		cr.onlyIncluded = false;
-		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
-		console.log('selecting tab 2...');
-		this.tabstrip.selectTab(1);
-	}
+    ExcludedItemsList() {
+        this.ItemListService.GetExcludedItems();
+        console.log('selecting tab 2...');
+        this.tabstrip.selectTab(1);
+    }
+    DeletedItemList() {
+        this.ItemListService.GetDeletedItems();
+        this.tabstrip.selectTab(1);
+    }
 	GoToItemList() {
 		this.tabstrip.selectTab(1);
 	}

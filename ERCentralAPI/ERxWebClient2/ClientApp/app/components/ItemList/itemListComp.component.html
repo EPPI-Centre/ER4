@@ -69,11 +69,17 @@
         </div>
 
     </div>
+    <div class="row">
         <div *ngIf="ItemListService.ListDescription != ''"
-             class="small p-2 ml-3 mr-1 mb-1 row col-11 card bg-white flex-row">
+             class="small p-2 ml-3 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
             <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
         </div>
-
+        <div class="row small col-12 col-sm-2 align-self-start">
+            <button title="List All Included Items" class="btn mt-1 btn-outline-primary btn-sm" (click)="IncludedItemList()">I</button>
+            <button title="List All Excluded Items" class="btn mt-1 ml-1 btn-outline-secondary btn-sm" (click)="ExcludedItemList()">E</button>
+            <button title="List All Explicitly Deleted Items" class="btn mt-1 ml-1 btn-outline-dark btn-sm" (click)="DeletedItemList()">D</button>
+        </div>
+    </div>
         <!--<kendo-grid *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
                     id="testKendoGrid" [data]="DataSource" [height]="610"
                     [sortable]="{
@@ -135,67 +141,69 @@
                 <thead>
                     <tr style="">
                         <th ></th>
-                        <th class="">
+                        <th class="pl-0 pr-0">
                             <input  class="m-1" style="zoom: 1.2;"
                                    type="checkbox"
                                    name="selectAll"
                                    [(ngModel)]="allItemsSelected" />
                         </th>
-                        <th class=""><div class="mr-2 ml-2">&nbsp;</div></th>
-                        <th class="" [hidden]="!ShowId" (click)="ChangeSort('itemId')">ID</th>
-                        <th class="" [hidden]="!ShowImportedId" (click)="ChangeSort('oldItemId')">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
-                        <th class="" [hidden]="!ShowShortTitle" (click)="ChangeSort('shortTitle')">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
-                        <th class="" [hidden]="!ShowAuthors" (click)="ChangeSort('authors')">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
-                        <th class="" [hidden]="!ShowTitle" (click)="ChangeSort('title')">Title<span [innerHTML]="sortSymbol('title')"></span></th>
-                        <th class="" [hidden]="!ShowYear" (click)="ChangeSort('year')">Year<span [innerHTML]="sortSymbol('year')"></span></th>
-                        <th class="" [hidden]="!ShowJournal" (click)="ChangeSort('parentTitle')">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
-                        <th class="" [hidden]="!ShowDocType" (click)="ChangeSort('typeName')">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
-                        <th class="" [hidden]="!ShowInfo" (click)="ChangeSort('attributeAdditionalText')">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
-                        <th class="" [hidden]="!ShowScore" (click)="ChangeSort('rank')">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
+                        <th class="pl-0 pr-0"><div> </div></th>
+                        <th class="pr-0" [hidden]="!ShowId" (click)="ChangeSort('itemId')" style="cursor:pointer;">ID<span [innerHTML]="sortSymbol('itemId')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowImportedId" (click)="ChangeSort('oldItemId')" style="cursor:pointer;">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowShortTitle" (click)="ChangeSort('shortTitle')" style="cursor:pointer;">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowAuthors" (click)="ChangeSort('authors')" style="cursor:pointer;">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowTitle" (click)="ChangeSort('title')" style="cursor:pointer;">Title<span [innerHTML]="sortSymbol('title')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowYear" (click)="ChangeSort('year')" style="cursor:pointer;">Year<span [innerHTML]="sortSymbol('year')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowJournal" (click)="ChangeSort('parentTitle')" style="cursor:pointer;">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
+                        <th class="pr-0" [hidden]="!ShowScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
+                        <th  class="pr-1"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let dataItem of this.ItemListService.ItemList.items" >
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm" (click)="OpenItem(dataItem.itemId)">GO</button>
+                    <tr *ngFor="let dataItem of this.ItemListService.ItemList.items">
+                        <td class="p-1 pt-2">
+                            <button class="btn btn-outline-primary btn-sm m-0" (click)="OpenItem(dataItem.itemId)">GO</button>
                         </td>
-                        <td class="">
+                        <td class="pl-0 pr-0 ">
                             <input type="checkbox" class="m-1" style="zoom: 1.2;"
                                    [(ngModel)]="dataItem.isSelected" />
                         </td>
-                        <td class="">
-                            <div class="mr-2 ml-2">{{dataItem.itemStatus}}</div>
+                        <td class="pr-0 pl-0 bg-white">
+                            <div class="mr-1 ml-1">{{dataItem.itemStatus}}</div>
                         </td>
-                        <td class="" [hidden]="!ShowId" title="Item ID">
+                        <td class="pr-0 " [hidden]="!ShowId" title="Item ID">
                             {{dataItem.itemId}}
                         </td>
-                        <td class="" [hidden]="!ShowImportedId"  title="Your ID (Imported)">
-                            {{dataItem.oldItemId}} 
+                        <td class="pr-0 " [hidden]="!ShowImportedId" title="Your ID (Imported)">
+                            {{dataItem.oldItemId}}
                         </td>
-                        <td class="" [hidden]="!ShowShortTitle" title="Short Title">
+                        <td class="pr-0 " [hidden]="!ShowShortTitle" title="Short Title">
                             {{dataItem.shortTitle}}
                         </td>
-                        <td class=" " [hidden]="!ShowAuthors"  title="Authors">
+                        <td class="pr-0 " [hidden]="!ShowAuthors" title="Authors">
                             {{dataItem.authors}}
                         </td>
-                        <td class=" " [hidden]="!ShowTitle" title="Title">
+                        <td class="pr-0 " [hidden]="!ShowTitle" title="Title">
                             {{dataItem.title}}
                         </td>
-                        <td class=" " [hidden]="!ShowYear" title="Year">
+                        <td class="pr-0 " [hidden]="!ShowYear" title="Year">
                             {{dataItem.year}}
                         </td>
-                        <td class=" " [hidden]="!ShowJournal" title="Journal / Parent Title">
+                        <td class="pr-0 " [hidden]="!ShowJournal" title="Journal / Parent Title">
                             {{dataItem.parentTitle}}
                         </td>
-                        <td class=" " [hidden]="!ShowDocType" title="Reference Type">
+                        <td class="pr-0 " [hidden]="!ShowDocType" title="Reference Type">
                             {{dataItem.typeName}}
                         </td>
-                        <td class=" " [hidden]="!ShowInfo" title="InfoBox text (only when listing items with this code)">
+                        <td class="pr-0 " [hidden]="!ShowInfo" title="InfoBox text (only when listing items with this code)">
                             {{dataItem.attributeAdditionalText}}
                         </td>
-                        <td class="" [hidden]="!ShowScore" title="Score (ML or text searches)">
+                        <td class="pr-0 " [hidden]="!ShowScore" title="Score (ML or text searches)">
                             {{dataItem.rank}}
                         </td>
+                        <td class="pr-0"></td>
                     </tr>
                 </tbody>
             </table>
