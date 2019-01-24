@@ -2,6 +2,7 @@ import { Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { ReviewSet, SetAttribute, iAttributesList } from './ReviewSets.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 
 @Injectable({
@@ -10,13 +11,13 @@ import { ReviewSet, SetAttribute, iAttributesList } from './ReviewSets.service';
 
 })
 
-export class crosstabService {
+export class crosstabService extends BusyAwareService  {
 
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+    ) { super(); }
     
 	private _CrossTab: CrossTab = new CrossTab();
 	@Output() codeSelectedChanged = new EventEmitter();
@@ -117,7 +118,7 @@ export class crosstabService {
     //we need to get data as "any" because first two params can be of types ReviewSet or SetAttribute, so it's hard to keep things strongly typed
     //(unless we're happy to refactor by overloading/multiplying Fetch method)
 	public Fetch(selectedNodeDataX: any, selectedNodeDataY: any, selectedFilter: any ) {
-
+        this._BusyMethods.push("Fetch");
 		let AttributeIdXaxis: number = 0;
 		let xAxisAttributes: SetAttribute[] = [];
 		let SetIdXaxis: number = 0;
@@ -201,9 +202,15 @@ export class crosstabService {
 					this._fieldNames[i-1] = "field" + i;
                     //console.log("field" + i);
 				}
-				this.Save();
+                this.Save();
+                this.RemoveBusy("Fetch");
 				//console.log('fieldnames len: ' + this._fieldNames.length);
-				}
+				},
+            (error) => {
+                console.log("Crosstab fetch error:", error);
+                this.RemoveBusy("Fetch");
+                this.modalService.GenericError(error);
+            }
 			);
     }
 

@@ -138,7 +138,7 @@ export class ItemCodingService extends BusyAwareService {
            // this._CodingReport = "Start of report<br />";
         }
         const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
-        console.log("AddToQuickCodingReport", currentItem);
+        //console.log("AddToQuickCodingReport", currentItem);
         if (!currentItem || currentItem.itemId == 0) return;
         //this._CodingReport += "Item: "
         //    + this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId.toString()
@@ -155,7 +155,7 @@ export class ItemCodingService extends BusyAwareService {
         this._CodingReport += "<hr />";
     }
     private AddCodingToReport() {
-        console.log("AddCodingToReport", this._ReviewSetsToReportOn.length);
+        //console.log("AddCodingToReport", this._ReviewSetsToReportOn.length);
         for (let i = 0; i < this._ReviewSetsToReportOn.length; i++)
         {
             let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
@@ -168,11 +168,11 @@ export class ItemCodingService extends BusyAwareService {
                         this._CodingReport += "<p><h4>" + reviewSet.set_name + "</h4></p><p><ul>";
                         for(let attributeSet of reviewSet.attributes)
                         {
-                            console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+                            //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
                             this._CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
                         }
                         this._CodingReport += "</ul></p>";
-                        console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+                        //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
                         this._CodingReport += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
                     }
 

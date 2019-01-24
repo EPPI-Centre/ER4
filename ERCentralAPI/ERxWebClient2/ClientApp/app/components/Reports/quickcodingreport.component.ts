@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnDestroy, Inject, Output, EventEmitter } fro
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 
 @Component({
     selector: 'quickcodingreport',
@@ -69,11 +70,17 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         for (let Set of this.ReviewSetsService.ReviewSets) if (Set.isSelected) return true;
         return false;
     }
-    
+    private SaveAsHtml() {
+        if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
+        const dataURI = "data:text/plain;base64," + encodeBase64(this.AddHTMLFrame(this.ReportHTML));
+        console.log("ToRis", dataURI)
+        saveAs(dataURI, "Report.html");
+    }
     private AddHTMLFrame(report: string): string {
         let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + this._baseUrl+ "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
         //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
-        res += "<br />" + this.AddSaveMe()+ "</BODY></HTML>";
+        //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
+        res += "</BODY></HTML>";
         return res;
     }
     private AddSaveMe(): string {
