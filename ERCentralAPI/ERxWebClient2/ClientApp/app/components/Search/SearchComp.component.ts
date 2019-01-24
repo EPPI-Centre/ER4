@@ -14,6 +14,7 @@ import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
 	selector: 'SearchComp',
@@ -50,10 +51,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
             this._reviewSetsService.selectedNode = null;
-            //this._sourcesService.FetchSources();
-            //this.reviewInfoService.Fetch();
-            this._buildModelService.Fetch();
-            //this._searchService.Fetch();
+
         }
     }
 
@@ -71,12 +69,14 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelResultsSection: boolean = false;
 	public radioButtonApplyModelSection: boolean = false;
 	public isCollapsed: boolean = false;
-
+	public firstName: string = '';
 	public modeModels: SelectableMode = 'single';
     public withCode: boolean = false;
     public attributeNames: string = '';
-    public commaIDs: string = '';
-    public searchText: string = '';
+	public commaIDs: string = '';
+	public email: string = '';
+	public searchText: string = '';
+	public searchTextModel: string = '';
     public CurrentDropdownSelectedCode: singleNode | null = null;
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 
@@ -104,10 +104,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			console.log("selected:", e.selectedRows[0].dataItem);
 
-				this.ModelSelected = true;
-				this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
-				this.ModelId = e.selectedRows[0].dataItem.modelId;
-		
+			this.ModelSelected = true;
+			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
+			this.ModelId = e.selectedRows[0].dataItem.modelId;
+
 
 		} else {
 
@@ -116,8 +116,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelId = 0;
 			this.ModelSelected = false;
 		}
- 	}
-
+	}
 	public get DataSourceModel(): GridDataResult {
 		return {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
@@ -154,7 +153,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	Classify() {
 
-		//this.modelNum = 0;
+		this._buildModelService.Fetch();
 		this._reviewSetsService.selectedNode = null;
 		this.NewSearchSection = false;
 		this.ModelSection = !this.ModelSection;
@@ -355,6 +354,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (this.modelNum == 1) {
 
 			this.modelTitle = 'RCT';
+			this.ModelId = -1;
 
 		} else if (this.modelNum == 2) {
 
@@ -377,6 +377,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		if (this.CanWrite()) {
 
+			alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 			//Very sorry notification show
 			this.notificationService.show({
