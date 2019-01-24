@@ -49,34 +49,35 @@
 				<div *ngIf="showTextBox" class="row col-md-6 m-0 p-0 mb-1" style="min-width: 500px;">
 					<div>
 						<b class="col-md-1 font-italic">Comma-Separated list of IDs:</b>
-						<input [(ngModel)]="commaIDs"
-							     id="commaIDsModel" name="commaIDsModel" #commaIDsModel="ngModel"
-							   required minlength="4"
-							   class="col-md-12 bg-light border-dark form-control"
-							   type="text"
-							   placeholder="IDs"><br>
+												
 
-						<div *ngIf="commaIDsModel.invalid && (commaIDsModel.dirty || commaIDsModel.touched)"
-							 class="alert alert-danger">
+						<input 
+							[(ngModel)]="commaIDs"
+							#commaIDsModel ="ngModel"
+							id="commaIDsModel" name="commaIDsModel"
+							required minlength="4"
+							class="col-md-12 bg-light border-dark form-control"
+							type="text"
+							placeholder="IDs"><br>
 
-							<div *ngIf="commaIDsModel.errors.required">
-								commaIDs are required.
-							</div>
-							<div *ngIf="commaIDsModel.errors.minlength">
-								commaIDs must be at least 4 characters long.
-							</div>
+							 <div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
+								  class="alert alert-danger">
 
-						</div>
+								 <div *ngIf="commaIDsModel.errors.required">
+									 commaIDs are required.
+								 </div>
+								 <div *ngIf="commaIDsModel.errors.minlength">
+								 commaIDs must be at least 4 characters long.
+								 </div>
 
-
-
+							 </div>
 					</div>
 				</div>
 				<div class="col-md-2  mb-1" style="min-width: 500px;">
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
 						 class="col-md-10 p-0 m-0">
 						<input [(ngModel)]="searchText"
-							   id="searchTextModel" name="searchTextModel" #searchTextModel="ngModel"
+							   id="searchTextModel" name="searchTextModel" 
 							   required minlength="1"
 							   class=" bg-light border-dark form-control"
 							   type="text" 
