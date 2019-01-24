@@ -4,19 +4,19 @@
         Create Review
     </button>
 </div>
-<div *ngIf="isExpanded" class="container col-12 pr-0 pl-0 border border-dark rounded bg-light" style="min-width:355px;">
+<div *ngIf="isExpanded" class="container col-12 pr-0 pl-0 border border-dark rounded bg-light" style="overflow:auto;">
     <table class="font-weight-bold">
         <tr>
-            <td>
+            <td style="min-width:150px;" width="320">
                 <div class="container">
                     <div class="mr-1">New Review Name</div>
-                    <input class="mb-1" type="text"
+                    <input class="mb-1 w-100" type="text"
                            id="reviewName" name="ReviewName"
                            [(ngModel)]="reviewN"
                            required />
                 </div>
             </td>
-            <td>
+            <td >
                 <div class="">
                     <button [disabled]="!CanCreateReview()" (click)="CreateReview()"
                             class="btn btn-primary m-1">
