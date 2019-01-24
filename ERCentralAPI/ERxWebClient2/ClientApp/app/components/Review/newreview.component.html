@@ -1,0 +1,33 @@
+<div *ngIf="!isExpanded" class="">
+    <button [disabled]="!CanWrite()" (click)="Expand()"
+            class="btn btn-outline-primary m-1">
+        Create Review
+    </button>
+</div>
+<div *ngIf="isExpanded" class="container col-12 pr-0 pl-0 border border-dark rounded bg-light" style="min-width:355px;">
+    <table class="font-weight-bold">
+        <tr>
+            <td>
+                <div class="container">
+                    <div class="mr-1">New Review Name</div>
+                    <input class="mb-1" type="text"
+                           id="reviewName" name="ReviewName"
+                           [(ngModel)]="reviewN"
+                           required />
+                </div>
+            </td>
+            <td>
+                <div class="">
+                    <button [disabled]="!CanCreateReview()" (click)="CreateReview()"
+                            class="btn btn-primary m-1">
+                        Create Review
+                    </button>
+                    <button (click)="CloseNewReview()" class="btn btn-outline-info m-1">Cancel</button>
+                </div>
+            </td>
+
+        </tr>
+
+    </table>
+</div>
+

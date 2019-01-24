@@ -57,7 +57,7 @@ import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importC
 import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
 import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
 import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
-import { ReviewComponent } from './components/Review/review.component';
+import { NewReviewComponent } from './components/Review/newreview.component';
 
 
 @NgModule({
@@ -100,7 +100,7 @@ import { ReviewComponent } from './components/Review/review.component';
 		MainComponent,
         ConfirmationDialogComponent,
 		QuickCodingReportComponent,
-		ReviewComponent
+        NewReviewComponent
 	],
     providers: [
         EventEmitterService,

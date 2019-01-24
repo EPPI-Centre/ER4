@@ -19,7 +19,6 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
-import { ReviewComponent } from '../Review/review.component';
 
 
 
@@ -402,12 +401,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
-	public ShowNewReview: boolean = true;
-	CreateReviewClick() {
+	//public ShowNewReview: boolean = true;
+	//CreateReviewClick() {
 
-		this.ShowNewReview = !this.ShowNewReview;
+	//	this.ShowNewReview = !this.ShowNewReview;
 
-	}
+	//}
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");

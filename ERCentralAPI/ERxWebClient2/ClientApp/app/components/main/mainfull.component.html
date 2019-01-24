@@ -10,24 +10,24 @@
                         <kendo-tabstrip-tab [selected]="true" [title]="'Review home'">
                             <ng-template kendoTabContent>
                                 <div class="containsAtoolbar">
-									<kendo-toolbar class="customk-toolbar">
-										<kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
-										<kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
-										<kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
-										<kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'New Review'" (click)="CreateReviewClick()"></kendo-toolbar-button>
-										<!--<kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
-	<kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
-	<kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
-									</kendo-toolbar>
+                                    <kendo-toolbar class="customk-toolbar">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
+                                        <!--<kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'New Review'" (click)="CreateReviewClick()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
+    <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
+    <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+                                    </kendo-toolbar>
                                 </div>
                                 <div class="row m-1">
                                     <div class="col-md-7 p-0 pr-1">
                                         <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                     </div>
                                     <div class="col-md-5 p-0">
-										<ReviewComp [hidden]="ShowNewReview" (onCloseClick)="ShowNewReview = !ShowNewReview"></ReviewComp>
                                         <div class="card card-body mt-2 bg-light ">
                                             {{MyInfoMessage()}}
+                                            <NewReviewComp></NewReviewComp>
                                         </div>
                                         <div class="card card-body ReviewsBg  mt-2 ">
                                             <div class="row p-0">
@@ -56,7 +56,9 @@
                                             <ROSourcesList id="readOnlyReviews" [ngbCollapse]="!isSourcesPanelCollapsed" class="mt-1"
                                                            style="max-height: 420px;"></ROSourcesList>
                                         </div>
+                                        
                                     </div>
+                                    
                                 </div>
                             </ng-template>
                         </kendo-tabstrip-tab>

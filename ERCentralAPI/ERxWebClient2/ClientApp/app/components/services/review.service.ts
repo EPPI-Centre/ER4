@@ -37,16 +37,29 @@ export class ReviewService extends BusyAwareService {
 	//	this._ClassifierModelList = models;
 	//}
 
-	CreateReview(RevName: string, ContactId: string): Promise<any> {
+	CreateReview(RevName: string, ContactId: string): Promise<number> {
 
 		//hardcode until this works
 
 		this._BusyMethods.push("CreateReview");
 
 		let body = JSON.stringify({ reviewName: RevName, userId: ContactId });
-		return this._httpC.post<any>(this._baseUrl + 'api/Review/CreateReview', body
-		)
-			.toPromise();
+        return this._httpC.post<number>(this._baseUrl + 'api/Review/CreateReview', body
+        ).toPromise<number>().then(
+            (result) => {
+                this.RemoveBusy("CreateReview");
+                return result;
+            },
+            (rejected) => {
+                this.RemoveBusy("CreateReview");
+                this.modalService.GenericErrorMessage("Sorry could not create new review. If the problem persists, please contact EPPI-Support.");
+                return 0;
+            }
+        ).catch((error) => {
+            this.RemoveBusy("CreateReview");
+            this.modalService.GenericErrorMessage("Sorry could not create new review. If the problem persists, please contact EPPI-Support.");
+            return 0;
+        });
 
 	
 	}
