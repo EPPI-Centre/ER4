@@ -129,11 +129,7 @@
             <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
             </kendo-grid-column>
         </kendo-grid>-->
-        <table *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy"
-               style="max-height:400px;overflow:auto;">
-            
-        </table>
-        <div style="max-height:400px;overflow:auto;">
+        <div style="max-height:500px;overflow:auto;">
             <table class=" p-1 table table-striped"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
