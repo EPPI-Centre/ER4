@@ -186,6 +186,15 @@ export class ItemListComp implements OnInit {
     ToggleOptionsPanel() {
         this.ShowOptions = !this.ShowOptions;
     }
+    IncludedItemList() {
+        this.ItemListService.GetIncludedItems();
+    }
+    ExcludedItemList() {
+        this.ItemListService.GetExcludedItems();
+    }
+    DeletedItemList() {
+        this.ItemListService.GetDeletedItems();
+    }
     //selectAllItems(e: any): void {
     //    if (e.target.checked) {
     //        this.allItemsSelected = true;

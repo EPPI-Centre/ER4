@@ -100,7 +100,31 @@ export class ItemListService extends BusyAwareService {
     //        localStorage.removeItem('currentItem');
     //    }
     //}
-
+    public GetIncludedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        this.FetchWithCrit(cr, "Included Items");
+    }
+    public GetExcludedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        cr.onlyIncluded = false;
+        this.FetchWithCrit(cr, "Excluded Items");
+    }
+    public GetDeletedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        cr.onlyIncluded = false;
+        cr.showDeleted = true;
+        this.FetchWithCrit(cr, "Excluded Items");
+        //SelectionCritieraItemList.OnlyIncluded = false;
+        //SelectionCritieraItemList.ShowDeleted = true;
+        //SelectionCritieraItemList.SourceId = 0;
+        //SelectionCritieraItemList.AttributeSetIdList = "";
+        //SelectionCritieraItemList.PageNumber = 0;
+        //SelectionCritieraItemList.ListType = "StandardItemList";
+        //TextBlockShowing.Text = "Showing: deleted documents";
+    }
     public static GetCitation(Item: Item): string {
         let retVal: string = "";
         switch (Item.typeId) {

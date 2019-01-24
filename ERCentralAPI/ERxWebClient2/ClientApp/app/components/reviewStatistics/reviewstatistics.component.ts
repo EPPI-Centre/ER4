@@ -122,21 +122,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 
 	IncludedItemsList() {
-		let cr: Criteria = new Criteria();
-		cr.listType = 'StandardItemList';
-		this.ItemListService.FetchWithCrit(cr, "Included Items");
-		console.log('selecting tab...');
+        this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();
 		//this.tabset.select('ItemListTab');
 	}
 	ExcludedItemsList() {
-		let cr: Criteria = new Criteria();
-		cr.listType = 'StandardItemList';
-		cr.onlyIncluded = false;
-		this.ItemListService.FetchWithCrit(cr, "Excluded Items");
+        this.ItemListService.GetExcludedItems();
 		this.tabSelectEvent.emit();
 		//this.tabset.select('ItemListTab');
-	}
+    }
+    DeletedItemsList() {
+        this.ItemListService.GetDeletedItems();
+        this.tabSelectEvent.emit();
+        //this.tabset.select('ItemListTab');
+    }
 	//GoToItemList() {
 	//	console.log('selecting tab 3...');
 	//	this.tabset.select('ItemListTab');
