@@ -76,10 +76,10 @@
 				<div class="col-md-2  mb-1" style="min-width: 500px;">
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
 						 class="col-md-10 p-0 m-0">
-						<input [(ngModel)]="searchText"
+						<input pattern="[/.*\S.*/]*" [(ngModel)]="searchText" 
 							   #searchTextModel ="ngModel"
 							   id="searchTextModel" name="searchTextModel" 
-							   required minlength="1"
+							   required minlength="3" 
 							   class=" bg-light border-dark form-control"
 							   type="text" 
 							   placeholder="search text">
@@ -87,11 +87,15 @@
 						<div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
 							 class="alert alert-danger">
 
+							<div *ngIf="searchTextModel.errors.pattern">
+								Cannot be empty
+							</div>
+
 							<div *ngIf="searchTextModel.errors.required">
-								searchText is required.
+								search text is required.
 							</div>
 							<div *ngIf="searchTextModel.errors.minlength">
-								searchText must be at least 1 characters long.
+								search text must be at least 3 characters long.
 							</div>
 
 						</div>
