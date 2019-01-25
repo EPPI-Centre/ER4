@@ -27,7 +27,7 @@ export class NewReviewComponent implements OnInit, OnDestroy {
 
 	}
     CanWrite(): boolean {
-        console.log("create rev check:", this._reviewerIdentityServ.reviewerIdentity);
+        //console.log("create rev check:", this._reviewerIdentityServ.reviewerIdentity);
         if (!this._reviewService.IsBusy) {
             if (!this._reviewerIdentityServ.HasWriteRights) {
                 //one more check: is the user in the first screen?

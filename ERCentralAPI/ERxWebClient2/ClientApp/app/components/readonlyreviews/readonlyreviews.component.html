@@ -19,7 +19,7 @@
         <kendo-grid-column field="reviewId" [style]="{'width':'78px'}" [headerStyle]="{'width':'78px'}" title="ID" >
         </kendo-grid-column>
         <kendo-grid-column [style]="{'min-width':'150px', 'overflow': 'visible'}"
-                           [headerStyle]="{'min-width':'150px', 'overflow': 'visible'}" title="Review Name">
+                           [headerStyle]="{'min-width':'150px', 'overflow': 'visible'}" field="reviewName" title="Review Name">
             <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
                 <button class="btn btn-link p-0 ml-0 border-0" title="Open full Review" (click)="onFullSubmit(dataItem)"
                      [disabled]="HasCodingOnlyRole(dataItem)"
