@@ -41,7 +41,8 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 	
 	//@ViewChild('ManualModal') private ManualModal: any;
 
-	@Input() tabSelected: string = '';
+    @Input() tabSelected: string = '';
+    @Input() MaxHeight: number = 800;
 
 	//@ViewChild('tabset') tabset!: NgbTabset;
 
@@ -77,7 +78,9 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 			//);
         }
 	}
-	
+    public get IsServiceBusy(): boolean {
+        return this.ReviewSetsService.IsBusy;
+    }
 	options: ITreeOptions = {
         childrenField: 'attributes', 
         displayField: 'name',

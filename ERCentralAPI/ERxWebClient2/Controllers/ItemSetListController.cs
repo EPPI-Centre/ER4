@@ -68,6 +68,13 @@ namespace ERxWebClient2.Controllers
                 DataPortal<ItemSetList> dp = new DataPortal<ItemSetList>();
                 SingleCriteria<ItemSetList, Int64> criteria = new SingleCriteria<ItemSetList, Int64>(ItemIDCrit.Value);
                 ItemSetList result = dp.Fetch(criteria);
+                foreach (ItemSet iSet in result)
+                {
+                    foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributesList)
+                    {
+                        roia.ItemAttributeFullTextDetails.Sort();
+                    }
+                }
                 //ItemSetList result = dp.Fetch(ItemIDCrit.Value);
                 return Ok(result);
 
@@ -83,33 +90,87 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
+                        MVCcmd.saveType
+                        , MVCcmd.itemAttributeId
+                        , MVCcmd.itemSetId
+                        , MVCcmd.additionalText
+                        , MVCcmd.attributeId
+                        , MVCcmd.setId
+                        , MVCcmd.itemId
+                        , MVCcmd.itemArmId
+                        , MVCcmd.revInfo.ToCSLAReviewInfo()
+                        //,rinf
+                        );
+                    DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
+                    cmd = dp.Execute(cmd);
+                    MVCcmd.additionalText = cmd.AdditionalText;
+                    MVCcmd.attributeId = cmd.AttributeId;
+                    MVCcmd.itemArmId = cmd.ItemArmId;
+                    MVCcmd.itemAttributeId = cmd.ItemAttributeId;
+                    MVCcmd.itemId = cmd.ItemId;
+                    MVCcmd.itemSetId = cmd.ItemSetId;
+                    MVCcmd.setId = cmd.SetId;
+                    return Ok(MVCcmd);
+                }
+                else return Forbid();
 
-                SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                if (!ri.HasWriteRights()) return Unauthorized();
-                //ReviewInfo rinf = new ReviewInfo();
-                ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
-                    MVCcmd.saveType
-                    , MVCcmd.itemAttributeId
-                    , MVCcmd.itemSetId
-                    , MVCcmd.additionalText
-                    , MVCcmd.attributeId
-                    , MVCcmd.setId
-                    , MVCcmd.itemId
-                    , MVCcmd.itemArmId
-                    , MVCcmd.revInfo.ToCSLAReviewInfo()
-                    //,rinf
-                    );
-                DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
-                cmd = dp.Execute(cmd);
-                MVCcmd.additionalText = cmd.AdditionalText;
-                MVCcmd.attributeId = cmd.AttributeId;
-                MVCcmd.itemArmId = cmd.ItemArmId;
-                MVCcmd.itemAttributeId = cmd.ItemAttributeId;
-                MVCcmd.itemId = cmd.ItemId;
-                MVCcmd.itemSetId = cmd.ItemSetId;
-                MVCcmd.setId = cmd.SetId;
-                return Ok(MVCcmd);
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult ExecuteItemAttributeBulkInsertCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
+        {//method is "..BulkInsert.." rather than "BulkSave" 'cause we NEVER use the CSLA object (ItemAttributeBulkSaveCommand) to delete (code in there wouldn't work!).
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributeBulkSaveCommand cmd = new ItemAttributeBulkSaveCommand(
+                        "Insert"
+                        , MVCcmd.attributeId
+                        , MVCcmd.setId
+                        , MVCcmd.itemIds.Trim(',')
+                        , MVCcmd.searchIds.Trim(',')
+                        );
+                    DataPortal<ItemAttributeBulkSaveCommand> dp = new DataPortal<ItemAttributeBulkSaveCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(MVCcmd);//command is mute, doesn't tell us anything
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
+                throw;
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult ExecuteItemAttributeBulkDeleteCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributeBulkDeleteCommand cmd = new ItemAttributeBulkDeleteCommand(
+                        MVCcmd.attributeId
+                        , MVCcmd.itemIds.Trim(',')
+                        , MVCcmd.setId
+                        , MVCcmd.searchIds.Trim(',')
+                        );
+                    DataPortal<ItemAttributeBulkDeleteCommand> dp = new DataPortal<ItemAttributeBulkDeleteCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(MVCcmd);//command is mute, doesn't tell us anything
+                }
+                else return Forbid();
 
             }
             catch (Exception e)
@@ -120,6 +181,7 @@ namespace ERxWebClient2.Controllers
             }
         }
     }
+    
 
     public class MVCItemAttributeSaveCommand
     {
@@ -176,5 +238,12 @@ namespace ERxWebClient2.Controllers
             result.ShowScreening = this.showScreening;
             return result;
         }
+    }
+    public class MVCItemAttributeBulkSaveCommand
+    {
+        public long attributeId;
+        public int setId;
+        public string itemIds;
+        public string searchIds;
     }
 }

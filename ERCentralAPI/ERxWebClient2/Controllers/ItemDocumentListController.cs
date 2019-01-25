@@ -12,7 +12,6 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net;
-using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {

@@ -64,6 +64,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Item.cs" Link="Models\Item.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArm.cs" Link="Models\ItemArm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemArmList.cs" Link="Models\ItemArmList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkDeleteCommand.cs" Link="Models\ItemAttributeBulkDeleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkSaveCommand.cs" Link="Models\ItemAttributeBulkSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetails.cs" Link="Models\ItemAttributeFullTextDetails.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />
@@ -94,8 +96,12 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySetTypeList.cs" Link="Models\ReadOnlySetTypeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySource.cs" Link="Models\ReadOnlySource.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySourceList.cs" Link="Models\ReadOnlySourceList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReview.cs" Link="Models\ReadOnlyTemplateReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReviewList.cs" Link="Models\ReadOnlyTemplateReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Review.cs" Link="Models\Review.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetCheckCodingStatusCommand.cs" Link="Models\ReviewSetCheckCodingStatusCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetCopyCommand.cs" Link="Models\ReviewSetCopyCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetDeleteCommand.cs" Link="Models\ReviewSetDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSetsList.cs" Link="Models\ReviewSetsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewInfo.cs" Link="Models\ReviewInfo.cs" />
@@ -144,6 +150,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ClientApp\app\components\NewFolder\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
@@ -154,8 +161,14 @@
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="UserTempUploads\.placeholder">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <!-- <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') "> -->
-  <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' ">
+  <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist')">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />

@@ -1,16 +1,7 @@
 import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { OK } from 'http-status-codes';
-import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { arm, Item, ItemListService } from './ItemList.service';
-import { formatDate } from '@angular/common';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
@@ -77,15 +68,11 @@ export class SourcesService extends BusyAwareService {
         this._BusyMethods.push("FetchSources");
         return this._http.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
             this._ReviewSources = result.sources;
-            if (this._Source == null && this._ReviewSources.length > 0) {
-                //let's go and get the first source:
-                this.FetchSource(this._ReviewSources[0].source_ID);
-            }
-        }, error => { this.modalService.GenericErrorMessage(error); }
-            , () => {
-                this.gotSource.emit();
-                this.RemoveBusy("FetchSources");
-            }
+            this.RemoveBusy("FetchSources");
+        }, error => {
+            this.RemoveBusy("FetchSources");
+            this.modalService.GenericErrorMessage(error);
+        }
         );
     }
     public FetchSource(SourceId: number) {
@@ -94,7 +81,10 @@ export class SourcesService extends BusyAwareService {
         this._http.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
             this._Source = result;
             this.gotSource.emit();
-        }, error => { this.modalService.GenericErrorMessage(error); }
+        }, error => {
+            this.RemoveBusy("FetchSource");
+            this.modalService.GenericErrorMessage(error);
+        }
             , () => {
                 this.RemoveBusy("FetchSource");
             }
@@ -106,7 +96,10 @@ export class SourcesService extends BusyAwareService {
         this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             //this.gotSource.emit();
-        }, error => { this.modalService.GenericErrorMessage(error); }
+        }, error => {
+            this.RemoveBusy("FetchNewPubMedSearch");
+            this.modalService.GenericErrorMessage(error);
+        }
             , () => {
                 this.gotPmSearchToCheck.emit();
                 this.RemoveBusy("FetchNewPubMedSearch");
@@ -121,9 +114,12 @@ export class SourcesService extends BusyAwareService {
         this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             this._LastUploadOrUpdateStatus = "Success";
+            this.RemoveBusy("ActOnPubMedSearch");
             if (!IsGettingAPreview) this.FetchSources();
         }, error => {
             console.log("something went wrong: ", error);
+            this.RemoveBusy("ActOnPubMedSearch");
+            this.PubMedSearchImported.emit();
             this._LastUploadOrUpdateStatus = "Error";
         }
             , () => {
@@ -148,6 +144,7 @@ export class SourcesService extends BusyAwareService {
             error => { 
                 //this.modalService.GenericErrorMessage(error); 
                 this._LastDeleteForeverStatus = "Error";
+                this.RemoveBusy("DeleteSourceForever");
             },
             () => {
                 this.FetchSources();
@@ -160,8 +157,10 @@ export class SourcesService extends BusyAwareService {
         this._BusyMethods.push("FetchImportFilters");
         this._http.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
             this._ImportFilters = result;
-            }, error => { this.modalService.GenericErrorMessage(error); }
-            , () => {
+        }, error => {
+            this.modalService.GenericErrorMessage(error);
+            this.RemoveBusy("FetchImportFilters");
+        }, () => {
                 this.RemoveBusy("FetchImportFilters");
             }
          );
@@ -178,6 +177,7 @@ export class SourcesService extends BusyAwareService {
                 result => {
                     this._IncomingItems4Checking = result;
             }, error => {
+                this.RemoveBusy("CheckUpload");
                 this.modalService.GenericErrorMessage(error);
             },
             () => {
@@ -196,6 +196,7 @@ export class SourcesService extends BusyAwareService {
                 this._LastUploadOrUpdateStatus = "Success";
             }, error => {
                 //this.modalService.GenericErrorMessage();
+                this.RemoveBusy("Upload");
                 this._LastUploadOrUpdateStatus = "Error";
             },
             () => {
@@ -206,14 +207,16 @@ export class SourcesService extends BusyAwareService {
     }
     
     public DeleteUndeleteSource(ros: ReadOnlySource) {
+        this._Source = null;//we may be deleting/undeleting this, so catch all solution: just forget...
         this._BusyMethods.push("DeleteUndeleteSource");
         let body = JSON.stringify({ Value: ros.source_ID });
         this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
         body).subscribe(result => {
             this.FetchSources()
-        }, error => {
-            this.modalService.GenericErrorMessage(error);
-        },
+            }, error => {
+                this.RemoveBusy("DeleteUndeleteSource");
+                this.modalService.GenericErrorMessage(error);
+            },
             () => {
                 this.RemoveBusy("DeleteUndeleteSource");
             }
@@ -231,6 +234,7 @@ export class SourcesService extends BusyAwareService {
             }, error => {
                 //this.modalService.GenericErrorMessage();
                 this._LastUploadOrUpdateStatus = "Error";
+                this.RemoveBusy("UpdateSource");
             },
             () => {
                     this.FetchSource(source.source_ID);
@@ -292,7 +296,7 @@ export class SourcesService extends BusyAwareService {
         };
         return result;
     }
-    public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
+    public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
         let res: string = "";
         if (IncomingItemAuthors) {
@@ -307,7 +311,6 @@ export class SourcesService extends BusyAwareService {
         }
         return res.trim();
     }
-
 }
 export interface Source {
     source_ID: number;

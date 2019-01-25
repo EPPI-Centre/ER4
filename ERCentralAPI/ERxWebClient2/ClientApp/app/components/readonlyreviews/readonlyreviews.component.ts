@@ -1,14 +1,9 @@
 import { Component, Inject, OnInit, Output, EventEmitter, OnDestroy, ViewChild, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { Router } from '@angular/router';
-import { Observable, Subject, BehaviorSubject, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { readonlyreviewsService, ReadOnlyReview } from '../services/readonlyreviews.service';
-import { timer } from 'rxjs'; // (for rxjs < 6) use 'rxjs/observable/timer'
-import { take, map } from 'rxjs/operators';
-import { DataTableDirective, DataTablesModule } from 'angular-datatables';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { ModalService } from '../services/modal.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
@@ -45,11 +40,16 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
             total: this._readonlyreviewsService.ReadOnlyReviews.length
         };
     }
+    public HasCodingOnlyRole(RoR: ReadOnlyReview): boolean {
+        if (RoR.contactReviewRoles.toLowerCase().includes("coding only")) return true;
+        else return false;
+    }
     public sort: SortDescriptor[] = [{
         field: 'lastAccess',
         dir: 'desc'
     }];
-    public sortChange(sort: SortDescriptor[]): void {
+	public sortChange(sort: SortDescriptor[]): void {
+		//console.log(sort);
         this.sort = sort;
     }
     FormatDate(DateSt: string): string {
@@ -64,12 +64,12 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         
     }
 
-	onFullSubmit(f: string) {
-
-		let RevId: number = parseInt(f, 10);
-		console.log('all the way to here: ' +  RevId);
+    onFullSubmit(Ror: ReadOnlyReview) {
+        console.log('onFullSubmit: ', Ror);
+        if (this.HasCodingOnlyRole(Ror)) return;
+        let RevId: number = Ror.reviewId;
+		//console.log('all the way to here: ' +  RevId);
         this.ReviewerIdentityServ.LoginToFullReview(RevId);
-        
     }
 
     getReviews() {

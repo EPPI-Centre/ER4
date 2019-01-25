@@ -85,7 +85,6 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
 		public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
 		{
-
 			try
 			{
                 if (SetCSLAUser4Writing())
@@ -293,6 +292,7 @@ namespace ERxWebClient2.Controllers
                     res.Summary = PmSearchJSON.summary;
                     res.WebEnv = PmSearchJSON.webEnv;
                     res.ItemsList = new IncomingItemsList();
+                    res.ItemsList.Included = true;
                     res.ItemsList.SourceName = PmSearchJSON.ItemsList.SourceName;
                     res.ItemsList.SearchDescr = PmSearchJSON.ItemsList.SearchDescr;
                     res.ItemsList.SearchStr = PmSearchJSON.queryStr;

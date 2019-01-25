@@ -3,6 +3,9 @@ import { HttpClient, HttpHeaders   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
+import { Observable, Subscription } from 'rxjs';
+import { BuildModelService } from './buildmodel.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Injectable({
 
@@ -12,16 +15,38 @@ import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 
 export class ClassifierService extends BusyAwareService {
 
+    asyncResult: ClassifierCommand = new ClassifierCommand();
+
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
 		private reviewInfoService: ReviewInfoService,
+		public _buildModelService: BuildModelService,
+		private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();
-    }
+	}
 
-	Create(title: string, attrOn: string, attrNotOn: string) {
+	IamVerySorryRefresh() {
+
+		this._buildModelService.Fetch();
+
+	}
+
+	showBuildModelMessage(notifyMsg: string) {
+
+		this.notificationService.show({
+			content: notifyMsg,
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: "info", icon: true },
+			closable: true
+		});
+
+	}
+
+	CreateAsync(title: string, attrOn: string, attrNotOn: string): Subscription {
 
 		let MVCcmd: ClassifierCommand = new ClassifierCommand();
 
@@ -32,27 +57,36 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._title = title;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("CreateAsync");
 
-		
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-		this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/GetClassifierAsync',
+		//alert('about to send to controller');
+
+		return this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
 			MVCcmd, { headers: headers }
-		)
-				 .subscribe(result => {
-				
-					 //alert('what the hell: ' + result);
-					 
-					 //console.log(result)
-				 },
-				 error => {
-					 this.modalService.GenericError(error);
-				 }
-				 , () => {
-					 this.RemoveBusy("Fetch");
-				 }
-			 );
+		).subscribe(
+
+			result => {
+
+				if (result.returnMessage == '') {
+
+					this.showBuildModelMessage('request was submitted');
+
+				} else {
+
+					this.showBuildModelMessage(result.returnMessage);
+				}
+
+				this.IamVerySorryRefresh();
+			},
+			error => {
+                this.RemoveBusy("CreateAsync");
+				this.modalService.GenericError(error);
+            }, () => {
+                this.RemoveBusy("CreateAsync");
+			}
+		);
 	}
 	
 	Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number) {
@@ -67,7 +101,7 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._sourceId = SourceId;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("Apply");
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
@@ -76,13 +110,14 @@ export class ClassifierService extends BusyAwareService {
 		)
 			.subscribe(result => {
 				
-				console.log(result)
-			},
-				error => {
-					this.modalService.GenericError(error);
+					console.log(result)
+				},
+            error => {
+                this.RemoveBusy("Apply");
+				this.modalService.GenericError(error);
 				}
 				, () => {
-					this.RemoveBusy("Fetch");
+                    this.RemoveBusy("Apply");
 				}
 			);
 	}
@@ -98,5 +133,6 @@ export class ClassifierCommand {
 	public _sourceId: number = 0;
 	public _classifierId: number = 0;
 	public revInfo: ReviewInfo = new ReviewInfo();
+	public returnMessage: string = '';
 
 }

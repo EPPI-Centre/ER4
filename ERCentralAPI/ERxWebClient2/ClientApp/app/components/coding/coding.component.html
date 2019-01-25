@@ -14,7 +14,7 @@
             </button>
             <!--[ngbCollapse]="IsSmallScreen() && !ShowCodesInSmallScreen"-->
             <div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
-                             ,'col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
+                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
@@ -43,32 +43,24 @@
         </div>
     </div>-->
             <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end row">
-                <div class="row ml-1 mt-0 mr-0 w-100 d-flex justify-content-between">
-                    <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"></itemDetailsPaginator>
-                    <div class="pr-0 pl-0
-                                     order-lg-last
-                                     order-xl-last
-                                     order-md-first
-                                     order-sm-first
-                                     order-first
-                                     float-right
-                                      align-content-start pr-0 pull-right">
-                        <div class="justify-content-end mt-0 mb-3 ml-0 mr-0 row w-100">
-                            <div class="row bg-info float-right mb-1 pb-1 ml-2 mr-1">
-                                <div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
-                                    Auto Advance?
-                                    <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-                                </div>
+                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
+                    <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
+                        <button class="page-link pt-0 pb-1 mb-1 float-right" (click)="BackToMain()">
+                            Close/back
+                        </button>
+                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Auto Advance?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
                             </div>
-                            <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-1">
-                                <div class="form-check-label ml-2 pr-3 row" for="exampleCheck1">
-                                    Show terms?
-                                    <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-                                </div>
+                        </div>
+                        <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Show terms?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
                             </div>
-                            <button class="page-link pt-0 pb-1 mb-1" (click)="BackToMain()">
-                                Close/back
-                            </button>
                         </div>
                     </div>
                 </div>

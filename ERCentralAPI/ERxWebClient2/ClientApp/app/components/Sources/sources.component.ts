@@ -6,7 +6,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { ItemListService } from '../services/ItemList.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { TabStripComponent } from '@progress/kendo-angular-layout';
+import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
 
 
 @Component({
@@ -39,12 +39,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
         })
         //see: https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
         //timeout might be needed, but apparently not!
-        if (this.SourcesService.ReviewSources && this.SourcesService.ImportFilters.length == 0) {
-            //setTimeout(() => {
-                this.SourcesService.FetchSources();
-                this.SourcesService.FetchImportFilters();
-            //}, 10);
-        }
+        this.SourcesService.FetchSources();
+        this.SourcesService.FetchImportFilters();
         this.SrcUpdatedSbus = this.SourcesService.SourceUpdated.subscribe(() => {
             this.SourceUpdated();
         })
@@ -210,8 +206,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //alert('Not yet ;-)');
         this.confirmSourceDeletionOpen = true;
     }
-    onTabSelect($event: any) {
-
+    onTabSelect($event: SelectEvent) {
+        if ($event.title == 'Manage Sources'
+            && this._CurrentSource == null && this.SourcesService.ReviewSources
+            && this.SourcesService.ReviewSources.length > 0) {
+            //let's go and get the first source:
+            this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
+        }
     }
     FormatDate(DateSt: string): string {
         let date: Date = new Date(DateSt);

@@ -34,7 +34,7 @@
                                     </kendo-datepicker>
                                 </div>
                                 <div class="form-group">
-                                    <label for="sourceDataBase">DataBase</label>
+									<label for="sourceDataBase">Database (optional)</label>
                                     <input type="text" class="form-control" id="sourceDataBase"
                                            [(ngModel)]="CurrentSource.sourceDataBase" name="sourceDataBase">
                                 </div>
@@ -70,17 +70,17 @@
                                 
                             </div>
                             <div class="form-group col-12">
-                                <label for="searchString">Search String</label>
+								<label for="searchString">Search String (optional)</label>
                                 <textarea class="form-control" id="searchString"
                                        [(ngModel)]="CurrentSource.searchString" name="searchString" rows="3"></textarea>
                             </div>
                             <div class="form-group col-12">
-                                <label for="searchDescription">Description</label>
+								<label for="searchDescription">Description (optional)</label>
                                 <input type="text" class="form-control" id="searchDescription"
                                        [(ngModel)]="CurrentSource.searchDescription" name="searchDescription">
                             </div>
                             <div class="form-group col-12">
-                                <label for="searchnotes">Notes</label>
+								<label for="searchnotes">Notes (optional)</label>
                                 <input type="text" class="form-control" id="searchnotes"
                                        [(ngModel)]="CurrentSource.notes" name="searchnotes">
                             </div>
@@ -95,7 +95,7 @@
                                         Delete
                                     </button>
                                     <div *ngIf="!CanDeleteSourceForever()" class="small col-3 ml-1 col-md-5 bg-light">
-                                        Only sources that are deleted and don't contain items marked as duplicates can be deleted.
+                                        Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
                                     </div>
                                 </div>
                             </div>

@@ -6,43 +6,54 @@
 <div class="container col-md-12 form">
 	<p hidden>{{reviewSetsService.selectedNode?.name}}</p>
 	<div class="col-md-12 row card">
-		<div class="card-body bg-light col-md-6 form-group">
+		<div class="card-body bg-light col-md-12 form-group">
 			<div class="font-weight-bold col-md-12 row form-group">
 				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</label>-->
 				Learn to apply this code:&nbsp;&nbsp;&nbsp;&nbsp;
 				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-info col-md-9" id="dropdownBasic1" ngbDropdownToggle>{{selectedModelDropDown1}}</button>
-					<div (click)="SetAttrOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-						<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
+					<div (click)="SetAttrOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
 			<div class="font-weight-bold col-md-12 row form-group">
 				Distinguish from this code:
 				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-primary col-md-9" id="dropdownBasic2" ngbDropdownToggle>{{selectedModelDropDown2}}</button>
-					<div (click)="SetAttrNotOn(reviewSetsService.selectedNode)" ngbDropdownMenu aria-labelledby="dropdownBasic2">
-						<codesetSelector [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
+					<div (click)="SetAttrNotOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
 			<div class="col-md-12 row font-weight-bold form-group">
 				Name for your model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<div class="col-md-12">
-					<input [(ngModel)]="modelName" type="text" class="bg-light form-control col-md-12" />
+				<div class="col-md-4">
+					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
+	
+					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched)"
+						 class="alert alert-danger">
+
+						<div *ngIf="modelName.errors.required">
+							Model Name is required.
+						</div>
+						<div *ngIf="modelName.errors.minlength">
+							Model Name must be at least 4 characters long.
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="col-md-12 row font-weight-bold form-group">
-				<div class="col-md-6">
-					<button (click)="BuildModel(modelName)" class="btn btn-lg btn-primary"> Build Model</button>
+				<div class="col-md-4">
+					<button [disabled]="!CanBuildModel()" (click)="BuildModel(modelName)" class="btn btn-lg btn-primary"> Build Model</button>
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-4">
 					<button (click)="IamVerySorryRefresh()" class="btn btn-lg btn-warning"> Refresh Models</button>
 				</div>
 			</div>
 		</div>
 
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<kendo-grid [data]="DataSource" [height]="410"
 						[sort]="sort"
 						(sortChange)="sortChange($event)"

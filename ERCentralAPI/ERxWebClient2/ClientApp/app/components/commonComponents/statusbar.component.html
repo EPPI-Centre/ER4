@@ -25,8 +25,9 @@
             <tr>
                 <td class="pr-2 pl-2">
                     Status:
-                    <span class="{{statusClass}}">
-                        <span class="pl-1" [innerHTML]="ReviewerIdentityServ.currentStatus"></span>
+                    <span [ngClass]="{'bg-light' : !CurrentMessageIsWarning,
+                              'bg-warning' : CurrentMessageIsWarning}">
+                        <span class="pl-1" [innerHTML]="CurrentStatus"></span>
                         <a (click)="pressedMore()" class="font-weight-bold btn btn-link" [hidden]="!isMoreButtonVisible">...more</a>
                     </span>
                 </td>

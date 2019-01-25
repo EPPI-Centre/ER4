@@ -2707,10 +2707,9 @@
       }
     },
     "circular-json": {
-      "version": "0.5.5",
-      "resolved": "https://registry.npmjs.org/circular-json/-/circular-json-0.5.5.tgz",
-      "integrity": "sha1-ZBgu81kELTfNjnZ/yd6Hix6UR9M=",
-      "dev": true
+      "version": "0.5.9",
+      "resolved": "https://registry.npmjs.org/circular-json/-/circular-json-0.5.9.tgz",
+      "integrity": "sha512-4ivwqHpIFJZBuhN3g/pEcdbnGUywkBblloGbkglyloVjjR3uT6tieI89MVOfbP2tHX5sgb01FuLgAOzebNlJNQ=="
     },
     "class-utils": {
       "version": "0.3.6",

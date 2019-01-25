@@ -1,17 +1,12 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forEach } from '@angular/router/src/utils/collection';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
-import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ArmsService } from '../services/arms.service';
+import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { frequenciesService } from '../services/frequencies.service';
-import { Injectable, EventEmitter } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
+
 
 @Component({
     selector: 'codesetSelector',
@@ -35,11 +30,27 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
-       private ReviewSetsService: ReviewSetsService,
+	   private ReviewSetsService: ReviewSetsService,
+	   private _eventEmitterService: EventEmitterService
 
 	) { }
-	
-	@Input() rootsOnly: boolean = false;
+
+	@Input() MaxHeight: number = 400;
+	@Input() rootsOnly: boolean = false;//obsolete
+	@Input() IsMultiSelect: boolean = false;
+	@Input() WhatIsSelectable: string = "All";
+	//"All": can select any type of node
+	//"AttributeSet":Codes(AttributeSet) only
+	//"ReviewSet":Codesets(ReviewSet) only
+	//"NodeWithChildren":Anything that does have children
+	//"CanHaveChildren": any node that is allowed to contain children(future)
+
+
+	public SelectedNodeData: singleNode | null = null;
+	public SelectedNodesData: singleNode[] = [];
+	public SelectedCodeDescription: string = "";
+	@ViewChild('tree') treeComponent!: TreeComponent;
+	@Output() selectedNodeInTree: EventEmitter<null> = new EventEmitter();
 	//@Input() attributesOnly: boolean = false;
 
 	ngOnInit() {
@@ -60,19 +71,30 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		
 	}
 
+	actionMapping: IActionMapping = {
+		mouse: {
+			click: TREE_ACTIONS.TOGGLE_ACTIVE_MULTI
+		},
+		keys: {
+			[KEYS.ENTER]: (tree, node, $event) => alert(`This is ${node.data.name}`)
+		}
+	}
+
 	options: ITreeOptions = {
 		childrenField: 'attributes', 
 		displayField: 'name',
 		allowDrag: false,
+		// use this when a multi select is needed
+		//actionMapping: this.actionMapping
 
 	}
 
-	@ViewChild('tree') treeComponent!: TreeComponent;
-	
+
 	ngAfterViewInit() {
 
 	
 	}
+
 
     get nodes(): singleNode[] | null {
 
@@ -145,41 +167,54 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		}
 		//console.log('A root: ' + this.treeComponent.treeModel.roots[0].doForAll(x => x.expand()))
 	}
-	    
-    public SelectedNodeData: singleNode | null = null;
-	public SelectedCodeDescription: string = "";
 
 	NodeSelected(node: singleNode) {
 
-		//alert(JSON.stringify(stuff));
-		console.log(JSON.stringify(node));
+		//console.log(JSON.stringify(node));
+		
+		//@Input() rootsOnly: boolean = false;//obsolete
+		//@Input() IsMultiSelect: boolean = false;
+		//@Input() WhatIsSelectable: string = "All";
+		//"All": can select any type of node
+		//"AttributeSet":Codes(AttributeSet) only
+		//"ReviewSet":Codesets(ReviewSet) only
+		//"NodeWithChildren":Anything that does have children
+		//"CanHaveChildren": any node that is allowed to contain children(future)
 
-		//if (this._eventEmitter.codingTreeVar == true) {
+		//alert(this.IsMultiSelect);
+		//alert(this.WhatIsSelectable);
 
-		//	if (node.nodeType != 'ReviewSet') {
+		// So far six possible paths of logic
+		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
+			if (node.nodeType == "SetAttribute") {
+				console.log(JSON.stringify(node));
+				this.SelectedNodeData = node;
+	
+				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+				// and raise event to close the drop down
+				this.selectedNodeInTree.emit();
+				this._eventEmitterService.nodeSelected = node;
+			}
 
-		//		//this._eventEmitter.nodeSelected = true;
-		//		//this.SelectedNodeData = node;
-		//		//this._eventEmitter.nodeName = node.name;
-		//		//alert('this has the correct number: ' + this._eventEmitter.nodeName);
-		//		//this._eventEmitter.sendMessage(node);
-  //              this.ReviewSetsService.selectedNode = node;
-		//		this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-		//	}
-			
-		//} else {
+		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
+			// it must be a root node hence we should do nothing...
+			alert('you cannot select these roots here!');
 
-		//	console.log(node.name + ' =====> ' + node.nodeType + ' blah ' + this.smallTree);
-		//	//this.SelectedNodeData = node;
-		//	//this._eventEmitter.sendMessage(node);
-        //  this.ReviewSetsService.selectedNode = node;
-		//	this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+		} else if (this.IsMultiSelect == false) {
+			// ALL
 
-		//}
+		} else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
+			alert('you cannot use multiselect here 1');
 
-       this.ReviewSetsService.selectedNode = node;
-        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-	}
+		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == true) {
+			alert('you cannot use multiselect here 2');
+
+		} else if ( this.IsMultiSelect == true) {
+			alert('you cannot use multiselect here 3');
+
+		}
+
+    }
 
     ngOnDestroy() {
 

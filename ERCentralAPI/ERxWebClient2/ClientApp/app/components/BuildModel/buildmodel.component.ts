@@ -1,13 +1,14 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
+import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { EventEmitterService } from '../services/EventEmitter.service';
+
 
 @Component({
     selector: 'BuildModelComp',
@@ -19,16 +20,15 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
-  //      private notificationService: NotificationService,
 		private _reviewSetsService: ReviewSetsService,
-		//private ReviewerIdentityServ: ReviewerIdentityService,
 		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService
+		public _buildModelService: BuildModelService,
+		public _eventEmitterService: EventEmitterService
 	) { }
 
 	public selectedModelDropDown1: string = '';
 	public selectedModelDropDown2: string = '';
-	public modelName: string = '';
+	public modelNameText: string = '';
 	public DD1: string = '0';
 	public DD2: string = '0';
 
@@ -43,6 +43,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		return true;
 
+	}
+	CanBuildModel() {
+
+		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != '') {
+			return true;
+		}
+		return false;
 	}
     removeHandler(event: any) {
 
@@ -63,14 +70,16 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {
 
-		// Load the nodes here
+		this.selectedModelDropDown1 = '';
+		this.selectedModelDropDown2 = '';
 		this.reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
+	
 
 	}
 	ngOnDestroy() {
 
-
+		this._reviewSetsService.selectedNode = null;
 	}
 	IamVerySorryRefresh() {
 
@@ -78,9 +87,10 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 	}
 	SetAttrOn(node: any) {
-
+		//alert(JSON.stringify(node));
 		if (node != null) {
 			this.selectedModelDropDown1 = node.name;
+
 			let id: string = node.id;
 			let a: number = id.indexOf('A');
 			if (a != -1) {
@@ -92,10 +102,11 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		
 	}
 	SetAttrNotOn(node: any) {
-
+		//alert(JSON.stringify(node));
 		if (node != null) {
 			//alert(node.name);
 			this.selectedModelDropDown2 = node.name;
+		
 			let id: string = node.id;
 			let a: number = id.indexOf('A');
 			if (a != -1) {
@@ -105,20 +116,30 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			}
 		}
 	}
+	public isCollapsed: boolean = false;
+	public isCollapsed2: boolean = false;
+	CloseBMDropDown1() {
 
-	BuildModel(title: string) {
-
-		this.IamVerySorryRefresh();
-		if (this.DD1 != null && this.DD2 != null && this.modelName != '') {
-
-			this._classifierService.Create(title, this.DD1, this.DD2);
-		}
+		this.isCollapsed = false;
 	}
+	CloseBMDropDown2() {
+
+		this.isCollapsed2 = false;
+	}
+	async BuildModel(title: any) {
+
+		if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
+
+			await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2);
+		}
+		
+	}
+
 
     ngAfterViewInit() {
 
-    }
- 
-  
+	}
+
+
 	 
 }

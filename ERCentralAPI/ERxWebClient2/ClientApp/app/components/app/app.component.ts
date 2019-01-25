@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
-
 @Component({
     selector: 'app',
     templateUrl: './app.component.html',

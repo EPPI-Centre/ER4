@@ -10,9 +10,13 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'ReviewSetsEditor',
     templateUrl: './reviewSetsEditor.component.html',
-    providers: []
+    providers: [],
+    styles: [`.k-switch-label-off {    
+                    color:black;
+                }
+        `],
 })
-
+    
 export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
 
    
@@ -196,7 +200,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         //safety first, if anything didn't work as expexcted return false;
         if (!this.CanWrite()) return false;
         else {
-            if (!this.CurrentNode) return false;//??
+			if (!this.CurrentNode) return false;//??
+			//move the below to ReviewSetsService;
             else if (this.CurrentNode.nodeType == "ReviewSet" && this.CurrentNode.allowEditingCodeset) return true;
             else if (this.CurrentNode.nodeType == "SetAttribute") {
                 let Att: SetAttribute = this.CurrentNode as SetAttribute;
@@ -208,7 +213,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                     return maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att);
                 }
                 else return false;
-            }
+			}
+			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
         }
         return false;
     }
@@ -307,6 +313,29 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public get CanEditSelectedNode(): boolean {
+        if (!this.CanWrite()) return false;
+        if (!this.CurrentNode) return false;//??
+        else if (this.CurrentNode.nodeType == 'ReviewSet') {
+            //console.log("AAAAAAAAA", node);
+            return this.CurrentNode.allowEditingCodeset;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = this.CurrentNode as SetAttribute;
+            if (SetAtt) {
+                //is the set editable?
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    return MySet.allowEditingCodeset;
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
     SetIsSelected(): boolean {
         if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "ReviewSet") return true;
         else return false;
@@ -316,6 +345,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         else return false;
     }
     ShowActivity(activityName: string) {
+        if (this._ActivityPanelName != "") this.CancelActivity(true);
         this._ActivityPanelName = activityName;
     }
     CancelActivity(refreshTree?: boolean) {
@@ -347,12 +377,12 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = "";
     }
     CodesetTypeChanged(typeId: number) {
-        //this.NewSetSelectedTypeId = typeId;
-        //let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
-        //if (current) {
-        //    this._NewReviewSet.setType = current;
-        //    if (!current.allowComparison) this._NewReviewSet.codingIsFinal = true;
-        //}
+        this.NewSetSelectedTypeId = typeId;
+        let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
+        if (current) {
+            this._NewReviewSet.setType = current;
+            if (!current.allowComparison) this._NewReviewSet.codingIsFinal = true;
+        }
     }
     IsNewSetNameValid() {
         if (this._NewReviewSet.set_name.trim() != "") return true;
@@ -556,6 +586,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 });
     }
     BackToMain() {
+        this.ReviewSetsService.GetReviewSets();
         this.router.navigate(['Main']);
     }
     ngOnDestroy() {

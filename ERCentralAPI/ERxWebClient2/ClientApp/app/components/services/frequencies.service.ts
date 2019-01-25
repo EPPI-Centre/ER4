@@ -1,6 +1,7 @@
 import {  Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
 
@@ -8,13 +9,13 @@ import { ModalService } from './modal.service';
 
 })
 
-export class frequenciesService {
+export class frequenciesService extends BusyAwareService  {
 
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) { }
+    ) { super(); }
     
 	private _FrequencyList: Frequency[] = [];
 	@Output() codeSelectedChanged = new EventEmitter();
@@ -44,7 +45,7 @@ export class frequenciesService {
     }
 
 	public Fetch(selectedNodeData: any, selectedFilter?: any) {
-
+        this._BusyMethods.push("Fetch");
 		this.codeSelectedChanged.emit(selectedNodeData);
 				
 		//console.log('Inside the service now: ' + selectedFilter);
@@ -79,7 +80,13 @@ export class frequenciesService {
                  //this.Save();
                  //console.log(result);
                  this.frequenciesChanged.emit();
-				}
+                 this.RemoveBusy("Fetch");
+				},
+             (error) => {
+                 console.log("Frequency fetch error:", error);
+                 this.RemoveBusy("Fetch");
+                 this.modalService.GenericError(error);
+             }
 		 );
     }
     

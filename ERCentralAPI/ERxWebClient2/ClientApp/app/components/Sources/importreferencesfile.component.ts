@@ -141,11 +141,11 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         let contentSt: string = "";
         if (status == "Success") {
             typeElement = "success";
-            contentSt = 'Upoload of "' + sourcename +'" completed successfully.';
+            contentSt = 'Upload of "' + sourcename +'" completed successfully.';
         }//type: { style: 'error', icon: true }
         else {
             typeElement = "error";
-            contentSt = 'Upoload of "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
+            contentSt = 'Upload of "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
         }
         this.notificationService.show({
             content: contentSt,
@@ -177,7 +177,7 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = !this.ShowPreviewTable;        
     }
     public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
-        return this.SourcesService.AuthorsString(IncomingItemAuthors);        
+        return SourcesService.LimitedAuthorsString(IncomingItemAuthors);        
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

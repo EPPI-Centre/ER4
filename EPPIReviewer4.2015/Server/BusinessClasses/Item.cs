@@ -501,6 +501,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<int> TypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TypeId", "TypeId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int TypeId
         {
             get
@@ -913,6 +916,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<string> AttributeAdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAdditionalText", "AttributeAdditionalText", string.Empty));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public string AttributeAdditionalText
         {
             get
@@ -926,6 +932,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public int Rank
         {
             get
@@ -985,6 +994,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsSelected
         {
             get

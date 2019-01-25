@@ -7,10 +7,10 @@
             at the U.S. National Library of Medicine (<a href="https://www.nlm.nih.gov/" target="_blank">NLM</a>), 
             located at the National Institutes of Health (<a href="https://www.nih.gov/" target="_blank">NIH</a>).</p>
         </div>
-        <h4>Phase 1: Type your Search string and click search</h4>
+		<h5>Step 1: Enter search string</h5>
         <form class="col-12 row" (ngSubmit)="NewPmSearch()" #NewPmSearchForm="ngForm">
             <div class="form-group col-12">
-                <label for="searchString">Search String</label>
+				<label for="searchString">Search String </label>
                 <textarea class="form-control" id="newsearchStringTA"
                           [(ngModel)]="NewSearchString" required
                           name="NewSearchString" rows="3"></textarea>
@@ -23,7 +23,7 @@
     </div>
     <div *ngIf="WizPhase==2" class="row m-0">
         <div class="col-12">
-            <div class="col-12">Phase 2, check the search results:</div>
+			<div class="col-12">Step 2: Preview and import</div>
             <div class="col-4">
                 <button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button>
                 <button *ngIf="DataToCheck" type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
@@ -128,13 +128,13 @@
                 <div class="bg-white border" id="searchString">{{DataToCheck.queryStr}}</div>
             </div>
             <div class="form-group col-12">
-                <label for="searchDescription">Description</label>
+				<label for="searchDescription">Description (optional)</label>
                 <input type="text" class="form-control" id="searchDescription"
                        [(ngModel)]="DataToCheck.itemsList.searchDescr" name="searchDescription"
                        >
             </div>
             <div class="form-group col-12">
-                <label for="searchnotes">Notes</label>
+				<label for="searchnotes">Notes (optional)</label>
                 <input type="text" class="form-control" id="searchnotes"
                        [(ngModel)]="DataToCheck.itemsList.notes" name="searchnotes">
             </div>

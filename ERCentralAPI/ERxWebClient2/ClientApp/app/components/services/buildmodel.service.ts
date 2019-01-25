@@ -50,7 +50,7 @@ export class BuildModelService extends BusyAwareService {
 			},
 				error => {
 					this.modalService.GenericError(error);
-
+                    this.RemoveBusy("Fetch");
 				}
 				, () => {
 					this.RemoveBusy("Fetch");
@@ -69,13 +69,13 @@ export class BuildModelService extends BusyAwareService {
 
 export class ClassifierModel {
 
+	modelId: number = 0;
 	contactId: number = 0;
 	contactName: string = '';
 	accuracy: number = 0;
 	auc: number = 0;
 	precision: number = 0;
 	recall: number = 0;
-	modelId: number = 0;
 	modelTitle: string = '';
 	attributeOn: string = '';
 	attributeNotOn: string = '';

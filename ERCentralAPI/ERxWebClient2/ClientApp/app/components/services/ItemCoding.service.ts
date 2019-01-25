@@ -1,26 +1,29 @@
 import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ItemCodingComp } from '../coding/coding.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Item, ItemListService } from './ItemList.service';
+import { ReviewSet, SetAttribute, ReviewSetsService } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ItemCodingService  {
+export class ItemCodingService extends BusyAwareService {
     @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
-        private ReviewerIdentityService: ReviewerIdentityService 
-        ) { }
+        private ReviewerIdentityService: ReviewerIdentityService
+    ) { super(); }
 
 
     private _ItemCodingList: ItemSet[] = [];
@@ -47,7 +50,7 @@ export class ItemCodingService  {
     }
         
     public Fetch(ItemId: number) {
-
+        this._BusyMethods.push("Fetch");
         //this.itemID.next(ItemId); 
         console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
@@ -57,8 +60,372 @@ export class ItemCodingService  {
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
-            }, error => { this.modalService.SendBackHomeWithError(error); }
+            }, error => {
+                this.RemoveBusy("Fetch");
+                if (this.SelfSubscription4QuickCodingReport) {
+                    this.SelfSubscription4QuickCodingReport.unsubscribe();
+                    this.SelfSubscription4QuickCodingReport = null;
+                }
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("Fetch");}
             );
+    }
+    private SelfSubscription4QuickCodingReport: Subscription | null = null;
+    private _CodingReport: string = "";
+    public get CodingReport(): string {
+        return this._CodingReport;
+    }
+    public Clear() {
+        this._ItemsToReport = [];
+        this._CodingReport = "";
+        this._CurrentItemIndex4QuickCodingReport = 0;
+        if (this.SelfSubscription4QuickCodingReport) {
+            this.SelfSubscription4QuickCodingReport.unsubscribe();
+            this.SelfSubscription4QuickCodingReport = null;
+        }
+    }
+    private _ItemsToReport: Item[] = [];
+    private _ReviewSetsToReportOn: ReviewSet[] = [];
+    private _CurrentItemIndex4QuickCodingReport: number = 0;
+    public get QuickCodingReportIsRunning(): boolean {
+        return this._ItemsToReport.length > this._CurrentItemIndex4QuickCodingReport;
+    }
+    public get ProgressOfQuickCodingReport(): string {
+        return "Retreiving Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
+    }
+    public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[]) {
+        this._ItemsToReport = [];
+        this._ReviewSetsToReportOn = [];
+        if (this.SelfSubscription4QuickCodingReport) {
+            this.SelfSubscription4QuickCodingReport.unsubscribe();
+            this.SelfSubscription4QuickCodingReport = null;
+        }
+        this._CurrentItemIndex4QuickCodingReport = 0;
+        this._CodingReport = "";
+        if (!Items || Items.length < 1) {
+            return;
+        }
+        this._BusyMethods.push("FetchCodingReport");
+        this._ItemsToReport = Items;
+        this._ReviewSetsToReportOn = ReviewSetsToReportOn;
+        this.InterimGetItemCodingForReport();
+        this.RemoveBusy("FetchCodingReport");
+    }
+    private InterimGetItemCodingForReport() {
+        if (!this.SelfSubscription4QuickCodingReport) {
+            //initiate recursion, ugh!
+            this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
+                () => {
+                    this.AddToQuickCodingReport();
+                    this._CurrentItemIndex4QuickCodingReport++;
+                    this.InterimGetItemCodingForReport();
+                }//no error handling: any error in this.Fetch(...) sends back home!!
+            );
+        }
+        if (!this.QuickCodingReportIsRunning)  {
+            if (this.SelfSubscription4QuickCodingReport) {
+                this.SelfSubscription4QuickCodingReport.unsubscribe();
+                this.SelfSubscription4QuickCodingReport = null;
+            }
+            return;
+        }
+        //passing negative item IDs make the ItemList object grab the full text as well as "normal coding"
+        else this.Fetch(-this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
+    }
+    private AddToQuickCodingReport() {
+        if (this._CodingReport == "") {
+           // this._CodingReport = "Start of report<br />";
+        }
+        const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+        //console.log("AddToQuickCodingReport", currentItem);
+        if (!currentItem || currentItem.itemId == 0) return;
+        //this._CodingReport += "Item: "
+        //    + this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId.toString()
+        //    + " contains " + this.ItemCodingList.length + " item sets. <br />";
+        this._CodingReport += "<h4>ID " + currentItem.itemId.toString() + ": " + currentItem.shortTitle.replace(/</g, "&lt;") + "</h4><br />" +
+            ItemListService.GetCitation(currentItem) + "<br />";
+        if (currentItem.oldItemId != "") {
+            this._CodingReport += "<b>Your ID:</b> " + currentItem.oldItemId + "<br />";
+        }
+        if (currentItem.abstract != "") {
+            this._CodingReport += '<div class="small mt-1"><b>Abstract:</b> ' + currentItem.abstract.replace(/</g, "&lt;") + "</div>";
+        }
+        this.AddCodingToReport();
+        this._CodingReport += "<hr />";
+    }
+    private AddCodingToReport() {
+        //console.log("AddCodingToReport", this._ReviewSetsToReportOn.length);
+        for (let i = 0; i < this._ReviewSetsToReportOn.length; i++)
+        {
+            let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
+            for (let itemSet of this._ItemCodingList)
+            {
+                if (itemSet.setId == this._ReviewSetsToReportOn[i].set_id && itemSet.isCompleted == true) {
+                    this._CodingReport += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>" ;
+                    
+                    if (reviewSet != null) {
+                        this._CodingReport += "<p><h4>" + reviewSet.set_name + "</h4></p><p><ul>";
+                        for(let attributeSet of reviewSet.attributes)
+                        {
+                            //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+                            this._CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+                        }
+                        this._CodingReport += "</ul></p>";
+                        //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+                    }
+
+                }
+            }
+        }
+    }
+    private writeCodingReportAttributesWithArms(itemSet: ItemSet, attributeSet: SetAttribute) :string {
+        let report: string = "";
+        let roias = itemSet.itemAttributesList.filter(found => found.attributeId == attributeSet.attribute_id);
+        //console.log("roias", roias, itemSet.itemAttributesList, attributeSet.attribute_id);
+        if (roias != null && roias.length > 0) {
+            for(let roia of roias)
+            {
+                let AttributeName = attributeSet.attribute_name;
+                if (roia.armId != 0) {
+                    AttributeName += " [" + roia.armTitle + "]";
+                }
+
+                report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span>";
+                if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
+                if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+                    
+                    report += this.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
+                }
+                report += "</li>";
+            }
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += "<ul>";
+                for (let child of attributeSet.attributes)
+                {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        else {
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += '<li class="text-muted">' + attributeSet.attribute_name + "</li>";
+                report += "<ul>";
+                for(let child of attributeSet.attributes)
+                {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        return report;
+    }
+    public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
+        let result: string = "";
+        for (let ftd of list) {
+            result += "<br>" + ftd.docTitle + ": ";
+            if (ftd.isFromPDF) {
+                let rres = ftd.text.replace(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
+                rres = rres.replace(/\[\u00ACe\]/g, "");
+                result += "<span class='small'>" + rres + "</span>";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
+            }
+            else {
+                result += "<code>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
+                    + ")</code>";
+            }
+        }
+        return result;
+    }
+    public OutcomesTable(Outcomes: Outcome[]): string {
+        let retVal: string = "";
+        let i: number = -1;
+
+        let sortedOutcomes = Outcomes.sort(function (a, b) { return a.outcomeTypeId - b.outcomeTypeId });
+        for(let o of sortedOutcomes)
+        {
+            if (i != o.outcomeTypeId) {
+                if (retVal == "") {
+                    retVal = "<p><b>Outcomes</b></p><table class='m-1' border='1'>";
+                }
+                else {
+                    retVal += "</table><table class='m-1' border='1'>";
+                }
+                i = o.outcomeTypeId;
+                retVal += this.GetOutcomeHeaders(o);
+            }
+            retVal += this.GetOutcomeInnerTable(o);
+        }
+        return retVal + "</table>";
+    }
+    private GetOutcomeHeaders(o: Outcome): string {
+        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>SMD</td><td>SE</td><td>r</td><td>SE</td><td>Odds ratio</td><td>SE</td><td>Risk ratio</td><td>SE</td><td>Risk difference</td><td>SE</td><td>Mean difference</td><td>SE</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SD</td>" +
+                    "<td>Group 2 SD</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Group 1 events</td><td>Group 2 events</td><td>Group 1 no events</td><td>Group 2 no events</td><td>Odds ratio</td><td>SE (log OR)</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SE</td>" +
+                    "<td>Group 2 SE</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 CI lower</td>" +
+                    "<td>Group 1 CI upper</td><td>Group 2 CI lower</td><td>Group 2 CI upper</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>t-value</td>" +
+                    "<td>p-value</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 6: // diagnostic test 2 x 2 table
+                retVal += "<td>True positive</td><td>False positive</td><td>False negative</td><td>True negative</td><td>Diagnostic odds ratio</td><td>SE (log dOR)</td>";
+                break;
+
+            case 7: // correlation coeffiecient r
+                retVal += "<td>Group size</td><td>r</td><td>SE (Z transformed)</td>";
+                break;
+
+            default:
+                break;
+        }
+        return retVal + "<td>Outcome Classifications</td></tr>";
+    }
+
+    private GetOutcomeInnerTable(o: Outcome): string {
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
+            "</td><td>" + o.controlText + "</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>Manual entry</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data11 === 'number' ? o.data11.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data12 === 'number' ? o.data12.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data13 === 'number' ? o.data13.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data14 === 'number' ? o.data14.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Continuous: Ns, means and SD</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Binary: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Continuous: N, Mean, SE</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Continuous: N, Mean, CI</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ?  o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ?  o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Continuous: N, t- or p-value</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 6: // binary 2 x 2 table
+                retVal += "<td>Diagnostic test: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ?  o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ?  o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 7: // correlation coefficient r
+                retVal += "<td>Correlation coefficient r</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            default:
+                break;
+        }
+
+        retVal += "<td>";
+        for(let OIA of o.outcomeCodes)
+        {
+            retVal += OIA.attributeName + "<br>";
+        }
+        return retVal + "</td></tr>";
+    }
+
+    private CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
+        if (itemSet) {
+            for (let roia of itemSet.itemAttributesList) {
+                if (roia.attributeId == attributeSet.attribute_id) return true;
+            }
+            for(let child of attributeSet.attributes)
+            {
+                if (this.CodingReportCheckChildSelected(itemSet, child) == true) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public Save() {
@@ -127,6 +494,8 @@ export class Outcome {
     outcomeId: number = 0;
     itemSetId: number = 0;
     outcomeTypeName: string = "";
+    outcomeTypeId: number = 0;
+    outcomeCodes: OutcomeItemAttribute[] = [];
     itemAttributeIdIntervention: number = 0;
     itemAttributeIdControl: number = 0;
     itemAttributeIdOutcome: number = 0;
@@ -202,6 +571,21 @@ export class Outcome {
     data13Desc: string = "";
     data14Desc: string = "";
 }
-export class ItemAttributeFullTextDetails {
+export interface OutcomeItemAttribute {
+    outcomeItemAttributeId: number;
+    outcomeId: number;
+    attributeId: number;
+    additionalText: string;
+    attributeName: string;
+}
 
+
+export interface ItemAttributeFullTextDetails {
+    itemDocumentId: number;
+    isFromPDF: boolean;
+    itemArm: string;
+    docTitle: string;
+    text: string;
+    textTo: number;
+    textFrom: number;
 }

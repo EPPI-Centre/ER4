@@ -53,6 +53,11 @@ import { CodesetTreeMainComponent } from './components/CodesetTrees/codesetTreeM
 import { CodesetTreeEditComponent } from './components/CodesetTrees/codesetTreeEdit.component';
 import { BuildModelComponent } from './components/BuildModel/buildmodel.component';
 import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelector.component';
+import { ImportCodesetsWizardComponent } from './components/CodesetTrees/importCodesetsWizard.component';
+import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree4Copy.component';
+import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
+import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
+import { NewReviewComponent } from './components/Review/newreview.component';
 
 
 @NgModule({
@@ -67,7 +72,9 @@ import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelec
 		itemDetailsPaginatorComp,
         CodesetTreeMainComponent,
         CodesetTreeCodingComponent,
-		CodesetTreeEditComponent,
+        CodesetTreeEditComponent,
+        ImportCodesetsWizardComponent,
+        codesetTree4CopyComponent,
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
@@ -90,17 +97,20 @@ import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelec
         HeaderComponent,
         ROSourcesListComponent,
         MainFullReviewComponent,
-        MainComponent
+		MainComponent,
+        ConfirmationDialogComponent,
+		QuickCodingReportComponent,
+        NewReviewComponent
 	],
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
-	entryComponents: [InfoBoxModalContent, ModalDialogComponent],
+	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
     imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
-        CommonModule,
+		CommonModule,
         NgbModule,
         HttpModule,
 		FormsModule,
@@ -129,6 +139,7 @@ import { codesetSelectorComponent } from './components/CodesetTrees/codesetSelec
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+			{ path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent },
             { path: '**', redirectTo: 'home' }
         ])

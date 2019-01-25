@@ -38,12 +38,10 @@ export class StatusBarComponent implements OnInit {
         public sanitizer: DomSanitizer
     ) {    }
 
-    private killTrigger: Subject<void> = new Subject();
-    public timerObj: any | undefined;
     public count: number = 60;
     public modalMsg: string = '';
     public testlgtC: any;
-    public statusClass: string = 'bg-light';
+    //public statusClass: string = 'bg-light';
     public IsAdmin: boolean = false;
     public isMoreButtonVisible = false;
     private fullMsg: string = '';
@@ -51,8 +49,6 @@ export class StatusBarComponent implements OnInit {
     
 
     ngOnDestroy() {
-
-        if (this.timerObj) this.killTrigger.next();
     }
 
     ngOnInit() {
@@ -61,18 +57,68 @@ export class StatusBarComponent implements OnInit {
 
         //localStorage.getItem('currentErUser');
 
-        let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
-        let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
+        //let guid = this.ReviewerIdentityServ.reviewerIdentity.ticket;
+        //let uu = String(this.ReviewerIdentityServ.reviewerIdentity.userId);
         
-        if (guid != undefined && uu != '') {
+        //if (guid != undefined && uu != '') {
 
-            this.timerObj = timer(15000, 45000).pipe(
-                takeUntil(this.killTrigger));
+        //    this.timerObj = timer(15000, 45000).pipe(
+        //        takeUntil(this.killTrigger));
 
-            this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
+        //    this.timerObj.subscribe(() => this.LogonTicketCheckTimer(uu, guid));
 
+        //}
+
+    }
+    public get CurrentMessageIsWarning(): boolean {
+        if (this.ReviewerIdentityServ.currentStatus.length == 0) return false;
+        else if (this.ReviewerIdentityServ.currentStatus.substr(0, 1) == "!") {
+            return true;
         }
-
+        else return false;
+    }
+    public get CurrentStatus(): string {
+        if (this.ReviewerIdentityServ.currentStatus.length < 1) return "No message yet.";
+        else {
+            let msgSt: string = this.ReviewerIdentityServ.currentStatus;
+            let msg = msgSt;
+            if (msg.substr(0, 1) == "!") {
+                //this.statusClass = "bg-warning";
+                msgSt = msg.substr(1).trim();
+            }
+            let truncateIndex: number = msgSt.indexOf("<br />");
+            if (msgSt.length > 40 || truncateIndex != -1) {
+                let st: string[] = msgSt.replace("<br />", " ").replace("  ", " ").split(" ");
+                if (st.length > 8) {
+                    if (st[0].length + 1
+                        + st[1].length + 1
+                        + st[2].length + 1
+                        + st[3].length + 1
+                        + st[4].length + 1
+                        + st[5].length + 1
+                        + st[6].length + 1
+                        + st[7].length + 1 < truncateIndex) {
+                        //first new line happens after the first 8 words.
+                        truncateIndex = st[0].length + 1
+                            + st[1].length + 1
+                            + st[2].length + 1
+                            + st[3].length + 1
+                            + st[4].length + 1
+                            + st[5].length + 1
+                            + st[6].length + 1
+                            + st[7].length + 1;
+                    }
+                }
+                //this.fullMsg = msgSt;
+                //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
+                //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, truncateIndex);
+                this.isMoreButtonVisible = true;
+                return msgSt.substr(0, truncateIndex);
+            } else {
+                return msgSt;
+                //this.ReviewerIdentityServ.currentStatus = msgSt;
+            }
+        }
     }
 
     public UpdateStatus(msg: string) {
@@ -80,7 +126,7 @@ export class StatusBarComponent implements OnInit {
         let msgSt: string = msg;
         if (msg.substr(0, 1) == "!") {
 
-            this.statusClass = "bg-warning";
+            //this.statusClass = "bg-warning";
             msgSt = msg.substr(1).trim();
 
         }
@@ -109,12 +155,12 @@ export class StatusBarComponent implements OnInit {
             }
             this.fullMsg = msgSt;
             //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
-            this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, truncateIndex);
+            //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, truncateIndex);
             this.isMoreButtonVisible = true;
 
         } else {
 
-            this.ReviewerIdentityServ.currentStatus = msgSt;
+            //this.ReviewerIdentityServ.currentStatus = msgSt;
         }
     }
 
@@ -125,93 +171,8 @@ export class StatusBarComponent implements OnInit {
 
     }
 
-    public handleError(error: any) {
-        
-        let httpErrorCode = error;
-
-        switch (httpErrorCode) {
-            case 401:
-
-                this.modalMsg = 'Sorry, your session expired, please log-in again.';
-                break;
-            case 403:
-
-                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 403.';
-
-                break;
-            case 400:
- 
-                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 400.';
-
-                break;
-            case 404:
-      
-                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes. Error code is 404.';
-
-                break;
-            default:
-
-                this.modalMsg = 'Sorry, you lost your connection with the server, system will log you off to prevent losing your changes.';
-
-        }
-
-        this.openMsgAndSendHome(this.content);
-    }
-
-    LogonTicketCheckTimer(user: string, guid: string) {
-
-        this.ReviewerIdentityServ.LogonTicketCheckAPI(user, guid).then(
-
-            success => {
-                if (success.result == "Valid") {
-                    this.UpdateStatus(success.serverMessage);
-                }
-                else if (success.result == "no (local) user") {
-                    console.log('Silently killing the timer, user is out (or changed review)!')
-                    if (this.timerObj) this.killTrigger.next();
-                }
-
-                else {
-
-                    if (this.timerObj) this.killTrigger.next();
-                  
-                    let msg: string = "Sorry, you have been logged off automatically.\n" + "<br/>";
-                    switch (success.result) {
-                            case "Expired":
-                            msg += "Your session has been inactive for too long.\n" + "<br/>";
-                                break;
-                            case "Invalid":
-                            msg += "Someone has logged on with the same credentials you are using.\n" + "<br/>";
-                            msg += "This is not allowed in EPPI-Reviewer. If you believe that someone is using your credentials without permission, " + "<br/>";
-                            msg += "you should contact EPPI-Reviewer support.\n" + "<br/>";
-                                break;
-                            case "None":
-                            msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n" + "<br/>";
-                            msg += "Please contact EPPI-Reviewer support.\n" + "<br/>";
-                                break;
-                        case "Multiple":
-                            //we need to add Archie-specific cases in here.
-                                msg += "Your session has become invalid for unrecognised reasons (Return code = NONE).\n";
-                                msg += "Please contact EPPI-Reviewer support.\n";
-                            break;
-                    }
-                    msg += "You will be asked to logon again when you close this message."
-
-                    this.modalMsg = msg;
-                    this.openMsgAndSendHome(this.content);
-                }
-
-
-            },
-            error => {
-
-                if (this.timerObj) this.killTrigger.next();
-
-                this.handleError(error.status);
-
-          });
-    }
-
+    
+    
 
     //https://ng-bootstrap.github.io/#/components/modal/examples
     openMsg(content : any) {
@@ -220,27 +181,17 @@ export class StatusBarComponent implements OnInit {
         }
         );
     }
-    openMsgAndSendHome(content: any) {
-        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
+    //openMsgAndSendHome(content: any) {
+    //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-        },
-            (res) => {
-                this.router.navigate(['home']);
-            }
-        );
-    }
+    //    },
+    //        (res) => {
+    //            this.router.navigate(['home']);
+    //        }
+    //    );
+    //}
 }
 
-class LogonTicketCheck {
 
-    constructor(u: string, g: string) {
-        this.userId = u;
-        this.gUID = g;
-    }
-    public userId: string = "";
-    public gUID: string = "";
-    public result: string = "";
-    public serverMessage: string = "";
-}
 
 

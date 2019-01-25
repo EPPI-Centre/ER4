@@ -53,9 +53,16 @@ export class ItemDocsService {
                 
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
-                        blob => {
-                            let url = URL.createObjectURL(blob);
-                            if (url) window.open(url);
+						blob => {
+							if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+								window.navigator.msSaveOrOpenBlob(blob);
+							}
+							else {
+								URL.createObjectURL(blob);
+								let url = URL.createObjectURL(blob);
+								if (url) window.open(url);
+							}
+                            
                         });
                 }
             });

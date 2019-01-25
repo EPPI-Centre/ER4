@@ -140,7 +140,6 @@ export class PubMedComponent implements OnInit, OnDestroy {
             this.ItemListService.Refresh();
             this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
         }
-        this.SourcesService.ClearIncomingItems4Checking();
         this.back();
     }
     public showUploadedNotification(sourcename: string, status: string): void {
@@ -149,11 +148,11 @@ export class PubMedComponent implements OnInit, OnDestroy {
         let contentSt: string = "";
         if (status == "Success") {
             typeElement = "success";
-            contentSt = 'Upoload of "' + sourcename + '" completed successfully.';
+            contentSt = 'Upload of "' + sourcename + '" completed successfully.';
         }//type: { style: 'error', icon: true }
         else {
             typeElement = "error";
-            contentSt = 'Upoload of "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
+            contentSt = 'Upload of "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
         }
         this.notificationService.show({
             content: contentSt,
@@ -181,7 +180,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
         else return false;
     }
     public AuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
-        return this.SourcesService.AuthorsString(IncomingItemAuthors);
+        return SourcesService.LimitedAuthorsString(IncomingItemAuthors);
     }
     IsSourceNameValid(): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)
