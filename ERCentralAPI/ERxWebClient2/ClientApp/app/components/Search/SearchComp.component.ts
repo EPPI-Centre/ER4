@@ -202,6 +202,8 @@ export class SearchComp implements OnInit, OnDestroy {
 			return true;
 		} else if (this.selectedSearchDropDown == 'Without an abstract') {
 			return true;
+		} else if (this.selectedSearchDropDown == 'With at least one document uploaded') {
+			return true;
 		}
 		// Codes in set options next: ''
 		else if (this.selectedSearchDropDown == 'That have at least one code from this set' && this.selectedSearchCodeSetDropDown != '') {
