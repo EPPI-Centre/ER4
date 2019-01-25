@@ -1,7 +1,7 @@
 
 <div class="card bg-light mt-2 col-md-12 mb-2" [ngClass]="{disableThisAndChildren:!CanWrite()}">
     <div *ngIf="WizPhase==1">
-        <h4>Phase 1: Select File format (filter) and Upload file</h4>
+		<h5>Step 1: Choose file format and select file</h5>
         <h5>Filter:</h5>
         <select *ngIf="ImportFilters" class="col-md-6 form-control" (change)="FilterChanged($event.target.value)">
             <option *ngFor="let filter of ImportFilters" [value]="filter.ruleName" [selected]="filter.ruleName == currentFilterName">
@@ -17,13 +17,13 @@
         Phase 1: uploading... <br /><br /><br />
     </div>
     <div *ngIf="WizPhase==2" class="row">
-        <div class="col-12">
-            Phase 2, see if the file parses as expected:<br />
-            <button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button>
-            <button *ngIf="DataToCheck" type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
-                {{togglePreviewPanelButtonText}}
-            </button>
-        </div>
+		<div class="col-12">
+			<h5>Step 2: Preview and import:</h5><br />
+			<button type="button" class="btn btn-outline-info m-1" (click)="back()">back</button>
+			<button *ngIf="DataToCheck" type="button" class="btn btn-outline-primary m-1" (click)="togglePreviewPanel()">
+				{{togglePreviewPanelButtonText}}
+			</button>
+		</div>
         <div *ngIf="DataToCheck" class="col-12">
             <div class="row">
                 <div class="col-6">
@@ -62,52 +62,52 @@
         <div *ngIf="!DataToCheck" class="col-12">
             The source appears to contain no references. <strong>Are you sure you picked the right filter?</strong>
         </div>
-        <form *ngIf="Source4upload" class="col-12 row" (ngSubmit)="Upload()" #NewSourceForm="ngForm">
-            <div class="form-group col-6">
-                <label for="source_Name">Source Name</label>
-                <input type="text" class="form-control" id="Sourcename"
-                       [(ngModel)]="Source4upload.source_Name" name="source_Name"
-                       #name="ngModel">
-                <div [hidden]="IsSourceNameValid() != 1"
-                     class="alert alert-danger">
-                    Name is required
-                </div>
-                <div [hidden]="IsSourceNameValid() != 2"
-                     class="alert alert-danger">
-                    There is another source with this name, please change it.
-                </div>
-            </div>
-            <div class="form-group col-6">
-                <label for="source_Name">Date of search</label>
-                <kendo-datepicker [(value)]="value"
-                                  [format]="'dd-MMM-yyyy'"
-                                  class="form-control" id="DateOfSearch"
-                                  [(ngModel)]="DateOfSearch" name="DateOfSearch">
-                </kendo-datepicker>
-            </div>
-            <div class="form-group col-12">
-                <label for="searchString">Search String</label>
-                <textarea class="form-control" id="searchString"
-                          [(ngModel)]="Source4upload.searchString" name="searchString" rows="3"></textarea>
-            </div>
-            <div class="form-group col-12">
-                <label for="sourceDataBase">DataBase</label>
-                <input type="text" class="form-control" id="sourceDataBase"
-                       [(ngModel)]="Source4upload.sourceDataBase" name="sourceDataBase">
-            </div>
-            <div class="form-group col-12">
-                <label for="searchDescription">Description</label>
-                <input type="text" class="form-control" id="searchDescription"
-                       [(ngModel)]="Source4upload.searchDescription" name="searchDescription">
-            </div>
-            <div class="form-group col-12">
-                <label for="searchnotes">Notes</label>
-                <input type="text" class="form-control" id="searchnotes"
-                       [(ngModel)]="Source4upload.notes" name="searchnotes">
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-success mb-1" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Upload!</button>
-            </div>
-        </form>
+		<form *ngIf="Source4upload" class="col-12 row" (ngSubmit)="Upload()" #NewSourceForm="ngForm">
+			<div class="form-group col-6">
+				<label for="source_Name">Source Name</label>
+				<input type="text" class="form-control" id="Sourcename"
+					   [(ngModel)]="Source4upload.source_Name" name="source_Name"
+					   #name="ngModel">
+				<div [hidden]="IsSourceNameValid() != 1"
+					 class="alert alert-danger">
+					Name is required
+				</div>
+				<div [hidden]="IsSourceNameValid() != 2"
+					 class="alert alert-danger">
+					There is another source with this name, please change it.
+				</div>
+			</div>
+			<div class="form-group col-6">
+				<label for="source_Name">Date of search</label>
+				<kendo-datepicker [(value)]="value"
+								  [format]="'dd-MMM-yyyy'"
+								  class="form-control" id="DateOfSearch"
+								  [(ngModel)]="DateOfSearch" name="DateOfSearch">
+				</kendo-datepicker>
+			</div>
+			<div class="form-group col-12">
+				<label for="searchString">Search String (optional)</label>
+				<textarea class="form-control" id="searchString"
+						  [(ngModel)]="Source4upload.searchString" name="searchString" rows="3"></textarea>
+			</div>
+			<div class="form-group col-12">
+				<label for="sourceDataBase">DataBase (optional)</label>
+				<input type="text" class="form-control" id="sourceDataBase"
+					   [(ngModel)]="Source4upload.sourceDataBase" name="sourceDataBase">
+			</div>
+			<div class="form-group col-12">
+				<label for="searchDescription">Description (optional)</label>
+				<input type="text" class="form-control" id="searchDescription"
+					   [(ngModel)]="Source4upload.searchDescription" name="searchDescription">
+			</div>
+			<div class="form-group col-12">
+				<label for="searchnotes">Notes (optional)</label>
+				<input type="text" class="form-control" id="searchnotes"
+					   [(ngModel)]="Source4upload.notes" name="searchnotes">
+			</div>
+			<div class="col-12">
+				<button type="submit" class="btn btn-success mb-1" [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.totalReferences == 0">Import</button>
+			</div>
+		</form>
     </div>
 </div>
