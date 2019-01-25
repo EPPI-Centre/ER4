@@ -45,11 +45,11 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         else return false;
     }
     public sort: SortDescriptor[] = [{
-		field: 'reviewName',
+        field: 'lastAccess',
         dir: 'desc'
     }];
 	public sortChange(sort: SortDescriptor[]): void {
-		console.log(sort);
+		//console.log(sort);
         this.sort = sort;
     }
     FormatDate(DateSt: string): string {
