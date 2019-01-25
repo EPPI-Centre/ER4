@@ -119,7 +119,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         this.innerWidth = window.innerWidth;
     }
     IsSmallScreen(): boolean {
-        if (this.innerWidth && this.innerWidth <= 900) {
+        if (this.innerWidth && this.innerWidth < 768) {
             return true;
         }
         else return false;

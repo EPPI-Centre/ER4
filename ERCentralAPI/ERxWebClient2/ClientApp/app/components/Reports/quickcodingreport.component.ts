@@ -70,7 +70,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         for (let Set of this.ReviewSetsService.ReviewSets) if (Set.isSelected) return true;
         return false;
     }
-    private SaveAsHtml() {
+    public SaveAsHtml() {
         if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.AddHTMLFrame(this.ReportHTML));
         console.log("ToRis", dataURI)

@@ -14,7 +14,7 @@
             </button>
             <!--[ngbCollapse]="IsSmallScreen() && !ShowCodesInSmallScreen"-->
             <div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
-                             ,'col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
+                             ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
