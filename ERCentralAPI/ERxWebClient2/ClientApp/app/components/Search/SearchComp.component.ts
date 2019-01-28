@@ -318,7 +318,10 @@ export class SearchComp implements OnInit, OnDestroy {
 				(confirmed) =>
 				{
 					console.log('User confirmed:', confirmed);
-					if (confirmed) { this.RunModel() }
+					if (confirmed) {
+						this.RunModel();
+						this.ModelSection = false;
+					}
 					else {
 						//alert('pressed cancel close dialog');
 					};
@@ -807,6 +810,9 @@ export class SearchComp implements OnInit, OnDestroy {
             even: isEven,
             odd: !isEven
         };
+	}
+	BuildModel() {
+		this.router.navigate(['BuildModel']);
 	}
 
 	// Need to ask Sergio about this sort part

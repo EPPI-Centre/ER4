@@ -3,7 +3,8 @@
 		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
+		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
+		<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>

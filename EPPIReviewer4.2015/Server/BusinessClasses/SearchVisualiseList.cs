@@ -33,7 +33,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public SearchVisualiseList() { }
 #else
-        private SearchVisualiseList() { }
+        public SearchVisualiseList() { }
 #endif
 
 

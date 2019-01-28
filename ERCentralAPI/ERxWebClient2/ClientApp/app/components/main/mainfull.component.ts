@@ -169,9 +169,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //index: number
         //title: string
 	}
-	BuildModel() {
-		this.router.navigate(['BuildModel']);
-	}
+
     ListItemsWithThisCode(Included: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;

@@ -27,11 +27,11 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private SearchVisualise() { }
+        public SearchVisualise() { }
 #endif
 
        
-        private static PropertyInfo<int> CountProperty = RegisterProperty<int>(new PropertyInfo<int>("Count", "Count"));
+        public static readonly PropertyInfo<int> CountProperty = RegisterProperty<int>(new PropertyInfo<int>("Count", "Count"));
         public int Count
         {
             get
@@ -39,8 +39,8 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(CountProperty);
             }
         }
-       
-        private static PropertyInfo<string> RangeProperty = RegisterProperty<string>(new PropertyInfo<string>("Range", "Range"));
+
+		public static readonly PropertyInfo<string> RangeProperty = RegisterProperty<string>(new PropertyInfo<string>("Range", "Range"));
         public string Range
         {
             get
