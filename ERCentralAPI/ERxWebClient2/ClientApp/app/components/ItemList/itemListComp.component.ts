@@ -77,6 +77,7 @@ export class ItemListComp implements OnInit {
         this._LocalPageSize = val;
     }
     ApplyNewPageSize() {
+        this.ShowOptions = false;
         if (!this.ItemListService || !this.ItemListService.ItemList || !this.ItemListService.ItemList.pagesize) return;
         else if (this._LocalPageSize == this.ItemListService.ItemList.pagesize) return;
         else {

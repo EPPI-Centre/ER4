@@ -381,9 +381,9 @@ export class ReviewSetsEditingService extends BusyAwareService {
             );
     }
     public async ImportReviewTemplate(template: ReadOnlyTemplateReview) {
-        this._BusyMethods.push("ImportReviewTemplate");//gets removed in interimImportReviewTemplate, if all goes well...
         if (!template || !template.reviewSetIds || template.reviewSetIds.length < 1) return; //nothing to be done!
         else {
+            this._BusyMethods.push("ImportReviewTemplate");//gets removed in interimImportReviewTemplate, if all goes well...
             let ord: number = this.ReviewSetsService.ReviewSets.length;
             const rsid = template.reviewSetIds[0];
             await this.ReviewSetCopy(rsid, ord).then(
