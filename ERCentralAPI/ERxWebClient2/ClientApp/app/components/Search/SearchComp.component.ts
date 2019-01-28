@@ -14,7 +14,13 @@ import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import 'rxjs/add/observable/interval';
+import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/bufferCount';
+import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+import { ChartComponent } from '@progress/kendo-angular-charts';
+import { saveAs } from '@progress/kendo-file-saver';
 
 @Component({
 	selector: 'SearchComp',
@@ -50,7 +56,8 @@ export class SearchComp implements OnInit, OnDestroy {
         }
 		else {
 
-            this._reviewSetsService.selectedNode = null;
+			this._reviewSetsService.selectedNode = null;
+
 
         }
     }
@@ -65,7 +72,8 @@ export class SearchComp implements OnInit, OnDestroy {
     public selected?: ReadOnlySource;
 	public NewSearchSection: boolean = false;
     public LogicSection: boolean = false;
-    public ModelSection: boolean = false;
+	public ModelSection: boolean = false;
+	public ShowVisualiseSection: boolean = false;
     public modelResultsSection: boolean = false;
 	public radioButtonApplyModelSection: boolean = false;
 	public isCollapsed: boolean = false;
@@ -77,8 +85,12 @@ export class SearchComp implements OnInit, OnDestroy {
 	public email: string = '';
 	public searchText: string = '';
 	public searchTextModel: string = '';
-    public CurrentDropdownSelectedCode: singleNode | null = null;
+	public CurrentDropdownSelectedCode: singleNode | null = null;
+	public SearchVisualiseData!: Observable<any>[];
+
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+	@ViewChild('VisualiseChart')
+	private VisualiseChart!: ChartComponent;
 
 	public selectableSettings: SelectableSettings = {
 		checkboxOnly: true,
@@ -92,7 +104,17 @@ export class SearchComp implements OnInit, OnDestroy {
 			mode: 'single'
 		};
 	}
+	CancelVisualise() {
 
+		this.ShowVisualiseSection = false;
+	}
+	public exportChart(): void {
+
+		this.VisualiseChart.exportImage().then((dataURI) => {
+			saveAs(dataURI, 'chart.png');
+		});
+
+	}
 	public HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
 		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
 		else return false;
@@ -143,6 +165,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.ModelSection = false;
 		this.modelResultsSection = false;
 		this.radioButtonApplyModelSection = false;
+		this.ShowVisualiseSection = false;
 	}
     CloseCodeDropDown() {
         if (this.WithOrWithoutCodeSelector) {
@@ -159,7 +182,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.ModelSection = !this.ModelSection;
 		this.modelResultsSection = false;
 		this.radioButtonApplyModelSection = true;
-
+		this.ShowVisualiseSection = false;
 	}
 
 	CustomModels() {
@@ -824,8 +847,18 @@ export class SearchComp implements OnInit, OnDestroy {
     public sortChange(sort: SortDescriptor[]): void {
         this.sort = sort;
         console.log('sorting?' + this.sort[0].field + " ");
-    }
+	}
+	public visualiseTitle: string = '';
 	OpenClassifierVisualisation(search: Search) {
+
+		console.log(JSON.stringify(search.title));
+		this.visualiseTitle = search.title;
+		console.log(JSON.stringify(search));
+		this._searchService.FetchVisualiseData(search.searchId);
+		//alert('in here' + JSON.stringify(this.SearchVisualiseData));
+		// for now just show the graph area unhidden
+		this.ShowVisualiseSection = true;
+
 	}
 	ngOnDestroy() {
 
@@ -847,7 +880,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
 	}
-
 
 }
 

@@ -346,6 +346,39 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
+
+		[HttpPost("[action]")]
+		public IActionResult GetVisualiseData([FromBody] SearchID ID)
+		{
+
+			try
+			{
+				if (SetCSLAUser())
+				{
+					//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
+					DataPortal<SearchVisualiseList> dp = new DataPortal<SearchVisualiseList>();
+					SingleCriteria<SearchVisualiseList, int> criteria = new SingleCriteria<SearchVisualiseList, int>(ID.searchId);
+					SearchVisualiseList result = dp.Fetch(criteria);
+					return Ok(result);
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Visualisation of Search Data has failed");
+				throw;
+			}
+
+
+
+		}
+
+	}
+
+	public class SearchID
+	{
+		public int searchId = 0;
 	}
 
 	public class CodeCommand

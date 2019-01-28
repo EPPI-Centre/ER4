@@ -2,6 +2,7 @@ import {  Inject, Injectable} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Observable } from 'rxjs';
 
 @Injectable({
 
@@ -24,6 +25,20 @@ export class searchService extends BusyAwareService {
 	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
 
 	private _SearchList: Search[] = [];
+
+	private _SearchVisualiseData!: Observable<any>;
+
+	public get SearchVisualiseData(): Observable<any> {
+
+		return this._SearchVisualiseData;
+
+	}
+
+	public set SearchVisualiseData(searches: Observable<any>) {
+		this._SearchVisualiseData = searches;
+		//this.searchesChanged.emit();
+	}
+
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
 	public searchToBeDeleted: string = '';//WHY string?
@@ -38,6 +53,29 @@ export class searchService extends BusyAwareService {
 		this._SearchList = searches;
         //this.searchesChanged.emit();
 	}
+
+	FetchVisualiseData(searchId: number) : Observable<any> {
+		
+		this._BusyMethods.push("FetchVisualiseData");
+		let body = JSON.stringify({ searchId: searchId });
+		//alert('got in here..:' + body);
+		 this._httpC.post<Observable<any>>(this._baseUrl + 'api/SearchList/GetVisualiseData', body)
+			.subscribe(result => {
+
+				//console.log('alkjshdf askljdfh' + JSON.stringify(result));
+				this.SearchVisualiseData = result;
+				this.RemoveBusy("FetchVisualiseData");
+				return result;
+		
+			},
+				error => {
+					this.RemoveBusy("FetchVisualiseData");
+					this.modalService.GenericError(error);
+					this.Clear();
+				}
+		);
+		return this.SearchVisualiseData;
+	}
     
 
     Fetch() {
@@ -45,7 +83,7 @@ export class searchService extends BusyAwareService {
 		 this._httpC.get<Search[]>(this._baseUrl + 'api/SearchList/GetSearches')
              .subscribe(result => {
                  this.RemoveBusy("Fetch");
-				//console.log('alkjshdf askljdfh' + JSON.stringify(result));
+				
 				this.SearchList = result;
 				//this.searchesChanged.emit();
              },
