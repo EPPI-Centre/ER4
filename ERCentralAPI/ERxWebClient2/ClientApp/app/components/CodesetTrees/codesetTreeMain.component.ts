@@ -165,7 +165,9 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 	}
 	    
     public SelectedNodeData: singleNode | null = null;
-	public SelectedCodeDescription: string = "";
+    public get SelectedCodeDescription(): string {
+        return this.ReviewSetsService.SelectedCodeDescription;
+    }
 
 	NodeSelected(node: singleNode) {
 
@@ -196,7 +198,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 		//}
 
        this.ReviewSetsService.selectedNode = node;
-        this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+        //this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 	}
 
     ngOnDestroy() {
