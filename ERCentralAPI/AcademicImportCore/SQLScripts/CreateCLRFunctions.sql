@@ -25,3 +25,14 @@ AS
 EXTERNAL NAME [UserFunctions].[StoredFunctions].[HaBoLevenshtein]
 GO
 
+CREATE FUNCTION [dbo].[Jaro](@S1 [nvarchar](1000), @S2 [nvarchar](1000))
+RETURNS [float] WITH EXECUTE AS CALLER
+AS 
+EXTERNAL NAME [UserFunctions].[EditDistance].[Jaro]
+GO
+
+CREATE FUNCTION [dbo].[LevenshteinDistance](@S1 [nvarchar](1000), @S2 [nvarchar](1000))
+RETURNS [int] WITH EXECUTE AS CALLER
+AS 
+EXTERNAL NAME [UserFunctions].[EditDistance].[LevenshteinDistance]
+GO
