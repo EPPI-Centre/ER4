@@ -141,7 +141,7 @@ export class ItemListComp implements OnInit {
         let crit = new Criteria();
         crit.listType = ListSubType;
         crit.workAllocationId = workAlloc.workAllocationId;
-        let ListDescr: string = "Showing ";
+        let ListDescr: string = "";
         if (ListSubType == 'GetItemWorkAllocationListRemaining') {
             ListDescr = "work allocation remaining: " + workAlloc.attributeName;
         }

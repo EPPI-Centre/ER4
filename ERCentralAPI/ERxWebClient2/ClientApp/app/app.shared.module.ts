@@ -58,7 +58,7 @@ import { codesetTree4CopyComponent } from './components/CodesetTrees/codesetTree
 import { ConfirmationDialogComponent } from './components/ConfirmationDialog/confirmation-dialog.component';
 import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
 import { NewReviewComponent } from './components/Review/newreview.component';
-
+import 'hammerjs';
 
 @NgModule({
     declarations: [
