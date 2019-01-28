@@ -37,7 +37,7 @@ export class ROSourcesListComponent implements OnInit {
         cr.attributeSetIdList = "";
         cr.sourceId = ros.source_ID;
         cr.listType = "StandardItemList";
-        let ListDescription: string = "Showing: " +  ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) ? "Manually Created (Sourceless) Items." : ros.source_Name);
+        let ListDescription: string = ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) ? "Manually Created (Sourceless) Items." : ros.source_Name);
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
