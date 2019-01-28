@@ -48,7 +48,9 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	public SelectedNodeData: singleNode | null = null;
 	public SelectedNodesData: singleNode[] = [];
-	public SelectedCodeDescription: string = "";
+    public get SelectedCodeDescription(): string {
+        return this.ReviewSetsService.SelectedCodeDescription;
+    }
 	@ViewChild('tree') treeComponent!: TreeComponent;
 	@Output() selectedNodeInTree: EventEmitter<null> = new EventEmitter();
 	//@Input() attributesOnly: boolean = false;
@@ -190,7 +192,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 				console.log(JSON.stringify(node));
 				this.SelectedNodeData = node;
 	
-				this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+				//this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 				// and raise event to close the drop down
 				this.selectedNodeInTree.emit();
 				this._eventEmitterService.nodeSelected = node;

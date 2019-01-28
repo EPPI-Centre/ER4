@@ -38,6 +38,10 @@ export class ReviewSetsService extends BusyAwareService {
     //}
     private CurrentArmID: number = 0;
     public selectedNode: singleNode | null = null;
+    public get SelectedCodeDescription(): string {
+        if (this.selectedNode) return this.selectedNode.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+        else return "";
+    }
 	public CanWriteCoding(attribute: singleNode): boolean {
         //console.log('CanWriteCoding?');
         if (!this.ReviewerIdentityService || !this.ReviewerIdentityService.reviewerIdentity || (this.ReviewerIdentityService.reviewerIdentity.reviewId == 0)) {
