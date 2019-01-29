@@ -40,7 +40,9 @@
 				<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )"
 					 ngbDropdown class="col-md-5 mb-1" style="min-width: 500px;">
-					<button ngbDropdownToggle class="btn btn-info  dropdown-toggle col-md-7" id="dropdownTree" (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
+					<button ngbDropdownAnchor class="btn btn-info  dropdown-toggle col-md-7" id="dropdownTree" 
+                            (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false" 
+                            [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{CurrentDropdownSelectedCode?.name}}</button>
 					<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
 										 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
