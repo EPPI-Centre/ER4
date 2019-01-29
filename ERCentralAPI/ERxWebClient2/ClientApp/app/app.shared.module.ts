@@ -59,6 +59,7 @@ import { ConfirmationDialogComponent } from './components/ConfirmationDialog/con
 import { QuickCodingReportComponent } from './components/Reports/quickcodingreport.component';
 import { NewReviewComponent } from './components/Review/newreview.component';
 import 'hammerjs';
+import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 
 @NgModule({
     declarations: [
@@ -100,7 +101,8 @@ import 'hammerjs';
 		MainComponent,
         ConfirmationDialogComponent,
 		QuickCodingReportComponent,
-        NewReviewComponent
+        NewReviewComponent,
+        RunLingo3G
 	],
     providers: [
         EventEmitterService,

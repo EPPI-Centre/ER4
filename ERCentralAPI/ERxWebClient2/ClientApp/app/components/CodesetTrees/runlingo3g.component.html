@@ -1,0 +1,109 @@
+<div class="card card-body bg-white border border-dark rounded p-0">
+    <table class="col-12 m-2">
+        <tr>
+            <td style="" class="justify-content-end">
+                <div class="d-flex justify-content-end">Maximum hierarchy depth</div>
+            </td>
+            <td style="">
+                <kendo-numerictextbox [(ngModel)]="Command.maxHierarchyDepth"
+                                      [min]="1" [format]="'n0'"
+                                      [max]="4"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 110px;"></kendo-numerictextbox>
+            </td>
+            <td style="">
+                <div class="d-flex justify-content-end">Minimum cluster size</div>
+            </td>
+            <td style="">
+                <kendo-numerictextbox [(ngModel)]="Command.minClusterSize"
+                                      [min]="0" [format]="'n2'"
+                                      [max]="1"
+                                      [step]="0.01"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 110px;"></kendo-numerictextbox>
+            </td>
+        </tr>
+        <tr>
+            <td style="">
+                <div class="d-flex justify-content-end">Maximum cluster size</div>
+            </td>
+            <td style="">
+                <kendo-numerictextbox [(ngModel)]="Command.maxClusterSize"
+                                      [min]="0" [format]="'n2'"
+                                      [max]="1"
+                                      [step]="0.01"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 110px;"></kendo-numerictextbox>
+            </td>
+            <td style="">
+                <div class="d-flex justify-content-end">Single word label weight</div>
+            </td>
+            <td style="">
+                <kendo-numerictextbox [(ngModel)]="Command.singleWordLabelWeight"
+                                      [min]="0" [format]="'n2'"
+                                      [max]="1"
+                                      [step]="0.01"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 110px;"></kendo-numerictextbox>
+            </td>
+        </tr>
+        <tr>
+            <td style="">
+                <div class="d-flex justify-content-end">Minimum label length</div>
+            </td>
+            <td style="">
+                <kendo-numerictextbox [(ngModel)]="Command.minLabelLength"
+                                      [min]="0" [format]="'n2'"
+                                      [max]="1"
+                                      [step]="0.01"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 110px;"></kendo-numerictextbox>
+            </td>
+            <td style="width:50%" colspan="2">
+                <div class="d-flex  justify-content-end mr-3">
+                    <div class=" justify-content-end">Cluster what&nbsp;</div>
+                    <select (change)="ClusterWhatChanged($event.target.value)">
+                        <option value="All Selected Items" [selected]="true">
+                            All Selected Items
+                        </option>
+                        <option value="All Included Items">
+                            All Included Items
+                        </option>
+                        <option value="Items with this Code">
+                            Items with this Code
+                        </option>
+                    </select>
+                </div>
+            </td>
+            
+        </tr>
+        <tr>
+            <td style="width:50%" colspan="2">
+            </td>
+            <td style="" colspan="2">
+                <codesetSelector #CodeSelector *ngIf="ShowCodes" class="m-2" 
+                                 [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="200"
+                                 (selectedNodeInTree)="CloseCodeDropDown()"></codesetSelector>
+            </td>
+        </tr>
+        <tr>
+            <td style="" colspan="4">
+                <div class="d-flex justify-content-center">
+                    <button type="submit" (click)="ExecuteCommand()" class="btn btn-success ml-2 mr-2"
+                            [disabled]="!CanExecuteCommand">
+                        Cluster References
+                    </button>
+                    <button class="btn btn-outline-secondary ml-1"
+                            (click)="CancelActivity()" style="width:200px;">
+                        Cancel
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
