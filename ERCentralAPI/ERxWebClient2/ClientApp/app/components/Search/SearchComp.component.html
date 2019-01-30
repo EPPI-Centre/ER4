@@ -269,6 +269,7 @@
 				<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelectorVisualise
 								 (selectedNodeInTree)="CloseCodeVisualiseDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 			</div>
+			<button class="btn btn-warning" (click)="alert('do something')">Create</button>
 		</div>
 	</div>
 	<div class="card">

@@ -523,7 +523,14 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			this._searchService.cmdSearches._logicType = logicChoice;
 			this._searchService.cmdSearches._searches = lstStrSearchIds;
-			this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+			if (this._searchService.cmdSearches._logicType != '') {
+
+				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
+				//reset
+				this._searchService.cmdSearches._logicType = '';
+				this.checkBoxSelected = false;
+
+			}
 
 		}
 	}
