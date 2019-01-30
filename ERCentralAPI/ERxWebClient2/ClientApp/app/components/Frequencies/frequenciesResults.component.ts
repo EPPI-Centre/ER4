@@ -38,8 +38,7 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
                 });
         }
     }
-
-
+	
     ngAfterViewInit() {
         // child is set
 	}
@@ -56,16 +55,12 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
     get ShowNoneOfTheAbove(): boolean | undefined {
         return this._ShowNoneOfTheAbove;
     }
-
-	
+		
     public get FrequenciesData(): Frequency[] {
         if (this._ShowNoneOfTheAbove) return this.frequenciesService.Frequencies;
         else return this.frequenciesService.Frequencies.slice(0, this.frequenciesService.Frequencies.length - 1);
     }
 	
-   
-    
-
     RedrawGraph() {
         console.log("I'm doing RedrawGraph...");
         if (this.ChartType == 'table') return;

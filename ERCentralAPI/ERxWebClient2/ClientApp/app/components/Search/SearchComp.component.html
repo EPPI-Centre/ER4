@@ -3,7 +3,8 @@
 		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data" ></kendo-toolbar-splitbutton>
+		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
+		<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
@@ -78,7 +79,7 @@
 				<div class="col-md-2  mb-1" style="min-width: 500px;">
 					<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
 						 class="col-md-10 p-0 m-0">
-						<input pattern="[/.*\S.*/]*" [(ngModel)]="searchText" 
+						<input pattern="^(?!\s*$).+" [(ngModel)]="searchText" 
 							   #searchTextModel ="ngModel"
 							   id="searchTextModel" name="searchTextModel" 
 							   required minlength="3" 
@@ -253,6 +254,28 @@
 		</button>
 	</div>
 </div>
+
+<div  id="visualiseSection" [ngbCollapse]="!ShowVisualiseSection" class="card bg-light p-1 m-1">
+	<kendo-chart #VisualiseChart style="min-width: 500px;"
+				 *ngIf="_searchService.SearchVisualiseData  && this._searchService.SearchVisualiseData.length > 0 && !this._searchService.IsBusy">
+		<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
+		<kendo-chart-series>
+			<kendo-chart-series-item field="count" categoryField="range"
+									 type="column" [data]="_searchService.SearchVisualiseData">
+			</kendo-chart-series-item>
+		</kendo-chart-series>
+	</kendo-chart>
+	<div class="col-md-12 row">
+		<div class="col-md-6">
+			<button style="min-width: 150px;" class="btn btn-info p-2 m-2 w-25 pull-right" (click)="exportChart()">Save</button>
+		</div>
+		<div class="col-md-6">
+			<button style="min-width: 150px;" class="btn btn-warning  w-25  p-2 m-2" (click)="CancelVisualise()">Cancel</button>
+		</div>
+	</div>
+	<br />
+</div>
+
 <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 				[data]="DataSourceSearches" [height]="410"
 				[rowClass]="rowCallback"
@@ -306,7 +329,6 @@
 			</ng-template>
 		</kendo-grid-column>
 	</kendo-grid>
-
 
 <div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 
