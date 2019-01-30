@@ -78,9 +78,9 @@ export class itemDetailsComp implements OnInit {
     }
     private cleanSpecialRegexChars(input: string): string {
         //need to replace these: [\^$.|?*+(){}
-        let result = input.replace(/\[/g, "\\[");
+        let result = input.replace(/\\/g, "\\\\");
+        result = result.replace(/\[/g, "\\[");
         result = result.replace(/\^/g, "\\^");
-        result = result.replace(/\\/g, "\\");
         result = result.replace(/\$/g, "\\$");
         result = result.replace(/\./g, "\\.");
         result = result.replace(/\|/g, "\\|");
@@ -91,7 +91,7 @@ export class itemDetailsComp implements OnInit {
         result = result.replace(/\)/g, "\\)");
         result = result.replace(/\{/g, "\\{");
         result = result.replace(/\}/g, "\\}");
-        console.log(input, result);
+        //console.log(input, result);
         return result;
     }
     toHTML(text: string): string {
