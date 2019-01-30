@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { timer, Subject, Subscription, Observable } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
-import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
 import { WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
 import { ReviewSetsEditingService, PerformClusterCommand } from '../services/ReviewSetsEditing.service';
@@ -25,7 +25,8 @@ export class RunLingo3G implements OnInit {
                 @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private ReviewSetsService: ReviewSetsService
     ) {    }
 
     ngOnInit() {
@@ -38,9 +39,11 @@ export class RunLingo3G implements OnInit {
         if (this.ClusterWhat == "Items with this Code") return true;
         else return false;
     }
-
+    public get SelectedCode(): singleNode | null {
+        if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "SetAttribute") return this.ReviewSetsService.selectedNode;
+        else return null;
+    }
     @Output() PleaseCloseMe = new EventEmitter();
-    @ViewChild('CodeSelector') CodeSelector!: codesetSelectorComponent;
     ExecuteCommand() {
         this.Command.attributeSetList = "";
         if (this.ClusterWhat == "All Included Items") {
@@ -56,11 +59,13 @@ export class RunLingo3G implements OnInit {
             if (this.Command.itemList == "") return;
         }
         else if (this.ClusterWhat == "Items with this Code") {
-
             this.Command.itemList = "";
-            let aSet = this.CodeSelector.SelectedNodeData as SetAttribute;
-            if (aSet && aSet.attributeSetId && aSet.attributeSetId > 0) {
-                this.Command.attributeSetList = aSet.attributeSetId.toString();
+            if (this.SelectedCode) {
+                let aSet = this.SelectedCode as SetAttribute;
+                if (aSet && aSet.attributeSetId && aSet.attributeSetId > 0) {
+                    this.Command.attributeSetList = aSet.attributeSetId.toString();
+                }
+                else return;
             }
             else return;
         }
@@ -83,7 +88,7 @@ export class RunLingo3G implements OnInit {
             return true;
         }
         else if (this.ClusterWhat == "Items with this Code") {
-            if (this.CodeSelector && this.CodeSelector.SelectedNodeData) return true;
+            if (this.SelectedCode) return true;
             else return false;
         }
         else return false;
