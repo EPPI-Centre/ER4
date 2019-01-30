@@ -57,6 +57,10 @@ export class HomeComponent implements OnInit {
             }
         );
     }
+    FormatDate(DateSt: string): string {
+        let date: Date = new Date(DateSt);
+        return date.toLocaleDateString();
+    }
 }
 class versionInfo {
     date: string = "";

@@ -7,22 +7,22 @@
 
 
     <div class="row m-1 p-0">
-        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected X-Axis Code: &nbsp;</span></div>
-        <div class="col-4 border"><b [className]="selectedNodeDataX != null ? 'somekindofBackground' : ''">{{selectedNodeDataX?.name}}&nbsp;</b></div>
+        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected X-Axis Code:&nbsp;</div>
+        <div class="col-5 border">{{selectedNodeDataX?.name}}</div>
         <div class="col-4">
             <button (click)="setXaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
         </div>
     </div>
     <div class="row m-1 p-0">
-        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Y-Axis Code: &nbsp;</span></div>
-        <div class="col-4 border"><b [className]="selectedNodeDataY != null ? 'somekindofBackground' : ''">{{selectedNodeDataY?.name}}&nbsp;</b></div>
+        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Y-Axis Code:&nbsp;</div>
+        <div class="col-5 border">{{selectedNodeDataY?.name}}</div>
         <div class="col-4">
             <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
         </div>
     </div>
     <div class="row m-1 p-0">
-        <div style="width:200px;"><span class="font-weight-bold mt-1">Selected Filter: &nbsp;</span></div>
-        <div class="col-4 border"><b>{{selectedFilterAttribute?.name}}&nbsp;</b></div>
+        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Filter:&nbsp;</div>
+        <div class="col-5 border">{{selectedFilterAttribute?.name}}</div>
         <div class="col-4">
             <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
             <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
@@ -94,7 +94,7 @@
     <div *ngIf="!crosstabService.CrossTab || !crosstabService.CrossTab.yRows || crosstabService.CrossTab.yRows.length == 0" 
          class="justify-content-center row m-0">
         <div class="p-2 font-weight-bold" style="color:#17a2b8;">
-        No Crosstab data (yet) or Current crosstab is empty.
+        No data to show.
         </div>
     </div>
         

@@ -98,21 +98,22 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
-    MyInfoMessage(): string {
-        let msg: string  = "Your account expires on: ";
-        let revPart: string = "";
+    public get MyAccountMessage(): string {
+        let msg: string = "Your account expires on: ";
         let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        msg += AccExp;
+        return msg;
+    }
+    public get MyReviewMessage(): string {
+        let revPart: string = "";
         if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
-            revPart = " | Current review is private (does not expire).";
+            revPart = "Current review is private (does not expire).";
         }
         else {
             let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = " | Current(shared) review expires on " + RevExp + ".";
+            revPart = "Current(shared) review expires on " + RevExp + ".";
         }
-        msg += AccExp + revPart;
-        return msg;
-        //Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-        //        | Current(shared) review expires on { { ReviewerIdentityServ.reviewerIdentity.reviewExpiration | date: 'shortDate' } }
+        return revPart;
     }
     ngOnDestroy() {
         if (this.subOpeningReview) {

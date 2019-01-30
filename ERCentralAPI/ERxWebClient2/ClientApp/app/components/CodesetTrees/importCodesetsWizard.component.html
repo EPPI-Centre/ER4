@@ -1,7 +1,7 @@
 <div class="bg-light p-1">
     <HeaderComponent *ngIf="IsStandalone" PageTitle="Import Codesets"></HeaderComponent>
     <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%;"></div>
-    <button *ngIf="IsStandalone" class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+    <button *ngIf="IsStandalone" class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
         Close/back
     </button>
     <div class="m-1 p-0">

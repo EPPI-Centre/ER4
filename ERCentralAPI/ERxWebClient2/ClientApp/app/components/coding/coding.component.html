@@ -12,7 +12,7 @@
                 Codes
                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
             </button>
-            <!--[ngbCollapse]="IsSmallScreen() && !ShowCodesInSmallScreen"-->
+
             <div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
                              ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
@@ -47,7 +47,7 @@
                     <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
                                           class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
                     <div class="pr-0 pl-0 col-12 col-sm pr-0">
-                        <button class="page-link pt-0 pb-1 mb-1 float-right" (click)="BackToMain()">
+                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
                             Close/back
                         </button>
                         <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">

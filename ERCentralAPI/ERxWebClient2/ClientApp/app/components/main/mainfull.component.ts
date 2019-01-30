@@ -97,7 +97,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
     }];
     public AddRemoveItemsDDData: Array<any> = [{
-        text: 'Remove Selection to Code',
+        text: 'Remove code from selection',
         click: () => {
             this.BulkAssignRemoveCodes(false);
         }
@@ -180,7 +180,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //index: number
         //title: string
 	}
-
+	BuildModel() {
+		this.router.navigate(['BuildModel']);
+	}
     ListItemsWithThisCode(Included: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
@@ -380,20 +382,22 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //);
     }
   
-    MyInfoMessage(): string {
-        let msg: string  = "Your account expires on: ";
-        let revPart: string = "";
+    public get MyAccountMessage(): string {
+        let msg: string = "Your account expires on: ";
         let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        msg += AccExp;
+        return msg;
+    }
+    public get MyReviewMessage(): string {
+        let revPart: string = "";
         if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
-            revPart = " | Current review is private (does not expire).";
+            revPart = "Current review is private (does not expire).";
         }
         else {
             let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = " | Current(shared) review expires on " + RevExp + ".";
+            revPart = "Current(shared) review expires on " + RevExp + ".";
         }
-        msg += AccExp + revPart;
-        return msg;
-       
+        return revPart;
     }
     EditCodeSets() {
         this.router.navigate(['EditCodeSets']);

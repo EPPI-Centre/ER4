@@ -14,6 +14,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
    
@@ -38,7 +39,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         public PriorityScreeningService: PriorityScreeningService
         , private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
-        private armservice: ArmsService
+        private armservice: ArmsService,
+        private notificationService: NotificationService
     ) { }
    
     @ViewChild('ArmsCmp')
@@ -387,6 +389,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
             if (cmd.saveType == "Insert" && this.CheckBoxAutoAdvanceVal) {
                 //auto advance is on, we want to go to the next item
+                if (attribute) {
+                    this.notificationService.show({
+                        content: "Code just added: " + attribute.name,
+                        position: { horizontal: 'left', vertical: 'bottom' },
+                        animation: { type: 'fade', duration: 500 },
+                        type: { style: 'none', icon: false },
+                        hideAfter: 3000
+                    });
+                }
                 if (!this.IsScreening && this.hasNext()) this.nextItem();
                 else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
             }
