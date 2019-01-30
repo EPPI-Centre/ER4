@@ -46,6 +46,8 @@ export class RunLingo3G implements OnInit {
     @Output() PleaseCloseMe = new EventEmitter();
     ExecuteCommand() {
         this.Command.attributeSetList = "";
+        this.Command.maxHierarchyDepth = Math.round(this.Command.maxHierarchyDepth);
+        this.Command.minLabelLength = Math.round(this.Command.minLabelLength);
         if (this.ClusterWhat == "All Included Items") {
             this.Command.itemList = "";
         }

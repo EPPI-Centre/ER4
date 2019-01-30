@@ -2,7 +2,7 @@
     <table class="col-12 m-2">
         <tr>
             <td style="" class="justify-content-end">
-                <div class="d-flex justify-content-end">Maximum hierarchy depth</div>
+                <div class="d-flex justify-content-end mr-1">Maximum hierarchy depth</div>
             </td>
             <td style="">
                 <kendo-numerictextbox [(ngModel)]="Command.maxHierarchyDepth"
@@ -13,7 +13,7 @@
                                       style="width: 110px;"></kendo-numerictextbox>
             </td>
             <td style="">
-                <div class="d-flex justify-content-end">Minimum cluster size</div>
+                <div class="d-flex justify-content-end mr-1">Minimum cluster size</div>
             </td>
             <td style="">
                 <kendo-numerictextbox [(ngModel)]="Command.minClusterSize"
@@ -27,7 +27,7 @@
         </tr>
         <tr>
             <td style="">
-                <div class="d-flex justify-content-end">Maximum cluster size</div>
+                <div class="d-flex justify-content-end mr-1">Maximum cluster size</div>
             </td>
             <td style="">
                 <kendo-numerictextbox [(ngModel)]="Command.maxClusterSize"
@@ -39,7 +39,7 @@
                                       style="width: 110px;"></kendo-numerictextbox>
             </td>
             <td style="">
-                <div class="d-flex justify-content-end">Single word label weight</div>
+                <div class="d-flex justify-content-end mr-1">Single word label weight</div>
             </td>
             <td style="">
                 <kendo-numerictextbox [(ngModel)]="Command.singleWordLabelWeight"
@@ -53,11 +53,11 @@
         </tr>
         <tr>
             <td style="">
-                <div class="d-flex justify-content-end">Minimum label length</div>
+                <div class="d-flex justify-content-end mr-1">Minimum label length</div>
             </td>
             <td style="">
                 <kendo-numerictextbox [(ngModel)]="Command.minLabelLength"
-                                      [min]="1" [format]="'n2'"
+                                      [min]="1" [format]="'n0'"
                                       [max]="8"
                                       [step]="1"
                                       [autoCorrect]="true"
