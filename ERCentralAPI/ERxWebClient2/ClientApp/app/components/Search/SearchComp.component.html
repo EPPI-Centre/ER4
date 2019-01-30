@@ -255,17 +255,35 @@
 	</div>
 </div>
 
-<div  id="visualiseSection" [ngbCollapse]="!ShowVisualiseSection" class="card bg-light p-1 m-1">
-	<kendo-chart #VisualiseChart style="min-width: 500px;"
-				 *ngIf="_searchService.SearchVisualiseData  && this._searchService.SearchVisualiseData.length > 0 && !this._searchService.IsBusy">
-		<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
-		<kendo-chart-series>
-			<kendo-chart-series-item field="count" categoryField="range"
-									 type="column" [data]="_searchService.SearchVisualiseData">
-			</kendo-chart-series-item>
-		</kendo-chart-series>
-	</kendo-chart>
-	<div class="col-md-12 row">
+<div id="visualiseSection" [ngbCollapse]="!ShowVisualiseSection" class="bg-light p-1 m-1">
+	<div ngbDropdown class="card row col-md-12 p-1 m-1">
+		<div class="col-md-12">
+			<p class="col-md-3 pull-left"> Create codes below this code / set: </p>
+			<button ngbDropdownToggle class="btn btn-info col-md-3 " id="dropdownTreeVisualise"
+					(click)="isCollapsedVisualise = !isCollapsedVisualise; dropdownBasic1 = false"
+					[attr.aria-expanded]="!isCollapsedVisualise" aria-controls="collapseCodeTreeVisualise">
+				{{CurrentDropdownVisualiseSelectedCode?.name}}
+			</button>
+
+			<div class="dropdown-menu col-md-6 pull-right" id="collapseCodeTreeVisualise" [ngbCollapse]="!isCollapsedVisualise">
+				<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelectorVisualise
+								 (selectedNodeInTree)="CloseCodeVisualiseDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+			</div>
+			<button class="btn btn-warning" (click)="alert('do something')">Create</button>
+		</div>
+	</div>
+	<div class="card">
+		<kendo-chart #VisualiseChart style="min-width: 500px;"
+					 *ngIf="_searchService.SearchVisualiseData  && this._searchService.SearchVisualiseData.length > 0 && !this._searchService.IsBusy">
+			<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
+			<kendo-chart-series>
+				<kendo-chart-series-item field="count" categoryField="range"
+										 type="column" [data]="_searchService.SearchVisualiseData">
+				</kendo-chart-series-item>
+			</kendo-chart-series>
+		</kendo-chart>
+	</div>
+		<div class="col-md-12 row">
 		<div class="col-md-6">
 			<button style="min-width: 150px;" class="btn btn-info p-2 m-2 w-25 pull-right" (click)="exportChart()">Save</button>
 		</div>
