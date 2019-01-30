@@ -265,11 +265,11 @@
 				{{CurrentDropdownVisualiseSelectedCode?.name}}
 			</button>
 
-			<div class="dropdown-menu col-md-6 pull-right" id="collapseCodeTreeVisualise" [ngbCollapse]="!isCollapsedVisualise">
+			<div class="dropdown-menu col-md-6 pull-right p-1 m-1" id="collapseCodeTreeVisualise" [ngbCollapse]="!isCollapsedVisualise">
 				<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelectorVisualise
 								 (selectedNodeInTree)="CloseCodeVisualiseDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 			</div>
-			<button class="btn btn-warning" (click)="alert('do something')">Create</button>
+			<button style="min-width: 150px;" class="btn btn-warning p-1 m-1" (click)="CreateCodesBelow()">Create</button>
 		</div>
 	</div>
 	<div class="card">
@@ -284,10 +284,10 @@
 		</kendo-chart>
 	</div>
 		<div class="col-md-12 row">
-		<div class="col-md-6">
+		<div class="col-md-5">
 			<button style="min-width: 150px;" class="btn btn-info p-2 m-2 w-25 pull-right" (click)="exportChart()">Save</button>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-5">
 			<button style="min-width: 150px;" class="btn btn-warning  w-25  p-2 m-2" (click)="CancelVisualise()">Cancel</button>
 		</div>
 	</div>

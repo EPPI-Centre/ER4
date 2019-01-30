@@ -348,7 +348,7 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult GetVisualiseData([FromBody] SearchID ID)
+		public IActionResult CreateVisualiseData([FromBody] SearchID ID)
 		{
 
 			try
@@ -369,11 +369,59 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "Visualisation of Search Data has failed");
 				throw;
 			}
+		}
 
 
+		//		/CreatCodeVisualise
+		[HttpPost("[action]")]
+		public IActionResult CreateVisualiseCodeSet([FromBody] ClassifierCreateCodes data)
+		{
+			long tmp = 0;
+			if (data.attributeId.Substring(0,1) == "A")
+			{
+				tmp = Convert.ToInt64(data.attributeId.Substring(1, data.attributeId.Length - 1));
+
+			}
+			else
+			{
+				tmp = Convert.ToInt64(data.attributeId);
+			}
+
+
+			try
+			{
+				if (SetCSLAUser())
+				{
+					//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
+					DataPortal<ClassifierCreateCodesCommand> dp = new DataPortal<ClassifierCreateCodesCommand>();
+					ClassifierCreateCodesCommand command = new ClassifierCreateCodesCommand
+																(data.searchId,
+																data.searchName,
+																tmp == null ? 0 : tmp,
+																data.setId == null ? data.setId : data.setId);
+
+					dp.Execute(command);
+					return Ok();
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Visualisation of Search Data has failed");
+				throw;
+			}
 
 		}
 
+	}
+
+	public class ClassifierCreateCodes
+	{
+		public string searchName { get; set; }
+		public int searchId { get; set; }
+		public string attributeId { get; set; }
+		public int setId { get; set; }
 	}
 
 	public class SearchID

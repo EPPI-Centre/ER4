@@ -36,7 +36,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService,
-		private reviewInfoService: ReviewInfoService,
 		public _searchService: searchService,
 		private _eventEmitter: EventEmitterService,
 		public _reviewSetsService: ReviewSetsService,
@@ -58,7 +57,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			this._reviewSetsService.selectedNode = null;
 
-
         }
     }
 
@@ -77,6 +75,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelResultsSection: boolean = false;
 	public radioButtonApplyModelSection: boolean = false;
 	public isCollapsed: boolean = false;
+	public isCollapsedVisualise: boolean = false;
 	public firstName: string = '';
 	public modeModels: SelectableMode = 'single';
     public withCode: boolean = false;
@@ -86,9 +85,11 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchText: string = '';
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
+	public CurrentDropdownVisualiseSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
 
-    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+	@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
 	@ViewChild('VisualiseChart')
 	private VisualiseChart!: ChartComponent;
 
@@ -174,6 +175,23 @@ export class SearchComp implements OnInit, OnDestroy {
         }
 		this.isCollapsed = false;
 	}
+	CloseCodeVisualiseDropDown() {
+
+		if (this.WithOrWithoutCodeSelectorVisualise) {
+			console.log("yes, doing it", this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData);
+			this.CurrentDropdownVisualiseSelectedCode = this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData;
+			// Need an api call here to a classifiercommand object
+			// workout which params are needed and done:
+			// ON the click of the link...
+			
+			// 1 - SearchId														==> 
+			// 2 - SearchName													==> 
+			// 3 - Destination == null ? 0 : Destination.AttributeId			==> (if att is attribute_id)
+			// 4 - Destination == null ? DestRevSet.SetId : Destination.SetId	==> (if att is set_id)
+		}
+		this.isCollapsedVisualise = false;
+
+	}
 	Classify() {
 
 		this._buildModelService.Fetch();
@@ -183,6 +201,33 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.modelResultsSection = false;
 		this.radioButtonApplyModelSection = true;
 		this.ShowVisualiseSection = false;
+	}
+	CreateCodesBelow() {
+
+
+		if (this.CurrentDropdownVisualiseSelectedCode != null) {
+
+			alert(this.visualiseTitle + ' ' + this.visualiseSearchId + ' ' +
+				this.CurrentDropdownVisualiseSelectedCode.id + ' ' +
+				this.CurrentDropdownVisualiseSelectedCode.attributeSetId);
+
+			this._searchService.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
+				this.CurrentDropdownVisualiseSelectedCode).then(
+				() => {
+					alert('got in here');
+					this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.update();
+					this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.dispose();
+					
+					//this.CurrentDropdownVisualiseSelectedCode = null;
+					////this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.
+					////this.
+					//this._searchService.Fetch();
+				});
+		}
+		this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.dispose();
+		//this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.
+		//this.
+		this._searchService.Fetch();
 	}
 
 	CustomModels() {
@@ -417,7 +462,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		if (this.CanWrite()) {
 
-			alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
+			//alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 			//Very sorry notification show
 			this.notificationService.show({
@@ -856,17 +901,21 @@ export class SearchComp implements OnInit, OnDestroy {
         console.log('sorting?' + this.sort[0].field + " ");
 	}
 	public visualiseTitle: string = '';
+	public visualiseSearchId = 0;
+
 	OpenClassifierVisualisation(search: Search) {
 
 		console.log(JSON.stringify(search.title));
 		this.visualiseTitle = search.title;
+		this.visualiseSearchId = search.searchId;
 		console.log(JSON.stringify(search));
-		this._searchService.FetchVisualiseData(search.searchId);
+		this._searchService.CreateVisualiseData(search.searchId);
 		//alert('in here' + JSON.stringify(this.SearchVisualiseData));
 		// for now just show the graph area unhidden
 		this.ShowVisualiseSection = true;
 
 	}
+
 	ngOnDestroy() {
 
 		this._reviewSetsService.selectedNode = null;
