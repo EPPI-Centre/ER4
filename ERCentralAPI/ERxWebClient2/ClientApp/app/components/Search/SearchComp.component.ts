@@ -694,7 +694,8 @@ export class SearchComp implements OnInit, OnDestroy {
 				}
 				this._searchService.cmdSearches._searchText = tmpStr;
 		
-				this._searchService.cmdSearches._title = this.searchText;
+				this._searchService.cmdSearches._title = this.searchText.trim();
+				//alert('title is: ' + this._searchService.cmdSearches._title);
 	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
 			}
