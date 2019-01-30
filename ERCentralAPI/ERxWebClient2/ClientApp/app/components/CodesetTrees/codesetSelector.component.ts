@@ -200,19 +200,19 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 			// it must be a root node hence we should do nothing...
-			alert('you cannot select these roots here!');
+			console.log('you cannot select these roots here!');
 
 		} else if (this.IsMultiSelect == false) {
 			// ALL
 
 		} else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
-			alert('you cannot use multiselect here 1');
+            console.log('you cannot use multiselect here 1');
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == true) {
-			alert('you cannot use multiselect here 2');
+            console.log('you cannot use multiselect here 2');
 
 		} else if ( this.IsMultiSelect == true) {
-			alert('you cannot use multiselect here 3');
+            console.log('you cannot use multiselect here 3');
 
 		}
 

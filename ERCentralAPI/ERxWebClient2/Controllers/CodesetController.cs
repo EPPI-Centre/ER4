@@ -324,6 +324,34 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult PerformClusterCommand([FromBody] PerformClusterCommandJSON JsonCmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())//not strictly necessary, but why give this away to readonly users?
+                {
+                    PerformClusterCommand cmd = new PerformClusterCommand(JsonCmd.itemList,
+                                                                        JsonCmd.maxHierarchyDepth,
+                                                                        JsonCmd.minClusterSize,
+                                                                        JsonCmd.maxClusterSize,
+                                                                        JsonCmd.singleWordLabelWeight,
+                                                                        JsonCmd.minLabelLength,
+                                                                        JsonCmd.attributeSetList,
+                                                                        JsonCmd.useUploadedDocs,
+                                                                        JsonCmd.reviewSetIndex);
+                    DataPortal <PerformClusterCommand> dp = new DataPortal<PerformClusterCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Dataportal error running PerformClusterCommand");
+                throw;
+            }
+        }
     }
 
     public class ReviewSetUpdateCommandJSON
@@ -383,5 +411,17 @@ namespace ERxWebClient2.Controllers
     {
         public int reviewSetId;
         public int order;
+    }
+    public class PerformClusterCommandJSON
+    {
+        public string itemList;
+        public string attributeSetList;
+        public int maxHierarchyDepth;
+        public double minClusterSize;
+        public double maxClusterSize;
+        public double singleWordLabelWeight;
+        public int minLabelLength;
+        public bool useUploadedDocs;
+        public int reviewSetIndex;
     }
 }

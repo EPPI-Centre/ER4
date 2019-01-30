@@ -19,6 +19,7 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 
 
 
@@ -59,6 +60,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
+        , private ReviewSetsEditingService: ReviewSetsEditingService
     ) {}
     @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
@@ -72,6 +74,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.codesetStatsServ.IsBusy ||
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
+            this.ReviewSetsEditingService.IsBusy ||
             this.SourcesService.IsBusy);
     }
 	
@@ -131,6 +134,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) return true;
         else return false;
     }
+    public ShowClusterCommand: boolean = false;
+
 	dtTrigger: Subject<any> = new Subject();
 
     ngOnInit() {
@@ -163,6 +168,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     CloseQuickReport() {
         this._ShowQuickReport = false;
+    }
+    ShowHideClusterCommand() {
+        this.ShowClusterCommand = !this.ShowClusterCommand;
+    }
+    CloseClusterCommand() {
+        this.ShowClusterCommand = false;
     }
     setTabSelected(tabSelect: SelectEvent) {
 		//nothing for now, selectEvent is like this:

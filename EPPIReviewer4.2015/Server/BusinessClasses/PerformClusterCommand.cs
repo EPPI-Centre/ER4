@@ -34,11 +34,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class PerformClusterCommand : CommandBase<PerformClusterCommand>
     {
-#if SILVERLIGHT
-    public PerformClusterCommand(){}
-#else
-        protected PerformClusterCommand() { }
-#endif
+        public PerformClusterCommand(){}
 
         private string _itemList;
         private string _attributeSetList;
@@ -187,7 +183,7 @@ namespace BusinessLibrary.BusinessClasses
             //upload.Uri = new Uri("http://localhost:8090/rest/processor");
 
             //use the following URI if running within the IOE firewall
-            upload.Uri = new Uri("http://db-epi:8080/dcs/rest");
+            upload.Uri = new Uri("http://localhost:8080/dcs/rest");
 
             string tmp = Dns.GetHostName().ToLower();
             if (tmp == "epi3" || tmp == "eppi.ioe.ac.uk" || tmp == "eppi" || tmp == "eppi-management")
@@ -503,6 +499,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 return memStream.ToArray();
             }
+#if (!CSLA_NETCORE)
             public HttpWebRequest CreateHwr(Uri uri)
             {
                 HttpWebRequest r;
@@ -512,8 +509,15 @@ namespace BusinessLibrary.BusinessClasses
                 r.Timeout = 1000 * 400;
                 return r;
             }
-
-            #endregion
+#else
+            public HttpWebRequest CreateHwr(Uri uri)
+            {
+                HttpWebRequest r = (HttpWebRequest)WebRequest.Create(uri.AbsoluteUri);
+                r.Timeout = 1000 * 400;
+                return r;
+            }
+#endif
+#endregion
 
             #region private methods
 
@@ -588,5 +592,5 @@ namespace BusinessLibrary.BusinessClasses
             #endregion
         }
 #endif
-    }
+        }
 }

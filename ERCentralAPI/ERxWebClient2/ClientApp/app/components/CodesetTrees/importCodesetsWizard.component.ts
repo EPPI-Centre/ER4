@@ -104,7 +104,7 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
         {
             this.OpenListOfSets(roTr);
         }
-        else if (roTr.templateName.length > 0 && roTr.templateId > 0) {
+        else if (roTr.templateName.length > 0 && roTr.templateId > 0 && roTr.reviewSetIds && roTr.reviewSetIds.length > 0) {
             //do the copy thing, selfclose when done
             await this.ReviewSetsEditingService.ImportReviewTemplate(roTr);
             console.log("finished waiting for codesets import...")

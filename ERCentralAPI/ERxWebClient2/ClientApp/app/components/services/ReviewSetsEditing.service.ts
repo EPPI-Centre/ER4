@@ -381,9 +381,9 @@ export class ReviewSetsEditingService extends BusyAwareService {
             );
     }
     public async ImportReviewTemplate(template: ReadOnlyTemplateReview) {
-        this._BusyMethods.push("ImportReviewTemplate");//gets removed in interimImportReviewTemplate, if all goes well...
         if (!template || !template.reviewSetIds || template.reviewSetIds.length < 1) return; //nothing to be done!
         else {
+            this._BusyMethods.push("ImportReviewTemplate");//gets removed in interimImportReviewTemplate, if all goes well...
             let ord: number = this.ReviewSetsService.ReviewSets.length;
             const rsid = template.reviewSetIds[0];
             await this.ReviewSetCopy(rsid, ord).then(
@@ -446,6 +446,20 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
         );
     }
+    public PerformClusterCommand(command: PerformClusterCommand) {
+        this._BusyMethods.push("PerformClusterCommand");
+        command.reviewSetIndex = this.ReviewSetsService.ReviewSets.length;
+        this._httpC.post(this._baseUrl + 'api/Codeset/PerformClusterCommand', command).subscribe(
+            () => {
+                this.RemoveBusy("PerformClusterCommand");
+                this.ReviewSetsService.GetReviewSets();
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("PerformClusterCommand");
+            }
+        );
+    }
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -503,7 +517,18 @@ export interface ReadOnlyTemplateReview {
     templateDescription: string;
     reviewSetIds: number[];
 }
-export class  ReviewSetCopyCommand {
+export class ReviewSetCopyCommand {
     public reviewSetId: number = -1;
     public order: number = 0;
+}
+export class PerformClusterCommand {
+    public itemList: string = "";
+    public attributeSetList: string = "";
+    public maxHierarchyDepth: number = 2;
+    public minClusterSize: number = 0;
+    public maxClusterSize: number = 0.35;
+    public singleWordLabelWeight: number = 0.5;
+    public minLabelLength: number = 1;
+    public useUploadedDocs: boolean = false;
+    public reviewSetIndex: number = 0;
 }
