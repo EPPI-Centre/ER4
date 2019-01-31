@@ -87,14 +87,15 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchText: string = '';
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
-	public CurrentDropdownVisualiseSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
 
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
-	@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
+	//@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
 	@ViewChild('VisualiseChart')
 	private VisualiseChart!: ChartComponent;
-
+	public get selectedNode(): singleNode | null {
+		return this._reviewSetsService.selectedNode;
+	}
 	public selectableSettings: SelectableSettings = {
 		checkboxOnly: true,
 		mode: 'single'
@@ -173,15 +174,15 @@ export class SearchComp implements OnInit, OnDestroy {
         }
 		this.isCollapsed = false;
 	}
-	CloseCodeVisualiseDropDown() {
+	//CloseCodeVisualiseDropDown() {
 
-		if (this.WithOrWithoutCodeSelectorVisualise) {
-			//console.log("yes, doing it", this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData);
-			this.CurrentDropdownVisualiseSelectedCode = this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData;
-		}
-		this.isCollapsedVisualise = false;
+	//	if (this.WithOrWithoutCodeSelectorVisualise) {
+	//		//console.log("yes, doing it", this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData);
+	//		this.CurrentDropdownVisualiseSelectedCode = this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData;
+	//	}
+	//	this.isCollapsedVisualise = false;
 
-	}
+	//}
 	Classify() {
 
 		this._buildModelService.Fetch();
@@ -193,42 +194,70 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.ShowVisualiseSection = false;
 	}
 
-	CanCreateCodes(): boolean {
-
+	CanCreateClassifierCodes(): boolean {
 		// logic for enabling visualise button
-		if (this.CurrentDropdownVisualiseSelectedCode != null) {
-
-			return true;
-
-		} else {
-
-			return false;
+		if (this.selectedNode == null) return false;
+		else {
+			if (this.selectedNode.nodeType == "ReviewSet") {
+				let Set = this.selectedNode as ReviewSet;
+				if (!Set) return false;
+				else {
+					if (Set.subTypeName == "Screening") return false;
+					else return Set.allowEditingCodeset;
+				}
+			}
+			else if (this.selectedNode.nodeType == "SetAttribute") {
+				let Att = this.selectedNode as SetAttribute;
+				if (!Att) return false;
+				else {
+					let Set = this._reviewSetsService.FindSetById(Att.set_id);
+					if (!Set) return false;
+					else {
+						if (Set.subTypeName == "Screening") return false;
+						else if (!Set.allowEditingCodeset) return false;
+						else {
+							let level = this._reviewSetsService.AttributeCurrentLevel(Att);
+							if (level && Set.setType && Set.setType.maxDepth > level) {
+								console.log("maxDepth", Set.setType.maxDepth);
+								return true;
+							}
+							else return false;
+						}
+					}
+				}
+			}
+			else return false;
 		}
 	}
 
 	CreateCodesBelow() {
+		if (!this.CanCreateClassifierCodes()
+			|| !this.selectedNode) return;
+		else {
+			if (this.selectedNode.nodeType == 'ReviewSet') {
 
-		if (this.CurrentDropdownVisualiseSelectedCode != null) {
-
-			if (this.CurrentDropdownVisualiseSelectedCode.nodeType == 'ReviewSet') {
-
-				let node = this.CurrentDropdownVisualiseSelectedCode as ReviewSet;
-				this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
-					0, node.set_id
-				).then(
-					() => {
-						this._reviewSetsService.GetReviewSets();
-					});
+				let Set = this.selectedNode as ReviewSet;
+				if (Set && Set.set_id > 0) {
+					this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
+						0, Set.set_id
+					).then(
+						() => {
+							this._reviewSetsService.GetReviewSets();
+						});
+				}
+				else return;
 
 			} else {
-
-				let node = this.CurrentDropdownVisualiseSelectedCode as SetAttribute;
-				this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
-					node.attribute_id, node.set_id
+				let Att = this.selectedNode as SetAttribute;
+				if (Att && Att.attribute_id > 0 && Att.set_id > 0) {
+					this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
+						Att.attribute_id, Att.set_id
 					).then(
-					() => {
+						() => {
 							this._reviewSetsService.GetReviewSets();
-					});
+						});
+				}
+				else return;
 			}
 		}
 	}

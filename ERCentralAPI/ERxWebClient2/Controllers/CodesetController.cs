@@ -308,8 +308,6 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult CreateVisualiseCodeSet([FromBody] ClassifierCreateCodes data)
 		{
-		
-
 			try
 			{
 				if (SetCSLAUser4Writing())
@@ -333,7 +331,6 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "CreateVisualiseCodeSet of Search Data has failed");
 				throw;
 			}
-
 		}
 		[HttpPost("[action]")]
         public IActionResult GetReviewSetsForCopying([FromBody] SingleBoolCriteria GetPrivateSets)

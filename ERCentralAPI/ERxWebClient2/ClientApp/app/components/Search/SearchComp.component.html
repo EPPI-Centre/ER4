@@ -250,21 +250,16 @@
 	</div>
 </div>
 
-<div id="visualiseSection" [ngbCollapse]="!ShowVisualiseSection" class="bg-light p-1 m-1">
+<div id="visualiseSection" *ngIf="ShowVisualiseSection" class="bg-light p-1 m-1">
 	<div ngbDropdown class="card row col-md-12 p-1 m-1">
 		<div class="col-md-12">
-			<p class="col-md-3 pull-left"> Create codes below this code / set: </p>
-			<button ngbDropdownToggle class="btn btn-info col-md-3 " id="dropdownTreeVisualise"
-					(click)="isCollapsedVisualise = !isCollapsedVisualise; dropdownBasic1 = false"
-					[attr.aria-expanded]="!isCollapsedVisualise" aria-controls="collapseCodeTreeVisualise">
-				{{CurrentDropdownVisualiseSelectedCode?.name}}
-			</button>
-
-			<div class="dropdown-menu col-md-6 pull-right p-1 m-1" id="collapseCodeTreeVisualise" [ngbCollapse]="!isCollapsedVisualise">
-				<codesetSelector [IsMultiSelect]="false"  [MaxHeight]="500" #WithOrWithoutCodeSelectorVisualise
-								 (selectedNodeInTree)="CloseCodeVisualiseDropDown()" ></codesetSelector>
+			<div *ngIf ="!CanCreateClassifierCodes()">
+				To create codes to represent the classifier result, please select a code on the right.
 			</div>
-			<button style="min-width: 150px;" class="btn btn-warning p-1 m-1" [disabled]="!CanCreateCodes()" (click)="CreateCodesBelow()">Create</button>
+			<div *ngIf="CanCreateClassifierCodes()">
+				<p *ngIf="selectedNode" class="col-md-3 pull-left"> Create codes below this code / set: {{selectedNode.name}}</p>
+				<button style="min-width: 150px;" class="btn btn-warning p-1 m-1" (click)="CreateCodesBelow()">Create</button>
+			</div>
 		</div>
 	</div>
 	<div class="card">
