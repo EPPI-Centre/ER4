@@ -183,6 +183,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	//	this.isCollapsedVisualise = false;
 
 	//}
+
 	Classify() {
 
 		this._buildModelService.Fetch();
