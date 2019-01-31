@@ -1,34 +1,34 @@
 <HeaderComponent PageTitle="Build Model"></HeaderComponent>
-<button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
 
-<div class="container col-md-12 form">
+<div class="container col-md-12 form p-0 ">
 	<p hidden>{{reviewSetsService.selectedNode?.name}}</p>
-	<div class="col-md-12 row card">
-		<div class="card-body bg-light col-md-12 form-group">
-			<div class="font-weight-bold col-md-12 row form-group">
+	<div class="col-md-12 row card p-0 m-0">
+		<div class="card-body bg-light col-12 p-1 pt-4 pt-md-0 pt-lg-0 form-group">
+			<div class="col-md-12 row form-group pt-1 mt-1 mt-md-0">
 				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</label>-->
-				Learn to apply this code:&nbsp;&nbsp;&nbsp;&nbsp;
-				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3">Learn to apply this code:</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+					<button class="btn btn-info col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}</button>
 					<div (click)="SetAttrOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
-			<div class="font-weight-bold col-md-12 row form-group">
-				Distinguish from this code:
-				<div ngbDropdown class="d-inline-block col-md-9">
-					<button class="btn btn-info col-md-4  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
+			<div class="col-md-12 row form-group">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">Distinguish from this code:</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+					<button class="btn btn-info col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}</button>
 					<div (click)="SetAttrNotOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-12 row font-weight-bold form-group">
-				Name for your model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<div class="col-md-4">
+			<div class="col-md-12 row form-group">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">Name for your model:</div>
+				<div class=" col-12 col-sm-6 col-md-4">
 					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
 	
 					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched)"

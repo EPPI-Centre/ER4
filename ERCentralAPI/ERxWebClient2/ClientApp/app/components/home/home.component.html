@@ -52,7 +52,7 @@
                     <div class="form-group row m-1 p-0">
                         <div class="row offset-md-1 col-sm-7 align-content-center ">
                             <input type="submit" value="Login" class="btn btn-primary m-1" /> &nbsp;
-                            <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Forgot Password?</a>
+                            <a class="mt-2" href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">Forgot Password?</a>
                             <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
             Version: {{vInfo.versionN}}
         </div>
         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
-            {{vInfo.date}}
+            {{FormatDate(vInfo.date)}}
         </div>
     </div>
     <div class="row d-flex ml-1 mr-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
@@ -97,7 +97,7 @@
         </div>
 
         <div class="col-md-12 justify-content-end">
-            <a href="{{vInfo.url}}">Read More...</a>
+            <a href="{{vInfo.url}}" target="_blank">Read More...</a>
         </div>
     </div>
 
