@@ -11,6 +11,7 @@ import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Search } from './search.service';
 
 @Injectable({
     providedIn: 'root',
@@ -26,7 +27,14 @@ export class ReviewSetsEditingService extends BusyAwareService {
     ) {
         super();
     }
+	private _SearchVisualiseData!: Observable<any>;
 
+	public get SearchVisualiseData(): Observable<any> {
+		return this._SearchVisualiseData;
+	}
+	public set SearchVisualiseData(searches: Observable<any>) {
+		this._SearchVisualiseData = searches;
+	}
     private _SetTypes: iSetType[] = [];
     public get SetTypes(): iSetType[]
     {
@@ -312,7 +320,67 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("UpdateAttribute");
                 return false;
             });
-    }
+	}
+	public CreateVisualiseCodeSet(visualiseTitle: string, visualiseSearchId: number,
+		attribute_id: number, set_id: number): Promise<ClassifierCommand> {
+
+
+		//this._BusyMethods.push("CreateVisualiseCodeSet");
+		let command: ClassifierCommand = new ClassifierCommand();
+
+		command.attributeId = attribute_id;
+		command.searchId = visualiseSearchId;
+		command.searchName = visualiseTitle;
+		command.setId = set_id;
+				
+		return this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/CodeSet/CreateVisualiseCodeSet', command)
+			.toPromise().then(
+
+				(result) => {
+					this.RemoveBusy("CreateVisualiseCodeSet");
+					return result;
+				},
+				error => {
+
+					this.RemoveBusy("CreateVisualiseCodeSet");
+					this.modalService.GenericError(error);
+					return command;
+
+				}).catch(
+
+					(error) => {
+						console.log("ReviewSetCopy catch", error);
+						this.RemoveBusy("ReviewSetCopy");
+						this.modalService.GenericErrorMessage(error);
+						return command;
+					}
+		);
+
+	}
+
+	public CreateVisualiseData(searchId: number): Observable<Search> {
+
+		this._BusyMethods.push("CreateVisualiseData");
+		let body = JSON.stringify({ searchId: searchId });
+
+		this._httpC.post<Observable<Search>>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)
+			.subscribe(result => {
+
+				this.SearchVisualiseData = result;
+				this.RemoveBusy("CreateVisualiseData");
+				return result;
+
+			},
+				error => {
+					this.RemoveBusy("CreateVisualiseData");
+					this.modalService.GenericError(error);
+					return 
+				}
+		);
+
+		return this.SearchVisualiseData;
+	}
+
     public SetAttributeDelete(Att: SetAttribute): Promise<AttributeDeleteCommand> {
         this._BusyMethods.push("SetAttributeDelete");
         let ErrMsg = "Something went wrong: could not check the coding status of this code (and children). \r\n If the problem persists, please contact EPPISupport.";
@@ -347,7 +415,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
-    public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
+
+	public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
         this._BusyMethods.push("ReviewSetCopy");
         let ErrMsg = "Something went wrong: could not copy a codeset. \r\n If the problem persists, please contact EPPISupport.";
         let command = new ReviewSetCopyCommand();
@@ -531,4 +600,13 @@ export class PerformClusterCommand {
     public minLabelLength: number = 1;
     public useUploadedDocs: boolean = false;
     public reviewSetIndex: number = 0;
+}
+
+export class ClassifierCommand {
+
+	public searchName: string = '';
+	public searchId: number = 0;
+	public attributeId: number = 0;
+	public setId: number = 0;
+
 }

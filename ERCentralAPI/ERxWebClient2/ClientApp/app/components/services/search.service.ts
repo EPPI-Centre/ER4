@@ -19,25 +19,13 @@ export class searchService extends BusyAwareService {
         ) {
         super();
     }
-
-
+	
 
 	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
 
 	private _SearchList: Search[] = [];
+	
 
-	private _SearchVisualiseData!: Observable<any>;
-
-	public get SearchVisualiseData(): Observable<any> {
-
-		return this._SearchVisualiseData;
-
-	}
-
-	public set SearchVisualiseData(searches: Observable<any>) {
-		this._SearchVisualiseData = searches;
-		//this.searchesChanged.emit();
-	}
 
 	//@Output() searchesChanged = new EventEmitter();
     //public crit: CriteriaSearch = new CriteriaSearch();
@@ -54,66 +42,7 @@ export class searchService extends BusyAwareService {
         //this.searchesChanged.emit();
 	}
 
-	CreateVisualiseCodeSet(visualiseTitle : string, visualiseSearchId : number,
-		node: any) :Promise<any> {
 
-
-		alert(visualiseTitle + ' ' + visualiseSearchId + ' ' +
-			node.attribute_id + ' ' + node.set_id);
-
-		//this._BusyMethods.push("CreateVisualiseCodeSet");
-
-		let body = JSON.stringify({
-			searchName: visualiseTitle, searchId: visualiseSearchId,
-			attributeId: node.attribute_id, setId: node.set_id
-		});
-
-		console.log(body);
-
-		return this._httpC.post<any>(this._baseUrl + 'api/SearchList/CreateVisualiseCodeSet', body)
-			.toPromise();
-
-		//result => {
-
-		//		console.log('CreateVisualiseCodeSet' + JSON.stringify(result));
-		//		//this.SearchVisualiseData = result;
-		//		this.RemoveBusy("CreateVisualiseCodeSet");
-		//		//return result;
-
-		//	},
-		//		error => {
-		//			this.RemoveBusy("CreateVisualiseCodeSet");
-		//			this.modalService.GenericError(error);
-		//			this.Clear();
-		//		}
-		//	);
-		//return this.SearchVisualiseData;
-
-	}
-
-	CreateVisualiseData(searchId: number) : Observable<any> {
-		
-		this._BusyMethods.push("CreateVisualiseData");
-		let body = JSON.stringify({ searchId: searchId });
-		//alert('got in here..:' + body);
-		this._httpC.post<Observable<any>>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)
-			.subscribe(result => {
-
-				//console.log('alkjshdf askljdfh' + JSON.stringify(result));
-				this.SearchVisualiseData = result;
-				this.RemoveBusy("CreateVisualiseData");
-				return result;
-		
-			},
-				error => {
-					this.RemoveBusy("CreateVisualiseData");
-					this.modalService.GenericError(error);
-					this.Clear();
-				}
-		);
-		return this.SearchVisualiseData;
-	}
-    
 
     Fetch() {
         this._BusyMethods.push("Fetch");
@@ -199,3 +128,4 @@ export class SearchCodeCommand {
 	public _searchId: number = 0;
 
 }
+
