@@ -172,22 +172,11 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	NodeSelected(node: singleNode) {
 
-		//console.log(JSON.stringify(node));
-		
-		//@Input() rootsOnly: boolean = false;//obsolete
-		//@Input() IsMultiSelect: boolean = false;
-		//@Input() WhatIsSelectable: string = "All";
-		//"All": can select any type of node
-		//"AttributeSet":Codes(AttributeSet) only
-		//"ReviewSet":Codesets(ReviewSet) only
-		//"NodeWithChildren":Anything that does have children
-		//"CanHaveChildren": any node that is allowed to contain children(future)
 
-		//alert(this.IsMultiSelect);
-		//alert(this.WhatIsSelectable);
-
+		//alert(JSON.stringify(node));
 		// So far six possible paths of logic
 		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
+
 			if (node.nodeType == "SetAttribute") {
 				console.log(JSON.stringify(node));
 				this.SelectedNodeData = node;
@@ -199,12 +188,11 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 			}
 
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
-			// it must be a root node hence we should do nothing...
-			console.log('you cannot select these roots here!');
 
-		} else if (this.IsMultiSelect == false) {
-			// ALL
-
+			this.SelectedNodeData = node;
+			this.selectedNodeInTree.emit();
+			this._eventEmitterService.nodeSelected = node;
+		
 		} else if (node.nodeType == "SetAttribute" && this.IsMultiSelect == true) {
             console.log('you cannot use multiselect here 1');
 
@@ -213,6 +201,11 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 		} else if ( this.IsMultiSelect == true) {
             console.log('you cannot use multiselect here 3');
+
+		} else {
+			this.SelectedNodeData = node;
+			this.selectedNodeInTree.emit();
+			this._eventEmitterService.nodeSelected = node;
 
 		}
 

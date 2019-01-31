@@ -305,7 +305,37 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-        [HttpPost("[action]")]
+		[HttpPost("[action]")]
+		public IActionResult CreateVisualiseCodeSet([FromBody] ClassifierCreateCodes data)
+		{
+		
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
+					DataPortal<ClassifierCreateCodesCommand> dp = new DataPortal<ClassifierCreateCodesCommand>();
+					ClassifierCreateCodesCommand command = new ClassifierCreateCodesCommand
+																(data.searchId,
+																data.searchName,
+																data.attributeId == null ? 0 : data.attributeId,
+																data.setId == null ? data.setId : data.setId);
+
+					dp.Execute(command);
+					return Ok();
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "CreateVisualiseCodeSet of Search Data has failed");
+				throw;
+			}
+
+		}
+		[HttpPost("[action]")]
         public IActionResult GetReviewSetsForCopying([FromBody] SingleBoolCriteria GetPrivateSets)
         {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
             try
@@ -424,4 +454,11 @@ namespace ERxWebClient2.Controllers
         public bool useUploadedDocs;
         public int reviewSetIndex;
     }
+	public class ClassifierCreateCodes
+	{
+		public string searchName { get; set; }
+		public int searchId { get; set; }
+		public long attributeId { get; set; }
+		public int setId { get; set; }
+	}
 }

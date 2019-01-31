@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -6,7 +6,7 @@ import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { ReviewSetsService,  ReviewSet, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import {  ReviewInfoService } from '../services/ReviewInfo.service';
@@ -21,6 +21,7 @@ import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 
 @Component({
 	selector: 'SearchComp',
@@ -37,6 +38,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService,
 		public _searchService: searchService,
+		public _reviewSetsEditingServ: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
 		public _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
@@ -152,10 +154,6 @@ export class SearchComp implements OnInit, OnDestroy {
     CombineSearches() {
         alert("Not implemented!");
     }
- //   removeHandler(event: any) {
-
- //       alert("Not implemented!");
-	//}
 
 	public mode: string = '1';
 
@@ -170,7 +168,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
     CloseCodeDropDown() {
         if (this.WithOrWithoutCodeSelector) {
-            console.log("yes, doing it", this.WithOrWithoutCodeSelector.SelectedNodeData);
+            //console.log("yes, doing it", this.WithOrWithoutCodeSelector.SelectedNodeData);
             this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
         }
 		this.isCollapsed = false;
@@ -178,16 +176,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	CloseCodeVisualiseDropDown() {
 
 		if (this.WithOrWithoutCodeSelectorVisualise) {
-			console.log("yes, doing it", this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData);
+			//console.log("yes, doing it", this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData);
 			this.CurrentDropdownVisualiseSelectedCode = this.WithOrWithoutCodeSelectorVisualise.SelectedNodeData;
-			// Need an api call here to a classifiercommand object
-			// workout which params are needed and done:
-			// ON the click of the link...
-			
-			// 1 - SearchId														==> 
-			// 2 - SearchName													==> 
-			// 3 - Destination == null ? 0 : Destination.AttributeId			==> (if att is attribute_id)
-			// 4 - Destination == null ? DestRevSet.SetId : Destination.SetId	==> (if att is set_id)
 		}
 		this.isCollapsedVisualise = false;
 
@@ -202,32 +192,45 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.radioButtonApplyModelSection = true;
 		this.ShowVisualiseSection = false;
 	}
-	CreateCodesBelow() {
 
+	CanCreateCodes(): boolean {
+
+		// logic for enabling visualise button
+		if (this.CurrentDropdownVisualiseSelectedCode != null) {
+
+			return true;
+
+		} else {
+
+			return false;
+		}
+	}
+
+	CreateCodesBelow() {
 
 		if (this.CurrentDropdownVisualiseSelectedCode != null) {
 
-			alert(this.visualiseTitle + ' ' + this.visualiseSearchId + ' ' +
-				this.CurrentDropdownVisualiseSelectedCode.id + ' ' +
-				this.CurrentDropdownVisualiseSelectedCode.attributeSetId);
+			if (this.CurrentDropdownVisualiseSelectedCode.nodeType == 'ReviewSet') {
 
-			this._searchService.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
-				this.CurrentDropdownVisualiseSelectedCode).then(
-				() => {
-					alert('got in here');
-					this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.update();
-					this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.dispose();
-					
-					//this.CurrentDropdownVisualiseSelectedCode = null;
-					////this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.
-					////this.
-					//this._searchService.Fetch();
-				});
+				let node = this.CurrentDropdownVisualiseSelectedCode as ReviewSet;
+				this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
+					0, node.set_id
+				).then(
+					() => {
+						this._reviewSetsService.GetReviewSets();
+					});
+
+			} else {
+
+				let node = this.CurrentDropdownVisualiseSelectedCode as SetAttribute;
+				this._reviewSetsEditingServ.CreateVisualiseCodeSet(this.visualiseTitle, this.visualiseSearchId,
+					node.attribute_id, node.set_id
+					).then(
+					() => {
+							this._reviewSetsService.GetReviewSets();
+					});
+			}
 		}
-		this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.dispose();
-		//this.WithOrWithoutCodeSelectorVisualise.treeComponent.treeModel.
-		//this.
-		this._searchService.Fetch();
 	}
 
 	CustomModels() {
@@ -909,7 +912,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.visualiseTitle = search.title;
 		this.visualiseSearchId = search.searchId;
 		console.log(JSON.stringify(search));
-		this._searchService.CreateVisualiseData(search.searchId);
+		this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
 		//alert('in here' + JSON.stringify(this.SearchVisualiseData));
 		// for now just show the graph area unhidden
 		this.ShowVisualiseSection = true;
