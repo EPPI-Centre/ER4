@@ -1,11 +1,11 @@
 <HeaderComponent PageTitle="Build Model"></HeaderComponent>
-<button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
 
-<div class="container col-md-12 form">
+<div class="container col-md-12 form p-0">
 	<p hidden>{{reviewSetsService.selectedNode?.name}}</p>
-	<div class="col-md-12 row card">
+	<div class="col-md-12 row card p-0 m-0">
 		<div class="card-body bg-light col-md-12 form-group">
 			<div class="font-weight-bold col-md-12 row form-group">
 				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{reviewSetsService.selectedNode?.name}}</label>-->
