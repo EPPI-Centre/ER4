@@ -252,7 +252,6 @@
 
 
 
-
 <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
 	<div ngbDropdown class="card col-12 ">
 		<div *ngIf="!CanCreateClassifierCodes()" class=" col-sm-4 col-md-4">
@@ -292,7 +291,7 @@
 	</div>
 </div>
 
-	<div class="card col-12 bg-light">
+<div class="card col-12 bg-light">
 		<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
 					[data]="DataSourceSearches" [height]="410"
 					[rowClass]="rowCallback"
@@ -347,6 +346,6 @@
 				</ng-template>
 			</kendo-grid-column>
 		</kendo-grid>
-	</div>
+</div>
 	<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 
