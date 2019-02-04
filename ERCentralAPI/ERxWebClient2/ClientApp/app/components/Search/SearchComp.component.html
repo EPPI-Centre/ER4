@@ -120,7 +120,6 @@
 
             </div>
         </div>
-        <!--<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>-->
         <div class="row">
             <div class="col-12 mb-1 pr-1 pl-1">
                 <table class="col-md-4">
@@ -168,54 +167,62 @@
 		</tr>
 	</table>
 </div>
-<div id="ModelSection" [ngbCollapse]="!ModelSection">
+<div id="ModelSection" *ngIf="ModelSection">
 
-	<div class="form-group card-body col-md-12 row">
-		<div class="col-md-3 col-sm-4 p-2">
-			<p class="font-weight-bold">Step1:	Select a Model</p>
-			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
-				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
-			</div>
-		</div>
+    <div class="col-12 row mt-2">
+        <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
+            <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
+            <div class="btn-group-vertical col-12 p-0"  role="group" aria-label="Basic example">
+                <button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
+                <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+                <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
+                <button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
+            </div>
+        </div>
 
-		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
-			<div class="col-md-8 col-sm-4 p-2">
-				<p class="font-weight-bold">Step 2: Choose method to apply</p>
-				<input (click)="chooseAll()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to all items in review
-				</label>
-				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="2">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to items with this code
-				</label>
+        <div id="radioButtonApplyModelSection" *ngIf="radioButtonApplyModelSection" class="col-12 col-sm-7 align-content-start">
 
-				<input (click)="chooseSourceDD()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="3">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to items from this source
-				</label>
-			</div>
-			<div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
-				<div>
-					<div ngbDropdown>
-						<select class="btn btn-secondary" id="dropdownBasicSources"
-								ngbDropdownToggle [(ngModel)]="selected">
-							<option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
-								{{DisplayFriendlySourceNames(item)}}
-							</option>
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<span *ngIf="_reviewSetsService.selectedNode" class="p-3 m-3 font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
-	</div>
-	<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
+            <div class="font-weight-bold mb-2">Step 2: Choose method to apply</div>
+            <div class="col-12">
+                <input (click)="chooseAll()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to all items in review
+                </label>
+            </div>
+            <div class="col-12">
+                <input (click)="chooseCodeMessage()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="2">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to items with this code
+                </label>
+            </div>
+            <div class="col-12">
+                <input (click)="chooseSourceDD()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="3">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to items from this source
+                </label>
+            </div>
+            <div class="col-12">
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode?.name}}</div>
+                <div *ngIf="mode == 2 && !selectedNode" class="p-1 m-1 alert-danger row p-1 ">Please select a code from the right.</div>
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a CodeSet.</div>
+            </div>
+            <div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
+                <div>
+                    <div ngbDropdown>
+                        <select class="btn btn-secondary mt-3" id="dropdownBasicSources"
+                                ngbDropdownToggle [(ngModel)]="selected">
+                            <option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
+                                {{DisplayFriendlySourceNames(item)}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+	<div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
 		<kendo-grid [data]="DataSourceModel"
 					[selectable]="selectableSettings"
 					[sort]="sort"
@@ -242,10 +249,10 @@
 			</kendo-grid-column>
 		</kendo-grid>
 	</div>
-	<div class="form-group card-body col-md-12">
+	<div class="col-12 mt-2 mb-2 justify-content-center">
 		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
-				type="button" class="btn btn-success">
-			Run Selected Model
+				type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+			Run Model
 		</button>
 	</div>
 </div>
