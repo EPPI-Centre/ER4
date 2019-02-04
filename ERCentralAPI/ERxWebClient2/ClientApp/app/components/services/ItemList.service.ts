@@ -1,111 +1,207 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of, Subscription, Subject, BehaviorSubject } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient,  } from '@angular/common/http';
 import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
-import { forEach } from '@angular/router/src/utils/collection';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Injectable({
     providedIn: 'root',
     }
 )
 
-export class ItemListService {
+export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService,
         private _PriorityScreeningService: PriorityScreeningService,
         private ModalService: ModalService
-    ) { }
+    ) {
+        super();
+        //this.timerObj = timer(5000, 5000).pipe(
+        //    takeUntil(this.killTrigger));
+        //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
+    }
+    //public timerObj: any | undefined;
+    //private killTrigger: Subject<void> = new Subject();
+    //private ID: number = Math.random();
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         //return this._IsInScreeningMode;
-        if (this._IsInScreeningMode === null) {
-            const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
-            let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
-            if (iism === null ) {
-                return false;
-            }
-            else {
-                //console.log("Got ItemsList from LS");
-                this.IsInScreeningMode = iism;
-            }
-        }
+        //if (this._IsInScreeningMode === null) {
+        //    const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
+        //    let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
+        //    if (iism === null ) {
+        //        return false;
+        //    }
+        //    else {
+        //        //console.log("Got ItemsList from LS");
+        //        this.IsInScreeningMode = iism;
+        //    }
+        //}
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
         else return false;
     }
     public set IsInScreeningMode(state: boolean) {
         this._IsInScreeningMode = state;
-        this.Save();
-    }
+        //this.Save();
+	}
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
-    private subListReplyReceived: Subscription | null = null;
     private _currentItem: Item = new Item();
     @Output() ItemChanged = new EventEmitter();
-    public get ItemList(): ItemList {
-        if (this._ItemList.items.length == 0) {
-            const listJson = localStorage.getItem('ItemsList');
-            let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-            if (list == undefined || list == null || list.items.length == 0) {
-                return this._ItemList;
-            }
-            else {
-                //console.log("Got ItemsList from LS");
-                this._ItemList = list;
-            }
-        }
+	public get ItemList(): ItemList {
+	
+		//if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
+		//	//console.log('in here 2');
+  //          const listJson = localStorage.getItem('ItemsList');
+  //          let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
+		//	if (list == undefined || list == null || list.items.length == 0) {
+		//		//console.log('in here 3: ' + this._ItemList.items.length);
+  //              return this._ItemList;
+  //          }
+  //          else {
+  //              console.log("Got ItemsList from LS");
+  //              this._ItemList = list;
+  //          }
+  //      }
         return this._ItemList;
     }
     public get ListCriteria(): Criteria {
-        if (this._Criteria.listType == "") {
-            const critJson = localStorage.getItem('ItemsListCriteria');
-            let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
-            if (crit == undefined || crit == null) {
-                return this._Criteria;
-            }
-            else {
-                //console.log("Got Criteria from LS");
-                this._Criteria = crit;
-            }
-        }
+        //if (this._Criteria.listType == "") {
+        //    const critJson = localStorage.getItem('ItemsListCriteria');
+        //    let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
+        //    if (crit == undefined || crit == null) {
+        //        return this._Criteria;
+        //    }
+        //    else {
+        //        //console.log("Got Criteria from LS");
+        //        this._Criteria = crit;
+        //    }
+        //}
         return this._Criteria;
     }
     public get currentItem(): Item {
-        if (this._currentItem) return this._currentItem;
-        else {
-            const currentItemJson = localStorage.getItem('currentItem');
-            this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
-        }
+        //if (this._currentItem) return this._currentItem;
+        //else {
+        //    const currentItemJson = localStorage.getItem('currentItem');
+        //    this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
+        //}
         return this._currentItem;
     }
-    private SaveCurrentItem() {
-        if (this._currentItem) {
-            localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
-        }
-        else if (localStorage.getItem('currentItem')) {
-            localStorage.removeItem('currentItem');
-        }
+    //private SaveCurrentItem() {
+    //    if (this._currentItem) {
+    //        localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
+    //    }
+    //    else if (localStorage.getItem('currentItem')) {
+    //        localStorage.removeItem('currentItem');
+    //    }
+    //}
+    public GetIncludedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        this.FetchWithCrit(cr, "Included Items");
     }
-
-   
+    public GetExcludedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        cr.onlyIncluded = false;
+        this.FetchWithCrit(cr, "Excluded Items");
+    }
+    public GetDeletedItems() {
+        let cr: Criteria = new Criteria();
+        cr.listType = 'StandardItemList';
+        cr.onlyIncluded = false;
+        cr.showDeleted = true;
+        this.FetchWithCrit(cr, "Excluded Items");
+        //SelectionCritieraItemList.OnlyIncluded = false;
+        //SelectionCritieraItemList.ShowDeleted = true;
+        //SelectionCritieraItemList.SourceId = 0;
+        //SelectionCritieraItemList.AttributeSetIdList = "";
+        //SelectionCritieraItemList.PageNumber = 0;
+        //SelectionCritieraItemList.ListType = "StandardItemList";
+        //TextBlockShowing.Text = "Showing: deleted documents";
+    }
+    public static GetCitation(Item: Item): string {
+        let retVal: string = "";
+        switch (Item.typeId) {
+            case 1: //Report
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ". ";
+                break;
+            case 2: //Book, Whole
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
+                break;
+            case 3: //Book, Chapter
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title.replace(/</g, "&lt;") + ". In <i>" + Item.parentTitle.replace(/</g, "&lt;") + "</i>, edited by " + ItemListService.CleanAuthors(Item.parentAuthors) + ", " +
+                    Item.pages + ". " + Item.city + ": " + Item.publisher + ".";
+                break;
+            case 4: //Dissertation
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.edition.replace(/</g, "&lt;") + ", " + Item.institution.replace(/</g, "&lt;") + ".";
+                break;
+            case 5: //Conference Proceedings
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". " + Item.title.replace(/</g, "&lt;") + ". Paper presented at " + Item.parentTitle.replace(/</g, "&lt;") + ", " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
+                break;
+            case 6: //Document From Internet Site
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
+                break;
+            case 7: //Web Site
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+                    (Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ".";
+                break;
+            case 8: //DVD, Video, Media
+                retVal = "\"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.year + ". " + (Item.availability == "" ? "" : " [" + Item.availability.replace(/</g, "&lt;") + "] ") +
+                    Item.city + ": " + ItemListService.CleanAuthors(Item.authors) + ".";
+                break;
+            case 9: //Research project
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
+                break;
+            case 10: //Article In A Periodical
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". <i>" + Item.parentTitle.replace(/</g, "&lt;") + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
+                break;
+            case 11: //Interview
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". ";
+                break;
+            case 12: //Generic
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + Item.city.replace(/</g, "&lt;") + ": " + Item.publisher.replace(/</g, "&lt;") + ".";
+                break;
+            case 14: //Journal, Article
+                retVal = ItemListService.CleanAuthors(Item.authors) + ". " + Item.year + ". \"" + Item.title + "\". <i>" + Item.parentTitle + "</i> " + Item.volume + (Item.issue != "" ? "(" + Item.issue + ")" : "") + ":" + Item.pages + ".";
+                break;
+        }
+        //console.log("GetCitation for Item: ", Item, retVal);
+        return retVal;
+    }
+    public static CleanAuthors(inputAuthors: string): string {
+        if (inputAuthors != "") {
+            inputAuthors = inputAuthors.replace(" ;", ",");
+            inputAuthors = inputAuthors.replace(";", ",");
+            inputAuthors = inputAuthors.replace(/</g, "&lt;");
+            inputAuthors = inputAuthors.trim();
+            if (inputAuthors.endsWith(',')) inputAuthors = inputAuthors.substring(0, inputAuthors.length -1);
+        }
+        let commaCount = 0;
+        for (let i = 0; i < inputAuthors.length; i++) if (inputAuthors[i] == ',') commaCount++;
+        if (commaCount > 0) {
+            let cI = inputAuthors.lastIndexOf(',');
+            inputAuthors = inputAuthors.substring(0, cI) + " and" + inputAuthors.substring(cI + 1);//.(inputAuthors.LastIndexOf(",") + 1, " and");
+        }
+        return inputAuthors;
+    }
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
+        items.items = orderBy(items.items, this.sort); 
         this._ItemList = items;
         this._Criteria = crit;
-        this.Save();
+        //this.Save();
     }
     private ChangingItem(newItem: Item) {
+        //console.log('ChangingItem');
         this._currentItem = newItem;
-        this.SaveCurrentItem();
+        //this.SaveCurrentItem();
         this.ItemChanged.emit();
     }
     public getItem(itemId: number): Item {
@@ -127,7 +223,7 @@ export class ItemListService {
         //}
         //else {
             let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
-            if (ff != undefined && ff != null && ff > 0) {
+            if (ff != undefined && ff != null && ff > 0 && ff != -1) {
                 //console.log('Has prev (yes)' + ff);
                 return true;
             }
@@ -172,7 +268,7 @@ export class ItemListService {
         //}
     }
     public getNext(itemId: number): Item {
-      
+        //console.log('getNext');
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {
@@ -184,7 +280,7 @@ export class ItemListService {
             this.ChangingItem(new Item());
             return new Item();
         }
-    }
+	}
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
         if (ff != undefined && ff != null) {
@@ -196,16 +292,30 @@ export class ItemListService {
             return new Item();
         }
     }
-    public ListDescription: string = "";
+	public ListDescription: string = "";
+
     public FetchWithCrit(crit: Criteria, listDescription: string) {
+        this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
+        if (this._ItemList && this._ItemList.pagesize > 0
+            && this._ItemList.pagesize <= 4000
+            && this._ItemList.pagesize != crit.pageSize
+        ) {
+            crit.pageSize = this._ItemList.pagesize;
+        }
+        console.log("FetchWithCrit", this._Criteria.listType);
         this.ListDescription = listDescription;
-        if (this.subListReplyReceived) this.subListReplyReceived.unsubscribe();
-        this.subListReplyReceived = this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(list => {this._Criteria.totalItems = this.ItemList.totalItemCount;
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(
+                list => {
+                this._Criteria.totalItems = this.ItemList.totalItemCount;
                 this.SaveItems(list, this._Criteria);
-            }, error => { this.ModalService.GenericError(error);}
-            );
+            }, error => {
+                this.ModalService.GenericError(error);
+                this.RemoveBusy("FetchWithCrit");
+            }
+            , () => { this.RemoveBusy("FetchWithCrit"); }
+        );
     }
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
@@ -214,7 +324,7 @@ export class ItemListService {
         }
     }
     public FetchNextPage() {
-        console.log('np');
+        
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
             this._Criteria.pageNumber += 1;
         } else {
@@ -222,7 +332,6 @@ export class ItemListService {
         this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
-        //console.log('total items are: ' + this._Criteria.totalItems);
         if (this.ItemList.pageindex == 0 ) {
             return this.FetchWithCrit(this._Criteria, this.ListDescription);
         } else {
@@ -242,25 +351,207 @@ export class ItemListService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    private Save() {
-        if (this._ItemList.items.length > 0) {
-            localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
-        }
-        else if (localStorage.getItem('ItemsList')) {
-            localStorage.removeItem('ItemsList');
-        }
-        if (this._Criteria.listType != "") {
-            localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
-        }
-        else if (localStorage.getItem('ItemsListCriteria')) {
-            localStorage.removeItem('ItemsListCriteria');
-        }
-        if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
-        else if (localStorage.getItem('ItemListIsInScreeningMode')) {
-            localStorage.removeItem('ItemListIsInScreeningMode');
-        }
-        this.SaveCurrentItem();
+
+    public sort: SortDescriptor[] = [{
+        field: 'shortTitle',
+        dir: 'asc'
+    }];
+    public sortChange(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting items by ' + this.sort[0].field + " ");
+        this._ItemList.items = orderBy(this._ItemList.items, this.sort);
     }
+    public get HasSelectedItems(): boolean {
+        //return true;
+        //console.log("HasSelectedItems?", this._ItemList.items[0].isSelected, this._ItemList.items[1].isSelected);
+        if (this._ItemList.items.findIndex(found => found.isSelected == true) > -1) return true;
+        else return false;
+    }
+    public get SelectedItems(): Item[] {
+        return this._ItemList.items.filter(found => found.isSelected == true);
+    }
+    public SelectedItemsToRIStext(): string {
+        let res: string = "";
+        for (let Itm of this.SelectedItems) {
+            res += ItemListService.ExportItemToRIS(Itm);
+        }
+        console.log("SelectedItemsToRIStext", res);
+        return res;
+    }
+
+    public static ExportItemToRIS(it: Item): string {
+        const calend: string[]  = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+            "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const newLine: string = "\r\n";
+        let res: string = "TY  - ";
+        let tmp: string = "";
+        switch (it.typeId) {
+            case 14:
+                res += "JOUR" + newLine;
+                break;
+            case 1:
+                res += "RPRT" + newLine;
+                break;
+            case 2:
+                res += "BOOK" + newLine;
+                break;
+            case 3:
+                res += "CHAP" + newLine;
+                break;
+            case 4:
+                res += "THES" + newLine;
+                break;
+            case 5:
+                res += "CONF" + newLine;
+                break;
+            case 6:
+                res += "ELEC" + newLine;
+                break;
+            case 7:
+                res += "ELEC" + newLine;
+                break;
+            case 8:
+                res += "ADVS" + newLine;
+                break;
+            case 10:
+                res += "MGZN" + newLine;
+                break;
+            default:
+                res += "GEN" + newLine;
+                break;
+        }
+        res += "T1  - " + it.title + newLine;
+        if (it.typeId == 10 || it.typeId == 14)
+            res += "JF  - " + it.parentTitle + newLine;
+        else
+            res += "T2  - " + it.parentTitle + newLine;
+        for(let au of it.authors.split(';'))
+        {
+            tmp = au.trim();
+            if (tmp != "") res += "A1  - " + tmp + newLine;
+        }
+        for(let au of it.parentAuthors.split(';'))
+        {
+            tmp = au.trim();
+            if (tmp != "") res += "A2  - " + tmp + newLine;
+        }
+        res += "KW  - eppi-reviewer4" + newLine
+            + ((it.keywords != null && it.keywords.length > 2) ? it.keywords.trim() + newLine : "");
+        let Month: number | null, Yr: number | null;
+        let tmpDate: string = "";
+        Month = ItemListService.SafeParseInt(it.month);
+        if (!Month || (Month < 1 || Month > 12)) {
+            Month = 1 + it.month.length > 2 ? calend.indexOf(it.month.substring(0, 3)) + 1 : 0;
+        }
+        Yr = this.SafeParseInt(it.year);
+        if (it.year !== "" && Yr) {
+            if (Yr > 0) {
+                if (Yr < 20) Yr += 1900;
+                else if (Yr < 100) Yr += 2000;
+                if ((Yr.toString()).length == 4) {
+                    res += "PY  - " + Yr.toString() + newLine;
+                    if (Month != 0) {
+
+                        tmpDate += it.year + "/" +
+                            ((Month.toString().length == 1 ? "0" + Month.toString() : Month.toString()))
+                            + "//";
+                    }
+                    else {
+                        tmpDate += it.year + "///" + it.month;//"Y1  - " 
+                    }
+                }
+            }
+        }
+        if (tmpDate.length > 0) {
+            res += "DA  - " + tmpDate + newLine;
+            res += "Y1  - " + tmpDate;
+
+
+            //little trick: edition information is supposed to be the additional info at the end of the 
+            //Y1 filed. For Thesis pubtype (4) we use the edition field to hold the thesys type,
+            //the following finishes up the Y1 field keeping all this into account
+
+            if (it.typeId == 4 && it.edition.length > 0)
+                res += newLine + "KW  - " + it.edition + newLine;
+            else if (it.edition.length > 0)
+                res += " " + it.edition + newLine;
+            else res += newLine;
+
+        }
+        else if (it.typeId == 4 && it.edition.length > 0) {
+            res += newLine + "KW  - " + it.edition + newLine;
+        }//end of little trick
+
+        //res += "N2  - " + it.abstract + newLine;
+        res += "AB  - " + it.abstract + newLine;
+        if (it.doi.length > 0) res += "DO  - " + it.doi + newLine;
+        res += "VL  - " + it.volume + newLine;
+        res += "IS  - " + it.issue + newLine;
+        let split = '-';
+        Yr = it.pages.indexOf(split);
+        if (Yr > 0) {
+            let pgs = it.pages.split(split);
+            res += "SP  - " + pgs[0] + newLine;
+            res += "EP  - " + pgs[1] + newLine;
+        }
+        else if (it.pages.length > 0) res += "SP  - " + it.pages + newLine;
+        res += "CY  - " + it.city + (it.country.length > 0 ? " " + it.country : "") + newLine;
+        if (it.url.length > 0)
+            res += "UR  - " + it.url + newLine;
+        if (it.availability.length > 0)
+            res += "AV  - " + it.availability + newLine;
+        if (it.publisher.length > 0)
+            res += "PB  - " + it.publisher + newLine;
+        if (it.standardNumber.length > 0)
+            res += "SN  - " + it.standardNumber + newLine;
+        res += "U1  - " + it.itemId.toString() + newLine;
+        if (it.oldItemId.length > 0)
+            res += "U2  - " + it.oldItemId + newLine;
+
+
+        res += "N1  - " + it.comments + newLine;
+
+        res += "ER  - " + newLine + newLine;
+
+        res = res.replace("     ", " ");
+        res = res.replace("    ", " ");
+        res = res.replace("   ", " ");
+        res = res.replace("   ", " ");
+        return res;
+    }
+    public static SafeParseInt(str: string): number | null {
+        let retValue: number | null = null;
+        if (str !== null) {
+            if (str.length > 0) {
+                let tmp = Number(str);
+                if (!isNaN(tmp)) {
+                    retValue = parseInt(str);
+                }
+            }
+        }
+        return retValue;
+    }
+
+
+    //public Save() {
+    //    if (this._ItemList.items.length > 0) {
+    //        localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));
+    //    }
+    //    else if (localStorage.getItem('ItemsList')) {
+    //        localStorage.removeItem('ItemsList');
+    //    }
+    //    if (this._Criteria.listType != "") {
+    //        localStorage.setItem('ItemsListCriteria', JSON.stringify(this._Criteria));
+    //    }
+    //    else if (localStorage.getItem('ItemsListCriteria')) {
+    //        localStorage.removeItem('ItemsListCriteria');
+    //    }
+    //    if (this._IsInScreeningMode !== null) localStorage.setItem('ItemListIsInScreeningMode', JSON.stringify(this._IsInScreeningMode));
+    //    else if (localStorage.getItem('ItemListIsInScreeningMode')) {
+    //        localStorage.removeItem('ItemListIsInScreeningMode');
+    //    }
+    //    this.SaveCurrentItem();
+    //}
 
 }
 
@@ -297,14 +588,14 @@ export class Item {
     issue: string = "";
     isLocal: string = "";
     availability: string = "";
-    uRL: string = "";
+    url: string = "";
     oldItemId: string = "";
     abstract: string = "";
     comments: string = "";
     typeName: string = "";
     authors: string = "";
     parentAuthors: string = "";
-    dOI: string = "";
+    doi: string = "";
     keywords: string = "";
     attributeAdditionalText: string = "";
     rank: number = 0;
@@ -315,6 +606,7 @@ export class Item {
     itemStatusTooltip: string = "";
     arms: arm[] = [];
 }
+
 export class Criteria {
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
@@ -327,7 +619,8 @@ export class Criteria {
     filterSetId: number = 0;
     filterAttributeId: number = 0;
     attributeSetIdList: string = "";
-    listType: string = "";
+	listType: string = "";
+	attributeid: number = 0;
 
     pageNumber: number = 0;
     pageSize: number = 100;

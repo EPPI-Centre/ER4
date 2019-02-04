@@ -29,12 +29,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch();
         }
 
-
-#if SILVERLIGHT
         public ReviewStatisticsReviewerList() { }
-#else
-        private ReviewStatisticsReviewerList() { }
-#endif
 
 
 #if SILVERLIGHT

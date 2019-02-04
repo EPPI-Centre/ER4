@@ -49,14 +49,14 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         else {
 
             //this.sub = this.itemListService.ItemChanged.subscribe(
-            //        () => {
-            //            //console.log('inside the component doc stuff: ' + this.itemID);
+            //    () => {
+            //            console.log("ItemChanged, get docs, via subscription.");
             //            this.ItemDocsService.FetchDocList(this.itemID);
             //        }
             //);
             //this.sub = this.priorityScreeningService.gotItem.subscribe(
             //    () => {
-            //        //console.log('inside the component doc stuff: ' + this.itemID);
+            //        console.log("ItemChanged, get docs, via subscription. 2");
             //        this.ItemDocsService.FetchDocList(this.itemID);
             //    }
             //);

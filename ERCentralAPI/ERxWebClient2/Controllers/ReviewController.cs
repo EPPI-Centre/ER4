@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
+using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -31,7 +32,31 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpGet("[action]")]
+		[HttpPost("[action]")]
+		public IActionResult CreateReview([FromBody] reviewJson data)
+		{
+			if (SetCSLAUser4Writing())
+			{
+				try
+				{
+					Review review = new Review(data.reviewName, data.userId);
+
+					review = review.Save();
+
+					return Ok(review.ReviewId);
+				}
+				catch (Exception e)
+				{
+					_logger.LogException(e, "Reviews data portal error");
+					throw;
+				}
+			}
+			else
+				return Forbid();
+		}
+
+
+		[HttpGet("[action]")]
         public IActionResult ReadOnlyReviews()//should receive a reviewID!
         {
 
@@ -49,6 +74,7 @@ namespace ERxWebClient2.Controllers
                 //Action.Invoke(ri, returnValue);
 
                 //return returnValue;
+
                 return Ok(result);
             }
             catch (Exception e)
@@ -56,22 +82,30 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "ReadOnlyReviews data portal error");
                 throw;
             }
-
+        }
+        [HttpGet("[action]")]
+        public IActionResult GetReadOnlyTemplateReviews()
+        {
+            try
+            {
+                SetCSLAUser();
+                ReadOnlyTemplateReviewList res = new ReadOnlyTemplateReviewList();
+                DataPortal<ReadOnlyTemplateReviewList> dp = new DataPortal<ReadOnlyTemplateReviewList>();
+                res = dp.Fetch();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetReadOnlyTemplateReviews data portal error");
+                throw;
+            }
         }
 
-        //[HttpGet("[action]")]
-        //public ReadOnlyReviewList ReadOnlyReviews()//should receive a reviewID!
-        //{
-        //    SetCSLAUser();
-        //    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+	}
 
-        //    DataPortal<ReadOnlyReviewList> dp = new DataPortal<ReadOnlyReviewList>();
-        //    SingleCriteria<ReadOnlyReviewList, int> criteria = new SingleCriteria<ReadOnlyReviewList, int>(ri.UserId);
-        //    ReadOnlyReviewList result = dp.Fetch(criteria);
-
-
-        //    return result;
-        //}
-
-    }
+	public class reviewJson
+	{
+		public string reviewName { get; set; }
+		public int userId { get; set; }
+	}
 }

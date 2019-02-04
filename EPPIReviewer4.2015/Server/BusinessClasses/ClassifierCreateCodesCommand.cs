@@ -17,7 +17,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ClassifierCreateCodesCommand : CommandBase<ClassifierCreateCodesCommand>
     {
-#if SILVERLIGHT
+
         public ClassifierCreateCodesCommand(int searchID, string searchName, Int64 destAttributeID, int destSetID)
         {
             _SearchID = searchID;
@@ -26,16 +26,11 @@ namespace BusinessLibrary.BusinessClasses
             _SearchName = searchName;
         }
         public ClassifierCreateCodesCommand() { }
-#else
-        protected ClassifierCreateCodesCommand() { }
-#endif
         
         private int _SearchID;
         private Int64 _ParentAttributeID;
         private int _SetID;
         private string _SearchName;
-        
-        
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {

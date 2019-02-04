@@ -25,10 +25,10 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyItemAttributeChildFrequency() { }
 #else
-        private ReadOnlyItemAttributeChildFrequency() { }
+        public ReadOnlyItemAttributeChildFrequency() { }
 #endif
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -37,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "AttributeSetId"));
+		public static readonly PropertyInfo<Int64> AttributeSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeSetId", "AttributeSetId"));
         public Int64 AttributeSetId
         {
             get
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AttributeSetIdProperty);
             }
         }
-        private static PropertyInfo<Int64> FilterAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FilterAttributeId", "FilterAttributeId"));
+		public static readonly PropertyInfo<Int64> FilterAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FilterAttributeId", "FilterAttributeId"));
         public Int64 FilterAttributeId
         {
             get
@@ -53,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(FilterAttributeIdProperty);
             }
         }
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
+		public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get
@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("Attribute", "Attribute", string.Empty));
+		public static readonly PropertyInfo<string> AttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("Attribute", "Attribute", string.Empty));
         public string Attribute
         {
             get
@@ -71,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ItemCountProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemCount", "ItemCount"));
+		public static readonly PropertyInfo<int> ItemCountProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemCount", "ItemCount"));
         public int ItemCount
         {
             get
@@ -79,7 +79,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ItemCountProperty);
             }
         }
-        private static PropertyInfo<bool> IsIncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsIncluded", "IsIncluded"));
+		public static readonly PropertyInfo<bool> IsIncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsIncluded", "IsIncluded"));
         public bool IsIncluded
         {
             get

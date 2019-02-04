@@ -1,0 +1,39 @@
+<div class="container col-12 p-0">
+    <!--<HeaderComponent style="vertical-align:top;
+    margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
+     width:99.6%;"></HeaderComponent>-->
+    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details"></HeaderComponent>
+    <div class="h-100 mh-100 pr-0 ">
+        <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+            <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
+                <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
+                <codesetTreeCoding class="bg-light"></codesetTreeCoding>
+            </div>
+            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
+                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row" >
+                    <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
+                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+                            Close/back
+                        </button>
+                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Auto Advance?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+                            </div>
+                        </div>
+                        <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Show terms?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>               
+			</div>
+        </div>
+        <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+    </div>
+</div>

@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributeBulkSaveCommand : CommandBase<ItemAttributeBulkSaveCommand>
     {
-#if SILVERLIGHT
-    public ItemAttributeBulkSaveCommand(){}
-#else
-        protected ItemAttributeBulkSaveCommand() { }
-#endif
+        public ItemAttributeBulkSaveCommand(){}
 
         private string _saveType;
         private Int64 _ItemAttributeId;

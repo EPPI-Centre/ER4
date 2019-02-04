@@ -42,6 +42,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace BusinessLibrary.BusinessClasses
 {
+
     [Serializable]
     public class TrainingRunCommand : CommandBase<TrainingRunCommand>
     {
@@ -219,7 +220,8 @@ namespace BusinessLibrary.BusinessClasses
 #else
                 Task<bool> task2 = blockBlobData.ExistsAsync();
                 while (!task2.IsCompleted) Thread.Sleep(100);
-                bool blockBlobDataExistsRes = task2.Result;
+                bool blockBlobDataExistsRes =  task2.Result;
+
                 if (RevInfo.ScreeningIndexed == false || justIndexed || !blockBlobDataExistsRes)
 #endif
                 {//vectorise if:
@@ -518,7 +520,9 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
                     string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
 #else
-                    string fileName = Path.GetTempPath() + ri.UserId.ToString() + ".csv";
+                    DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                    string fileName = tmpDir.FullName + "/" + ri.UserId.ToString() + ".csv";
+                    //string fileName = Path.GetTempPath() + ri.UserId.ToString() + ".csv";
 #endif
                     using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
                     {
@@ -633,7 +637,7 @@ namespace BusinessLibrary.BusinessClasses
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
             {
-                UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
+                await UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
                 //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
                 justIndexed = true;
             }
@@ -731,6 +735,7 @@ namespace BusinessLibrary.BusinessClasses
         {//used to generate different files on the cloud, based on where this is running, as it could be any dev/test machine as well as the live one (EPI3).
             get
             {
+                //return ""; // added by JT on 04/12/2018, as adding anything to the filename makes all ML fail on my machine, and I can't see why!
                 string name = Environment.MachineName;
                 if (name.ToLower() == "epi3") return "";
                 else return name;
@@ -892,4 +897,5 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
                 }
-            }
+
+}

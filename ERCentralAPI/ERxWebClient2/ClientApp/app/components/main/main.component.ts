@@ -16,7 +16,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
-    selector: 'main',
+    selector: 'mainCodingOnly',
     templateUrl: './main.component.html'
     ,styles: [`
                 
@@ -45,7 +45,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     private itemListComp!: ItemListComp;
     @ViewChild(FetchReadOnlyReviewsComponent)
     private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-
+    private InstanceId: number = Math.random();
     private killTrigger: Subject<void> = new Subject();
     public countDown: any | undefined;
     public count: number = 60;
@@ -76,6 +76,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     subOpeningReview: Subscription | null = null;
     ngOnInit() {
+
+        console.log("MainCodingOnly init:", this.InstanceId);
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         //this.ReviewInfoService.Fetch();
         this.ReviewSetsService.GetReviewSets();
@@ -96,21 +98,22 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.itemListComp.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
 
     }
-    MyInfoMessage(): string {
-        let msg: string  = "Your account expires on: ";
-        let revPart: string = "";
+    public get MyAccountMessage(): string {
+        let msg: string = "Your account expires on: ";
         let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        msg += AccExp;
+        return msg;
+    }
+    public get MyReviewMessage(): string {
+        let revPart: string = "";
         if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
-            revPart = " | Current review is private (does not expire).";
+            revPart = "Current review is private (does not expire).";
         }
         else {
             let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = " | Current(shared) review expires on " + RevExp + ".";
+            revPart = "Current(shared) review expires on " + RevExp + ".";
         }
-        msg += AccExp + revPart;
-        return msg;
-        //Your account expires on: {{ ReviewerIdentityServ.reviewerIdentity.accountExpiration | date:'shortDate' }}
-        //        | Current(shared) review expires on { { ReviewerIdentityServ.reviewerIdentity.reviewExpiration | date: 'shortDate' } }
+        return revPart;
     }
     ngOnDestroy() {
         if (this.subOpeningReview) {

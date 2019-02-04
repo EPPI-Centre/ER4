@@ -24,7 +24,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ER4Manager_1", "ER4Manager_
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "50814"
+		VWDPort = "50813"
 		SlnRelativePath = "ER4Manager_1\"
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection

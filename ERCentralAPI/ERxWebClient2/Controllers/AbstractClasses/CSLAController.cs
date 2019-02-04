@@ -24,6 +24,7 @@ namespace ERxWebClient2.Controllers
             try
             {
                 ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
                 ReviewerPrincipal principal = new ReviewerPrincipal(ri);
                 Csla.ApplicationContext.User = principal;
                 return true;//we might want to do more checks!
@@ -32,36 +33,27 @@ namespace ERxWebClient2.Controllers
             {//to be logged!
                 return false;
             }
-            
-            //var sss = User.Identity.Name;
-            //User.Claims.Append(new Claim("Name", sss));
-            //var userId = User.Claims.First(c => c.Type == "userId").Value;
-            //int cID;
-            //bool canProceed = true;
-            //canProceed = int.TryParse(userId, out cID);
-
-            //if (canProceed)
-            //{
-            //    var revId0 = User.Claims.First(c => c.Type == "reviewId");
-            //    string revId = "0";
-            //    if (revId0 == null || revId0.Value == null) canProceed = false;
-            //    else
-            //    {
-            //        revId = revId0.Value;
-            //        int RevId;
-            //        canProceed = int.TryParse(revId, out RevId);
-            //        if (canProceed)
-            //        {
-            //            ReviewerIdentityWebClient ri = ReviewerIdentityWebClient.GetIdentity(cID, RevId);
-            //            //ReviewerPrincipal principal = new ReviewerPrincipal(ri as System.Security.Principal.IIdentity);
-            //            ReviewerPrincipal principal = new ReviewerPrincipal(ri);
-            //            Csla.ApplicationContext.User = principal;
-            //        }
-            //    }
-            //}
-            //return canProceed;
         }
-    }
+		protected bool SetCSLAUser4Writing()
+		{
+			try
+			{
+				ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
+				if (ri.HasWriteRights())
+				{//all is well, ticket is valid and user has write access
+					ReviewerPrincipal principal = new ReviewerPrincipal(ri);
+					Csla.ApplicationContext.User = principal;
+					return true;
+				}
+				else throw new Exception("User does not have write rights");
+			}
+			catch (Exception e)
+			{//to be logged!
+				return false;
+			}
+		}
+	}
     public class SingleStringCriteria
     {
         public string Value { get; set; }
@@ -73,5 +65,9 @@ namespace ERxWebClient2.Controllers
     public class SingleInt64Criteria
     {
         public Int64 Value { get; set; }
+    }
+    public class SingleBoolCriteria
+    {
+        public bool Value { get; set; }
     }
 }

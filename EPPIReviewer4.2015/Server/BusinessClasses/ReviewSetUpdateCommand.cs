@@ -22,11 +22,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewSetUpdateCommand : CommandBase<ReviewSetUpdateCommand>
     {
-#if SILVERLIGHT
     public ReviewSetUpdateCommand(){}
-#else
-        protected ReviewSetUpdateCommand() { }
-#endif
 
         private int _ReviewSetId;
         private int _SetId;

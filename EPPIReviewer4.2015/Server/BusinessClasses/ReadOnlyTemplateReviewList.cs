@@ -21,11 +21,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyTemplateReviewList : ReadOnlyListBase<ReadOnlyTemplateReviewList, ReadOnlyTemplateReview>
     {
-#if SILVERLIGHT
-    public ReadOnlyTemplateReviewList() { }
-#else
-        private ReadOnlyTemplateReviewList() { }
-#endif
+        public ReadOnlyTemplateReviewList() { }
 
         public static void GetReviewTemplates(EventHandler<DataPortalResult<ReadOnlyTemplateReviewList>> handler)
         {

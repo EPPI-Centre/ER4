@@ -22,13 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewStatisticsCodeSet : BusinessBase<ReviewStatisticsCodeSet>
     {
-#if SILVERLIGHT
-    public ReviewStatisticsCodeSet() { }
 
-        
-#else
-        private ReviewStatisticsCodeSet() { }
-#endif
+        public ReviewStatisticsCodeSet() { }
 
         public override string ToString()
         {
@@ -43,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get
@@ -52,7 +47,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", ""));
+        public static readonly PropertyInfo<string> SetNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetName", "SetName", ""));
         public string SetName
         {
             get
@@ -61,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> NumItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("NumItems", "NumItems"));
+        public static readonly PropertyInfo<int> NumItemsProperty = RegisterProperty<int>(new PropertyInfo<int>("NumItems", "NumItems"));
         public int NumItems
         {
             get
@@ -70,7 +65,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> CompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Completed", "Completed"));
+        public static readonly PropertyInfo<bool> CompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Completed", "Completed"));
         public bool Completed
         {
             get
@@ -79,7 +74,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<ReviewStatisticsReviewerList> ReviewerStatisticsProperty = RegisterProperty<ReviewStatisticsReviewerList>(new PropertyInfo<ReviewStatisticsReviewerList>("ReviewerStatistics", "ReviewerStatistics"));
+        public static readonly PropertyInfo<ReviewStatisticsReviewerList> ReviewerStatisticsProperty = RegisterProperty<ReviewStatisticsReviewerList>(new PropertyInfo<ReviewStatisticsReviewerList>("ReviewerStatistics", "ReviewerStatistics"));
         public ReviewStatisticsReviewerList ReviewerStatistics
         {
             get

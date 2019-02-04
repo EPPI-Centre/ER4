@@ -30,7 +30,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public Review() { }  
 #else
-        private Review() { }
+		public Review() { }
 #endif
 
         public override string ToString()
@@ -38,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
             return ReviewName;
         }
 
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
         public int ReviewId
         {
             get
@@ -47,7 +47,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+		public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -60,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "ReviewName", string.Empty));
+		public static readonly PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "ReviewName", string.Empty));
         public string ReviewName
         {
             get

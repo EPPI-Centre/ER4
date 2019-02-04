@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
@@ -28,14 +28,14 @@ export class HeaderComponent implements OnInit {
         private workAllocationContactListService: WorkAllocationContactListService
     ) {    }
 
-    
+    @Input() PageTitle: string | undefined;
     ngOnDestroy() {
     }
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.ReviewSetsService.Clear();
         this.workAllocationContactListService.workAllocations = [];
-        this.workAllocationContactListService.Save();
+        //this.workAllocationContactListService.Save();
     }
     Logout() {
         this.Clear();

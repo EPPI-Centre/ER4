@@ -7,7 +7,6 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
-import { CheckBoxClickedEventData } from '../reviewsets/reviewsets.component';
 import { Item } from './ItemList.service';
 import { ModalService } from './modal.service';
 
@@ -33,21 +32,21 @@ export class PriorityScreeningService {
     public CurrentItemIndex: number = 0;
     private _TrainingList: Training[] = [];
     public get TrainingList(): Training[]{
-        if (this._TrainingList && this.TrainingList.length > 0) {
-            return this._TrainingList;
-        }
-        else {
-            const TrainingListJson = localStorage.getItem('TrainingList');
-            let tTrainingList: Training[] = TrainingListJson !== null ? JSON.parse(TrainingListJson) : [];
+        //if (this._TrainingList && this.TrainingList.length > 0) {
+        //    return this._TrainingList;
+        //}
+        //else {
+        //    const TrainingListJson = localStorage.getItem('TrainingList');
+        //    let tTrainingList: Training[] = TrainingListJson !== null ? JSON.parse(TrainingListJson) : [];
             
-            if (tTrainingList == undefined || tTrainingList == null || tTrainingList.length == 0) {
-                return this._TrainingList;
-            }
-            else {
-                //console.log("Got User from LS");
-                this._TrainingList = tTrainingList;
-            }
-        }
+        //    if (tTrainingList == undefined || tTrainingList == null || tTrainingList.length == 0) {
+        //        return this._TrainingList;
+        //    }
+        //    else {
+        //        //console.log("Got User from LS");
+        //        this._TrainingList = tTrainingList;
+        //    }
+        //}
         return this._TrainingList;
     }
 
@@ -59,34 +58,33 @@ export class PriorityScreeningService {
         }
         this.subtrainingList = this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
             this._TrainingList = tL;
-            this.Save();
-            //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
+            //this.Save();
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
         return this.subtrainingList;
     }
-    private DelayedFetch(waitSeconds: number) {
-        //console.log('In DelayedFetch waiting ' + waitSeconds + 's');
+	private DelayedFetch(waitSeconds: number) {
+
         setTimeout(() => {
             //console.log("I'm done waiting");
             this.Fetch();
         }, waitSeconds * 1000);
         
     }
-    public Save() {
-        if (this._TrainingList && this._TrainingList.length > 0)
-            localStorage.setItem('TrainingList', JSON.stringify(this._TrainingList));
-        else if (localStorage.getItem('TrainingList'))//to be confirmed!! 
-            localStorage.removeItem('TrainingList');
-    }
+    //public Save() {
+    //    if (this._TrainingList && this._TrainingList.length > 0)
+    //        localStorage.setItem('TrainingList', JSON.stringify(this._TrainingList));
+    //    else if (localStorage.getItem('TrainingList'))//to be confirmed!! 
+    //        localStorage.removeItem('TrainingList');
+    //}
     //private _NextItem: Item = new Item();
     public NextItem() {
         //Logic: if we are within the list of already seen items, find who's next and fetch it,
         //otherwise ask for "next in list", which will reserve the item (TrainingNextItem)
         //console.log(this.CurrentItem == null);
         //console.log(this.CurrentItem.itemId == 0);
-        //console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
-        //console.log(this.ScreenedItemIds.length);
+        console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+        console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
 
         if ((this.CurrentItem == null || this.CurrentItem.itemId == 0) || (this.ScreenedItemIds.indexOf(this.CurrentItem.itemId) == this.ScreenedItemIds.length - 1)) {
             this.FetchNextItem();
@@ -97,17 +95,14 @@ export class PriorityScreeningService {
         //return new Item();
     }
     public PreviousItem() {
-        //console.log('api/.../TrainingNextItem');
         if (this.CurrentItemIndex > 0) this.FetchScreenedItem(this.CurrentItemIndex - 1);
     }
     private FetchNextItem() {
-        //console.log('api/PriorirtyScreening/TrainingNextItem');
         let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
         this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
             body).toPromise().then(
                 success => {
                     this.CurrentItem = success.item;
-                    //console.log(this.CurrentItem.itemId);
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
                     if (currentIndex == -1) {
                         this.ScreenedItemIds.push(this.CurrentItem.itemId);
@@ -123,22 +118,22 @@ export class PriorityScreeningService {
     }
 
     private FetchScreenedItem(index: number) {
-        //console.log('api/PriorirtyScreening/TrainingPreviousItem index: ' + index);
         let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
+        //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+        //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
         this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
             body).toPromise().then(
             success => {
-                //console.log(success.item.title);
+
                     this.CurrentItem = success.item;
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-                    if (currentIndex != -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);
+                    if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
                     this.CurrentItemIndex = currentIndex;
                     //return this.CurrentItem;
                     this.gotItem.emit();
                 },
                 error => {
-                    //return new Item();
-                    //this.gotItem.emit();
+
                     this.modalService.SendBackHomeWithError(error);
                 });
     }
@@ -151,7 +146,6 @@ export class PriorityScreeningService {
         if (totalScreened <= 1000) {
             if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 500 ||
                 currentCount == 750 )) {
-                //console.log('RunningTraining!!!!');
                 this.RunNewTrainingCommand();
             }
         }
@@ -172,9 +166,9 @@ export class PriorityScreeningService {
     }
     private RunNewTrainingCommand() {
         return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
-            //console.log(tL);
-            this.DelayedFetch(30 * 60);//seconds to wait...
-            //console.log('This is the review name: ' + rI.reviewId + ' ' + this.ReviewInfo.reviewName);
+            //this.DelayedFetch(1 * 6);//seconds to wait...
+            this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
+            //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
     }

@@ -1,0 +1,94 @@
+<div *ngIf="item" class="row col-12 card card-body bg-light ml-1">
+    <div class="row">
+        <div *ngIf="ShowHighlights" class="row col-12"><h4 [innerHTML]="HTitle"></h4></div>
+        <div *ngIf="!ShowHighlights" class="row col-12"><h4>{{item.title}}</h4></div>
+        <div *ngIf="ShowHighlights" class="row col-12 border-top border-info ml-0 pl-0"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
+        <div *ngIf="!ShowHighlights" class="row col-12 border-top border-info ml-0 pl-0"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+        <table class="table table-responsive col-12 p-0 justify-content-start">
+            <tbody class="col-12" style="width:100%;">
+                <tr>
+                    <td colspan="12">
+                        <b>Authors:&nbsp;</b> {{item.authors}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <b *ngIf="item.parentTitle.length > 0 && item.typeName == 'Journal, Article'">
+                            Journal:&nbsp;
+                        </b>
+                        <b *ngIf="item.parentTitle.length > 0 && item.typeName == 'Book, Chapter'">
+                            Book title:&nbsp;
+                        </b>
+                        <b *ngIf="item.parentTitle.length > 0 && item.typeName != 'Book, Chapter' && item.typeName != 'Journal, Article'">
+                            Parent title:&nbsp;
+                        </b>
+                        {{item.parentTitle}}
+                    </td>
+                    <td colspan="6">
+                        <b>Short Title:&nbsp;</b> {{item.shortTitle}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4"><b>ID:&nbsp;</b>{{item.itemId}}</td>
+                    <td colspan="4"><b>Type:&nbsp;</b>{{item.typeName}}</td>
+                    <td colspan="4"><b>Year:&nbsp;</b> {{item.year}}</td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <b *ngIf="item.standardNumber.length > 0 && item.typeName == 'Journal, Article'">ISSN:&nbsp;</b>
+                        <b *ngIf="item.standardNumber.length > 0 && (item.typeName == 'Book, Chapter' || item.typeName == 'Book, Whole')">
+                            ISBN:&nbsp;
+                        </b>
+                        <b *ngIf="item.standardNumber.length > 0 && item.typeName != 'Book, Chapter' && item.typeName != 'Journal, Article' && item.typeName != 'Book, Whole'">
+                            Standard N:&nbsp;
+                        </b>
+                        {{item.standardNumber}}
+                    </td>
+                    <td colspan="4">
+                        <b>Volume:&nbsp;</b> {{item.volume}}
+						
+                    </td>
+                    <td colspan="4">
+                        <b>Pages:&nbsp;</b> {{item.pages}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <b>Issue:&nbsp;</b>{{item.issue}}
+                    </td>
+                    <td colspan="4">
+                        <b>Edition:&nbsp;</b>{{item.edition}}
+                    </td>
+                    <td colspan="4">
+                        <b>Imported ID:&nbsp;</b>{{item.oldItemId}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <b>DOI:&nbsp;</b> {{item.doi}}
+                    </td>
+                    <td  colspan="6" style="max-width:270px;overflow:auto;">
+                        <b>URL:&nbsp;</b> <span class="small">{{item.url}}</span>
+                    </td>
+                </tr>
+                <tr *ngIf="item.keywords.length > 0 || item.comments.length > 0 ">
+                    <td colspan="6">
+                        <div *ngIf="item.keywords.length > 0" >
+                            <b>Keywords:</b><br />
+                            <div style="max-height:120px; overflow-y:scroll;" [innerHTML]="toHTML(item.keywords)"></div>
+                        </div>
+                    </td>
+                    <td colspan="6">
+                        <div *ngIf="item.comments.length > 0">
+                            <b>Comments:</b><br />
+                            <div style="max-height:120px; overflow-y:scroll;" [innerHTML]="toHTML(item.comments)"></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" >
+    <ItemDocListComp class="" [itemID]="item.itemId"></ItemDocListComp>
+</div>

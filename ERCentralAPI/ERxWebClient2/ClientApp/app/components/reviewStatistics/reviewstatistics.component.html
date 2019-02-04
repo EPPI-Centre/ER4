@@ -1,0 +1,42 @@
+<p *ngIf="!codesetStatsServ.ReviewStats"><em>Loading...</em></p>
+<div class="card bg-light mt-2 col-md-12">
+	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info">Review Items</div>
+	<div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
+		<div class="col-3 mb-2">
+			<b>
+				Included:
+				<span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="IncludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsIncluded}}</span>
+			</b>
+		</div>
+		<div class="col-3">
+			<b>
+				Excluded: <span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="ExcludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsExcluded}}</span>
+			</b>
+		</div>
+		<div class="col-3">Deleted: {{ codesetStatsServ.ReviewStats.itemsDeleted}}</div>
+		<div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
+	</div>
+</div>
+<div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
+	<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info col-12">Coding Progress</div>
+	<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ.tmpCodesets">
+		<div class="bg-white col-6 mr-1 rounded">
+			<img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+			<img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+			<span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
+                                                    'AdminSet' : item.subTypeName == 'Administration' }"
+					class="font-weight-bold">
+				{{ item.setName }}
+			</span>
+		</div>
+		<div class="bg-white col-2 mr-1 rounded">
+			<img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+			&nbsp;{{ item.countCompleted}}
+		</div>
+		<div class="bg-white col-2 mr-1 rounded">
+			<img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+			&nbsp; {{ item.countIncomplete}}
+		</div>
+	</div>
+</div>
+

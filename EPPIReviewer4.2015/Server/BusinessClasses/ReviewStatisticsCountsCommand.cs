@@ -12,6 +12,7 @@ using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
 
+
 #if!SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -23,12 +24,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReviewStatisticsCountsCommand : CommandBase<ReviewStatisticsCountsCommand>
     {
-#if SILVERLIGHT
         public ReviewStatisticsCountsCommand() { }
-#else
-        protected ReviewStatisticsCountsCommand() { }
-#endif
-
+        
         private int _itemsIncluded;
         private int _itemsExcluded;
         private int _itemsDeleted;
@@ -52,7 +49,6 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return _DuplicateItems; }
         }
-
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);

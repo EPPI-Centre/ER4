@@ -1406,8 +1406,9 @@ Proceed?";
             if (attributeSet.AttributeTypeId > 1)
             {
                 bool oneReviewerHasSelected = false;
-                ReadOnlyItemAttribute roia = comparison1.GetItemAttribute(attributeSet.AttributeId);
-                if (roia != null)
+                // JT changed this 31/01/2019 - it was calling GetItemAttribute - so only bringing back 1 attribute; need a list to account for arms
+                List<ReadOnlyItemAttribute> roias = comparison1.GetItemAttributes(attributeSet.AttributeId).OrderBy(o => o.ArmId).ToList();
+                foreach (ReadOnlyItemAttribute roia in roias)
                 {
                     report += "<li><FONT COLOR='BLUE'>[" + comparison1.ContactName + "] " +
                         attributeSet.AttributeName +
@@ -1421,8 +1422,8 @@ Proceed?";
                         report += "<FONT COLOR='BLUE'>" + addFullTextToComparisonReport(ll) + "</FONT>";
                     }
                 }
-                roia = comparison2.GetItemAttribute(attributeSet.AttributeId);
-                if (roia != null)
+                roias = comparison2.GetItemAttributes(attributeSet.AttributeId).OrderBy(o => o.ArmId).ToList();
+                foreach (ReadOnlyItemAttribute roia in roias)
                 {
                     report += "<li><FONT COLOR='RED'>[" + comparison2.ContactName + "] " +
                         attributeSet.AttributeName + 
@@ -1438,8 +1439,8 @@ Proceed?";
                 }
                 if (comparison3 != null)
                 {
-                    roia = comparison3.GetItemAttribute(attributeSet.AttributeId);
-                    if (roia != null)
+                    roias = comparison3.GetItemAttributes(attributeSet.AttributeId).OrderBy(o => o.ArmId).ToList();
+                    foreach (ReadOnlyItemAttribute roia in roias)
                     {
                         report += "<li><FONT COLOR='GREEN'>[" + comparison3.ContactName + "] " +
                             attributeSet.AttributeName + 

@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const merge = require('webpack-merge');
+
 const treeShakableModules = [
     '@angular/animations',
     '@angular/common',
@@ -13,17 +14,29 @@ const treeShakableModules = [
     '@angular/platform-browser',
     '@angular/platform-browser-dynamic',
     '@angular/router',
-    'zone.js',
+    'zone.js'
 ];
+
 const nonTreeShakableModules = [
-    'bootstrap',
+    //'bootstrap',
     'bootstrap/dist/css/bootstrap.css',
-    'es6-promise',
-    'es6-shim',
-    'event-source-polyfill',
-    'jquery',
-    'angular-tree-component/dist/angular-tree-component.css'
+    //'es6-promise',
+    //'es6-shim',
+    //'event-source-polyfill',
+    //'jquery',
+	'./CSS/ERx.css',
+    'font-awesome/css/font-awesome.css',
+    'angular-tree-component/dist/angular-tree-component.css',
+    '@progress/kendo-theme-bootstrap/dist/all.css'
+    //'datatables.net-dt/css/jquery.dataTables.css',
+    //'datatables.net',
+    //'datatables.net-dt',
+    //'./node_modules/jquery/src/jquery.js',
+    //'./node_modules/datatables.net-dt/js/dataTables.dataTables.js',
+    //'./node_modules/datatables.net-dt/css/jquery.dataTables.css',
+	//'./node_modules/datatables.net/js/jquery.dataTables.js',
 ];
+
 const allModules = treeShakableModules.concat(nonTreeShakableModules);
 
 module.exports = (env) => {
@@ -31,7 +44,14 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
     const sharedConfig = {
         stats: { modules: false },
-        resolve: { extensions: [ '.js' ] },
+        resolve: {
+            extensions: ['.js']
+            , alias: {
+                //from: https://stackoverflow.com/questions/42919079/jquery-is-not-defined-in-angular-webpack-site
+                //Force all modules to use the same jquery version.
+                'jquery': path.join(__dirname, './node_modules/jquery/src/jquery')
+            }
+        },
         module: {
             rules: [
                 { test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/, use: 'url-loader?limit=100000' }
@@ -59,7 +79,17 @@ module.exports = (env) => {
         output: { path: path.join(__dirname, 'wwwroot', 'dist') },
         module: {
             rules: [
-                { test: /\.css(\?|$)/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) }
+                { test: /\.css(\?|$)/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) },
+				{ test: /path.join(__dirname, 'CSS', 'ERx.css')/, use: extractCSS.extract({ use: isDevBuild ? 'css-loader' : 'css-loader?minimize' }) },
+				{
+					test: /\.less/,
+					use: ExtractTextPlugin.extract({
+						fallback: 'style-loader',
+						use: ['css-loader', 'less-loader']
+					}),
+					include: path.resolve(__dirname, 'src/style')
+				},
+		
             ]
         },
         plugins: [

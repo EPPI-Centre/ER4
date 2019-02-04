@@ -67,3 +67,31 @@ CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-174707] ON [dbo].[PaperUrl
 (
 	[PaperId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+CREATE FUNCTION [dbo].[fn_StripCharacters]
+(
+    @String NVARCHAR(MAX), 
+    @MatchExpression VARCHAR(255)
+)
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+    SET @MatchExpression =  '%['+@MatchExpression+']%'
+
+    WHILE PatIndex(@MatchExpression, @String) > 0
+        SET @String = Stuff(@String, PatIndex(@MatchExpression, @String), 1, '')
+
+    RETURN @String
+
+END
+/*
+Alphabetic only:
+SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^a-z')
+Numeric only:
+SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^0-9')
+Alphanumeric only:
+SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^a-z0-9')
+Non-alphanumeric:
+SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', 'a-z0-9')
+*/
+GO

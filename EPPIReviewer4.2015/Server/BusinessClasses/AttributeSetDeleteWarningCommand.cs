@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class AttributeSetDeleteWarningCommand : CommandBase<AttributeSetDeleteWarningCommand>
     {
-#if SILVERLIGHT
         public AttributeSetDeleteWarningCommand() { }
-#else
-        protected AttributeSetDeleteWarningCommand() { }
-#endif
 
         private Int64 _attributeSetId;
         private int _setId;

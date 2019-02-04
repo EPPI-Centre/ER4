@@ -1,0 +1,139 @@
+<div class="container-fluid " resizable>
+    <HeaderComponent  PageTitle=""></HeaderComponent>
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+    <div class="mt-1 ">
+        <kendo-splitter orientation="horizontal">
+            <kendo-splitter-pane [collapsible]="false" class="">
+            <kendo-splitter-pane>
+                    <kendo-tabstrip #tabstrip [keepTabContent]="true"
+                                    (tabSelect)="onTabSelect($event)">
+                        <kendo-tabstrip-tab [selected]="true" [title]="'Review home'">
+                            <ng-template kendoTabContent>
+                                <div class="containsAtoolbar">
+                                    <kendo-toolbar class="customk-toolbar">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Edit Codes'" (click)="EditCodeSets()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Codeset(s)'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
+                                        <!--<kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'New Review'" (click)="CreateReviewClick()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
+    <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
+    <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+                                    </kendo-toolbar>
+                                </div>
+                                <div class="row m-1">
+                                    <div class="col-md-7 p-0 pr-1">
+                                        <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
+                                    </div>
+                                    <div class="col-md-5 p-0">
+                                        <div class="card card-body ReviewsBg  mt-2 ">
+                                            <div class="row p-0">
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
+                                                        [attr.aria-expanded]="!isReviewPanelCollapsed">
+                                                    My Reviews <span [innerHTML]="ReviewPanelTogglingSymbol"></span>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleWorkAllocationsPanel()"
+                                                        [attr.aria-expanded]="!isWorkAllocationsPanelCollapsed">
+                                                    My Work <span [innerHTML]="WorkAllocationsPanelTogglingSymbol"></span>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary m-1" (click)="toggleSourcesPanel()"
+                                                        [attr.aria-expanded]="!isSourcesPanelCollapsed">
+                                                    Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
+                                                </button>
+                                            </div>
+                                            <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
+                                                             style="max-height: 520px;"></readonlyreviews>
+                                            <WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadWorkAllocList($event)'
+                                                                           (AllocationClicked)="GoToItemList()"
+                                                                           [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
+                                                                           resizable r-directions="['right']" r-flex="true"
+                                                                           class="mt-2"
+                                                                           Context="FullUI"
+                                                                           style="max-height: 420px;"></WorkAllocationContactListComp>
+                                            <ROSourcesList id="readOnlyReviews" [ngbCollapse]="!isSourcesPanelCollapsed" class="mt-1"
+                                                           style="max-height: 420px;"></ROSourcesList>
+                                        </div>
+                                        <div class="card card-body mt-2 bg-light ">
+                                            {{MyAccountMessage}}
+                                            <br />
+                                            {{MyReviewMessage}}
+                                            <NewReviewComp></NewReviewComp>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'References'">
+                            <ng-template kendoTabContent>
+                                <div class="containsAtoolbar">
+                                    <kendo-toolbar class="small" style="background-color: #f5f6fa;">
+                                        <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
+                                        <kendo-toolbar-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
+                                                                   [disabled]="!CanGetItemsWithThisCode"
+                                                                   [data]="ItemsWithThisCodeDDData"
+                                                                   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+                                        <kendo-toolbar-splitbutton [text]="'Assign Code'" (buttonClick)="BulkAssignRemoveCodes(true)"
+                                                                   [disabled]="!CanBulkAssignRemoveCodes"
+                                                                   [data]="AddRemoveItemsDDData"
+                                                                   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+                                        <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'"
+                                                              (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'Coding Report'"
+                                                              [disabled]="!HasSelectedItems" (click)="ShowHideQuickReport()"></kendo-toolbar-button>
+                                        <kendo-toolbar-button [text]="'To RIS'"
+                                                              [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
+                                    </kendo-toolbar>
+                                </div>
+                                <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
+                                <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()"></RunLingo3G>
+                                <div class="card card-body bg-light p-1">
+                                    <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                                </div>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'Frequencies'">
+                            <ng-template kendoTabContent>
+                                <frequencies></frequencies>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'CrossTabs'">
+                            <ng-template kendoTabContent>
+                                <crosstab></crosstab>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                        <kendo-tabstrip-tab [title]="'Search'">
+                            <ng-template kendoTabContent>
+                                <SearchComp class="bg-light"></SearchComp>
+                            </ng-template>
+                        </kendo-tabstrip-tab>
+                    </kendo-tabstrip>
+                    <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
+                        <div class="small">
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                            Codes
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                        </div>
+                    </button>
+                    <button *ngIf="CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
+                        <div class="small">
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                            Codes
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                        </div>
+                    </button>
+                </kendo-splitter-pane>
+            </kendo-splitter-pane>
+            <kendo-splitter-pane [collapsed]="CodesAreCollapsed" size="30%" class="bg-light">
+                <button *ngIf="this.reviewSetsService.ReviewSets && this.reviewSetsService.ReviewSets.length > 0 && ReviewerIdentityServ.HasWriteRights"
+                        class="btn btn-outline-success btn-sm ml-1 p-0 pr-1 pl-1 " (click)="EditCodeSets()">Edit Codes</button>
+                <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
+                <div *ngIf="(!this.reviewSetsService.ReviewSets || this.reviewSetsService.ReviewSets.length == 0) && !IsServiceBusy && ReviewerIdentityServ.HasWriteRights" >
+                    <button class="btn btn-success btn-sm p-0 mb-1" (click)="ImportCodesetClick()"><span class="ml-1 mr-1">Click Here</span></button> to Import Codesets from templates.
+                </div>
+            </kendo-splitter-pane>
+        </kendo-splitter>
+        <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>
+    </div>
+</div>
+

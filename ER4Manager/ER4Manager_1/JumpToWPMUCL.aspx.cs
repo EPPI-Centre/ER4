@@ -10,6 +10,7 @@ using System.Xml.Linq;
 public partial class JumpToWPMUCL : System.Web.UI.Page
 {
     double Tot = 0, VatTot = 0;
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (Utils.GetSessionString("Contact_ID") == null)

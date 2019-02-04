@@ -22,11 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class AttributeUpdateCommand : CommandBase<AttributeUpdateCommand>
     {
-#if SILVERLIGHT
-    public AttributeUpdateCommand(){}
-#else
-        protected AttributeUpdateCommand() { }
-#endif
+        public AttributeUpdateCommand(){}
+
 
         private Int64 _attributeId;
         private Int64 _attributeSetId;

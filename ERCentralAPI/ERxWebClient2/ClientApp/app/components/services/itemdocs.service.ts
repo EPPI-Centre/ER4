@@ -30,7 +30,7 @@ export class ItemDocsService {
     public FetchDocList(itemID: number) {
 
         let body = JSON.stringify({ Value: itemID });
-        return this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+        this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
             (res) => { this._itemDocs = res }
             , error => { this.modalService.GenericError(error); }
         );
@@ -53,9 +53,16 @@ export class ItemDocsService {
                 
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
-                        blob => {
-                            let url = URL.createObjectURL(blob);
-                            if (url) window.open(url);
+						blob => {
+							if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+								window.navigator.msSaveOrOpenBlob(blob);
+							}
+							else {
+								URL.createObjectURL(blob);
+								let url = URL.createObjectURL(blob);
+								if (url) window.open(url);
+							}
+                            
                         });
                 }
             });
@@ -90,15 +97,15 @@ export class ItemDocument {
     public textTo: number = 0;
     public freeNotesStream: string = "";
     public freeNotesXML: string = '';
-    public isBusy: boolean = false;
-    public isChild: boolean = false;
-    public isDeleted: boolean = false;
-    public isDirty: boolean = false;
-    public isNew: boolean = false;
-    public isSavable: boolean = false;
-    public isSelfBusy: boolean = false;
-    public isSelfDirty: boolean = false;
-    public isSelfValid: boolean = false;
-    public isValid: boolean = false;
+    //public isBusy: boolean = false;
+    //public isChild: boolean = false;
+    //public isDeleted: boolean = false;
+    //public isDirty: boolean = false;
+    //public isNew: boolean = false;
+    //public isSavable: boolean = false;
+    //public isSelfBusy: boolean = false;
+    //public isSelfDirty: boolean = false;
+    //public isSelfValid: boolean = false;
+    //public isValid: boolean = false;
 
 }

@@ -21,25 +21,21 @@ export class ReviewerTermsService {
 
     private _TermsList: ReviewerTerm[] = [];
     public get TermsList(): ReviewerTerm[] {
-        //console.log('Revinfo GET ' + this._ReviewInfo.screeningCodeSetId + " " + this._ReviewInfo.screeningListIsGood);
-        if (this._TermsList && this._TermsList.length > 0 ) {
-            return this._TermsList;
-        }
-        else {
-            const TermsListJson = localStorage.getItem('TermsList');
-            let terms_Info: ReviewerTerm[] = TermsListJson !== null ? JSON.parse(TermsListJson) : [];
-            //let tmp: any = localStorage.getItem('currentErUser');
-            //console.log("after LS: " + this._platformId);
-            //let tmp2: ReviewerIdentity = tmp;
-            if (terms_Info == undefined || terms_Info == null ) {
+        //if (this._TermsList && this._TermsList.length > 0 ) {
+        //    return this._TermsList;
+        //}
+        //else {
+        //    const TermsListJson = localStorage.getItem('TermsList');
+        //    let terms_Info: ReviewerTerm[] = TermsListJson !== null ? JSON.parse(TermsListJson) : [];
 
-                return this._TermsList;
-            }
-            else {
-                //console.log("Got User from LS");
-                this._TermsList = terms_Info;
-            }
-        }
+        //    if (terms_Info == undefined || terms_Info == null ) {
+
+        //        return this._TermsList;
+        //    }
+        //    else {
+        //        this._TermsList = terms_Info;
+        //    }
+        //}
         return this._TermsList;
     }
 
@@ -47,18 +43,18 @@ export class ReviewerTermsService {
 
         return this._httpC.get<ReviewerTerm[]>(this._baseUrl + 'api/ReviewerTermList/Fetch').subscribe(result => {
             this._TermsList = result;
-            this.Save();
+            //this.Save();
         },
             error => { this.modalService.GenericError(error); }
         );
     }
 
-    public Save() {
-        if (this._TermsList != null)
-            localStorage.setItem('TermsList', JSON.stringify(this._TermsList));
-        else if (localStorage.getItem('TermsList'))//to be confirmed!! 
-            localStorage.removeItem('TermsList');
-    }
+    //public Save() {
+    //    if (this._TermsList != null)
+    //        localStorage.setItem('TermsList', JSON.stringify(this._TermsList));
+    //    else if (localStorage.getItem('TermsList'))//to be confirmed!! 
+    //        localStorage.removeItem('TermsList');
+    //}
 }
 export interface ReviewerTerm {
     trainingReviewerTermId: number;

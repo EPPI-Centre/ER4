@@ -22,21 +22,17 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyTemplateReview : ReadOnlyBase<ReadOnlyTemplateReview>
     {
-
-#if SILVERLIGHT
-    public ReadOnlyTemplateReview() { }
-#else
-        internal ReadOnlyTemplateReview() 
+        public ReadOnlyTemplateReview()
         {
             LoadProperty(ReviewSetIdsProperty, new MobileList<int>());
         }
-#endif
+
         public override string ToString()
         {
             return this.TemplateName;
         }
         
-        private static PropertyInfo<int> TemplateIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TemplateId", "TemplateId", 0));
+        public static readonly PropertyInfo<int> TemplateIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TemplateId", "TemplateId", 0));
         public int TemplateId
         {
             get
@@ -46,7 +42,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TemplateNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TemplateName", "TemplateName", string.Empty));
+        public static readonly PropertyInfo<string> TemplateNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TemplateName", "TemplateName", string.Empty));
         public string TemplateName
         {
             get
@@ -54,7 +50,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(TemplateNameProperty);
             }
         }
-        private static PropertyInfo<string> TemplateDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("TemplateDescription", "TemplateDescription", string.Empty));
+        public static readonly PropertyInfo<string> TemplateDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("TemplateDescription", "TemplateDescription", string.Empty));
         public string TemplateDescription
         {
             get
@@ -62,7 +58,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(TemplateDescriptionProperty);
             }
         }
-        private static PropertyInfo<MobileList<int>> ReviewSetIdsProperty = RegisterProperty<MobileList<int>>(new PropertyInfo<MobileList<int>>("ReviewSetIds", "ReviewSetIds"));
+        public static readonly PropertyInfo<MobileList<int>> ReviewSetIdsProperty = RegisterProperty<MobileList<int>>(new PropertyInfo<MobileList<int>>("ReviewSetIds", "ReviewSetIds"));
         public MobileList<int> ReviewSetIds
         {
             get

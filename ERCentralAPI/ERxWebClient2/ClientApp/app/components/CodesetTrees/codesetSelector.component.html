@@ -1,0 +1,15 @@
+<div class="bg-light" *ngIf="!rootsOnly" 
+	 [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
+	<tree-root #tree class="bg-dark" *ngIf="nodes" [nodes]="nodes"
+			   [options]="options" style="max-height: 800px;"
+			   (activate)="NodeSelected($event.node.data)">
+		<ng-template class="bg-warning" #treeNodeTemplate let-node let-index="index">
+			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
+                            'AdminSet' : node.data.subTypeName == 'Administration',
+                            'ExcludeCode' : node.data.subTypeName == 'Exclude'
+                            }">
+				{{node.data.name}}
+			</span>
+		</ng-template>
+	</tree-root>
+</div>
