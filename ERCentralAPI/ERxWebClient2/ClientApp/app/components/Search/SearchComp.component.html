@@ -120,7 +120,6 @@
 
             </div>
         </div>
-        <!--<span *ngIf="_reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>-->
         <div class="row">
             <div class="col-12 mb-1 pr-1 pl-1">
                 <table class="col-md-4">
@@ -168,54 +167,62 @@
 		</tr>
 	</table>
 </div>
-<div id="ModelSection" [ngbCollapse]="!ModelSection">
+<div id="ModelSection" *ngIf="ModelSection">
 
-	<div class="form-group card-body col-md-12 row">
-		<div class="col-md-3 col-sm-4 p-2">
-			<p class="font-weight-bold">Step1:	Select a Model</p>
-			<div class="btn-group-vertical" role="group" aria-label="Basic example">
-				<button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
-				<button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
-				<button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
-				<button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
-				<button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
-			</div>
-		</div>
+    <div class="col-12 row mt-2">
+        <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
+            <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
+            <div class="btn-group-vertical col-12 p-0"  role="group" aria-label="Basic example">
+                <button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
+                <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
+                <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
+                <button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
+            </div>
+        </div>
 
-		<div id="radioButtonApplyModelSection" [ngbCollapse]="!radioButtonApplyModelSection">
-			<div class="col-md-8 col-sm-4 p-2">
-				<p class="font-weight-bold">Step 2: Choose method to apply</p>
-				<input (click)="chooseAll()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to all items in review
-				</label>
-				<input (click)="chooseCodeMessage()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="2">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to items with this code
-				</label>
+        <div id="radioButtonApplyModelSection" *ngIf="radioButtonApplyModelSection" class="col-12 col-sm-7 align-content-start">
 
-				<input (click)="chooseSourceDD()" class="col-md-4" type="radio" name="ApplyRB" [(ngModel)]="mode" value="3">
-				<label class="form-check-label ">
-					&nbsp;&nbsp;Apply to items from this source
-				</label>
-			</div>
-			<div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
-				<div>
-					<div ngbDropdown>
-						<select class="btn btn-secondary" id="dropdownBasicSources"
-								ngbDropdownToggle [(ngModel)]="selected">
-							<option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
-								{{DisplayFriendlySourceNames(item)}}
-							</option>
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<span *ngIf="_reviewSetsService.selectedNode" class="p-3 m-3 font-weight-bold bg-info col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</span>
-	</div>
-	<div id="modelResultsSection" [ngbCollapse]="!modelResultsSection">
+            <div class="font-weight-bold mb-2">Step 2: Choose method to apply</div>
+            <div class="col-12">
+                <input (click)="chooseAll()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="1">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to all items in review
+                </label>
+            </div>
+            <div class="col-12">
+                <input (click)="chooseCodeMessage()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="2">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to items with this code
+                </label>
+            </div>
+            <div class="col-12">
+                <input (click)="chooseSourceDD()" type="radio" name="ApplyRB" [(ngModel)]="mode" value="3">
+                <label class="form-check-label ">
+                    &nbsp;&nbsp;Apply to items from this source
+                </label>
+            </div>
+            <div class="col-12">
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode?.name}}</div>
+                <div *ngIf="mode == 2 && !selectedNode" class="p-1 m-1 alert-danger row p-1 ">Please select a code from the right.</div>
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a CodeSet.</div>
+            </div>
+            <div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
+                <div>
+                    <div ngbDropdown>
+                        <select class="btn btn-secondary mt-3" id="dropdownBasicSources"
+                                ngbDropdownToggle [(ngModel)]="selected">
+                            <option [value]="item.source_ID" *ngFor="let item of this._sourcesService.ReviewSources">
+                                {{DisplayFriendlySourceNames(item)}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+	<div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
 		<kendo-grid [data]="DataSourceModel"
 					[selectable]="selectableSettings"
 					[sort]="sort"
@@ -242,102 +249,110 @@
 			</kendo-grid-column>
 		</kendo-grid>
 	</div>
-	<div class="form-group card-body col-md-12">
+	<div class="col-12 mt-2 mb-2 justify-content-center">
 		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
-				type="button" class="btn btn-success">
-			Run Selected Model
+				type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+			Run Model
 		</button>
 	</div>
 </div>
 
-<div id="visualiseSection" *ngIf="ShowVisualiseSection" class="bg-light p-1 m-1">
-	<div ngbDropdown class="card row col-md-12 p-1 m-1">
-		<div class="col-md-12">
-			<div *ngIf ="!CanCreateClassifierCodes()">
-				To create codes to represent the classifier result, please select a code on the right.
+
+
+<div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
+	<div ngbDropdown class="card col-12 ">
+		<div *ngIf="!CanCreateClassifierCodes()" class=" col-sm-4 col-md-4">
+			To create codes to represent the classifier result, please select a code on the right.
+		</div>
+		<div *ngIf="CanCreateClassifierCodes()" class="row col-8 col-sm-8 col-md-8">
+			<p style="min-width: 150px;" class="row col-6" *ngIf="selectedNode"> Create codes below this code / set: <b>{{selectedNode.name}}</b></p>
+			<div class="col-6 col-sm-4 col-md-4 m-0 p-0">
+				<button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
 			</div>
-			<div *ngIf="CanCreateClassifierCodes()">
-				<p *ngIf="selectedNode" class="col-md-3 pull-left"> Create codes below this code / set: {{selectedNode.name}}</p>
-				<button style="min-width: 150px;" class="btn btn-warning p-1 m-1" (click)="CreateCodesBelow()">Create</button>
+		</div>
+	</div>
+	<div class="card col-12 col-sm-12 col-md-12">
+		<figure class="figure col-12">
+			<kendo-chart #VisualiseChart style="min-width: 500px;"
+						 *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
+				<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
+				<kendo-chart-series>
+					<kendo-chart-series-item field="count" categoryField="range"
+											 type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
+					</kendo-chart-series-item>
+				</kendo-chart-series>
+			</kendo-chart>
+		</figure>
+	</div>
+	<div class="card bg-light ">
+		<div class="col-12 row">
+			<div class="col-sm-1 col-md-1"></div>
+			<div class="col">
+				<button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
 			</div>
+			<div class="col">
+				<button style="min-width: 150px;" class="btn btn-danger p-2 m-2" (click)="CancelVisualise()">Cancel</button>
+			</div>
+			<div class="col"></div>
 		</div>
 	</div>
-	<div class="card">
-		<kendo-chart #VisualiseChart style="min-width: 500px;"
-					 *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
-			<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
-			<kendo-chart-series>
-				<kendo-chart-series-item field="count" categoryField="range"
-										 type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
-				</kendo-chart-series-item>
-			</kendo-chart-series>
-		</kendo-chart>
-	</div>
-		<div class="col-md-12 row">
-		<div class="col-md-5">
-			<button style="min-width: 150px;" class="btn btn-info p-2 m-2 w-25 pull-right" (click)="exportChart()">Save</button>
-		</div>
-		<div class="col-md-5">
-			<button style="min-width: 150px;" class="btn btn-danger  w-25  p-2 m-2" (click)="CancelVisualise()">Cancel</button>
-		</div>
-	</div>
-	<br />
 </div>
 
-<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
-				[data]="DataSourceSearches" [height]="410"
-				[rowClass]="rowCallback"
-				[sortable]="{
+<div class="card col-12 bg-light">
+		<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+					[data]="DataSourceSearches" [height]="410"
+					[rowClass]="rowCallback"
+					[sortable]="{
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
-				[sort]="sort"
-				(sortChange)="sortChange($event)"
-            class="mt-1">
+					[sort]="sort"
+					(sortChange)="sortChange($event)"
+					class="mt-1">
 
-		<kendo-grid-column [sortable]="false" width="33"
-						   [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
-						   [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
-			<!--<ng-template kendoGridHeaderTemplate let-dataItem>
-				<input style="zoom: 1.2;"
-					   type="checkbox"
-					   name="selectAll"
-					   (change)="selectAllSearchesChange($event)"
-					   [checked]="allSearchesSelected" />
-			</ng-template>-->
-			<ng-template kendoGridCellTemplate let-dataItem>
-				<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-					   type="checkbox"
-					   field="selected"
-					   [checked]="dataItem.add" />
-			</ng-template>
-		</kendo-grid-column>
-		<kendo-grid-column field="searchNo" title="No" width="60">
-		</kendo-grid-column>
-		<kendo-grid-column field="title" title="Name" width="360">
-		</kendo-grid-column>
-		<kendo-grid-column field="contactName" title="Created By" width="140">
-		</kendo-grid-column>
-		<kendo-grid-column field="searchDate" title="Date" width="140">
-		</kendo-grid-column>
-		<kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
-						   field="hitsNo" title="Hits">
-			<ng-template kendoGridCellTemplate let-dataItem>
-				<div (click)="SearchGetItemList(dataItem)">
-					{{dataItem.hitsNo}}
-				</div>
-			</ng-template>
-		</kendo-grid-column>
-		<kendo-grid-column field="isClassifierResult"
-						   title="Classifier" width="80">
-			<ng-template kendoGridCellTemplate let-dataItem>
-				<div (click)="OpenClassifierVisualisation(dataItem)"
-					 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
-					{{dataItem.isClassifierResult}}
-				</div>
-			</ng-template>
-		</kendo-grid-column>
-	</kendo-grid>
-
-<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
+			<kendo-grid-column [sortable]="false" width="33"
+							   [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
+							   [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
+				<!--<ng-template kendoGridHeaderTemplate let-dataItem>
+					<input style="zoom: 1.2;"
+						   type="checkbox"
+						   name="selectAll"
+						   (change)="selectAllSearchesChange($event)"
+						   [checked]="allSearchesSelected" />
+				</ng-template>-->
+				<ng-template kendoGridCellTemplate let-dataItem>
+					<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+						   type="checkbox"
+						   field="selected"
+						   [checked]="dataItem.add" />
+				</ng-template>
+			</kendo-grid-column>
+			<kendo-grid-column field="searchNo" title="No" width="60">
+			</kendo-grid-column>
+			<kendo-grid-column field="title" title="Name" width="360">
+			</kendo-grid-column>
+			<kendo-grid-column field="contactName" title="Created By" width="140">
+			</kendo-grid-column>
+			<kendo-grid-column field="searchDate" title="Date" width="140">
+			</kendo-grid-column>
+			<kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
+							   field="hitsNo" title="Hits">
+				<ng-template kendoGridCellTemplate let-dataItem>
+					<div (click)="SearchGetItemList(dataItem)">
+						{{dataItem.hitsNo}}
+					</div>
+				</ng-template>
+			</kendo-grid-column>
+			<kendo-grid-column field="isClassifierResult"
+							   title="Classifier" width="80">
+				<ng-template kendoGridCellTemplate let-dataItem>
+					<div (click)="OpenClassifierVisualisation(dataItem)"
+						 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+						{{dataItem.isClassifierResult}}
+					</div>
+				</ng-template>
+			</kendo-grid-column>
+		</kendo-grid>
+</div>
+	<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 

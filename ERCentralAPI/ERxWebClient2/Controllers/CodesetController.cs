@@ -317,14 +317,12 @@ namespace ERxWebClient2.Controllers
 					ClassifierCreateCodesCommand command = new ClassifierCreateCodesCommand
 																(data.searchId,
 																data.searchName,
-																data.attributeId == null ? 0 : data.attributeId,
-																data.setId == null ? data.setId : data.setId);
-
+																data.attributeId = data.attributeId,
+																data.setId = data.setId);
 					dp.Execute(command);
 					return Ok();
 				}
 				else return Forbid();
-
 			}
 			catch (Exception e)
 			{

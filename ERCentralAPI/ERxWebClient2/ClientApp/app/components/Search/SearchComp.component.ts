@@ -40,7 +40,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		public _searchService: searchService,
 		public _reviewSetsEditingServ: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
-		public _reviewSetsService: ReviewSetsService,
+        private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
@@ -183,6 +183,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	//	this.isCollapsedVisualise = false;
 
 	//}
+
 	Classify() {
 
 		this._buildModelService.Fetch();
@@ -368,14 +369,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ApplyCode = true;
 			this.ApplyAll = false;
 			this.ApplySource = false;
-			this.notificationService.show({
-				content: 'Please use the tree on the right hand side to choose a code',
-				animation: { type: 'fade', duration: 100 },
-				position: { horizontal: 'center', vertical: 'top' },
-				type: { style: "warning", icon: true },
-				closable: true,
-				hideAfter: this.hideAfter
-			});
+			//this.notificationService.show({
+			//	content: 'Please use the tree on the right hand side to choose a code',
+			//	animation: { type: 'fade', duration: 100 },
+			//	position: { horizontal: 'center', vertical: 'top' },
+			//	type: { style: "warning", icon: true },
+			//	closable: true,
+			//	hideAfter: this.hideAfter
+			//});
 		}
 	}
 	chooseSourceDD() {
