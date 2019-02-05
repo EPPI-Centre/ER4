@@ -68,13 +68,13 @@ namespace ERxWebClient2.Controllers
 				SetCSLAUser();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
-				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(data.itemArmId);
-				ItemArmList result = dp.Fetch(criteria);
-
 				ItemArm newArm = new ItemArm();
 				newArm.Title = data.title;
-				result.SaveItem(newArm);
+				newArm.ItemId = data.itemId;
+				newArm.BeginEdit();
+				newArm.ApplyEdit();
+
+				ItemArm result = newArm.Save();
 
 				return Ok(result);
 
@@ -98,14 +98,14 @@ namespace ERxWebClient2.Controllers
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
-				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(data.itemArmId);
+				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(data.itemId);
 				ItemArmList result = dp.Fetch(criteria);
 
-				ItemArm newArm = new ItemArm();
-				newArm.Title = data.title;
-				result.SaveItem(newArm);
+				ItemArm editArm = result.FirstOrDefault(x => x.ItemArmId == data.itemArmId);
+				editArm.Title = data.title;
+				editArm = editArm.Save();
 
-				return Ok(result);
+				return Ok(editArm);
 
 			}
 			catch (Exception e)
@@ -125,11 +125,26 @@ namespace ERxWebClient2.Controllers
 				SetCSLAUser();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-				DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
-				ItemArmDeleteWarningCommand command = new ItemArmDeleteWarningCommand(CurrentArm.itemId, CurrentArm.itemArmId);
-				dp.Execute(command);
+				//DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
+				//ItemArmDeleteWarningCommand command = new ItemArmDeleteWarningCommand(CurrentArm.itemId, CurrentArm.itemArmId);
+				//ItemArmDeleteWarningCommand res = dp.Execute(command);
 
-				return Ok();
+				//dp.Execute(command);
+
+				// Actually need to end up with ItemArm  currentArm.Delete()
+
+
+				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
+				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(CurrentArm.itemId);
+				ItemArmList result = dp.Fetch(criteria);
+
+				ItemArm CurrArm = result.FirstOrDefault(x => x.ItemArmId == CurrentArm.itemArmId);
+
+				result.Remove(CurrArm);
+
+				CurrArm.Delete();
+				
+				return Ok(result);
 
 			}
 			catch (Exception e)

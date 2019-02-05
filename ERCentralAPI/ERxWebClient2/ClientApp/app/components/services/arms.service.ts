@@ -101,48 +101,41 @@ export class ArmsService {
         return currentItem.arms;
 	}
 
-	public CreateArm(currentArm: Arm) {
+	public CreateArm(currentArm: arm): Promise<any> {
 
-		let body = JSON.stringify({ Value: currentArm});
+		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
-		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
-
-			body).subscribe(result => {
-
-				alert(result);
-
-			},
-
-				error => { this.modalService.SendBackHomeWithError(error); }
-			);
+			currentArm).toPromise();
 
 	}
 
-	public UpdateArm(ItemArmId: number) {
+	public UpdateArm(currentArm: arm) {
 
-		let body = JSON.stringify({ Value: ItemArmId });
+
+		//alert('inside the service current Arm is: ' + currentArm);
 
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
 
-			body).subscribe(result => {
+			currentArm).subscribe(result => {
 
-				alert(result);
+				//alert('edit arm is: ' + JSON.stringify(result));
 
 			},
 
 				error => { this.modalService.SendBackHomeWithError(error); }
 			);
 	}
+
 	public DeleteArm(arm: any) {
 
-		alert(arm);
+		//alert(arm);
 		//let body = JSON.stringify({ Value: arm });
 
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
 
 			arm).subscribe(result => {
 
-				alert(result);
+				//alert(result);
 
 			},
 
@@ -152,10 +145,4 @@ export class ArmsService {
 
 }
 
-export class Arm {
-
-	ItemId: number = 0;
-	Title: string = '';
-	ItemArmId: number = 0;
-}
 

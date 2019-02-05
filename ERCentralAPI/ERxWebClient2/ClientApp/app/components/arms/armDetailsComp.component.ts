@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ArmsService, Arm } from '../services/arms.service';
+import { ArmsService } from '../services/arms.service';
 import { arm, Item } from '../services/ItemList.service';
 
 @Component({
@@ -14,56 +14,63 @@ export class armDetailsComp implements OnInit {
 
 
 	private armsList: Array<arm> = [];
+	public title: string = '';
+
 	@Input() currentItem: Item | undefined;
 
 	ngOnInit() {
 
 		if (this.currentItem != null ) {
 			this.armsList = this._armsService.FetchArms(this.currentItem);
-
-			//alert(JSON.stringify(this.armsList));
 		}
 	}
 
 	editField!: string;
 
-	//armsList: Array<any> = [
-	//	{ ItemArmId: 1, Title: 'Aurelia Vega', ItemId: 30 },
-	//	{ ItemArmId: 2, Title: 'Guerra Cortez', ItemId: 30},
-	//	{ ItemArmId: 3, Title: 'Guadalupe House', ItemId: 30 },
-	//	{ ItemArmId: 4, Title: 'Aurelia Vega', ItemId: 30 },
-	//	{ ItemArmId: 5, Title: 'Elisa Gallagher', ItemId: 30 },
-	//];
 
-	awaitingArmsList: Array<any> = [
-		{ itemArmId: 6, title: 'Aurelia Vega', itemId: this.currentItem },
-		{ itemArmId: 7, title: 'Elisa Gallagher', itemId: this.currentItem }
-	];
-
-	updateList(ItemArmId: number, property: any, event: any) {
+	updateList(key: number, property: any, event: any) {
 		const editField = event.target.textContent;
-		this.armsList[ItemArmId][property] = editField;
-
+		this.armsList[key][property] = editField;
+		this._armsService.UpdateArm(this.armsList[key]);
 	}
 
-	remove(ItemArmId: number) {
-
-		//this.awaitingArmsList.push(this.armsList[ItemArmId]);
-
-		alert(JSON.stringify(this.armsList.find(x => x.itemArmId == ItemArmId)));
-		this._armsService.DeleteArm(this.armsList.find(x => x.itemArmId == ItemArmId));
-		this.armsList.splice(ItemArmId, 1);
+	remove(key: number) {
+				
+		this._armsService.DeleteArm(this.armsList[key]);
+		this.armsList.splice(key, 1);
 	}
 
-	add() {
-		if (this.awaitingArmsList.length > 0) {
-			const newArm = this.awaitingArmsList[0];
-			this.armsList.push(newArm);
-			this.awaitingArmsList.splice(0, 1);
+	add(title: string) {
+
+		if (this.currentItem != undefined) {
+			let newArm: arm  = new Arm();
+			newArm.title = title;
+			newArm.itemId = this.currentItem.itemId;
+				
+				this._armsService.CreateArm(newArm).then(
+
+				(res: any) => {
+
+					//alert('SHOULD WAIT AND THEN: ' + JSON.stringify(res));
+					let key = this.armsList.length;
+					this.armsList.splice(key, 0, res);
+				}
+			);
 		}
 	}
 
 	changeValue(ItemArmId: number, property: string, event: any) {
 		this.editField = event.target.textContent;
 	}
+}
+
+
+export class Arm {
+
+	[key: number]: any;
+	itemArmId: number =0;
+	itemId: number = 0;
+	ordering: number = 0;
+	title: string = '';
+
 }
