@@ -639,7 +639,8 @@ export class Criteria {
     showScoreColumn: boolean = true;
 }
 export interface arm {
-    itemArmId: number;
+	[key: number]: any;  // Add index signature
+	itemArmId: number;
     itemId: number;
     ordering: number;
     title: string;

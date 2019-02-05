@@ -1,0 +1,30 @@
+<!-- Editable table -->
+<div class="card">
+	<h3 class="card-header text-center font-weight-bold text-uppercase py-4">Study Arms</h3>
+	<div class="card-body">
+		<div id="table" class="table-editable">
+			<span class="table-add float-right mb-3 mr-2">
+				<button class="btn btn-lg btn-primary" (click)="add()">
+					Add New Study Arm
+				</button>
+			</span>
+			<table class="table table-bordered table-responsive-md table-striped text-center">
+				<tr>
+					<th class="text-center">Arm ID</th>
+					<th class="text-center">Arm Title</th>
+					<th class="text-center">Remove</th>
+				</tr>
+				<tr *ngFor="let arm of armsList; let key = index">
+					<td>{{arm.itemArmId}}</td>
+					<td contenteditable="true" (keyup)="changeValue(key, 'age', $event)" (blur)="updateList(key, 'age', $event)">{{arm.title}}</td>
+					<td>
+						<span class="table-remove">
+							<button type="button"  rounded="true" size="sm" class="btn btn-danger" (click)="remove(arm.itemArmId)">Remove</button>
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- Editable table -->

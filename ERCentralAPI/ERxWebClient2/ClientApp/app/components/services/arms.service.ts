@@ -77,7 +77,7 @@ export class ArmsService {
     public SetSelectedArm(armID: number) {
         
         for (let arm of this.arms) {
-            if (arm.itemArmId == armID) {
+			if (arm.itemArmId == armID) {
                 this._selectedArm = arm;
                 return;
             }
@@ -88,7 +88,7 @@ export class ArmsService {
 
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-       this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
+       this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
            body).subscribe(result => {
                this.arms = result;
@@ -99,15 +99,63 @@ export class ArmsService {
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
         return currentItem.arms;
-    }
-    //private Save() {
-    //    if (this._arms) localStorage.setItem('ItemArms', JSON.stringify(this._arms));
-    //    else if (localStorage.getItem('ItemArms')) localStorage.removeItem('ItemArms');
+	}
 
-    //    if (this._selectedArm != null) //{ }
-    //        localStorage.setItem('selectedArm', JSON.stringify(this._selectedArm));
-    //    else if (localStorage.getItem('selectedArm')) localStorage.removeItem('selectedArm');
-    //}
-       
+	public CreateArm(currentArm: Arm) {
+
+		let body = JSON.stringify({ Value: currentArm});
+
+		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
+
+			body).subscribe(result => {
+
+				alert(result);
+
+			},
+
+				error => { this.modalService.SendBackHomeWithError(error); }
+			);
+
+	}
+
+	public UpdateArm(ItemArmId: number) {
+
+		let body = JSON.stringify({ Value: ItemArmId });
+
+		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
+
+			body).subscribe(result => {
+
+				alert(result);
+
+			},
+
+				error => { this.modalService.SendBackHomeWithError(error); }
+			);
+	}
+	public DeleteArm(arm: any) {
+
+		alert(arm);
+		//let body = JSON.stringify({ Value: arm });
+
+		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+
+			arm).subscribe(result => {
+
+				alert(result);
+
+			},
+
+				error => { this.modalService.SendBackHomeWithError(error); }
+			);
+	}
+
+}
+
+export class Arm {
+
+	ItemId: number = 0;
+	Title: string = '';
+	ItemArmId: number = 0;
 }
 
