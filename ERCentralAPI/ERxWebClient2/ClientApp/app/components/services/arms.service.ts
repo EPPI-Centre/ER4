@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -15,7 +15,7 @@ import { arm, Item, ItemListService } from './ItemList.service';
     providedIn: 'root',
 })
 
-export class ArmsService {
+export class ArmsService implements OnInit{
 
     constructor(
         private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
@@ -24,7 +24,12 @@ export class ArmsService {
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
-    }
+	}
+	ngOnInit() {
+
+
+	}
+
     private _arms: arm[] | null = null;//null when service has been instantiated, empty array when the item in question had no arms.
     public get arms(): arm[] {
         if (this._arms) return this._arms;
@@ -77,7 +82,7 @@ export class ArmsService {
     public SetSelectedArm(armID: number) {
         
         for (let arm of this.arms) {
-            if (arm.itemArmId == armID) {
+			if (arm.itemArmId == armID) {
                 this._selectedArm = arm;
                 return;
             }
@@ -88,26 +93,50 @@ export class ArmsService {
 
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-       this._http.post<arm[]>(this._baseUrl + 'api/ItemSetList/GetArms',
+      this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
            body).subscribe(result => {
                this.arms = result;
                currentItem.arms = this.arms;
                this._selectedArm = null;
                this.gotArms.emit(this.arms);
-               //this.Save();
+
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
         return currentItem.arms;
-    }
-    //private Save() {
-    //    if (this._arms) localStorage.setItem('ItemArms', JSON.stringify(this._arms));
-    //    else if (localStorage.getItem('ItemArms')) localStorage.removeItem('ItemArms');
+	}
 
-    //    if (this._selectedArm != null) //{ }
-    //        localStorage.setItem('selectedArm', JSON.stringify(this._selectedArm));
-    //    else if (localStorage.getItem('selectedArm')) localStorage.removeItem('selectedArm');
-    //}
-       
+	public CreateArm(currentArm: arm): Promise<any> {
+
+		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
+
+			currentArm).toPromise();
+
+	}
+
+	public UpdateArm(currentArm: arm) {
+		
+		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
+
+			currentArm).subscribe(result => {
+
+			},
+				error => { this.modalService.SendBackHomeWithError(error); }
+			);
+	}
+
+	public DeleteArm(arm: any) {
+
+
+		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+
+			arm).subscribe(result => {
+
+			},
+				error => { this.modalService.SendBackHomeWithError(error); }
+			);
+	}
+
 }
+
 

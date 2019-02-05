@@ -39,7 +39,10 @@ export class itemDetailsComp implements OnInit {
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
             this.SetHighlights();
         }
-    }
+	}
+	ItemChanged() {
+		alert('item changed!!');
+	}
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
