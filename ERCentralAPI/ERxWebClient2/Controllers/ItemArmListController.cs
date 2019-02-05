@@ -19,7 +19,6 @@ using Newtonsoft.Json.Linq;
 namespace ERxWebClient2.Controllers
 {
     
-
     [Authorize]
     [Route("api/[controller]")]
     public class ItemArmListController : CSLAController
@@ -81,7 +80,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when CreateArm an arm: {0}", data.itemArmId);
+				_logger.LogError(e, "Error when Creating an Arm : {0}", data.itemArmId);
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -110,7 +109,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when CreateArm an arm: {0}", data.itemArmId);
+				_logger.LogError(e, "Error when updating an arm: {0}", data.itemArmId);
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -149,7 +148,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when DeleteArm an arm on list: {0}", CurrentArm.itemArmId);
+				_logger.LogError(e, "Error when Deleting an arm: {0}", CurrentArm.itemArmId);
 				return StatusCode(500, e.Message);
 			}
 		}

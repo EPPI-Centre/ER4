@@ -11,6 +11,7 @@ import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.comp
 import { ModalService } from './modal.service';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ArmsService } from './arms.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -25,7 +26,8 @@ export class ReviewSetsService extends BusyAwareService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
         private ReviewerIdentityService: ReviewerIdentityService,
-        private modalService: ModalService,
+		private modalService: ModalService,
+
         @Inject('BASE_URL') private _baseUrl: string) {
         super();
     }
@@ -260,7 +262,8 @@ export class ReviewSetsService extends BusyAwareService {
                     }
                 }
             }
-        }
+		}
+
         console.log('finishing addItemData');
         this.RemoveBusy("AddItemData");
     }

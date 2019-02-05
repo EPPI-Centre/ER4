@@ -6,6 +6,7 @@ import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { ArmsService } from './arms.service';
 
 @Injectable({
     providedIn: 'root',
@@ -18,7 +19,7 @@ export class ItemListService extends BusyAwareService {
         @Inject('BASE_URL') private _baseUrl: string,
         private _WorkAllocationService: WorkAllocationContactListService,
         private _PriorityScreeningService: PriorityScreeningService,
-        private ModalService: ModalService
+		private ModalService: ModalService
     ) {
         super();
         //this.timerObj = timer(5000, 5000).pipe(
@@ -204,7 +205,8 @@ export class ItemListService extends BusyAwareService {
         //this.SaveCurrentItem();
         this.ItemChanged.emit();
     }
-    public getItem(itemId: number): Item {
+	public getItem(itemId: number): Item {
+
         console.log('getting item');
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) {

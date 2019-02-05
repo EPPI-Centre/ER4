@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -15,7 +15,7 @@ import { arm, Item, ItemListService } from './ItemList.service';
     providedIn: 'root',
 })
 
-export class ArmsService {
+export class ArmsService implements OnInit{
 
     constructor(
         private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
@@ -24,7 +24,12 @@ export class ArmsService {
         @Inject('BASE_URL') private _baseUrl: string
     ) {
        
-    }
+	}
+	ngOnInit() {
+
+
+	}
+
     private _arms: arm[] | null = null;//null when service has been instantiated, empty array when the item in question had no arms.
     public get arms(): arm[] {
         if (this._arms) return this._arms;
@@ -88,14 +93,14 @@ export class ArmsService {
 
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-       this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
+      this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
            body).subscribe(result => {
                this.arms = result;
                currentItem.arms = this.arms;
                this._selectedArm = null;
                this.gotArms.emit(this.arms);
-               //this.Save();
+
             }, error => { this.modalService.SendBackHomeWithError(error); }
         );
         return currentItem.arms;
@@ -110,35 +115,24 @@ export class ArmsService {
 	}
 
 	public UpdateArm(currentArm: arm) {
-
-
-		//alert('inside the service current Arm is: ' + currentArm);
-
+		
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
 
 			currentArm).subscribe(result => {
 
-				//alert('edit arm is: ' + JSON.stringify(result));
-
 			},
-
 				error => { this.modalService.SendBackHomeWithError(error); }
 			);
 	}
 
 	public DeleteArm(arm: any) {
 
-		//alert(arm);
-		//let body = JSON.stringify({ Value: arm });
 
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
 
 			arm).subscribe(result => {
 
-				//alert(result);
-
 			},
-
 				error => { this.modalService.SendBackHomeWithError(error); }
 			);
 	}

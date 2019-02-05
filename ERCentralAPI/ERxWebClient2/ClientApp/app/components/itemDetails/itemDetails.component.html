@@ -98,9 +98,11 @@
 			</div>
 		</ng-template>
 	</kendo-tabstrip-tab>
-	<kendo-tabstrip-tab [title]="'Study Arms'">
+	<kendo-tabstrip-tab  [title]="'Study Arms'">
 		<ng-template kendoTabContent>
-			<armDetailsComp [currentItem]="item"></armDetailsComp>
+			<div *ngIf="item">
+				<armDetailsComp [item]="item" (ItemChanged)="ItemChanged()"></armDetailsComp>
+			</div>
 		</ng-template>
 	</kendo-tabstrip-tab>
 </kendo-tabstrip>

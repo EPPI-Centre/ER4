@@ -16,13 +16,20 @@ export class armDetailsComp implements OnInit {
 	private armsList: Array<arm> = [];
 	public title: string = '';
 
-	@Input() currentItem: Item | undefined;
+	@Input() item: Item | undefined;
 
 	ngOnInit() {
 
-		if (this.currentItem != null ) {
-			this.armsList = this._armsService.FetchArms(this.currentItem);
+		if (this.item != null ) {
+			this.armsList = this._armsService.FetchArms(this.item);
 		}
+	}
+
+	ItemChanged() {
+		alert('something happened');
+		//if (this.item != null) {
+		//	this.armsList = this._armsService.FetchArms(this.item);
+		//}
 	}
 
 	editField!: string;
@@ -42,21 +49,21 @@ export class armDetailsComp implements OnInit {
 
 	add(title: string) {
 
-		if (this.currentItem != undefined) {
+		if (this.item != undefined) {
 			let newArm: arm  = new Arm();
 			newArm.title = title;
-			newArm.itemId = this.currentItem.itemId;
+			newArm.itemId = this.item.itemId;
 				
 				this._armsService.CreateArm(newArm).then(
 
 				(res: any) => {
 
-					//alert('SHOULD WAIT AND THEN: ' + JSON.stringify(res));
 					let key = this.armsList.length;
 					this.armsList.splice(key, 0, res);
 				}
 			);
 		}
+		this.title = '';
 	}
 
 	changeValue(ItemArmId: number, property: string, event: any) {
