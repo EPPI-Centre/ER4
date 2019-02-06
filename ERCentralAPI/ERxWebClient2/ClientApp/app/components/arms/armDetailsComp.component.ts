@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { ArmsService } from '../services/arms.service';
 import { arm, Item } from '../services/ItemList.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -10,7 +11,8 @@ export class armDetailsComp implements OnInit {
 
 	constructor(
 		private _armsService: ArmsService,
-		private _renderer: Renderer2
+		private _renderer: Renderer2,
+		private confirmationDialogService: ConfirmationDialogService
 	) { }
 
 
@@ -57,29 +59,49 @@ export class armDetailsComp implements OnInit {
 		this._armsService.UpdateArm(this.armsList[key]);
 	}
 
+	public openConfirmationDialogDeleteSearches(key: number) {
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected arm ?')
+			.then(
+				(confirmed) => {
+					console.log('User confirmed:', confirmed);
+					if (confirmed) {
+						this.remove(key);
+					} else {
+						//alert('did not confirm');
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
 	remove(key: number) {
-				
+
+		// first call the dialog then call this part
 		this._armsService.DeleteArm(this.armsList[key]);
 		this.armsList.splice(key, 1);
+
 	}
 
 	add(title: string) {
 
-		if (this.item != undefined) {
-			let newArm: arm  = new Arm();
-			newArm.title = title;
-			newArm.itemId = this.item.itemId;
-				
+		if (title == '') {
+
+			if (this.item != undefined) {
+				let newArm: arm = new Arm();
+				newArm.title = title;
+				newArm.itemId = this.item.itemId;
+
 				this._armsService.CreateArm(newArm).then(
 
-				(res: any) => {
+					(res: any) => {
 
-					let key = this.armsList.length;
-					this.armsList.splice(key, 0, res);
-				}
-			);
+						let key = this.armsList.length;
+						this.armsList.splice(key, 0, res);
+					}
+				);
+			}
+			this.title = '';
 		}
-		this.title = '';
 	}
 
 	changeValue(ItemArmId: number, property: string, event: any) {
