@@ -78,7 +78,8 @@ export class ArmsService implements OnInit{
         //}
         return this._selectedArm;
     }
-    private _selectedArm: arm | null = null;
+	private _selectedArm: arm | null = null;
+
     public SetSelectedArm(armID: number) {
         
         for (let arm of this.arms) {
@@ -106,7 +107,7 @@ export class ArmsService implements OnInit{
         return currentItem.arms;
 	}
 
-	public CreateArm(currentArm: arm): Promise<any> {
+	public CreateArm(currentArm: arm): Promise<arm[]> {
 
 		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
@@ -115,7 +116,7 @@ export class ArmsService implements OnInit{
 	}
 
 	public UpdateArm(currentArm: arm) {
-		
+
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
 
 			currentArm).subscribe(result => {
@@ -125,7 +126,7 @@ export class ArmsService implements OnInit{
 			);
 	}
 
-	public DeleteArm(arm: any) {
+	public DeleteArm(arm: arm) {
 
 
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',

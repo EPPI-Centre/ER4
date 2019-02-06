@@ -7,6 +7,7 @@ import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { ArmsService } from './arms.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -25,7 +26,8 @@ export class ItemListService extends BusyAwareService {
         //this.timerObj = timer(5000, 5000).pipe(
         //    takeUntil(this.killTrigger));
         //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
-    }
+	}
+
     //public timerObj: any | undefined;
     //private killTrigger: Subject<void> = new Subject();
     //private ID: number = Math.random();
@@ -203,7 +205,9 @@ export class ItemListService extends BusyAwareService {
         //console.log('ChangingItem');
         this._currentItem = newItem;
         //this.SaveCurrentItem();
-        this.ItemChanged.emit();
+		console.log('This is when this is emitted actually');
+
+		this.ItemChanged.emit(newItem);
     }
 	public getItem(itemId: number): Item {
 

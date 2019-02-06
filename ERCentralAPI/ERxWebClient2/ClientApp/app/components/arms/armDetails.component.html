@@ -4,10 +4,10 @@
 	<div class="card-body">
 		<div id="table" class="table-editable">
 			<div class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
-				Create new study arm: 
-				<input  #titleModel="ngModel"   
+				Create new study arm:
+				<input #titleModel="ngModel"
 					   required minlength="3"
-				pattern="^(?!\s*$).+"  class="form-control" 
+					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
 					 class="alert alert-danger">
@@ -24,34 +24,40 @@
 					</div>
 
 				</div>
-				<button  *ngIf="!titleModel.invalid" 
+				<button *ngIf="!titleModel.invalid"
 						class="btn btn-lg btn-warning" (click)="add(title)">
 					Add New Study Arm
 				</button>
-
 			</div>
-			<table #editTitle contenteditable="false" class="table table-bordered table-responsive-md table-striped text-center">
+			<!---->
+			<table class="table table-bordered table-responsive-md table-striped text-center">
 				<tr>
-
 					<th class="text-center">Arm Title</th>
 					<th class="text-center">Edit</th>
 					<th class="text-center">Remove</th>
 				</tr>
-				<tr *ngFor="let arm of armsList; let key = index">
-
-					<td  (keyup)="changeValue(key, 'title', $event)" (blur)="updateList(key, 'title', $event)">{{arm.title}}</td>
+				<tr  *ngFor="let arm of armsList; let key = index">
+					<td >{{arm.title}}</td>
 					<td>
 						<span class="table-remove">
-							<button type="button" rounded="true" size="sm" class="btn btn-info" (click)="EditField()">Edit</button>
+							<button (click)="editTitle=true; setArm(arm, key)" 
+									
+									type="button" rounded="true" size="sm" class="btn btn-info">Edit
+							</button>
 						</span>
 					</td>
 					<td>
 						<span class="table-remove">
-							<button type="button"  rounded="true" size="sm" class="btn btn-danger" (click)="openConfirmationDialogDeleteSearches(key)">Remove</button>
+							<button type="button" rounded="true" size="sm" class="btn btn-danger" 
+									(click)="openConfirmationDialogDeleteSearches(key)">Remove</button>
 						</span>
 					</td>
 				</tr>
 			</table>
+			<div *ngIf="editTitle">
+				<input class="form-control col-md-3" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
+				<button class="btn btn-primary" (click)="updateList(currentArm)">Confirm Change</button>
+			</div>
 		</div>
 	</div>
 </div>

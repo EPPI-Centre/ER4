@@ -9,11 +9,11 @@
                 <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
                 <codesetTreeCoding class="bg-light"></codesetTreeCoding>
             </div>
-            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
+			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
 					<itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
 										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-					
+
 					<div class="pr-0 pl-0 col-12 col-sm pr-0">
 						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
 							Close/back
@@ -32,7 +32,20 @@
 						</div>
 					</div>
 				</div>
-                <itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>               
+				<kendo-tabstrip>
+					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+						<ng-template kendoTabContent>
+							<itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'Study Arms'">
+						<ng-template kendoTabContent>
+							<div *ngIf="item">
+								<armDetailsComp [item]="item" ></armDetailsComp>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+				</kendo-tabstrip>
 			</div>
 			
 </div>

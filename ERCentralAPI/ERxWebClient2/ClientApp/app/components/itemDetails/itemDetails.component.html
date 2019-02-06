@@ -1,6 +1,4 @@
-<kendo-tabstrip>
-	<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-		<ng-template kendoTabContent>
+
 			<div *ngIf="item" class="row col-12 card card-body bg-light ml-1">
 
 				<div class="row">
@@ -96,13 +94,4 @@
 			<div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1">
 				<ItemDocListComp class="" [itemID]="item.itemId"></ItemDocListComp>
 			</div>
-		</ng-template>
-	</kendo-tabstrip-tab>
-	<kendo-tabstrip-tab  [title]="'Study Arms'">
-		<ng-template kendoTabContent>
-			<div *ngIf="item">
-				<armDetailsComp [item]="item" (ItemChanged)="ItemChanged()"></armDetailsComp>
-			</div>
-		</ng-template>
-	</kendo-tabstrip-tab>
-</kendo-tabstrip>
+		
