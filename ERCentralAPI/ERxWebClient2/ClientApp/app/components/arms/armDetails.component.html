@@ -25,8 +25,8 @@
 
 				</div>
 				<button *ngIf="!titleModel.invalid"
-						class="btn btn-lg btn-warning" (click)="add(title)">
-					Add New Study Arm
+						class="btn btn-success mt-1" (click)="add(title)">
+					Add Arm
 				</button>
 			</div>
 			<!---->
@@ -55,8 +55,8 @@
 				</tr>
 			</table>
 			<div *ngIf="editTitle">
-				<input class="form-control col-md-3" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
-				<button class="btn btn-primary" (click)="updateList(currentArm)">Confirm Change</button>
+				<input class="form-control" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
+				<button class="btn btn-primary mt-1" (click)="updateList(currentArm)">Confirm Change</button>
 			</div>
 		</div>
 	</div>

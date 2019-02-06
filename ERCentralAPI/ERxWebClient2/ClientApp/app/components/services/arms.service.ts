@@ -107,9 +107,9 @@ export class ArmsService implements OnInit{
         return currentItem.arms;
 	}
 
-	public CreateArm(currentArm: arm): Promise<arm[]> {
+	public CreateArm(currentArm: arm): Promise<arm> {
 
-		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
+		return this._http.post<arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
 			currentArm).toPromise();
 

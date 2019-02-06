@@ -92,8 +92,7 @@ export class armDetailsComp implements OnInit {
 				newArm.itemId = this.item.itemId;
 
 				this._armsService.CreateArm(newArm).then(
-
-					(res: any) => {
+					(res: arm) => {
 
 						let key = this.armsList.length;
 						this.armsList.splice(key, 0, res);
