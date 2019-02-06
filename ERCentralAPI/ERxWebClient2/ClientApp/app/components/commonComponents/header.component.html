@@ -27,12 +27,13 @@
         </tr>
     </table>
 </div>
-<div [@PanelAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp !=='' ? 'visible' : 'hidden'"
-     class="card card-body bg-white p-0 mb-0 mr-3 ml-3 col-12"  style="max-height:300px;overflow:auto;">
+<div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
+     class="card card-body alert alert-info border border-dark p-0 mb-0 "  style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
     <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
-    <div *ngIf="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp==''">Apologies, there currently is no help for this page/activity.</div>
+    <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0 "
+         class="m-0 p-1">Apologies, there currently is no help for this page/activity.</div>
     <div 
-         [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp !=='' ? 'visible' : 'hidden'"
-         class="alert alert-info border border-dark m-0 p-1"
+         [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+         class="m-0 p-1"
          [innerHTML]='CurrentContextHelp'></div>
 </div>

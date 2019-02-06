@@ -1,5 +1,5 @@
-<div class="container-fluid " resizable>
-    <HeaderComponent  PageTitle=""></HeaderComponent>
+<div class="container-fluid pr-0 pl-0"  resizable>
+    <HeaderComponent [Context]="HelpAndFeebackContext" PageTitle=""></HeaderComponent>
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
     <div class="mt-1 ">
         <kendo-splitter orientation="horizontal">
@@ -97,7 +97,7 @@
                                 <frequencies></frequencies>
                             </ng-template>
                         </kendo-tabstrip-tab>
-                        <kendo-tabstrip-tab [title]="'CrossTabs'">
+                        <kendo-tabstrip-tab [title]="'Crosstabs'">
                             <ng-template kendoTabContent>
                                 <crosstab></crosstab>
                             </ng-template>

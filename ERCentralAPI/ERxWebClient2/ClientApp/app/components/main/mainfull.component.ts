@@ -135,6 +135,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return false;
     }
     public ShowClusterCommand: boolean = false;
+    public HelpAndFeebackContext: string = "main\\reviewhome";
 
 	dtTrigger: Subject<any> = new Subject();
 
@@ -335,12 +336,30 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     subOpeningReview: Subscription | null = null;
     ShowItemsTable: boolean = false;
     onTabSelect(e: SelectEvent) {
-        if (e.title == 'Search') {
+
+        if (e.title == 'Review home') {
+            this.HelpAndFeebackContext = "main\\reviewhome";
+            this.ShowItemsTable = false;
+        }
+        else if (e.title == 'References') {
+            this.HelpAndFeebackContext = "main\\references";
+            this.ShowItemsTable = true;
+        }
+        else if (e.title == 'Frequencies') {
+            this.HelpAndFeebackContext = "main\\frequencies";
+            this.ShowItemsTable = true;
+        }
+        else if (e.title == 'Crosstabs') {
+            this.HelpAndFeebackContext = "main\\crosstabs";
+            this.ShowItemsTable = true;
+        }
+        else if (e.title == 'Search') {
+            this.HelpAndFeebackContext = "main\\search";
+            this.ShowItemsTable = false;
             this._searchService.Fetch();
         }
-        if (e.title == 'References') {
-            this.ShowItemsTable = true;
-        } else {
+        else {
+            this.HelpAndFeebackContext = "main\\reviewhome";
             this.ShowItemsTable = false;
         }
     }

@@ -75,7 +75,17 @@ export class HeaderComponent implements OnInit {
 
     @Input() PageTitle: string | undefined;
     @Input() Context: string | undefined;
-    public ActivePanel: string = "";
+    private _ActivePanel: string = "";
+    public set ActivePanel(val: string) {
+        this._ActivePanel = val;
+    }
+    public get ActivePanel(): string {
+        if (this._ActivePanel != "" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
+            console.log("closing help:", this.OnlineHelpService.CurrentContext, this.Context);
+            this._ActivePanel = "";
+        }
+        return this._ActivePanel;
+    }
     public get IsServiceBusy() : boolean {
         if (this.OnlineHelpService.IsBusy) return true;
         else return false;
