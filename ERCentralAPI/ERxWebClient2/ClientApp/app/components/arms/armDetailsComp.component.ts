@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@ang
 import { ArmsService } from '../services/arms.service';
 import { arm, Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -12,52 +13,51 @@ export class armDetailsComp implements OnInit {
 	constructor(
 		private _armsService: ArmsService,
 		private _renderer: Renderer2,
-		private confirmationDialogService: ConfirmationDialogService
+		private confirmationDialogService: ConfirmationDialogService,
+		private elRef: ElementRef
 	) { }
 
+	public get armsList(): arm[] {
 
-	public armsList: Array<arm> = [];
+		if (!this.item || !this.item.arms) return [];
+		else return this.item.arms;
+	}
+
 	public title: string = '';
-
-	@Input() item: Item | undefined;
+	
+	public currentItem!: Item;
+	
+	@Input() item!: Item | undefined;
 
 	@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
 
 	ngOnInit() {
 
-		if (this.item != null ) {
-			this.armsList = this._armsService.FetchArms(this.item);
-		}
-	}
-
-	ItemChanged() {
-		alert('something happened');
-		//if (this.item != null) {
-		//	this.armsList = this._armsService.FetchArms(this.item);
-		//}
 	}
 
 	swap: boolean = false;
-	EditField() {
+	public currentArm!: arm;
+	public currentTitle!: string;
+	public currentKey: number = 0;
+	public editTitle: boolean = false;
 
-		if (this.swap == false) {
-			this._renderer.setAttribute(this.tref.nativeElement, 'contenteditable', 'true');
-			this.swap = true;
-		} else {
-			this._renderer.setAttribute(this.tref.nativeElement, 'contenteditable', 'false');
-		}
-		
-		
+	setArm(arm: arm, key: number) {
+
+		this.currentKey = key;
+		this.currentTitle = arm.title;
+		this.currentArm = arm;
 	}
 
 	editField!: string;
+	
+	updateList(arm: arm) {
 
-
-	updateList(key: number, property: any, event: any) {
-		const editField = event.target.textContent;
-		this.armsList[key][property] = editField;
-		this._armsService.UpdateArm(this.armsList[key]);
+		this.editTitle = false;
+		this.armsList[this.currentKey].title = this.currentTitle;
+		this.item!.arms[this.currentKey].title = this.currentTitle;
+		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
 	}
+	
 
 	public openConfirmationDialogDeleteSearches(key: number) {
 		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected arm ?')
@@ -104,9 +104,6 @@ export class armDetailsComp implements OnInit {
 		}
 	}
 
-	changeValue(ItemArmId: number, property: string, event: any) {
-		this.editField = event.target.textContent;
-	}
 }
 
 
