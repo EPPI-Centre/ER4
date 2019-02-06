@@ -84,7 +84,7 @@ export class armDetailsComp implements OnInit {
 
 	add(title: string) {
 
-		if (title == '') {
+		if (title != '') {
 
 			if (this.item != undefined) {
 				let newArm: arm = new Arm();

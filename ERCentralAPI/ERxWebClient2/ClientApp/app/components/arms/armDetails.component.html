@@ -24,7 +24,8 @@
 					</div>
 
 				</div>
-				<button class="btn btn-lg btn-warning" (click)="add(title)">
+				<button  *ngIf="!titleModel.invalid" 
+						class="btn btn-lg btn-warning" (click)="add(title)">
 					Add New Study Arm
 				</button>
 
