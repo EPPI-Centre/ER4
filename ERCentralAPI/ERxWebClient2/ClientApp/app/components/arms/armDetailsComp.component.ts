@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { ArmsService } from '../services/arms.service';
 import { arm, Item } from '../services/ItemList.service';
 
@@ -9,7 +9,8 @@ import { arm, Item } from '../services/ItemList.service';
 export class armDetailsComp implements OnInit {
 
 	constructor(
-		private _armsService: ArmsService
+		private _armsService: ArmsService,
+		private _renderer: Renderer2
 	) { }
 
 
@@ -17,6 +18,8 @@ export class armDetailsComp implements OnInit {
 	public title: string = '';
 
 	@Input() item: Item | undefined;
+
+	@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
 
 	ngOnInit() {
 
@@ -30,6 +33,19 @@ export class armDetailsComp implements OnInit {
 		//if (this.item != null) {
 		//	this.armsList = this._armsService.FetchArms(this.item);
 		//}
+	}
+
+	swap: boolean = false;
+	EditField() {
+
+		if (this.swap == false) {
+			this._renderer.setAttribute(this.tref.nativeElement, 'contenteditable', 'true');
+			this.swap = true;
+		} else {
+			this._renderer.setAttribute(this.tref.nativeElement, 'contenteditable', 'false');
+		}
+		
+		
 	}
 
 	editField!: string;

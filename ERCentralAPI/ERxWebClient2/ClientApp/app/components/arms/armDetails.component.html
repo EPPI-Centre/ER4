@@ -9,15 +9,21 @@
 					Add New Study Arm
 				</button>
 			</span>
-			<table class="table table-bordered table-responsive-md table-striped text-center">
+			<table #editTitle contenteditable="false" class="table table-bordered table-responsive-md table-striped text-center">
 				<tr>
 
 					<th class="text-center">Arm Title</th>
+					<th class="text-center">Edit</th>
 					<th class="text-center">Remove</th>
 				</tr>
 				<tr *ngFor="let arm of armsList; let key = index">
 
-					<td contenteditable="true" (keyup)="changeValue(key, 'title', $event)" (blur)="updateList(key, 'title', $event)">{{arm.title}}</td>
+					<td  (keyup)="changeValue(key, 'title', $event)" (blur)="updateList(key, 'title', $event)">{{arm.title}}</td>
+					<td>
+						<span class="table-remove">
+							<button type="button" rounded="true" size="sm" class="btn btn-info" (click)="EditField()">Edit</button>
+						</span>
+					</td>
 					<td>
 						<span class="table-remove">
 							<button type="button"  rounded="true" size="sm" class="btn btn-danger" (click)="remove(key)">Remove</button>
