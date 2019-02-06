@@ -16,7 +16,7 @@ export class armDetailsComp implements OnInit {
 	) { }
 
 
-	private armsList: Array<arm> = [];
+	public armsList: Array<arm> = [];
 	public title: string = '';
 
 	@Input() item: Item | undefined;

@@ -1,6 +1,8 @@
 USE [ReviewerAdmin]
 GO
-delete from 
+delete from TB_ONLINE_HELP
+GO
+
 declare @Content nvarchar(max) = '
 <p class="font-weight-bold">Welcome-Page Help</p>
 <p>This page allows to choose the review you want to work on, and/or create a new (private) review.</p>
@@ -20,3 +22,77 @@ INSERT into TB_ONLINE_HELP ([CONTEXT]
            ('intropage'
            ,@Content)
 GO
+declare @Content nvarchar(max) = '
+<p class="font-weight-bold">Review-Home Help</p>
+<p>This page contains many commonly used functionalities. On the main toolbar, you''ll find buttons that allow you to import new items, edit your codesets and import codesets.</p>
+<p>The "<b>Review Items</b>" and "<b>Coding Progress</b>" panels show summary numbers about the whole review and single codesets.<br />
+The codesets can be found by clicking the <span class="bg-success">green "Codes"</span> button on the right hand side.
+</p>
+<p>Additional functions are:
+<ol>
+<li><b>My Reviews</b>: allows you to see all your reviews and to open them up in the full or "coding" user interfaces.</li>
+<li><b>My Work</b>: allows you access your own Coding Assigments/Work allocation and to access the Priority Screening list (when present).</li>
+<li><b>Sources</b>: allows you to see the list of imported sources. Therein you can also list all items from a given source, as well as bulk-delete all items imported with a given source.</li>
+</ol>
+</p>
+'
+INSERT into TB_ONLINE_HELP ([CONTEXT]
+           ,[HELP_HTML])
+     VALUES
+           ('main\reviewhome'
+           ,@Content)
+GO
+
+
+declare @Content nvarchar(max) = '
+<p class="font-weight-bold">References-tab Help</p>
+<p>...Work in progress (our apologies)... Please check this help page later: we are adding new Help content regularly.
+</p>
+'
+INSERT into TB_ONLINE_HELP ([CONTEXT]
+           ,[HELP_HTML])
+     VALUES
+           ('main\references'
+           ,@Content)
+GO
+
+
+
+declare @Content nvarchar(max) = '<p class="font-weight-bold">Frequencies-tab Help</p>
+<p>...Work in progress (our apologies)... Please check this help page later: we are adding new Help content regularly.
+</p>
+'
+INSERT into TB_ONLINE_HELP ([CONTEXT]
+           ,[HELP_HTML])
+     VALUES
+           ('main\frequencies'
+           ,@Content)
+GO
+
+
+
+declare @Content nvarchar(max) = '<p class="font-weight-bold">Crosstabs Help</p>
+<p>...Work in progress (our apologies)... Please check this help page later: we are adding new Help content regularly.
+</p>
+'
+INSERT into TB_ONLINE_HELP ([CONTEXT]
+           ,[HELP_HTML])
+     VALUES
+           ('main\crosstabs'
+           ,@Content)
+GO
+
+
+
+declare @Content nvarchar(max) = '<p class="font-weight-bold">Search-tab Help</p>
+<p>...Work in progress (our apologies)... Please check this help page later: we are adding new Help content regularly.
+</p>
+'
+INSERT into TB_ONLINE_HELP ([CONTEXT]
+           ,[HELP_HTML])
+     VALUES
+           ('main\search'
+           ,@Content)
+GO
+
+
