@@ -8,14 +8,32 @@
             <th class="text-center" style="width:33.33%">
                 <h4 class="text-dark font-weight-bold mt-1 ml-1">{{PageTitle}}</h4>
             </th>
-            <td style="width:33.33%">
+            <td style="">
                 <button class="page-link ml-2 pt-1 float-right mr-1" (click)="Logout()">
                     Logout
                 </button>
                 <div class="float-right pt-1 mr-1">
                     {{ReviewerIdentityServ.reviewerIdentity.name}}
                 </div>
+                <div *ngIf="Context" class="float-right row m-0 mt-1 p-0" >
+                    <button class="btn btn-outline-info btn-sm ml-1 p-0 pr-1 pl-1" [disabled]=true (click)="ShowHideFeedback()"  style="zoom:0.8;">
+                        Feedback
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm ml-1 p-0 pr-1 pl-1 mr-1" (click)="ShowHideHelp()" style="zoom:0.8;">
+                        Help
+                    </button>
+                </div>
             </td>
         </tr>
     </table>
+</div>
+<div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
+     class="card card-body alert alert-info border border-dark p-0 mb-0 "  style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+    <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
+    <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0 "
+         class="m-0 p-1">Apologies, there currently is no help for this page/activity.</div>
+    <div 
+         [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+         class="m-0 p-1"
+         [innerHTML]='CurrentContextHelp'></div>
 </div>
