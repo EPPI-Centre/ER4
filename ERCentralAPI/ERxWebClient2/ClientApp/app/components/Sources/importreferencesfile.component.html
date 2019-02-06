@@ -2,13 +2,13 @@
 <div class="card bg-light mt-2 col-md-12 mb-2" [ngClass]="{disableThisAndChildren:!CanWrite()}">
     <div *ngIf="WizPhase==1">
 		<h5>Step 1: Choose file format and select file</h5>
-        <h5>Filter:</h5>
+		<label>Filter </label>
         <select *ngIf="ImportFilters" class="col-md-6 form-control" (change)="FilterChanged($event.target.value)">
             <option *ngFor="let filter of ImportFilters" [value]="filter.ruleName" [selected]="filter.ruleName == currentFilterName">
                 {{filter.ruleName}}
             </option>
         </select>
-        <h5>Pick the file to upload:</h5>
+		<label>Pick the file to upload:</label>
         <input type="file" #file style="display: none" (change)="onFilesAdded()"
                accept=".txt,.ris" />
         <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
