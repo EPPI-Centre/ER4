@@ -139,9 +139,10 @@ namespace ERxWebClient2.Controllers
 
 				ItemArm CurrArm = result.FirstOrDefault(x => x.ItemArmId == CurrentArm.itemArmId);
 
-				result.Remove(CurrArm);
+				//result.Remove(CurrArm);
 
 				CurrArm.Delete();
+                CurrArm = CurrArm.Save();
 				
 				return Ok(result);
 

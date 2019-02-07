@@ -28,12 +28,15 @@
     </table>
 </div>
 <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
-     class="card card-body alert alert-info border border-dark p-0 mb-0 "  style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+     class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+    <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideHelp()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
+        close
+    </button>
     <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
     <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0 "
          class="m-0 p-1">Apologies, there currently is no help for this page/activity.</div>
-    <div 
-         [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+    <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
          class="m-0 p-1"
          [innerHTML]='CurrentContextHelp'></div>
+    
 </div>

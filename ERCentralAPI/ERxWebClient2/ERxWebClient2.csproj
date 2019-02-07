@@ -159,10 +159,17 @@
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\Images\EPPI-Reviewer logo v1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
