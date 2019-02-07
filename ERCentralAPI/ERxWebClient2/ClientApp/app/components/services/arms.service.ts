@@ -107,11 +107,11 @@ export class ArmsService implements OnInit{
         return currentItem.arms;
 	}
 
-	public CreateArm(currentArm: arm): Promise<arm[]> {
+	public CreateArm(currentArm: arm): Promise<arm> {
 
 		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
+		return this._http.post<arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
 			currentArm).toPromise()
 						.then(
