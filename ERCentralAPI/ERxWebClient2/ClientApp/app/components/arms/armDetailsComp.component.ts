@@ -92,9 +92,24 @@ export class armDetailsComp implements OnInit {
 	remove(key: number) {
 
 		// first call the dialog then call this part
-		this._armsService.DeleteArm(this.armsList[key]);
-		this.armsList.splice(key, 1);
+		this._armsService.DeleteArm(this.armsList[key]).then(
 
+			(res: numCodings) => {
+
+				//alert(JSON.stringify(res));
+				this.armsList.splice(key, 1);
+				// Show a particular warning based upon this result
+				if (res.numCodings == 0) {
+					alert('need the normal 0 codings alert here');
+
+				} else {
+					alert('need the complicated user enters text warning alert here');
+
+				}
+			}
+		);
+
+		
 	}
 
 	add(title: string) {
@@ -136,4 +151,8 @@ export class Arm {
 	ordering: number = 0;
 	title: string = '';
 
+}
+export interface numCodings {
+
+	numCodings: number;
 }

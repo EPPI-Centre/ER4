@@ -114,6 +114,33 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+
+		// DELETE WARNING COMMAND OBJECT
+		[HttpPost("[action]")]
+		public IActionResult DeleteWarningArm([FromBody] ItemArmDeleteWarningCommandJSON ArmJSON)
+		{
+
+			try
+			{
+				SetCSLAUser4Writing();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
+				ItemArmDeleteWarningCommand command = new ItemArmDeleteWarningCommand(ArmJSON.itemId, ArmJSON.itemArmId);
+				ItemArmDeleteWarningCommand result = dp.Execute(command);
+
+
+				return Ok(result);
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when delete warning is called: {0}", ArmJSON.itemArmId);
+				return StatusCode(500, e.Message);
+			}
+
+		}
+
 		// DELETE
 		[HttpPost("[action]")]
 		public IActionResult DeleteArm([FromBody] ArmJSON CurrentArm)
@@ -162,6 +189,14 @@ namespace ERxWebClient2.Controllers
 		public string title { get; set; }
 		public long itemArmId { get; set; }
 		public int ordering { get; set; }
+
+	}
+
+	public class ItemArmDeleteWarningCommandJSON
+	{
+		public long itemId { get; set; }
+		public long itemArmId { get; set; }
+		public long numCodings { get; set; }
 
 	}
 
