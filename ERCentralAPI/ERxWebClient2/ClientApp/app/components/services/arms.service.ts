@@ -109,10 +109,30 @@ export class ArmsService implements OnInit{
 
 	public CreateArm(currentArm: arm): Promise<arm[]> {
 
+		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
+
 		return this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
-			currentArm).toPromise();
+			currentArm).toPromise()
+						.then(
+						(result) => {
+	
+							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+							return result;
+						}
+						, (error) => {
 
+							this.modalService.GenericErrorMessage(ErrMsg);
+							return error;
+						}
+						)
+						.catch(
+							(error) => {
+
+								this.modalService.GenericErrorMessage(ErrMsg);
+								return error;
+							}
+						);
 	}
 
 	public UpdateArm(currentArm: arm) {

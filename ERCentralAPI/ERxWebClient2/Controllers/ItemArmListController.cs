@@ -59,12 +59,12 @@ namespace ERxWebClient2.Controllers
 		// CREATE
 		//adds an arm to the list and then calls data portal insert
 		[HttpPost("[action]")]
-		public IActionResult CreateArm([FromBody] Arm data)
+		public IActionResult CreateArm([FromBody] ArmJSON data)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				ItemArm newArm = new ItemArm();
@@ -88,12 +88,12 @@ namespace ERxWebClient2.Controllers
 
 		// UPDATE
 		[HttpPost("[action]")]
-		public IActionResult UpdateArm([FromBody] Arm data)
+		public IActionResult UpdateArm([FromBody] ArmJSON data)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
@@ -116,12 +116,12 @@ namespace ERxWebClient2.Controllers
 
 		// DELETE
 		[HttpPost("[action]")]
-		public IActionResult DeleteArm([FromBody] Arm CurrentArm)
+		public IActionResult DeleteArm([FromBody] ArmJSON CurrentArm)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				//DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
@@ -154,7 +154,7 @@ namespace ERxWebClient2.Controllers
 		}
 	}
 
-	public class Arm
+	public class ArmJSON
 	{
 		public long key { get; set; }
 		public long itemId { get; set; }

@@ -40,6 +40,7 @@ export class armDetailsComp implements OnInit {
 	public currentTitle!: string;
 	public currentKey: number = 0;
 	public editTitle: boolean = false;
+	public titleModel: string = '';
 
 	setArm(arm: arm, key: number) {
 
@@ -56,6 +57,20 @@ export class armDetailsComp implements OnInit {
 		this.armsList[this.currentKey].title = this.currentTitle;
 		this.item!.arms[this.currentKey].title = this.currentTitle;
 		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
+		this.ClearAndCancelEdit();
+	}
+
+	ClearAndCancelEdit() {
+
+		this.editTitle = false;
+		this.currentTitle = '';
+
+	}
+
+	ClearAndCancelAdd() {
+
+		this.title = '';
+
 	}
 	
 
@@ -91,6 +106,12 @@ export class armDetailsComp implements OnInit {
 				newArm.title = title;
 				newArm.itemId = this.item.itemId;
 
+
+				//let res: any = this._armsService.CreateArm(newArm).; 
+
+				//let key = this.armsList.length;
+				//this.armsList.splice(key, 0, res);
+
 				this._armsService.CreateArm(newArm).then(
 
 					(res: any) => {
@@ -102,6 +123,7 @@ export class armDetailsComp implements OnInit {
 			}
 			this.title = '';
 		}
+		this.ClearAndCancelAdd();
 	}
 
 }
