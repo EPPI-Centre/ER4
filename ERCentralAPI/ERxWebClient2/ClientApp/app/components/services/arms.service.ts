@@ -109,11 +109,33 @@ export class ArmsService implements OnInit{
 
 	public CreateArm(currentArm: arm): Promise<arm> {
 
+		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
+
 		return this._http.post<arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
-			currentArm).toPromise();
+			currentArm).toPromise()
+						.then(
+						(result) => {
+	
+							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+							return result;
+						}
+						, (error) => {
+
+							this.modalService.GenericErrorMessage(ErrMsg);
+							return error;
+						}
+						)
+						.catch(
+							(error) => {
+
+								this.modalService.GenericErrorMessage(ErrMsg);
+								return error;
+							}
+		);
 
 	}
+
 
 	public UpdateArm(currentArm: arm) {
 
@@ -127,16 +149,56 @@ export class ArmsService implements OnInit{
 	}
 
 	public DeleteArm(arm: arm) {
+		
+		let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
+		let cmd: ItemArmDeleteWarningCommandJSON = new ItemArmDeleteWarningCommandJSON();
+		cmd.itemArmId = arm.itemArmId;
+		cmd.itemId = arm.itemId;
 
+		return this._http.post<ItemArmDeleteWarningCommandJSON>(this._baseUrl + 'api/ItemArmList/DeleteWarningArm',
 
-		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+			cmd).toPromise()
+			.then(
+				(result) => {
 
-			arm).subscribe(result => {
+					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					// Logic here to show various error messages...
 
-			},
-				error => { this.modalService.SendBackHomeWithError(error); }
+					return result;
+				}
+				, (error) => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				}
+			)
+			.catch(
+				(error) => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				}
 			);
+
+		//this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+
+		//	arm).subscribe(result => {
+
+		//	},
+		//		error => { this.modalService.SendBackHomeWithError(error); }
+		//	);
+			   
 	}
+
+}
+
+
+export class ItemArmDeleteWarningCommandJSON {
+
+    itemId: number = 0;
+	itemArmId: number = 0;
+	numCodings: number = 0;
+
 
 }
 

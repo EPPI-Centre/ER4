@@ -498,13 +498,17 @@ export class SearchComp implements OnInit, OnDestroy {
 			//alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 			//Very sorry notification show
-			this.notificationService.show({
-				content: 'Please refresh the models list to check if it is updated',
-				animation: { type: 'slide', duration: 400 },
-				position: { horizontal: 'center', vertical: 'top' },
-				type: { style: "warning", icon: true },
-				closable: true
-			});
+
+
+				this.notificationService.show({
+					content: 'Please refresh the models list to check if it is updated',
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: "warning", icon: true },
+					closable: true,
+					hideAfter: 3000
+					});
+
 		}
 	}
 	

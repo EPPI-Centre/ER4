@@ -59,12 +59,12 @@ namespace ERxWebClient2.Controllers
 		// CREATE
 		//adds an arm to the list and then calls data portal insert
 		[HttpPost("[action]")]
-		public IActionResult CreateArm([FromBody] Arm data)
+		public IActionResult CreateArm([FromBody] ArmJSON data)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				ItemArm newArm = new ItemArm();
@@ -88,12 +88,12 @@ namespace ERxWebClient2.Controllers
 
 		// UPDATE
 		[HttpPost("[action]")]
-		public IActionResult UpdateArm([FromBody] Arm data)
+		public IActionResult UpdateArm([FromBody] ArmJSON data)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
@@ -114,14 +114,41 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		// DELETE
+
+		// DELETE WARNING COMMAND OBJECT
 		[HttpPost("[action]")]
-		public IActionResult DeleteArm([FromBody] Arm CurrentArm)
+		public IActionResult DeleteWarningArm([FromBody] ItemArmDeleteWarningCommandJSON ArmJSON)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				SetCSLAUser4Writing();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
+				ItemArmDeleteWarningCommand command = new ItemArmDeleteWarningCommand(ArmJSON.itemId, ArmJSON.itemArmId);
+				ItemArmDeleteWarningCommand result = dp.Execute(command);
+
+
+				return Ok(result);
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when delete warning is called: {0}", ArmJSON.itemArmId);
+				return StatusCode(500, e.Message);
+			}
+
+		}
+
+		// DELETE
+		[HttpPost("[action]")]
+		public IActionResult DeleteArm([FromBody] ArmJSON CurrentArm)
+		{
+
+			try
+			{
+				SetCSLAUser4Writing();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				//DataPortal<ItemArmDeleteWarningCommand> dp = new DataPortal<ItemArmDeleteWarningCommand>();
@@ -155,13 +182,21 @@ namespace ERxWebClient2.Controllers
 		}
 	}
 
-	public class Arm
+	public class ArmJSON
 	{
 		public long key { get; set; }
 		public long itemId { get; set; }
 		public string title { get; set; }
 		public long itemArmId { get; set; }
 		public int ordering { get; set; }
+
+	}
+
+	public class ItemArmDeleteWarningCommandJSON
+	{
+		public long itemId { get; set; }
+		public long itemArmId { get; set; }
+		public long numCodings { get; set; }
 
 	}
 
