@@ -2,7 +2,7 @@
     <!--<HeaderComponent style="vertical-align:top;
     margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
      width:99.6%;"></HeaderComponent>-->
-    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details"></HeaderComponent>
+    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
     <div class="h-100 mh-100 pr-0 ">
         <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
             <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
@@ -32,7 +32,7 @@
 						</div>
 					</div>
 				</div>
-				<kendo-tabstrip>
+				<kendo-tabstrip (tabSelect)="onTabSelect($event)">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
 							<itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
