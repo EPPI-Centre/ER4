@@ -15,6 +15,7 @@ import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { SelectEvent } from '@progress/kendo-angular-layout';
 
 @Component({
    
@@ -70,6 +71,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
     }
+    public HelpAndFeebackContext: string = "itemdetails";
 
 
     public CheckBoxAutoAdvanceVal: boolean = false;
@@ -411,13 +413,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.WipeHighlights();
         this.SetHighlights();
     }
-    ngOnDestroy() {
-        //console.log('killing coding comp');
-        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
-        if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
-        if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
-        if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
-    }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
     }
@@ -426,6 +421,25 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     ShowHighlightsClicked() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
+    }
+    onTabSelect(e: SelectEvent) {
+
+        if (e.title == 'Item Details') {
+            this.HelpAndFeebackContext = "itemdetails";
+        }
+        else if (e.title == 'Study Arms') {
+            this.HelpAndFeebackContext = "itemdetails\\arms";
+        }
+        else {
+            this.HelpAndFeebackContext = "itemdetails";
+        }
+    }
+    ngOnDestroy() {
+        //console.log('killing coding comp');
+        if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
+        if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
+        if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
+        if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
     }
 }
 

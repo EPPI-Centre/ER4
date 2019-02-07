@@ -39,6 +39,10 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     @ViewChild('treeEditorComponent') treeEditorComponent!: CodesetTreeEditComponent;
     @ViewChild('CodeTypeSelect') CodeTypeSelect: any;
+    public get HelpAndFeebackContext(): string {
+        if (this._ActivityPanelName == 'ImportCodesets') return 'importcodesets';
+        else return "editcodesets"
+    }
     private _ActivityPanelName: string = "";
     public get ActivityPanelName() {
         return this._ActivityPanelName;

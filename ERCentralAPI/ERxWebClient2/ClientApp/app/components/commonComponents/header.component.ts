@@ -80,8 +80,9 @@ export class HeaderComponent implements OnInit {
         this._ActivePanel = val;
     }
     public get ActivePanel(): string {
+        //console.log("closing help?:", this.OnlineHelpService.CurrentContext, this.Context);
         if (this._ActivePanel != "" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
-            console.log("closing help:", this.OnlineHelpService.CurrentContext, this.Context);
+            
             this._ActivePanel = "";
         }
         return this._ActivePanel;
