@@ -232,11 +232,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             if (!SetA) return;
             else {
                 if (IsBulkAssign
-                    && this.reviewSetsService.selectedNode) {
+					&& this.reviewSetsService.selectedNode) {
                     this.ConfirmationDialogService.confirm("Assign selected ("
                         + this.ItemListService.SelectedItems.length + ") items ? ", "Are you sure you want to assign all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?")
-                        .then((confirm) => {
+                        + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
                             }
@@ -246,8 +246,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                     && this.reviewSetsService.selectedNode) {
                     this.ConfirmationDialogService.confirm("Remove selected ("
                         + this.ItemListService.SelectedItems.length + ") items?", "Are you sure you want to remove all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?")
-                        .then((confirm) => {
+						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkDeleteCodes(SetA.attribute_id, SetA.set_id);
                             }

@@ -1,11 +1,5 @@
-import { Component, Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { OK } from 'http-status-codes';
+import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
@@ -26,7 +20,6 @@ export class ArmsService implements OnInit{
        
 	}
 	ngOnInit() {
-
 
 	}
 
@@ -94,17 +87,17 @@ export class ArmsService implements OnInit{
 
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-      this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
+		  this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
-           body).subscribe(result => {
-               this.arms = result;
-               currentItem.arms = this.arms;
-               this._selectedArm = null;
-               this.gotArms.emit(this.arms);
+			   body).subscribe(result => {
+				   this.arms = result;
+				   currentItem.arms = this.arms;
+				   this._selectedArm = null;
+				   this.gotArms.emit(this.arms);
 
-            }, error => { this.modalService.SendBackHomeWithError(error); }
-        );
-        return currentItem.arms;
+				}, error => { this.modalService.SendBackHomeWithError(error); }
+			);
+			return currentItem.arms;
 	}
 
 	public CreateArm(currentArm: arm): Promise<arm> {
@@ -139,18 +132,33 @@ export class ArmsService implements OnInit{
 
 	public UpdateArm(currentArm: arm) {
 
+
+		let ErrMsg = "Something went wrong when updating an arm. \r\n If the problem persists, please contact EPPISupport.";
+
 		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
 
-			currentArm).subscribe(result => {
+			currentArm).subscribe(
 
-			},
-				error => { this.modalService.SendBackHomeWithError(error); }
-			);
+				(result) => {
+
+					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					return result;
+				}
+				, (error) => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				},
+				() => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				});
 	}
 
-	public DeleteArm(arm: arm) {
+	public DeleteWarningArm(arm: arm) {
 		
-		let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
+		let ErrMsg = "Something went wrong when warning of deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 		let cmd: ItemArmDeleteWarningCommandJSON = new ItemArmDeleteWarningCommandJSON();
 		cmd.itemArmId = arm.itemArmId;
 		cmd.itemId = arm.itemId;
@@ -180,14 +188,31 @@ export class ArmsService implements OnInit{
 				}
 			);
 
-		//this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+	}
 
-		//	arm).subscribe(result => {
+	DeleteArm(arm: arm) {
 
-		//	},
-		//		error => { this.modalService.SendBackHomeWithError(error); }
-		//	);
-			   
+			let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
+
+			this._http.post<arm>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+
+			arm).subscribe(
+				(result) => {
+
+					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					return result;
+				}
+				, (error) => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				},
+				() => {
+
+					this.modalService.GenericErrorMessage(ErrMsg);
+					return error;
+				});
+
 	}
 
 }
@@ -198,7 +223,6 @@ export class ItemArmDeleteWarningCommandJSON {
     itemId: number = 0;
 	itemArmId: number = 0;
 	numCodings: number = 0;
-
 
 }
 

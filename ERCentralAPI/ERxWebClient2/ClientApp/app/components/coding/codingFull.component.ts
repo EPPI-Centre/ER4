@@ -73,7 +73,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     public HelpAndFeebackContext: string = "itemdetails";
 
-
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }
