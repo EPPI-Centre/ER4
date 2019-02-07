@@ -644,6 +644,7 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
+
 export interface arm {
 	[key: number]: any;  // Add index signature
 	itemArmId: number;

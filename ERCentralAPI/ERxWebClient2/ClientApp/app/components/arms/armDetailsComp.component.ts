@@ -3,6 +3,7 @@ import { ArmsService } from '../services/arms.service';
 import { arm, Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -14,7 +15,7 @@ export class armDetailsComp implements OnInit {
 		private _armsService: ArmsService,
 		private _renderer: Renderer2,
 		private confirmationDialogService: ConfirmationDialogService,
-		private elRef: ElementRef
+		private eventsService: EventEmitterService
 	) { }
 
 	public get armsList(): arm[] {
@@ -33,6 +34,10 @@ export class armDetailsComp implements OnInit {
 
 	ngOnInit() {
 
+		//this.confirmationDialogService.
+		//	.subscribe((user) => {
+		//		this.user = user
+		//	})
 	}
 
 	swap: boolean = false;
@@ -73,14 +78,16 @@ export class armDetailsComp implements OnInit {
 
 	}
 	
-
-	public openConfirmationDialogDeleteSearches(key: number) {
-		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected arm ?')
+	public openConfirmationDialogDeleteArms(key: number) {
+		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
+			'This Arm is associated with 0 codes.', false, '')
 			.then(
-				(confirmed) => {
-					console.log('User confirmed:', confirmed);
-					if (confirmed) {
-						this.remove(key);
+				(confirmed: any) => {
+					console.log('User confirmed:');
+					if (confirmed ) {
+
+						this.ActuallyRemove(key);
+
 					} else {
 						//alert('did not confirm');
 					}
@@ -89,44 +96,62 @@ export class armDetailsComp implements OnInit {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
-	remove(key: number) {
+	public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number) {
+		
+		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
+			'This Arm is associated with ' + numCodings + ' codes.' +
+			'Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,this.confirmationDialogService.UserInputTextArms)
+			.then(
+			(confirm: any) => {
+								
+				//console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
+			
+				if (confirm && this.eventsService.UserInput  == 'I confirm') {
+						
+						this.ActuallyRemove(key);
 
+					} else {
+					
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
+	removeWarning(key: number) {
+
+		
 		// first call the dialog then call this part
-		this._armsService.DeleteArm(this.armsList[key]).then(
+		this._armsService.DeleteWarningArm(this.armsList[key]).then(
 
 			(res: numCodings) => {
 
-				//alert(JSON.stringify(res));
-				this.armsList.splice(key, 1);
-				// Show a particular warning based upon this result
 				if (res.numCodings == 0) {
-					alert('need the normal 0 codings alert here');
+
+					this.openConfirmationDialogDeleteArms(key);
 
 				} else {
-					alert('need the complicated user enters text warning alert here');
-
+					
+					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings);
 				}
+
 			}
 		);
+	}
 
+	ActuallyRemove(key: number) {
 		
+		this._armsService.DeleteArm(this.armsList[key]);
+		this.armsList.splice(key, 1);
 	}
 
 	add(title: string) {
 
 		if (title != '') {
-
 			if (this.item != undefined) {
 				let newArm: arm = new Arm();
 				newArm.title = title;
 				newArm.itemId = this.item.itemId;
-
-
-				//let res: any = this._armsService.CreateArm(newArm).; 
-
-				//let key = this.armsList.length;
-				//this.armsList.splice(key, 0, res);
-
 				this._armsService.CreateArm(newArm).then(
 					(res: arm) => {
 
@@ -152,7 +177,9 @@ export class Arm {
 	title: string = '';
 
 }
+
 export interface numCodings {
 
 	numCodings: number;
+
 }

@@ -71,7 +71,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return true;
     }
 
-
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }

@@ -6,6 +6,7 @@ export class EventEmitterService {
 	public PleaseSelectItemsListTab = new EventEmitter();
 	public nodeSelected: singleNode | null | undefined;
 	public nodeName: string = '';
+	public UserInput: string = '';
 
 	constructor() {
 
