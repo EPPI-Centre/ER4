@@ -12,13 +12,12 @@ export class ConfirmationDialogComponent implements OnInit {
 	@Input() message: string='';
 	@Input() btnOkText: string='';
 	@Input() btnCancelText: string = '';
-	@Output() action = new EventEmitter<string>();
+	//@Output() action = new EventEmitter<string>();
 
 	public UserInputTextArms: string = '';
 
 	public ShowInputTextWarning: boolean = false;
 	
-
 	constructor(private activeModal: NgbActiveModal,
 		private eventsService: EventEmitterService) {
 
@@ -38,7 +37,6 @@ export class ConfirmationDialogComponent implements OnInit {
 		this.activeModal.close(true);
 
 	}
-
 
 	public dismiss() {
 
