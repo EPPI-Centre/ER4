@@ -102,6 +102,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.BulkAssignRemoveCodes(false);
         }
     }];
+    public QuickReportsDDData: Array<any> = [{
+        text: 'Quick Question Report',
+        click: () => {
+            this.ShowHideQuickQuestionReport();
+        }
+    }];
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -110,6 +116,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.reviewSetsService.clearItemData();
         }
         return this._ShowQuickReport;
+    }
+    private _ShowQuickQuestionReport: boolean = false;
+    public get ShowQuickQuestionReport(): boolean {
+        if (this._ShowQuickQuestionReport && !this.ItemListService.HasSelectedItems) {
+            this._ShowQuickQuestionReport = false;
+            this.ItemCodingService.Clear();
+            this.reviewSetsService.clearItemData();
+        }
+        return this._ShowQuickQuestionReport;
     }
     public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
@@ -163,15 +178,23 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }
     ShowHideQuickReport() {
+        this._ShowQuickQuestionReport = false;
         if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
         else this._ShowQuickReport = !this._ShowQuickReport;
-        console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
+        //console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
+    }
+    ShowHideQuickQuestionReport() {
+        this._ShowQuickReport = false;//_ShowQuickQuestionReport
+        if (!this.ItemListService.HasSelectedItems) this._ShowQuickQuestionReport = false;
+        else this._ShowQuickQuestionReport = !this._ShowQuickQuestionReport;
+        //console.log("ShowHideQuickQ Rep:", this._ShowQuickQuestionReport, this.ItemListService.HasSelectedItems);
     }
     CloseQuickReport() {
         this._ShowQuickReport = false;
+        this._ShowQuickQuestionReport = false;
     }
     ShowHideClusterCommand() {
-        this.ShowClusterCommand = !this.ShowClusterCommand;
+        this.ShowClusterCommand =  !this.ShowClusterCommand;
     }
     CloseClusterCommand() {
         this.ShowClusterCommand = false;

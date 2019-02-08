@@ -61,6 +61,8 @@ import { NewReviewComponent } from './components/Review/newreview.component';
 import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './components/arms/armDetailsComp.component';
+import { QuickQuestionReportComponent } from './components/Reports/quickquestionreport.component';
+import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
 
 @NgModule({
     declarations: [
@@ -101,7 +103,9 @@ import { armDetailsComp } from './components/arms/armDetailsComp.component';
         MainFullReviewComponent,
 		MainComponent,
         ConfirmationDialogComponent,
-		QuickCodingReportComponent,
+        QuickCodingReportComponent,
+        QuickQuestionReportComponent,
+        CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
 		armDetailsComp

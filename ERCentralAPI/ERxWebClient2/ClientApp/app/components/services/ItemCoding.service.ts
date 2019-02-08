@@ -10,7 +10,8 @@ import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService } from './ItemList.service';
-import { ReviewSet, SetAttribute, ReviewSetsService } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, ReviewSetsService, singleNode } from './ReviewSets.service';
+import { Review } from './review.service';
 
 @Injectable({
     providedIn: 'root',
@@ -426,6 +427,86 @@ export class ItemCodingService extends BusyAwareService {
             }
         }
         return false;
+    }
+
+    public FetchQuickQuestionReport(Items: Item[], nodesToReportOn: singleNode[]) {
+        if (this.SelfSubscription4QuickCodingReport) {
+            this.SelfSubscription4QuickCodingReport.unsubscribe();
+            this.SelfSubscription4QuickCodingReport = null;
+        }
+        this._CurrentItemIndex4QuickCodingReport = 0;
+        this._CodingReport = "";
+        if (!Items || Items.length < 1) {
+            return;
+        }
+        //this._BusyMethods.push("FetchQuickQuestionReport");
+        this._ItemsToReport = Items;
+        this.InterimGetItemCodingForQuestionReport(nodesToReportOn);
+        //this.RemoveBusy("FetchQuickQuestionReport");
+    }
+    private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[]) {
+        if (!this.SelfSubscription4QuickCodingReport) {
+            //initiate recursion, ugh!
+            this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
+                () => {
+                    this.AddToQuickQuestionReport(nodesToReportOn);
+                    this._CurrentItemIndex4QuickCodingReport++;
+                    this.InterimGetItemCodingForQuestionReport(nodesToReportOn);
+                }//no error handling: any error in this.Fetch(...) sends back home!!
+            );
+        }
+        if (!this.QuickCodingReportIsRunning) {
+            if (this.SelfSubscription4QuickCodingReport) {
+                this.SelfSubscription4QuickCodingReport.unsubscribe();
+                this.SelfSubscription4QuickCodingReport = null;
+                this._CodingReport += "</table>";
+            }
+            return;
+        }
+        //passing negative item IDs make the ItemList object grab the full text as well as "normal coding"
+        else this.Fetch(-this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
+    }
+    private AddToQuickQuestionReport(nodesToReportOn: singleNode[]) {
+        if (this._CodingReport == "") {
+            this._CodingReport = "Quick Question Report:<br />";
+            this._CodingReport += "<table class='border border-dark'><tr><th class='border border-dark'>Item</th>";
+            for (let node of nodesToReportOn) {
+                this._CodingReport += "<th class='border border-dark'>" + node.name + "</th>";
+            }
+            this._CodingReport += "</tr>";
+        }
+        const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+        //console.log("AddToQuickCodingReport", currentItem);
+        if (!currentItem || currentItem.itemId == 0) return;
+        this._CodingReport += "<tr><td class='border border-dark'>" + currentItem.shortTitle + "<br />(" + currentItem.itemId + ")</td>";
+        
+        this.AddQuestionCodingToReport(nodesToReportOn);
+        this._CodingReport += "</tr>";
+    }
+    AddQuestionCodingToReport(nodesToReportOn: singleNode[]) {
+        for (let node of nodesToReportOn) {
+            this._CodingReport += "<td class='border border-dark'>";
+            let ChildrenIds: number[] = [];
+            for (let aNode of node.attributes) {
+                ChildrenIds.push((aNode as SetAttribute).attribute_id);
+            }
+            for (let itemSet of this._ItemCodingList.filter(found => found.isCompleted)) {
+                for (let roia of itemSet.itemAttributesList) {
+                    if (ChildrenIds.indexOf(roia.attributeId) > -1) {
+                        //this itemSet contains a child of this node, report it:
+                        let fNode = node.attributes.find(found => found.id == "A" + roia.attributeId);
+                        if (fNode) {
+                            if (roia.armId > 0) {
+                                this._CodingReport += "-" + fNode.name + " [<span class='alert-info small'>" + roia.armTitle + "</span>]<br />";
+                            }
+                            else this._CodingReport += "-" + fNode.name + "<br />";
+                        }
+                    }
+                }
+            }
+            if (this._CodingReport.endsWith("<br />")) this._CodingReport = this._CodingReport.substring(0, this._CodingReport.length - 6);
+            this._CodingReport += "</td>";
+        }
     }
 
     public Save() {
