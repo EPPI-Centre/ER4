@@ -16,7 +16,7 @@
                     {{ReviewerIdentityServ.reviewerIdentity.name}}
                 </div>
                 <div *ngIf="Context" class="float-right row m-0 mt-1 p-0" >
-                    <button class="btn btn-outline-info btn-sm ml-1 p-0 pr-1 pl-1" [disabled]=true (click)="ShowHideFeedback()"  style="zoom:0.8;">
+                    <button class="btn btn-outline-info btn-sm ml-1 p-0 pr-1 pl-1" (click)="ShowHideFeedback()"  style="zoom:0.8;">
                         Feedback
                     </button>
                     <button class="btn btn-outline-primary btn-sm ml-1 p-0 pr-1 pl-1 mr-1" (click)="ShowHideHelp()" style="zoom:0.8;">
@@ -26,6 +26,25 @@
             </td>
         </tr>
     </table>
+</div>
+<div [@PanelFeedbackAppear]="ActivePanel=='Feedback' ? 'expand' : 'collapse'"
+     class="card card-body alert alert-success border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+    <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideFeedback()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
+        close
+    </button>
+    <div class=" col-12">Let us know what you think! All suggestions are welcome.</div>
+    <div class="col-12">
+        <textarea class="form-control my-3" id="newSetDescription"
+                  [(ngModel)]="UserFeedback" maxlength="4000" rows="3"></textarea>
+    </div>
+    <div class=" col-12 mb-2">
+        <button type="submit" (click)="SendFeedback()" class="btn btn-success ml-2 mr-2" [disabled]="UserFeedback.length < 10">
+            Send feedback
+        </button>
+        <button type="submit" (click)="ShowHideFeedback()" class="btn btn-outline-info ml-2 mr-2 px-2">
+            Cancel
+        </button>
+    </div>
 </div>
 <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
      class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
@@ -38,5 +57,5 @@
     <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
          class="m-0 p-1"
          [innerHTML]='CurrentContextHelp'></div>
-    
 </div>
+
