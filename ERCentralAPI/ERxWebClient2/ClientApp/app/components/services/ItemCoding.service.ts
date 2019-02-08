@@ -53,7 +53,7 @@ export class ItemCodingService extends BusyAwareService {
     public Fetch(ItemId: number) {
         this._BusyMethods.push("Fetch");
         //this.itemID.next(ItemId); 
-        console.log('FetchCoding');
+        //console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
         this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
@@ -226,19 +226,21 @@ export class ItemCodingService extends BusyAwareService {
         return report;
     }
     public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
+        //console.log("addFullTextToComparisonReport", list);
         let result: string = "";
         for (let ftd of list) {
-            result += "<br>" + ftd.docTitle + ": ";
+            result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
             if (ftd.isFromPDF) {
                 let rres = ftd.text.replace(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
                 rres = rres.replace(/\[\u00ACe\]/g, "");
-                result += "<span class='small'>" + rres + "</span>";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
+                result += "<span class='small text-info'>" + rres + "</span><br style='mso-data-placement:same-cell;'  />";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
             }
             else {
-                result += "<code>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
-                    + ")</code>";
+                result += "<code class='small'>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
+                    + ")</code><br style='mso-data-placement:same-cell;'  />";
             }
         }
+        //console.log("addFullTextToComparisonReport", list, result);
         return result;
     }
     public OutcomesTable(Outcomes: Outcome[]): string {
@@ -308,7 +310,7 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private GetOutcomeInnerTable(o: Outcome): string {
-        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-data-placement:same-cell;'  />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
@@ -409,7 +411,7 @@ export class ItemCodingService extends BusyAwareService {
         retVal += "<td>";
         for(let OIA of o.outcomeCodes)
         {
-            retVal += OIA.attributeName + "<br>";
+            retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
         }
         return retVal + "</td></tr>";
     }
@@ -429,7 +431,7 @@ export class ItemCodingService extends BusyAwareService {
         return false;
     }
 
-    public FetchQuickQuestionReport(Items: Item[], nodesToReportOn: singleNode[]) {
+    public FetchQuickQuestionReport(Items: Item[], nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         if (this.SelfSubscription4QuickCodingReport) {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
             this.SelfSubscription4QuickCodingReport = null;
@@ -441,17 +443,17 @@ export class ItemCodingService extends BusyAwareService {
         }
         //this._BusyMethods.push("FetchQuickQuestionReport");
         this._ItemsToReport = Items;
-        this.InterimGetItemCodingForQuestionReport(nodesToReportOn);
+        this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
         //this.RemoveBusy("FetchQuickQuestionReport");
     }
-    private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[]) {
+    private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
                 () => {
-                    this.AddToQuickQuestionReport(nodesToReportOn);
+                    this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
-                    this.InterimGetItemCodingForQuestionReport(nodesToReportOn);
+                    this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
                 }//no error handling: any error in this.Fetch(...) sends back home!!
             );
         }
@@ -466,24 +468,34 @@ export class ItemCodingService extends BusyAwareService {
         //passing negative item IDs make the ItemList object grab the full text as well as "normal coding"
         else this.Fetch(-this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport].itemId);
     }
-    private AddToQuickQuestionReport(nodesToReportOn: singleNode[]) {
+    private AddToQuickQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         if (this._CodingReport == "") {
-            this._CodingReport = "Quick Question Report:<br />";
+            //this._CodingReport = "Quick Question Report:<br />";
             this._CodingReport += "<table class='border border-dark'><tr><th class='border border-dark'>Item</th>";
+            if (options.IncludeFullTitle) {
+                this._CodingReport += "<th class='border border-dark'>Title</th>";
+            }
             for (let node of nodesToReportOn) {
-                this._CodingReport += "<th class='border border-dark'>" + node.name + "</th>";
+                this._CodingReport += "<th class='border border-dark'>" + node.name;
+                if (options.ShowCodeIds) {
+                    if (node.nodeType == "ReviewSet") this._CodingReport += " (" + node.id.substring(2) + ")";
+                    else if (node.nodeType == "SetAttribute") this._CodingReport += " ("+ node.id.substring(1)+")";
+                }
+                this._CodingReport += "</th>";
             }
             this._CodingReport += "</tr>";
         }
         const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
         //console.log("AddToQuickCodingReport", currentItem);
         if (!currentItem || currentItem.itemId == 0) return;
-        this._CodingReport += "<tr><td class='border border-dark'>" + currentItem.shortTitle + "<br />(" + currentItem.itemId + ")</td>";
-        
-        this.AddQuestionCodingToReport(nodesToReportOn);
+        this._CodingReport += "<tr><td class='border border-dark'>" + currentItem.shortTitle + "<br style='mso-data-placement:same-cell;' />(ID:" + currentItem.itemId + ")</td>";
+        if (options.IncludeFullTitle) {
+            this._CodingReport += "<td class='border border-dark'>"+ currentItem.title + "</td>";
+        }
+        this.AddQuestionCodingToReport(nodesToReportOn, options);
         this._CodingReport += "</tr>";
     }
-    AddQuestionCodingToReport(nodesToReportOn: singleNode[]) {
+    AddQuestionCodingToReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         for (let node of nodesToReportOn) {
             this._CodingReport += "<td class='border border-dark'>";
             let ChildrenIds: number[] = [];
@@ -496,16 +508,25 @@ export class ItemCodingService extends BusyAwareService {
                         //this itemSet contains a child of this node, report it:
                         let fNode = node.attributes.find(found => found.id == "A" + roia.attributeId);
                         if (fNode) {
+                            this._CodingReport += "-";
                             if (roia.armId > 0) {
-                                this._CodingReport += "-" + fNode.name + " [<span class='alert-info small'>" + roia.armTitle + "</span>]<br />";
+                                this._CodingReport += fNode.name
+                                    + (options.ShowCodeIds ? "(" + roia.attributeId + ")" : "")
+                                    + " [<span class='alert-info small'>" + roia.armTitle + "</span>]";
                             }
-                            else this._CodingReport += "-" + fNode.name + "<br />";
+                            else this._CodingReport += fNode.name + (options.ShowCodeIds ? "(" + roia.attributeId + ")" : "");
+                            if (options.ShowInfobox && roia.additionalText && roia.additionalText.length > 0)
+                                this._CodingReport += "<br style='mso-data-placement:same-cell;' /><i class='small'>" + roia.additionalText.replace("\n", "<br style='mso-data-placement:same-cell;' />") + "</i>";
+                            if (options.ShowCodedText && roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+                                this._CodingReport += this.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
+                            }
+                            this._CodingReport += "<br style='mso-data-placement:same-cell;' />";
                         }
                     }
                 }
             }
-            if (this._CodingReport.endsWith("<br />")) this._CodingReport = this._CodingReport.substring(0, this._CodingReport.length - 6);
-            this._CodingReport += "</td>";
+            if (this._CodingReport.endsWith("<br style='mso-data-placement:same-cell;' />")) this._CodingReport = this._CodingReport.substring(0, this._CodingReport.length - 44);
+            this._CodingReport += "</ul></td>";
         }
     }
 
@@ -660,7 +681,6 @@ export interface OutcomeItemAttribute {
     attributeName: string;
 }
 
-
 export interface ItemAttributeFullTextDetails {
     itemDocumentId: number;
     isFromPDF: boolean;
@@ -669,4 +689,11 @@ export interface ItemAttributeFullTextDetails {
     text: string;
     textTo: number;
     textFrom: number;
+}
+
+export class QuickQuestionReportOptions {
+    IncludeFullTitle: boolean = false;
+    ShowInfobox: boolean = true;
+    ShowCodedText: boolean = true;
+    ShowCodeIds: boolean = false;
 }

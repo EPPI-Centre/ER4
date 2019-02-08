@@ -376,7 +376,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.HelpAndFeebackContext = "main\\crosstabs";
             this.ShowItemsTable = true;
         }
-        else if (e.title == 'Search') {
+        else if (e.title == 'search & classify') {
             this.HelpAndFeebackContext = "main\\search";
             this.ShowItemsTable = false;
             this._searchService.Fetch();
@@ -393,7 +393,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.reviewSetsService.GetReviewSets();
         this
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
-        else console.log("work allocs comp is undef :-(");
+        //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
     }
@@ -453,7 +453,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
-        console.log("ToRis", dataURI)
+        //console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
 	//public ShowNewReview: boolean = true;

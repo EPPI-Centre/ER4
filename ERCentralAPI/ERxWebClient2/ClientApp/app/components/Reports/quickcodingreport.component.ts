@@ -1,8 +1,9 @@
-import { Component, Input, OnInit, OnDestroy, Inject, Output, EventEmitter } from '@angular/core';
-import { ItemCodingService } from '../services/ItemCoding.service';
+import { Component, Input, OnInit, OnDestroy, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import { ItemCodingService, QuickQuestionReportOptions } from '../services/ItemCoding.service';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { CodesetTree4QuickQuestionReportComponent } from '../CodesetTrees/codesetTree4QuickQuestionReport.component';
 
 @Component({
     selector: 'quickcodingreport',
@@ -22,6 +23,9 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
 	ngOnInit() {
     }
     @Output() PleaseCloseMe = new EventEmitter();
+    @Input() Aim:string = "";
+    @ViewChild('QuestionSelector') QuestionSelector!: CodesetTree4QuickQuestionReportComponent;
+    public QuickQuestionReportOptions: QuickQuestionReportOptions = new QuickQuestionReportOptions();
     public get GettingReport(): boolean {
         return this.ItemCodingService.QuickCodingReportIsRunning;
     }
@@ -41,8 +45,11 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     public StartQuickReport() {
         if (!this.CanStartReport) return;
-        else {
+        else if (this.Aim == '') {
             this.ItemCodingService.FetchCodingReport(this.ItemListService.SelectedItems, this.ReviewSetsService.ReviewSets.filter(found => found.isSelected == true));
+        }
+        else if (this.Aim == 'QuickQuestionReport' && this.QuestionSelector) {
+           this.ItemCodingService.FetchQuickQuestionReport(this.ItemListService.SelectedItems, this.QuestionSelector.SelectedNodes, this.QuickQuestionReportOptions);
         }
     }
     public OpenInNewWindow() {
@@ -63,8 +70,21 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         }
     }
     public get CanStartReport(): boolean {
-        if (this.HasSelectedCodesets && this.ItemListService.HasSelectedItems) return true;
+        if (this.Aim == '') {
+            if (this.HasSelectedCodesets && this.ItemListService.HasSelectedItems) return true;
+            else return false;
+        }
+        else if (this.Aim == 'QuickQuestionReport') {
+            if (this.HasSelectedQuestions && this.ItemListService.HasSelectedItems) return true;
+            else return false;
+        }
         else return false;
+    }
+    private get HasSelectedQuestions(): boolean {
+        if (!this.QuestionSelector) return false;
+        else {
+            return this.QuestionSelector.SelectedNodes.length > 0;
+        }
     }
     private get HasSelectedCodesets(): boolean {
         for (let Set of this.ReviewSetsService.ReviewSets) if (Set.isSelected) return true;
@@ -73,7 +93,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     public SaveAsHtml() {
         if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.AddHTMLFrame(this.ReportHTML));
-        console.log("ToRis", dataURI)
+        //console.log("Savign report:", dataURI)
         saveAs(dataURI, "Report.html");
     }
     private AddHTMLFrame(report: string): string {
@@ -105,6 +125,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
         console.log("Destroy in QuickCodingReportComponent");
+        this.ItemCodingService.Clear();
         this.ReviewSetsService.clearItemData();//because we are hijacking the "isSelected" field of reviewSets;
     }
 }
