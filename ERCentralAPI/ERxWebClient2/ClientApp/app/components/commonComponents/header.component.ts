@@ -7,8 +7,9 @@ import { take, map, takeUntil } from 'rxjs/operators';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
 import { WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
-import { OnlineHelpService } from '../services/onlinehelp.service';
+import { OnlineHelpService, FeedbackAndClientError4Create } from '../services/onlinehelp.service';
 import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 
@@ -57,6 +58,24 @@ import { trigger, state, style, transition, animate, keyframes } from '@angular/
                 animate('0.2s')
             ]),
         ]),
+        trigger('PanelFeedbackAppear', [
+            state('collapse', style({
+                'height': '0px',
+                'overflow': 'hidden',
+                opacity: 0
+            })),
+            state('expand', style({
+                'height': '*',
+                'overflow': 'auto',
+                opacity: 1
+            })),
+            transition('collapse => expand', [
+                animate('0.5s')
+            ]),
+            transition('expand => collapse', [
+                animate('0.2s')
+            ]),
+        ]),
     ],
 })
 
@@ -70,7 +89,8 @@ export class HeaderComponent implements OnInit {
         private OnlineHelpService: OnlineHelpService,
         private ReviewSetsService: ReviewSetsService,
         private ItemListService: ItemListService,
-        private workAllocationContactListService: WorkAllocationContactListService
+        private workAllocationContactListService: WorkAllocationContactListService,
+        private notificationService: NotificationService
     ) {    }
 
     @Input() PageTitle: string | undefined;
@@ -81,12 +101,14 @@ export class HeaderComponent implements OnInit {
     }
     public get ActivePanel(): string {
         //console.log("closing help?:", this.OnlineHelpService.CurrentContext, this.Context);
-        if (this._ActivePanel != "" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
+        if (this._ActivePanel == "Help" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
             
             this._ActivePanel = "";
         }
         return this._ActivePanel;
     }
+    public UserFeedback: string = "";
+    
     public get IsServiceBusy() : boolean {
         if (this.OnlineHelpService.IsBusy) return true;
         else return false;
@@ -111,25 +133,44 @@ export class HeaderComponent implements OnInit {
         this.router.navigate(['home']);
     }
     ShowHideFeedback() {
-        if (this.ActivePanel == "Feedback") {
-            this.ActivePanel = "";
+        if (this.ActivePanel == "Feedback"
+            || !this.Context
+            || this.Context == '') {
+            this._ActivePanel = "";
         }
-        else {
-            this.ActivePanel = "Feedback";
+        else if (this.Context && this.Context !== '') {
+            //console.log("Feedback");
+            this._ActivePanel = "Feedback";
         }
     }
     ShowHideHelp() {
         if (this.ActivePanel == "Help"
             || !this.Context
             || this.Context == '') {
-            this.ActivePanel = "";
+            this._ActivePanel = "";
         }
         else if (this.Context && this.Context !== '') {
-            this.ActivePanel = "Help";
+            this._ActivePanel = "Help";
             this.OnlineHelpService.FetchHelpContent(this.Context);
         }
     }
-
+    SendFeedback() {
+        let fb: FeedbackAndClientError4Create = new FeedbackAndClientError4Create();
+        fb.context = (this.Context ? this.Context : "");
+        fb.contactId = this.ReviewerIdentityServ.reviewerIdentity.userId;
+        fb.isError = false;
+        fb.message = this.UserFeedback;
+        this.OnlineHelpService.CreateFeedbackMessage(fb);
+        this.UserFeedback = "";
+        this._ActivePanel = "";
+        this.notificationService.show({
+            content: "Thanks for your feed-back!",
+            animation: { type: 'slide', duration: 800 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: 'success', icon: true },
+            hideAfter: 2000
+        });
+    }
     ngOnInit() {
     }
 }

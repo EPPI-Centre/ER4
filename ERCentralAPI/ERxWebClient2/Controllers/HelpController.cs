@@ -49,6 +49,31 @@ namespace ERxWebClient2.Controllers
 			}
 			
 		}
-	}
-    
+        [HttpPost("[action]")]
+        public IActionResult CreateFeedbackMessage([FromBody] FeedbackAndClientErrorJSON crit)
+        {
+            SetCSLAUser();
+            try
+            {
+                FeedbackAndClientError res = FeedbackAndClientError.CreateFeedbackAndClientError(crit.contactId, crit.context, crit.isError, crit.message);
+                res = res.Save();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Reviews data portal error");
+                throw;
+            }
+
+        }
+    }
+    public class FeedbackAndClientErrorJSON
+    {
+        public int contactId;
+        public string context;
+        public bool isError;
+        public string message;
+    }
+
+
 }
