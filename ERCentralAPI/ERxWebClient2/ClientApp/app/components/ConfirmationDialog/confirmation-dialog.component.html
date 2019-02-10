@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card p-2 m-2">
 	<div class="modal-header alert-danger">
 		<h4 class="modal-title">{{ title }}</h4>
 		<button type="button" class="close" aria-label="Close" (click)="dismiss()">
@@ -9,11 +9,11 @@
 		{{ message }}
 	</div>
 	<div *ngIf="ShowInputTextWarning">
-		<input class="form-control" type="text" name="ShowInputTextWarning"  
+		<input class="form-control rounded border border-dark" type="text" name="ShowInputTextWarning"  
 		[(ngModel)] ="UserInputTextArms"  />
 	</div>
 	<div class="modal-footer bg-white">
 		<button type="button" class="btn btn-outline-secondary ml-1" (click)="decline()" style="width:200px;">{{ btnCancelText }}</button>
-		<button type="button" class="btn btn-danger ml-3" (click)="accept()">{{ btnOkText }}</button>
+		<button type="button" class="btn btn-danger ml-3" (click)="accept()" [disabled]="CheckInputBoxEntry()">{{ btnOkText }}</button>
 	</div>
 </div>

@@ -45,7 +45,7 @@ namespace ERxWebClient2.Controllers
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
 				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);
 				ItemArmList result = dp.Fetch(criteria);
-		
+				result.OrderBy(x => x.ItemArmId).ToList();
 				return Ok(result);
 
 			}

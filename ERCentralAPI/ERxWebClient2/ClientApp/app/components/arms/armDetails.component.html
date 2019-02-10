@@ -10,7 +10,7 @@
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
-					 class="alert alert-danger">
+					 class="alert small alert-danger p-1">
 
 					<div *ngIf="titleModel.errors.pattern">
 						title cannot be empty
@@ -25,11 +25,11 @@
 
 				</div>
 				<button *ngIf="!titleModel.invalid"
-						class="btn btn-success mt-1" (click)="add(title)">
+						class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
 					Add New Study Arm
 				</button >
 				<button *ngIf="!titleModel.invalid"
-						class="btn btn-lg  btn-danger"
+						class="btn btn-danger mt-1 p-1 m-1"
 						(click)="ClearAndCancelAdd()">Cancel</button>
 			</div>
 			<!---->
@@ -59,8 +59,8 @@
 			</table>
 			<div *ngIf="editTitle">
 				<input class="form-control" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
-				<button class="btn btn-primary mt-1" (click)="updateList(currentArm)">Confirm Change</button>
-				<button class="btn btn-danger" (click)="ClearAndCancelEdit()">Cancel Change</button>
+				<button class="btn btn-primary mt-1 p-1 m-1" (click)="updateList(currentArm)">Confirm Change</button>
+				<button class="btn btn-danger mt-1 p-1 m-1" (click)="ClearAndCancelEdit()">Cancel Change</button>
 			</div>
 		</div>
 	</div>
