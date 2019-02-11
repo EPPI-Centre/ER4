@@ -39,7 +39,17 @@ export class WorkAllocationComp implements OnInit {
 		this.reviewInfoService.FetchReviewMembers();
 
 	}
-  
+
+	DeleteWorkAllocation() {
+
+		alert('not implemented yet');
+	}
+
+	// this needs to open the item list as in ER4...
+	WAGetItemList(i: any) {
+
+		alert('asdf: ' + i);
+	}
   
 }
 

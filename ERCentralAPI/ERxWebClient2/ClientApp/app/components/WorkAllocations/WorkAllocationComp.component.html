@@ -22,13 +22,21 @@
 		<thead>
 			<tr class="small">
 				<th>ContactID</th>
-				<th>ContactName</th>
+				<th>Contact Name</th>
+				<th>Total Allocation</th>
+				<th>Total Started</th>
+				<th>Total Remaining</th>
+				<th>Delete</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+				<td >{{ wa.contactId }}</td>
 				<td>{{ wa.contactName }}</td>
-				<td>{{ wa.totalAllocation }}</td>
+				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalAllocation}}</td>
+				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalStarted}}</td>
+				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalRemaining}}</td>
+				<td><button class="btn btn-danger p-1 m-1" (click)="DeleteWorkAllocation()">Delete</button></td>
 			</tr>
 		</tbody>
 	</table>
