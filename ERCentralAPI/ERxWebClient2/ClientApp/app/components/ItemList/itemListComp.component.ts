@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation, WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
+import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
@@ -16,7 +16,7 @@ export class ItemListComp implements OnInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
-        private _WorkAllocationService: WorkAllocationContactListService
+		private _WorkAllocationService: WorkAllocationListService
     ) {
 
     }

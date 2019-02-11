@@ -55,6 +55,66 @@ namespace ERxWebClient2.Controllers
 
         }
 
-        
-    }
+		[HttpGet("[action]")]
+		public IActionResult WorkAllocations()//should receive a reviewID!
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<WorkAllocationList> dp = new DataPortal<WorkAllocationList>();
+				WorkAllocationList result = dp.Fetch();
+
+				//Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
+				//string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
+				//{
+				//    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+				//});
+				//return resSt;
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Work Allocation data portal error");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult WorkAllocationsAll([FromBody] SingleInt64Criteria itemID)//should receive a reviewID!
+		{
+			try
+			{
+				
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
+				SingleCriteria<WorkAllocation, Int64> criteria = new SingleCriteria<WorkAllocation, Int64>(Convert.ToInt64(itemID));
+				WorkAllocation result = dp.Fetch(criteria);
+
+				//Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
+				//string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
+				//{
+				//    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+				//});
+				//return resSt;
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Work Allocation data portal error");
+				throw;
+			}
+
+		}
+
+
+	}
+	public class WorkAllocationJSON
+	{
+		public long itemid { get; set; }
+
+	}
 }

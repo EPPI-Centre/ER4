@@ -21,7 +21,7 @@ export class ReviewInfoService extends BusyAwareService{
         super();
     }
 
-
+	private _Contacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();;
     public get ReviewInfo(): ReviewInfo {
         //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
@@ -40,7 +40,15 @@ export class ReviewInfoService extends BusyAwareService{
         //    }
         //}
         return this._ReviewInfo;
-    }
+	}
+	public get Contacts(): Contact[] {
+
+		if (this._Contacts) return this._Contacts;
+		else {
+			this._Contacts = [];
+			return this._Contacts;
+		}
+	}
 
     public Fetch() {
         this._BusyMethods.push("Fetch");
@@ -53,7 +61,22 @@ export class ReviewInfoService extends BusyAwareService{
             this.modalService.SendBackHomeWithError(error);
         }
         );
-    }
+	}
+
+	public FetchReviewMembers() {
+		this._BusyMethods.push("FetchReviewMembers");
+		this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers').subscribe(result => {
+			this._Contacts = result;
+			this.RemoveBusy("FetchReviewMembers");
+
+		}, error => {
+			this.RemoveBusy("FetchReviewMembers");
+			this.modalService.SendBackHomeWithError(error);
+		}
+		);
+
+
+	}
 
     //public Save() {
     //    if (this.ReviewInfo != null)
@@ -83,6 +106,14 @@ export class ReviewInfo {
     bL_CC_ACCOUNT_CODE: string = "";
     bL_CC_AUTH_CODE: string = "";
     bL_CC_TX: string = "";
+
+}
+
+export class Contact {
+
+	 contactName: string = '';
+
+	 contactId: number = 0;
 
 }
 

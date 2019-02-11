@@ -1,0 +1,35 @@
+<div *ngIf="reviewInfoService.Contacts && reviewInfoService.Contacts.length > 0" class="col-md-12 mb-3 bg-light">
+
+	<p> Reviewers in this Review</p>
+	<table class='table table-responsive' style="height: 240px;" *ngIf="_workAllocationListService.ContactWorkAllocations">
+		<thead>
+			<tr class="small">
+				<th>ContactID</th>
+				<th>ContactName</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let member of reviewInfoService.Contacts; let i = index">
+				<td>{{ member.contactId }}</td>
+				<td>{{ member.contactName }}</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<p> Coding Assignments</p>
+	<table class='table table-responsive' style="height: 240px;" *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+		<thead>
+			<tr class="small">
+				<th>ContactID</th>
+				<th>ContactName</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+				<td>{{ wa.contactName }}</td>
+				<td>{{ wa.totalAllocation }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
