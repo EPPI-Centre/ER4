@@ -123,7 +123,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
 		else return false;
 	}
-
+	public modelIsInProgress: boolean = false;
 	public selectedRows(e: any) {
 
 		if (e.selectedRows[0] != undefined && this.modelNum == 5) {
@@ -133,7 +133,13 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelSelected = true;
 			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
 			this.ModelId = e.selectedRows[0].dataItem.modelId;
-
+			if (this.modelTitle.indexOf('prog') != -1) {
+				this.modelIsInProgress = true;
+				//alert('model is in progress');
+			} else {
+				this.modelIsInProgress = false;
+			}
+			
 
 		} else {
 
@@ -141,6 +147,8 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.modelTitle = '';
 			this.ModelId = 0;
 			this.ModelSelected = false;
+
+			//alert('model has been DESELECTED that is in fact a custom model');
 		}
 	}
 	public get DataSourceModel(): GridDataResult {
@@ -347,16 +355,21 @@ export class SearchComp implements OnInit, OnDestroy {
 				//console.log('yes step 2');
 				return true;
 			}
-		}else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null)
+			// Need logic in the below about model still in progress
+		}
+		else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress)
 		{
+
 			return true;
 		}
-		else if (this.modelNum == 5 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
+		else if (this.modelNum == 5 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
 		{
+			//alert('custom models');
 			return true;
 
-		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll) {
+		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
 
+			//alert('custom models');
 			return true;
 		}
 		return false;

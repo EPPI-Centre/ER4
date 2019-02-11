@@ -22,7 +22,7 @@ export class ArmsService implements OnInit{
 	ngOnInit() {
 
 	}
-
+	private _currentItem: Item = new Item();
     private _arms: arm[] | null = null;//null when service has been instantiated, empty array when the item in question had no arms.
     public get arms(): arm[] {
         if (this._arms) return this._arms;
@@ -85,6 +85,7 @@ export class ArmsService implements OnInit{
     }
     public FetchArms(currentItem: Item) {
 
+		this._currentItem = currentItem;
         let body = JSON.stringify({ Value: currentItem.itemId });
 
 		  this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
@@ -114,14 +115,14 @@ export class ArmsService implements OnInit{
 							return result;
 						}
 						, (error) => {
-
+							this.arms = this.FetchArms(this._currentItem);		
 							this.modalService.GenericErrorMessage(ErrMsg);
 							return error;
 						}
 						)
 						.catch(
 							(error) => {
-
+								this.arms = this.FetchArms(this._currentItem);		
 								this.modalService.GenericErrorMessage(ErrMsg);
 								return error;
 							}
@@ -145,12 +146,7 @@ export class ArmsService implements OnInit{
 					return result;
 				}
 				, (error) => {
-
-					this.modalService.GenericErrorMessage(ErrMsg);
-					return error;
-				},
-				() => {
-
+					this.arms = this.FetchArms(this._currentItem);		
 					this.modalService.GenericErrorMessage(ErrMsg);
 					return error;
 				});
@@ -176,15 +172,19 @@ export class ArmsService implements OnInit{
 				}
 				, (error) => {
 
+					cmd.numCodings = -1;
+					console.log('error in DeleteWarningArm() rejected', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
-					return error;
+					return cmd;
 				}
 			)
 			.catch(
-				(error) => {
+			(error) => {
 
+					cmd.numCodings = -1;
+					console.log('error in DeleteWarningArm() catch', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
-					return error;
+					return cmd;
 				}
 			);
 
@@ -193,7 +193,7 @@ export class ArmsService implements OnInit{
 	DeleteArm(arm: arm) {
 
 			let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
-
+			
 			this._http.post<arm>(this._baseUrl + 'api/ItemArmList/DeleteArm',
 
 			arm).subscribe(
@@ -204,14 +204,11 @@ export class ArmsService implements OnInit{
 				}
 				, (error) => {
 
+					this.arms = this.FetchArms(this._currentItem);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					return error;
-				},
-				() => {
-
-					this.modalService.GenericErrorMessage(ErrMsg);
-					return error;
-				});
+				}
+				);
 
 	}
 
