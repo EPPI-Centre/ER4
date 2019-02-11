@@ -376,7 +376,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.HelpAndFeebackContext = "main\\crosstabs";
             this.ShowItemsTable = true;
         }
-        else if (e.title == 'search & classify') {
+        else if (e.title == 'Search & Classify') {
             this.HelpAndFeebackContext = "main\\search";
             this.ShowItemsTable = false;
             this._searchService.Fetch();

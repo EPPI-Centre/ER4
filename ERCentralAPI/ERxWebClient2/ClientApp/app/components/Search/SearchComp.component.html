@@ -1,12 +1,12 @@
 <div class="containsAtoolbar">
-	<kendo-toolbar>
-		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
-	</kendo-toolbar>
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
+        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
+        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+    </kendo-toolbar>
 </div>
 
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
@@ -150,29 +150,29 @@
     </div>
 </div>
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
-	<table class="table col-md-12">
-		<tr>
-			<td>
-				<button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
-			</td>
-		</tr>
-	</table>
+    <table class="table col-md-12">
+        <tr>
+            <td>
+                <button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
+            </td>
+        </tr>
+    </table>
 </div>
 <div id="ModelSection" *ngIf="ModelSection">
 
     <div class="col-12 row mt-2">
         <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
             <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
-            <div class="btn-group-vertical col-12 p-0"  role="group" aria-label="Basic example">
+            <div class="btn-group-vertical col-12 p-0" role="group" aria-label="Basic example">
                 <button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
                 <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
                 <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
@@ -220,139 +220,140 @@
                 </div>
             </div>
         </div>
-        
-    </div>
-	<div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
-		<kendo-grid [data]="DataSourceModel"
-					[selectable]="selectableSettings"
-					[sort]="sort"
-					[kendoGridSelectBy]="'modelId'"
-					(sortChange)="sortChange($event)"
-					(selectionChange)="selectedRows($event)">
 
-			<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
-			<kendo-grid-column field="modelId" title="ModelID">
-			</kendo-grid-column>
-			<kendo-grid-column field="modelTitle" title="Title">
-			</kendo-grid-column>
-			<kendo-grid-column field="attributeOn" title="Applies" >
-			</kendo-grid-column>
-			<kendo-grid-column field="attributeNotOn" title="Compared with">
-			</kendo-grid-column>
-			<!--<kendo-grid-column field="accuracy" title="Accuracy">
-		</kendo-grid-column>
-		<kendo-grid-column field="auc" title="AUC">
-		</kendo-grid-column>-->
-			<kendo-grid-column field="precision" title="Precision">
-			</kendo-grid-column>
-			<kendo-grid-column field="recall" title="Recall">
-			</kendo-grid-column>
-		</kendo-grid>
-	</div>
-	<div class="col-12 mt-2 mb-2 justify-content-center">
-		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
-				type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
-			Run Model
-		</button>
-	</div>
+    </div>
+    <div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
+        <kendo-grid [data]="DataSourceModel"
+                    [selectable]="selectableSettings"
+                    [sort]="sort"
+                    [kendoGridSelectBy]="'modelId'"
+                    (sortChange)="sortChange($event)"
+                    (selectionChange)="selectedRows($event)">
+
+            <kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
+            <kendo-grid-column field="modelId" title="ModelID">
+            </kendo-grid-column>
+            <kendo-grid-column field="modelTitle" title="Title">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeOn" title="Applies">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeNotOn" title="Compared with">
+            </kendo-grid-column>
+            <!--<kendo-grid-column field="accuracy" title="Accuracy">
+            </kendo-grid-column>
+            <kendo-grid-column field="auc" title="AUC">
+            </kendo-grid-column>-->
+            <kendo-grid-column field="precision" title="Precision">
+            </kendo-grid-column>
+            <kendo-grid-column field="recall" title="Recall">
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
+    <div class="col-12 mt-2 mb-2 justify-content-center">
+        <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
+                type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+            Run Model
+        </button>
+    </div>
 </div>
 
 
 
 <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
-	<div ngbDropdown class="card col-12 ">
-		<div *ngIf="!CanCreateClassifierCodes()" class=" col-sm-4 col-md-4">
-			To create codes to represent the classifier result, please select a code on the right.
-		</div>
-		<div *ngIf="CanCreateClassifierCodes()" class="row col-8 col-sm-8 col-md-8">
-			<p style="min-width: 150px;" class="row col-6" *ngIf="selectedNode"> Create codes below this code / set: <b>{{selectedNode.name}}</b></p>
-			<div class="col-6 col-sm-4 col-md-4 m-0 p-0">
-				<button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
-			</div>
-		</div>
-	</div>
-	<div class="card col-12 col-sm-12 col-md-12">
-		<figure class="figure col-12">
-			<kendo-chart #VisualiseChart style="min-width: 500px;"
-						 *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
-				<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
-				<kendo-chart-series>
-					<kendo-chart-series-item field="count" categoryField="range"
-											 type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
-					</kendo-chart-series-item>
-				</kendo-chart-series>
-			</kendo-chart>
-		</figure>
-	</div>
-	<div class="card bg-light ">
-		<div class="col-12 row">
-			<div class="col-sm-1 col-md-1"></div>
-			<div class="col">
-				<button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
-			</div>
-			<div class="col">
-				<button style="min-width: 150px;" class="btn btn-danger p-2 m-2" (click)="CancelVisualise()">Cancel</button>
-			</div>
-			<div class="col"></div>
-		</div>
-	</div>
+    <div ngbDropdown class="card col-12 ">
+        <div *ngIf="!CanCreateClassifierCodes()" class=" col-sm-4 col-md-4">
+            To create codes to represent the classifier result, please select a code on the right.
+        </div>
+        <div *ngIf="CanCreateClassifierCodes()" class="row col-8 col-sm-8 col-md-8">
+            <p style="min-width: 150px;" class="row col-6" *ngIf="selectedNode"> Create codes below this code / set: <b>{{selectedNode.name}}</b></p>
+            <div class="col-6 col-sm-4 col-md-4 m-0 p-0">
+                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
+            </div>
+        </div>
+    </div>
+    <div class="card col-12 col-sm-12 col-md-12">
+        <figure class="figure col-12">
+            <kendo-chart #VisualiseChart style="min-width: 500px;"
+                         *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
+                <kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
+                <kendo-chart-series>
+                    <kendo-chart-series-item field="count" categoryField="range"
+                                             type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
+                    </kendo-chart-series-item>
+                </kendo-chart-series>
+            </kendo-chart>
+        </figure>
+    </div>
+    <div class="card bg-light ">
+        <div class="col-12 row">
+            <div class="col-sm-1 col-md-1"></div>
+            <div class="col">
+                <button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
+            </div>
+            <div class="col">
+                <button style="min-width: 150px;" class="btn btn-danger p-2 m-2" (click)="CancelVisualise()">Cancel</button>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
 </div>
 
 <div class="card col-12 bg-light">
-		<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
-					[data]="DataSourceSearches" [height]="410"
-					[rowClass]="rowCallback"
-					[sortable]="{
+    <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+                [data]="DataSourceSearches" [height]="410"
+                [rowClass]="rowCallback"
+                [sortable]="{
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
-					[sort]="sort"
-					(sortChange)="sortChange($event)"
-					class="mt-1">
+                [sort]="sort"
+                (sortChange)="sortChange($event)"
+                class="mt-1">
 
-			<kendo-grid-column [sortable]="false" width="33"
-							   [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
-							   [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
-				<!--<ng-template kendoGridHeaderTemplate let-dataItem>
-					<input style="zoom: 1.2;"
-						   type="checkbox"
-						   name="selectAll"
-						   (change)="selectAllSearchesChange($event)"
-						   [checked]="allSearchesSelected" />
-				</ng-template>-->
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-						   type="checkbox"
-						   field="selected"
-						   [checked]="dataItem.add" />
-				</ng-template>
-			</kendo-grid-column>
-			<kendo-grid-column field="searchNo" title="No" width="60">
-			</kendo-grid-column>
-			<kendo-grid-column field="title" title="Name" width="360">
-			</kendo-grid-column>
-			<kendo-grid-column field="contactName" title="Created By" width="140">
-			</kendo-grid-column>
-			<kendo-grid-column field="searchDate" title="Date" width="140">
-			</kendo-grid-column>
-			<kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
-							   field="hitsNo" title="Hits">
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<div (click)="SearchGetItemList(dataItem)">
-						{{dataItem.hitsNo}}
-					</div>
-				</ng-template>
-			</kendo-grid-column>
-			<kendo-grid-column field="isClassifierResult"
-							   title="Classifier" width="80">
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<div (click)="OpenClassifierVisualisation(dataItem)"
-						 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
-						{{dataItem.isClassifierResult}}
-					</div>
-				</ng-template>
-			</kendo-grid-column>
-		</kendo-grid>
+        <kendo-grid-column [sortable]="false" width="33"
+                           [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
+                           [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
+            <!--<ng-template kendoGridHeaderTemplate let-dataItem>
+                <input style="zoom: 1.2;"
+                       type="checkbox"
+                       name="selectAll"
+                       (change)="selectAllSearchesChange($event)"
+                       [checked]="allSearchesSelected" />
+            </ng-template>-->
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+                       type="checkbox"
+                       field="selected"
+                       [checked]="dataItem.add" />
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="searchNo" title="No" width="60">
+        </kendo-grid-column>
+        <kendo-grid-column field="title" title="Name" width="360">
+        </kendo-grid-column>
+        <kendo-grid-column field="contactName" title="Created By" width="140">
+        </kendo-grid-column>
+        <kendo-grid-column field="searchDate" title="Date" width="140">
+        </kendo-grid-column>
+        <kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
+                           field="hitsNo" title="Hits">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div (click)="SearchGetItemList(dataItem)">
+                    {{dataItem.hitsNo}}
+                </div>
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="isClassifierResult"
+                           title="Classifier" width="80">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div (click)="OpenClassifierVisualisation(dataItem)"
+                     class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+                    {{dataItem.isClassifierResult}}
+                </div>
+            </ng-template>
+        </kendo-grid-column>
+    </kendo-grid>
 </div>
-	<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
-
+<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
+<div *ngIf="!_searchService || !_searchService.SearchList || this._searchService.SearchList.length <= 0 || this._searchService.IsBusy" style="min-height:300px;">
+</div>
