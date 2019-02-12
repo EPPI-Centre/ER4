@@ -83,7 +83,7 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult WorkAllocationsAll([FromBody] SingleInt64Criteria itemID)//should receive a reviewID!
+		public IActionResult DeleteWorkAllocation([FromBody] SingleIntCriteria workAllocationId)//should receive a reviewID!
 		{
 			try
 			{
@@ -91,15 +91,12 @@ namespace ERxWebClient2.Controllers
 				SetCSLAUser();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
-				SingleCriteria<WorkAllocation, Int64> criteria = new SingleCriteria<WorkAllocation, Int64>(Convert.ToInt64(itemID));
+				SingleCriteria<WorkAllocation, int> criteria = new SingleCriteria<WorkAllocation, int>(workAllocationId.Value);
 				WorkAllocation result = dp.Fetch(criteria);
 
-				//Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
-				//string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
-				//{
-				//    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-				//});
-				//return resSt;
+				result.Delete();
+				result = result.Save();
+
 				return Ok(result);
 			}
 			catch (Exception e)
@@ -107,7 +104,6 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "Work Allocation data portal error");
 				throw;
 			}
-
 		}
 
 

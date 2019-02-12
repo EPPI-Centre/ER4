@@ -36,7 +36,7 @@
 				<td id="waAll-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link">{{ wa.totalAllocation}}</div></td>
 				<td id="waStarted-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link">{{ wa.totalStarted}}</div></td>
 				<td id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link">{{ wa.totalRemaining}}</div></td>
-				<td><button class="btn btn-danger p-1 m-1" (click)="DeleteWorkAllocation()">Delete</button></td>
+				<td><button class="btn btn-danger p-1 m-1" (click)="DeleteWorkAllocation(wa.workAllocationId)">Delete</button></td>
 			</tr>
 		</tbody>
 	</table>

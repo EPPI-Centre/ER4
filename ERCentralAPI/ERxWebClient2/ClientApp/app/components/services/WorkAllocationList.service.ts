@@ -61,12 +61,24 @@ export class WorkAllocationListService {
 
 	public FetchAll() {
 
-		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocations').subscribe(result => {
+		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocations')
+			.subscribe(result => {
 
 			this._allWorkAllocationsForReview = result;
-			//this.ListLoaded.emit();
+
 		}, error => { this.modalService.SendBackHomeWithError(error); }
 		);
+
+	}
+
+	public DeleteWorkAllocation(workAllocationId: number) {
+
+		let body = JSON.stringify({ Value: workAllocationId });
+		this._httpC.post<WorkAllocation>(this._baseUrl + 'api/WorkAllocationContactList/DeleteWorkAllocation', body)
+			.subscribe(() => {
+				this.FetchAll();
+		 }, error => { this.modalService.SendBackHomeWithError(error); }
+		 );
 
 	}
 
@@ -90,13 +102,6 @@ export class WorkAllocationListService {
 
 	//}
 
-
-    //public Save() {
-    //    if (this._workAllocations.length > 0)
-    //        localStorage.setItem('WorkAllocationContactList', JSON.stringify(this._workAllocations));
-    //    else if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
-    //        localStorage.removeItem('WorkAllocationContactList');
-    //}
 }
 
 export class WorkAllocation {

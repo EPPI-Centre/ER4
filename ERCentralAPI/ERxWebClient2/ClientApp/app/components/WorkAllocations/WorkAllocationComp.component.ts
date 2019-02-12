@@ -43,9 +43,9 @@ export class WorkAllocationComp implements OnInit {
 
 	}
 
-	DeleteWorkAllocation() {
+	DeleteWorkAllocation(workAllocationId: number) {
 
-		alert('not implemented yet');
+		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
 	}
 
 	LoadGivenList(workAllocationId: number, subtype: string) {
