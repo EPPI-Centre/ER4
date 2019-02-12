@@ -8,6 +8,7 @@ import { WorkAllocationListService, WorkAllocation } from '../services/WorkAlloc
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -21,7 +22,8 @@ export class WorkAllocationComp implements OnInit {
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
 		public _workAllocationListService: WorkAllocationListService,
 		public reviewInfoService: ReviewInfoService,
-		public itemListService: ItemListService
+		public itemListService: ItemListService,
+		private confirmationDialogService: ConfirmationDialogService,
     ) { }
 
 	@Output() criteriaChange = new EventEmitter();
@@ -32,7 +34,29 @@ export class WorkAllocationComp implements OnInit {
 
 		this.getMembers();
 		this._workAllocationListService.FetchAll();
-    }
+	}
+	public openConfirmationDialogDeleteWA(workAllocationId: number) {
+
+		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a work allocation', false, '')
+			.then(
+				(confirmed: any) => {
+					
+					if (confirmed) {
+
+						this.DeleteWorkAllocation(workAllocationId);
+
+					} else {
+						//alert('did not confirm');
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+	removeWarning(workAllocationId: number) {
+
+		this.openConfirmationDialogDeleteWA(workAllocationId);
+	}
+
 
 	getMembers() {
 
