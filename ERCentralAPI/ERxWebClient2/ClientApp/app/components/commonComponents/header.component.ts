@@ -125,7 +125,7 @@ export class HeaderComponent implements OnInit {
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.ReviewSetsService.Clear();
-        this.workAllocationListService.workAllocations = [];
+		this.workAllocationListService.Clear();
         //this.workAllocationContactListService.Save();
     }
     Logout() {

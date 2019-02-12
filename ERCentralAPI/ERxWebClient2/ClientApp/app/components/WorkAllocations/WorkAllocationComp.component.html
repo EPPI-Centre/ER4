@@ -33,9 +33,9 @@
 			<tr *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
 				<td >{{ wa.contactId }}</td>
 				<td>{{ wa.contactName }}</td>
-				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalAllocation}}</td>
-				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalStarted}}</td>
-				<td class="btn-link" (click)="WAGetItemList(i)">{{ wa.totalRemaining}}</td>
+				<td id="waAll-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link">{{ wa.totalAllocation}}</div></td>
+				<td id="waStarted-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link">{{ wa.totalStarted}}</div></td>
+				<td id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link">{{ wa.totalRemaining}}</div></td>
 				<td><button class="btn btn-danger p-1 m-1" (click)="DeleteWorkAllocation()">Delete</button></td>
 			</tr>
 		</tbody>

@@ -21,7 +21,7 @@ export class ReviewInfoService extends BusyAwareService{
         super();
     }
 
-	private _Contacts: Contact[] = [];
+	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();;
     public get ReviewInfo(): ReviewInfo {
         //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
@@ -43,16 +43,18 @@ export class ReviewInfoService extends BusyAwareService{
 	}
 	public get Contacts(): Contact[] {
 
-		if (this._Contacts) return this._Contacts;
+		if (this._ReviewContacts) return this._ReviewContacts;
 		else {
-			this._Contacts = [];
-			return this._Contacts;
+			this._ReviewContacts = [];
+			return this._ReviewContacts;
 		}
 	}
 
-    public Fetch() {
+	public Fetch() {
+				
         this._BusyMethods.push("Fetch");
-        this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
+		this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
+			rI => {
             this._ReviewInfo = rI;
             this.RemoveBusy("Fetch");
             //this.Save();
@@ -60,30 +62,30 @@ export class ReviewInfoService extends BusyAwareService{
             this.RemoveBusy("Fetch");
             this.modalService.SendBackHomeWithError(error);
         }
-        );
+		);
+
 	}
 
 	public FetchReviewMembers() {
+		
+		let ErrMsg = "Something went wrong when fetching review members \r\n If the problem persists, please contact EPPISupport.";
+
 		this._BusyMethods.push("FetchReviewMembers");
-		this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers').subscribe(result => {
-			this._Contacts = result;
-			this.RemoveBusy("FetchReviewMembers");
+		this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers').subscribe(
 
-		}, error => {
-			this.RemoveBusy("FetchReviewMembers");
-			this.modalService.SendBackHomeWithError(error);
-		}
-		);
-
+			(result) => {
+				this._ReviewContacts = result;
+				if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+				this.RemoveBusy("FetchReviewMembers");
+				return result;
+			}
+			, (error) => {
+				this.RemoveBusy("FetchReviewMembers");
+				this.modalService.GenericErrorMessage(ErrMsg);
+				return error;
+			});
 
 	}
-
-    //public Save() {
-    //    if (this.ReviewInfo != null)
-    //        localStorage.setItem('ReviewInfo', JSON.stringify(this.ReviewInfo));
-    //    else if (localStorage.getItem('ReviewInfo'))//to be confirmed!! 
-    //        localStorage.removeItem('ReviewInfo');
-    //}
 }
 
 export class ReviewInfo {
@@ -112,8 +114,6 @@ export class ReviewInfo {
 export class Contact {
 
 	 contactName: string = '';
-
 	 contactId: number = 0;
-
 }
 

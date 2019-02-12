@@ -20,6 +20,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.component';
 
 
 
@@ -62,7 +63,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
         , private ReviewSetsEditingService: ReviewSetsEditingService
     ) {}
-    @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     //@ViewChild('tabset') tabset!: NgbTabset;
 	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
@@ -322,6 +324,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	LoadWorkAllocList(workAlloc: WorkAllocation) {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+		else console.log('attempt failed');
+		
+		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
 	}
 	//ngOnChanges() {

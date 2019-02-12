@@ -25,24 +25,13 @@ export class WorkAllocationListService {
         //    localStorage.removeItem('WorkAllocationContactList');
     }
 
-	public _workAllocations: WorkAllocation[] = [];
-	public _allWorkAllocationsForReview: WorkAllocation[] = [];
+	private _ContactWorkAllocations: WorkAllocation[] = [];
+	private _allWorkAllocationsForReview: WorkAllocation[] = [];
     public CurrentlyLoadedWorkAllocationSublist: WorkAllocationSublist = new WorkAllocationSublist();
 
     public get ContactWorkAllocations(): WorkAllocation[] {
-        //if (this._workAllocations.length == 0) {
-
-        //    const workAllocationsJson = localStorage.getItem('WorkAllocationContactList');
-        //    let workAllocations: WorkAllocation[] = workAllocationsJson !== null ? JSON.parse(workAllocationsJson) : [];
-        //    if (workAllocations == undefined || workAllocations == null || workAllocations.length == 0) {
-        //        return this._workAllocations;
-        //    }
-        //    else {
-
-        //        this._workAllocations = workAllocations;
-        //    }
-        //}
-        return this._workAllocations;
+        
+		return this._ContactWorkAllocations;
 
 	}
 
@@ -51,13 +40,11 @@ export class WorkAllocationListService {
 		return this._allWorkAllocationsForReview;
 	}
 
-	public set AllWorkAllocationsForReview(wa: WorkAllocation[]) {
-		this._allWorkAllocationsForReview = wa;
-	}
+	
 
 
-    public set workAllocations(wa: WorkAllocation[]) {
-        this._workAllocations = wa;
+	public set ContactWorkAllocations(wa: WorkAllocation[]) {
+		this._ContactWorkAllocations = wa;
     }
    
     
@@ -65,7 +52,7 @@ export class WorkAllocationListService {
 
         this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
 
-                this.workAllocations = result;//also saves to local storage
+			this._ContactWorkAllocations = result;
             this.ListLoaded.emit();
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
@@ -76,11 +63,17 @@ export class WorkAllocationListService {
 
 		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocations').subscribe(result => {
 
-			this.AllWorkAllocationsForReview = result;//also saves to local storage
-			this.ListLoaded.emit();
+			this._allWorkAllocationsForReview = result;
+			//this.ListLoaded.emit();
 		}, error => { this.modalService.SendBackHomeWithError(error); }
 		);
 
+	}
+
+	public Clear() {
+		this._allWorkAllocationsForReview = [];
+		this._ContactWorkAllocations = [];
+		this.CurrentlyLoadedWorkAllocationSublist = new WorkAllocationSublist();
 	}
 
 	//public FetchAll(itemId: number) {

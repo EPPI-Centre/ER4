@@ -24,12 +24,15 @@ export class WorkAllocationComp implements OnInit {
 		public itemListService: ItemListService
     ) { }
 
+	@Output() criteriaChange = new EventEmitter();
+	@Output() AllocationClicked = new EventEmitter();
+	public ListSubType: string = "GetItemWorkAllocationList";
+
     ngOnInit() {
 
 		this.getMembers();
 		this._workAllocationListService.FetchAll();
     }
-
 
 	getMembers() {
 
@@ -45,12 +48,21 @@ export class WorkAllocationComp implements OnInit {
 		alert('not implemented yet');
 	}
 
-	// this needs to open the item list as in ER4...
-	WAGetItemList(i: any) {
+	LoadGivenList(workAllocationId: number, subtype: string) {
 
-		alert('asdf: ' + i);
+		
+		for (let workAll of this._workAllocationListService.AllWorkAllocationsForReview) {
+			if (workAll.workAllocationId == workAllocationId) {
+	
+				this.ListSubType = subtype;
+				this.criteriaChange.emit(workAll);
+				this.AllocationClicked.emit();
+				return;
+			}
+		}
 	}
-  
+
+
 }
 
 

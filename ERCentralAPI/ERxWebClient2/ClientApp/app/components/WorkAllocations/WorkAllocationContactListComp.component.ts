@@ -87,7 +87,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     LoadDefaultItemList() {
         console.log("load def item list " + this.JustCheckInstance);
         console.log(this.ItemListService.ListCriteria.workAllocationId + " | " + this.ItemListService.ListCriteria.listType);
-		if (!this._workAllocationListService.workAllocations) return;
+		if (!this._workAllocationListService.ContactWorkAllocations) return;
         
         if (this.ItemListService
             && this.ItemListService.ListCriteria
@@ -121,7 +121,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
 
         //see last condition  [&& this.Context !== "CodingOnly] if there is no list and we ARE in coding only,
         //we'll get one...
-		for (let workAll of this._workAllocationListService.workAllocations) {
+		for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
             if (workAll.totalRemaining > 0) {
 
                 this.ListSubType = "GetItemWorkAllocationListRemaining";
@@ -129,7 +129,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
                 return;
             }
         }
-		for (let workAll of this._workAllocationListService.workAllocations) {
+		for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
             if (workAll.totalAllocation > 0) {
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
@@ -160,7 +160,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     Clear() {
-		this._workAllocationListService.workAllocations = [];
+		this._workAllocationListService.Clear();
         //this._workAllocationContactListService.Save();
     }
 
