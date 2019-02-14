@@ -625,6 +625,7 @@ namespace BusinessLibrary.Security
                             ReviewExp = reader2.GetDateTime("REVIEW_EXP");
                             if (ReviewExp == new DateTime(1, 1, 1)) ReviewExp = new DateTime(3000, 1, 1);
                             LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);
+                            LoadProperty<bool>(IsSiteAdminProperty, reader2.GetBoolean("IS_SITE_ADMIN"));
                             //if (check == new DateTime(1, 1, 1)) check = DateTime.Now.AddDays(1);
                             check = ContactExp < ReviewExp ? ContactExp : ReviewExp;
                             if (check < DateTime.Today && (reader2.GetInt32("FUNDER_ID") != UserId || ContactExp < DateTime.Today))

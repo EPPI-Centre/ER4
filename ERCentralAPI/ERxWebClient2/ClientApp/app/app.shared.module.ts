@@ -62,6 +62,7 @@ import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './components/arms/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
+import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 
 @NgModule({
     declarations: [
@@ -106,7 +107,8 @@ import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTr
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
-		armDetailsComp
+        armDetailsComp,
+        SiteAdminComponent
 	],
     providers: [
         EventEmitterService,
@@ -145,8 +147,9 @@ import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTr
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
-			{ path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-            { path: 'intropage', component: intropageComponent },
+            { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
+            { path: 'intropage', component: intropageComponent }, 
+            { path: 'SiteAdmin', component: SiteAdminComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

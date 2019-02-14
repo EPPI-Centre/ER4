@@ -1,0 +1,29 @@
+
+<div *ngIf="IsSiteAdmin" class="col-12 card bg-light">
+    The siteadmin comp...
+    <div class="row, border border-dark">
+        <div class="form-group row m-1 p-0">
+            <label class="col-sm-2 control-label">U:</label>
+            <div class="col-sm-7">
+                <input name="username" class="form-control" [(ngModel)]="Uname">
+            </div>
+        </div>
+        <div class="form-group row m-1 p-0">
+            <label class="col-sm-2 control-label">P:</label>
+            <div class="col-sm-7">
+                <input type="password" class="form-control" name="password" [(ngModel)]="Pw">
+            </div>
+        </div>
+        <div class="form-group row m-1 p-0">
+            <label class="col-sm-2 control-label">R:</label>
+            <div class="col-sm-7">
+                <input name="rid" class="form-control" [(ngModel)]="revId">
+            </div>
+        </div>
+        <div>
+            <button  class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
+        </div>
+    </div>
+</div>
+
+

@@ -152,6 +152,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
 
+    public get IsSiteAdmin(): boolean {
+        //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
+        //    , this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin);
+        if (this.ReviewerIdentityServ
+            && this.ReviewerIdentityServ.reviewerIdentity
+            && this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+            && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        else return false;
+    }
+
 	dtTrigger: Subject<any> = new Subject();
 
     ngOnInit() {
@@ -456,12 +469,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
-	//public ShowNewReview: boolean = true;
-	//CreateReviewClick() {
-
-	//	this.ShowNewReview = !this.ShowNewReview;
-
-	//}
+    GoToSiteAdmin() {
+        if (!this.IsSiteAdmin) return;
+        else {
+            this.router.navigate(['SiteAdmin']);
+        }
+    }
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");
