@@ -1,6 +1,6 @@
 import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient,  } from '@angular/common/http';
-import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
+import { WorkAllocationListService } from './WorkAllocationList.service';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
@@ -18,7 +18,7 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        private _WorkAllocationService: WorkAllocationContactListService,
+		private _WorkAllocationService: WorkAllocationListService,
         private _PriorityScreeningService: PriorityScreeningService,
 		private ModalService: ModalService
     ) {

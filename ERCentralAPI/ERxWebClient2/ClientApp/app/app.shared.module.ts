@@ -10,7 +10,7 @@ import { CodesetTreeCodingComponent, InfoBoxModalContent } from './components/Co
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { MainFullReviewComponent } from './components/main/mainfull.component';
-import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
+import { WorkAllocationContactListComp } from './components/WorkAllocations/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { paginatorComp } from './components/commonComponents/paginator.component';
@@ -62,6 +62,7 @@ import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 import { armDetailsComp } from './components/arms/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
+import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationComp.component';
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 
 @NgModule({
@@ -107,7 +108,8 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
-        armDetailsComp,
+		armDetailsComp,
+		WorkAllocationComp
         SiteAdminComponent
 	],
     providers: [

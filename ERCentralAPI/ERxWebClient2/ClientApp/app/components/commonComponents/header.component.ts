@@ -6,7 +6,7 @@ import { timer, Subject, Subscription, Observable } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
-import { WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
+import { WorkAllocationListService } from '../services/WorkAllocationList.service';
 import { OnlineHelpService, FeedbackAndClientError4Create } from '../services/onlinehelp.service';
 import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -89,7 +89,7 @@ export class HeaderComponent implements OnInit {
         private OnlineHelpService: OnlineHelpService,
         private ReviewSetsService: ReviewSetsService,
         private ItemListService: ItemListService,
-        private workAllocationContactListService: WorkAllocationContactListService,
+        private workAllocationListService: WorkAllocationListService,
         private notificationService: NotificationService
     ) {    }
 
@@ -125,7 +125,7 @@ export class HeaderComponent implements OnInit {
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.ReviewSetsService.Clear();
-        this.workAllocationContactListService.workAllocations = [];
+		this.workAllocationListService.Clear();
         //this.workAllocationContactListService.Save();
     }
     Logout() {

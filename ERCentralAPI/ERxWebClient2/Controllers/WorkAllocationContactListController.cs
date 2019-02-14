@@ -55,6 +55,62 @@ namespace ERxWebClient2.Controllers
 
         }
 
-        
-    }
+		[HttpGet("[action]")]
+		public IActionResult WorkAllocations()//should receive a reviewID!
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<WorkAllocationList> dp = new DataPortal<WorkAllocationList>();
+				WorkAllocationList result = dp.Fetch();
+
+				//Newtonsoft.Json.JsonSerializerSettings ss = new Newtonsoft.Json.JsonSerializerSettings();
+				//string resSt = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonSerializerSettings
+				//{
+				//    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+				//});
+				//return resSt;
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Work Allocation data portal error");
+				throw;
+			}
+
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult DeleteWorkAllocation([FromBody] SingleIntCriteria workAllocationId)//should receive a reviewID!
+		{
+			try
+			{
+				
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
+				SingleCriteria<WorkAllocation, int> criteria = new SingleCriteria<WorkAllocation, int>(workAllocationId.Value);
+				WorkAllocation result = dp.Fetch(criteria);
+
+				result.Delete();
+				result = result.Save();
+
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Work Allocation data portal error");
+				throw;
+			}
+		}
+
+
+	}
+	public class WorkAllocationJSON
+	{
+		public long itemid { get; set; }
+
+	}
 }

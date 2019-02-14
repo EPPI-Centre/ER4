@@ -6,7 +6,7 @@ import { timer, Subject, Subscription, Observable } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
 import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
-import { WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
+import { WorkAllocationListService } from '../services/WorkAllocationList.service';
 import { ReviewSetsEditingService, PerformClusterCommand } from '../services/ReviewSetsEditing.service';
 import { codesetSelectorComponent } from './codesetSelector.component';
 

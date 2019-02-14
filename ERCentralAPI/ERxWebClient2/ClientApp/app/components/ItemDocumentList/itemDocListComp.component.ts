@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { Observable, Subscribable, Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation, WorkAllocationContactListService } from '../services/WorkAllocationContactList.service';
+import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 import { FormGroup, FormControl, FormBuilder, Validators, ReactiveFormsModule  } from '@angular/forms';
 import { Subject } from 'rxjs/index';

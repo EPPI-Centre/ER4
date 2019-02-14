@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocationContactListService, WorkAllocation } from '../services/WorkAllocationContactList.service';
+import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 @Component({
-    selector: 'WorkAllocationContactListComp',
-    templateUrl: './workAllocationContactListComp.component.html',
+	selector: 'WorkAllocationContactListComp',
+	templateUrl: './WorkAllocationContactListComp.component.html',
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     providers: []
 })
@@ -19,7 +19,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        public _workAllocationContactListService: WorkAllocationContactListService,
+		public _workAllocationListService: WorkAllocationListService,
         public reviewInfoService: ReviewInfoService,
         private ItemListService: ItemListService,
         private PriorityScreeningService: PriorityScreeningService
@@ -47,7 +47,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
         }
         else {
 
-            this.subWorkAllocationsLoaded = this._workAllocationContactListService.ListLoaded.subscribe(
+			this.subWorkAllocationsLoaded = this._workAllocationListService.ListLoaded.subscribe(
                 () => this.LoadDefaultItemList()
             );
             this.getWorkAllocationContactList();
@@ -87,7 +87,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     LoadDefaultItemList() {
         console.log("load def item list " + this.JustCheckInstance);
         console.log(this.ItemListService.ListCriteria.workAllocationId + " | " + this.ItemListService.ListCriteria.listType);
-        if (!this._workAllocationContactListService.workAllocations) return;
+		if (!this._workAllocationListService.ContactWorkAllocations) return;
         
         if (this.ItemListService
             && this.ItemListService.ListCriteria
@@ -121,7 +121,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
 
         //see last condition  [&& this.Context !== "CodingOnly] if there is no list and we ARE in coding only,
         //we'll get one...
-        for (let workAll of this._workAllocationContactListService.workAllocations) {
+		for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
             if (workAll.totalRemaining > 0) {
 
                 this.ListSubType = "GetItemWorkAllocationListRemaining";
@@ -129,7 +129,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
                 return;
             }
         }
-        for (let workAll of this._workAllocationContactListService.workAllocations) {
+		for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
             if (workAll.totalAllocation > 0) {
                 this.ListSubType = "GetItemWorkAllocationList";
                 this.criteriaChange.emit(workAll);
@@ -144,12 +144,12 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
             //this happens here because both coding only and main UI will call this method on reload and similar conditions.
             this.reviewInfoService.Fetch();
         }
-        this._workAllocationContactListService.Fetch();
+		this._workAllocationListService.Fetch();
 
     }
       
     LoadGivenList(workAllocationId: number, subtype: string) {
-        for (let workAll of this._workAllocationContactListService.workAllocations) {
+		for (let workAll of this._workAllocationListService.ContactWorkAllocations) {
             if (workAll.workAllocationId == workAllocationId) {
                 this.ListSubType = subtype;
                 this.criteriaChange.emit(workAll);
@@ -160,7 +160,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     }
 
     Clear() {
-        this._workAllocationContactListService.workAllocations = [];
+		this._workAllocationListService.Clear();
         //this._workAllocationContactListService.Save();
     }
 

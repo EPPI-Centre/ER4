@@ -229,7 +229,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<WorkAllocation, Int64> criteria) // used to return a specific item
+        protected void DataPortal_Fetch(SingleCriteria<WorkAllocation, int> criteria) // used to return a specific item
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -238,16 +238,27 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_WorkAllocation", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@WORK_ALLOCATION_ID", criteria.Value));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        if (reader.Read())
-                        {
-                            //LoadProperty<Int64>(WorkAllocationIdProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-                            //LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
-                        }
-                    }
+						while (reader.Read())
+						{
+							WorkAllocation returnValue = new WorkAllocation();
+							LoadProperty<int>(WorkAllocationIdProperty, reader.GetInt32("WORK_ALLOCATION_ID"));
+							LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+							LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
+							LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
+							LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
+							LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
+							LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
+							LoadProperty<int>(TotalAllocationProperty, reader.GetInt32("TOTAL_ALLOCATION"));
+							LoadProperty<int>(TotalStartedProperty, reader.GetInt32("TOTAL_STARTED"));
+							LoadProperty<int>(TotalRemainingProperty, this.TotalAllocation - this.TotalStarted);
+							MarkOld();
+
+						}
+					}
                 }
                 connection.Close();
             }
