@@ -35,6 +35,11 @@ export class OnlineHelpService extends BusyAwareService  {
     public get CurrentContext(): string {
         return this._CurrentContext;
     }
+    private _FeedbackMessageList: FeedbackAndClientError[] = [];
+    public get FeedbackMessageList(): FeedbackAndClientError[] {
+        return this._FeedbackMessageList;
+    }
+
     public FetchHelpContent(context: string) {
         if (this._CurrentContext == context) return; //no need to re-fetch the help we have already.
         else {
@@ -74,7 +79,21 @@ export class OnlineHelpService extends BusyAwareService  {
                 }
             );
     }
-    
+    public GetFeedbackMessageList() {
+        //console.log("GetFeedbackMessageList");
+        this._BusyMethods.push("GetFeedbackMessageList");
+        this._http.get<FeedbackAndClientError[]>(this._baseUrl + 'api/Help/FeedbackMessageList').subscribe(
+            data => {
+                this._FeedbackMessageList = data;
+                this.RemoveBusy("GetFeedbackMessageList");
+            },
+            error => {
+                this.modalService.GenericError(error);
+                console.log("GetFeedbackMessageList", error);
+                this.RemoveBusy("GetFeedbackMessageList");
+            }
+        );
+    }
 }
 export interface OnlineHelpContent{
     onlineHelpContentId: number;
@@ -92,4 +111,5 @@ export class FeedbackAndClientError extends FeedbackAndClientError4Create {
     public messageId: number = -1;
     public contactName: string = "";
     public dateCreated: string = "";
+    public reviewId: number = 0;
 }

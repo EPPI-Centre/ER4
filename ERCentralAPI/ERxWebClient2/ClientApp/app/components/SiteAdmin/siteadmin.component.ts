@@ -3,20 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service'
-import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocationContactList/workAllocationContactListComp.component';
-import { ItemListService } from '../services/ItemList.service'
-import { ItemListComp } from '../ItemList/itemListComp.component';
-import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
-import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer, Subject, Subscription, Observable } from 'rxjs';
-import { take, map, takeUntil } from 'rxjs/operators';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Response } from '@angular/http';
-import { ErrorHandler } from "@angular/core";
-import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
-import { DomSanitizer } from '@angular/platform-browser';
+import { FeedbackAndClientError, OnlineHelpService } from '../services/onlinehelp.service';
+import { GridDataResult, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
+import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@progress/kendo-data-query';
 
 
 @Component({
@@ -30,23 +19,40 @@ export class SiteAdminComponent implements OnInit {
     @ViewChild('content') private content: any;
 
     constructor(private router: Router,
-                private _httpC: HttpClient,
-                @Inject('BASE_URL') private _baseUrl: string,
-                public ReviewerIdentityServ: ReviewerIdentityService
+        private _httpC: HttpClient,
+        private OnlineHelpService: OnlineHelpService,
+        @Inject('BASE_URL') private _baseUrl: string,
+        public ReviewerIdentityServ: ReviewerIdentityService
     ) {    }
-
-   
-    public Uname: string = "";
-    public Pw: string = "";
-    public revId: string = "";
-     
-    
-
-   
 
     ngOnInit() {
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
+        else this.OnlineHelpService.GetFeedbackMessageList();
     }
+    public Uname: string = "";
+    public Pw: string = "";
+    public revId: string = "";
+    public get FeedbackMessageList(): FeedbackAndClientError[] {
+        return this.OnlineHelpService.FeedbackMessageList;
+    }
+    
+    public get DataSource(): GridDataResult {
+        return process(this.OnlineHelpService.FeedbackMessageList, this.state);
+        //return {
+        //    data: orderBy(this.OnlineHelpService.FeedbackMessageList.slice(this.skip, this.skip + this.pageSize), this.sort),
+        //    total: this.OnlineHelpService.FeedbackMessageList.length,
+        //};
+    }
+    public state: State = {
+        skip: 0,
+        take: 10,
+        
+    };
+    public dataStateChange(state: DataStateChangeEvent): void {
+        this.state = state;
+        this.DataSource; //= process(sampleProducts, this.state);
+    }
+    
 
     public get IsSiteAdmin(): boolean {
         //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
@@ -76,7 +82,22 @@ export class SiteAdminComponent implements OnInit {
             this.ReviewerIdentityServ.LoginReqSA(this.Uname, this.Pw, rid);
         }
     }
-
+    //protected pageChange({ skip, take }: PageChangeEvent): void {
+    //    this.skip = skip;
+    //    this.pageSize = take;
+    //    this.DataSource;
+    //}//
+    //protected filterChange($event: CompositeFilterDescriptor) {
+    //    console.log($event);
+    //    this.filter = $event;
+    //}
+    //public sortChange(sort: SortDescriptor[]): void {
+    //    this.sort = sort;
+    //    this.DataSource;
+    //}
+    BackToMain() {
+        this.router.navigate(['Main']);
+    }
     ngOnDestroy() {
     }
 }

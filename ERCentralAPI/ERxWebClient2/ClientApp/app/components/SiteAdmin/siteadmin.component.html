@@ -1,27 +1,69 @@
+<HeaderComponent *ngIf="IsSiteAdmin" PageTitle="Site Admin"></HeaderComponent>
+<div *ngIf="IsSiteAdmin" class="bg-light">
+    
+    <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+        Close/back
+    </button>
+    <p class="font-weight-bold">Feedback (and error) messages:</p>
+    <div *ngIf="FeedbackMessageList.length > 0">
 
-<div *ngIf="IsSiteAdmin" class="col-12 card bg-light">
-    The siteadmin comp...
-    <div class="row, border border-dark">
-        <div class="form-group row m-1 p-0">
-            <label class="col-sm-2 control-label">U:</label>
-            <div class="col-sm-7">
-                <input name="username" class="form-control" [(ngModel)]="Uname">
+        <kendo-grid [data]="DataSource" [height]="490"
+                    [sort]="state.sort"
+                    [sortable]="{
+                    allowUnsort: false,
+                    mode: 'single'
+                    }"
+                    [pageSize]="state.take"
+                    [skip]="state.skip"
+                    [pageable]="{
+                    info: 'true',
+                    type: 'input',
+                    pageSizes: true,
+                    previousNext: 'true'
+                    }"
+                    filterable="menu"
+                    (dataStateChange)="dataStateChange($event)">
+            <ng-template kendoPagerTemplate let-totalPages="totalPages" let-currentPage="currentPage">
+                <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
+                <kendo-pager-info></kendo-pager-info>
+                <kendo-pager-next-buttons></kendo-pager-next-buttons>
+                <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
+            </ng-template>
+            <kendo-grid-column field="dateCreated" headerClass="small" class="small" width="2" title="Date">
+            </kendo-grid-column>
+            <kendo-grid-column field="context" headerClass="small" class="small" width="3" title="Context">
+            </kendo-grid-column>
+            <kendo-grid-column field="message" headerClass="small" class="small" width="14" title="Message">
+            </kendo-grid-column>
+            <kendo-grid-column field="contactName" headerClass="small" class="small" width="2" title="User">
+            </kendo-grid-column>
+            <kendo-grid-column field="contactId" headerClass="small" width="2" title="Cont.ID">
+            </kendo-grid-column>
+            <kendo-grid-column field="reviewId" headerClass="small" width="2" title="Rev.ID">
+            </kendo-grid-column>
+            <kendo-grid-column field="isError" headerClass="small" width="2" title="IsError">
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
+    <div *ngIf="FeedbackMessageList.length == 0">
+        FeedbackMessageList is empty
+    </div>
+    Open Review:
+    <div class="col-12">
+        <div class="form-group border border-dark rounded row m-0 p-1">
+            <label class="control-label mt-2 mx-1">U:</label>
+            <div class="mr-2">
+                <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
             </div>
-        </div>
-        <div class="form-group row m-1 p-0">
-            <label class="col-sm-2 control-label">P:</label>
-            <div class="col-sm-7">
-                <input type="password" class="form-control" name="password" [(ngModel)]="Pw">
+            <label class="control-label mt-2 mr-1">P:</label>
+            <div class="mr-2">
+                <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
             </div>
-        </div>
-        <div class="form-group row m-1 p-0">
-            <label class="col-sm-2 control-label">R:</label>
-            <div class="col-sm-7">
-                <input name="rid" class="form-control" [(ngModel)]="revId">
+            <label class=" control-label mt-2 mr-1">R:</label>
+            <div class="mr-2">
+                <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
             </div>
-        </div>
-        <div>
-            <button  class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
+            <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
         </div>
     </div>
 </div>

@@ -10,7 +10,6 @@ import { CodesetTreeCodingComponent, InfoBoxModalContent } from './components/Co
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { MainFullReviewComponent } from './components/main/mainfull.component';
-import { WorkAllocationContactListComp } from './components/WorkAllocations/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { paginatorComp } from './components/commonComponents/paginator.component';
@@ -64,6 +63,7 @@ import { armDetailsComp } from './components/arms/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
 import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationComp.component';
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
+import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
 
 @NgModule({
     declarations: [
@@ -83,8 +83,7 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,
-        WorkAllocationContactListComp,
+        HomeComponent,        
         ItemListComp,
         ItemCodingComp,
         ItemCodingFullComp,
@@ -109,7 +108,8 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
         NewReviewComponent,
 		RunLingo3G,
 		armDetailsComp,
-		WorkAllocationComp
+        WorkAllocationComp,
+        WorkAllocationContactListComp,
         SiteAdminComponent
 	],
     providers: [
@@ -147,7 +147,6 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
-            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent }, 

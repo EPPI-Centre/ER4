@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocations/workAllocationContactListComp.component';
+import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
@@ -73,7 +73,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
             this.ItemListService.IsBusy ||  
-            this.codesetStatsServ.IsBusy ||
+            //this.codesetStatsServ.IsBusy ||
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||

@@ -1,11 +1,9 @@
-/// <reference path="../services/itemlist.service.ts" />
 import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
-import { ItemListService } from '../services/ItemList.service'
+import { ItemListService } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 

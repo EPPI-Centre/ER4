@@ -1,4 +1,3 @@
-/// <reference path="../services/itemlist.service.ts" />
 import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
