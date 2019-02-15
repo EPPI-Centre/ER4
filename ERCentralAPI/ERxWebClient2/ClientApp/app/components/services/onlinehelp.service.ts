@@ -1,15 +1,8 @@
 import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { OK } from 'http-status-codes';
-import { error } from '@angular/compiler/src/util';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { arm, Item, ItemListService } from './ItemList.service';
+import { ItemListService } from './ItemList.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({

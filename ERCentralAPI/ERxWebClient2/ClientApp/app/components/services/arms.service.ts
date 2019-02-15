@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { arm, Item, ItemListService } from './ItemList.service';
+import { iArm, Item, ItemListService, Arm } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -23,8 +23,8 @@ export class ArmsService implements OnInit{
 
 	}
 	private _currentItem: Item = new Item();
-    private _arms: arm[] | null = null;//null when service has been instantiated, empty array when the item in question had no arms.
-    public get arms(): arm[] {
+    private _arms: iArm[] | null = null;//null when service has been instantiated, empty array when the item in question had no arms.
+    public get arms(): iArm[] {
         if (this._arms) return this._arms;
         else {
             this._arms = [];
@@ -47,11 +47,12 @@ export class ArmsService implements OnInit{
         //}
         //return this._arms;
     }
-    public set arms(arms: arm[]) {
+    public set arms(arms: iArm[]) {
         this._arms = arms;
     }
     @Output() gotArms = new EventEmitter();
-    public get SelectedArm(): arm | null {
+    @Output() armChangedEE = new EventEmitter();
+    public get SelectedArm(): iArm | null {
         //if this is happening in a new tab (new instance of the app)
         //we need to retreive data from local storage. We know this is the case, because this.arms is empty.
         //selected arm is NULL when no arm is selected (i.e. the whole study is, which isn't an arm!)
@@ -71,24 +72,26 @@ export class ArmsService implements OnInit{
         //}
         return this._selectedArm;
     }
-	private _selectedArm: arm | null = null;
+    private _selectedArm: iArm | null = null;
 
     public SetSelectedArm(armID: number) {
-        
+        let Oldid = this._selectedArm ? this._selectedArm.itemArmId : 0;
         for (let arm of this.arms) {
-			if (arm.itemArmId == armID) {
+            if (arm.itemArmId == armID) {
                 this._selectedArm = arm;
+                if (Oldid !== armID) this.armChangedEE.emit();
                 return;
             }
         }
         this._selectedArm = null;
+        if (Oldid !== armID) this.armChangedEE.emit();
     }
     public FetchArms(currentItem: Item) {
 
 		this._currentItem = currentItem;
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-		  this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
+        this._http.post<iArm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
 			   body).subscribe(result => {
 				   this.arms = result;
@@ -101,11 +104,11 @@ export class ArmsService implements OnInit{
 			return currentItem.arms;
 	}
 
-	public CreateArm(currentArm: arm): Promise<arm> {
+	public CreateArm(currentArm: Arm): Promise<Arm> {
 
 		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
+		return this._http.post<Arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
 
 			currentArm).toPromise()
 						.then(
@@ -131,12 +134,12 @@ export class ArmsService implements OnInit{
 	}
 
 
-	public UpdateArm(currentArm: arm) {
+	public UpdateArm(currentArm: iArm) {
 
 
 		let ErrMsg = "Something went wrong when updating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._http.post<arm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
+		this._http.post<iArm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
 
 			currentArm).subscribe(
 
@@ -152,7 +155,7 @@ export class ArmsService implements OnInit{
 				});
 	}
 
-	public DeleteWarningArm(arm: arm) {
+	public DeleteWarningArm(arm: iArm) {
 		
 		let ErrMsg = "Something went wrong when warning of deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 		let cmd: ItemArmDeleteWarningCommandJSON = new ItemArmDeleteWarningCommandJSON();
@@ -190,11 +193,11 @@ export class ArmsService implements OnInit{
 
 	}
 
-	DeleteArm(arm: arm) {
+	DeleteArm(arm: iArm) {
 
 			let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 			
-			this._http.post<arm>(this._baseUrl + 'api/ItemArmList/DeleteArm',
+			this._http.post<iArm>(this._baseUrl + 'api/ItemArmList/DeleteArm',
 
 			arm).subscribe(
 				(result) => {

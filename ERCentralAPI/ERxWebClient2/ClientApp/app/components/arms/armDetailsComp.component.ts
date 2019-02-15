@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { ArmsService } from '../services/arms.service';
-import { arm, Item } from '../services/ItemList.service';
+import { iArm, Item, Arm } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -18,7 +18,7 @@ export class armDetailsComp implements OnInit {
 		private eventsService: EventEmitterService
 	) { }
 
-	public get armsList(): arm[] {
+    public get armsList(): iArm[] {
 
 		if (!this.item || !this.item.arms) return [];
 		else return this.item.arms;
@@ -41,13 +41,13 @@ export class armDetailsComp implements OnInit {
 	}
 
 	swap: boolean = false;
-	public currentArm!: arm;
+    public currentArm!: iArm;
 	public currentTitle!: string;
 	public currentKey: number = 0;
 	public editTitle: boolean = false;
 	public titleModel: string = '';
 
-	setArm(arm: arm, key: number) {
+    setArm(arm: iArm, key: number) {
 
 		this.currentKey = key;
 		this.currentTitle = arm.title;
@@ -56,7 +56,7 @@ export class armDetailsComp implements OnInit {
 
 	editField!: string;
 	
-	updateList(arm: arm) {
+    updateList(arm: iArm) {
 
 		this.editTitle = false;
 		this.armsList[this.currentKey].title = this.currentTitle;
@@ -144,20 +144,24 @@ export class armDetailsComp implements OnInit {
 	}
 
 	ActuallyRemove(key: number) {
-		
-		this._armsService.DeleteArm(this.armsList[key]);
-		this.armsList.splice(key, 1);
+        let ToRemove = this.armsList[key];
+        if (ToRemove) {
+            let SelectedId = this._armsService.SelectedArm ? this._armsService.SelectedArm.itemArmId : -1;
+            this._armsService.DeleteArm(ToRemove);
+            this.armsList.splice(key, 1);
+            if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
+        }
 	}
 
 	add(title: string) {
 
 		if (title != '') {
 			if (this.item != undefined) {
-				let newArm: arm = new Arm();
+				let newArm: Arm = new Arm();
 				newArm.title = title;
 				newArm.itemId = this.item.itemId;
 				this._armsService.CreateArm(newArm).then(
-					(res: arm) => {
+                    (res: Arm) => {
 
 						let key = this.armsList.length;
 						this.armsList.splice(key, 0, res);
@@ -172,15 +176,6 @@ export class armDetailsComp implements OnInit {
 }
 
 
-export class Arm {
-
-	[key: number]: any;
-	itemArmId: number =0;
-	itemId: number = 0;
-	ordering: number = 0;
-	title: string = '';
-
-}
 
 export interface numCodings {
 
