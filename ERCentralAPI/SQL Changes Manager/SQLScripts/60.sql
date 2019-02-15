@@ -91,5 +91,6 @@ As
 
 SELECT top (@MAX_LENGTH) f.*, c.CONTACT_NAME from TB_ONLINE_FEEDBACK f
 inner join Reviewer.dbo.TB_CONTACT c on f.CONTACT_ID = c.CONTACT_ID
+order by f.DATE desc
 
 GO
