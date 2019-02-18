@@ -338,10 +338,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	GoToItemList() {
 		this.tabstrip.selectTab(1);
 	}
-	LoadWorkAllocList(workAlloc: WorkAllocation) {
-		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
-		else console.log('attempt failed');
-		
+    LoadContactWorkAllocList(workAlloc: WorkAllocation) {
+        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+        else console.log('attempt failed');
+    }
+    LoadWorkAllocList(workAlloc: WorkAllocation){
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
 	}
@@ -404,7 +405,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this._searchService.Fetch();
 		}
 		else if (e.title == 'Collaborate') {
-			this.HelpAndFeebackContext = "main\\search";
+            this.HelpAndFeebackContext = "main\\collaborate";
+            if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
 			this.ShowItemsTable = false;
 			//this._searchService.Fetch();
 		}

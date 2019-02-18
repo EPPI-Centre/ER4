@@ -30,9 +30,7 @@ export class WorkAllocationComp implements OnInit {
 	public ListSubType: string = "GetItemWorkAllocationList";
 
     ngOnInit() {
-
-		this.getMembers();
-		this._workAllocationListService.FetchAll();
+        this.RefreshData();
 	}
 	public openConfirmationDialogDeleteWA(workAllocationId: number) {
 
@@ -56,6 +54,10 @@ export class WorkAllocationComp implements OnInit {
 		this.openConfirmationDialogDeleteWA(workAllocationId);
 	}
 
+    public RefreshData() {
+        this.getMembers();
+        this._workAllocationListService.FetchAll();
+    }
 
 	getMembers() {
 
