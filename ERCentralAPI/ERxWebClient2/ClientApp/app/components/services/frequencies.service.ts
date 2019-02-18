@@ -89,13 +89,11 @@ export class frequenciesService extends BusyAwareService  {
              }
 		 );
     }
-    
-  //  public Save() {
-		//if (this._FrequencyList.length > 0)
-		//	localStorage.setItem('Frequencies', JSON.stringify(this._FrequencyList));
-		//else if (localStorage.getItem('Frequencies'))
-		//	localStorage.removeItem('Frequencies');
-  //  }
+
+    public Clear() {
+        this._FrequencyList = [];
+        this.crit =  new CriteriaFrequency();
+    }
 }
 
 export class Frequency {
