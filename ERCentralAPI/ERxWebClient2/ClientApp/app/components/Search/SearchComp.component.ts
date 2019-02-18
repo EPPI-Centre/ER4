@@ -942,7 +942,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	// Need to ask Sergio about this sort part
     public sort: SortDescriptor[] = [{
-		field: 'searchNo',
+		field: 'modelId',
         dir: 'desc'
 	}];
 
