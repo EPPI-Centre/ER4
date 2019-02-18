@@ -488,7 +488,7 @@ export class ItemCodingService extends BusyAwareService {
         const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
         //console.log("AddToQuickCodingReport", currentItem);
         if (!currentItem || currentItem.itemId == 0) return;
-        this._CodingReport += "<tr><td class='border border-dark'>" + currentItem.shortTitle + "<br style='mso-data-placement:same-cell;' />(ID:" + currentItem.itemId + ")</td>";
+        this._CodingReport += "<tr><td class='border border-dark'>" + currentItem.shortTitle + " (ID:" + currentItem.itemId + ")</td>";
         if (options.IncludeFullTitle) {
             this._CodingReport += "<td class='border border-dark'>"+ currentItem.title + "</td>";
         }
