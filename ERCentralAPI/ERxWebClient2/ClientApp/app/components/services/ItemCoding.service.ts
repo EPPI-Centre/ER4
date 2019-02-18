@@ -526,7 +526,7 @@ export class ItemCodingService extends BusyAwareService {
                 }
             }
             if (this._CodingReport.endsWith("<br style='mso-data-placement:same-cell;' />")) this._CodingReport = this._CodingReport.substring(0, this._CodingReport.length - 44);
-            this._CodingReport += "</ul></td>";
+            this._CodingReport += "</td>";
         }
     }
 
