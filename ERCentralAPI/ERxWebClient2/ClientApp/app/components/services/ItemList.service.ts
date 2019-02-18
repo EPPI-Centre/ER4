@@ -610,7 +610,7 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: arm[] = [];
+    arms: iArm[] = [];
 }
 
 export class Criteria {
@@ -645,7 +645,7 @@ export class Criteria {
     showScoreColumn: boolean = true;
 }
 
-export interface arm {
+export interface iArm {
 	[key: number]: any;  // Add index signature
 	itemArmId: number;
     itemId: number;
@@ -653,6 +653,14 @@ export interface arm {
     title: string;
 }
 
+export class Arm {
+    
+    itemArmId: number = 0;
+    itemId: number = 0;
+    ordering: number = 0;
+    title: string = '';
+
+}
 
 export class ItemDocumentList {
 

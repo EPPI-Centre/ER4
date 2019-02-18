@@ -163,7 +163,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         }
         else {
             //if (this.ArmsCompRef) {
-                this.ArmsCompRef.armChangedEE.subscribe(() => {
+                this.armservice.armChangedEE.subscribe(() => {
                     if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                     else this.SetArmCoding(0);
                 });

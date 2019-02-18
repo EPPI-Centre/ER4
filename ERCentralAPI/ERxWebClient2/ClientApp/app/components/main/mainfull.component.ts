@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocations/workAllocationContactListComp.component';
+import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
@@ -73,7 +73,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
             this.ItemListService.IsBusy ||  
-            this.codesetStatsServ.IsBusy ||
+            //this.codesetStatsServ.IsBusy ||
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
@@ -153,6 +153,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
+
+    public get IsSiteAdmin(): boolean {
+        //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
+        //    , this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin);
+        if (this.ReviewerIdentityServ
+            && this.ReviewerIdentityServ.reviewerIdentity
+            && this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+            && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        else return false;
+    }
 
 	dtTrigger: Subject<any> = new Subject();
 
@@ -467,12 +480,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
-	//public ShowNewReview: boolean = true;
-	//CreateReviewClick() {
-
-	//	this.ShowNewReview = !this.ShowNewReview;
-
-	//}
+    GoToSiteAdmin() {
+        if (!this.IsSiteAdmin) return;
+        else {
+            this.router.navigate(['SiteAdmin']);
+        }
+    }
     ngOnDestroy() {
         //this.Clear();
         console.log("destroy MainFull..");

@@ -1,43 +1,48 @@
 <div *ngIf="reviewInfoService.Contacts && reviewInfoService.Contacts.length > 0" class="col-md-12 mb-3 bg-light">
-
-	<p> Reviewers in this Review</p>
-	<table class='table table-responsive' style="height: 240px;" *ngIf="_workAllocationListService.ContactWorkAllocations">
-		<thead>
-			<tr class="small">
-				<th>ContactID</th>
-				<th>ContactName</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let member of reviewInfoService.Contacts; let i = index">
-				<td>{{ member.contactId }}</td>
-				<td>{{ member.contactName }}</td>
-			</tr>
-		</tbody>
-	</table>
-
-
-	<p> Coding Assignments</p>
-	<table class='table table-responsive' style="height: 240px;" *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
-		<thead>
-			<tr class="small">
-				<th>ContactID</th>
-				<th>Contact Name</th>
-				<th>Total Allocation</th>
-				<th>Total Started</th>
-				<th>Total Remaining</th>
-				<th>Delete</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
-				<td >{{ wa.contactId }}</td>
-				<td>{{ wa.contactName }}</td>
-				<td id="waAll-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link">{{ wa.totalAllocation}}</div></td>
-				<td id="waStarted-{{wa.workAllocationId}}"  [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}"  (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link">{{ wa.totalStarted}}</div></td>
-				<td id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link">{{ wa.totalRemaining}}</div></td>
-				<td><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+	<div class="card">
+		<h5 class="m-1 p-1 font-weight-bold"> Reviewers in this Review</h5>
+		<table class='card-body table table-responsive table-striped bg-light' style="height: 240px;" *ngIf="_workAllocationListService.ContactWorkAllocations">
+			<thead>
+				<tr class="small">
+					<th>ContactID</th>
+					<th>ContactName</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+					<td>{{ member.contactId }}</td>
+					<td>{{ member.contactName }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="card">
+		<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
+		<table class='card-body table table-responsive table-striped bg-light' style="height: 240px;" *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+			<thead>
+				<tr class="small">
+					<th>ContactID</th>
+					<th>Contact Name</th>
+					<th>Study Group</th>
+					<th>Codes to apply</th>
+					<th>Total Allocation</th>
+					<th>Total Started</th>
+					<th>Total Remaining</th>
+					<th>Delete</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="small" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+					<td>{{ wa.contactId }}</td>
+					<td>{{ wa.contactName }}</td>
+					<td>{{ wa.attributeName }}</td>
+					<td>{{wa.setName}}</td>
+					<td id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link">{{ wa.totalAllocation}}</div></td>
+					<td id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link">{{ wa.totalStarted}}</div></td>
+					<td id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link">{{ wa.totalRemaining}}</div></td>
+					<td><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+	</div>

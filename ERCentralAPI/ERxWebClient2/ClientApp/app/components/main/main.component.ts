@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocations/workAllocationContactListComp.component';
+import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';

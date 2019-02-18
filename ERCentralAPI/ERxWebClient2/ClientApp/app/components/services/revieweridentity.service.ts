@@ -94,27 +94,7 @@ export class ReviewerIdentityService implements OnDestroy {
         console.log('Expires on: ' + this.reviewerIdentity.accountExpiration);
     }
     @Output() LoginFailed = new EventEmitter();
-    public LoginReq(u: string, p: string) {
-        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
-        let reqpar = new LoginCreds(u, p);
-        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-            reqpar).subscribe(ri => {
-
-                this.reviewerIdentity = ri;
-
-                if (this.reviewerIdentity.userId > 0) {
-                    //this.Save();
-                    this.router.navigate(['intropage']);
-                }
-            }, error => {
-                ////check error is 401, if it is show modal and on modal close, go home
-                //if (error = 401) this.SendBackHome();
-
-                this.LoginFailed.emit();
-            }
-            );
-
-    }
+    
 
     public UpdateStatus(msg: string) {
         this._currentStatus = msg;
@@ -152,7 +132,28 @@ export class ReviewerIdentityService implements OnDestroy {
             LgtC).toPromise();
     }
 
-    //@Output() OpeningNewReviewCoding = new EventEmitter();
+    public LoginReq(u: string, p: string) {
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        let reqpar = new LoginCreds(u, p);
+        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
+            reqpar).subscribe(ri => {
+
+                this.reviewerIdentity = ri;
+
+                if (this.reviewerIdentity.userId > 0) {
+                    //this.Save();
+                    this.router.navigate(['intropage']);
+                }
+            }, error => {
+                ////check error is 401, if it is show modal and on modal close, go home
+                //if (error = 401) this.SendBackHome();
+
+                this.LoginFailed.emit();
+            }
+            );
+
+    }
+    
     public LoginToReview(RevId: number) {
         (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
@@ -180,7 +181,6 @@ export class ReviewerIdentityService implements OnDestroy {
 
     }
 
-
     public LoginToFullReview(RevId: number) {
 
         (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
@@ -207,7 +207,29 @@ export class ReviewerIdentityService implements OnDestroy {
                     this.modalService.SendBackHomeWithError(error);
                 }
             );
+    }
+    public LoginReqSA(u: string, p: string, rid: number) {
+        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        this.KillLogonTicketTimer();
+        let cred = new LoginCredsSA(u, p, rid);//
+        return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
+            cred).subscribe(ri => {
 
+                this.reviewerIdentity = ri;
+                if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === rid) {
+                    this.StartLogonTicketTimer();
+                    this.ReviewInfoService.Fetch();
+                    this.ReviewerTermsService.Fetch();
+                    this.router.navigate(['Main']);
+                    this.OpeningNewReview.emit();
+                }
+            }, error => {
+                ////check error is 401, if it is show modal and on modal close, go home
+                //if (error = 401) this.SendBackHome();
+                console.log(error);
+                this.modalService.SendBackHomeWithError(error);
+            }
+            );
     }
 
     public Save() {
@@ -357,7 +379,16 @@ class LoginCreds {
     public Username: string = "";
     public Password: string = "";
 }
-
+class LoginCredsSA {
+    constructor(u: string, p: string, rid:number) {
+        this.Username = u;
+        this.Password = p;
+        this.RevId = rid;
+    }
+    public Username: string = "";
+    public Password: string = "";
+    public RevId: number;
+}
 class LogonTicketCheck {
     constructor(u: string, g: string) {
         this.userId = u;

@@ -1,6 +1,7 @@
 ﻿using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Csla;
+using Csla.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -40,6 +41,14 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(ContactIdProperty);
+            }
+        }
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
+        public int ReviewId
+        {
+            get
+            {
+                return GetProperty(ReviewIdProperty);
             }
         }
         public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
@@ -109,6 +118,23 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+        }
+        internal static FeedbackAndClientError GetFeedbackAndClientError(SafeDataReader reader)
+        {
+            //CONTACT_ID CONTACT_NAME ,[CONTEXT]
+            //,[REVIEW_ID]
+            //,[IS_ERROR]
+            //,[MESSAGE]
+            //,[DATE]
+            FeedbackAndClientError returnValue = new FeedbackAndClientError();
+            returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+            returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
+            returnValue.LoadProperty<string>(ContextProperty, reader.GetString("CONTEXT"));
+            returnValue.LoadProperty<string>(MessageProperty, reader.GetString("MESSAGE"));
+            returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+            returnValue.LoadProperty<bool>(IsErrorProperty, reader.GetBoolean("IS_ERROR"));
+            returnValue.LoadProperty<SmartDate>(DateCreatedProperty, reader.GetSmartDate("DATE"));
+            return returnValue;
         }
 #endif
     }
