@@ -44,6 +44,7 @@ export class RunLingo3G implements OnInit {
         else return null;
     }
     @Output() PleaseCloseMe = new EventEmitter();
+    @Output() PleaseOpenTheCodes = new EventEmitter();
     ExecuteCommand() {
         this.Command.attributeSetList = "";
         this.Command.maxHierarchyDepth = Math.round(this.Command.maxHierarchyDepth);
@@ -72,6 +73,7 @@ export class RunLingo3G implements OnInit {
             else return;
         }
         else return;
+        this.PleaseOpenTheCodes.emit();
         this.ReviewSetsEditingService.PerformClusterCommand(this.Command);
         this.PleaseCloseMe.emit();
     }

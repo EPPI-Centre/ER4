@@ -192,6 +192,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }
+    OpenCodesPanel() {
+        this.CodesAreCollapsed = false;
+    }
     ShowHideQuickReport() {
         this._ShowQuickQuestionReport = false;
         if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
