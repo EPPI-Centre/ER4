@@ -498,7 +498,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
     }
     ngOnDestroy() {
-        //this.Clear();
+        this.Clear();
         console.log("destroy MainFull..");
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();			
