@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -89,9 +89,10 @@ export class SearchComp implements OnInit, OnDestroy {
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
 
+    @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	//@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
-	@ViewChild('VisualiseChart')
+    @ViewChild('VisualiseChart')
 	private VisualiseChart!: ChartComponent;
 	public get selectedNode(): singleNode | null {
 		return this._reviewSetsService.selectedNode;
@@ -964,12 +965,13 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	OpenClassifierVisualisation(search: Search) {
 
-		console.log(JSON.stringify(search.title));
+		//console.log(JSON.stringify(search.title));
 		this.ModelSection = false;
 		this.visualiseTitle = search.title;
 		this.visualiseSearchId = search.searchId;
-		console.log(JSON.stringify(search));
-		this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
+		//console.log(JSON.stringify(search));
+        this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
+        this.PleaseOpenTheCodes.emit();
 		//alert('in here' + JSON.stringify(this.SearchVisualiseData));
 		// for now just show the graph area unhidden
 		this.ShowVisualiseSection = true;
