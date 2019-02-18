@@ -106,8 +106,6 @@ export class crosstabService extends BusyAwareService  {
 	public set CrossTab(cs: CrossTab) {
 		
 		this._CrossTab = cs;
-
-        this.Save();
 	}
 
     public set crit(cr: CriteriaCrosstab) {
@@ -202,7 +200,7 @@ export class crosstabService extends BusyAwareService  {
 					this._fieldNames[i-1] = "field" + i;
                     //console.log("field" + i);
 				}
-                this.Save();
+                
                 this.RemoveBusy("Fetch");
 				//console.log('fieldnames len: ' + this._fieldNames.length);
 				},
@@ -214,24 +212,15 @@ export class crosstabService extends BusyAwareService  {
 			);
     }
 
-	public Save() {
-
-  //      if (this._CrossTab.yRows) {
-  //          console.log("saving crosstab main data");
-  //          localStorage.setItem('CrossTab', JSON.stringify(this._CrossTab));
-  //      }
-		//else if (localStorage.getItem('CrossTab'))
-		//	localStorage.removeItem('CrossTab');
-
-		//if (this._fieldNames != null)
-		//	localStorage.setItem('fieldNames', JSON.stringify(this._fieldNames));
-		//else if (localStorage.getItem('fieldNames'))
-		//	localStorage.removeItem('fieldNames');
-
-		//if (this._Crit != null)
-		//	localStorage.setItem('Criteria', JSON.stringify(this._Crit));
-		//else if (localStorage.getItem('Criteria'))
-		//	localStorage.removeItem('Criteria');
+    public Clear() {
+        this._CrossTab = new CrossTab();
+        this.NXaxis = 0;
+        this.filterSetId = 0;
+        this.filterName = "";
+        this.attributeNameXAxis = "";
+        this.attributeNameYAxis = "";
+        this._Crit = new CriteriaCrosstab();
+        this._fieldNames = [];
     }
 }
 

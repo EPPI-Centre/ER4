@@ -21,6 +21,8 @@ import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.component';
+import { frequenciesComp } from '../Frequencies/frequencies.component';
+import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 
 
 
@@ -67,7 +69,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     //@ViewChild('tabset') tabset!: NgbTabset;
-	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
+    @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -446,6 +450,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
+        if (this.FreqComponent) this.FreqComponent.Clear();
+        if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
