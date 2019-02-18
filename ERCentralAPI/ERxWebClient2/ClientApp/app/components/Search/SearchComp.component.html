@@ -225,9 +225,9 @@
     <div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
         <kendo-grid [data]="DataSourceModel"
                     [selectable]="selectableSettings"
-                    [sort]="sort"
+                    [sort]="sortCustomModel"
                     [kendoGridSelectBy]="'modelId'"
-                    (sortChange)="sortChange($event)"
+                    (sortChange)="sortChangeModel($event)"
                     (selectionChange)="selectedRows($event)">
 
             <kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
@@ -306,8 +306,8 @@
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
-                [sort]="sort"
-                (sortChange)="sortChange($event)"
+                [sort]="sortSearches"
+                (sortChange)="sortChangeSearches($event)"
                 class="mt-1">
 
         <kendo-grid-column [sortable]="false" width="33"

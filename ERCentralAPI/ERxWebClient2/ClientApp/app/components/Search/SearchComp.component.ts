@@ -153,7 +153,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	public get DataSourceModel(): GridDataResult {
 		return {
-			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
+			data: orderBy(this._buildModelService.ClassifierModelList, this.sortCustomModel),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
 	}
@@ -681,7 +681,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public get DataSourceSearches(): GridDataResult {
 		return {
-			data: orderBy(this._searchService.SearchList, this.sort),
+			data: orderBy(this._searchService.SearchList, this.sortSearches),
 			total: this._searchService.SearchList.length,
         };
 	}
@@ -941,14 +941,23 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	// Need to ask Sergio about this sort part
-    public sort: SortDescriptor[] = [{
+    public sortCustomModel: SortDescriptor[] = [{
 		field: 'modelId',
         dir: 'desc'
 	}];
 
-    public sortChange(sort: SortDescriptor[]): void {
-        this.sort = sort;
-        console.log('sorting?' + this.sort[0].field + " ");
+	public sortSearches: SortDescriptor[] = [{
+		field: 'searchNo',
+		dir: 'desc'
+	}];
+
+	public sortChangeModel(sort: SortDescriptor[]): void {
+		this.sortCustomModel = sort;
+		console.log('sorting?' + this.sortCustomModel[0].field + " ");
+	}
+	public sortChangeSearches(sort: SortDescriptor[]): void {
+		this.sortSearches = sort;
+		console.log('sorting?' + this.sortSearches[0].field + " ");
 	}
 	public visualiseTitle: string = '';
 	public visualiseSearchId = 0;
@@ -956,6 +965,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	OpenClassifierVisualisation(search: Search) {
 
 		console.log(JSON.stringify(search.title));
+		this.ModelSection = false;
 		this.visualiseTitle = search.title;
 		this.visualiseSearchId = search.searchId;
 		console.log(JSON.stringify(search));
