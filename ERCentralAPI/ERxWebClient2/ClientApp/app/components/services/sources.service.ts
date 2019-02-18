@@ -91,6 +91,7 @@ export class SourcesService extends BusyAwareService {
         );
     }
     public FetchNewPubMedSearch(SearchString: string) {
+        if (SearchString.length < 2) return;
         this._BusyMethods.push("FetchNewPubMedSearch");
         let body = JSON.stringify({ Value: SearchString });
         this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {

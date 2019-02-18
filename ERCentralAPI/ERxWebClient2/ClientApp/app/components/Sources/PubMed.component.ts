@@ -111,6 +111,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = !this.ShowPreviewTable;
     }
     DoNewSearch() {
+        if (this.NewSearchString.length < 2) return;
         this.SourcesService.FetchNewPubMedSearch(this.NewSearchString);
     }
     GetSearchPreview() {
