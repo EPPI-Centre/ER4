@@ -1,6 +1,6 @@
 <!-- Editable table -->
 <div class="card">
-	<h3 class="card-header text-center font-weight-bold text-uppercase py-4">Study Arms</h3>
+	<h5 class="card-header text-center font-weight-bold py-4">Study Arms</h5>
 	<div class="card-body">
 		<div id="table" class="table-editable">
 			<div class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
@@ -36,21 +36,21 @@
 			<table class="table table-bordered table-responsive-md table-striped text-center">
 				<tr>
 					<th class="text-center">Arm Title</th>
-					<th class="text-center">Edit</th>
-					<th class="text-center">Remove</th>
+					<th class="text-center" style="max-width: 10px;">Edit</th>
+					<th class="text-center" style="max-width: 10px;">Remove</th>
 				</tr>
 				<tr  *ngFor="let arm of armsList; let key = index">
-					<td >{{arm.title}}</td>
-					<td>
-						<span class="table-remove">
+					<td style="width: 150px;">{{arm.title}}</td>
+					<td style="width: 15px; white-space:nowrap;" >
+						<span class="table-remove" >
 							<button (click)="editTitle=true; setArm(arm, key)" 
 									
 									type="button" rounded="true" size="sm" class="btn btn-info">Edit
 							</button>
 						</span>
 					</td>
-					<td>
-						<span class="table-remove">
+					<td style="width: 15px; white-space:nowrap;" >
+						<span class="table-remove" >
 							<button type="button" rounded="true" size="sm" class="btn btn-danger" 
 									(click)="removeWarning(key)">Remove</button>
 						</span>

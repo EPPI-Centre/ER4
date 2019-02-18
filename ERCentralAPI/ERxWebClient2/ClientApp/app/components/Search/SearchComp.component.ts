@@ -133,7 +133,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelSelected = true;
 			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
 			this.ModelId = e.selectedRows[0].dataItem.modelId;
-			if (this.modelTitle.indexOf('prog') != -1) {
+			if (this.modelTitle.indexOf('prog') != -1 || this.modelTitle.indexOf('failed') != -1 ) {
 				this.modelIsInProgress = true;
 				//alert('model is in progress');
 			} else {
@@ -942,7 +942,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	// Need to ask Sergio about this sort part
     public sort: SortDescriptor[] = [{
-		field: 'searchNo',
+		field: 'modelId',
         dir: 'desc'
 	}];
 
