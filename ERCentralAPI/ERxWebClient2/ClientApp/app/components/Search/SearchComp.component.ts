@@ -412,7 +412,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	public openConfirmationDialogDeleteSearches() {
-		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected search ?', false, '')
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
 			.then(
 			(confirmed: any) => {
 					console.log('User confirmed:', confirmed);
