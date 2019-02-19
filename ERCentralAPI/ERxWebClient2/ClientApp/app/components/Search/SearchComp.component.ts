@@ -515,7 +515,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 
 				this.notificationService.show({
-					content: 'Please refresh the models list to check if it is updated',
+					content: 'Results list below',
 					animation: { type: 'slide', duration: 400 },
 					position: { horizontal: 'center', vertical: 'top' },
 					type: { style: "warning", icon: true },
