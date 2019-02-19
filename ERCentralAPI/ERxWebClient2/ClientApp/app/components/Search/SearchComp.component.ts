@@ -633,7 +633,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
-	public selectedSearchDropDown: string = '';
+	public selectedSearchDropDown: string = 'With this code';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
 	public CodeSets: any[] = [];
