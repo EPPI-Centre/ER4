@@ -1,4 +1,4 @@
-<HeaderComponent PageTitle="Edit codesets" [Context]="HelpAndFeebackContext"></HeaderComponent>
+<HeaderComponent PageTitle="Edit Coding Tools" [Context]="HelpAndFeebackContext"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
@@ -10,8 +10,8 @@
             <div *ngIf="!SetIsSelected() && !AttributeIsSelected()">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
                 <div class="card alert alert-primary m-4">To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
@@ -20,9 +20,9 @@
             <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Add CodeSet'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Edit CodeSet'" (click)="ShowActivity('EditCodeset')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Edit Coding Tool'" (click)="ShowActivity('EditCodeset')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
@@ -30,8 +30,8 @@
             <div *ngIf="AttributeIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Codeset(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
-                        <kendo-toolbar-button [text]="'Add Codeset'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CanEditSelectedNode" [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
                     </kendo-toolbar>
@@ -44,7 +44,7 @@
                 <form class="row" #NewCodesetFrom="ngForm">
                     <div class="col-5">
                         <div class="form-group">
-                            <label for="Codeset_Type">Codeset Type*</label>
+                            <label for="Codeset_Type">Coding Tool Type*</label>
                             <select *ngIf="SetTypes" class="col-md-6 form-control" (change)="CodesetTypeChanged($event.target.value)" name="Codeset_Type">
                                 <option *ngFor="let type of SetTypes" [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
                                     {{type.setTypeName}}
@@ -59,7 +59,7 @@
                         </div>
                     </div>
                     <div class="form-group col-12">
-                        <label for="source_Name">Codeset Name*</label>
+                        <label for="source_Name">Coding Tool Name*</label>
                         <input type="text" class="form-control" id="SetName"
                                [(ngModel)]="NewReviewSet.set_name" name="set_name"
                                #name="ngModel">
@@ -107,7 +107,7 @@
                 </div>
                 <form class="row" #EditCodesetFrom="ngForm">
                     <div class="col-5">
-                        <div>Codeset Type: {{CurrentNode.subTypeName}}.</div>
+                        <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
                         <div >
                             <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
                             <kendo-switch name="CanEditSW" class="small small mt-1"
@@ -116,15 +116,10 @@
                                           [offLabel]="'Yes'"></kendo-switch>
                             </span>
                             <br />
-                            <!--Can edit?
-                            <input class="m-1" id="CanEditCB" name="CanEditCB" type="checkbox" [(ngModel)]="CurrentNode.allowEditingCodeset"
-                                   [disabled]="!CanWrite()" />
-                            <span *ngIf="CurrentNode.allowEditingCodeset" class="small font-weight-bold">(Yes)</span>
-                            <span *ngIf="!CurrentNode.allowEditingCodeset" class="small font-weight-bold">(No)</span>-->
                         </div>
                     </div>
                     <div class="form-group col-7 row">
-                        <div>Codeset Name*</div>
+                        <div>Coding Tool Name*</div>
                         <input type="text" class="form-control" id="SetName"
                                [disabled]="!CanEditSelectedNode"
                                [(ngModel)]="CurrentNode.set_name" name="set_name"
@@ -172,7 +167,7 @@
                         </button>
                         <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
                                 [disabled]="!CanEditSelectedNode">
-                            Delete Codeset...
+                            Delete Coding Tool...
                         </button>
                     </div>
                 </form>

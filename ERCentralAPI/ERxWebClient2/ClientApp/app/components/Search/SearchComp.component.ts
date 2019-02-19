@@ -316,10 +316,10 @@ export class SearchComp implements OnInit, OnDestroy {
 			return true;
 		}
 		// Codes in set options next: ''
-		else if (this.selectedSearchDropDown == 'That have at least one code from this set' && this.selectedSearchCodeSetDropDown != '') {
+        else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}
-		else if (this.selectedSearchDropDown == 'That dont have any codes from this set' && this.selectedSearchCodeSetDropDown != '') {
+        else if (this.selectedSearchDropDown == "That dont have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}// hard ones based on code selected from tree first : CurrentDropdownSelectedCode
 		else if (this.selectedSearchDropDown == 'With this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
@@ -801,7 +801,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
 			}
-			if (selectedSearchDropDown == 'That have at least one code from this set') {
+            if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
 
 				this._searchService.cmdSearches._withCodes = 'true';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
@@ -809,7 +809,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 			}
-			if (selectedSearchDropDown == 'That dont have any codes from this set') {
+            if (selectedSearchDropDown == 'That dont have any codes from this Coding Tool') {
 
 				this._searchService.cmdSearches._withCodes = 'false';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;

@@ -21,8 +21,8 @@
 						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
 						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
 						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-						<button (click)="nextDropDownList(5, 'That have at least one code from this set')" class="dropdown-item">That have at least one code from this set</button>
-						<button (click)="nextDropDownList(6, 'That dont have any codes from this set')" class="dropdown-item">That don't have any codes from this set</button>
+                        <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
+                        <button (click)="nextDropDownList(6, 'That dont have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
 						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
 						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
 						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
@@ -212,7 +212,7 @@
             <div class="col-12">
                 <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode?.name}}</div>
                 <div *ngIf="mode == 2 && !selectedNode" class="p-1 m-1 alert-danger row p-1 ">Please select a code from the right.</div>
-                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a CodeSet.</div>
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a Coding Tool.</div>
             </div>
             <div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
                 <div>
