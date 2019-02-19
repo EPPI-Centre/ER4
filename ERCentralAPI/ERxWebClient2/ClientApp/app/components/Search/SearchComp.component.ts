@@ -941,7 +941,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.router.navigate(['BuildModel']);
 	}
 
-	// Need to ask Sergio about this sort part
     public sortCustomModel: SortDescriptor[] = [{
 		field: 'modelId',
         dir: 'desc'
