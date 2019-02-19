@@ -633,7 +633,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
-	public selectedSearchDropDown: string = '';
+	public selectedSearchDropDown: string = 'With this code';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
 	public CodeSets: any[] = [];
@@ -941,7 +941,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.router.navigate(['BuildModel']);
 	}
 
-	// Need to ask Sergio about this sort part
     public sortCustomModel: SortDescriptor[] = [{
 		field: 'modelId',
         dir: 'desc'

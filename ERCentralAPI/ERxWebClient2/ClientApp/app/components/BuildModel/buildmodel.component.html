@@ -30,7 +30,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">Name for your model:</div>
 				<div class=" col-12 col-sm-6 col-md-4">
 					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
-	
+
 					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched)"
 						 class="alert alert-danger">
 
@@ -42,8 +42,12 @@
 						</div>
 
 					</div>
+					<div *ngIf="selectedModelDropDown1 == selectedModelDropDown2 && selectedModelDropDown1 != ''"
+							class="alert alert-danger">
+						Two different codes must be selected in the drop downs
+					</div>
+					</div>
 				</div>
-			</div>
 			<div class="col-md-12 row font-weight-bold form-group">
 				<div class="col-md-4">
 					<button [disabled]="!CanBuildModel()" (click)="BuildModel(modelName)" class="btn btn-lg btn-primary"> Build Model</button>

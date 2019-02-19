@@ -11,117 +11,123 @@
 
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
     <div class="card container-fluid mt-1">
-        <div class="row mt-1 mb-2">
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <div ngbDropdown>
-                    <button class="btn btn-primary col-12 pr-1 pl-1" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
-                        <button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
-                        <button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
-                        <button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
-                        <button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+		<div class="row mt-1 mb-2">
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>
+			<div class="col-12 col-md-3 pr-1 pl-1">
+				<div ngbDropdown>
+					<button class="btn btn-primary col-12 pr-1 pl-1" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
+						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
                         <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
                         <button (click)="nextDropDownList(6, 'That dont have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
-                        <button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
-                        <button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
-                        <button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
-                        <button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="(selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>
+			<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this Coding Tool'
 							||	selectedSearchDropDown == 'That dont have any codes from this Coding Tool') "
-                 ngbDropdown class="col-12 col-md-6 pr-1 pl-1">
-                <button class="btn btn-info col-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                    <button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
-                </div>
-            </div>
-            <div *ngIf="(selectedSearchDropDown == 'With this code')
+				 ngbDropdown class="col-12 col-md-3 pr-1 pl-1">
+				<button class="btn btn-info col-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+				<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+					<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+				</div>
+			</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>
+			<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )"
-                 ngbDropdown class="col-12 col-md-6 pr-1 pl-1">
-                <button ngbDropdownAnchor class="btn btn-info dropdown-toggle col-12" id="dropdownTree"
-                        (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
-                        [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">
-                    {{CurrentDropdownSelectedCode?.name}}
-                </button>
-                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                     (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-                </div>
-            </div>
-            <div *ngIf="showTextBox" class="col-12 col-md-6 pr-1 pl-1">
-                <div>
-                    <div class="">Comma-Separated list of IDs:</div>
-                    <input [(ngModel)]="commaIDs"
-                           #commaIDsModel="ngModel"
-                           id="commaIDsModel" name="commaIDsModel"
-                           required minlength="4"
-                           class="col-12 bg-light border-dark form-control"
-                           type="text"
-                           placeholder="IDs"><br>
-                    <div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
-                         class="alert alert-danger">
+				 ngbDropdown class="col-12 col-md-3 pr-1 pl-1">
+				<button ngbDropdownAnchor class="btn btn-info dropdown-toggle col-12" id="dropdownTree"
+						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
+						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">
+					{{CurrentDropdownSelectedCode?.name}}
+				</button>
+				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+									 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+				</div>
+			</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>
+			<div *ngIf="showTextBox" class="col-12 col-md-3 pr-1 pl-1">
+				<div>
+					<div class="">Comma-Separated list of IDs:</div>
+					<input [(ngModel)]="commaIDs"
+						   #commaIDsModel="ngModel"
+						   id="commaIDsModel" name="commaIDsModel"
+						   required minlength="4"
+						   class="col-12 bg-light border-dark form-control"
+						   type="text"
+						   placeholder="IDs"><br>
+					<div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
+						 class="alert alert-danger">
 
-                        <div *ngIf="commaIDsModel.errors.required">
-                            commaIDs are required.
-                        </div>
-                        <div *ngIf="commaIDsModel.errors.minlength">
-                            commaIDs must be at least 4 characters long.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-                     class="col-12 p-0 m-0">
-                    <input pattern="^(?!\s*$).+" [(ngModel)]="searchText"
-                           #searchTextModel="ngModel"
-                           id="searchTextModel" name="searchTextModel"
-                           required minlength="3"
-                           class=" bg-light border-dark form-control"
-                           type="text"
-                           placeholder="search text">
+						<div *ngIf="commaIDsModel.errors.required">
+							commaIDs are required.
+						</div>
+						<div *ngIf="commaIDsModel.errors.minlength">
+							commaIDs must be at least 4 characters long.
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-3 pr-1 pl-1">
+				<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
+					 class="col-12 col-md-3 p-0 m-0">
+					<input pattern="^(?!\s*$).+" [(ngModel)]="searchText"
+						   #searchTextModel="ngModel"
+						   id="searchTextModel" name="searchTextModel"
+						   required minlength="3"
+						   class=" bg-light border-dark form-control"
+						   type="text"
+						   placeholder="search text">
 
-                    <div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
-                         class="alert alert-danger">
+					<div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
+						 class="alert alert-danger">
 
-                        <div *ngIf="searchTextModel.errors.pattern">
-                            Cannot be empty
-                        </div>
+						<div *ngIf="searchTextModel.errors.pattern">
+							Cannot be empty
+						</div>
 
-                        <div *ngIf="searchTextModel.errors.required">
-                            search text is required.
-                        </div>
-                        <div *ngIf="searchTextModel.errors.minlength">
-                            search text must be at least 3 characters long.
-                        </div>
+						<div *ngIf="searchTextModel.errors.required">
+							search text is required.
+						</div>
+						<div *ngIf="searchTextModel.errors.minlength">
+							search text must be at least 3 characters long.
+						</div>
 
-                    </div>
+					</div>
 
 
 
-                    <br> &nbsp;<b>IN</b>
-                    <!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
-                    <div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
-                        <button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                            <button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
-                            <button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
-                            <button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
-                            <button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
-                            <button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
-                            <button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
-                            <button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
-                        </div>
-                    </div>
+					<br> &nbsp;<b>IN</b>
+					<!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
+					<div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
+						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+							<button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
+							<button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
+							<button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
+							<button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
+							<button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
+							<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+							<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
+						</div>
+					</div>
 
-                </div>
+				</div>
 
-            </div>
-        </div>
+			</div>
+			<div class="col-12 col-md-3"> </div>
+		</div>
         <div class="row">
-            <div class="col-12 mb-1 pr-1 pl-1">
+            <div class="col-12 col-md-3 mb-1 pr-1 pl-1"></div>
                 <table class="col-md-4">
                     <tr class="col-md-4">
                         <td>
@@ -138,17 +144,18 @@
                 </table>
             </div>
         </div>
-        <div class="row mb-2">
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <button type="button" class="btn col-12 btn-outline-primary"
-                        [disabled]="!CanApplySearch()"
-                        (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-                    Search
-                </button>
-            </div>
-        </div>
+		<div class="row mb-2">
+			<div class="col-12 col-md-3"> </div>
+			<div class="col-12 col-md-3 pr-1 pl-1">
+				<button type="button" class="btn col-12 btn-outline-primary"
+						[disabled]="!CanApplySearch()"
+						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
+					Search
+				</button>
+			</div>
+		</div>
     </div>
-</div>
+
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
     <table class="table col-md-12">
         <tr>
@@ -299,6 +306,9 @@
 </div>
 
 <div class="card col-12 bg-light">
+	<div class="card-body bg-info col-3" *ngIf="this._searchService.SearchList.length == 0  && !this._searchService.IsBusy">
+		<h5> You've not run any searches yet. </h5>
+	</div>
     <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
                 [data]="DataSourceSearches" [height]="410"
                 [rowClass]="rowCallback"
