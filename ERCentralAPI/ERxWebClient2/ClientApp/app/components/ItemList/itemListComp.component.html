@@ -209,6 +209,7 @@
             </table>
         </div>
         <div *ngIf="ItemListService && ItemListService.ItemList && ItemListService.IsBusy">Loading items...</div>
-        <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy">No items to display</div>
-        <paginatorComp class="row ml-1 pt-1 border-top porder-info"></paginatorComp>
+        <div *ngIf="ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length == 0 && !ItemListService.IsBusy"
+             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+        <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
     </div>

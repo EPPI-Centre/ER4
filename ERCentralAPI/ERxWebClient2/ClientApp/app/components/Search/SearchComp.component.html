@@ -304,9 +304,7 @@
 </div>
 
 <div class="card col-12 bg-light">
-	<div class="card-body bg-info col-3" *ngIf="this._searchService.SearchList.length == 0  && !this._searchService.IsBusy">
-		<h5> You've not run any searches yet. </h5>
-	</div>
+	
     <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
                 [data]="DataSourceSearches" [height]="410"
                 [rowClass]="rowCallback"
@@ -364,4 +362,7 @@
 </div>
 <div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
 <div *ngIf="!_searchService || !_searchService.SearchList || this._searchService.SearchList.length <= 0 || this._searchService.IsBusy" style="min-height:300px;">
+    <div class="justify-content-center row m-0 ng-star-inserted">
+        <div class="p-2 font-weight-bold text-info mt-3"> You've not run any searches yet. </div>
+    </div>
 </div>

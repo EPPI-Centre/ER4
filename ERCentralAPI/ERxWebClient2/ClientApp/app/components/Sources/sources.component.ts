@@ -54,6 +54,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
+        console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
