@@ -255,7 +255,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 else if (Set.codingIsFinal) {//moving to comparison data entry, easy!
                     this.DestinationDataEntryMode = "Comparison";
                     this.ChangeDataEntryModeMessage = "Are you sure you want to change to 'Comparison' data entry?";
-                    this.ChangeDataEntryModeMessage += "\r\nThis implies that you will have multiple users coding the same item using this codeset and then reconciling the disagreements.";
+                    this.ChangeDataEntryModeMessage += "\r\nThis implies that you will have multiple users coding the same item using this Coding Tool and then reconciling the disagreements.";
                     this.ChangeDataEntryModeMessage += "\r\nPlease ensure you have read the manual to check the implications of this.";
                     this._ItemsWithIncompleteCoding = 0;
                     this._CanChangeDataEntryMode = true;
@@ -435,7 +435,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 //return result;
             },
             error => {
-                //alert("Sorry, creating the new codeset failed.");
+                //alert("Sorry, creating the new Coding Tool failed.");
                 //this.modalService.GenericErrorMessage(ErrMsg);
             });
     }
@@ -484,7 +484,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             error => {
                 this.CancelActivity();
                 console.log("error saving new code:", error, this._NewCode);
-                    //alert("Sorry, creating the new codeset failed.");
+                    //alert("Sorry, creating the new Coding Tool failed.");
                     //this.modalService.GenericErrorMessage(ErrMsg);
             })
             .catch(
