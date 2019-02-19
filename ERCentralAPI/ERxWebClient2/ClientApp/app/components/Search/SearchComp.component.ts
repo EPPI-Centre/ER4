@@ -965,6 +965,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	OpenClassifierVisualisation(search: Search) {
 
 		//console.log(JSON.stringify(search.title));
+		this.NewSearchSection = false;
 		this.ModelSection = false;
 		this.visualiseTitle = search.title;
 		this.visualiseSearchId = search.searchId;
