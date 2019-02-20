@@ -18,25 +18,39 @@
 	</div>
 </div>
 <div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
-	<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info col-12">Coding Progress</div>
-	<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ.tmpCodesets">
-		<div class="bg-white col-6 mr-1 rounded">
-			<img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-			<img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-			<span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
+    <div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
+        <div class="m-1">Coding Progress</div>
+        <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success m-1 p-0 px-2" (click)="RefreshStats()">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+        </button>
+        <div class="ml-2 mt-1 pl-1">
+            <i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
+        </div>
+    </div>
+    <!--<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
+        <div class="m-1">Coding Progress</div>
+        <div>
+            <i class="fa fa-spinner fa-spin text-success " style=""></i>
+        </div>
+    </div>-->
+    <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ.tmpCodesets">
+        <div class="bg-white col-6 mr-1 rounded">
+            <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+            <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+            <span [ngClass]="{'ScreeningSet' : item.subTypeName == 'Screening',
                                                     'AdminSet' : item.subTypeName == 'Administration' }"
-					class="font-weight-bold">
-				{{ item.setName }}
-			</span>
-		</div>
-		<div class="bg-white col-2 mr-1 rounded">
-			<img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
-			&nbsp;{{ item.countCompleted}}
-		</div>
-		<div class="bg-white col-2 mr-1 rounded">
-			<img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
-			&nbsp; {{ item.countIncomplete}}
-		</div>
-	</div>
+                  class="font-weight-bold">
+                {{ item.setName }}
+            </span>
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+            &nbsp;{{ item.countCompleted}}
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+            &nbsp; {{ item.countIncomplete}}
+        </div>
+    </div>
 </div>
 

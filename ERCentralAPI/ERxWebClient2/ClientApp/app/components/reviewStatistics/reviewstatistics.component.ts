@@ -29,8 +29,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 	}
     
-	@ViewChild('tabset') tabset!: NgbTabset;
-	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+	
 	@Output() tabSelectEvent = new EventEmitter();
 
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -43,7 +42,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 
-
+    public get IsServiceBusy(): boolean {
+        return this.codesetStatsServ.IsBusy;
+    }
 
 	ngOnInit() {
 
@@ -91,8 +92,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	//	this.ReviewerIdentityServ.LoginReq(u, p);
 
 	//};
-	subOpeningReview: Subscription | null = null;
-	   
+	//subOpeningReview: Subscription | null = null;
+    RefreshStats() {
+        this.reviewSetsService.GetReviewStatsEmit.emit();
+        //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+    }
 	Reload() {
 		this.Clear();
 		//this.reviewSetsService.GetReviewSets();
@@ -159,8 +163,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	//}
 
 	ngOnDestroy() {
-		if (this.subOpeningReview) {
-			this.subOpeningReview.unsubscribe();
-		}
+		//if (this.subOpeningReview) {
+		//	this.subOpeningReview.unsubscribe();
+		//}
 	}
 }
