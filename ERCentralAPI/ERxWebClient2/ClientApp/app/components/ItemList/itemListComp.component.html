@@ -1,13 +1,12 @@
 <div class="border-0">
-    <div class="row ml-1">
-        <paginatorComp class=""></paginatorComp>
-        <div class="btn btn-link btn-sm p-0 ml-2" style="align-self: center;" (click)="ToggleOptionsPanel()">
-            <span *ngIf="ShowOptions">Close</span>
-            <span *ngIf="!ShowOptions">View</span>
-            Options
-        </div>
-
-    </div>
+	<div class="row ml-1">
+		<paginatorComp class=""></paginatorComp>
+		<div class="btn btn-link btn-sm p-0 ml-2" style="align-self: center;" (click)="ToggleOptionsPanel()">
+			<span *ngIf="ShowOptions">Close</span>
+			<span *ngIf="!ShowOptions">View</span>
+			Options
+		</div>
+	</div>
     <div *ngIf="ShowOptions"
          class="alert alert-secondary row col-12">
         <div class="col-12 col-sm-6 font-weight-bold">List Options:</div>

@@ -203,7 +203,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.radioButtonApplyModelSection = true;
 		this.ShowVisualiseSection = false;
 	}
-
+	
 	CanCreateClassifierCodes(): boolean {
 		// logic for enabling visualise button
 		if (this.selectedNode == null) return false;
