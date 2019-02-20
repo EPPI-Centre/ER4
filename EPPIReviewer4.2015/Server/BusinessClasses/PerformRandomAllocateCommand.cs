@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public PerformRandomAllocateCommand(){}
 #else
-        protected PerformRandomAllocateCommand() { }
+        public PerformRandomAllocateCommand() { }
 #endif
 
         private string _filterType;
