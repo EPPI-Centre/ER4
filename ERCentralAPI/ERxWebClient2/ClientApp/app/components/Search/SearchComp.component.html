@@ -21,17 +21,17 @@
 			<div class="col-11 col-md-4 pr-1 pl-1">
 				<div ngbDropdown>
 					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
-						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code&nbsp;</button>
-						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code&nbsp;</button>
-						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)&nbsp;</button>
-						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)&nbsp;</button>
-						<button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool&nbsp;</button>
-						<button (click)="nextDropDownList(6, 'That dont have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool&nbsp;</button>
-						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text&nbsp;</button>
-						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded&nbsp;</button>
-						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded&nbsp;</button>
-						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract&nbsp;</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
+						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+                        <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
+                        <button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
+						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
 					</div>
 				</div>
 			</div>
@@ -50,10 +50,10 @@
 									 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 				</div>
 			</div>
-			<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
-							||	selectedSearchDropDown == 'That dont have any codes from this set') "
+			<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+							||	selectedSearchDropDown == 'That don\'t have any codes from this Coding Tool') "
 				 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
-				<button class="btn btn-primary col-11 col-md-4 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+				<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 				<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 					<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 				</div>
