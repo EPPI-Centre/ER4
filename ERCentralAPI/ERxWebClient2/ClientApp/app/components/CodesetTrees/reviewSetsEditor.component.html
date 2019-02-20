@@ -5,7 +5,7 @@
 
 <kendo-splitter *ngIf="ActivityPanelName != 'ImportCodesets'" orientation="horizontal">
     <kendo-splitter-pane>
-        <div class="pane-content">
+        <div class="pane-content" style="min-height:300px;">
             <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
             <div *ngIf="!SetIsSelected() && !AttributeIsSelected()">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
@@ -14,7 +14,7 @@
                         <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
-                <div class="card alert alert-primary m-4">To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
+                <div class="card alert alert-primary m-4" >To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
             </div>
 
             <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">

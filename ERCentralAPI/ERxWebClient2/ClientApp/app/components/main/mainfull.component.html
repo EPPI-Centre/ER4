@@ -94,7 +94,7 @@
                             <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <quickcodingreport *ngIf="ShowQuickQuestionReport" Aim="QuickQuestionReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>
-                            <div class="card card-body bg-light p-1">
+                            <div class="card card-body bg-light p-1" style="min-height:300px;">
                                 <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                             </div>
                         </ng-template>

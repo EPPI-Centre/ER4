@@ -397,11 +397,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         else if (e.title == 'Frequencies') {
             this.HelpAndFeebackContext = "main\\frequencies";
-            this.ShowItemsTable = true;
+            this.ShowItemsTable = false;
         }
         else if (e.title == 'Crosstabs') {
             this.HelpAndFeebackContext = "main\\crosstabs";
-            this.ShowItemsTable = true;
+            this.ShowItemsTable = false;
         }
         else if (e.title == 'Search & Classify') {
             this.HelpAndFeebackContext = "main\\search";

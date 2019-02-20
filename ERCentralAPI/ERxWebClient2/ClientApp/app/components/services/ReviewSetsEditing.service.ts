@@ -323,9 +323,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 	}
 	public CreateVisualiseCodeSet(visualiseTitle: string, visualiseSearchId: number,
 		attribute_id: number, set_id: number): Promise<ClassifierCommand> {
-
-
-		//this._BusyMethods.push("CreateVisualiseCodeSet");
+		this._BusyMethods.push("CreateVisualiseCodeSet");
 		let command: ClassifierCommand = new ClassifierCommand();
 
 		command.attributeId = attribute_id;
