@@ -10,13 +10,21 @@
 </div>
 
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
-	<div class="card container-fluid mt-1 bg-light">
+	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 		<div class="row mt-1 mb-2">
-			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold pull-right"> Find records</div>
-			<div class="col-12 col-md-4 pr-1 pl-1">
+
+			<div class="col-12 col-md-3 ">
+				<button type="button" class="btn btn-primary"
+						[disabled]="!CanApplySearch()"
+						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
+					Get Searches
+				</button>
+			</div>
+
+			<div class="col-11 col-md-4 pr-1 pl-1">
 				<div ngbDropdown>
-					<button class="btn alert-info col-12 pr-1 pl-1" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
+					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
 						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
 						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
@@ -34,10 +42,10 @@
 			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
 			<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )"
-				 ngbDropdown class="col-12 col-md-4 pr-1 pl-1">
-				<button ngbDropdownAnchor class="btn btn-info dropdown-toggle col-12" id="dropdownTree"
+				 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+				<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree"
 						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
-						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">
+						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
 					{{CurrentDropdownSelectedCode?.name}}
 				</button>
 				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
@@ -47,21 +55,21 @@
 			</div>
 			<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
 							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-				 ngbDropdown class="col-12 col-md-4 pr-1 pl-1">
-				<button class="btn btn-info col-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+				 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+				<button class="btn btn-primary col-11 col-md-4 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
 				<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 					<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
 				</div>
 			</div>
 			<!--<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>-->
-			<div *ngIf="showTextBox" class="col-12 col-md-4 pr-1 pl-1">
+			<div *ngIf="showTextBox" class="col-11 col-md-4 pr-1 pl-1">
 				<div>
-					<div class="">Comma-Separated list of IDs:</div>
+					<div class="col-11 col-md-12">Comma-Separated list of IDs:</div>
 					<input [(ngModel)]="commaIDs"
 						   #commaIDsModel="ngModel"
 						   id="commaIDsModel" name="commaIDsModel"
 						   required minlength="4"
-						   class="col-12 bg-light border-dark form-control"
+						   class="col-12 bg-light border-dark form-control p-2 m-2"
 						   type="text"
 						   placeholder="IDs"><br>
 					<div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
@@ -83,7 +91,7 @@
 						   #searchTextModel="ngModel"
 						   id="searchTextModel" name="searchTextModel"
 						   required minlength="3"
-						   class=" bg-light border-dark form-control"
+						   class="col-9 col-md-12 bg-light border-dark form-control"
 						   type="text"
 						   placeholder="search text">
 
@@ -108,7 +116,7 @@
 					<br> &nbsp;<b>IN</b>
 					<!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
 					<div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
-						<button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+						<button class="btn btn-primary col-9 col-md-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 							<button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
 							<button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
@@ -126,38 +134,27 @@
 			<div class="col-12 col-md-3"> </div>
 		</div>
 		<div class="row">
-			<div class="col-12 col-md-4 mb-1 pr-1 pl-1"></div>
-			<table class="col-md-4">
+			<div class="col-12 col-md-4 mb-1 pr-1 pl-1 "></div>
+			<table class="col-md-4  p-2 m-2">
 				<tr class="col-md-4">
 					<td>
-						<input name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl">
+						<input class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl">
 
 						<b>&nbsp; Included </b>
 					</td>
 					<td>
-						<input name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
+						<input  class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
 
 						<b>&nbsp; Excluded</b>
 					</td>
 				</tr>
 			</table>
 		</div>
-
-		<div class="row mb-2">
-			<div class="col-12 col-md-3"> </div>
-			<div class="col-12 col-md-4 pr-1 pl-1">
-				<button type="button" class="btn col-12 btn-info"
-						[disabled]="!CanApplySearch()"
-						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-					Search
-				</button>
-			</div>
-		</div>
 	</div>
-    </div>
+</div>
 
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
-    <table class="table col-md-12">
+    <table class="table col-md-12 ">
         <tr>
             <td>
                 <button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
@@ -176,7 +173,7 @@
 </div>
 <div id="ModelSection" *ngIf="ModelSection">
 
-    <div class="col-12 row mt-2">
+    <div class="col-12 row mt-2 border border-primary rounded m-1 p-1">
         <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
             <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
             <div class="btn-group-vertical col-12 p-0" role="group" aria-label="Basic example">
