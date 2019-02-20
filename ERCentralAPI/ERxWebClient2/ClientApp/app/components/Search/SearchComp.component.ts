@@ -319,7 +319,7 @@ export class SearchComp implements OnInit, OnDestroy {
         else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}
-        else if (this.selectedSearchDropDown == "That dont have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
+        else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}// hard ones based on code selected from tree first : CurrentDropdownSelectedCode
 		else if (this.selectedSearchDropDown == 'With this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
@@ -809,7 +809,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 			}
-            if (selectedSearchDropDown == 'That dont have any codes from this Coding Tool') {
+            if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
 
 				this._searchService.cmdSearches._withCodes = 'false';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
