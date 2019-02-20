@@ -8,33 +8,30 @@
         <kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
 	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 		<div class="row mt-1 mb-2">
-
 			<div class="col-12 col-md-3 ">
 				<button type="button" class="btn btn-primary"
 						[disabled]="!CanApplySearch()"
 						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-					Get Searches
+					Run Searches
 				</button>
 			</div>
-
 			<div class="col-11 col-md-4 pr-1 pl-1">
 				<div ngbDropdown>
 					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
-						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
-						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
-						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-                        <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
-                        <button (click)="nextDropDownList(6, 'That dont have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
-						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
-						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
-						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
-						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
+						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code&nbsp;</button>
+						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code&nbsp;</button>
+						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)&nbsp;</button>
+						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)&nbsp;</button>
+						<button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool&nbsp;</button>
+						<button (click)="nextDropDownList(6, 'That dont have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool&nbsp;</button>
+						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text&nbsp;</button>
+						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded&nbsp;</button>
+						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded&nbsp;</button>
+						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract&nbsp;</button>
 					</div>
 				</div>
 			</div>
@@ -111,8 +108,6 @@
 
 					</div>
 
-
-
 					<br> &nbsp;<b>IN</b>
 					<!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
 					<div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
@@ -152,7 +147,6 @@
 		</div>
 	</div>
 </div>
-
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
     <table class="table col-md-12 ">
         <tr>
@@ -260,9 +254,6 @@
         </button>
     </div>
 </div>
-
-
-
 <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
     <div ngbDropdown class="card col-12 px-1 ">
 		<div *ngIf="!CanCreateClassifierCodes()" class="col-12 alert alert-danger mt-1 mb-1 mr-1 ml-0 pl-1 p-0">
@@ -299,7 +290,6 @@
         </div>
     </div>
 </div>
-
 <div class="card col-12 bg-light">
 	
     <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
