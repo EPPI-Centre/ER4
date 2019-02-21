@@ -67,6 +67,7 @@ namespace BusinessLibrary.BusinessClasses
         protected void DataPortal_Fetch(OnlineHelpCriteria crit)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            LoadProperty<string>(ContextProperty, crit.Context);//we do this in all cases...
             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
                 connection.Open();
@@ -79,7 +80,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             LoadProperty<int>(OnlineHelpContentIdProperty, reader.GetInt32("ONLINE_HELP_ID"));
-                            LoadProperty<string>(ContextProperty, crit.Context);
+                            
                             LoadProperty<string>(HelpHTMLProperty, reader.GetString("HELP_HTML"));
                         }
                     }

@@ -64,6 +64,7 @@ import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTr
 import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationComp.component';
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
+import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 
 @NgModule({
     declarations: [
@@ -110,7 +111,8 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 		armDetailsComp,
         WorkAllocationComp,
         WorkAllocationContactListComp,
-        SiteAdminComponent
+        SiteAdminComponent,
+        SiteAdminEntryComponent
 	],
     providers: [
         EventEmitterService,
