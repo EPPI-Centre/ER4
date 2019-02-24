@@ -490,12 +490,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
-    GoToSiteAdmin() {
-        if (!this.IsSiteAdmin) return;
-        else {
-            this.router.navigate(['SiteAdmin']);
-        }
-    }
+    
     ngOnDestroy() {
         this.Clear();
         console.log("destroy MainFull..");

@@ -58,7 +58,7 @@
                                         {{MyReviewMessage}}
                                         <NewReviewComp></NewReviewComp>
                                         <div>
-                                            <button *ngIf="IsSiteAdmin" class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " (click)="GoToSiteAdmin()">Site Admin...</button>
+                                            <siteadminEntry *ngIf="IsSiteAdmin" class="row p-1 mx-0"></siteadminEntry>
                                         </div>
                                     </div>
                                 </div>
