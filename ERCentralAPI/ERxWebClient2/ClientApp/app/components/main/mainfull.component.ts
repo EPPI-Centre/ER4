@@ -409,10 +409,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this._searchService.Fetch();
 		}
 		else if (e.title == 'Collaborate') {
-            this.HelpAndFeebackContext = "main\\collaborate";
-            if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
+			this.HelpAndFeebackContext = "main\\collaborate";
+			if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
 			this.ShowItemsTable = false;
-			//this._searchService.Fetch();
 		}
         else {
             this.HelpAndFeebackContext = "main\\reviewhome";

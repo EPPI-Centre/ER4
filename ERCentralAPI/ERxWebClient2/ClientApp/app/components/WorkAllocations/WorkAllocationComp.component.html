@@ -1,54 +1,224 @@
-<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
-	<div class="col-12 row p-0 m-0">
-		<div class="card  col-sm-12 col-md-3 px-1">
-			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
-            <div style="max-height:340px;overflow:auto;">
-                <table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
-                    <thead>
-                        <tr class="small">
-                            <th>ID</th>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
-                            <td>{{ member.contactId }}</td>
-                            <td>{{ member.contactName }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="containsAtoolbar">
+	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
+		<kendo-toolbar-button [text]="'Randomly assign code to item'" (click)="RandomlyAssignSection = !RandomlyAssignSection"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create New Code'" ></kendo-toolbar-button>
+		
+	</kendo-toolbar>
+</div>
+<div id="RandomlyAssignSection" [ngbCollapse]="!RandomlyAssignSection" class="col-12 p-0 mb-1">
+	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+		<div class="row mt-1 mb-2">
+			<div class="col-12 col-md-4">
+				<button (click)="Assignment()" class="btn btn-primary">
+					Assign
+				</button>
+			</div>
+			<div class="col-11 col-md-4 pr-1 pl-1">
+				Select From <div ngbDropdown>
+					<button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">
+						{{selectedRandomAllocateDropDown}}
+					</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
+						<button (click)="nextAllocateDropDownList(1, 'No code / code set filter')" class="dropdown-item">No code / code set filter</button>
+						<button (click)="nextAllocateDropDownList(2, 'All without any codes from this set')" class="dropdown-item">All without any codes from this set</button>
+						<button (click)="nextAllocateDropDownList(3, 'All with any codes from this set')" class="dropdown-item">All with any codes from this set</button>
+						<button (click)="nextAllocateDropDownList(4, 'All with this code')" class="dropdown-item">All with this code</button>
+						<button (click)="nextAllocateDropDownList(5, 'All without this code')" class="dropdown-item">All without this code</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-4"></div>
+			<div class="col-12 col-md-4" *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
+					||  (selectedRandomAllocateDropDown == 'All without this code' )"></div>
+			<div class="col-12 col-md-12"
+				 *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
+					||  (selectedRandomAllocateDropDown == 'All without this code' )">
+				<div ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+					<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-11 p-2 m-2" id="dropdownTree10"
+							(click)="isCollapsed = !isCollapsed"
+							[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree10" style="min-width: 50px;">
+						{{CurrentDropdownSelectedCode?.name}}
+					</button>
+					<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree10" [ngbCollapse]="!isCollapsed">
+						<codesetSelector [IsMultiSelect]="false"
+										 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode1
+										 (selectedNodeInTree)="CloseCodeDropDown()"
+										 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+				<div class="col-12 col-md-12"></div>
+				<div class="col-12 col-md-4"></div>
+			</div>
+			<div class="col-12 col-md-4"></div>
+			<!--<div class="col-11 col-md-4"
+				 *ngIf="(selectedRandomAllocateDropDown == 'All with any codes from this set')
+						||  (selectedRandomAllocateDropDown == 'All without any codes from this set' )">
+			</div>-->
+			<div ngbDropdown class="col-11 col-md-4 pr-1 pl-1"
+				 *ngIf="(selectedRandomAllocateDropDown == 'All with any codes from this set')
+						||  (selectedRandomAllocateDropDown == 'All without any codes from this set' )">
+					<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedCodeSetDropDown}}</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+						<button (click)="setCodeSetDropDown(item)" 
+								*ngFor="let item of CodeSets;" class="dropdown-item">{{item}}
+						</button>
+				
+					</div>
+			</div>
+			<div class="col-12 col-md-12"
+				 *ngIf="(selectedRandomAllocateDropDown != 'All with any codes from this set')
+						||  (selectedRandomAllocateDropDown != 'All without any codes from this set' )">
+			</div>
+			<div class="col-11 col-md-4 pr-1 pl-1"></div>
+			<div ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+				Create codes below this code / set
+				<button ngbDropdownAnchor
+						class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree11"
+						(click)="isCollapsed2 = !isCollapsed2"
+						[attr.aria-expanded]="!isCollapsed2"
+						aria-controls="collapseCodeTree11" style="min-width: 50px;">
+					{{CurrentDropdownSelectedCode2?.name}}
+				</button>
+				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree11" [ngbCollapse]="!isCollapsed2">
+					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="''"
+									 [MaxHeight]="500" #WithOrWithoutCode2
+									 (selectedNodeInTree)="CloseCodeDropDown2()"
+									 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+				</div>
+			</div>
+			<div class="col-12 col-md-4"></div>
+			<div class="col-12 col-md-4"></div>
+			<div class="col-11 col-md-4">
+				<table class="col-12 m-2">
+					<tr>
+						<td style="" class="justify-content-end">
+							<div class="d-flex justify-content-end mr-1">
+								Percentage to Allocate
+							</div>
+						</td>
+						<td style="">
+							<kendo-numerictextbox [(ngModel)]="numericRandomSample"
+												  [min]="1" [format]="'n0'"
+												  [max]="100"
+												  [step]="1"
+												  [autoCorrect]="true"
+												  class="border border-dark rounded"
+												  style="width: 110px;">
+
+							</kendo-numerictextbox>
+						</td>
+						<td>
+							<div class="d-flex justify-content-end mr-1">
+								Number of groups to create
+							</div>
+						</td>
+						<td style="">
+							<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
+												  [min]="1" [format]="'n0'"
+												  [max]="10"
+												  [step]="1"
+												  [autoCorrect]="true"
+												  class="border border-dark rounded"
+												  style="width: 110px;">
+
+							</kendo-numerictextbox>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"></div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
+			<!--<div *ngIf="(selectedSearchDropDown == 'With this code')
+				||  (selectedSearchDropDown == 'Without this code' )"
+		 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+		<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree2"
+				(click)="isCollapsed2 = !isCollapsed2; dropdownBasic1 = false"
+				[attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree" style="min-width: 50px;">
+			{{CurrentDropdownSelectedCode2?.name}}
+		</button>
+		<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed2">
+			<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode2
+							 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 		</div>
-		<div class="card col-sm-12 col-md-9 px-1 ">
-			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
-            <div style="max-height:340px;overflow:auto;">
-                <table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Contact</th>
-                            <th>Study Group</th>
-                            <th>Codes to apply</th>
-                            <th>Allocated</th>
-                            <th>Started</th>
-                            <th>Remaining</th>
-                            <th>Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
-                            <td>{{ wa.contactId }}</td>
-                            <td>{{ wa.contactName }}</td>
-                            <td>{{ wa.attributeName }}</td>
-                            <td>{{wa.setName}}</td>
-                            <td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
-                            <td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
-                            <td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
-                            <td class="p-0"><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+	</div>-->
+
+			<div class="col-12 col-md-3"> </div>
+		</div>
+			<div class="row">
+				<div class="col-12 col-md-4 mb-1 pr-1 pl-1 "></div>
+				<table class="col-md-4  p-2 m-2">
+					<tr class="col-md-4">
+						<td>
+							<input class="p-2 m-2"
+								   type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
+
+							<b>&nbsp; Included </b>
+						</td>
+						<td>
+							<input class="p-2 m-2"
+								   type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
+
+							<b>&nbsp; Excluded</b>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+</div>
+
+
+
+<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
+		<div class="col-12 row p-0 m-0">
+			<div class="card  col-sm-12 col-md-3 px-1">
+				<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
+				<div style="max-height:340px;overflow:auto;">
+					<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
+						<thead>
+							<tr class="small">
+								<th>ID</th>
+								<th>Name</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+								<td>{{ member.contactId }}</td>
+								<td>{{ member.contactName }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="card col-sm-12 col-md-9 px-1 ">
+				<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
+				<div style="max-height:340px;overflow:auto;">
+					<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Contact</th>
+								<th>Study Group</th>
+								<th>Codes to apply</th>
+								<th>Allocated</th>
+								<th>Started</th>
+								<th>Remaining</th>
+								<th>Delete</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+								<td>{{ wa.contactId }}</td>
+								<td>{{ wa.contactName }}</td>
+								<td>{{ wa.attributeName }}</td>
+								<td>{{wa.setName}}</td>
+								<td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
+								<td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
+								<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
+								<td class="p-0"><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>

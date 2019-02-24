@@ -8,21 +8,23 @@ import { isPlatformServer, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ModalService } from './modal.service';
 import { Item } from './ItemList.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ReviewSetsService } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class WorkAllocationListService {
+export class WorkAllocationListService extends BusyAwareService {
     private sub: any;
     @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
+		private _reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        //if (localStorage.getItem('WorkAllocationContactList'))//to be confirmed!! 
-        //    localStorage.removeItem('WorkAllocationContactList');
+        super();
     }
 
 	private _ContactWorkAllocations: WorkAllocation[] = [];
@@ -40,13 +42,10 @@ export class WorkAllocationListService {
 		return this._allWorkAllocationsForReview;
 	}
 
-	
-
-
 	public set ContactWorkAllocations(wa: WorkAllocation[]) {
 		this._ContactWorkAllocations = wa;
     }
-   
+ 
     
     public Fetch() {
 
@@ -71,13 +70,40 @@ export class WorkAllocationListService {
 
 	}
 
+	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
+
+		// is there a need for busy methods here I would say yes...
+		this._BusyMethods.push("RandomlyAssignCodeToItem");
+
+		this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
+			'api/WorkAllocationContactList/PerformRandomAllocate', assignParameters)
+			.subscribe(() => {
+
+				this._reviewSetsService.GetReviewSets();
+				this.RemoveBusy("RandomlyAssignCodeToItem");
+
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+				, () => {
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+			);
+
+
+	}
+
 	public DeleteWorkAllocation(workAllocationId: number) {
 
 		let body = JSON.stringify({ Value: workAllocationId });
 		this._httpC.post<WorkAllocation>(this._baseUrl + 'api/WorkAllocationContactList/DeleteWorkAllocation', body)
 			.subscribe(() => {
+
 				this.FetchAll();
-		 }, error => { this.modalService.SendBackHomeWithError(error); }
+			},
+			error => { this.modalService.SendBackHomeWithError(error); }
 		 );
 
 	}
@@ -103,7 +129,16 @@ export class WorkAllocationListService {
 	//}
 
 }
-
+export class PerformRandomAllocateCommand {
+	FilterType: string = ''; 
+	attributeIdFilter: number = 0;
+	setIdFilter: number = 0
+	attributeId: number = 0;
+	setId: number = 0;
+	howMany: number = 0;
+	numericRandomSample: number = 0;
+	RandomSampleIncluded: string = '';
+}
 export class WorkAllocation {
     workAllocationId: number = 0;
     contactName: string = "";
