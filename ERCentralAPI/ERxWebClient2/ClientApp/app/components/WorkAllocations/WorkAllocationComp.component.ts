@@ -72,6 +72,7 @@ export class WorkAllocationComp implements OnInit {
 					
 					if (confirmed) {
 						// do nothing
+						this.Assignment();
 					} else {
 						// do nothing
 					}
@@ -81,17 +82,46 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public Assignment() {
 
-		//alert(this.selectedCodeSetDropDown);
-		let DestAttSet: SetAttribute = this.CurrentDropdownSelectedCode2 as SetAttribute;
-		let DestRevSet: ReviewSet = this.CurrentDropdownSelectedCode2 as ReviewSet;
-		let FiltAttSet: SetAttribute = this.CurrentDropdownSelectedCode as SetAttribute;
-		let FiltRevSet: ReviewSet = this.selectedCodeSetDropDown as ReviewSet;
+		let DestAttSet: SetAttribute = new SetAttribute();
+		let DestRevSet: ReviewSet = new ReviewSet();
+		let FiltAttSet: SetAttribute = new SetAttribute();
+		let FiltRevSet: ReviewSet = new ReviewSet();
 
-		if (DestAttSet == null && DestRevSet == null) {
+		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode != null) {
+
+			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
+			console.log(' checking nodeType 2 : ' + JSON.stringify(this.CurrentDropdownSelectedCode2.nodeType) + ' ');
+		}
+
+		if (this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode.nodeType == 'SetAttribute') {
+
+			FiltAttSet = this.CurrentDropdownSelectedCode as SetAttribute;
+
+		} else {
+
+			FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
+
+		}
+		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == 'SetAttribute') {
+			DestAttSet = this.CurrentDropdownSelectedCode2 as SetAttribute;
+			
+		} else {
+			DestRevSet = this.CurrentDropdownSelectedCode2 as ReviewSet;
+			
+		}
+
+		console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
+		console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
+		console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
+		console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
+
+
+		if (DestAttSet.attribute_id != -1  && DestRevSet.set_id != -1 ) {
 
 			this.openConfirmationDialogWorkAllocation("Please select a CodeSet or a Code \n to contain the new codes to be created");
 			return;
 		}
+
 		let FilterType: string  = '';
 		let attributeIdFilter: number = 0;
 		let setIdFilter: number = 0;
@@ -101,35 +131,35 @@ export class WorkAllocationComp implements OnInit {
 
 		switch (this.FilterNumber) {
 
-			case 0:
+			case 1:
 				FilterType = "No code / code set filter";
 				break;
-			case 1:
-				if (FiltRevSet == null) {
+			case 2:
+				if (FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				setIdFilter = FiltRevSet.set_id;
 				FilterType = "All without any codes from this set";
 				break;
-			case 2:
-				if (FiltRevSet == null) {
+			case 3:
+				if (FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				setIdFilter = FiltRevSet.set_id;
 				FilterType = "All with any codes from this set";
 				break;
-			case 3://codesSelectControlAllocateSelectCode
-				if (FiltAttSet == null) {
+			case 4:
+				if (FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				attributeIdFilter = FiltAttSet.attribute_id;
 				FilterType = "All with this code";
 				break;
-			case 4://codesSelectControlAllocateSelectCode
-				if (FiltAttSet == null) {
+			case 5:
+				if (FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
@@ -141,7 +171,7 @@ export class WorkAllocationComp implements OnInit {
 		}
 
 
-		if (DestAttSet != null) {
+		if (DestAttSet.attribute_id != -1) {
 			attributeId = DestAttSet.attribute_id;
 			setId = DestAttSet.set_id;
 		}
