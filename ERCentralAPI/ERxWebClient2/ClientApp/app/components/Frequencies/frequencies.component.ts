@@ -82,4 +82,11 @@ export class frequenciesComp implements OnInit {
     clearChosenFilter() {
         this.chosenFilter = null;
     }
+    public Clear() {
+        this.chosenNode = null;
+        this.chosenFilter = null;
+        this.FreqShowWhat = 'table';
+        this.freqIncEx = 'true';
+        this.frequenciesService.Clear();
+    }
 }

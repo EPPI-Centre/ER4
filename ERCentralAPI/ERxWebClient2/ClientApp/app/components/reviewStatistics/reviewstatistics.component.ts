@@ -1,16 +1,13 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service'
-import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocationContactList/workAllocationContactListComp.component';
+import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import {  Subject, Subscription } from 'rxjs';
-import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, ReviewStatisticsCodeSet } from '../services/codesetstatistics.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -31,10 +28,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	) {
 
 	}
-
-	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
-	@ViewChild('tabset') tabset!: NgbTabset;
-	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    
+	
 	@Output() tabSelectEvent = new EventEmitter();
 
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -47,7 +42,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 
-
+    public get IsServiceBusy(): boolean {
+        return this.codesetStatsServ.IsBusy;
+    }
 
 	ngOnInit() {
 
@@ -95,8 +92,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	//	this.ReviewerIdentityServ.LoginReq(u, p);
 
 	//};
-	subOpeningReview: Subscription | null = null;
-	   
+	//subOpeningReview: Subscription | null = null;
+    RefreshStats() {
+        this.reviewSetsService.GetReviewStatsEmit.emit();
+        //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
+    }
 	Reload() {
 		this.Clear();
 		//this.reviewSetsService.GetReviewSets();
@@ -163,8 +163,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	//}
 
 	ngOnDestroy() {
-		if (this.subOpeningReview) {
-			this.subOpeningReview.unsubscribe();
-		}
+		//if (this.subOpeningReview) {
+		//	this.subOpeningReview.unsubscribe();
+		//}
 	}
 }

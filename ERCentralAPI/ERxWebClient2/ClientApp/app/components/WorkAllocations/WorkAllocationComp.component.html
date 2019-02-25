@@ -1,0 +1,54 @@
+<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
+	<div class="col-12 row p-0 m-0">
+		<div class="card  col-sm-12 col-md-3 px-1">
+			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
+            <div style="max-height:340px;overflow:auto;">
+                <table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
+                    <thead>
+                        <tr class="small">
+                            <th>ID</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+                            <td>{{ member.contactId }}</td>
+                            <td>{{ member.contactName }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+		</div>
+		<div class="card col-sm-12 col-md-9 px-1 ">
+			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
+            <div style="max-height:340px;overflow:auto;">
+                <table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Contact</th>
+                            <th>Study Group</th>
+                            <th>Codes to apply</th>
+                            <th>Allocated</th>
+                            <th>Started</th>
+                            <th>Remaining</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+                            <td>{{ wa.contactId }}</td>
+                            <td>{{ wa.contactName }}</td>
+                            <td>{{ wa.attributeName }}</td>
+                            <td>{{wa.setName}}</td>
+                            <td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
+                            <td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
+                            <td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
+                            <td class="p-0"><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+		</div>
+	</div>
+</div>

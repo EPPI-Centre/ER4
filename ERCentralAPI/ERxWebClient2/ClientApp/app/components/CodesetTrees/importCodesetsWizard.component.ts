@@ -122,7 +122,7 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     OpenListOfSets(roTr: ReadOnlyTemplateReview) {
-        if (roTr.templateName == "Manually pick from Public codesets..." && roTr.templateId == 1000) {
+        if (roTr.templateName == "Manually pick from Public Coding Tools..." && roTr.templateId == 1000) {
             this.WizStep = 2.1;
             this.ReviewSetsEditingService.FetchReviewSets4Copy(false);
         }

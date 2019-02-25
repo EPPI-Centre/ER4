@@ -54,6 +54,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
+        console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
@@ -88,6 +89,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         return this._CurrentSourceDateofSearch;
     }
     public confirmSourceDeletionOpen: boolean = false;
+    public HelpAndFeebackContext: string = "sources\\file";
 
     HasCurrentSourceDateofSearch(): boolean {
         if (this._CurrentSource == null) return false;
@@ -212,6 +214,18 @@ export class SourcesComponent implements OnInit, OnDestroy {
             && this.SourcesService.ReviewSources.length > 0) {
             //let's go and get the first source:
             this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
+        }
+        if ($event.title == 'Import Items') {
+            this.HelpAndFeebackContext = "sources\\file";
+        }
+        else if ($event.title == 'Manage Sources') {
+            this.HelpAndFeebackContext = "sources\\managesources";
+        }
+        else if ($event.title == 'PubMed') {
+            this.HelpAndFeebackContext = "sources\\pubmed";
+        }
+        else {
+            this.HelpAndFeebackContext = "sources\\file";
         }
     }
     FormatDate(DateSt: string): string {

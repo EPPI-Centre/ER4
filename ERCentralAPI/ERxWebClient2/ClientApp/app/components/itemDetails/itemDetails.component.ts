@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Item } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
@@ -26,10 +26,19 @@ export class itemDetailsComp implements OnInit {
     @Input() item: Item | undefined;
     @Input() ShowHighlights: boolean = false;
     public HAbstract: string = "";
-    public HTitle: string = "";
+	public HTitle: string = "";
+
+	private eventsTest: Subject<void> = new Subject<void>();
+
 	ngOnInit() {
 
-    }
+
+
+	}
+	Changed() {
+	//	alert('item changed');
+	//	//this.eventsTest.next();
+	}
 
     public WipeHighlights() {
         this.HAbstract = "";
@@ -39,7 +48,10 @@ export class itemDetailsComp implements OnInit {
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
             this.SetHighlights();
         }
-    }
+	}
+	ItemChanged() {
+		alert('item changed!!');
+	}
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;

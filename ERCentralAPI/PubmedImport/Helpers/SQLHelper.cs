@@ -125,6 +125,28 @@ namespace EPPIDataServices.Helpers
         }
 
         /// <summary> 
+        /// Call this when you want to use the same connection for multiple SQL text commands, will try opening the connection if it isn't already
+        /// You need to make sure you'll close the connection within whatever code calls this!
+        /// </summary> 
+        public SqlDataReader ExecuteQueryNonSP(SqlConnection connection, string CommandText)
+        {
+            try
+            {
+                CheckConnection(connection);
+                using (SqlCommand command = new SqlCommand(CommandText, connection))
+                {
+                    command.CommandType = System.Data.CommandType.Text;
+                    command.CommandText = CommandText;
+                    return command.ExecuteReader();                 }
+            }
+            catch (Exception e)
+            {
+                _logger.SQLActionFailed("Error exectuing QueryNonSP: " + CommandText, null, e); 
+                return null;
+            }
+        }
+
+        /// <summary> 
         /// Call this when you want to open and close the SQLConnection in a single call
         /// Connection will close when you close the reader, hence
         /// ALWAYS use the reader in a *using* clasue:

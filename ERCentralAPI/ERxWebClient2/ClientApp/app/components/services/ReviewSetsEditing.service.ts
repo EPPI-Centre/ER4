@@ -103,7 +103,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     }
     public SaveNewReviewSet(rs: ReviewSet): Promise<iReviewSet | null> {
         this._BusyMethods.push("SaveNewReviewSet");
-        let ErrMsg = "Something went wrong: it appears that the codeset was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
+        let ErrMsg = "Something went wrong: it appears that the Coding Tool was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         let rsC: ReviewSetUpdateCommand = {
             ReviewSetId: rs.reviewSetId,
             SetId: rs.set_id,
@@ -323,9 +323,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 	}
 	public CreateVisualiseCodeSet(visualiseTitle: string, visualiseSearchId: number,
 		attribute_id: number, set_id: number): Promise<ClassifierCommand> {
-
-
-		//this._BusyMethods.push("CreateVisualiseCodeSet");
+		this._BusyMethods.push("CreateVisualiseCodeSet");
 		let command: ClassifierCommand = new ClassifierCommand();
 
 		command.attributeId = attribute_id;
@@ -418,7 +416,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 
 	public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
         this._BusyMethods.push("ReviewSetCopy");
-        let ErrMsg = "Something went wrong: could not copy a codeset. \r\n If the problem persists, please contact EPPISupport.";
+        let ErrMsg = "Something went wrong: could not copy a Coding Tool. \r\n If the problem persists, please contact EPPISupport.";
         let command = new ReviewSetCopyCommand();
         command.order = Order;
         command.reviewSetId = ReviewSetId;

@@ -54,5 +54,29 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-    }
+		[HttpGet("[action]")]
+		public IActionResult ReviewMembers()
+		{
+
+			try
+			{
+
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				DataPortal<ReviewContactList> dp = new DataPortal<ReviewContactList>();
+
+				ReviewContactList result = dp.Fetch();
+
+				return Ok(result);
+				
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "A ReviewContactList issue");
+				throw;
+			}
+		}
+
+	}
 }

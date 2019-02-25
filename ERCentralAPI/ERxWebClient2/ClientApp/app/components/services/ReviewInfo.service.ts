@@ -21,7 +21,7 @@ export class ReviewInfoService extends BusyAwareService{
         super();
     }
 
-
+	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();;
     public get ReviewInfo(): ReviewInfo {
         //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
@@ -40,11 +40,21 @@ export class ReviewInfoService extends BusyAwareService{
         //    }
         //}
         return this._ReviewInfo;
-    }
+	}
+	public get Contacts(): Contact[] {
 
-    public Fetch() {
+		if (this._ReviewContacts) return this._ReviewContacts;
+		else {
+			this._ReviewContacts = [];
+			return this._ReviewContacts;
+		}
+	}
+
+	public Fetch() {
+				
         this._BusyMethods.push("Fetch");
-        this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(rI => {
+		this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
+			rI => {
             this._ReviewInfo = rI;
             this.RemoveBusy("Fetch");
             //this.Save();
@@ -52,15 +62,30 @@ export class ReviewInfoService extends BusyAwareService{
             this.RemoveBusy("Fetch");
             this.modalService.SendBackHomeWithError(error);
         }
-        );
-    }
+		);
 
-    //public Save() {
-    //    if (this.ReviewInfo != null)
-    //        localStorage.setItem('ReviewInfo', JSON.stringify(this.ReviewInfo));
-    //    else if (localStorage.getItem('ReviewInfo'))//to be confirmed!! 
-    //        localStorage.removeItem('ReviewInfo');
-    //}
+	}
+
+	public FetchReviewMembers() {
+		
+		let ErrMsg = "Something went wrong when fetching review members \r\n If the problem persists, please contact EPPISupport.";
+
+		this._BusyMethods.push("FetchReviewMembers");
+		this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers').subscribe(
+
+			(result) => {
+				this._ReviewContacts = result;
+				if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+				this.RemoveBusy("FetchReviewMembers");
+				return result;
+			}
+			, (error) => {
+				this.RemoveBusy("FetchReviewMembers");
+				this.modalService.GenericErrorMessage(ErrMsg);
+				return error;
+			});
+
+	}
 }
 
 export class ReviewInfo {
@@ -84,5 +109,11 @@ export class ReviewInfo {
     bL_CC_AUTH_CODE: string = "";
     bL_CC_TX: string = "";
 
+}
+
+export class Contact {
+
+	 contactName: string = '';
+	 contactId: number = 0;
 }
 

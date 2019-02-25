@@ -1,178 +1,182 @@
 <div class="containsAtoolbar">
-	<kendo-toolbar>
-		<kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-		<kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
-		<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
-	</kendo-toolbar>
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
+        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
+        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+    </kendo-toolbar>
 </div>
 
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
-    <div class="card container-fluid mt-1">
-        <div class="row mt-1 mb-2">
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <div ngbDropdown>
-                    <button class="btn btn-primary col-12 pr-1 pl-1" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1">
-                        <button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
-                        <button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
-                        <button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
-                        <button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-                        <button (click)="nextDropDownList(5, 'That have at least one code from this set')" class="dropdown-item">That have at least one code from this set</button>
-                        <button (click)="nextDropDownList(6, 'That dont have any codes from this set')" class="dropdown-item">That don't have any codes from this set</button>
-                        <button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
-                        <button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
-                        <button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
-                        <button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="(selectedSearchDropDown == 'That have at least one code from this set'
-							||	selectedSearchDropDown == 'That dont have any codes from this set') "
-                 ngbDropdown class="col-12 col-md-6 pr-1 pl-1">
-                <button class="btn btn-info col-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                    <button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
-                </div>
-            </div>
-            <div *ngIf="(selectedSearchDropDown == 'With this code')
+	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+		<div class="row mt-1 mb-2">
+
+			<div class="col-12 col-md-3 ">
+				<button type="button" class="btn btn-primary"
+						[disabled]="!CanApplySearch()"
+						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
+					Get Searches
+				</button>
+			</div>
+
+			<div class="col-11 col-md-4 pr-1 pl-1">
+				<div ngbDropdown>
+					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
+						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+                        <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
+                        <button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
+						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+						<button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"></div>
+			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
+			<div *ngIf="(selectedSearchDropDown == 'With this code')
 						||  (selectedSearchDropDown == 'Without this code' )"
-                 ngbDropdown class="col-12 col-md-6 pr-1 pl-1">
-                <button ngbDropdownAnchor class="btn btn-info dropdown-toggle col-12" id="dropdownTree"
-                        (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
-                        [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">
-                    {{CurrentDropdownSelectedCode?.name}}
-                </button>
-                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
-                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                     (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-                </div>
-            </div>
-            <div *ngIf="showTextBox" class="col-12 col-md-6 pr-1 pl-1">
-                <div>
-                    <div class="">Comma-Separated list of IDs:</div>
-                    <input [(ngModel)]="commaIDs"
-                           #commaIDsModel="ngModel"
-                           id="commaIDsModel" name="commaIDsModel"
-                           required minlength="4"
-                           class="col-12 bg-light border-dark form-control"
-                           type="text"
-                           placeholder="IDs"><br>
-                    <div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
-                         class="alert alert-danger">
+				 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+				<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree"
+						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
+						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
+					{{CurrentDropdownSelectedCode?.name}}
+				</button>
+				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
+									 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+				</div>
+			</div>
+			<div *ngIf="(selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+							||	selectedSearchDropDown == 'That don\'t have any codes from this Coding Tool') "
+				 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+				<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown}}</button>
+				<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+					<button (click)="setSearchCodeSetDropDown(item)" *ngFor="let item of CodeSets;" class="dropdown-item">{{item}}</button>
+				</div>
+			</div>
+			<!--<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> Find records</div>-->
+			<div *ngIf="showTextBox" class="col-11 col-md-4 pr-1 pl-1">
+				<div>
+					<div class="col-11 col-md-12">Comma-Separated list of IDs:</div>
+					<input [(ngModel)]="commaIDs"
+						   #commaIDsModel="ngModel"
+						   id="commaIDsModel" name="commaIDsModel"
+						   required minlength="4"
+						   class="col-12 bg-light border-dark form-control p-2 m-2"
+						   type="text"
+						   placeholder="IDs"><br>
+					<div *ngIf="commaIDsModel.invalid  && (commaIDsModel.dirty || commaIDsModel.touched)"
+						 class="alert alert-danger">
 
-                        <div *ngIf="commaIDsModel.errors.required">
-                            commaIDs are required.
-                        </div>
-                        <div *ngIf="commaIDsModel.errors.minlength">
-                            commaIDs must be at least 4 characters long.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <div *ngIf="(selectedSearchDropDown == 'Containing this text')"
-                     class="col-12 p-0 m-0">
-                    <input pattern="^(?!\s*$).+" [(ngModel)]="searchText"
-                           #searchTextModel="ngModel"
-                           id="searchTextModel" name="searchTextModel"
-                           required minlength="3"
-                           class=" bg-light border-dark form-control"
-                           type="text"
-                           placeholder="search text">
+						<div *ngIf="commaIDsModel.errors.required">
+							commaIDs are required.
+						</div>
+						<div *ngIf="commaIDsModel.errors.minlength">
+							commaIDs must be at least 4 characters long.
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-md-4 pr-1 pl-1">
+				<div *ngIf="(selectedSearchDropDown == 'Containing this text')"
+					 class="col-12 p-0 m-0">
+					<input pattern="^(?!\s*$).+" [(ngModel)]="searchText"
+						   #searchTextModel="ngModel"
+						   id="searchTextModel" name="searchTextModel"
+						   required minlength="3"
+						   class="col-9 col-md-12 bg-light border-dark form-control"
+						   type="text"
+						   placeholder="search text">
 
-                    <div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
-                         class="alert alert-danger">
+					<div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
+						 class="alert alert-danger">
 
-                        <div *ngIf="searchTextModel.errors.pattern">
-                            Cannot be empty
-                        </div>
+						<div *ngIf="searchTextModel.errors.pattern">
+							Cannot be empty
+						</div>
 
-                        <div *ngIf="searchTextModel.errors.required">
-                            search text is required.
-                        </div>
-                        <div *ngIf="searchTextModel.errors.minlength">
-                            search text must be at least 3 characters long.
-                        </div>
+						<div *ngIf="searchTextModel.errors.required">
+							search text is required.
+						</div>
+						<div *ngIf="searchTextModel.errors.minlength">
+							search text must be at least 3 characters long.
+						</div>
 
-                    </div>
+					</div>
 
 
 
-                    <br> &nbsp;<b>IN</b>
-                    <!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
-                    <div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
-                        <button class="btn btn-secondary col-md-12" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                            <button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
-                            <button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
-                            <button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
-                            <button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
-                            <button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
-                            <button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
-                            <button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
-                        </div>
-                    </div>
+					<br> &nbsp;<b>IN</b>
+					<!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
+					<div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
+						<button class="btn btn-primary col-9 col-md-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+						<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+							<button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
+							<button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
+							<button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
+							<button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
+							<button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
+							<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+							<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
+						</div>
+					</div>
 
-                </div>
+				</div>
 
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 mb-1 pr-1 pl-1">
-                <table class="col-md-4">
-                    <tr class="col-md-4">
-                        <td>
-                            <input name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl">
+			</div>
+			<div class="col-12 col-md-3"> </div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-4 mb-1 pr-1 pl-1 "></div>
+			<table class="col-md-4  p-2 m-2">
+				<tr class="col-md-4">
+					<td>
+						<input class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="true" [(ngModel)]="searchInclOrExcl">
 
-                            <b>&nbsp; Included </b>
-                        </td>
-                        <td>
-                            <input name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
+						<b>&nbsp; Included </b>
+					</td>
+					<td>
+						<input  class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
 
-                            <b>&nbsp; Excluded</b>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div class="row mb-2">
-            <div class="col-12 col-md-6 pr-1 pl-1">
-                <button type="button" class="btn col-12 btn-outline-primary"
-                        [disabled]="!CanApplySearch()"
-                        (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-                    Search
-                </button>
-            </div>
-        </div>
-    </div>
+						<b>&nbsp; Excluded</b>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </div>
+
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
-	<table class="table col-md-12">
-		<tr>
-			<td>
-				<button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
-			</td>
-			<td>
-				<button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
-			</td>
-		</tr>
-	</table>
+    <table class="table col-md-12 ">
+        <tr>
+            <td>
+                <button class="btn text-dark btn-outline-warning col-md-6" (click)="getLogicSearches('AND')">&nbsp; AND</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('OR')">&nbsp; OR</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-danger col-md-6" (click)="getLogicSearches('NOT')">&nbsp; NOT</button>
+            </td>
+            <td>
+                <button class="btn text-dark btn-outline-info col-md-6" (click)="getLogicSearches('NOT (excluded)')">&nbsp; NOT (excluded)</button>
+            </td>
+        </tr>
+    </table>
 </div>
 <div id="ModelSection" *ngIf="ModelSection">
 
-    <div class="col-12 row mt-2">
+    <div class="col-12 row mt-2 border border-primary rounded m-1 p-1">
         <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
             <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
-            <div class="btn-group-vertical col-12 p-0"  role="group" aria-label="Basic example">
+            <div class="btn-group-vertical col-12 p-0" role="group" aria-label="Basic example">
                 <button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
                 <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
                 <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
@@ -205,7 +209,7 @@
             <div class="col-12">
                 <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'SetAttribute')" class="p-1 m-1 bg-info row p-1 "> Current code: {{selectedNode?.name}}</div>
                 <div *ngIf="mode == 2 && !selectedNode" class="p-1 m-1 alert-danger row p-1 ">Please select a code from the right.</div>
-                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a CodeSet.</div>
+                <div *ngIf="mode == 2 && (selectedNode && selectedNode.nodeType == 'ReviewSet')" class="p-1 m-1  alert-danger row p-1 "> Please select a code from the right. Current selection ({{selectedNode?.name}}) is a Coding Tool.</div>
             </div>
             <div *ngIf="mode == '3' && this._sourcesService.ReviewSources != null && this._sourcesService.ReviewSources != undefined">
                 <div>
@@ -220,139 +224,142 @@
                 </div>
             </div>
         </div>
-        
-    </div>
-	<div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
-		<kendo-grid [data]="DataSourceModel"
-					[selectable]="selectableSettings"
-					[sort]="sort"
-					[kendoGridSelectBy]="'modelId'"
-					(sortChange)="sortChange($event)"
-					(selectionChange)="selectedRows($event)">
 
-			<kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
-			<kendo-grid-column field="modelId" title="ModelID">
-			</kendo-grid-column>
-			<kendo-grid-column field="modelTitle" title="Title">
-			</kendo-grid-column>
-			<kendo-grid-column field="attributeOn" title="Applies" >
-			</kendo-grid-column>
-			<kendo-grid-column field="attributeNotOn" title="Compared with">
-			</kendo-grid-column>
-			<!--<kendo-grid-column field="accuracy" title="Accuracy">
-		</kendo-grid-column>
-		<kendo-grid-column field="auc" title="AUC">
-		</kendo-grid-column>-->
-			<kendo-grid-column field="precision" title="Precision">
-			</kendo-grid-column>
-			<kendo-grid-column field="recall" title="Recall">
-			</kendo-grid-column>
-		</kendo-grid>
-	</div>
-	<div class="col-12 mt-2 mb-2 justify-content-center">
-		<button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
-				type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
-			Run Model
-		</button>
-	</div>
+    </div>
+    <div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
+        <kendo-grid [data]="DataSourceModel"
+                    [selectable]="selectableSettings"
+                    [sort]="sortCustomModel"
+                    [kendoGridSelectBy]="'modelId'"
+                    (sortChange)="sortChangeModel($event)"
+                    (selectionChange)="selectedRows($event)">
+
+            <kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
+            <kendo-grid-column field="modelId" title="ModelID">
+            </kendo-grid-column>
+            <kendo-grid-column field="modelTitle" title="Title">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeOn" title="Applies">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeNotOn" title="Compared with">
+            </kendo-grid-column>
+            <!--<kendo-grid-column field="accuracy" title="Accuracy">
+            </kendo-grid-column>
+            <kendo-grid-column field="auc" title="AUC">
+            </kendo-grid-column>-->
+            <kendo-grid-column field="precision" title="Precision">
+            </kendo-grid-column>
+            <kendo-grid-column field="recall" title="Recall">
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
+    <div class="col-12 mt-2 mb-2 justify-content-center">
+        <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
+                type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+            Run Model
+        </button>
+    </div>
 </div>
 
 
 
 <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
-	<div ngbDropdown class="card col-12 ">
-		<div *ngIf="!CanCreateClassifierCodes()" class=" col-sm-4 col-md-4">
-			To create codes to represent the classifier result, please select a code on the right.
-		</div>
-		<div *ngIf="CanCreateClassifierCodes()" class="row col-8 col-sm-8 col-md-8">
-			<p style="min-width: 150px;" class="row col-6" *ngIf="selectedNode"> Create codes below this code / set: <b>{{selectedNode.name}}</b></p>
-			<div class="col-6 col-sm-4 col-md-4 m-0 p-0">
-				<button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
-			</div>
-		</div>
-	</div>
-	<div class="card col-12 col-sm-12 col-md-12">
-		<figure class="figure col-12">
-			<kendo-chart #VisualiseChart style="min-width: 500px;"
-						 *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
-				<kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
-				<kendo-chart-series>
-					<kendo-chart-series-item field="count" categoryField="range"
-											 type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
-					</kendo-chart-series-item>
-				</kendo-chart-series>
-			</kendo-chart>
-		</figure>
-	</div>
-	<div class="card bg-light ">
-		<div class="col-12 row">
-			<div class="col-sm-1 col-md-1"></div>
-			<div class="col">
-				<button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
-			</div>
-			<div class="col">
-				<button style="min-width: 150px;" class="btn btn-danger p-2 m-2" (click)="CancelVisualise()">Cancel</button>
-			</div>
-			<div class="col"></div>
-		</div>
-	</div>
+    <div ngbDropdown class="card col-12 px-1 ">
+        <div *ngIf="!CanCreateClassifierCodes()" class="col-12 alert alert-danger mt-1 mb-1 mr-1 ml-0 pl-1 p-0">
+            &nbsp;To create codes to represent the classifier result, please select a code on the right.
+        </div>
+        <div *ngIf="CanCreateClassifierCodes()" class="row col-12 m-0 p-0">
+            <div style="min-width: 150px; margin:auto;" class="col p-1" *ngIf="selectedNode"> Create codes below this Code / Coding Tool: <b>{{selectedNode.name}}</b></div>
+            <div class="m-0 p-0">
+                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
+            </div>
+        </div>
+    </div>
+    <div class="card col-12 col-sm-12 col-md-12">
+        <figure class="figure col-12">
+            <kendo-chart #VisualiseChart style="min-width: 500px;"
+                         *ngIf="_reviewSetsEditingServ.SearchVisualiseData  && this._reviewSetsEditingServ.SearchVisualiseData.length > 0 ">
+                <kendo-chart-title [text]="visualiseTitle"></kendo-chart-title>
+                <kendo-chart-series>
+                    <kendo-chart-series-item field="count" categoryField="range"
+                                             type="column" [data]="_reviewSetsEditingServ.SearchVisualiseData">
+                    </kendo-chart-series-item>
+                </kendo-chart-series>
+            </kendo-chart>
+        </figure>
+    </div>
+    <div class="card bg-light ">
+        <div class="col-12 row justify-content-center">
+            <div class="">
+                <button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
+            </div>
+            <div class="">
+                <button style="min-width: 150px;" class="btn btn-danger p-2 m-2" (click)="CancelVisualise()">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="card col-12 bg-light">
-		<kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
-					[data]="DataSourceSearches" [height]="410"
-					[rowClass]="rowCallback"
-					[sortable]="{
+	
+    <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+                [data]="DataSourceSearches" [height]="410"
+                [rowClass]="rowCallback"
+                [sortable]="{
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
-					[sort]="sort"
-					(sortChange)="sortChange($event)"
-					class="mt-1">
+                [sort]="sortSearches"
+                (sortChange)="sortChangeSearches($event)"
+                class="mt-1">
 
-			<kendo-grid-column [sortable]="false" width="33"
-							   [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
-							   [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
-				<!--<ng-template kendoGridHeaderTemplate let-dataItem>
-					<input style="zoom: 1.2;"
-						   type="checkbox"
-						   name="selectAll"
-						   (change)="selectAllSearchesChange($event)"
-						   [checked]="allSearchesSelected" />
-				</ng-template>-->
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
-						   type="checkbox"
-						   field="selected"
-						   [checked]="dataItem.add" />
-				</ng-template>
-			</kendo-grid-column>
-			<kendo-grid-column field="searchNo" title="No" width="60">
-			</kendo-grid-column>
-			<kendo-grid-column field="title" title="Name" width="360">
-			</kendo-grid-column>
-			<kendo-grid-column field="contactName" title="Created By" width="140">
-			</kendo-grid-column>
-			<kendo-grid-column field="searchDate" title="Date" width="140">
-			</kendo-grid-column>
-			<kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
-							   field="hitsNo" title="Hits">
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<div (click)="SearchGetItemList(dataItem)">
-						{{dataItem.hitsNo}}
-					</div>
-				</ng-template>
-			</kendo-grid-column>
-			<kendo-grid-column field="isClassifierResult"
-							   title="Classifier" width="80">
-				<ng-template kendoGridCellTemplate let-dataItem>
-					<div (click)="OpenClassifierVisualisation(dataItem)"
-						 class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
-						{{dataItem.isClassifierResult}}
-					</div>
-				</ng-template>
-			</kendo-grid-column>
-		</kendo-grid>
+        <kendo-grid-column [sortable]="false" width="33"
+                           [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
+                           [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
+            <!--<ng-template kendoGridHeaderTemplate let-dataItem>
+                <input style="zoom: 1.2;"
+                       type="checkbox"
+                       name="selectAll"
+                       (change)="selectAllSearchesChange($event)"
+                       [checked]="allSearchesSelected" />
+            </ng-template>-->
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
+                       type="checkbox"
+                       field="selected"
+                       [checked]="dataItem.add" />
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="searchNo" title="No" width="60">
+        </kendo-grid-column>
+        <kendo-grid-column field="title" title="Name" width="360">
+        </kendo-grid-column>
+        <kendo-grid-column field="contactName" title="Created By" width="140">
+        </kendo-grid-column>
+        <kendo-grid-column field="searchDate" title="Date" width="140">
+        </kendo-grid-column>
+        <kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
+                           field="hitsNo" title="Hits">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div (click)="SearchGetItemList(dataItem)">
+                    {{dataItem.hitsNo}}
+                </div>
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-column field="isClassifierResult"
+                           title="Classifier" width="80">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                <div (click)="OpenClassifierVisualisation(dataItem)"
+                     class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+                    {{dataItem.isClassifierResult}}
+                </div>
+            </ng-template>
+        </kendo-grid-column>
+    </kendo-grid>
 </div>
-	<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
-
+<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
+<div *ngIf="!_searchService || !_searchService.SearchList || this._searchService.SearchList.length <= 0 || this._searchService.IsBusy" style="min-height:300px;">
+    <div class="justify-content-center row m-0 ng-star-inserted">
+        <div class="p-2 font-weight-bold text-info mt-3"> You've not run any searches yet. </div>
+    </div>
+</div>
