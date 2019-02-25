@@ -14,7 +14,8 @@
 				</button>
 			</div>
 			<div class="col-11 col-md-4 pr-1 pl-1">
-				Select From <div ngbDropdown>
+				<div class="font-weight-bold mb-2 p-2 m-2">Select From </div>
+				<div ngbDropdown>
 					<button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">
 						{{selectedRandomAllocateDropDown}}
 					</button>
@@ -66,7 +67,7 @@
 			</div>
 			<div class="col-11 col-md-4 pr-1 pl-1"></div>
 			<div ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
-				Create codes below this code / set
+				<div class="font-weight-bold mb-2  p-2 m-2">Create codes below this code / set</div>
 				<button ngbDropdownAnchor
 						class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree11"
 						(click)="isCollapsed2 = !isCollapsed2"
@@ -83,43 +84,35 @@
 			</div>
 			<div class="col-12 col-md-4"></div>
 			<div class="col-12 col-md-4"></div>
-			<div class="col-11 col-md-4">
-				<table class="col-12 m-2">
-					<tr>
-						<td style="" class="justify-content-end">
-							<div class="d-flex justify-content-end mr-1">
-								Percentage to Allocate
-							</div>
-						</td>
-						<td style="">
-							<kendo-numerictextbox [(ngModel)]="numericRandomSample"
-												  [min]="1" [format]="'n0'"
-												  [max]="100"
-												  [step]="1"
-												  [autoCorrect]="true"
-												  class="border border-dark rounded"
-												  style="width: 110px;">
+			<div class="col-12 col-md-4 row p-1 m-1">
+				<div class="font-weight-bold col-6 col-md-3">
+					Percentage to Allocate
+				</div>
+				<div class="col-6 col-md-3">
+					<kendo-numerictextbox [(ngModel)]="numericRandomSample"
+											[min]="1" [format]="'n0'"
+											[max]="100"
+											[step]="1"
+											[autoCorrect]="true"
+											class="border border-dark rounded"
+											style="width: 110px;">
 
-							</kendo-numerictextbox>
-						</td>
-						<td>
-							<div class="d-flex justify-content-end mr-1">
-								Number of groups to create
-							</div>
-						</td>
-						<td style="">
-							<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
-												  [min]="1" [format]="'n0'"
-												  [max]="10"
-												  [step]="1"
-												  [autoCorrect]="true"
-												  class="border border-dark rounded"
-												  style="width: 110px;">
+					</kendo-numerictextbox>
+				</div>
+				<div class="font-weight-bold col-6 col-md-3">
+					Groups to create
+				</div>
+				<div  class="col-6 col-md-3">
+					<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
+											[min]="1" [format]="'n0'"
+											[max]="10"
+											[step]="1"
+											[autoCorrect]="true"
+											class="border border-dark rounded"
+											style="width: 110px;">
 
-							</kendo-numerictextbox>
-						</td>
-					</tr>
-				</table>
+					</kendo-numerictextbox>
+				</div>
 			</div>
 			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"></div>
 			<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
