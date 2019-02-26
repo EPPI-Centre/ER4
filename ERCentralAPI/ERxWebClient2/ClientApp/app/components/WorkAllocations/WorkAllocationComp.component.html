@@ -156,13 +156,56 @@
 <div id="NewCodeSection"  *ngIf="NewCodeSection"  class="col-12 col-md-12 p-0 mb-1">
 	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1 form-group">
 		<div class="font-weight-bold col-md-4">Code Name</div>
-		<input type="text" id="codeName" name="codeName" class="col-md-4 form-control" />
+		<input pattern="^(?!\s*$).+" [(ngModel)]="codeName"
+			   #codeNameModel="ngModel"
+			   id="codeNameModel" name="codeNameModel"
+			   required minlength="3"
+			   type="text"
+			   placeholder="codeName"
+			   class="col-md-4 form-control" />
+
+		<div *ngIf="codeNameModel.invalid && (codeNameModel.dirty || codeNameModel.touched)"
+			 class="alert alert-danger">
+
+			<div *ngIf="codeNameModel.errors.pattern">
+				Cannot be empty
+			</div>
+
+			<div *ngIf="codeNameModel.errors.required">
+				code name  is required.
+			</div>
+			<div *ngIf="codeNameModel.errors.minlength">
+				code name must be at least 3 characters long.
+			</div>
+		</div>
+		
 		<div class="font-weight-bold col-md-4">Description</div>
-		<textarea [(ngModel)]="description" placeholder="Description" class=" col-md-4  form-control"></textarea>
+		<textarea pattern="^(?!\s*$).+" [(ngModel)]="description"
+			   #descriptionModel="ngModel"
+			   id="descriptionModel" name="descriptionModel"
+			   required minlength="3"
+						 placeholder="Description" class="col-md-4 form-control"></textarea>
+		<div *ngIf="descriptionModel.invalid && (descriptionModel.dirty || descriptionModel.touched)"
+			 class="alert alert-danger">
+
+			<div *ngIf="descriptionModel.errors.pattern">
+				Cannot be empty
+			</div>
+
+			<div *ngIf="descriptionModel.errors.required">
+				description is required.
+			</div>
+			<div *ngIf="descriptionModel.errors.minlength">
+				description must be at least 3 characters long.
+			</div>
+
+		</div>
 		<div class="font-weight-bold col-md-4">Code Type</div>
 		<div ngbDropdown class="col-12 col-md-4 pr-1 pl-1">
-			<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasicNewCode" 
-					ngbDropdownToggle>	{{selectedCodeSetDropDown}} </button>
+			<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasicNewCode"
+					ngbDropdownToggle>
+				{{selectedCodeSetDropDown}}
+			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasicNewCode">
 				<button (click)="setCodeSetDropDown(item)"
 						*ngFor="let item of CodeSets;" class="dropdown-item">
@@ -174,10 +217,10 @@
 		<input type="text" name="indexNumber" class="col-md-4  form-control" />
 		<div class="row col-md-4">
 			<div class="col-md-6">
-				<button type="submit" class="btn btn-info p-2 m-2" style="min-width:162px;max-width:162px;" >Save</button>
+				<button type="submit" class="btn btn-info p-2 m-2" style="min-width:162px;max-width:162px;">Save</button>
 			</div>
 			<div class="col-md-6">
-				<button type="submit" class="btn btn-danger p-2 m-2" style="min-width:162px;max-width:162px;" >Cancel</button>
+				<button type="submit" class="btn btn-danger p-2 m-2" style="min-width:162px;max-width:162px;">Cancel</button>
 			</div>
 		</div>
 	</div>
