@@ -126,10 +126,10 @@ export class WorkAllocationComp implements OnInit {
 			
 		}
 
-		console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
-		console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
-		console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
-		console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
+		//console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
+		//console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
+		//console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
+		//console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
 
 
 		if (DestAttSet.attribute_id != -1  && DestRevSet.set_id != -1 ) {

@@ -49,7 +49,8 @@ export class WorkAllocationListService extends BusyAwareService {
     
     public Fetch() {
 
-        this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList').subscribe(result => {
+		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList')
+			.subscribe(result => {
 
 			this._ContactWorkAllocations = result;
             this.ListLoaded.emit();
