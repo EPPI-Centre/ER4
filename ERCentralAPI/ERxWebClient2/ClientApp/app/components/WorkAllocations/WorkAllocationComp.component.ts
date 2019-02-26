@@ -35,6 +35,7 @@ export class WorkAllocationComp implements OnInit {
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
+	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
 	public numericRandomCreate: number = 5;
 	public selectedRandomAllocateDropDown: string = 'No code / code set filter';
@@ -44,6 +45,7 @@ export class WorkAllocationComp implements OnInit {
 	public isCollapsed: boolean = false;
 	public isCollapsed2: boolean = false;
 	public FilterNumber: number = 0;
+	public description: string = '';
 
 	private _allocateInclOrExcl: string = 'true';
 
@@ -80,6 +82,20 @@ export class WorkAllocationComp implements OnInit {
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
+	public NewCode() {
+
+		if (this.RandomlyAssignSection) {
+			this.RandomlyAssignSection = !this.RandomlyAssignSection;
+		}
+		this.NewCodeSection = !this.NewCodeSection;
+	}
+	public RandomlyAssign() {
+
+		if (this.NewCodeSection) {
+			this.NewCodeSection = !this.NewCodeSection;
+		}
+		this.RandomlyAssignSection = !this.RandomlyAssignSection;
+	}
 	public Assignment() {
 
 		let DestAttSet: SetAttribute = new SetAttribute();
@@ -110,10 +126,10 @@ export class WorkAllocationComp implements OnInit {
 			
 		}
 
-		console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
-		console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
-		console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
-		console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
+		//console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
+		//console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
+		//console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
+		//console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
 
 
 		if (DestAttSet.attribute_id != -1  && DestRevSet.set_id != -1 ) {
