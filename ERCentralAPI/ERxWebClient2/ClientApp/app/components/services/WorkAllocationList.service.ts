@@ -71,30 +71,7 @@ export class WorkAllocationListService extends BusyAwareService {
 
 	}
 
-	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
-
-		// is there a need for busy methods here I would say yes...
-		this._BusyMethods.push("RandomlyAssignCodeToItem");
-
-		this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
-			'api/WorkAllocationContactList/PerformRandomAllocate', assignParameters)
-			.subscribe(() => {
-
-				this._reviewSetsService.GetReviewSets();
-				this.RemoveBusy("RandomlyAssignCodeToItem");
-
-			},
-				error => {
-					this.modalService.GenericError(error);
-					this.RemoveBusy("RandomlyAssignCodeToItem");
-				}
-				, () => {
-					this.RemoveBusy("RandomlyAssignCodeToItem");
-				}
-			);
-
-
-	}
+	
 
 	public DeleteWorkAllocation(workAllocationId: number) {
 
@@ -130,16 +107,7 @@ export class WorkAllocationListService extends BusyAwareService {
 	//}
 
 }
-export class PerformRandomAllocateCommand {
-	FilterType: string = ''; 
-	attributeIdFilter: number = 0;
-	setIdFilter: number = 0
-	attributeId: number = 0;
-	setId: number = 0;
-	howMany: number = 0;
-	numericRandomSample: number = 0;
-	RandomSampleIncluded: string = '';
-}
+
 export class WorkAllocation {
     workAllocationId: number = 0;
     contactName: string = "";

@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocationListService, WorkAllocation, PerformRandomAllocateCommand } from '../services/WorkAllocationList.service';
+import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { singleNode, ReviewSetsService, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -25,7 +26,8 @@ export class WorkAllocationComp implements OnInit {
 		public reviewInfoService: ReviewInfoService,
 		public itemListService: ItemListService,
 		public confirmationDialogService: ConfirmationDialogService,
-		public _reviewSetsService: ReviewSetsService
+		public _reviewSetsService: ReviewSetsService,
+		public _reviewSetsEditingService : ReviewSetsEditingService
     ) { }
 
 
@@ -41,10 +43,10 @@ export class WorkAllocationComp implements OnInit {
 	public selectedRandomAllocateDropDown: string = 'No code / code set filter';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public CurrentDropdownSelectedCode2: singleNode | null = null;
-	public CodeSets: any[] = [];
+	public CodeSets: ReviewSet[] = [];
 	public isCollapsed: boolean = false;
 	public isCollapsed2: boolean = false;
-	public FilterNumber: number = 0;
+	public FilterNumber: number = 1;
 	public description: string = '';
 
 	private _allocateInclOrExcl: string = 'true';
@@ -108,6 +110,8 @@ export class WorkAllocationComp implements OnInit {
 			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
 			console.log(' checking nodeType 2 : ' + JSON.stringify(this.CurrentDropdownSelectedCode2.nodeType) + ' ');
 		}
+		//=====================================================================
+		// THIS NEEDS TO GO SOMEHWERE DOWN HERE>>>>>
 
 		if (this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode.nodeType == 'SetAttribute') {
 
@@ -115,7 +119,12 @@ export class WorkAllocationComp implements OnInit {
 
 		} else {
 
-			FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
+			if (this.CurrentDropdownSelectedCode == null) {
+				FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
+			} else {
+				FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
+			}
+			
 
 		}
 		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == 'SetAttribute') {
@@ -206,7 +215,7 @@ export class WorkAllocationComp implements OnInit {
 		assignParameters.numericRandomSample = this.numericRandomSample;
 		assignParameters.RandomSampleIncluded = this.allocateInclOrExcl;
 
-		this._workAllocationListService.RandomlyAssignCodeToItem(assignParameters);
+		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 	}
 
 
@@ -241,8 +250,9 @@ export class WorkAllocationComp implements OnInit {
 
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 			.map(
-				(y: ReviewSet) => {
-					return y.name;
+			(y: ReviewSet) => {
+					
+					return y;
 				}
 			);
 		
@@ -257,7 +267,7 @@ export class WorkAllocationComp implements OnInit {
 	public CanOnlySelectRoots() : boolean{
 		return true;
 	}
-	public selectedCodeSetDropDown: any = undefined;
+	public selectedCodeSetDropDown: ReviewSet = new ReviewSet;
 	setCodeSetDropDown(codeset: any) {
 
 		this.selectedCodeSetDropDown = codeset;

@@ -54,10 +54,11 @@
 			<div ngbDropdown class="col-11 col-md-4 pr-1 pl-1"
 				 *ngIf="(selectedRandomAllocateDropDown == 'All with any codes from this set')
 						||  (selectedRandomAllocateDropDown == 'All without any codes from this set' )">
-					<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedCodeSetDropDown}}</button>
+					<button class="btn btn-primary col-12 p-2 m-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedCodeSetDropDown.name}}</button>
 					<div ngbDropdownMenu aria-labelledby="dropdownBasic2">
 						<button (click)="setCodeSetDropDown(item)" 
-								*ngFor="let item of CodeSets;" class="dropdown-item">{{item}}
+								*ngFor="let item of CodeSets;" class="dropdown-item">
+							{{item.name}}
 						</button>
 					</div>
 			</div>

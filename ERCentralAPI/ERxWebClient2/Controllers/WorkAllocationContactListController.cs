@@ -106,53 +106,10 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-
-		[HttpPost("[action]")]
-		public IActionResult PerformRandomAllocate([FromBody] PerformRandomAllocateCommandJSON data)
-		{
-			try
-			{
-				if (SetCSLAUser4Writing())
-				{
-					PerformRandomAllocateCommand cmd = new PerformRandomAllocateCommand(
-						data.filterType,
-						data.attributeIdFilter,
-						data.setIdFilter,
-						data.attributeId,
-						data.setId,
-						data.howMany,
-						data.numericRandomSample,
-						data.randomSampleIncluded);
-					DataPortal<PerformRandomAllocateCommand> dp = new DataPortal<PerformRandomAllocateCommand>();
-					cmd = dp.Execute(cmd);
-					return Ok(cmd);
-				}
-				else return Forbid();
-			}
-			catch (Exception e)
-			{
-				_logger.LogException(e, "PerformRandomAllocate error");
-				throw;
-			}
-
-		}
-
-
 	}
 	public class WorkAllocationJSON
 	{
 		public long itemid { get; set; }
 
-	}
-	public class PerformRandomAllocateCommandJSON
-	{
-		public string filterType { get; set; }
-		public long attributeIdFilter { get; set; }
-		public int setIdFilter { get; set; }
-		public long attributeId { get; set; }
-		public int setId { get; set; }
-		public int howMany { get; set; }
-		public int numericRandomSample { get; set; }
-		public bool randomSampleIncluded { get; set; }
 	}
 }

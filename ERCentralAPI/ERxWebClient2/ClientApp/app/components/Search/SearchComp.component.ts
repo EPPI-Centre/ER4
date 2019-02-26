@@ -515,7 +515,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 
 				this.notificationService.show({
-					content: 'Results list below',
+					content: 'Refresh List to see results',
 					animation: { type: 'slide', duration: 400 },
 					position: { horizontal: 'center', vertical: 'top' },
 					type: { style: "warning", icon: true },

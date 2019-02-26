@@ -526,7 +526,32 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("PerformClusterCommand");
             }
         );
-    }
+	}
+
+	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
+
+		// is there a need for busy methods here I would say yes...
+		this._BusyMethods.push("RandomlyAssignCodeToItem");
+
+		this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
+			'api/Codeset/PerformRandomAllocate', assignParameters)
+			.subscribe(() => {
+
+				this.ReviewSetsService.GetReviewSets();
+				this.RemoveBusy("RandomlyAssignCodeToItem");
+
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+				, () => {
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+			);
+
+
+	}
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -607,4 +632,15 @@ export class ClassifierCommand {
 	public attributeId: number = 0;
 	public setId: number = 0;
 
+}
+
+export class PerformRandomAllocateCommand {
+	FilterType: string = '';
+	attributeIdFilter: number = 0;
+	setIdFilter: number = 0
+	attributeId: number = 0;
+	setId: number = 0;
+	howMany: number = 0;
+	numericRandomSample: number = 0;
+	RandomSampleIncluded: string = '';
 }
