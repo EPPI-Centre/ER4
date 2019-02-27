@@ -12,6 +12,7 @@ import { ModalService } from './modal.service';
 import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Search } from './search.service';
+import { WorkAllocation } from './WorkAllocationList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -216,7 +217,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 
             }
         );
-    }
+	}
+
 
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry
         this._BusyMethods.push("ReviewSetCheckCodingStatus");
@@ -527,7 +529,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
         );
 	}
-
+	
 	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
 
 		// is there a need for busy methods here I would say yes...

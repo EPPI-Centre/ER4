@@ -33,19 +33,26 @@ export class WorkAllocationComp implements OnInit {
 
 	@ViewChild('WithOrWithoutCode1') WithOrWithoutCode1!: codesetSelectorComponent;
 	@ViewChild('WithOrWithoutCode2') WithOrWithoutCode2!: codesetSelectorComponent;
+	@ViewChild('WithOrWithoutCode3') WithOrWithoutCode3!: codesetSelectorComponent;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
+	public AssignWorkSection: boolean = false;
 	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
 	public numericRandomCreate: number = 5;
 	public selectedRandomAllocateDropDown: string = 'No code / code set filter';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public CurrentDropdownSelectedCode2: singleNode | null = null;
+	public CurrentDropdownSelectedCode3: singleNode | null = null;
+	public selectedCodeSetDropDown: ReviewSet = new ReviewSet;
+	public selectedCodeSetDropDown2: ReviewSet = new ReviewSet;
+	public selectedMemberDropDown3: Contact = new Contact;
 	public CodeSets: ReviewSet[] = [];
 	public isCollapsed: boolean = false;
 	public isCollapsed2: boolean = false;
+	public isCollapsed3: boolean = false;
 	public FilterNumber: number = 1;
 	public description: string = '';
 
@@ -65,7 +72,6 @@ export class WorkAllocationComp implements OnInit {
 		else console.log("I'm not doing it :-P ", value);
 
 	}
-
     ngOnInit() {
         this.RefreshData();
 	}
@@ -96,7 +102,22 @@ export class WorkAllocationComp implements OnInit {
 		if (this.NewCodeSection) {
 			this.NewCodeSection = !this.NewCodeSection;
 		}
+		if (this.AssignWorkSection) {
+			this.AssignWorkSection = !this.AssignWorkSection;
+		}
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
+	}
+	public NewWorkAllocation() {
+		if (this.RandomlyAssignSection) {
+			this.RandomlyAssignSection = !this.RandomlyAssignSection;
+		}
+		if (this.NewCodeSection) {
+			this.NewCodeSection = !this.NewCodeSection;
+		}
+		this.AssignWorkSection = !this.AssignWorkSection;
+	}
+	public CloseAssignSection() {
+		this.AssignWorkSection = !this.AssignWorkSection;
 	}
 	public Assignment() {
 
@@ -106,7 +127,7 @@ export class WorkAllocationComp implements OnInit {
 		let FiltRevSet: ReviewSet = new ReviewSet();
 
 		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode != null) {
-
+			// comma goes here shown by Sergio
 			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
 			console.log(' checking nodeType 2 : ' + JSON.stringify(this.CurrentDropdownSelectedCode2.nodeType) + ' ');
 		}
@@ -217,8 +238,6 @@ export class WorkAllocationComp implements OnInit {
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 	}
-
-
 	public openConfirmationDialogDeleteWA(workAllocationId: number) {
 
 		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a work allocation', false, '')
@@ -237,17 +256,14 @@ export class WorkAllocationComp implements OnInit {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 	removeWarning(workAllocationId: number) {
-
 		this.openConfirmationDialogDeleteWA(workAllocationId);
 	}
-
     public RefreshData() {
         this.getMembers();
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
 	}
 	public getCodeSets() {
-
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
 			.map(
 			(y: ReviewSet) => {
@@ -255,8 +271,6 @@ export class WorkAllocationComp implements OnInit {
 					return y;
 				}
 			);
-		
-
 	}
 	public nextAllocateDropDownList(num: number, val: string) {
 
@@ -267,10 +281,32 @@ export class WorkAllocationComp implements OnInit {
 	public CanOnlySelectRoots() : boolean{
 		return true;
 	}
-	public selectedCodeSetDropDown: ReviewSet = new ReviewSet;
+
 	setCodeSetDropDown(codeset: any) {
 
 		this.selectedCodeSetDropDown = codeset;
+
+	}
+	setCodeSetDropDown2(codeset: any) {
+
+		this.selectedCodeSetDropDown2 = codeset;
+
+	}
+	SetMemberDropDown3(member: any) {
+
+		this.selectedMemberDropDown3 = member;
+
+	}
+	WorkAssignment() {
+
+		let workAllocation: WorkAllocation = new WorkAllocation();
+		let setAtt: SetAttribute = this.CurrentDropdownSelectedCode3 as SetAttribute;
+		workAllocation.attributeId = setAtt.attribute_id;
+		workAllocation.setId = this.selectedCodeSetDropDown2.set_id;
+		let contact: Contact = this.selectedMemberDropDown3;
+		workAllocation.contactId = contact.contactId.toString();
+		this._workAllocationListService.AssignWorkAllocation(workAllocation);
+
 	}
 	CloseCodeDropDown() {
 		//alert(this.WithOrWithoutCode1);
@@ -287,6 +323,13 @@ export class WorkAllocationComp implements OnInit {
 			
 		}
 		this.isCollapsed2 = false;
+	}
+	CloseCodeDropDown3() {
+
+		if (this.WithOrWithoutCode3) {
+			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCode3.SelectedNodeData;
+		}
+		this.isCollapsed3 = false;
 	}
 	getMembers() {
 
