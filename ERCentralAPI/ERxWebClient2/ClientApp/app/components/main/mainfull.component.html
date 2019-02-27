@@ -49,7 +49,7 @@
                                                                        class="mt-2"
                                                                        Context="FullUI"
                                                                        style="max-height: 420px;"></WorkAllocationContactListComp>
-                                        <ROSourcesList id="readOnlyReviews" [ngbCollapse]="!isSourcesPanelCollapsed" class="mt-1"
+                                        <ROSourcesList *ngIf="isSourcesPanelVisible" class="mt-1"
                                                        style="max-height: 420px;"></ROSourcesList>
                                     </div>
                                     <div class="card card-body mt-2 bg-light ">

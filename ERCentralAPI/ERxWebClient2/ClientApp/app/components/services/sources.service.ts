@@ -297,6 +297,13 @@ export class SourcesService extends BusyAwareService {
         };
         return result;
     }
+    public Clear() {
+        this._ReviewSources = [];
+        this._Source = null;
+        this._LastDeleteForeverStatus = "";
+        this.ClearIncomingItems4Checking();
+        this.ClearPMsearchState();
+    }
     public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
         let res: string = "";
