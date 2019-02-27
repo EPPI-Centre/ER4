@@ -34,6 +34,7 @@ export class WorkAllocationComp implements OnInit {
 	@ViewChild('WithOrWithoutCode1') WithOrWithoutCode1!: codesetSelectorComponent;
 	@ViewChild('WithOrWithoutCode2') WithOrWithoutCode2!: codesetSelectorComponent;
 	@ViewChild('WithOrWithoutCode3') WithOrWithoutCode3!: codesetSelectorComponent;
+	@ViewChild('SelectFrom') SelectFrom: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
@@ -55,11 +56,35 @@ export class WorkAllocationComp implements OnInit {
 	public isCollapsed3: boolean = false;
 	public FilterNumber: number = 1;
 	public description: string = '';
+	public DestAttSet: SetAttribute = new SetAttribute();
+	public DestRevSet: ReviewSet = new ReviewSet();
+	public FiltAttSet: SetAttribute = new SetAttribute();
+	public FiltRevSet: ReviewSet = new ReviewSet();
+	public index: number = 0;
+	public dropdownBasic2: boolean = false;
+
+	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / code set filter'},
+		{ key: 2, value: 'All without any codes from this set'},
+		{ key: 3, value: 'All with any codes from this set' },
+		{ key: 4, value: 'All with this code' },
+		{ key: 5, value: 'All without this code' }];
+
+	public get AllocateOptions(): kvSelectFrom[] {
+		
+		//alert(JSON.stringify(this._allocateOptions));
+		return this._allocateOptions;
+
+	}
+	public set AllocateOptions(value: kvSelectFrom[]) {
+
+		this._allocateOptions = value;
+   
+	}
 
 	private _allocateInclOrExcl: string = 'true';
 
 	public get allocateInclOrExcl(): string {
-
+			   
 		 this._allocateInclOrExcl;
 
 		return this._allocateInclOrExcl;
@@ -72,8 +97,14 @@ export class WorkAllocationComp implements OnInit {
 		else console.log("I'm not doing it :-P ", value);
 
 	}
-    ngOnInit() {
-        this.RefreshData();
+	ngOnInit() {
+		this.RefreshData();
+	}
+	SetRelevantDropDownValues() {
+
+		this.index = this.SelectFrom.nativeElement.selectedIndex;
+		this.selectedRandomAllocateDropDown = this.AllocateOptions[this.index].value;
+		//alert('got in here: ' + this.selectedRandomAllocateDropDown);
 	}
 	public openConfirmationDialogWorkAllocation(message: string) {
 		this.confirmationDialogService.confirm('Please confirm', message, false, '')
@@ -119,13 +150,45 @@ export class WorkAllocationComp implements OnInit {
 	public CloseAssignSection() {
 		this.AssignWorkSection = !this.AssignWorkSection;
 	}
+	public CanAssign() {
+
+		//console.log(this.AllocateOptions[this.index].key);
+
+		if (this.AllocateOptions[this.index].key == 1
+			&& this.CurrentDropdownSelectedCode2 != null
+			&& this.CurrentDropdownSelectedCode2.name != '') {
+			return true;
+
+		} else if (this.AllocateOptions[this.index].key == 2
+			&& this.selectedCodeSetDropDown != null
+			&& this.selectedCodeSetDropDown.name != '') {
+			return true;
+
+		} else if (this.AllocateOptions[this.index].key == 3
+			&& this.selectedCodeSetDropDown != null
+			&& this.selectedCodeSetDropDown.name != '') {
+			return true;
+
+		} else if (this.AllocateOptions[this.index].key == 4
+			&& this.CurrentDropdownSelectedCode != null
+			&& this.CurrentDropdownSelectedCode.name != '') {
+			return true;
+
+		} else if (this.AllocateOptions[this.index].key == 5
+			&& this.CurrentDropdownSelectedCode != null
+			&& this.CurrentDropdownSelectedCode.name != '') {
+			return true;
+
+		} else {
+
+			return false;
+		}
+	}
 	public Assignment() {
 
-		let DestAttSet: SetAttribute = new SetAttribute();
-		let DestRevSet: ReviewSet = new ReviewSet();
-		let FiltAttSet: SetAttribute = new SetAttribute();
-		let FiltRevSet: ReviewSet = new ReviewSet();
-
+		//console.log("selected is: ", this.SelectFrom.nativeElement.selectedIndex);
+		this.FilterNumber = this.SelectFrom.nativeElement.selectedIndex;
+		//console.log('This is what I mean: ' + this.FilterNumber);
 		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode != null) {
 			// comma goes here shown by Sergio
 			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
@@ -136,33 +199,27 @@ export class WorkAllocationComp implements OnInit {
 
 		if (this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode.nodeType == 'SetAttribute') {
 
-			FiltAttSet = this.CurrentDropdownSelectedCode as SetAttribute;
+			this.FiltAttSet = this.CurrentDropdownSelectedCode as SetAttribute;
 
 		} else {
 
 			if (this.CurrentDropdownSelectedCode == null) {
-				FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
+				this.FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
 			} else {
-				FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
+				this.FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
 			}
 			
 
 		}
 		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == 'SetAttribute') {
-			DestAttSet = this.CurrentDropdownSelectedCode2 as SetAttribute;
+			this.DestAttSet = this.CurrentDropdownSelectedCode2 as SetAttribute;
 			
 		} else {
-			DestRevSet = this.CurrentDropdownSelectedCode2 as ReviewSet;
+			this.DestRevSet = this.CurrentDropdownSelectedCode2 as ReviewSet;
 			
 		}
-
-		//console.log(' checking parameters 1: ' + JSON.stringify(FiltAttSet) + ' ');
-		//console.log(' checking parameters 2: ' + JSON.stringify(FiltRevSet) + ' ');
-		//console.log(' checking parameters 3: ' + JSON.stringify(DestAttSet) + ' ');
-		//console.log(' checking parameters 4: ' + JSON.stringify(DestRevSet) + ' ');
-
-
-		if (DestAttSet.attribute_id != -1  && DestRevSet.set_id != -1 ) {
+			   
+		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
 
 			this.openConfirmationDialogWorkAllocation("Please select a CodeSet or a Code \n to contain the new codes to be created");
 			return;
@@ -181,35 +238,35 @@ export class WorkAllocationComp implements OnInit {
 				FilterType = "No code / code set filter";
 				break;
 			case 2:
-				if (FiltRevSet.set_id == -1) {
+				if (this.FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
-				setIdFilter = FiltRevSet.set_id;
+				setIdFilter = this.FiltRevSet.set_id;
 				FilterType = "All without any codes from this set";
 				break;
 			case 3:
-				if (FiltRevSet.set_id == -1) {
+				if (this.FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
-				setIdFilter = FiltRevSet.set_id;
+				setIdFilter = this.FiltRevSet.set_id;
 				FilterType = "All with any codes from this set";
 				break;
 			case 4:
-				if (FiltAttSet.attribute_id == -1) {
+				if (this.FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
-				attributeIdFilter = FiltAttSet.attribute_id;
+				attributeIdFilter = this.FiltAttSet.attribute_id;
 				FilterType = "All with this code";
 				break;
 			case 5:
-				if (FiltAttSet.attribute_id == -1) {
+				if (this.FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
-				attributeIdFilter = FiltAttSet.attribute_id;
+				attributeIdFilter = this.FiltAttSet.attribute_id;
 				FilterType = "All without this code";
 				break;
 			default:
@@ -217,12 +274,12 @@ export class WorkAllocationComp implements OnInit {
 		}
 
 
-		if (DestAttSet.attribute_id != -1) {
-			attributeId = DestAttSet.attribute_id;
-			setId = DestAttSet.set_id;
+		if (this.DestAttSet.attribute_id != -1) {
+			attributeId = this.DestAttSet.attribute_id;
+			setId = this.DestAttSet.set_id;
 		}
 		else {
-			setId = DestRevSet.set_id;
+			setId = this.DestRevSet.set_id;
 			attributeId = 0;
 		}
 
@@ -308,28 +365,38 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.AssignWorkAllocation(workAllocation);
 
 	}
+	
+
 	CloseCodeDropDown() {
 		//alert(this.WithOrWithoutCode1);
 		if (this.WithOrWithoutCode1) {
 			this.CurrentDropdownSelectedCode = this.WithOrWithoutCode1.SelectedNodeData;
 			
 		}
-		this.isCollapsed = false;
+		//this.checkCollapse();
 	}
+
+	//checkCollapse() {
+		
+	//	this.isCollapsed = !this.isCollapsed;
+	//	this.isCollapsed2 = !this.isCollapsed2;
+	//	this.isCollapsed3 = !this.isCollapsed3;
+
+	//}
 	CloseCodeDropDown2() {
 		//alert(this.WithOrWithoutCode2);
 		if (this.WithOrWithoutCode2) {
 			this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCode2.SelectedNodeData;
 			
 		}
-		this.isCollapsed2 = false;
+		//this.checkCollapse();
 	}
 	CloseCodeDropDown3() {
 
 		if (this.WithOrWithoutCode3) {
 			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCode3.SelectedNodeData;
 		}
-		this.isCollapsed3 = false;
+		//this.checkCollapse();
 	}
 	getMembers() {
 
@@ -360,6 +427,11 @@ export class WorkAllocationComp implements OnInit {
 	}
 
 
+}
+
+export interface kvSelectFrom {
+	key: number;
+	value: string;
 }
 
 

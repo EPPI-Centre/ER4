@@ -109,7 +109,7 @@ namespace ERxWebClient2.Controllers
 		}
 		//AssignWorkAllocation
 		[HttpPost("[action]")]
-		public IActionResult AssignWorkAllocation([FromBody] WorkAllocationJSON workAllocation)//should receive a reviewID!
+		public IActionResult AssignWorkAllocation([FromBody] WorkAllocationJSON workAllocation)
 		{
 			try
 			{
