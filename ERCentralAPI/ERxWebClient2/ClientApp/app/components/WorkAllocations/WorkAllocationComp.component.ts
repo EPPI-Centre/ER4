@@ -62,10 +62,11 @@ export class WorkAllocationComp implements OnInit {
 	public FiltRevSet: ReviewSet = new ReviewSet();
 	public index: number = 0;
 	public dropdownBasic2: boolean = false;
+	public dropdownTree11: boolean = false;
 
-	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / code set filter'},
-		{ key: 2, value: 'All without any codes from this set'},
-		{ key: 3, value: 'All with any codes from this set' },
+	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
+		{ key: 2, value: 'All without any codes from this coding tool'},
+		{ key: 3, value: 'All with any codes from this coding tool' },
 		{ key: 4, value: 'All with this code' },
 		{ key: 5, value: 'All without this code' }];
 
@@ -221,7 +222,7 @@ export class WorkAllocationComp implements OnInit {
 			   
 		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
 
-			this.openConfirmationDialogWorkAllocation("Please select a CodeSet or a Code \n to contain the new codes to be created");
+			this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
 
@@ -373,30 +374,23 @@ export class WorkAllocationComp implements OnInit {
 			this.CurrentDropdownSelectedCode = this.WithOrWithoutCode1.SelectedNodeData;
 			
 		}
-		//this.checkCollapse();
+		this.isCollapsed = false;
 	}
 
-	//checkCollapse() {
-		
-	//	this.isCollapsed = !this.isCollapsed;
-	//	this.isCollapsed2 = !this.isCollapsed2;
-	//	this.isCollapsed3 = !this.isCollapsed3;
-
-	//}
 	CloseCodeDropDown2() {
-		//alert(this.WithOrWithoutCode2);
+		
 		if (this.WithOrWithoutCode2) {
 			this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCode2.SelectedNodeData;
-			
+			console.log(JSON.stringify(this.CurrentDropdownSelectedCode2));
 		}
-		//this.checkCollapse();
+		this.isCollapsed2 = false;
 	}
 	CloseCodeDropDown3() {
 
 		if (this.WithOrWithoutCode3) {
 			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCode3.SelectedNodeData;
 		}
-		//this.checkCollapse();
+		this.isCollapsed3 = false;
 	}
 	getMembers() {
 
