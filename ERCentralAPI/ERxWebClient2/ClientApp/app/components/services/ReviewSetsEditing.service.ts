@@ -12,6 +12,7 @@ import { ModalService } from './modal.service';
 import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Search } from './search.service';
+import { WorkAllocation } from './WorkAllocationList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -103,7 +104,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     }
     public SaveNewReviewSet(rs: ReviewSet): Promise<iReviewSet | null> {
         this._BusyMethods.push("SaveNewReviewSet");
-        let ErrMsg = "Something went wrong: it appears that the codeset was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
+        let ErrMsg = "Something went wrong: it appears that the Coding Tool was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         let rsC: ReviewSetUpdateCommand = {
             ReviewSetId: rs.reviewSetId,
             SetId: rs.set_id,
@@ -216,7 +217,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 
             }
         );
-    }
+	}
+
 
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry
         this._BusyMethods.push("ReviewSetCheckCodingStatus");
@@ -323,9 +325,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 	}
 	public CreateVisualiseCodeSet(visualiseTitle: string, visualiseSearchId: number,
 		attribute_id: number, set_id: number): Promise<ClassifierCommand> {
-
-
-		//this._BusyMethods.push("CreateVisualiseCodeSet");
+		this._BusyMethods.push("CreateVisualiseCodeSet");
 		let command: ClassifierCommand = new ClassifierCommand();
 
 		command.attributeId = attribute_id;
@@ -418,7 +418,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 
 	public ReviewSetCopy(ReviewSetId: number, Order: number): Promise<ReviewSetCopyCommand>{
         this._BusyMethods.push("ReviewSetCopy");
-        let ErrMsg = "Something went wrong: could not copy a codeset. \r\n If the problem persists, please contact EPPISupport.";
+        let ErrMsg = "Something went wrong: could not copy a Coding Tool. \r\n If the problem persists, please contact EPPISupport.";
         let command = new ReviewSetCopyCommand();
         command.order = Order;
         command.reviewSetId = ReviewSetId;
@@ -528,7 +528,32 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("PerformClusterCommand");
             }
         );
-    }
+	}
+	
+	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
+
+		// is there a need for busy methods here I would say yes...
+		this._BusyMethods.push("RandomlyAssignCodeToItem");
+
+		this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
+			'api/Codeset/PerformRandomAllocate', assignParameters)
+			.subscribe(() => {
+
+				this.ReviewSetsService.GetReviewSets();
+				this.RemoveBusy("RandomlyAssignCodeToItem");
+
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+				, () => {
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+			);
+
+
+	}
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -609,4 +634,15 @@ export class ClassifierCommand {
 	public attributeId: number = 0;
 	public setId: number = 0;
 
+}
+
+export class PerformRandomAllocateCommand {
+	FilterType: string = '';
+	attributeIdFilter: number = 0;
+	setIdFilter: number = 0
+	attributeId: number = 0;
+	setId: number = 0;
+	howMany: number = 0;
+	numericRandomSample: number = 0;
+	RandomSampleIncluded: string = '';
 }

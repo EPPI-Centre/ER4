@@ -23,11 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDocumentDeleteCommand : CommandBase<ItemDocumentDeleteCommand>
     {
-#if SILVERLIGHT
-    public ItemDocumentDeleteCommand(){}
-#else
-        protected ItemDocumentDeleteCommand() { }
-#endif
+        public ItemDocumentDeleteCommand(){}
 
         private Int64 _DocumentId;
        

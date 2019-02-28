@@ -1,11 +1,13 @@
 import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient,  } from '@angular/common/http';
-import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
+import { WorkAllocationListService } from './WorkAllocationList.service';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { ArmsService } from './arms.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -16,15 +18,16 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        private _WorkAllocationService: WorkAllocationContactListService,
+		private _WorkAllocationService: WorkAllocationListService,
         private _PriorityScreeningService: PriorityScreeningService,
-        private ModalService: ModalService
+		private ModalService: ModalService
     ) {
         super();
         //this.timerObj = timer(5000, 5000).pipe(
         //    takeUntil(this.killTrigger));
         //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
-    }
+	}
+
     //public timerObj: any | undefined;
     //private killTrigger: Subject<void> = new Subject();
     //private ID: number = Math.random();
@@ -202,9 +205,12 @@ export class ItemListService extends BusyAwareService {
         //console.log('ChangingItem');
         this._currentItem = newItem;
         //this.SaveCurrentItem();
-        this.ItemChanged.emit();
+		console.log('This is when this is emitted actually');
+
+		this.ItemChanged.emit(newItem);
     }
-    public getItem(itemId: number): Item {
+	public getItem(itemId: number): Item {
+
         console.log('getting item');
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) {
@@ -604,7 +610,7 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: arm[] = [];
+    arms: iArm[] = [];
 }
 
 export class Criteria {
@@ -638,13 +644,23 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-export interface arm {
-    itemArmId: number;
+
+export interface iArm {
+	[key: number]: any;  // Add index signature
+	itemArmId: number;
     itemId: number;
     ordering: number;
     title: string;
 }
 
+export class Arm {
+    
+    itemArmId: number = 0;
+    itemId: number = 0;
+    ordering: number = 0;
+    title: string = '';
+
+}
 
 export class ItemDocumentList {
 

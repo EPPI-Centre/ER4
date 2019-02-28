@@ -1,6 +1,6 @@
 
 <p *ngIf="IsServiceBusy"><em>Loading...</em></p>
-<p *ngIf="(!nodes || nodes.length == 0) && !IsServiceBusy"><em>Review Contains no Codesets...</em></p>
+<p *ngIf="(!nodes || nodes.length == 0) && !IsServiceBusy"><em>Review Contains no Coding Tools...</em></p>
 <!--style="max-height: 800px; height:680px"   ng-style="_eventEmitter.testVar == 'true' ? {'width':'250px'} : {'width':'500px'}"-->
 <div class="bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
 	<tree-root class="bg-dark"  *ngIf="nodes" [nodes]="nodes" [options]="options" 
@@ -9,7 +9,7 @@
             <span *ngIf="node.data.nodeType == 'ReviewSet'">
                 <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
                 <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this code set" src="../assets/CodeSetLocked.png" class="mr-1" />
+                <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
             </span>
             <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                             'AdminSet' : node.data.subTypeName == 'Administration',

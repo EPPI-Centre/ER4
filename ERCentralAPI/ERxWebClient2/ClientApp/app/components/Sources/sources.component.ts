@@ -54,6 +54,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
+        console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
@@ -88,6 +89,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         return this._CurrentSourceDateofSearch;
     }
     public confirmSourceDeletionOpen: boolean = false;
+    public HelpAndFeebackContext: string = "sources\\file";
 
     HasCurrentSourceDateofSearch(): boolean {
         if (this._CurrentSource == null) return false;
@@ -213,10 +215,28 @@ export class SourcesComponent implements OnInit, OnDestroy {
             //let's go and get the first source:
             this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
         }
+        if ($event.title == 'Import Items') {
+            this.HelpAndFeebackContext = "sources\\file";
+        }
+        else if ($event.title == 'Manage Sources') {
+            this.HelpAndFeebackContext = "sources\\managesources";
+        }
+        else if ($event.title == 'PubMed') {
+            this.HelpAndFeebackContext = "sources\\pubmed";
+        }
+        else {
+            this.HelpAndFeebackContext = "sources\\file";
+        }
     }
     FormatDate(DateSt: string): string {
-        let date: Date = new Date(DateSt);
-        return date.toLocaleDateString();
+        if (DateSt.length < 10) return "";
+        else {
+            const year = parseInt(DateSt.substr(6, 4));
+            const month = parseInt(DateSt.substr(3, 2));
+            const day = parseInt(DateSt.substr(0, 2));
+            const date: Date = new Date(year, month, day);
+            return date.toLocaleDateString();
+        }
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

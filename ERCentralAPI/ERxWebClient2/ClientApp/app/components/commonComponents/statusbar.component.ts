@@ -3,19 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service'
-import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocationContactList/workAllocationContactListComp.component';
-import { ItemListService } from '../services/ItemList.service'
-import { ItemListComp } from '../ItemList/itemListComp.component';
-import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
-import { timer, Subject, Subscription, Observable } from 'rxjs';
-import { take, map, takeUntil } from 'rxjs/operators';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Response } from '@angular/http';
-import { ErrorHandler } from "@angular/core";
-import { UNAUTHORIZED, BAD_REQUEST, FORBIDDEN, NOT_FOUND } from "http-status-codes/index";
 import { DomSanitizer } from '@angular/platform-browser';
 
 

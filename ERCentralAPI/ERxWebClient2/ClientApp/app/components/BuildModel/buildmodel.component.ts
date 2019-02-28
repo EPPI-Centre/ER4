@@ -46,7 +46,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	CanBuildModel() {
 
-		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != '') {
+		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != ''
+			&& (this.selectedModelDropDown1 != this.selectedModelDropDown2) ) {
 			return true;
 		}
 		return false;

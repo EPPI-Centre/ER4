@@ -38,8 +38,8 @@
 					 (click)="CompleteUncomplete($event, node.data.id, node.data.additionalText, node.data.armId)" class="mr-1" />
 
 				<img *ngIf="node.data.itemSetIsLocked" title="Coding locked: you can't change the codes already entered" src="../assets/CodingLocked.png" class="mr-1" />
-				<img *ngIf="node.data.allowEditingCodeset" title="You can edit this code set (e.g. add new codes - NOT IMPLEMENTED!)" src="../assets/CodeSetEditable.png" class="mr-1" />
-				<img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this code set" src="../assets/CodeSetLocked.png" class="mr-1" />
+				<img *ngIf="node.data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="../assets/CodeSetEditable.png" class="mr-1" />
+				<img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
 			</span>
 			<input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
 				   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"

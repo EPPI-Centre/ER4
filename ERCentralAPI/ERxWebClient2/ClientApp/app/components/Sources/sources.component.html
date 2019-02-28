@@ -1,14 +1,14 @@
-<HeaderComponent  PageTitle="Import/Manage Sources"></HeaderComponent>
+<HeaderComponent  PageTitle="Import/Manage Sources" [Context]="HelpAndFeebackContext"></HeaderComponent>
 <button class="page-link pt-0 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
     Close/back
 </button>
 
-<kendo-splitter orientation="horizontal">
+<kendo-splitter orientation="horizontal" style="min-height:300px;">
     <kendo-splitter-pane><div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
         <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
-            <kendo-tabstrip-tab [title]="'Manage Sources'">
+            <kendo-tabstrip-tab [title]="'Manage Sources'" >
                 <ng-template kendoTabContent>
-                    <div class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
+                    <div *ngIf="ReviewSources.length > 1" class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
                         <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm">
                             <div class=" col-6">
                                 <div class="form-group">
@@ -17,11 +17,11 @@
                                            [(ngModel)]="CurrentSource.source_Name" name="source_Name"
                                            #name="ngModel">
                                     <div [hidden]="IsSourceNameValid() != 1"
-                                         class="alert alert-danger">
+                                         class="alert alert-danger small">
                                         Name is required
                                     </div>
                                     <div [hidden]="IsSourceNameValid() != 2"
-                                         class="alert alert-danger">
+                                         class="alert alert-danger small">
                                         There is another source with this name, please change it.
                                     </div>
                                 </div>
@@ -101,6 +101,9 @@
                             </div>
                         </form>
                     </div>
+                    <div *ngIf="ReviewSources.length <= 1" class="p-3 alert-danger">
+                        You have not imported any source yet. There is nothing to manage, at the moment.
+                    </div>
                 </ng-template>
             </kendo-tabstrip-tab>
             <kendo-tabstrip-tab [title]="'Import Items'" [selected]="true">
@@ -121,12 +124,11 @@
         <div class="pane-content">
             
             <div>SOURCES in Review:</div>
-            <div *ngIf="ReviewSources.length == 0">
+            <div *ngIf="ReviewSources.length <= 1">
                 No Sources in review.
             </div>
-            <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small">
+            <table *ngIf="ReviewSources.length > 1" class="table-striped table table-bordered small">
                 <tbody>
-                    
                     <tr *ngFor="let ROsource of ReviewSources" class="p-0"
                         [hidden]="HideManuallyCreatedItems(ROsource)">
                         <td class="p-1 align-middle">

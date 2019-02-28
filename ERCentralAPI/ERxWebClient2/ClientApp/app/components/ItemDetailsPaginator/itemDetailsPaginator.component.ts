@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service';
+import { WorkAllocation } from '../services/WorkAllocationList.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';

@@ -58,8 +58,14 @@ export class HomeComponent implements OnInit {
         );
     }
     FormatDate(DateSt: string): string {
-        let date: Date = new Date(DateSt);
-        return date.toLocaleDateString();
+        if (DateSt.length < 10) return "";
+        else {
+            const year = parseInt(DateSt.substr(6, 4));
+            const month = parseInt(DateSt.substr(3, 2));
+            const day = parseInt(DateSt.substr(0, 2));
+            const date: Date = new Date(year, month, day);
+            return date.toLocaleDateString();
+        }
     }
 }
 class versionInfo {

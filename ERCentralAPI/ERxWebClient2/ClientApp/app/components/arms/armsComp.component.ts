@@ -5,10 +5,8 @@ import { ModalService } from '../services/modal.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { ItemCodingComp } from '../coding/coding.component';
-import { ItemListService, Item, arm } from '../services/ItemList.service';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import {  Item } from '../services/ItemList.service';
 import { ArmsService } from '../services/arms.service';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 @Component({
     selector: 'ArmsComp',
@@ -19,7 +17,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 export class armsComp implements OnInit{
     
     
-    @Output() armChangedEE = new EventEmitter();
+    //@Output() armChangedEE = new EventEmitter();
     public CurrentItem: Item = new Item();
 
     constructor(
@@ -27,9 +25,9 @@ export class armsComp implements OnInit{
         ) {
     }
     ArmChanged(armId: number) {
-        //console.log(event);
+        console.log("ArmChanged...");
         this.armsService.SetSelectedArm(armId);
-        this.armChangedEE.emit();
+        //this.armChangedEE.emit();
     }
     ngOnInit() {
     }

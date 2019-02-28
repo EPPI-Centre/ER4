@@ -180,7 +180,7 @@ public partial class Purchase : System.Web.UI.Page
             newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"].ToString();
 
-            if ((idr["EXPIRY_DATE"].ToString() == "") &&  (int.Parse(idr["MONTHS_CREDIT"].ToString()) > 0))
+            if (idr["EXPIRY_DATE"].ToString() == "")
             {
                 newrow["EXPIRY_DATE"] = "Not activated: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
                 newrow["CONTACT_NAME"] = "Not activated";
