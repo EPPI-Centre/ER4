@@ -89,7 +89,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
-    public isSourcesPanelCollapsed: boolean = false;
+    public isSourcesPanelVisible: boolean = false;
     public isReviewPanelCollapsed: boolean = false;
     public isWorkAllocationsPanelCollapsed: boolean = false;
     private statsSub: Subscription = new Subscription();
@@ -316,7 +316,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return '&darr;';
 	}
     public get SourcesPanelTogglingSymbol(): string {
-        if (this.isSourcesPanelCollapsed) return '&uarr;';
+        if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
 	ngAfterViewInit() {
@@ -365,10 +365,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
     toggleSourcesPanel() {
-        if (!this.isSourcesPanelCollapsed) {
+        if (!this.isSourcesPanelVisible) {
             this.SourcesService.FetchSources();
         }
-        this.isSourcesPanelCollapsed = !this.isSourcesPanelCollapsed;
+        this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
     }
     getDaysLeftAccount() {
 
@@ -423,7 +423,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.Clear();
         console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
-        this
+        this.isSourcesPanelVisible = false;
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
         //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
@@ -449,6 +449,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
+        this.SourcesService.Clear();
+
         if (this.FreqComponent) this.FreqComponent.Clear();
         if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
         //this.dtTrigger.unsubscribe();
