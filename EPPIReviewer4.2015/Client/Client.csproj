@@ -330,6 +330,9 @@
     <Compile Include="..\Server\BusinessClasses\ItemDocumentDeleteCommand.cs">
       <Link>BusinessClasses\ItemDocumentDeleteCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemDocumentDeleteWarningCommand.cs">
+      <Link>BusinessClasses\ItemDocumentDeleteWarningCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ItemDocumentList.cs">
       <Link>BusinessClasses\ItemDocumentList.cs</Link>
     </Compile>

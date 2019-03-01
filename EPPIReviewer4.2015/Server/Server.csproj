@@ -229,6 +229,7 @@
     <Compile Include="BusinessClasses\ItemAttributePDFList.cs" />
     <Compile Include="BusinessClasses\ItemAttributePDFResetCommand.cs" />
     <Compile Include="BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" />
+    <Compile Include="BusinessClasses\ItemDocumentDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemDuplicateDirtyGroup.cs" />
     <Compile Include="BusinessClasses\ItemDuplicateDirtyGroupMember.cs" />
     <Compile Include="BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs" />
