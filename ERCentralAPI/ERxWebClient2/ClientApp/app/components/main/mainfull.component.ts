@@ -418,6 +418,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowItemsTable = false;
         }
     }
+    NewReference() {
+        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
+    }
 
     Reload() {
         this.Clear();

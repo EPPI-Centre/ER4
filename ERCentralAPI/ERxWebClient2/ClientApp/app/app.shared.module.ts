@@ -66,6 +66,7 @@ import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationC
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
+import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 
 @NgModule({
     declarations: [
@@ -90,6 +91,7 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
         ItemCodingComp,
         ItemCodingFullComp,
         itemDetailsComp,
+        editItemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
 		InfoBoxModalContent,
@@ -151,6 +153,8 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
 			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
+            { path: 'EditItem/:itemId', component: editItemDetailsComp },
+            { path: 'EditItem', component: editItemDetailsComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent }, 

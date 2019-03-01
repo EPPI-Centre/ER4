@@ -111,7 +111,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
 
     }
-    
+    public EditItem() {
+        this.router.navigate(['EditItem', this.itemID.toString() + "?return=itemcoding/" + this.itemID.toString()]);
+        //this.router.navigate(['EditItem?return=Main']);
+    }
     
     public GetItem() {
         this.WipeHighlights();

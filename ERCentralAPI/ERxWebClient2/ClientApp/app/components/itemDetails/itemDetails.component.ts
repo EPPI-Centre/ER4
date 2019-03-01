@@ -18,7 +18,9 @@ import { ModalService } from '../services/modal.service';
 })
 export class itemDetailsComp implements OnInit {
 
-    constructor(private ReviewerTermsService: ReviewerTermsService,
+    constructor(
+        private router: Router,
+        private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
         private ModalService: ModalService
     ) {}
@@ -51,7 +53,12 @@ export class itemDetailsComp implements OnInit {
 	}
 	ItemChanged() {
 		alert('item changed!!');
-	}
+    }
+    EditItem() {
+        if (this.item) {
+            this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
+        }
+    }
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;

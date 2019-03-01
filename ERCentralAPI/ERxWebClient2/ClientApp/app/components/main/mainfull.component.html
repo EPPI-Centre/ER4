@@ -14,10 +14,7 @@
                                     <kendo-toolbar-button [text]="'Import Items'" (click)="GoToSources()"></kendo-toolbar-button>
                                     <kendo-toolbar-button [text]="'Coding Tools'" (click)="EditCodeSets()"></kendo-toolbar-button>
                                     <kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'Import Coding Tools'" (click)="ImportCodesetClick()"></kendo-toolbar-button>
-                                    <!--<kendo-toolbar-button *ngIf="ReviewerIdentityServ.HasWriteRights" [text]="'New Review'" (click)="CreateReviewClick()"></kendo-toolbar-button>
-                                                        <kendo-toolbar-button [text]="'Coding Reports'" ></kendo-toolbar-button>
-                    <kendo-toolbar-button [text]="'Some other button'" ></kendo-toolbar-button>
-                    <kendo-toolbar-button [text]="'Etc...'" ></kendo-toolbar-button>-->
+                                    <kendo-toolbar-button [text]="'New Reference'" (click)="NewReference()"></kendo-toolbar-button>
                                 </kendo-toolbar>
                             </div>
                             <div class="row m-1">

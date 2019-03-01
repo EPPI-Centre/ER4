@@ -106,32 +106,51 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
-        [HttpPost("[action]")]
-        public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+
+        [HttpGet("[action]")]
+        public IActionResult ItemTypes()
         {
             try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-                DataPortal<ItemList> dp = new DataPortal<ItemList>();
-                SelectionCriteria crit = new SelectionCriteria();
-                crit.WorkAllocationId = AllocationId;
-                crit.ListType = ListType;
-                crit.PageSize = pageSize;
-                crit.PageNumber = pageNumber;
-                ItemList result = dp.Fetch(crit);
-                //return Json(result);
-
-                return Ok(new ItemList4Json(result));
+                ItemTypeNVLFactory factory = new ItemTypeNVLFactory();
+                ItemTypeNVL res = factory.FetchItemTypeNVL();
+                //DataPortal<ItemTypeNVL> dp = new DataPortal<ItemTypeNVL>();
+                //ItemTypeNVL res = dp.Fetch();
+                return Ok(res);
             }
-            catch (Exception)
+            catch(Exception e)
             {
-
-                throw;
+                _logger.LogError(e, "Error fetching ItemTypes");
+                return StatusCode(500, e.Message);
             }
         }
+        
+        //[HttpPost("[action]")]
+        //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+        //{
+        //    try
+        //    {
+        //        SetCSLAUser();
+        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+        //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
+        //        SelectionCriteria crit = new SelectionCriteria();
+        //        crit.WorkAllocationId = AllocationId;
+        //        crit.ListType = ListType;
+        //        crit.PageSize = pageSize;
+        //        crit.PageNumber = pageNumber;
+        //        ItemList result = dp.Fetch(crit);
+        //        //return Json(result);
+
+        //        return Ok(new ItemList4Json(result));
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
     }
     public class SelCritMVC
     {
