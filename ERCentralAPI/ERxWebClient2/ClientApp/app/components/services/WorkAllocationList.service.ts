@@ -76,6 +76,7 @@ export class WorkAllocationListService extends BusyAwareService {
 		// is there a need for busy methods here I would say yes...
 		this._BusyMethods.push("AssignWorkAllocation");
 
+
 		this._httpC.post<WorkAllocation>(this._baseUrl +
 			'api/WorkAllocationContactList/AssignWorkAllocation', wa)
 			.subscribe(() => {
