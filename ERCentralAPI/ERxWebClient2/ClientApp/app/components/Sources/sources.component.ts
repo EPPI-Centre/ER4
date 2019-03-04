@@ -169,12 +169,12 @@ export class SourcesComponent implements OnInit, OnDestroy {
             this.SourcesService.UpdateSource(this._CurrentSource);
         }
     }
-    SourceUpdated() {
+    async SourceUpdated() {
         let counter: number = 0;
         //setTimeout(() => {
             while (this.SourcesService.IsBusy && counter < 3*120) {
                 counter++;
-                this.Sleep(200);
+                await this.Sleep(200);
                 console.log("waiting, cycle n: " + counter);
             }
         //}, 200);//will remain here for up to 2 minutes (200ms*3*120)... counter ensures we won't have an endless loop.

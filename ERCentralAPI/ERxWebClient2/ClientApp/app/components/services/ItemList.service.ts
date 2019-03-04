@@ -101,6 +101,37 @@ export class ItemListService extends BusyAwareService {
             }
             );
     }
+    public UpdateItem(item: Item) {
+        this._BusyMethods.push("UpdateItem");
+        this._httpC.post<Item>(this._baseUrl + 'api/ItemList/UpdateItem', item)
+            .subscribe(
+                result => {
+                   //if we get an item back, put it in the list substituting it via itemID
+                    if (item.itemId == 0) {
+                        //we created a new item, add to current list, so users can see it immediately...
+                        //this._currentItem = result;//not sure we need this...
+                        this.ItemList.items.push(result);
+                    }
+                    else {
+                        //try to replace item in current list.
+                        let i = this.ItemList.items.findIndex(found => found.itemId == result.itemId);
+                        if (i !== -1) {
+                            this.ItemList.items[i] = result;
+                            console.log("replaced updated item.");
+                        }
+                        else {
+                            console.log("updated item not replaced: could not find it...");
+                        }
+                    }
+                }, error => {
+                    this.ModalService.GenericError(error);
+                    this.RemoveBusy("UpdateItem");
+                }
+            , () => { this.RemoveBusy("UpdateItem"); }
+            );
+    }
+
+
     public GetIncludedItems() {
         let cr: Criteria = new Criteria();
         cr.listType = 'StandardItemList';

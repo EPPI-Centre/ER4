@@ -125,7 +125,79 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+
+        [HttpPost("[action]")]
+        public IActionResult UpdateItem([FromBody] ItemJSON item)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    DataPortal<Item> dp = new DataPortal<Item>();
+                    SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
+                    Item CSLAItem = dp.Fetch(criteria);
+                    CSLAItem.Title = item.title;
+                    CSLAItem.DateEdited = DateTime.Now;
+                    CSLAItem.TypeId = item.typeId;
+                    CSLAItem.ParentTitle = item.parentTitle;
+                    CSLAItem.ShortTitle = item.shortTitle;
+                    CSLAItem.EditedBy = ri.Name;
+                    CSLAItem.Year = item.year;
+                    CSLAItem.Month = item.month;
+                    CSLAItem.StandardNumber = item.standardNumber;
+                    CSLAItem.City = item.city;
+                    CSLAItem.Country = item.country;
+                    CSLAItem.Publisher = item.publisher;
+                    CSLAItem.Institution = item.institution;
+                    CSLAItem.Volume = item.volume;
+                    CSLAItem.Pages = item.pages;
+                    CSLAItem.Edition = item.edition;
+                    CSLAItem.Issue = item.issue;
+                    CSLAItem.Availability = item.availability;
+                    CSLAItem.URL = item.url;
+                    CSLAItem.Comments = item.comments;
+                    if (item.itemStatus.ToUpper() == "I" || item.itemStatus.ToUpper() == "")
+                    {
+                        CSLAItem.IsItemDeleted = false;
+                        CSLAItem.IsIncluded = true;
+                    }
+                    else if (item.itemStatus.ToUpper() == "D")
+                    {
+                        CSLAItem.IsItemDeleted = true;
+                        CSLAItem.IsIncluded = false;
+                    }
+                    else if (item.itemStatus.ToUpper() == "E")
+                    {
+                        CSLAItem.IsItemDeleted = false;
+                        CSLAItem.IsIncluded = false;
+                    }
+                    CSLAItem.DOI = item.doi;
+                    CSLAItem.Keywords = item.keywords;
+                    CSLAItem.Authors = item.authors;
+                    CSLAItem.ParentAuthors = item.parentAuthors;
+                    CSLAItem.Abstract = item.@abstract;
+
+                    CSLAItem.BeginEdit();
+                    CSLAItem.ApplyEdit();
+
+                    CSLAItem = CSLAItem.Save();
+
+                    return Ok(CSLAItem);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error when Updating an Item : {0}", item);
+                return StatusCode(500, e.Message);
+            }
+        }
+
         //[HttpPost("[action]")]
         //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
         //{
@@ -207,5 +279,35 @@ namespace ERxWebClient2.Controllers
         }
         public ItemList4Json(ItemList list)
         { _list = list; }
+    }
+    public class ItemJSON
+    {
+        public Int64 itemId;
+        public string title;
+        public int typeId;
+        public string itemStatus;
+        public string parentTitle;
+        public string shortTitle;
+        public string editedBy;
+        public string year;
+        public string month;
+        public string standardNumber;
+        public string city;
+        public string country;
+        public string publisher;
+        public string institution;
+        public string volume;
+        public string pages;
+        public string edition;
+        public string issue;
+        public bool isLocal;
+        public string availability;
+        public string url;
+        public string comments;
+        public string doi;
+        public string keywords;
+        public string authors;
+        public string parentAuthors;
+        public string @abstract;
     }
 }

@@ -44,9 +44,32 @@ export class editItemDetailsComp implements OnInit {
         else if (this._ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
         return this._ItemTypes;
     }
+    private wasEdited: boolean = false;
+    public get Edited(): boolean {
+        if (this.item == null || this.OriginalItem == null) return false;
+        if (this.wasEdited) return true;
+        else {
+            if (JSON.stringify(this.OriginalItem) !== JSON.stringify(this.item)) {
+                this.wasEdited = true;
+                return true;
+            }
+        }
+        return false;
+    }
+    public get CanSave(): boolean {
+        if (!this.ReviewerIdentityServ.HasWriteRights) return false;
+        else if (!this.item) return false;
+        else if (this.item.typeId == 0) return false;
+        else return true;
+    }
+    public get IsServiceBusy(): boolean {
+        if (this.ItemListService.IsBusy) return true;
+        else return false;
+    }
     public FieldsByType(typeId: number) {
-        if (typeId == 0) return null;
-        else if (typeId == 14) {
+        //if (typeId == 0) return null;
+        //else
+            if (typeId == 14) {
             return {
                 parentTitle: { txt: 'Journal', optional: false }
                 , parentAuthors: { txt: 'Parent Authors', optional: true }
@@ -97,6 +120,31 @@ export class editItemDetailsComp implements OnInit {
             };
         }
     }
+    private _ItemFlagOptions: KeyValueState[] = [new KeyValueState('I', 'Included'), new KeyValueState('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
+    public get ItemFlagOptions(): KeyValueState[] {
+        return this._ItemFlagOptions;
+    }
+   
+    public get ItemFlagStatus(): KeyValueState {
+        let i = this._ItemFlagOptions.findIndex(found => (this.item != null && found.key == this.item.itemStatus));
+        if (i == -1) return this._ItemFlagOptions[0];
+        else return this._ItemFlagOptions[i];
+    }
+    public SetItemFlagStatus(val: string) {
+        if (this.item)
+        {
+            this.item.itemStatus = val;
+            if (val == "I") {
+                this.item.itemStatusTooltip = "Included in review";
+            }
+            else if (val == "E") {
+                this.item.itemStatusTooltip = "Excluded from review";
+            }
+            //else if (val == "D") {
+            //    this.item.itemStatusTooltip = "Deleted";
+            //}
+        }
+    }
 	ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
@@ -117,24 +165,22 @@ export class editItemDetailsComp implements OnInit {
             });
         }
     }
-    private wasEdited: boolean = false;
-    public get Edited(): boolean {
-        if (this.item == null || this.OriginalItem == null) return false;
-        if (this.wasEdited) return true;
-        else {
-            if (JSON.stringify(this.OriginalItem) !== JSON.stringify(this.item)) {
-                this.wasEdited = true;
-                return true;
-            }
-        }
-        return false;
-    }
-    SaveAndClose() {
+    
+    async SaveAndClose() {
         this.Save();
+        let i = 1;
+        while (this.ItemListService.IsBusy && i < 3 * 120) {
+            i++;
+            await this.Sleep(200);
+            console.log("waiting, cycle n: " + i);
+        }
         this.GoBack();
     }
+    Sleep(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
     Save() {
-
+        if (this.item) this.ItemListService.UpdateItem(this.item);
     }
     private GetItem() {
         if (this.itemString == "0") {
@@ -167,6 +213,15 @@ export class editItemDetailsComp implements OnInit {
     toHTML(text: string): string {
         return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
     }
+    
+}
+export class KeyValueState {
+    constructor(k: string, v: string) {
+        this.key = k;
+        this.value = v;
+    }
+    key: string ;
+    value: string;
 }
 
 

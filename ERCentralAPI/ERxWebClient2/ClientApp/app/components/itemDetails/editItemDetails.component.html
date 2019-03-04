@@ -3,15 +3,16 @@
     Close/back
 </button>
 <div *ngIf="item" class="row card card-body bg-light m-1 p-0">
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
     <div class="row m-0 p-0">
         <div class="col text-center mt-1">
             <button class="btn btn-outline-danger btn-sm ml-1 mb-1 "
-                    [disabled]="!Edited"
+                    [disabled]="!Edited || !CanSave"
                     (click)="Save()">
                 Save
             </button>
             <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mr-2 "
-                    [disabled]="!Edited"
+                    [disabled]="!Edited || !CanSave"
                     (click)="SaveAndClose()">
                 Save and Close
             </button>
@@ -31,6 +32,7 @@
                         class="">
                     <option *ngFor="let kvp of ItemTypes" [value]="kvp.key">{{kvp.value}}</option>
                 </select>
+                <span *ngIf="item.typeId == 0" class="small alert font-weight-bold alert-danger p-1 ml-1">Ref. type is REQUIRED</span>
             </div>
             <div class="col-sm-5 col-12 row">
                 <span class="mt-2 mr-1">Show optional fields?</span>
@@ -155,20 +157,6 @@
         </div>
         <div class="row w-100 p-0 m-0">
             <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
-                <div class="col p-0 m-1">
-                    <input class="p-1 w-100" type="text" [(ngModel)]="item.edition" />
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
-                <div class="col p-0 m-1">
-                    <input class="p-1 w-100" type="text" [(ngModel)]="item.publisher" />
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0">
-            <div class="w-50 row p-0 m-0">
                 <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
                 <div class="col p-0 m-1">
                     <input class="p-1 w-100" type="text" [(ngModel)]="item.country" />
@@ -193,6 +181,24 @@
                 <div class="col p-0 m-1">
                     <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.keywords"></textarea>
                 </div>
+            </div>
+        </div>
+
+        <div class="row w-100 p-0 m-0 small">
+            <div class="col-4 row p-0 m-0 font-weight-bold">
+                Item ID: {{item.itemId}}
+            </div>
+            <div class="col-4 row p-0 m-0">
+                Imported ID: {{item.oldItemId}}
+            </div>
+            <div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
+                Item is duplicate of {{item.masterItemId}}
+            </div>
+            <div *ngIf="!item.isDupilcate" class="col-4 row p-0 m-0">
+                <select (change)="SetItemFlagStatus($event.target.value)">
+                    Item state:
+                    <option *ngFor="let kvp of ItemFlagOptions" [value]="kvp.key" [selected]="kvp.key == item.itemStatus">{{kvp.value}}</option>
+                </select>
             </div>
         </div>
     </div>

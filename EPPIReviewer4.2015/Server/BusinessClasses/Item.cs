@@ -482,6 +482,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<Int64> MasterItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("MasterItemId", "MasterItemId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 MasterItemId//is zero if no master
         {
             get
@@ -493,6 +496,9 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(MasterItemIdProperty, value);
             }
         }
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool IsDupilcate
         {
             get
