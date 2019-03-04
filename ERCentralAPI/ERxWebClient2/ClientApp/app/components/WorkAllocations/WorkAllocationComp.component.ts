@@ -38,7 +38,7 @@ export class WorkAllocationComp implements OnInit {
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
-	public RandomlyAssignSection: boolean = false;
+	public RandomlyAssignSection: boolean = true;
 	public AssignWorkSection: boolean = false;
 	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
@@ -150,6 +150,10 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public CloseAssignSection() {
 		this.AssignWorkSection = !this.AssignWorkSection;
+	}
+	public CloseRandomlyAssignSection() {
+		this.RandomlyAssignSection = !this.RandomlyAssignSection;
+
 	}
 	public CanAssign() {
 
