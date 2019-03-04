@@ -17,7 +17,8 @@
 				<div class="font-weight-bold mb-2">Select From </div>
 				<div class="form-group">
 					<select #SelectFrom class="form-control" name="AllocateOptions"
-							style="min-width: 250px;" (change)="SetRelevantDropDownValues()">
+							style="min-width: 250px;" (change)="SetRelevantDropDownValues()"
+							(click)="isCollapsed = false; isCollapsed2 = false">
 						<option *ngFor="let item of AllocateOptions" [value]="item.key"
 								[selected]="AllocateOptions && item.key == AllocateOptions[0].key">
 							{{item.value}}
