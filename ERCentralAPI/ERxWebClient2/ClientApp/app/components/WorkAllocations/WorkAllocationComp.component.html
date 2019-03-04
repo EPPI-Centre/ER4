@@ -41,33 +41,37 @@
 				-->
 			</div>
 			<div class="col-12 col-md-6 row pt-2 m-1" style="min-width:300px;">
-				<div class="col-6 col-md-2" style="min-width:130px;">
-					Percentage to Allocate
-				</div>
-				<div class="col-6 col-md-3" style="min-width:100px;">
-					<kendo-numerictextbox [(ngModel)]="numericRandomSample"
-										  [min]="1" [format]="'n0'"
-										  [max]="100"
-										  [step]="1"
-										  [autoCorrect]="true"
-										  class="border border-dark rounded"
-										  style="width: 110px;">
+				<div class="row">
+					<div class="col-6 col-md-2" style="min-width:130px;">
+						Percentage to Allocate
+					</div>
+					<div class="col-6 col-md-3" style="min-width:100px;">
+						<kendo-numerictextbox [(ngModel)]="numericRandomSample"
+											  [min]="1" [format]="'n0'"
+											  [max]="100"
+											  [step]="1"
+											  [autoCorrect]="true"
+											  class="border border-dark rounded"
+											  style="width: 110px;">
 
-					</kendo-numerictextbox>
+						</kendo-numerictextbox>
+					</div>
 				</div>
-				<div class="col-6 col-md-2" style="min-width:100px;">
-					Groups to create
-				</div>
-				<div class="col-6 col-md-3" style="min-width:100px;">
-					<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
-										  [min]="1" [format]="'n0'"
-										  [max]="10"
-										  [step]="1"
-										  [autoCorrect]="true"
-										  class="border border-dark rounded"
-										  style="width: 110px;">
+				<div class="row">
+					<div class="col-6 col-md-2" style="min-width:100px;">
+						Groups to create
+					</div>
+					<div class="col-6 col-md-3" style="min-width:100px;">
+						<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
+											  [min]="1" [format]="'n0'"
+											  [max]="10"
+											  [step]="1"
+											  [autoCorrect]="true"
+											  class="border border-dark rounded"
+											  style="width: 110px;">
 
-					</kendo-numerictextbox>
+						</kendo-numerictextbox>
+					</div>
 				</div>
 			</div>
 			<div class="col-12 col-md-6" *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
@@ -115,7 +119,7 @@
 					 *ngIf="(selectedRandomAllocateDropDown != 'All with any codes from this  coding tool')
 						||  (selectedRandomAllocateDropDown != 'All without any codes from this  coding tool' )">
 				</div>
-			
+
 				<div ngbDropdown class="col-11 col-md-3 pr-1 pl-1" style="min-width:250px;">
 					<div class="mb-2 p-2 m-2" style="min-width:250px;">
 						Create codes below this code / coding tool
@@ -134,35 +138,34 @@
 										 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
-				<div class="col-md-6">
-					<div class="col-md-12 row" style="min-width:200px;">
-						<input class="col-md-1 "
-							   type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
-						<span class="col-md-2 text-sm-center" style="min-width:150px;">&nbsp; Included </span>
-						<input class="col-md-1"
-							   type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
-						<span class="col-md-2 text-sm-center" style="min-width:150px;">&nbsp; Excluded</span>
+				<div class="p-2 m-2 col-md-1" >
+				</div>
+				<div class="col-md-4 row">
+					<div style="min-width:150px;">
+						<input class="col-md-1" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
+						<span class="col-md-3 text-sm-center" >&nbsp; Included </span>
+					</div>
+					<div style="min-width:150px;">
+						<input class="col-md-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
+						<span class="col-md-3 text-sm-center">&nbsp; Excluded</span>
 					</div>
 				</div>
-
-
 				<div class="col-12 col-md-12 p-1 m-1"></div>
-
 				<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"></div>
 				<div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
 				<!--<div *ngIf="(selectedSearchDropDown == 'With this code')
-							||  (selectedSearchDropDown == 'Without this code' )"
-					 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
-					<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree2"
-							(click)="isCollapsed2 = !isCollapsed2; dropdownBasic1 = false"
-							[attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree" style="min-width: 50px;">
-						{{CurrentDropdownSelectedCode2?.name}}
-					</button>
-					<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed2">
-						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode2
-										 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-					</div>
-				</div>-->
+				||  (selectedSearchDropDown == 'Without this code' )"
+		 ngbDropdown class="col-11 col-md-4 pr-1 pl-1">
+		<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree2"
+				(click)="isCollapsed2 = !isCollapsed2; dropdownBasic1 = false"
+				[attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree" style="min-width: 50px;">
+			{{CurrentDropdownSelectedCode2?.name}}
+		</button>
+		<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed2">
+			<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode2
+							 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+		</div>
+	</div>-->
 
 			</div>
 			<div class="col-12 col-md-6"> </div>
@@ -181,7 +184,7 @@
 	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 		<div class="col-12 col-md-12">
 			<div class="form-group col-md-6 row">
-				<div class="font-weight-bold col-12 col-md-4" style="min-width:100px;">
+				<div class="col-12 col-md-4" style="min-width:100px;">
 					Code studies in this group:
 				</div>
 				<div ngbDropdown class="col-md-8" style="min-width:150px;">
@@ -202,7 +205,7 @@
 				</div>
 			</div>
 			<div class="form-group col-md-6 row">
-				<div class="font-weight-bold col-md-4" style="min-width:100px;">
+				<div class="col-md-4" style="min-width:100px;">
 					Using this codeset:
 				</div>
 				<div ngbDropdown class="col-md-8" style="min-width:150px;">
@@ -218,7 +221,7 @@
 				</div>
 			</div>
 			<div class="form-group col-md-6 row">
-				<div class="font-weight-bold col-md-4" style="min-width:100px;">
+				<div class="col-md-4" style="min-width:100px;">
 					To this person:
 				</div>
 				<div ngbDropdown class="col-md-8" style="min-width:150px;">
@@ -236,7 +239,7 @@
 			<div class="row">
 				<div class="col-md-2"></div>
 				<div class="col-md-4">
-					<button class="btn alert-info col-md-3 p-2 m-2" (click)="WorkAssignment()" style="min-width:150px;">Assign</button>
+					<button class="btn alert-info col-md-3 p-2 m-2" [disabled]="CanNewWorkAllocationCreate()" (click)="WorkAssignment()" style="min-width:150px;">Assign</button>
 					<button class="btn btn-dark col-md-3 p-2 m-2" (click)="CloseAssignSection()" style="min-width:150px;">Cancel</button>
 				</div>
 			</div>

@@ -63,6 +63,7 @@ export class WorkAllocationComp implements OnInit {
 	public index: number = 0;
 	public dropdownBasic2: boolean = false;
 	public dropdownTree11: boolean = false;
+	public workAllocation: WorkAllocation = new WorkAllocation();
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -352,23 +353,37 @@ export class WorkAllocationComp implements OnInit {
 	setCodeSetDropDown2(codeset: any) {
 
 		this.selectedCodeSetDropDown2 = codeset;
+		this.workAllocation.setId = codeset;
 
 	}
 	SetMemberDropDown3(member: any) {
 
 		this.selectedMemberDropDown3 = member;
-
+		this.workAllocation.contactId = member.contactId
 	}
 	WorkAssignment() {
-
-		let workAllocation: WorkAllocation = new WorkAllocation();
+			
 		let setAtt: SetAttribute = this.CurrentDropdownSelectedCode3 as SetAttribute;
-		workAllocation.attributeId = setAtt.attribute_id;
-		workAllocation.setId = this.selectedCodeSetDropDown2.set_id;
+		this.workAllocation.attributeId = setAtt.attribute_id;
+		this.workAllocation.setId = this.selectedCodeSetDropDown2.set_id;
 		let contact: Contact = this.selectedMemberDropDown3;
-		workAllocation.contactId = contact.contactId.toString();
-		this._workAllocationListService.AssignWorkAllocation(workAllocation);
+		this.workAllocation.contactId = contact.contactId.toString();
+		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
 
+	}
+
+	CanNewWorkAllocationCreate(): boolean {
+
+		if (this.CurrentDropdownSelectedCode3 != null && this.CurrentDropdownSelectedCode3.name != ''
+			&& this.selectedCodeSetDropDown2.name != ''
+			&& this.selectedMemberDropDown3.contactName != '') {
+
+			return false;
+
+		} else {
+
+			return true;
+		}
 	}
 	
 
@@ -389,11 +404,17 @@ export class WorkAllocationComp implements OnInit {
 		}
 		this.isCollapsed2 = false;
 	}
+
 	CloseCodeDropDown3() {
 
 		if (this.WithOrWithoutCode3) {
+
 			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCode3.SelectedNodeData;
+			let setAtt: SetAttribute = this.CurrentDropdownSelectedCode3 as SetAttribute;
+			this.workAllocation.attributeId = setAtt.attribute_id;
+
 		}
+
 		this.isCollapsed3 = false;
 	}
 	getMembers() {
