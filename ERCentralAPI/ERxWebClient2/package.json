@@ -85,6 +85,7 @@
     "@progress/kendo-angular-layout": "^3.2.0",
     "@progress/kendo-angular-notification": "^1.1.1",
     "@progress/kendo-angular-toolbar": "^0.3.1",
+    "@progress/kendo-angular-upload": "^4.2.2",
     "@progress/kendo-data-query": "^1.5.0",
     "@progress/kendo-drawing": "^1.5.7",
     "@progress/kendo-file-saver": "^1.0.7",

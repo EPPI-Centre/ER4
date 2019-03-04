@@ -39,7 +39,8 @@ import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
-import { DialogsModule  } from '@progress/kendo-angular-dialog';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { UploadModule } from '@progress/kendo-angular-upload';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
@@ -136,6 +137,7 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
         DialogsModule,
         ToolBarModule,
         InputsModule,
+        UploadModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,

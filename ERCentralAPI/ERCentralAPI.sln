@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ERIdentityProvider", "ERIdentityProvider\ERIdentityProvider.csproj", "{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BFF9400-FE9B-47B3-9FDA-BB40CD18E5EB}"
+	ProjectSection(SolutionItems) = preProject
+		Dlls\EPPIiFilter.dll = Dlls\EPPIiFilter.dll
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", "{72D8A03E-A086-4C56-944C-3D84567226AA}"
 	ProjectSection(SolutionItems) = preProject

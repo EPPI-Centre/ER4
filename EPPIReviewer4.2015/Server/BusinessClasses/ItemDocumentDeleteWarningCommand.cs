@@ -21,30 +21,34 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class ItemDocumentDeleteCommand : CommandBase<ItemDocumentDeleteCommand>
+    public class ItemDocumentDeleteWarningCommand : CommandBase<ItemDocumentDeleteWarningCommand>
     {
-        public ItemDocumentDeleteCommand(){}
+        public ItemDocumentDeleteWarningCommand() { }
 
-        private Int64 _DocumentId;
-       
-        public Int64 DocumentId
+        private Int64 _docId;
+        private int _numCodings;
+
+
+        public ItemDocumentDeleteWarningCommand(Int64 docId)
         {
-            get { return _DocumentId; }
+            _docId = docId;
         }
 
-        public ItemDocumentDeleteCommand(Int64 DocumentId)
+        public int NumCodings
         {
-            _DocumentId = DocumentId;
+            get { return _numCodings; }
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
-            info.AddValue("_DocumentId", _DocumentId);
+            info.AddValue("_docId", _docId);
+            info.AddValue("_numCodings", _numCodings);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
-            _DocumentId = info.GetValue<Int64>("_DocumentId");
+            _docId = info.GetValue<Int64>("_docId");
+            _numCodings = info.GetValue<int>("_numCodings");
         }
 
 
@@ -52,16 +56,22 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            if (!ri.IsAuthenticated) return;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemDocumentDelete", connection))
+                using (SqlCommand command = new SqlCommand("st_ItemDocumentDeleteWarning", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@DocID", _DocumentId));
+                    SqlParameter output = new SqlParameter("@NUM_CODING", System.Data.SqlDbType.Int);
+                    output.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(output);
+
+                    command.Parameters.Add(new SqlParameter("@ITEM_DOCUMENT_ID", _docId));
                     command.ExecuteNonQuery();
+                    int? tmp = output.Value as int?;
+                    if (tmp == null) _numCodings = 0;
+                    else _numCodings = (int)tmp;
                 }
                 connection.Close();
             }

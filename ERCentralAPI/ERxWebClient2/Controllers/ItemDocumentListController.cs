@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Net;
 
 namespace ERxWebClient2.Controllers
@@ -82,10 +83,11 @@ namespace ERxWebClient2.Controllers
                 using (SqlConnection conn = new SqlConnection(sQLHelper.ER4DB))
                 {
                         conn.Open();
-                    
-                        SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID);
 
-                        
+                    using (SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID))
+                    {
+
+
                         dr.Read();
                         // CHANGE THIS AT THE END
                         if (!dr.HasRows) return NotFound();
@@ -181,14 +183,26 @@ namespace ERxWebClient2.Controllers
                                 // CHANGE THIS STUFF
                                 return null;
                         }
-
-                        Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
-                        FileContentResult result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                        FileContentResult result;
+                        if (type.ToLower() != ".txt")
                         {
-                            FileDownloadName = name
-                        };
+                            Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
+                            result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                            {
+                                FileDownloadName = name
+                            };
+                        }
+                        else
+                        {
+                            byte[] stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
+                            Response.Headers.Add("Content-Length", stBytes.Length.ToString());
+                            result = new FileContentResult(stBytes, Response.ContentType)
+                            {
+                                FileDownloadName = name
+                            };
+                        }
                         return result;
-
+                    }
                 }
             }
             catch (Exception e)
@@ -199,10 +213,107 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        public static string Formatter<TState>(TState state, Exception e)
+        [HttpPost("[action]")]
+        public IActionResult Upload([FromForm] UploadDoc incoming)
         {
-            return "{0}" + e.Message.ToString();
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    string filename = incoming.files[0].FileName;
+                    int ind = filename.LastIndexOf(".");
+                    string ext = filename.Substring(ind);
+                    Stream stream = incoming.files[0].OpenReadStream();
+                    byte[] Binary = new byte[stream.Length];
+                    stream.Read(Binary, 0, (int)stream.Length);
+                    if (ext.ToLower() == ".txt") {
+                        string SimpleText = System.Text.Encoding.UTF8.GetString(Binary);
+                        ItemDocumentSaveCommand cmd = new ItemDocumentSaveCommand(incoming.itemID,
+                            filename,
+                            ext,
+                            SimpleText
+                            );
+                        cmd.doItNow();
+                    }
+                    else
+                    {
+                        ItemDocumentSaveBinCommand cmd = new ItemDocumentSaveBinCommand(incoming.itemID,
+                            filename,
+                            ext,
+                            Binary
+                            );
+                        cmd.doItNow();
+                    }
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _Logger.LogException(e, "Upload doc file error");
+                throw;
+            }
+
         }
+
+        // DELETE WARNING COMMAND OBJECT
+        [HttpPost("[action]")]
+        public IActionResult DeleteDocWarning([FromBody] SingleInt64Criteria id)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemDocumentDeleteWarningCommand> dp = new DataPortal<ItemDocumentDeleteWarningCommand>();
+                    ItemDocumentDeleteWarningCommand command = new ItemDocumentDeleteWarningCommand(id.Value);
+                    command = dp.Execute(command);
+                    return Ok(command.NumCodings);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e, "Error when delete doc warning is called: {0}", id.Value);
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteDoc([FromBody] SingleInt64Criteria id)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemDocumentDeleteCommand cmd = new ItemDocumentDeleteCommand(id.Value);
+                    DataPortal<ItemDocumentDeleteCommand> dp = new DataPortal<ItemDocumentDeleteCommand>();
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.LogError(e, "Error when Deleting uploaded Document: {0}", id.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+    }
+    public class UploadDoc
+    {
+        public long itemID { get; set; }
+        public IFormFile[] files { get; set; } 
     }
 }
 
