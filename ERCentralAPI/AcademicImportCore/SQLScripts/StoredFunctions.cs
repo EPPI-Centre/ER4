@@ -365,6 +365,10 @@ public static class EditDistance
     */
     public static SqlDouble Jaro(this string s1, string s2)
     {
+        if (s1 == null || s1 == "" || s2 == null || s2 == "")
+        {
+            return 0;
+        }
         EditDistance.JaroMetrics jaroMetrics = EditDistance.Matches(s1, s2);
         float num = (float)jaroMetrics.Matches;
         int transpositions = jaroMetrics.Transpositions;

@@ -14,7 +14,7 @@ ALTER ASSEMBLY UserFunctions
 go
 
 CREATE FUNCTION [dbo].[ToShortSearchText](@S1 [nvarchar](2000)) 
-RETURNS [nvarchar](1000) WITH EXECUTE AS CALLER
+RETURNS [nvarchar](500) WITH EXECUTE AS CALLER
 AS 
 EXTERNAL NAME [UserFunctions].[StoredFunctions].[ToShortSearchText]
 GO
