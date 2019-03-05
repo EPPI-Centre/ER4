@@ -633,6 +633,13 @@ namespace BusinessLibrary.BusinessClasses
 
         private async void DoSimulation(int ReviewID)
         {
+            // Delete existing results file (if any)
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("simulations");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
+            blockBlob.DeleteIfExists();
+
             // Simple: upload data if needed
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
