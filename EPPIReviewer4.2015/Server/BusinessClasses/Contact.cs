@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private Contact() { }
+        public Contact() { }
 #endif
 
         public override string ToString()
@@ -35,7 +35,7 @@ namespace BusinessLibrary.BusinessClasses
             return ContactName;
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
         public int ContactId
         {
             get
@@ -44,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+		public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
         public string ContactName
         {
             get

@@ -707,6 +707,15 @@
         "tslib": "^1.7.0"
       }
     },
+    "@progress/kendo-angular-upload": {
+      "version": "4.2.2",
+      "resolved": "https://registry.npmjs.org/@progress/kendo-angular-upload/-/kendo-angular-upload-4.2.2.tgz",
+      "integrity": "sha512-sOiQbB6TgZXzsRs2stRJm+nTg8GeTKv3sMFVxHdPUFDOH/WmqocP2rx807JFAxgA41MZnFBo53KxiEOJ/6CdUA==",
+      "requires": {
+        "@progress/kendo-schematics": "^0.2.1",
+        "tslib": "^1.7.0"
+      }
+    },
     "@progress/kendo-charts": {
       "version": "1.12.2",
       "resolved": "https://registry.npmjs.org/@progress/kendo-charts/-/kendo-charts-1.12.2.tgz",

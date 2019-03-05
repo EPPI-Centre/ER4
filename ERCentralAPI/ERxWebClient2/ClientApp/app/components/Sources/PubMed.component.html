@@ -15,7 +15,7 @@
                           [(ngModel)]="NewSearchString" required
                           name="NewSearchString" rows="3"></textarea>
             </div>
-            <button type="button" class="btn btn-primary m-1" (click)="DoNewSearch()">Search PubMed</button>
+            <button type="button" class="btn btn-primary m-1" [disabled]="NewSearchString.trim().length < 2" (click)="DoNewSearch()">Search PubMed</button>
         </form>
     </div>
     <div *ngIf="WizPhase==1.5">
@@ -120,7 +120,7 @@
                     {{FormatDate(DataToCheck.itemsList.dateOfSerach)}}
                 </div>
                 <div>
-                    Dabase: PubMed
+                    Database: PubMed
                 </div>
             </div>
             <div class="form-group col-12">

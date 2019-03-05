@@ -2,9 +2,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationContactList.service'
+import { WorkAllocation } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
-import { WorkAllocationContactListComp } from '../WorkAllocationContactList/workAllocationContactListComp.component';
+import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
@@ -20,6 +20,9 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.component';
+import { frequenciesComp } from '../Frequencies/frequencies.component';
+import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 
 
 
@@ -62,16 +65,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
         , private ReviewSetsEditingService: ReviewSetsEditingService
     ) {}
-    @ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     //@ViewChild('tabset') tabset!: NgbTabset;
-	@ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    @ViewChild('ItemList') ItemListComponent!: ItemListComp;
+    @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
+    @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
             this.ItemListService.IsBusy ||  
-            this.codesetStatsServ.IsBusy ||
+            //this.codesetStatsServ.IsBusy ||
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
@@ -83,7 +89,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
-    public isSourcesPanelCollapsed: boolean = false;
+    public isSourcesPanelVisible: boolean = false;
     public isReviewPanelCollapsed: boolean = false;
     public isWorkAllocationsPanelCollapsed: boolean = false;
     private statsSub: Subscription = new Subscription();
@@ -102,6 +108,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.BulkAssignRemoveCodes(false);
         }
     }];
+    public QuickReportsDDData: Array<any> = [{
+        text: 'Quick Question Report',
+        click: () => {
+            this.ShowHideQuickQuestionReport();
+        }
+    }];
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -110,6 +122,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.reviewSetsService.clearItemData();
         }
         return this._ShowQuickReport;
+    }
+    private _ShowQuickQuestionReport: boolean = false;
+    public get ShowQuickQuestionReport(): boolean {
+        if (this._ShowQuickQuestionReport && !this.ItemListService.HasSelectedItems) {
+            this._ShowQuickQuestionReport = false;
+            this.ItemCodingService.Clear();
+            this.reviewSetsService.clearItemData();
+        }
+        return this._ShowQuickQuestionReport;
     }
     public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
@@ -135,6 +156,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return false;
     }
     public ShowClusterCommand: boolean = false;
+    public HelpAndFeebackContext: string = "main\\reviewhome";
+
+    public get IsSiteAdmin(): boolean {
+        //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
+        //    , this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+        //    , this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin);
+        if (this.ReviewerIdentityServ
+            && this.ReviewerIdentityServ.reviewerIdentity
+            && this.ReviewerIdentityServ.reviewerIdentity.userId > 0
+            && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
+            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        else return false;
+    }
 
 	dtTrigger: Subject<any> = new Subject();
 
@@ -161,16 +196,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }
+    OpenCodesPanel() {
+        this.CodesAreCollapsed = false;
+    }
     ShowHideQuickReport() {
+        this._ShowQuickQuestionReport = false;
         if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
         else this._ShowQuickReport = !this._ShowQuickReport;
-        console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
+        //console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
+    }
+    ShowHideQuickQuestionReport() {
+        this._ShowQuickReport = false;//_ShowQuickQuestionReport
+        if (!this.ItemListService.HasSelectedItems) this._ShowQuickQuestionReport = false;
+        else this._ShowQuickQuestionReport = !this._ShowQuickQuestionReport;
+        //console.log("ShowHideQuickQ Rep:", this._ShowQuickQuestionReport, this.ItemListService.HasSelectedItems);
     }
     CloseQuickReport() {
         this._ShowQuickReport = false;
+        this._ShowQuickQuestionReport = false;
     }
     ShowHideClusterCommand() {
-        this.ShowClusterCommand = !this.ShowClusterCommand;
+        this.ShowClusterCommand =  !this.ShowClusterCommand;
     }
     CloseClusterCommand() {
         this.ShowClusterCommand = false;
@@ -208,11 +254,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             if (!SetA) return;
             else {
                 if (IsBulkAssign
-                    && this.reviewSetsService.selectedNode) {
+					&& this.reviewSetsService.selectedNode) {
                     this.ConfirmationDialogService.confirm("Assign selected ("
                         + this.ItemListService.SelectedItems.length + ") items ? ", "Are you sure you want to assign all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?")
-                        .then((confirm) => {
+                        + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
                             }
@@ -222,8 +268,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
                     && this.reviewSetsService.selectedNode) {
                     this.ConfirmationDialogService.confirm("Remove selected ("
                         + this.ItemListService.SelectedItems.length + ") items?", "Are you sure you want to remove all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?")
-                        .then((confirm) => {
+						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkDeleteCodes(SetA.attribute_id, SetA.set_id);
                             }
@@ -270,7 +316,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return '&darr;';
 	}
     public get SourcesPanelTogglingSymbol(): string {
-        if (this.isSourcesPanelCollapsed) return '&uarr;';
+        if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
 	ngAfterViewInit() {
@@ -296,8 +342,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	GoToItemList() {
 		this.tabstrip.selectTab(1);
 	}
-	LoadWorkAllocList(workAlloc: WorkAllocation) {
-		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+    LoadContactWorkAllocList(workAlloc: WorkAllocation) {
+        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+        else console.log('attempt failed');
+    }
+    LoadWorkAllocList(workAlloc: WorkAllocation){
+		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
 	}
 	//ngOnChanges() {
@@ -312,12 +362,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     toggleWorkAllocationsPanel() {
         this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
-    }
+	}
+
     toggleSourcesPanel() {
-        if (!this.isSourcesPanelCollapsed) {
+        if (!this.isSourcesPanelVisible) {
             this.SourcesService.FetchSources();
         }
-        this.isSourcesPanelCollapsed = !this.isSourcesPanelCollapsed;
+        this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
     }
     getDaysLeftAccount() {
 
@@ -335,23 +386,49 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     subOpeningReview: Subscription | null = null;
     ShowItemsTable: boolean = false;
     onTabSelect(e: SelectEvent) {
-        if (e.title == 'Search') {
-            this._searchService.Fetch();
-        }
-        if (e.title == 'References') {
-            this.ShowItemsTable = true;
-        } else {
+
+        if (e.title == 'Review home') {
+            this.HelpAndFeebackContext = "main\\reviewhome";
             this.ShowItemsTable = false;
         }
+        else if (e.title == 'References') {
+            this.HelpAndFeebackContext = "main\\references";
+            this.ShowItemsTable = true;
+        }
+        else if (e.title == 'Frequencies') {
+            this.HelpAndFeebackContext = "main\\frequencies";
+            this.ShowItemsTable = false;
+        }
+        else if (e.title == 'Crosstabs') {
+            this.HelpAndFeebackContext = "main\\crosstabs";
+            this.ShowItemsTable = false;
+        }
+        else if (e.title == 'Search & Classify') {
+            this.HelpAndFeebackContext = "main\\search";
+            this.ShowItemsTable = false;
+            this._searchService.Fetch();
+		}
+		else if (e.title == 'Collaborate') {
+			this.HelpAndFeebackContext = "main\\collaborate";
+			if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
+			this.ShowItemsTable = false;
+		}
+        else {
+            this.HelpAndFeebackContext = "main\\reviewhome";
+            this.ShowItemsTable = false;
+        }
+    }
+    NewReference() {
+        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
     }
 
     Reload() {
         this.Clear();
         console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
-        this
+        this.isSourcesPanelVisible = false;
         if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
-        else console.log("work allocs comp is undef :-(");
+        //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
     }
@@ -375,6 +452,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
+        this.SourcesService.Clear();
+
+        if (this.FreqComponent) this.FreqComponent.Clear();
+        if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
@@ -411,17 +492,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());
-        console.log("ToRis", dataURI)
+        //console.log("ToRis", dataURI)
         saveAs(dataURI, "ExportedRis.txt");
 	}
-	//public ShowNewReview: boolean = true;
-	//CreateReviewClick() {
-
-	//	this.ShowNewReview = !this.ShowNewReview;
-
-	//}
+    
     ngOnDestroy() {
-        //this.Clear();
+        this.Clear();
         console.log("destroy MainFull..");
         if (this.subOpeningReview) {
             this.subOpeningReview.unsubscribe();			

@@ -111,6 +111,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = !this.ShowPreviewTable;
     }
     DoNewSearch() {
+        if (this.NewSearchString.trim().length < 2) return;
         this.SourcesService.FetchNewPubMedSearch(this.NewSearchString);
     }
     GetSearchPreview() {
@@ -190,9 +191,15 @@ export class PubMedComponent implements OnInit, OnDestroy {
             return this.SourcesService.IsSourceNameValid(this._DataToCheck.itemsList.sourceName);
         };
     }
-    FormatDate(DateSt: string): string {//DONKEY! replicated code :-(
-        let date: Date = new Date();
-        return date.toLocaleDateString();
+    FormatDate(DateSt: string): string {
+        if (DateSt.length < 10) return "";
+        else {
+            const year = parseInt(DateSt.substr(6, 4));
+            const month = parseInt(DateSt.substr(3, 2));
+            const day = parseInt(DateSt.substr(0, 2));
+            const date: Date = new Date(year, month, day);
+            return date.toLocaleDateString();
+        }
     }
     ngOnDestroy(): void {
         if (this.gotPmSearchToCheckSubs) this.gotPmSearchToCheckSubs.unsubscribe();

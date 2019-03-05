@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -40,7 +40,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		public _searchService: searchService,
 		public _reviewSetsEditingServ: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
-		public _reviewSetsService: ReviewSetsService,
+        private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
@@ -89,9 +89,10 @@ export class SearchComp implements OnInit, OnDestroy {
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
 
+    @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	//@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
-	@ViewChild('VisualiseChart')
+    @ViewChild('VisualiseChart')
 	private VisualiseChart!: ChartComponent;
 	public get selectedNode(): singleNode | null {
 		return this._reviewSetsService.selectedNode;
@@ -123,7 +124,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
 		else return false;
 	}
-
+	public modelIsInProgress: boolean = false;
 	public selectedRows(e: any) {
 
 		if (e.selectedRows[0] != undefined && this.modelNum == 5) {
@@ -133,7 +134,13 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ModelSelected = true;
 			this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
 			this.ModelId = e.selectedRows[0].dataItem.modelId;
-
+			if (this.modelTitle.indexOf('prog') != -1 || this.modelTitle.indexOf('failed') != -1 ) {
+				this.modelIsInProgress = true;
+				//alert('model is in progress');
+			} else {
+				this.modelIsInProgress = false;
+			}
+			
 
 		} else {
 
@@ -141,11 +148,13 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.modelTitle = '';
 			this.ModelId = 0;
 			this.ModelSelected = false;
+
+			//alert('model has been DESELECTED that is in fact a custom model');
 		}
 	}
 	public get DataSourceModel(): GridDataResult {
 		return {
-			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
+			data: orderBy(this._buildModelService.ClassifierModelList, this.sortCustomModel),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
 	}
@@ -183,6 +192,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	//	this.isCollapsedVisualise = false;
 
 	//}
+
 	Classify() {
 
 		this._buildModelService.Fetch();
@@ -193,7 +203,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.radioButtonApplyModelSection = true;
 		this.ShowVisualiseSection = false;
 	}
-
+	
 	CanCreateClassifierCodes(): boolean {
 		// logic for enabling visualise button
 		if (this.selectedNode == null) return false;
@@ -306,10 +316,10 @@ export class SearchComp implements OnInit, OnDestroy {
 			return true;
 		}
 		// Codes in set options next: ''
-		else if (this.selectedSearchDropDown == 'That have at least one code from this set' && this.selectedSearchCodeSetDropDown != '') {
+        else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}
-		else if (this.selectedSearchDropDown == 'That dont have any codes from this set' && this.selectedSearchCodeSetDropDown != '') {
+        else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
 			return true;
 		}// hard ones based on code selected from tree first : CurrentDropdownSelectedCode
 		else if (this.selectedSearchDropDown == 'With this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
@@ -346,16 +356,21 @@ export class SearchComp implements OnInit, OnDestroy {
 				//console.log('yes step 2');
 				return true;
 			}
-		}else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null)
+			// Need logic in the below about model still in progress
+		}
+		else if (this.modelNum == 5 && this.ModelSelected && this.ApplySource && this.selected != null && !this.modelIsInProgress)
 		{
+
 			return true;
 		}
-		else if (this.modelNum == 5 && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
+		else if (this.modelNum == 5 && !this.modelIsInProgress && this.ModelSelected && this.ApplyCode && this._reviewSetsService.selectedNode != null && this._reviewSetsService.selectedNode.nodeType == 'SetAttribute')
 		{
+			//alert('custom models');
 			return true;
 
-		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll) {
+		} else if (this.modelNum == 5 && this.ModelSelected && this.ApplyAll && !this.modelIsInProgress) {
 
+			//alert('custom models');
 			return true;
 		}
 		return false;
@@ -368,14 +383,14 @@ export class SearchComp implements OnInit, OnDestroy {
 			this.ApplyCode = true;
 			this.ApplyAll = false;
 			this.ApplySource = false;
-			this.notificationService.show({
-				content: 'Please use the tree on the right hand side to choose a code',
-				animation: { type: 'fade', duration: 100 },
-				position: { horizontal: 'center', vertical: 'top' },
-				type: { style: "warning", icon: true },
-				closable: true,
-				hideAfter: this.hideAfter
-			});
+			//this.notificationService.show({
+			//	content: 'Please use the tree on the right hand side to choose a code',
+			//	animation: { type: 'fade', duration: 100 },
+			//	position: { horizontal: 'center', vertical: 'top' },
+			//	type: { style: "warning", icon: true },
+			//	closable: true,
+			//	hideAfter: this.hideAfter
+			//});
 		}
 	}
 	chooseSourceDD() {
@@ -398,9 +413,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	public openConfirmationDialogDeleteSearches() {
-		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete the selected search ?')
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
 			.then(
-				(confirmed) => {
+			(confirmed: any) => {
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteSearchSelected();
@@ -413,9 +428,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	public openConfirmationDialog() {
-		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?')
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the selected model ?', false, '')
 			.then(
-				(confirmed) =>
+				(confirmed: any) =>
 				{
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
@@ -497,13 +512,17 @@ export class SearchComp implements OnInit, OnDestroy {
 			//alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
 			this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
 			//Very sorry notification show
-			this.notificationService.show({
-				content: 'Please refresh the models list to check if it is updated',
-				animation: { type: 'slide', duration: 400 },
-				position: { horizontal: 'center', vertical: 'top' },
-				type: { style: "warning", icon: true },
-				closable: true
-			});
+
+
+				this.notificationService.show({
+					content: 'Refresh List to see results',
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: "warning", icon: true },
+					closable: true,
+					hideAfter: 3000
+					});
+
 		}
 	}
 	
@@ -614,7 +633,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 	public dropDownList: any = null;
 	public showTextBox: boolean = false;
-	public selectedSearchDropDown: string = '';
+	public selectedSearchDropDown: string = 'With this code';
 	public selectedSearchTextDropDown: string = '';
 	public selectedSearchCodeSetDropDown: string = '';
 	public CodeSets: any[] = [];
@@ -663,7 +682,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public get DataSourceSearches(): GridDataResult {
 		return {
-			data: orderBy(this._searchService.SearchList, this.sort),
+			data: orderBy(this._searchService.SearchList, this.sortSearches),
 			total: this._searchService.SearchList.length,
         };
 	}
@@ -782,7 +801,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
 			}
-			if (selectedSearchDropDown == 'That have at least one code from this set') {
+            if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
 
 				this._searchService.cmdSearches._withCodes = 'true';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
@@ -790,7 +809,7 @@ export class SearchComp implements OnInit, OnDestroy {
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 			}
-			if (selectedSearchDropDown == 'That dont have any codes from this set') {
+            if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
 
 				this._searchService.cmdSearches._withCodes = 'false';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
@@ -922,26 +941,37 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.router.navigate(['BuildModel']);
 	}
 
-	// Need to ask Sergio about this sort part
-    public sort: SortDescriptor[] = [{
-		field: 'searchNo',
+    public sortCustomModel: SortDescriptor[] = [{
+		field: 'modelId',
         dir: 'desc'
 	}];
 
-    public sortChange(sort: SortDescriptor[]): void {
-        this.sort = sort;
-        console.log('sorting?' + this.sort[0].field + " ");
+	public sortSearches: SortDescriptor[] = [{
+		field: 'searchNo',
+		dir: 'desc'
+	}];
+
+	public sortChangeModel(sort: SortDescriptor[]): void {
+		this.sortCustomModel = sort;
+		console.log('sorting?' + this.sortCustomModel[0].field + " ");
+	}
+	public sortChangeSearches(sort: SortDescriptor[]): void {
+		this.sortSearches = sort;
+		console.log('sorting?' + this.sortSearches[0].field + " ");
 	}
 	public visualiseTitle: string = '';
 	public visualiseSearchId = 0;
 
 	OpenClassifierVisualisation(search: Search) {
 
-		console.log(JSON.stringify(search.title));
+		//console.log(JSON.stringify(search.title));
+		this.NewSearchSection = false;
+		this.ModelSection = false;
 		this.visualiseTitle = search.title;
 		this.visualiseSearchId = search.searchId;
-		console.log(JSON.stringify(search));
-		this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
+		//console.log(JSON.stringify(search));
+        this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
+        this.PleaseOpenTheCodes.emit();
 		//alert('in here' + JSON.stringify(this.SearchVisualiseData));
 		// for now just show the graph area unhidden
 		this.ShowVisualiseSection = true;

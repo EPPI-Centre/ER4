@@ -1,11 +1,13 @@
 import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient,  } from '@angular/common/http';
-import { WorkAllocationContactListService } from './WorkAllocationContactList.service';
+import { WorkAllocationListService } from './WorkAllocationList.service';
 import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { ArmsService } from './arms.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -16,32 +18,19 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        private _WorkAllocationService: WorkAllocationContactListService,
+		private _WorkAllocationService: WorkAllocationListService,
         private _PriorityScreeningService: PriorityScreeningService,
-        private ModalService: ModalService
+		private ModalService: ModalService
     ) {
         super();
         //this.timerObj = timer(5000, 5000).pipe(
         //    takeUntil(this.killTrigger));
         //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
-    }
-    //public timerObj: any | undefined;
-    //private killTrigger: Subject<void> = new Subject();
-    //private ID: number = Math.random();
+	}
+
+
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
-        //return this._IsInScreeningMode;
-        //if (this._IsInScreeningMode === null) {
-        //    const tIsInScreeningMode = localStorage.getItem('ItemListIsInScreeningMode');
-        //    let iism: boolean | null = tIsInScreeningMode !== null ? JSON.parse(tIsInScreeningMode) : null;
-        //    if (iism === null ) {
-        //        return false;
-        //    }
-        //    else {
-        //        //console.log("Got ItemsList from LS");
-        //        this.IsInScreeningMode = iism;
-        //    }
-        //}
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
         else return false;
     }
@@ -52,54 +41,66 @@ export class ItemListService extends BusyAwareService {
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
+    private _ItemTypes: any[] = [];
+    public get ItemTypes(): any[] {
+        console.log("Get ItemTypes");
+        return this._ItemTypes;
+    }
+    public ListDescription: string = "";
     @Output() ItemChanged = new EventEmitter();
 	public get ItemList(): ItemList {
-	
-		//if (this._ItemList.items == undefined || this._ItemList.items.length == 0) {
-		//	//console.log('in here 2');
-  //          const listJson = localStorage.getItem('ItemsList');
-  //          let list: ItemList = listJson !== null ? JSON.parse(listJson) : new ItemList();
-		//	if (list == undefined || list == null || list.items.length == 0) {
-		//		//console.log('in here 3: ' + this._ItemList.items.length);
-  //              return this._ItemList;
-  //          }
-  //          else {
-  //              console.log("Got ItemsList from LS");
-  //              this._ItemList = list;
-  //          }
-  //      }
         return this._ItemList;
     }
     public get ListCriteria(): Criteria {
-        //if (this._Criteria.listType == "") {
-        //    const critJson = localStorage.getItem('ItemsListCriteria');
-        //    let crit: Criteria = critJson !== null ? JSON.parse(critJson) : new Criteria();
-        //    if (crit == undefined || crit == null) {
-        //        return this._Criteria;
-        //    }
-        //    else {
-        //        //console.log("Got Criteria from LS");
-        //        this._Criteria = crit;
-        //    }
-        //}
         return this._Criteria;
     }
     public get currentItem(): Item {
-        //if (this._currentItem) return this._currentItem;
-        //else {
-        //    const currentItemJson = localStorage.getItem('currentItem');
-        //    this._currentItem = currentItemJson !== null ? JSON.parse(currentItemJson) : new Item();
-        //}
         return this._currentItem;
     }
-    //private SaveCurrentItem() {
-    //    if (this._currentItem) {
-    //        localStorage.setItem('currentItem', JSON.stringify(this._currentItem));
-    //    }
-    //    else if (localStorage.getItem('currentItem')) {
-    //        localStorage.removeItem('currentItem');
-    //    }
-    //}
+    public FetchWithCrit(crit: Criteria, listDescription: string) {
+        this._BusyMethods.push("FetchWithCrit");
+        this._Criteria = crit;
+        if (this._ItemList && this._ItemList.pagesize > 0
+            && this._ItemList.pagesize <= 4000
+            && this._ItemList.pagesize != crit.pageSize
+        ) {
+            crit.pageSize = this._ItemList.pagesize;
+        }
+        console.log("FetchWithCrit", this._Criteria.listType);
+        this.ListDescription = listDescription;
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+            .subscribe(
+                list => {
+                    this._Criteria.totalItems = this.ItemList.totalItemCount;
+                    this.SaveItems(list, this._Criteria);
+                }, error => {
+                    this.ModalService.GenericError(error);
+                    this.RemoveBusy("FetchWithCrit");
+                }
+                , () => { this.RemoveBusy("FetchWithCrit"); }
+            );
+    }
+    public Refresh() {
+        if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
+            //we have something to do
+            this.FetchWithCrit(this._Criteria, this.ListDescription);
+        }
+    }
+    public FetchItemTypes() {
+        this._BusyMethods.push("FetchItemTypes");
+        this._httpC.get<any[]>(this._baseUrl + 'api/ItemList/ItemTypes')
+            .subscribe(
+            (res) => {
+                this.RemoveBusy("FetchItemTypes"); 
+                this._ItemTypes = res;
+                console.log(res);
+            }
+            , (err) => {
+                this.RemoveBusy("FetchItemTypes");
+                this.ModalService.GenericError(err);
+            }
+            );
+    }
     public GetIncludedItems() {
         let cr: Criteria = new Criteria();
         cr.listType = 'StandardItemList';
@@ -117,13 +118,6 @@ export class ItemListService extends BusyAwareService {
         cr.onlyIncluded = false;
         cr.showDeleted = true;
         this.FetchWithCrit(cr, "Excluded Items");
-        //SelectionCritieraItemList.OnlyIncluded = false;
-        //SelectionCritieraItemList.ShowDeleted = true;
-        //SelectionCritieraItemList.SourceId = 0;
-        //SelectionCritieraItemList.AttributeSetIdList = "";
-        //SelectionCritieraItemList.PageNumber = 0;
-        //SelectionCritieraItemList.ListType = "StandardItemList";
-        //TextBlockShowing.Text = "Showing: deleted documents";
     }
     public static GetCitation(Item: Item): string {
         let retVal: string = "";
@@ -202,9 +196,12 @@ export class ItemListService extends BusyAwareService {
         //console.log('ChangingItem');
         this._currentItem = newItem;
         //this.SaveCurrentItem();
-        this.ItemChanged.emit();
+		console.log('This is when this is emitted actually');
+
+		this.ItemChanged.emit(newItem);
     }
-    public getItem(itemId: number): Item {
+	public getItem(itemId: number): Item {
+
         console.log('getting item');
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) {
@@ -292,37 +289,8 @@ export class ItemListService extends BusyAwareService {
             return new Item();
         }
     }
-	public ListDescription: string = "";
 
-    public FetchWithCrit(crit: Criteria, listDescription: string) {
-        this._BusyMethods.push("FetchWithCrit");
-        this._Criteria = crit;
-        if (this._ItemList && this._ItemList.pagesize > 0
-            && this._ItemList.pagesize <= 4000
-            && this._ItemList.pagesize != crit.pageSize
-        ) {
-            crit.pageSize = this._ItemList.pagesize;
-        }
-        console.log("FetchWithCrit", this._Criteria.listType);
-        this.ListDescription = listDescription;
-        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-            .subscribe(
-                list => {
-                this._Criteria.totalItems = this.ItemList.totalItemCount;
-                this.SaveItems(list, this._Criteria);
-            }, error => {
-                this.ModalService.GenericError(error);
-                this.RemoveBusy("FetchWithCrit");
-            }
-            , () => { this.RemoveBusy("FetchWithCrit"); }
-        );
-    }
-    public Refresh() {
-        if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
-            //we have something to do
-            this.FetchWithCrit(this._Criteria, this.ListDescription);
-        }
-    }
+    
     public FetchNextPage() {
         
         if (this.ItemList.pageindex < this.ItemList.pagecount-1) {
@@ -604,7 +572,7 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: arm[] = [];
+    arms: iArm[] = [];
 }
 
 export class Criteria {
@@ -638,13 +606,23 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-export interface arm {
-    itemArmId: number;
+
+export interface iArm {
+	[key: number]: any;  // Add index signature
+	itemArmId: number;
     itemId: number;
     ordering: number;
     title: string;
 }
 
+export class Arm {
+    
+    itemArmId: number = 0;
+    itemId: number = 0;
+    ordering: number = 0;
+    title: string = '';
+
+}
 
 export class ItemDocumentList {
 

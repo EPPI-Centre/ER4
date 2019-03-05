@@ -17,12 +17,21 @@ export class JwtInterceptor implements HttpInterceptor {
 
         if (request.method == 'POST') {
             if (currentUser && currentUser.token) {
-                request = request.clone({
-                    setHeaders: {
-                        Authorization: `Bearer ${currentUser.token}`,
-                        'Content-Type': 'application/json; charset=utf-8'
-                    }
-                });
+                if (request.url.indexOf('ItemDocumentList/Upload') > 0) {
+                    request = request.clone({
+                        setHeaders: {
+                            Authorization: `Bearer ${currentUser.token}`
+                        }
+                    });
+                }
+                else {
+                    request = request.clone({
+                        setHeaders: {
+                            Authorization: `Bearer ${currentUser.token}`,
+                            'Content-Type': 'application/json; charset=utf-8'
+                        }
+                    });
+                }
             }
             else {
                 request = request.clone({

@@ -10,7 +10,6 @@ import { CodesetTreeCodingComponent, InfoBoxModalContent } from './components/Co
 import { FetchReadOnlyReviewsComponent } from './components/readonlyreviews/readonlyreviews.component';
 import { MainComponent } from './components/main/main.component';
 import { MainFullReviewComponent } from './components/main/mainfull.component';
-import { WorkAllocationContactListComp } from './components/WorkAllocationContactList/workAllocationContactListComp.component';
 import { ItemListComp } from './components/ItemList/itemListComp.component';
 import { ItemCodingComp } from './components/coding/coding.component';
 import { paginatorComp } from './components/commonComponents/paginator.component';
@@ -40,7 +39,8 @@ import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
-import { DialogsModule  } from '@progress/kendo-angular-dialog';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { UploadModule } from '@progress/kendo-angular-upload';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
@@ -60,6 +60,13 @@ import { QuickCodingReportComponent } from './components/Reports/quickcodingrepo
 import { NewReviewComponent } from './components/Review/newreview.component';
 import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
+import { armDetailsComp } from './components/arms/armDetailsComp.component';
+import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
+import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationComp.component';
+import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
+import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
+import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
+import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 
 @NgModule({
     declarations: [
@@ -79,12 +86,12 @@ import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,
-        WorkAllocationContactListComp,
+        HomeComponent,        
         ItemListComp,
         ItemCodingComp,
         ItemCodingFullComp,
         itemDetailsComp,
+        editItemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
 		InfoBoxModalContent,
@@ -100,9 +107,15 @@ import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
         MainFullReviewComponent,
 		MainComponent,
         ConfirmationDialogComponent,
-		QuickCodingReportComponent,
+        QuickCodingReportComponent,
+        CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
-        RunLingo3G
+		RunLingo3G,
+		armDetailsComp,
+        WorkAllocationComp,
+        WorkAllocationContactListComp,
+        SiteAdminComponent,
+        SiteAdminEntryComponent
 	],
     providers: [
         EventEmitterService,
@@ -126,6 +139,7 @@ import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
         DialogsModule,
         ToolBarModule,
         InputsModule,
+        UploadModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,
@@ -139,10 +153,12 @@ import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
 			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
-            { path: 'WorkAllocationContactListComp', component: WorkAllocationContactListComp },
+            { path: 'EditItem/:itemId', component: editItemDetailsComp },
+            { path: 'EditItem', component: editItemDetailsComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
-			{ path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-            { path: 'intropage', component: intropageComponent },
+            { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
+            { path: 'intropage', component: intropageComponent }, 
+            { path: 'SiteAdmin', component: SiteAdminComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

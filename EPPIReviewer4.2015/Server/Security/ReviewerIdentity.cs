@@ -177,7 +177,7 @@ namespace BusinessLibrary.Security
 #if (CSLA_NETCORE)
         public static ReviewerIdentity GetIdentity(int contactId, int reviewId, string displayName)
         {
-            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(contactId, reviewId, displayName, "CSLA"));
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(contactId, reviewId, displayName, "ERWeb"));
         }
         public static ReviewerIdentity GetIdentity(System.Security.Claims.ClaimsPrincipal CP)
         {
@@ -244,6 +244,11 @@ namespace BusinessLibrary.Security
                                         command2.CommandType = System.Data.CommandType.StoredProcedure;
                                         command2.Parameters.Add(new SqlParameter("@userId", UserId));
                                         command2.Parameters.Add(new SqlParameter("@reviewId", -criteria.ReviewId));
+#if (CSLA_NETCORE)
+                                        //this is a quick, dirty, and probably sad way of recording how we're logging on,
+                                        //but it does seem failsafe, as the compiling directive HAS to be correct...
+                                        command2.Parameters.Add(new SqlParameter("@Client", "ERweb"));
+#endif
                                         command2.Parameters.Add("@GUI", System.Data.SqlDbType.UniqueIdentifier);
                                         command2.Parameters["@GUI"].Direction = System.Data.ParameterDirection.Output;
                                         using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
@@ -544,10 +549,12 @@ namespace BusinessLibrary.Security
                     Roles = new MobileList<string>();
                     LoadProperty<int>(UserIdProperty, criteria.ContactId);
                     LoginToReview(connection, criteria);
+
                     if (ReviewId != 0 && Roles.Count > 0)
                     {//it worked
                         LoadProperty<int>(UserIdProperty, criteria.ContactId);
                         LoadProperty<string>(NameProperty, criteria.DisplayName);
+                        LoadProperty<string>(LoginModeProperty, criteria.LoginMode);
                         IsAuthenticated = true;
                     }
                     else
@@ -608,6 +615,11 @@ namespace BusinessLibrary.Security
                 command2.Parameters.Add(new SqlParameter("@userId", UserId));
                 command2.Parameters.Add(new SqlParameter("@reviewId", criteria.ReviewId));
                 command2.Parameters.Add(new SqlParameter("@IsArchieUser", false));
+#if (CSLA_NETCORE)
+                //this is a quick, dirty, and probably sad way of recording how we're logging on,
+                //but it does seem failsafe, as the compiling directive HAS to be correct...
+                command2.Parameters.Add(new SqlParameter("@Client", "ERweb"));
+#endif
                 command2.Parameters.Add("@GUI", System.Data.SqlDbType.UniqueIdentifier);
                 command2.Parameters["@GUI"].Direction = System.Data.ParameterDirection.Output;
                 command2.CommandTimeout = 60;
@@ -625,6 +637,7 @@ namespace BusinessLibrary.Security
                             ReviewExp = reader2.GetDateTime("REVIEW_EXP");
                             if (ReviewExp == new DateTime(1, 1, 1)) ReviewExp = new DateTime(3000, 1, 1);
                             LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);
+                            LoadProperty<bool>(IsSiteAdminProperty, reader2.GetBoolean("IS_SITE_ADMIN"));
                             //if (check == new DateTime(1, 1, 1)) check = DateTime.Now.AddDays(1);
                             check = ContactExp < ReviewExp ? ContactExp : ReviewExp;
                             if (check < DateTime.Today && (reader2.GetInt32("FUNDER_ID") != UserId || ContactExp < DateTime.Today))

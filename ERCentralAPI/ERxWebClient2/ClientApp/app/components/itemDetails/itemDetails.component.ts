@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Item } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
@@ -18,7 +18,9 @@ import { ModalService } from '../services/modal.service';
 })
 export class itemDetailsComp implements OnInit {
 
-    constructor(private ReviewerTermsService: ReviewerTermsService,
+    constructor(
+        private router: Router,
+        private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
         private ModalService: ModalService
     ) {}
@@ -26,10 +28,19 @@ export class itemDetailsComp implements OnInit {
     @Input() item: Item | undefined;
     @Input() ShowHighlights: boolean = false;
     public HAbstract: string = "";
-    public HTitle: string = "";
+	public HTitle: string = "";
+
+	private eventsTest: Subject<void> = new Subject<void>();
+
 	ngOnInit() {
 
-    }
+
+
+	}
+	Changed() {
+	//	alert('item changed');
+	//	//this.eventsTest.next();
+	}
 
     public WipeHighlights() {
         this.HAbstract = "";
@@ -38,6 +49,14 @@ export class itemDetailsComp implements OnInit {
     ShowHighlightsClicked() {
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
             this.SetHighlights();
+        }
+	}
+	ItemChanged() {
+		alert('item changed!!');
+    }
+    EditItem() {
+        if (this.item) {
+            this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
         }
     }
     public SetHighlights() {

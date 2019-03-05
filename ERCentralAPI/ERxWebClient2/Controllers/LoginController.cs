@@ -72,10 +72,9 @@ namespace ERxWebClient2.Controllers
                     return Ok(ri);
 
                 }
-
-                else return StatusCode(500, "login to review failed");
+                else  
                 {
-
+                    return StatusCode(500, "login to review failed");
                 }
             }
             catch (Exception e)
@@ -84,6 +83,31 @@ namespace ERxWebClient2.Controllers
                 return Forbid();
             }
         }
+
+        [Authorize]
+        [HttpPost("[action]")]
+        public IActionResult LoginToReviewSA([FromBody] LoginCredsSA lcsa)
+        {
+            try
+            {
+                if (!(User.Claims.First(c => c.Type == "isSiteAdmin").Value == "True")) return Forbid();
+                
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lcsa.Username, lcsa.Password, -lcsa.RevId, "web", "");
+                if (ri.UserId.ToString() != User.Claims.First(c => c.Type == "userId").Value) return Forbid();
+                if (ri.IsAuthenticated)
+                {
+                    ri.Token = BuildToken(ri);
+                    return Ok(ri);
+                }
+                else { return Forbid(); }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Logging on exception!");
+                return Forbid();
+            }
+        }
+
 
         private string BuildToken(ReviewerIdentity ri)
         {
@@ -136,5 +160,12 @@ namespace ERxWebClient2.Controllers
     {
         public string Username { get; set; }
         public string Password { get; set; }
+    }
+
+    public class LoginCredsSA
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public int RevId { get; set; }
     }
 }

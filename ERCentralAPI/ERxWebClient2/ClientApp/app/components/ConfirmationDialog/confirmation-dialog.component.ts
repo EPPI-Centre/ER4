@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'app-confirmation-dialog',
@@ -10,9 +11,17 @@ export class ConfirmationDialogComponent implements OnInit {
 	@Input() title: string='';
 	@Input() message: string='';
 	@Input() btnOkText: string='';
-	@Input() btnCancelText: string='';
+	@Input() btnCancelText: string = '';
+	//@Output() action = new EventEmitter<string>();
 
-	constructor(private activeModal: NgbActiveModal) { }
+	public UserInputTextArms: string = '';
+
+	public ShowInputTextWarning: boolean = false;
+	
+	constructor(private activeModal: NgbActiveModal,
+		private eventsService: EventEmitterService) {
+
+	}
 
 	ngOnInit() {
 	}
@@ -21,12 +30,30 @@ export class ConfirmationDialogComponent implements OnInit {
 		this.activeModal.close(false);
 	}
 
+	CheckInputBoxEntry(): boolean {
+
+		if (this.message.indexOf('I confirm') == -1) {
+			return false;
+		}
+		else if (this.message.indexOf('I confirm') > 0 && this.UserInputTextArms  == 'I confirm') {
+
+			return false;
+		} else {
+			//console.log(this.message);
+			return true;
+		}
+	}
+	   
 	public accept() {
+
+		this.eventsService.UserInput = this.UserInputTextArms;
+		
 		this.activeModal.close(true);
+
 	}
 
 	public dismiss() {
+
 		this.activeModal.dismiss();
 	}
-
 }

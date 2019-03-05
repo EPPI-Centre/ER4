@@ -1,9 +1,9 @@
-<p *ngIf="!_workAllocationContactListService.workAllocations"><em>Loading your Allocations...</em></p>
+<p *ngIf="!_workAllocationListService.ContactWorkAllocations"><em>Loading your Allocations...</em></p>
 
 <div class="card card-link mb-2" *ngIf="HasScreeningList()">
     <div class="align-content-end p-1 m-1">Priority screening List is <b>Enabled and Ready</b>: <button (click)="StartScreening()" class="btn btn-primary">Click Here</button> to start screening.</div>
 </div>
-<table class='table table-responsive'  style="height: 240px;" *ngIf="_workAllocationContactListService.workAllocations">
+<table class='table table-responsive'  style="height: 240px;" *ngIf="_workAllocationListService.ContactWorkAllocations">
     <thead>
         <tr class="small">
             <th>Codes to apply</th>
@@ -14,7 +14,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let alloc of _workAllocationContactListService.workAllocations; let i = index">
+        <tr *ngFor="let alloc of _workAllocationListService.ContactWorkAllocations; let i = index">
             <td>{{ alloc.setName }}</td>
             <td>{{ alloc.attributeName }}</td>
             <td id="waAll-{{alloc.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ alloc.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(alloc.workAllocationId,'GetItemWorkAllocationList')">

@@ -23,11 +23,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDocumentSaveCommand : CommandBase<ItemDocumentSaveCommand>
     {
-#if SILVERLIGHT
-    public ItemDocumentSaveCommand(){}
-#else
-        protected ItemDocumentSaveCommand() { }
-#endif
+        public ItemDocumentSaveCommand(){}
+
 
         private string _documentTitle;
         private string _documentExtension;

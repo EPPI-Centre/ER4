@@ -1,0 +1,203 @@
+<HeaderComponent PageTitle="Edit Reference" Context="editref"></HeaderComponent>
+<button *ngIf="!item" class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="GoBack()">
+    Close/back
+</button>
+<div *ngIf="item" class="row card card-body bg-light m-1 p-0">
+    <div class="row m-0 p-0">
+        <div class="col text-center mt-1">
+            <button class="btn btn-outline-danger btn-sm ml-1 mb-1 "
+                    [disabled]="!Edited"
+                    (click)="Save()">
+                Save
+            </button>
+            <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mr-2 "
+                    [disabled]="!Edited"
+                    (click)="SaveAndClose()">
+                Save and Close
+            </button>
+        </div>
+        <div style="position:absolute; right: 0; z-index:2000;">
+            <button class="page-link pt-0 pb-1 mb-1 rounded float-right" (click)="GoBack()">
+                Close/back
+            </button>
+        </div>
+    </div>
+
+    <div class="row m-1 p-1">
+        <div class="row w-100 col-12 p-0 m-0">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Ref. Type </div>
+            <div class="col-sm-5 col-12 p-1">
+                <select *ngIf="ItemTypes && ItemTypes.length && ItemTypes.length > 0" [(ngModel)]="item.typeId"
+                        class="">
+                    <option *ngFor="let kvp of ItemTypes" [value]="kvp.key">{{kvp.value}}</option>
+                </select>
+            </div>
+            <div class="col-sm-5 col-12 row">
+                <span class="mt-2 mr-1">Show optional fields?</span>
+                <span class="small brightSwitch">
+                    <kendo-switch name="CanEditSW" class="small small mt-1"
+                                  [(ngModel)]="showOptionalFields"
+                                  [onLabel]="'Yes'"
+                                  [offLabel]="'No'"></kendo-switch>
+                </span>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Title </div>
+            <div class="col p-0 m-1">
+                <input class="p-1 w-100" type="text" [(ngModel)]="item.title" />
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0 ">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Abstract </div>
+            <div class="col p-0 m-1">
+                <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.abstract"></textarea>
+            </div>
+        </div>
+        <div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
+             class="row w-100 p-0 m-0">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
+            <div class="col p-0 m-1">
+                <input class="p-1 w-100" type="text" [(ngModel)]="item.parentTitle" />
+            </div>
+        </div>
+        <div *ngIf="!FieldsByType(item.typeId).parentAuthors.optional || showOptionalFields"
+             class="row w-100 p-0 m-0">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentAuthors.txt}}</div>
+            <div class="col p-0 m-1">
+                <input class="p-1 w-100" type="text" [(ngModel)]="item.parentAuthors" />
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Year</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.year" />
+                </div>
+            </div>
+            <div *ngIf="!FieldsByType(item.typeId).standardNumber.optional || showOptionalFields"
+                 class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).standardNumber.txt}}</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.standardNumber" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.shortTitle" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Pages</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.pages" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Volume</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.volume" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Issue</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.issue" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Url</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.url" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">DOI</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.doi" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.edition" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.publisher" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Month</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.month" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">City</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.city" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.edition" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.publisher" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.country" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.institution" />
+                </div>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                <div class="col p-0 m-1">
+                    <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.comments"></textarea>
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+                <div class="col p-0 m-1">
+                    <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.keywords"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div *ngIf="item" class="row mt-1 card card-body bg-light m-1 p-1" style="overflow-x:auto;">
+        <ItemDocListComp class="" [itemID]="item.itemId"></ItemDocListComp>
+    </div>
+    <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

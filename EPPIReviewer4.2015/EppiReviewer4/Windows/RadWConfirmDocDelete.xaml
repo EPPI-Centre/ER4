@@ -45,8 +45,8 @@
     
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
-                <RowDefinition MinHeight="35" MaxHeight="70"></RowDefinition>
+                <RowDefinition MinHeight="25" MaxHeight="70"></RowDefinition>
+                <RowDefinition MinHeight="35"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -54,11 +54,13 @@
                 <ColumnDefinition Width="3*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="TextBlockCheckDeleteDoc" TextWrapping="Wrap" Text="Are you sure you want to delete this File?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
+            <TextBlock x:Name="TextBlockCheckDeleteDoc" TextWrapping="Wrap" Text="Are you sure you want to delete this File?" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,2"></TextBlock>
             <cslaXAML:BusyAnimation x:Name="BusyCheckDocDelete" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,6,0"/>
-            <TextBlock x:Name="TextBlockCheckDeleteDocDetails" TextWrapping="Wrap" Text="Are you sure you want to delete this File?" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="6,6,6,6"></TextBlock>
-            <Button x:Name="cmdDeleteDoc"  Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,6,6,6" Click="cmdDeleteDoc_Click"></Button>
-            <Button x:Name="cmdCancelDeleteDoc"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelDeleteDoc_Click"></Button>
+            <Border x:Name="WarningBorder" Background="Transparent" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                <TextBlock x:Name="TextBlockCheckDeleteDocDetails" TextWrapping="Wrap" Text="Loading..." Margin="6,1,6,6"></TextBlock>
+            </Border>
+            <Button x:Name="cmdDeleteDoc"  Content="Yes" Grid.Row="2" Grid.Column="0" Margin="6,8,6,6" Click="cmdDeleteDoc_Click"></Button>
+            <Button x:Name="cmdCancelDeleteDoc"  Content="No" Grid.Row="2" Grid.Column="1" Margin="6,8,6,6" Click="cmdCancelDeleteDoc_Click"></Button>
         </Grid>
 
 </telerik:RadWindow>

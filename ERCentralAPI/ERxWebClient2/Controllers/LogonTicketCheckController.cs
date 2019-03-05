@@ -22,7 +22,7 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class LogonTicketCheckController : CSLAController
+    public class LogonTicketCheckController : Controller
     {
 
         private readonly ILogger _logger;
@@ -40,7 +40,7 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                SetCSLAUser();
+                SetCSLAUserNoReviewCheck();//we don't use the Abstract class method because in this case only we don't want to check the ReviewID!
                 CheckTicketExpirationCommand cmd = new CheckTicketExpirationCommand(
 
                     Lgt.userId,
@@ -67,6 +67,20 @@ namespace ERxWebClient2.Controllers
                 string json = JsonConvert.SerializeObject(Lgt);
                 _logger.LogError(e, "Dataportal Error with Check ticket for user: {0}", json);
                 throw;
+            }
+        }
+        protected void SetCSLAUserNoReviewCheck()
+        {
+            try
+            {
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                ReviewerPrincipal principal = new ReviewerPrincipal(ri);
+                Csla.ApplicationContext.User = principal;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Dataportal Check ticket Error as SetCSLA user stage");
+                throw e;
             }
         }
     }

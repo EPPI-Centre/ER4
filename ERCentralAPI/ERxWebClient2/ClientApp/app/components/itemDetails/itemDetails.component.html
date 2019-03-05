@@ -1,5 +1,11 @@
+
 <div *ngIf="item" class="row col-12 card card-body bg-light ml-1">
+    <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="EditItem()"
+            style="position:absolute; width:46px; right:0%; top:0px; z-index:20">
+        Edit
+    </button>
     <div class="row">
+
         <div *ngIf="ShowHighlights" class="row col-12"><h4 [innerHTML]="HTitle"></h4></div>
         <div *ngIf="!ShowHighlights" class="row col-12"><h4>{{item.title}}</h4></div>
         <div *ngIf="ShowHighlights" class="row col-12 border-top border-info ml-0 pl-0"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
@@ -46,7 +52,7 @@
                     </td>
                     <td colspan="4">
                         <b>Volume:&nbsp;</b> {{item.volume}}
-						
+
                     </td>
                     <td colspan="4">
                         <b>Pages:&nbsp;</b> {{item.pages}}
@@ -67,13 +73,13 @@
                     <td colspan="6">
                         <b>DOI:&nbsp;</b> {{item.doi}}
                     </td>
-                    <td  colspan="6" style="max-width:270px;overflow:auto;">
+                    <td colspan="6" style="max-width:270px;overflow:auto;">
                         <b>URL:&nbsp;</b> <span class="small">{{item.url}}</span>
                     </td>
                 </tr>
                 <tr *ngIf="item.keywords.length > 0 || item.comments.length > 0 ">
                     <td colspan="6">
-                        <div *ngIf="item.keywords.length > 0" >
+                        <div *ngIf="item.keywords.length > 0">
                             <b>Keywords:</b><br />
                             <div style="max-height:120px; overflow-y:scroll;" [innerHTML]="toHTML(item.keywords)"></div>
                         </div>
@@ -89,6 +95,7 @@
         </table>
     </div>
 </div>
-<div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" >
+<div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" style="overflow-x:auto;">
     <ItemDocListComp class="" [itemID]="item.itemId"></ItemDocListComp>
 </div>
+

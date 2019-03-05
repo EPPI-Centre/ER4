@@ -91,8 +91,9 @@ export class SourcesService extends BusyAwareService {
         );
     }
     public FetchNewPubMedSearch(SearchString: string) {
+        if (SearchString.trim().length < 2) return;
         this._BusyMethods.push("FetchNewPubMedSearch");
-        let body = JSON.stringify({ Value: SearchString });
+        let body = JSON.stringify({ Value: SearchString.trim() });
         this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             //this.gotSource.emit();
@@ -295,6 +296,13 @@ export class SourcesService extends BusyAwareService {
             isDeleted: false
         };
         return result;
+    }
+    public Clear() {
+        this._ReviewSources = [];
+        this._Source = null;
+        this._LastDeleteForeverStatus = "";
+        this.ClearIncomingItems4Checking();
+        this.ClearPMsearchState();
     }
     public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
         //[LAST] + ' ' + [FIRST] + ' ' + [SECOND]
