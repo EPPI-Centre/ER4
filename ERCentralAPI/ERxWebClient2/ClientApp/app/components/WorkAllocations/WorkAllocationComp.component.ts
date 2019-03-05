@@ -62,6 +62,8 @@ export class WorkAllocationComp implements OnInit {
 	public FiltRevSet: ReviewSet = new ReviewSet();
 	public index: number = 0;
 	public dropdownBasic2: boolean = false;
+	public dropdownBasic3: boolean = false;
+	public dropdownTree3: boolean = false;
 	public dropdownTree11: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
 
@@ -194,7 +196,7 @@ export class WorkAllocationComp implements OnInit {
 
 		//console.log("selected is: ", this.SelectFrom.nativeElement.selectedIndex);
 		this.FilterNumber = this.SelectFrom.nativeElement.selectedIndex;
-		//console.log('This is what I mean: ' + this.FilterNumber);
+		console.log('This is what I mean: ' + this.FilterNumber);
 		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode != null) {
 			// comma goes here shown by Sergio
 			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
@@ -240,10 +242,10 @@ export class WorkAllocationComp implements OnInit {
 
 		switch (this.FilterNumber) {
 
-			case 1:
+			case 0:
 				FilterType = "No code / code set filter";
 				break;
-			case 2:
+			case 1:
 				if (this.FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
@@ -251,7 +253,7 @@ export class WorkAllocationComp implements OnInit {
 				setIdFilter = this.FiltRevSet.set_id;
 				FilterType = "All without any codes from this set";
 				break;
-			case 3:
+			case 2:
 				if (this.FiltRevSet.set_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
@@ -259,7 +261,7 @@ export class WorkAllocationComp implements OnInit {
 				setIdFilter = this.FiltRevSet.set_id;
 				FilterType = "All with any codes from this set";
 				break;
-			case 4:
+			case 3:
 				if (this.FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
@@ -267,7 +269,7 @@ export class WorkAllocationComp implements OnInit {
 				attributeIdFilter = this.FiltAttSet.attribute_id;
 				FilterType = "All with this code";
 				break;
-			case 5:
+			case 4:
 				if (this.FiltAttSet.attribute_id == -1) {
 					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
@@ -300,6 +302,8 @@ export class WorkAllocationComp implements OnInit {
 		assignParameters.RandomSampleIncluded = this.allocateInclOrExcl;
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
+
+		this.RandomlyAssignSection = false;
 	}
 	public openConfirmationDialogDeleteWA(workAllocationId: number) {
 
@@ -369,7 +373,7 @@ export class WorkAllocationComp implements OnInit {
 		let contact: Contact = this.selectedMemberDropDown3;
 		this.workAllocation.contactId = contact.contactId.toString();
 		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
-
+		this.AssignWorkSection = false;
 	}
 
 	CanNewWorkAllocationCreate(): boolean {
@@ -414,7 +418,8 @@ export class WorkAllocationComp implements OnInit {
 			this.workAllocation.attributeId = setAtt.attribute_id;
 
 		}
-
+		this.dropdownBasic2 = false;
+		this.dropdownBasic3 = false
 		this.isCollapsed3 = false;
 	}
 	getMembers() {
