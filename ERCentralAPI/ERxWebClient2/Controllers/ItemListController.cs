@@ -134,56 +134,11 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<Item> dp = new DataPortal<Item>();
                     SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
-                    Item CSLAItem = dp.Fetch(criteria);
-                    CSLAItem.Title = item.title;
-                    CSLAItem.DateEdited = DateTime.Now;
-                    CSLAItem.TypeId = item.typeId;
-                    CSLAItem.ParentTitle = item.parentTitle;
-                    CSLAItem.ShortTitle = item.shortTitle;
-                    CSLAItem.EditedBy = ri.Name;
-                    CSLAItem.Year = item.year;
-                    CSLAItem.Month = item.month;
-                    CSLAItem.StandardNumber = item.standardNumber;
-                    CSLAItem.City = item.city;
-                    CSLAItem.Country = item.country;
-                    CSLAItem.Publisher = item.publisher;
-                    CSLAItem.Institution = item.institution;
-                    CSLAItem.Volume = item.volume;
-                    CSLAItem.Pages = item.pages;
-                    CSLAItem.Edition = item.edition;
-                    CSLAItem.Issue = item.issue;
-                    CSLAItem.Availability = item.availability;
-                    CSLAItem.URL = item.url;
-                    CSLAItem.Comments = item.comments;
-                    if (item.itemStatus.ToUpper() == "I" || item.itemStatus.ToUpper() == "")
-                    {
-                        CSLAItem.IsItemDeleted = false;
-                        CSLAItem.IsIncluded = true;
-                    }
-                    else if (item.itemStatus.ToUpper() == "D")
-                    {
-                        CSLAItem.IsItemDeleted = true;
-                        CSLAItem.IsIncluded = false;
-                    }
-                    else if (item.itemStatus.ToUpper() == "E")
-                    {
-                        CSLAItem.IsItemDeleted = false;
-                        CSLAItem.IsIncluded = false;
-                    }
-                    CSLAItem.DOI = item.doi;
-                    CSLAItem.Keywords = item.keywords;
-                    CSLAItem.Authors = item.authors;
-                    CSLAItem.ParentAuthors = item.parentAuthors;
-                    CSLAItem.Abstract = item.@abstract;
-
-                    CSLAItem.BeginEdit();
-                    CSLAItem.ApplyEdit();
-
+                    Item CSLAItem = item.itemId == 0 ? new Item() : dp.Fetch(criteria);
+                    UpdateItemData(item, CSLAItem);
                     CSLAItem = CSLAItem.Save();
-
                     return Ok(CSLAItem);
                 }
                 else
@@ -197,7 +152,57 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        private void UpdateItemData(ItemJSON item, Item CSLAItem)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (item.itemId == 0)
+            {
+                CSLAItem.CreatedBy = ri.Name;
+                CSLAItem.DateCreated = DateTime.Now;
+            }
+            CSLAItem.BeginEdit();
+            CSLAItem.Title = item.title;
+            CSLAItem.DateEdited = DateTime.Now;
+            CSLAItem.TypeId = item.typeId;
+            CSLAItem.ParentTitle = item.parentTitle;
+            CSLAItem.ShortTitle = item.shortTitle;
+            CSLAItem.EditedBy = ri.Name;
+            CSLAItem.Year = item.year;
+            CSLAItem.Month = item.month;
+            CSLAItem.StandardNumber = item.standardNumber;
+            CSLAItem.City = item.city;
+            CSLAItem.Country = item.country;
+            CSLAItem.Publisher = item.publisher;
+            CSLAItem.Institution = item.institution;
+            CSLAItem.Volume = item.volume;
+            CSLAItem.Pages = item.pages;
+            CSLAItem.Edition = item.edition;
+            CSLAItem.Issue = item.issue;
+            CSLAItem.Availability = item.availability;
+            CSLAItem.URL = item.url;
+            CSLAItem.Comments = item.comments;
+            if (item.itemStatus.ToUpper() == "I" || item.itemStatus.ToUpper() == "")
+            {
+                CSLAItem.IsItemDeleted = false;
+                CSLAItem.IsIncluded = true;
+            }
+            else if (item.itemStatus.ToUpper() == "D")
+            {
+                CSLAItem.IsItemDeleted = true;
+                CSLAItem.IsIncluded = false;
+            }
+            else if (item.itemStatus.ToUpper() == "E")
+            {
+                CSLAItem.IsItemDeleted = false;
+                CSLAItem.IsIncluded = false;
+            }
+            CSLAItem.DOI = item.doi;
+            CSLAItem.Keywords = item.keywords;
+            CSLAItem.Authors = item.authors;
+            CSLAItem.ParentAuthors = item.parentAuthors;
+            CSLAItem.Abstract = item.@abstract;
+            CSLAItem.ApplyEdit();
+        }
         //[HttpPost("[action]")]
         //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
         //{
@@ -300,7 +305,6 @@ namespace ERxWebClient2.Controllers
         public string pages;
         public string edition;
         public string issue;
-        public bool isLocal;
         public string availability;
         public string url;
         public string comments;
@@ -309,5 +313,9 @@ namespace ERxWebClient2.Controllers
         public string authors;
         public string parentAuthors;
         public string @abstract;
+
+        public bool isIncluded;
+        public bool isItemDeleted;
+        public string isLocal;
     }
 }

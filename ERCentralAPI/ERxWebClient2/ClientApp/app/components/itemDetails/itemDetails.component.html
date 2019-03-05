@@ -1,5 +1,5 @@
 
-<div *ngIf="item" class="row col-12 card card-body bg-light ml-1">
+<div *ngIf="item" class="row col-12 card card-body  ml-1" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S' , 'bg-light': item.itemStatus == 'I' || item.itemStatus == 'E'}">
     <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="EditItem()"
             style="position:absolute; width:46px; right:0%; top:0px; z-index:20">
         Edit
@@ -93,6 +93,43 @@
                 </tr>
             </tbody>
         </table>
+        <div class="row w-100 p-0 m-0 small">
+            <div class="col-4 row p-0 m-0">
+                Type:&nbsp;<b>{{item.typeName}}</b>
+            </div>
+            <div class="col-4 row p-0 m-0">
+                Imported ID: {{item.oldItemId}}
+            </div>
+            <div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
+                Item is duplicate of: {{item.masterItemId}}
+            </div>
+            <div *ngIf="item.itemStatus == 'I'" class="col-4 row p-0 m-0">
+                Item is:&nbsp;<b>Included</b>
+            </div>
+            <div *ngIf="item.itemStatus == 'E'" class="col-4 row p-0 m-0">
+                Item is:&nbsp;<b>Excluded</b>
+            </div>
+            <div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
+                Item is Deleted
+            </div>
+            <div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
+                Item is part of a Deleted Source
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0 small">
+            <div class="col-3 row p-0 m-0 font-weight-bold">
+                Created by: {{item.createdBy}}
+            </div>
+            <div class="col-3 row p-0 m-0 ">
+                Created on: {{item.dateCreated}}
+            </div>
+            <div class="col-3 row p-0 m-0 font-weight-bold">
+                Edited by: {{item.editedBy}}
+            </div>
+            <div class="col-3 row p-0 m-0 ">
+                Edited on: {{item.dateEdited}}
+            </div>
+        </div>
     </div>
 </div>
 <div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" style="overflow-x:auto;">

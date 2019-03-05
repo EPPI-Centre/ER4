@@ -4,8 +4,8 @@
 </button>
 <div *ngIf="item" class="row card card-body bg-light m-1 p-0">
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-    <div class="row m-0 p-0">
-        <div class="col text-center mt-1">
+    <div class="w-100 m-0 p-0 text-center">
+        
             <button class="btn btn-outline-danger btn-sm ml-1 mb-1 "
                     [disabled]="!Edited || !CanSave"
                     (click)="Save()">
@@ -16,15 +16,14 @@
                     (click)="SaveAndClose()">
                 Save and Close
             </button>
-        </div>
-        <div style="position:absolute; right: 0; z-index:2000;">
+        <div style="position:absolute; right: 0; top:0; z-index:2000;">
             <button class="page-link pt-0 pb-1 mb-1 rounded float-right" (click)="GoBack()">
                 Close/back
             </button>
         </div>
     </div>
 
-    <div class="row m-1 p-1">
+    <div class="row m-1 p-1" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S'}" >
         <div class="row w-100 col-12 p-0 m-0">
             <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Ref. Type </div>
             <div class="col-sm-5 col-12 p-1">
@@ -54,6 +53,12 @@
             <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Abstract </div>
             <div class="col p-0 m-1">
                 <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.abstract"></textarea>
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0 ">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+            <div class="col p-0 m-1">
+                <input class="p-1 w-100" type="text" [(ngModel)]="item.authors" />
             </div>
         </div>
         <div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
@@ -194,11 +199,31 @@
             <div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
                 Item is duplicate of {{item.masterItemId}}
             </div>
-            <div *ngIf="!item.isDupilcate" class="col-4 row p-0 m-0">
+            <div *ngIf="item.itemStatus == 'I' || item.itemStatus == 'E'" class="col-4 row p-0 m-0">
                 <select (change)="SetItemFlagStatus($event.target.value)">
                     Item state:
                     <option *ngFor="let kvp of ItemFlagOptions" [value]="kvp.key" [selected]="kvp.key == item.itemStatus">{{kvp.value}}</option>
                 </select>
+            </div>
+            <div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
+                Item is Deleted
+            </div>
+            <div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
+                Item is part of a Deleted Source
+            </div>
+        </div>
+        <div class="row w-100 p-0 m-0 small">
+            <div class="col-3 row p-0 m-0 font-weight-bold">
+                Created by: {{item.createdBy}}
+            </div>
+            <div class="col-3 row p-0 m-0 ">
+                Created on: {{item.dateCreated}}
+            </div>
+            <div class="col-3 row p-0 m-0 font-weight-bold">
+                Edited by: {{item.editedBy}}
+            </div>
+            <div class="col-3 row p-0 m-0 ">
+                Edited on: {{item.dateEdited}}
             </div>
         </div>
     </div>
