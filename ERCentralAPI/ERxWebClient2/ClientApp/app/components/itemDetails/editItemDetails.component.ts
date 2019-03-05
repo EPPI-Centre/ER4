@@ -28,7 +28,27 @@ export class editItemDetailsComp implements OnInit {
         public ItemListService: ItemListService,
         private ModalService: ModalService
     ) {}
-
+    ngOnInit() {
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+            if (!this.ReviewerIdentityServ.HasWriteRights) this.GoBack();
+            if (this.ItemListService.ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
+            this.subReturnTo = this.route.queryParams.subscribe(params => {
+                if (params['return']) this.returnTo = params['return'];
+                else this.returnTo = "Main";
+                if (this.subReturnTo) this.subReturnTo.unsubscribe();
+                this.route.queryParams = new Observable<Params>();
+            });
+            this.subItemIDinPath = this.route.params.subscribe(params => {
+                if (params['itemId']) this.itemString = params['itemId'];
+                else this.itemString = "0";
+                this.GetItem();
+                //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+            });
+        }
+    }
     private item: Item | null = null;
     private OriginalItem: Item | null = null;//used to support "cancel".
     private subItemIDinPath: Subscription | null = null;
@@ -41,7 +61,7 @@ export class editItemDetailsComp implements OnInit {
         //looking at this.ItemListService.ItemTypes makes the service fetch the data if it's not already there
         //the below is a system to make it ask only once
         if (this._ItemTypes.length == 0 && this.ItemListService.ItemTypes.length > 0) this._ItemTypes = this.ItemListService.ItemTypes;
-        else if (this._ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
+        else if (this._ItemTypes.length == 0 && !this.ItemListService.IsBusy) this.ItemListService.FetchItemTypes();
         return this._ItemTypes;
     }
     private wasEdited: boolean = false;
@@ -112,6 +132,13 @@ export class editItemDetailsComp implements OnInit {
                 , standardNumber: { txt: 'ISSN/ISBN', optional: true }
             };
         }
+        else if (typeId == 0) {
+                return {
+                    parentTitle: { txt: 'Parent Title', optional: false }
+                    , parentAuthors: { txt: 'Parent Authors', optional: false }
+                    , standardNumber: { txt: 'Standard Number', optional: false }
+                };
+            }
         else {
             return {
                 parentTitle: { txt: 'Parent Title', optional: true }
@@ -145,26 +172,7 @@ export class editItemDetailsComp implements OnInit {
             //}
         }
     }
-	ngOnInit() {
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-        else {
-            if (!this.ReviewerIdentityServ.HasWriteRights) this.GoBack();
-            this.subReturnTo = this.route.queryParams.subscribe(params => {
-                if (params['return']) this.returnTo = params['return'];
-                else this.returnTo = "Main";
-                if (this.subReturnTo) this.subReturnTo.unsubscribe();
-                this.route.queryParams = new Observable<Params>();
-            });
-            this.subItemIDinPath = this.route.params.subscribe(params => {
-                if (params['itemId']) this.itemString = params['itemId'];
-                else this.itemString = "0";
-                this.GetItem();
-                //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
-            });
-        }
-    }
+	
     
     async SaveAndClose() {
         this.Save();
