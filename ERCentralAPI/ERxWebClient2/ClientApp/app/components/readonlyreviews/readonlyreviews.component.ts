@@ -53,7 +53,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         this.sort = sort;
     }
     FormatDate(DateSt: string): string {
-        if (DateSt.length < 10) return "";
+        if (!DateSt || DateSt.length < 10) return "";
         else {
             const year = parseInt(DateSt.substr(6, 4));
             const month = parseInt(DateSt.substr(3, 2));
