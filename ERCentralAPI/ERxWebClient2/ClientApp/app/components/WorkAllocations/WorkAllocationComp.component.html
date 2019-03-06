@@ -26,7 +26,7 @@
 				<div class="col">
 					<div class="pl-2 mb-2">Select From </div>
 					<div class="form-group pl-1">
-						<select #SelectFrom class="form-control" name="AllocateOptions"
+						<select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
 								style="min-width: 250px;" (change)="SetRelevantDropDownValues()"
 								(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
 							<option *ngFor="let item of AllocateOptions" [value]="item.key"
@@ -97,7 +97,7 @@
 								</button>
 								<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
 									<codesetSelector [IsMultiSelect]="false"
-													 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode1
+													 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
 													 (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"
 													 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 								</div>
@@ -137,7 +137,7 @@
 							</button>
 							<div ngbDropdownMenu class="dropdown-menu pl-2" id="collapseCodeTreeCodingTool" [ngbCollapse]="!isCollapsedCodingTool">
 								<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="''"
-												 [MaxHeight]="500" #WithOrWithoutCode2
+												 [MaxHeight]="500" #CodingToolTree
 												 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
 												 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
@@ -167,7 +167,7 @@
 						 id="collapseCodeTreeCodeStudies" 
 						 [ngbCollapse]="!isCollapsedCodeStudies">
 						<codesetSelector [IsMultiSelect]="false"
-										 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode3
+										 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #CodeStudiesTree
 										 (selectedNodeInTree)="CloseCodeDropDownStudies()"
 										 [rootsOnly]="!CanOnlySelectRoots()">
 						</codesetSelector>

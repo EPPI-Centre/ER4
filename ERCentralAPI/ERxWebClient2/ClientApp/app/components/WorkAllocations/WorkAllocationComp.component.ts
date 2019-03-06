@@ -31,10 +31,10 @@ export class WorkAllocationComp implements OnInit {
     ) { }
 
 
-	@ViewChild('WithOrWithoutCode1') WithOrWithoutCode1!: codesetSelectorComponent;
-	@ViewChild('WithOrWithoutCode2') WithOrWithoutCode2!: codesetSelectorComponent;
-	@ViewChild('WithOrWithoutCode3') WithOrWithoutCode3!: codesetSelectorComponent;
-	@ViewChild('SelectFrom') SelectFrom: any;
+	@ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
+	@ViewChild('CodingToolTree') CodingToolTree!: codesetSelectorComponent;
+	@ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
+	@ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
@@ -73,7 +73,6 @@ export class WorkAllocationComp implements OnInit {
 
 	public get AllocateOptions(): kvSelectFrom[] {
 		
-		//alert(JSON.stringify(this._allocateOptions));
 		return this._allocateOptions;
 
 	}
@@ -104,9 +103,8 @@ export class WorkAllocationComp implements OnInit {
 	}
 	SetRelevantDropDownValues() {
 
-		this.index = this.SelectFrom.nativeElement.selectedIndex;
+		this.index = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
 		this.selectedRandomAllocateDropDown = this.AllocateOptions[this.index].value;
-		//alert('got in here: ' + this.selectedRandomAllocateDropDown);
 	}
 	public openConfirmationDialogWorkAllocation(message: string) {
 		this.confirmationDialogService.confirm('Please confirm', message, false, '')
@@ -158,8 +156,6 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public CanAssign() {
 
-		//console.log(this.AllocateOptions[this.index].key);
-
 		if (this.AllocateOptions[this.index].key == 1
 			&& this.DropdownSelectedCodingTool != null
 			&& this.DropdownSelectedCodingTool.name != '') {
@@ -192,17 +188,16 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public Assignment() {
 
-		//console.log("selected is: ", this.SelectFrom.nativeElement.selectedIndex);
-		this.FilterNumber = this.SelectFrom.nativeElement.selectedIndex;
-		console.log('This is what I mean: ' + this.FilterNumber);
-		if (this.DropdownSelectedCodingTool != null && this.DropdownWithWithoutSelectedCode != null) {
-			// comma goes here shown by Sergio
-			console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
-			console.log(' checking nodeType 2 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
-		}
-		//=====================================================================
-		// THIS NEEDS TO GO SOMEHWERE DOWN HERE>>>>>
+		this.FilterNumber = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
 
+		//console.log('This is what I mean: ' + this.FilterNumber);
+
+		//if (this.DropdownSelectedCodingTool != null && this.DropdownWithWithoutSelectedCode != null) {
+		//	// comma goes here shown by Sergio
+		//	console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
+		//	console.log(' checking nodeType 2 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
+		//}
+		
 		if (this.DropdownWithWithoutSelectedCode != null && this.DropdownWithWithoutSelectedCode.nodeType == 'SetAttribute') {
 
 			this.FiltAttSet = this.DropdownWithWithoutSelectedCode as SetAttribute;
@@ -214,7 +209,6 @@ export class WorkAllocationComp implements OnInit {
 			} else {
 				this.FiltRevSet = this.DropdownWithWithoutSelectedCode as ReviewSet;
 			}
-			
 
 		}
 		if (this.DropdownSelectedCodingTool != null && this.DropdownSelectedCodingTool.nodeType == 'SetAttribute') {
@@ -226,7 +220,6 @@ export class WorkAllocationComp implements OnInit {
 		}
 			   
 		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
-
 			this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
@@ -391,8 +384,8 @@ export class WorkAllocationComp implements OnInit {
 
 	CloseCodeDropDownCodeWithWithout() {
 
-		if (this.WithOrWithoutCode1) {
-			this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode1.SelectedNodeData;
+		if (this.WithOrWithoutCode) {
+			this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode.SelectedNodeData;
 			
 		}
 		this.isCollapsedAllocateOptions = false;
@@ -400,8 +393,8 @@ export class WorkAllocationComp implements OnInit {
 
 	CloseCodeDropDownCodingTool() {
 		
-		if (this.WithOrWithoutCode2) {
-			this.DropdownSelectedCodingTool = this.WithOrWithoutCode2.SelectedNodeData;
+		if (this.CodingToolTree) {
+			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
 			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
 		}
 		this.isCollapsedCodingTool = false;
@@ -409,9 +402,9 @@ export class WorkAllocationComp implements OnInit {
 
 	CloseCodeDropDownStudies() {
 
-		if (this.WithOrWithoutCode3) {
+		if (this.CodeStudiesTree) {
 
-			this.DropdownSelectedCodeStudies = this.WithOrWithoutCode3.SelectedNodeData;
+			this.DropdownSelectedCodeStudies = this.CodeStudiesTree.SelectedNodeData;
 			let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 			this.workAllocation.attributeId = setAtt.attribute_id;
 
@@ -428,12 +421,10 @@ export class WorkAllocationComp implements OnInit {
 		this.reviewInfoService.FetchReviewMembers();
 
 	}
-
 	DeleteWorkAllocation(workAllocationId: number) {
 
 		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
 	}
-
 	LoadGivenList(workAllocationId: number, subtype: string) {
 
 		
