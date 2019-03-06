@@ -73,16 +73,14 @@ export class WorkAllocationListService extends BusyAwareService {
 
 	public AssignWorkAllocation(wa: WorkAllocation) {
 
-		// is there a need for busy methods here I would say yes...
 		this._BusyMethods.push("AssignWorkAllocation");
-
-
+		
 		this._httpC.post<WorkAllocation>(this._baseUrl +
 			'api/WorkAllocationContactList/AssignWorkAllocation', wa)
 			.subscribe(() => {
 
-				this.FetchAll();
-				this.RemoveBusy("AssignWorkAllocation");
+					this.FetchAll();
+					this.RemoveBusy("AssignWorkAllocation");
 
 			},
 				error => {
@@ -93,8 +91,6 @@ export class WorkAllocationListService extends BusyAwareService {
 					this.RemoveBusy("AssignWorkAllocation");
 				}
 			);
-
-
 	}
 
 	
@@ -117,20 +113,6 @@ export class WorkAllocationListService extends BusyAwareService {
 		this._ContactWorkAllocations = [];
 		this.CurrentlyLoadedWorkAllocationSublist = new WorkAllocationSublist();
 	}
-
-	//public FetchAll(itemId: number) {
-
-	//	let itemID: number = itemId;
-	//	alert('This is what we have: ' + itemID);
-	//	let body = JSON.stringify({ Value: itemID });
-	//	this._httpC.post<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationsAll', body).subscribe(result => {
-
-	//		this.AllWorkAllocationsForReview = result;//also saves to local storage
-	//		this.ListLoaded.emit();
-	//	}, error => { this.modalService.SendBackHomeWithError(error); }
-	//	);
-
-	//}
 
 }
 
