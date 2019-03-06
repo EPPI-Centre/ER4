@@ -44,16 +44,16 @@ export class WorkAllocationComp implements OnInit {
 	public numericRandomSample: number = 100;
 	public numericRandomCreate: number = 5;
 	public selectedRandomAllocateDropDown: string = 'No code / code set filter';
-	public CurrentDropdownSelectedCode: singleNode | null = null;
-	public CurrentDropdownSelectedCode2: singleNode | null = null;
-	public CurrentDropdownSelectedCode3: singleNode | null = null;
+	public DropdownWithWithoutSelectedCode: singleNode | null = null;
+	public DropdownSelectedCodingTool: singleNode | null = null;
+	public DropdownSelectedCodeStudies: singleNode | null = null;
 	public selectedCodeSetDropDown: ReviewSet = new ReviewSet;
-	public selectedCodeSetDropDown2: ReviewSet = new ReviewSet;
-	public selectedMemberDropDown3: Contact = new Contact;
+	public DropDownBasicCodingTool: ReviewSet = new ReviewSet;
+	public selectedMemberDropDown: Contact = new Contact;
 	public CodeSets: ReviewSet[] = [];
-	public isCollapsed: boolean = false;
-	public isCollapsed2: boolean = false;
-	public isCollapsed3: boolean = false;
+	public isCollapsedAllocateOptions: boolean = false;
+	public isCollapsedCodingTool: boolean = false;
+	public isCollapsedCodeStudies: boolean = false;
 	public FilterNumber: number = 1;
 	public description: string = '';
 	public DestAttSet: SetAttribute = new SetAttribute();
@@ -61,10 +61,8 @@ export class WorkAllocationComp implements OnInit {
 	public FiltAttSet: SetAttribute = new SetAttribute();
 	public FiltRevSet: ReviewSet = new ReviewSet();
 	public index: number = 0;
-	public dropdownBasic2: boolean = false;
-	public dropdownBasic3: boolean = false;
-	public dropdownTree3: boolean = false;
-	public dropdownTree11: boolean = false;
+	public dropdownBasicCodingTool: boolean = false;
+	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
@@ -163,8 +161,8 @@ export class WorkAllocationComp implements OnInit {
 		//console.log(this.AllocateOptions[this.index].key);
 
 		if (this.AllocateOptions[this.index].key == 1
-			&& this.CurrentDropdownSelectedCode2 != null
-			&& this.CurrentDropdownSelectedCode2.name != '') {
+			&& this.DropdownSelectedCodingTool != null
+			&& this.DropdownSelectedCodingTool.name != '') {
 			return true;
 
 		} else if (this.AllocateOptions[this.index].key == 2
@@ -178,13 +176,13 @@ export class WorkAllocationComp implements OnInit {
 			return true;
 
 		} else if (this.AllocateOptions[this.index].key == 4
-			&& this.CurrentDropdownSelectedCode != null
-			&& this.CurrentDropdownSelectedCode.name != '') {
+			&& this.DropdownWithWithoutSelectedCode != null
+			&& this.DropdownWithWithoutSelectedCode.name != '') {
 			return true;
 
 		} else if (this.AllocateOptions[this.index].key == 5
-			&& this.CurrentDropdownSelectedCode != null
-			&& this.CurrentDropdownSelectedCode.name != '') {
+			&& this.DropdownWithWithoutSelectedCode != null
+			&& this.DropdownWithWithoutSelectedCode.name != '') {
 			return true;
 
 		} else {
@@ -197,33 +195,33 @@ export class WorkAllocationComp implements OnInit {
 		//console.log("selected is: ", this.SelectFrom.nativeElement.selectedIndex);
 		this.FilterNumber = this.SelectFrom.nativeElement.selectedIndex;
 		console.log('This is what I mean: ' + this.FilterNumber);
-		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode != null) {
+		if (this.DropdownSelectedCodingTool != null && this.DropdownWithWithoutSelectedCode != null) {
 			// comma goes here shown by Sergio
-			console.log(' checking nodeType 1 : ' + JSON.stringify(this.CurrentDropdownSelectedCode.nodeType) + ' ');
-			console.log(' checking nodeType 2 : ' + JSON.stringify(this.CurrentDropdownSelectedCode2.nodeType) + ' ');
+			console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
+			console.log(' checking nodeType 2 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
 		}
 		//=====================================================================
 		// THIS NEEDS TO GO SOMEHWERE DOWN HERE>>>>>
 
-		if (this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode.nodeType == 'SetAttribute') {
+		if (this.DropdownWithWithoutSelectedCode != null && this.DropdownWithWithoutSelectedCode.nodeType == 'SetAttribute') {
 
-			this.FiltAttSet = this.CurrentDropdownSelectedCode as SetAttribute;
+			this.FiltAttSet = this.DropdownWithWithoutSelectedCode as SetAttribute;
 
 		} else {
 
-			if (this.CurrentDropdownSelectedCode == null) {
+			if (this.DropdownWithWithoutSelectedCode == null) {
 				this.FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
 			} else {
-				this.FiltRevSet = this.CurrentDropdownSelectedCode as ReviewSet;
+				this.FiltRevSet = this.DropdownWithWithoutSelectedCode as ReviewSet;
 			}
 			
 
 		}
-		if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == 'SetAttribute') {
-			this.DestAttSet = this.CurrentDropdownSelectedCode2 as SetAttribute;
+		if (this.DropdownSelectedCodingTool != null && this.DropdownSelectedCodingTool.nodeType == 'SetAttribute') {
+			this.DestAttSet = this.DropdownSelectedCodingTool as SetAttribute;
 			
 		} else {
-			this.DestRevSet = this.CurrentDropdownSelectedCode2 as ReviewSet;
+			this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
 			
 		}
 			   
@@ -356,21 +354,21 @@ export class WorkAllocationComp implements OnInit {
 	}
 	setCodeSetDropDown2(codeset: any) {
 
-		this.selectedCodeSetDropDown2 = codeset;
+		this.DropDownBasicCodingTool = codeset;
 		this.workAllocation.setId = codeset;
 
 	}
-	SetMemberDropDown3(member: any) {
+	SetMemberDropDown(member: any) {
 
-		this.selectedMemberDropDown3 = member;
+		this.selectedMemberDropDown = member;
 		this.workAllocation.contactId = member.contactId
 	}
 	WorkAssignment() {
 			
-		let setAtt: SetAttribute = this.CurrentDropdownSelectedCode3 as SetAttribute;
+		let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		this.workAllocation.attributeId = setAtt.attribute_id;
-		this.workAllocation.setId = this.selectedCodeSetDropDown2.set_id;
-		let contact: Contact = this.selectedMemberDropDown3;
+		this.workAllocation.setId = this.DropDownBasicCodingTool.set_id;
+		let contact: Contact = this.selectedMemberDropDown;
 		this.workAllocation.contactId = contact.contactId.toString();
 		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
 		this.AssignWorkSection = false;
@@ -378,9 +376,9 @@ export class WorkAllocationComp implements OnInit {
 
 	CanNewWorkAllocationCreate(): boolean {
 
-		if (this.CurrentDropdownSelectedCode3 != null && this.CurrentDropdownSelectedCode3.name != ''
-			&& this.selectedCodeSetDropDown2.name != ''
-			&& this.selectedMemberDropDown3.contactName != '') {
+		if (this.DropdownSelectedCodeStudies != null && this.DropdownSelectedCodeStudies.name != ''
+			&& this.DropDownBasicCodingTool.name != ''
+			&& this.selectedMemberDropDown.contactName != '') {
 
 			return false;
 
@@ -391,36 +389,36 @@ export class WorkAllocationComp implements OnInit {
 	}
 	
 
-	CloseCodeDropDown() {
-		//alert(this.WithOrWithoutCode1);
+	CloseCodeDropDownCodeWithWithout() {
+
 		if (this.WithOrWithoutCode1) {
-			this.CurrentDropdownSelectedCode = this.WithOrWithoutCode1.SelectedNodeData;
+			this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode1.SelectedNodeData;
 			
 		}
-		this.isCollapsed = false;
+		this.isCollapsedAllocateOptions = false;
 	}
 
-	CloseCodeDropDown2() {
+	CloseCodeDropDownCodingTool() {
 		
 		if (this.WithOrWithoutCode2) {
-			this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCode2.SelectedNodeData;
-			console.log(JSON.stringify(this.CurrentDropdownSelectedCode2));
+			this.DropdownSelectedCodingTool = this.WithOrWithoutCode2.SelectedNodeData;
+			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
 		}
-		this.isCollapsed2 = false;
+		this.isCollapsedCodingTool = false;
 	}
 
-	CloseCodeDropDown3() {
+	CloseCodeDropDownStudies() {
 
 		if (this.WithOrWithoutCode3) {
 
-			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCode3.SelectedNodeData;
-			let setAtt: SetAttribute = this.CurrentDropdownSelectedCode3 as SetAttribute;
+			this.DropdownSelectedCodeStudies = this.WithOrWithoutCode3.SelectedNodeData;
+			let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 			this.workAllocation.attributeId = setAtt.attribute_id;
 
 		}
-		this.dropdownBasic2 = false;
-		this.dropdownBasic3 = false
-		this.isCollapsed3 = false;
+		this.dropdownBasicCodingTool = false;
+		this.dropdownBasicPerson = false
+		this.isCollapsedCodeStudies = false;
 	}
 	getMembers() {
 
