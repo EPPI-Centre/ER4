@@ -144,8 +144,9 @@
 									aria-controls="collapseCodeTreeCodingTool">
 								{{DropdownSelectedCodingTool?.name}}
 							</button>
-							<div class="dropdown-menu " id="collapseCodeTreeCodingTool" [ngbCollapse]="!isCollapsedCodingTool">
-								<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="''"
+							<div class="dropdown-menu " id="collapseCodeTreeCodingTool" 
+								 [ngbCollapse]="!isCollapsedCodingTool">
+								<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'Admin'"
 												 [MaxHeight]="500" #CodingToolTree
 												 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
 												 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
@@ -184,9 +185,11 @@
 						Code studies in this group:
 					</div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
+						<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
 								(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
-								[attr.aria-expanded]="!isCollapsedCodeStudies" aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;" ngbDropdownToggle>
+								[attr.aria-expanded]="!isCollapsedCodeStudies" 
+								aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;"
+								>
 							{{DropdownSelectedCodeStudies?.name}}
 						</button>
 						<div ngbDropdownMenu class="dropdown-menu"

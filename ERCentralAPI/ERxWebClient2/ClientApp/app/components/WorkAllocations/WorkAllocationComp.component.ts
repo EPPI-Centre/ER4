@@ -348,7 +348,7 @@ export class WorkAllocationComp implements OnInit {
 
 	setCodeSetDropDown(codeset: any) {
 
-		alert(JSON.stringify(codeset));
+		//alert(JSON.stringify(codeset));
 		this.selectedCodeSetDropDown = codeset;
 
 	}

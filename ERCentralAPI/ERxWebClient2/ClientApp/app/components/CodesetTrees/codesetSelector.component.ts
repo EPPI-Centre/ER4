@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterVi
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, ReviewSet, iSetType, SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -187,6 +187,50 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 				this._eventEmitterService.nodeSelected = node;
 			}
 
+		} else if (this.WhatIsSelectable == 'Admin') {
+
+			if (node != null) {
+						
+				if (node.nodeType == 'ReviewSet') {
+
+					let tempNode: ReviewSet = node as ReviewSet;
+					let setTemp: any = JSON.stringify(tempNode.setType);
+					let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
+
+					if (setTypeName != null && setTypeName == 'Admininstation') {
+
+						this.SelectedNodeData = node;
+						this.selectedNodeInTree.emit();
+						this._eventEmitterService.nodeSelected = node;
+					}
+
+				} else if (node.nodeType == 'SetAttribute') {
+
+					// then need to find the set actually
+					let tempAtt: SetAttribute = node as SetAttribute;
+					let Set = this.ReviewSetsService.FindSetById(tempAtt.set_id);
+					if (Set != null) {
+
+						let setTemp: any = JSON.stringify(Set.setType);
+						let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
+
+						//spelling ...
+						if (setTypeName == 'Admininstation') {
+
+							this.SelectedNodeData = node;
+							this.selectedNodeInTree.emit();
+							this._eventEmitterService.nodeSelected = node;
+						}
+					}
+
+					return;
+
+				} else {
+
+					return;
+				}
+			}
+
 		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 
 			this.SelectedNodeData = node;
@@ -206,13 +250,10 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 			this.SelectedNodeData = node;
 			this.selectedNodeInTree.emit();
 			this._eventEmitterService.nodeSelected = node;
-
 		}
-
     }
 
     ngOnDestroy() {
-
     }
 }
 
