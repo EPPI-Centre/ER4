@@ -220,7 +220,7 @@ export class ReviewerIdentityService implements OnDestroy {
                     this.StartLogonTicketTimer();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
-                    this.router.navigate(['Main']);
+                    //this.router.navigate(['Main']);
                     this.OpeningNewReview.emit();
                 }
             }, error => {

@@ -28,7 +28,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
 
     //these are pages that will always mean the user is going to log on a review in order to reach mainfull.
     //thus, we never store mainfull when going to one of these. This is to avoid leaking components that report "shouldDetach == true"
-    private KillDestinations: string[] = ["maincodingonly", "home", "intropage"];//all lower case!!!
+    private KillDestinations: string[] = ["maincodingonly", "home", "intropage", "siteadmin"];//all lower case!!!
 
     //IMPORTANT! We statically "keep" only these routes, all the others are not recyled...
     private routesToCache: string[] = ["main"];//all lower case!!!
