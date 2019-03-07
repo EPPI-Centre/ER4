@@ -1,12 +1,9 @@
-import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { singleNode, ReviewSetsService, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -38,7 +35,7 @@ export class WorkAllocationComp implements OnInit {
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
-	public RandomlyAssignSection: boolean = true;
+	public RandomlyAssignSection: boolean = false;
 	public AssignWorkSection: boolean = false;
 	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
@@ -64,6 +61,7 @@ export class WorkAllocationComp implements OnInit {
 	public dropdownBasicCodingTool: boolean = false;
 	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
+	public selectedAllocated: any = { key: 1, value: 'No code / coding tool filter' };
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -106,21 +104,23 @@ export class WorkAllocationComp implements OnInit {
 		this.index = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
 		this.selectedRandomAllocateDropDown = this.AllocateOptions[this.index].value;
 	}
-	public openConfirmationDialogWorkAllocation(message: string) {
-		this.confirmationDialogService.confirm('Please confirm', message, false, '')
-			.then(
-				(confirmed: any) => {
+
+	//public openConfirmationDialogWorkAllocation(message: string) {
+	//	this.confirmationDialogService.confirm('Please confirm', message, false, '')
+	//		.then(
+	//			(confirmed: any) => {
 					
-					if (confirmed) {
-						// do nothing
-						this.Assignment();
-					} else {
-						// do nothing
-					}
-				}
-			)
-			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-	}
+	//				if (confirmed) {
+	//					// do nothing
+	//					this.Assignment();
+	//				} else {
+	//					// do nothing
+	//				}
+	//			}
+	//		)
+	//		.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	//}
+
 	public NewCode() {
 
 		if (this.RandomlyAssignSection) {
@@ -215,12 +215,18 @@ export class WorkAllocationComp implements OnInit {
 			this.DestAttSet = this.DropdownSelectedCodingTool as SetAttribute;
 			
 		} else {
-			this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
+
+			if (this.DropdownSelectedCodingTool == null) {
+				this.DestRevSet = this.selectedCodeSetDropDown as ReviewSet;
+			} else {
+				this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
+			}
+			
 			
 		}
 			   
 		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
-			this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
+			//this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
 
@@ -238,7 +244,7 @@ export class WorkAllocationComp implements OnInit {
 				break;
 			case 1:
 				if (this.FiltRevSet.set_id == -1) {
-					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+					//this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				setIdFilter = this.FiltRevSet.set_id;
@@ -246,7 +252,7 @@ export class WorkAllocationComp implements OnInit {
 				break;
 			case 2:
 				if (this.FiltRevSet.set_id == -1) {
-					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+					//this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				setIdFilter = this.FiltRevSet.set_id;
@@ -254,7 +260,7 @@ export class WorkAllocationComp implements OnInit {
 				break;
 			case 3:
 				if (this.FiltAttSet.attribute_id == -1) {
-					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+					//this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				attributeIdFilter = this.FiltAttSet.attribute_id;
@@ -262,7 +268,7 @@ export class WorkAllocationComp implements OnInit {
 				break;
 			case 4:
 				if (this.FiltAttSet.attribute_id == -1) {
-					this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
+					//this.openConfirmationDialogWorkAllocation("Please select a code to filter your documents by");
 					return;
 				}
 				attributeIdFilter = this.FiltAttSet.attribute_id;
@@ -342,6 +348,7 @@ export class WorkAllocationComp implements OnInit {
 
 	setCodeSetDropDown(codeset: any) {
 
+		alert(JSON.stringify(codeset));
 		this.selectedCodeSetDropDown = codeset;
 
 	}
@@ -366,7 +373,6 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
 		this.AssignWorkSection = false;
 	}
-
 	CanNewWorkAllocationCreate(): boolean {
 
 		if (this.DropdownSelectedCodeStudies != null && this.DropdownSelectedCodeStudies.name != ''
@@ -380,8 +386,6 @@ export class WorkAllocationComp implements OnInit {
 			return true;
 		}
 	}
-	
-
 	CloseCodeDropDownCodeWithWithout() {
 
 		if (this.WithOrWithoutCode) {
@@ -390,7 +394,6 @@ export class WorkAllocationComp implements OnInit {
 		}
 		this.isCollapsedAllocateOptions = false;
 	}
-
 	CloseCodeDropDownCodingTool() {
 		
 		if (this.CodingToolTree) {
@@ -399,7 +402,6 @@ export class WorkAllocationComp implements OnInit {
 		}
 		this.isCollapsedCodingTool = false;
 	}
-
 	CloseCodeDropDownStudies() {
 
 		if (this.CodeStudiesTree) {
@@ -426,8 +428,7 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
 	}
 	LoadGivenList(workAllocationId: number, subtype: string) {
-
-		
+				
 		for (let workAll of this._workAllocationListService.AllWorkAllocationsForReview) {
 			if (workAll.workAllocationId == workAllocationId) {
 	
@@ -438,8 +439,6 @@ export class WorkAllocationComp implements OnInit {
 			}
 		}
 	}
-
-
 }
 
 export interface kvSelectFrom {

@@ -539,6 +539,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
 			'api/Codeset/PerformRandomAllocate', assignParameters)
 			.subscribe(() => {
 
+				// do not want to change the below but it seems
+				// to return an array here
 				this.ReviewSetsService.GetReviewSets();
 				this.RemoveBusy("RandomlyAssignCodeToItem");
 
@@ -551,8 +553,6 @@ export class ReviewSetsEditingService extends BusyAwareService {
 					this.RemoveBusy("RandomlyAssignCodeToItem");
 				}
 			);
-
-
 	}
 }
 export interface ReviewSetUpdateCommand
