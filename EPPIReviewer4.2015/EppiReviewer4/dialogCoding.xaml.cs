@@ -42,6 +42,7 @@ using Csla.Xaml;
 using Telerik.Windows.Documents.FormatProviders.Txt;
 using Telerik.Windows.Documents.TextSearch;
 using Telerik.Windows.Documents;
+//using Telerik.Windows.Documents.UI;
 
 using System.Text;
 using System.Threading.Tasks;
@@ -2376,6 +2377,13 @@ namespace EppiReviewer4
         }
         private void cmdApplyCodeClick(object sender, RoutedEventArgs e)
         {
+            /* JT experimentation on getting an image from the current page
+            ThumbnailFactory fact = new ThumbnailFactory();
+            RadFixedPage ss = this.pdfViewer.CurrentPage;
+            ImageSource imsource = fact.CreateThumbnail(ss, this.pdfViewer.CurrentPage.Size);
+            imagetest.Source = imsource;
+            return;
+            */
             ReviewInfo rInfo = ((App)(Application.Current)).GetReviewInfo();
 
             if (this.pdfViewer.Document == null || this.pdfViewer.Document.Selection.IsEmpty)
