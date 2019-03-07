@@ -35,7 +35,7 @@ export class WorkAllocationComp implements OnInit {
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
-	public RandomlyAssignSection: boolean = true;
+	public RandomlyAssignSection: boolean = false;
 	public AssignWorkSection: boolean = false;
 	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
@@ -61,6 +61,7 @@ export class WorkAllocationComp implements OnInit {
 	public dropdownBasicCodingTool: boolean = false;
 	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
+	public selectedAllocated: any = { key: 1, value: 'No code / coding tool filter' };
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -214,7 +215,13 @@ export class WorkAllocationComp implements OnInit {
 			this.DestAttSet = this.DropdownSelectedCodingTool as SetAttribute;
 			
 		} else {
-			this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
+
+			if (this.DropdownSelectedCodingTool == null) {
+				this.DestRevSet = this.selectedCodeSetDropDown as ReviewSet;
+			} else {
+				this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
+			}
+			
 			
 		}
 			   
@@ -341,6 +348,7 @@ export class WorkAllocationComp implements OnInit {
 
 	setCodeSetDropDown(codeset: any) {
 
+		alert(JSON.stringify(codeset));
 		this.selectedCodeSetDropDown = codeset;
 
 	}

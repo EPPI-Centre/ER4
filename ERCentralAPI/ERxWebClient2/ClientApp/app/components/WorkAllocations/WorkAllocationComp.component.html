@@ -1,6 +1,6 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
-		<kendo-toolbar-button [text]="'Randomly assign code to item'" (click)="RandomlyAssign()" [attr.aria-expanded]="!RandomlyAssignSection" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create Groups for a Coding Tool'" (click)="RandomlyAssign()" [attr.aria-expanded]="!RandomlyAssignSection" ></kendo-toolbar-button>
 		<!--<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCode()" [attr.aria-expanded]="!NewCodeSection" ></kendo-toolbar-button>-->
 		<kendo-toolbar-button [text]="'Create New Work Allocation'" (click)="NewWorkAllocation()" [attr.aria-expanded]="!AssignWorkSection"></kendo-toolbar-button>
 	</kendo-toolbar>
@@ -14,11 +14,12 @@
 					<div class="col-12  col-sm-10  col-md-10 row">
 						<div class="col-2" style="min-width: 80px;"><p>Select From </p></div>
 						<div class="form-group col-12  col-sm-8  col-sm-8" >
-							<select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
+							<select  
+									#AllocateOptionsDropDown class="form-control" name="AllocateOptions"
 									style="min-width: 200px;" (change)="SetRelevantDropDownValues()"
 									(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
 								<option *ngFor="let item of AllocateOptions" [value]="item.key"
-										[selected]="AllocateOptions && item.key == AllocateOptions[0].key">
+										[selected]="item.selected == item.value || 'No code / coding tool filter'">
 									{{item.value}}
 								</option>
 							</select>
@@ -27,7 +28,7 @@
 					<div class="col d-flex justify-content-center"></div>
 				</div>
 				<div class="row bg-light ">
-					<div class="col-2 col-sm-4 col-md-4">
+					<div class="col-0 col-sm-2 col-md-2">
 					</div>
 					<div class="col-10 row p-1"
 						 *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
@@ -37,7 +38,7 @@
 							Select also from
 						</div>
 
-						<div ngbDropdown class="col-12 col-sm-4 col-md-4">
+						<div ngbDropdown class="col-12 col-sm-8 col-md-8">
 							<button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
 									id="dropdownTreeRandomAllocate"
 									(click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions; dropdownTree11 = false; isCollapsedCodingTool = false"
@@ -52,11 +53,11 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-8 row p-1 "
+					<div class="col-10 row p-1 "
 						 *ngIf="(selectedRandomAllocateDropDown == 'All with any codes from this coding tool')
 						||  (selectedRandomAllocateDropDown == 'All without any codes from this coding tool' )">
-						<div class="col-2">
-						</div>
+						<!--<div class="col-0 col-sm-2 col-md-2">
+						</div>-->
 						<div class="col-2" style="min-width:100px;">
 							Select also from
 						</div>
@@ -76,7 +77,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-2"></div>
+					<div class="col-0 col-md-2"></div>
 					<div class="col-10 row p-1">
 						<div class="col-2" style="min-width:110px;">
 							Percentage to Allocate
@@ -95,7 +96,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-2"></div>
+					<div class="col-0 col-md-2"></div>
 					<div class="col-10 row p-1">
 						<div class="col-2" style="min-width:110px;">
 							Groups to create
@@ -115,53 +116,56 @@
 
 				</div>
 				<div class="row">
-					<div class="col-2 col-sm-2 col-md-2"></div>
-					<div class="col-md-10 row p-1">
-						<div class="col-3" style="min-width:100px;">
+					<div class="col-0 col-sm-2 col-md-2"></div>
+					<div class="col-12 col-md-10 row">
+						<div class="col-12 col-md-3" style="min-width:100px;">
 							Inc / Exc
 						</div>
-						<div class="col-md-9 row">
+						<div class="col-12 col-md-9 row">
 							<input type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
-							<div class="col-4" style="min-width:100px;">&nbsp; Included </div>
+							<div class="col-12 col-md-4" style="min-width:100px;">&nbsp; Included </div>
 							<input type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
-							<div class="col-4" style="min-width:100px;">&nbsp; Excluded</div>
+							<div class="col-12 col-md-4" style="min-width:80px;">&nbsp; Excluded</div>
 						</div>
 					</div>
 				</div>
 				<div class="row bg-light">
-						<div class="col-12 col-sm-10 col-md-10 row">
-							<div class="col-12 col-sm-5 col-md-5" style="min-width:110px;">
-								Create codes below this code / coding tool
-							</div>
-							<!--	dpAnchorDropDown -->
-							<div ngbDropdown class="col-7" style="min-width:200px;">
-								<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle 
+					<div class="col-0 col-md-2"></div>
+					<div class="col-12 col-sm-10 col-md-10 row">
+						<div class="col-12 col-sm-2 col-md-2" style="min-width:110px;">
+							Create codes below this code / coding tool
+						</div>
+						<!--	dpAnchorDropDown -->
+						<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
+							<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle
 										col-12" id="dropdownTree11"
-										(click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
-										[attr.aria-expanded]="!isCollapsedCodingTool"
-										aria-controls="collapseCodeTreeCodingTool">
-									{{DropdownSelectedCodingTool?.name}}
-								</button>
-								<div class="dropdown-menu " id="collapseCodeTreeCodingTool" [ngbCollapse]="!isCollapsedCodingTool">
-									<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="''"
-													 [MaxHeight]="500" #CodingToolTree
-													 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
-													 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-								</div>
+									(click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
+									[attr.aria-expanded]="!isCollapsedCodingTool"
+									aria-controls="collapseCodeTreeCodingTool">
+								{{DropdownSelectedCodingTool?.name}}
+							</button>
+							<div class="dropdown-menu " id="collapseCodeTreeCodingTool" [ngbCollapse]="!isCollapsedCodingTool">
+								<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="''"
+												 [MaxHeight]="500" #CodingToolTree
+												 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
+												 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 							</div>
 						</div>
 					</div>
+				</div>
 				<div class="row bg-light">
-					<div class="col-2"></div>
+					<div class="col-0  col-md-2"></div>
 					<div class="col-12 col-sm-10 col-md-10 row">
 						<div class="col-2" style="min-width:100px;">Assign / Cancel </div>
-						<div class="form-group col-8">
-							<button class="col-4 pt-2 m-2 border border-dark rounded k-widget
+						<div class="form-group col-12 col-md-8">
+							<button style="min-width:100px"
+									class="col-12 col-md-4 pt-2 m-2 border border-dark rounded k-widget
 								k-numerictextbox btn btn-success" [disabled]="!CanAssign()"
 									(click)="Assignment()">
 								Assign
 							</button>
-							<button class="col-6 pt-2 m-2 border border-dark rounded
+							<button style="min-width:100px"
+									class="col-12 col-md-6 pt-2 m-2 border border-dark rounded
 								k-widget k-numerictextbox btn btn-outline-dark"
 									(click)="CloseRandomlyAssignSection()">
 								Cancel
