@@ -7,6 +7,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -192,14 +193,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
         };
     }
     FormatDate(DateSt: string): string {
-        if (!DateSt || DateSt.length < 10) return "";
-        else {
-            const year = parseInt(DateSt.substr(6, 4));
-            const month = parseInt(DateSt.substr(3, 2));
-            const day = parseInt(DateSt.substr(0, 2));
-            const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
-        }
+        return Helpers.FormatDate2(DateSt);
     }
     ngOnDestroy(): void {
         if (this.gotPmSearchToCheckSubs) this.gotPmSearchToCheckSubs.unsubscribe();

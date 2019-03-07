@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\app\components\helpers\HelperMethods.ts" />
     <None Remove="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 
@@ -179,6 +180,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\app\components\helpers\HelperMethods.ts" />
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 

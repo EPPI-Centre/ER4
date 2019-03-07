@@ -28,7 +28,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
 
     //these are pages that will always mean the user is going to log on a review in order to reach mainfull.
     //thus, we never store mainfull when going to one of these. This is to avoid leaking components that report "shouldDetach == true"
-    private KillDestinations: string[] = ["maincodingonly", "home", "intropage"];//all lower case!!!
+    private KillDestinations: string[] = ["maincodingonly", "home", "intropage"];//all lower case!!! //, "siteadmin"
 
     //IMPORTANT! We statically "keep" only these routes, all the others are not recyled...
     private routesToCache: string[] = ["main"];//all lower case!!!
@@ -164,29 +164,33 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
     }
 
     //SG Added: method to clear current saved pages...
-    public Clear() {
-        console.log('clearing cached component instances.', this.storedRoutes);
-        //this.deactivateAllHandles();
-        //while (this.storedRoutes != {}) {
-        //    this.storedRoutes[0]
-        //}
-        //for (var comK in this.storedRoutes) {
-        //    let el = this.storedRoutes[comK];
-        //    console.log("trying to destroy this: ", el.snapshot);
-        //    //if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string') ) {
-        //    //    if ('ngOnDestroy' in el.snapshot.component && ) el.snapshot.component.ngOnDestroy();
-        //    //}
-        //    if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string')) {
-        //        //if ('ngOnDestroy' in el.snapshot.component ) {
-        //        console.log("trying to destroy this: ", el.snapshot);
-        //            el.snapshot.component = null;
-        //        //el.handle = new DetachedRouteHandle();
-        //        //el =  { };
-        //        //}
-        //    }
-        //}
-        this.storedRoutes = {};
-    }
+    //Turns out we don't need this. We were calling it only from situations where either MainFull is attached (visible) or already destroyed (properly)
+    //thus it was doing nothing. By contrast, just calling "this.storedRoutes = {};" would not destroy the components, so it's actively dangerous.
+    //Current decision (07/03/2019): Do not use, Mainfull "onDestroy" gets called by other means when necessary.
+
+    //public Clear() {
+    //    console.log('clearing cached component instances.', this.storedRoutes);
+    //    //this.deactivateAllHandles();
+    //    //while (this.storedRoutes != {}) {
+    //    //    this.storedRoutes[0]
+    //    //}
+    //    //for (var comK in this.storedRoutes) {
+    //    //    let el = this.storedRoutes[comK];
+    //    //    console.log("trying to destroy this: ", el.snapshot);
+    //    //    //if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string') ) {
+    //    //    //    if ('ngOnDestroy' in el.snapshot.component && ) el.snapshot.component.ngOnDestroy();
+    //    //    //}
+    //    //    if (el.snapshot && el.snapshot.component && !(typeof el.snapshot.component == 'string')) {
+    //    //        //if ('ngOnDestroy' in el.snapshot.component ) {
+    //    //        console.log("trying to destroy this: ", el.snapshot);
+    //    //            el.snapshot.component = null;
+    //    //        //el.handle = new DetachedRouteHandle();
+    //    //        //el =  { };
+    //    //        //}
+    //    //    }
+    //    //}
+    //    this.storedRoutes = {};
+    //}
 
     //Added by SG, see: https://github.com/angular/angular/issues/16713
     ngOnDestroy() {
