@@ -215,7 +215,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 						let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
 
 						//spelling ...
-						if (setTypeName == 'Admininstation') {
+						if (setTypeName != null && setTypeName == 'Admininstation') {
 
 							this.SelectedNodeData = node;
 							this.selectedNodeInTree.emit();
