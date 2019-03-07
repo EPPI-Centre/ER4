@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", "{72D8A03E-A086-4C56-944C-3D84567226AA}"
 	ProjectSection(SolutionItems) = preProject
 		SQL Scripts\Changes.sql = SQL Scripts\Changes.sql
+		SQL Scripts\ConditionalCheckTemplates.sql = SQL Scripts\ConditionalCheckTemplates.sql
 		SQL Scripts\DataServicesCreate.sql = SQL Scripts\DataServicesCreate.sql
 		SQL Scripts\Generate ALPHA users.sql = SQL Scripts\Generate ALPHA users.sql
 		SQL Scripts\generateReviewer 2nd Passage - DATA.sql = SQL Scripts\generateReviewer 2nd Passage - DATA.sql
