@@ -119,11 +119,12 @@ export class ItemListService extends BusyAwareService {
                         this.ItemList.items.push(result);
                     }
                     else {
-                        //try to replace item in current list.
-                        let i = this.ItemList.items.findIndex(found => found.itemId == result.itemId);
+                        //try to replace item in current list. We use the client side object 'cause the typename might otherwise be wrong.
+                        let i = this.ItemList.items.findIndex(found => found.itemId == item.itemId);
                         if (i !== -1) {
-                            this.ItemList.items[i] = result;
-                            console.log("replaced updated item.");
+                            //console.log("replacing updated item.", this.ItemList.items[i]);
+                            this.ItemList.items[i] = item;
+                            console.log("replaced updated item.");//, this.ItemList.items[i]);
                         }
                         else {
                             console.log("updated item not replaced: could not find it...");

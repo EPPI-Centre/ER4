@@ -6,7 +6,7 @@
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
     <div class="w-100 m-0 p-0 text-center">
         
-            <button class="btn btn-outline-danger btn-sm ml-1 mb-1 "
+            <button *ngIf="this.item && this.item.itemId > 0" class="btn btn-outline-danger btn-sm ml-1 mb-1 "
                     [disabled]="!Edited || !CanSave"
                     (click)="Save()">
                 Save
@@ -27,7 +27,7 @@
         <div class="row w-100 col-12 p-0 m-0">
             <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Ref. Type </div>
             <div class="col-sm-5 col-12 p-1">
-                <select *ngIf="ItemTypes && ItemTypes.length && ItemTypes.length > 0" [(ngModel)]="item.typeId"
+                <select *ngIf="ItemTypes && ItemTypes.length && ItemTypes.length > 0" [(ngModel)]="item.typeId" (change)="TypeChanged()"
                         class="">
                     <option *ngFor="let kvp of ItemTypes" [value]="kvp.key">{{kvp.value}}</option>
                 </select>
