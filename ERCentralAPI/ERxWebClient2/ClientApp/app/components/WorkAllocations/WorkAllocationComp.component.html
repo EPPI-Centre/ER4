@@ -12,7 +12,7 @@
 				<div class="row bg-light ">
 					<div class="col-md-2"></div>
 					<div class="col-12  col-sm-10  col-md-10 row">
-						<div class="col-2" style="min-width: 80px;"><p>Select From </p></div>
+						<div class="col-2 text-right" style="min-width: 80px;">Select From </div>
 						<div class="form-group col-12  col-sm-8  col-sm-8" >
 							<select  
 									#AllocateOptionsDropDown class="form-control" name="AllocateOptions"
@@ -34,7 +34,7 @@
 						 *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
 						||  (selectedRandomAllocateDropDown == 'All without this code' )">
 
-						<div class="col-2" >
+						<div class="col-2  text-right" >
 							Select also from
 						</div>
 
@@ -58,7 +58,7 @@
 						||  (selectedRandomAllocateDropDown == 'All without any codes from this coding tool' )">
 						<!--<div class="col-0 col-sm-2 col-md-2">
 						</div>-->
-						<div class="col-2" style="min-width:100px;">
+						<div class="col-2  text-right" style="min-width:100px;">
 							Select also from
 						</div>
 						<div ngbDropdown class="col-8" style="min-width:200px;">
@@ -79,7 +79,7 @@
 				<div class="row">
 					<div class="col-0 col-md-2"></div>
 					<div class="col-10 row p-1">
-						<div class="col-2" style="min-width:110px;">
+						<div class="col-2  text-right" style="min-width:110px;">
 							Percentage to Allocate
 						</div>
 						<div class="col-4">
@@ -98,7 +98,7 @@
 				<div class="row">
 					<div class="col-0 col-md-2"></div>
 					<div class="col-10 row p-1">
-						<div class="col-2" style="min-width:110px;">
+						<div class="col-2  text-right" style="min-width:110px;">
 							Groups to create
 						</div>
 						<div class="col-4">
@@ -118,7 +118,7 @@
 				<div class="row">
 					<div class="col-0 col-sm-2 col-md-2"></div>
 					<div class="col-12 col-md-10 row">
-						<div class="col-12 col-md-3" style="min-width:100px;">
+						<div class="col-12 col-md-3 " style="min-width:100px;">
 							Inc / Exc
 						</div>
 						<div class="col-12 col-md-9 row">
@@ -132,7 +132,7 @@
 				<div class="row bg-light">
 					<div class="col-0 col-md-2"></div>
 					<div class="col-12 col-sm-10 col-md-10 row">
-						<div class="col-12 col-sm-2 col-md-2" style="min-width:110px;">
+						<div class="col-12 col-sm-2 col-md-2  text-right" style="min-width:110px;">
 							Create codes below this code / coding tool
 						</div>
 						<!--	dpAnchorDropDown -->
@@ -157,8 +157,8 @@
 				<div class="row bg-light">
 					<div class="col-0  col-md-2"></div>
 					<div class="col-12 col-sm-10 col-md-10 row">
-						<div class="col-2" style="min-width:100px;">Assign / Cancel </div>
-						<div class="form-group col-12 col-md-8">
+						<div class="col-2  text-right" style="min-width:100px;">Assign / Cancel </div>
+						<div class="form-group col-12 col-md-8  text-right">
 							<button style="min-width:100px"
 									class="col-12 col-md-4 pt-2 m-2 border border-dark rounded k-widget
 								k-numerictextbox btn btn-success" [disabled]="!CanAssign()"
@@ -167,7 +167,7 @@
 							</button>
 							<button style="min-width:100px"
 									class="col-12 col-md-6 pt-2 m-2 border border-dark rounded
-								k-widget k-numerictextbox btn btn-outline-dark"
+								k-widget k-numerictextbox btn btn-outline-dark "
 									(click)="CloseRandomlyAssignSection()">
 								Cancel
 							</button>
@@ -181,7 +181,7 @@
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 			<div class="col-12 col-md-12">
 				<div class="form-group col-md-8 row ">
-					<div class="col-12 col-sm-12 col-md-3" style="min-width:200px;">
+					<div class="col-12 col-sm-12 col-md-3  text-right" style="min-width:200px;">
 						Code studies in this group:
 					</div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
@@ -204,7 +204,7 @@
 					</div>
 				</div>
 				<div class="form-group col-md-8 row ">
-					<div class="col-12 col-md-3" style="min-width:100px;">
+					<div class="col-12 col-md-3  text-right" style="min-width:100px;">
 						Using this codeset:
 					</div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
@@ -220,7 +220,7 @@
 					</div>
 				</div>
 				<div class="form-group col-md-8 row">
-					<div class="col-12 col-md-3" style="min-width:100px;">
+					<div class="col-12 col-md-3  text-right" style="min-width:100px;">
 						To this person:
 					</div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
