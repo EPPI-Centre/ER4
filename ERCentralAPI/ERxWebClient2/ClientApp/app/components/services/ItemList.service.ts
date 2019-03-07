@@ -43,7 +43,7 @@ export class ItemListService extends BusyAwareService {
     private _currentItem: Item = new Item();
     private _ItemTypes: any[] = [];
     public get ItemTypes(): any[] {
-        console.log("Get ItemTypes");
+        //console.log("Get ItemTypes");
         return this._ItemTypes;
     }
     public ListDescription: string = "";
@@ -88,12 +88,18 @@ export class ItemListService extends BusyAwareService {
     }
     public FetchItemTypes() {
         this._BusyMethods.push("FetchItemTypes");
-        this._httpC.get<any[]>(this._baseUrl + 'api/ItemList/ItemTypes')
+        this._httpC.get<KeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
             .subscribe(
             (res) => {
                 this.RemoveBusy("FetchItemTypes"); 
+                //putting the "journal" type close to the top...
+                let i = res.findIndex(found => found.key == '14');
+                if (i > -1) {
+                    let j = res.splice(i, 1);
+                    res.splice(1,0, j[0]);
+                }
                 this._ItemTypes = res;
-                console.log(res);
+                //console.log(res);
             }
             , (err) => {
                 this.RemoveBusy("FetchItemTypes");
@@ -684,6 +690,13 @@ export class ItemDocument {
     public isSelfDirty: boolean = false;
     public isSelfValid: boolean = false;
     public isValid: boolean = false;
-
+}
+export class KeyValue {//used in more than one place...
+    constructor(k: string, v: string) {
+        this.key = k;
+        this.value = v;
+    }
+    key: string;
+    value: string;
 }
 

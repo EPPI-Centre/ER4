@@ -27,4 +27,21 @@ export class Helpers {
             return date.toLocaleDateString();
         }
     }
+
+    //used when we want a component to wait some time in a sync manner (for example to check when a service stops being busy).
+    //Correct way to call this function requires the calling method to be async. 
+    //If done within a loop, should also include a safety to avoid infinite loops!!!
+    //Example: 
+    //async CheckServiceX() {
+    //    let counter: number = 0;
+    //    while (this.ServiceX.IsBusy && counter < 5 * 120) {
+    //        counter++;
+    //        await Helpers.Sleep(200);
+    //    }
+    //    will remain here for up to 2 minutes (200ms*5*120)... counter ensures we won't have an endless loop.
+    //    this.DoSomething("Service isn't busy anymore or we gave up on it...");
+    //}
+    public static Sleep(milliseconds: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    }
 }

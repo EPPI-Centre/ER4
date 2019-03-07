@@ -175,15 +175,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //setTimeout(() => {
             while (this.SourcesService.IsBusy && counter < 3*120) {
                 counter++;
-                await this.Sleep(200);
+                await Helpers.Sleep(200);
                 console.log("waiting, cycle n: " + counter);
             }
-        //}, 200);//will remain here for up to 2 minutes (200ms*3*120)... counter ensures we won't have an endless loop.
+        //will remain here for up to 72s (200ms*3*120)... counter ensures we won't have an endless loop.
         this.showUploadedNotification(this.SourcesService.LastUploadOrUpdateStatus);
     }
-    Sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    
     private showUploadedNotification(status: string): void {
 
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;

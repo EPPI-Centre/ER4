@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { Item, ItemListService } from '../services/ItemList.service';
+import { Item, ItemListService, KeyValue } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { isString } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 
@@ -147,12 +148,12 @@ export class editItemDetailsComp implements OnInit {
             };
         }
     }
-    private _ItemFlagOptions: KeyValueState[] = [new KeyValueState('I', 'Included'), new KeyValueState('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
-    public get ItemFlagOptions(): KeyValueState[] {
+    private _ItemFlagOptions: KeyValue[] = [new KeyValue('I', 'Included'), new KeyValue('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
+    public get ItemFlagOptions(): KeyValue[] {
         return this._ItemFlagOptions;
     }
    
-    public get ItemFlagStatus(): KeyValueState {
+    public get ItemFlagStatus(): KeyValue {
         let i = this._ItemFlagOptions.findIndex(found => (this.item != null && found.key == this.item.itemStatus));
         if (i == -1) return this._ItemFlagOptions[0];
         else return this._ItemFlagOptions[i];
@@ -179,14 +180,12 @@ export class editItemDetailsComp implements OnInit {
         let i = 1;
         while (this.ItemListService.IsBusy && i < 3 * 120) {
             i++;
-            await this.Sleep(200);
+            await Helpers.Sleep(200);
             console.log("waiting, cycle n: " + i);
         }
         this.GoBack();
     }
-    Sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    
     Save() {
         if (this.item) this.ItemListService.UpdateItem(this.item);
     }
@@ -223,14 +222,7 @@ export class editItemDetailsComp implements OnInit {
     }
     
 }
-export class KeyValueState {
-    constructor(k: string, v: string) {
-        this.key = k;
-        this.value = v;
-    }
-    key: string ;
-    value: string;
-}
+
 
 
 
