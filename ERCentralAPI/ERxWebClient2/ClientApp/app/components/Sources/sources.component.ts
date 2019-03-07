@@ -7,6 +7,7 @@ import { ItemListService } from '../services/ItemList.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -54,7 +55,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
-        console.log("rev srcs:", this.SourcesService.ReviewSources.length);
+        //console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
@@ -229,14 +230,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         }
     }
     FormatDate(DateSt: string): string {
-        if (!DateSt || DateSt.length < 10) return "";
-        else {
-            const year = parseInt(DateSt.substr(6, 4));
-            const month = parseInt(DateSt.substr(3, 2));
-            const day = parseInt(DateSt.substr(0, 2));
-            const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
-        }
+        return Helpers.FormatDate2(DateSt);
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

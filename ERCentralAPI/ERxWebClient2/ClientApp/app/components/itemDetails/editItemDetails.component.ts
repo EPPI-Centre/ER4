@@ -107,7 +107,7 @@ export class editItemDetailsComp implements OnInit {
         else if (typeId == 3) {
             return {
                 parentTitle: { txt: 'Book Title', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: false }
+                , parentAuthors: { txt: 'Editors', optional: false }
                 , standardNumber: { txt: 'ISBN', optional: true }
             };
         }
