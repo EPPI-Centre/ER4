@@ -155,6 +155,7 @@ export class WorkAllocationComp implements OnInit {
 
 	}
 	public CanAssign() {
+				
 
 		if (this.AllocateOptions[this.index].key == 1
 			&& this.DropdownSelectedCodingTool != null
@@ -221,8 +222,7 @@ export class WorkAllocationComp implements OnInit {
 			} else {
 				this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
 			}
-			
-			
+	
 		}
 			   
 		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
@@ -278,14 +278,18 @@ export class WorkAllocationComp implements OnInit {
 				break;
 		}
 
-
+		// Could place logic in here for allowed to randomly allocate
 		if (this.DestAttSet.attribute_id != -1) {
+			
 			attributeId = this.DestAttSet.attribute_id;
 			setId = this.DestAttSet.set_id;
+			
 		}
 		else {
+			
 			setId = this.DestRevSet.set_id;
 			attributeId = 0;
+			
 		}
 
 		let assignParameters: PerformRandomAllocateCommand = new PerformRandomAllocateCommand();
