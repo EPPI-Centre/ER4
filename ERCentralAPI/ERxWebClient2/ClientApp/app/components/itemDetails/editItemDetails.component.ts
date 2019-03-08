@@ -57,8 +57,8 @@ export class editItemDetailsComp implements OnInit {
     private itemString: string = '0';
     public showOptionalFields = false;
     private returnTo: string = "Main";
-    private _ItemTypes: any[] = [];
-    public get ItemTypes(): any {
+    private _ItemTypes: KeyValue[] = [];
+    public get ItemTypes(): KeyValue[] {
         //looking at this.ItemListService.ItemTypes makes the service fetch the data if it's not already there
         //the below is a system to make it ask only once
         if (this._ItemTypes.length == 0 && this.ItemListService.ItemTypes.length > 0) this._ItemTypes = this.ItemListService.ItemTypes;
@@ -173,7 +173,13 @@ export class editItemDetailsComp implements OnInit {
             //}
         }
     }
-	
+    TypeChanged() {
+        console.log("type changed: ", this.item);
+        let i = this.ItemTypes.findIndex(found => this.item != null && found.key == this.item.typeId.toString())
+        if (i >= -1 && this.item) {
+            this.item.typeName = this.ItemTypes[i].value;
+        }
+    }
     
     async SaveAndClose() {
         this.Save();
