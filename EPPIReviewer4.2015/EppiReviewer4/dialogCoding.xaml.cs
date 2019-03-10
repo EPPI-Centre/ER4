@@ -43,6 +43,7 @@ using Telerik.Windows.Documents.FormatProviders.Txt;
 using Telerik.Windows.Documents.TextSearch;
 using Telerik.Windows.Documents;
 //using Telerik.Windows.Documents.UI;
+using System.Globalization;
 
 using System.Text;
 using System.Threading.Tasks;
@@ -80,6 +81,16 @@ namespace EppiReviewer4
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
 
         public List<Int64> ScreenedItemIds;
+
+        // maybe we should move these to a central location for this kind of thing??
+        class TimepointMetricsClass
+        {
+            public string[] TimepointMetrics
+            {
+                get { return new string[] { "seconds", "minutes", "hours", "days", "weeks", "months", "years" }; }
+            }
+            
+        }
 
         //first bunch of lines to make the read-only UI work, modified to make it possible to do PDF text coding possible in Coding-Only
         private BusinessLibrary.Security.ReviewerIdentity ri;
@@ -185,6 +196,10 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
+
+            TimePointTypeList tptl = new BusinessLibrary.BusinessClasses.TimePointTypeList();
+            ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
+            ComboTimepointMetricSelection.SelectedIndex = 5;
         }
         public void PrepareCodingOnly()
         {
@@ -297,6 +312,7 @@ namespace EppiReviewer4
             PaneItemDetails.SelectedIndex = 0;
             GetItemDocumentList(DataContext as Item);
             GetItemArmList(DataContext as Item);
+            GetItemTimepointList(DataContext as Item);
             dialogItemDetailsControl.BindNew(DataContext as Item);
         }
 
@@ -374,7 +390,9 @@ namespace EppiReviewer4
                 //(DataContext as Item).GetDocumentList();
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);
-                
+                GetItemTimepointList(DataContext as Item);
+
+
                 dialogItemDetailsControl.BindTree(DataContext as Item);
             }
             else
@@ -440,6 +458,16 @@ namespace EppiReviewer4
             provider.FactoryParameters.Clear();
             provider.FactoryParameters.Add(item.ItemId);
             provider.FactoryMethod = "GetItemArmList";
+            GridArms.IsEnabled = false;
+            provider.Refresh();
+        }
+
+        private void GetItemTimepointList(Item item)
+        {
+            CslaDataProvider provider = this.Resources["ItemTimepointsData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            provider.FactoryParameters.Add(item.ItemId);
+            provider.FactoryMethod = "GetItemTimepointList";
             GridArms.IsEnabled = false;
             provider.Refresh();
         }
@@ -2012,6 +2040,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                                 CheckRunTraining(e2.Object.Rank);
@@ -2097,6 +2126,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                             }
@@ -3047,6 +3077,108 @@ namespace EppiReviewer4
             ia.Saved += Ia_Saved;
             ia.BeginEdit();
             ia.ApplyEdit();
+        }
+
+        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
+        {
+            this.IsEnabled = true;
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            if (provider.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+            if (provider.IsBusy == false)
+            {
+                GridTimepoints.IsEnabled = true;
+                tbNewTimepointValue.DataContext = null;
+            }
+        }
+
+        private void CancelTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            tbNewTimepointValue.Text = "";
+            tbNewTimepoint.DataContext = null;
+            tbNewTimepoint.Text = "New timepoint";
+        }
+
+        private void NewTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            if (tbNewTimepoint.Text != null && provider != null)
+            {
+                float result = 0;
+                if (!float.TryParse(tbNewTimepointValue.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+                {
+                    RadWindow.Alert("Timepoint value cannot be empty and must be a number");
+                    return;
+                }
+                foreach (ItemTimepoint timepoint in (provider.Data as ItemTimepointList))
+                {
+                    if (timepoint.TimepointValue.ToString() == tbNewTimepointValue.Text && 
+                        timepoint.TimepointMetric == ComboTimepointMetricSelection.SelectedValue.ToString())
+                    {
+                        RadWindow.Alert("Timepoints must be unique");
+                        return;
+                    }
+                }
+                ItemTimepointList thelist = provider.Data as ItemTimepointList;
+                ItemTimepoint it = null;
+
+                if (tbNewTimepoint.DataContext == null)
+                {
+                    it = new ItemTimepoint();
+                    it.ItemId = (DataContext as Item).ItemId;
+                    thelist.Add(it);
+                }
+                else
+                {
+                    it = tbNewTimepoint.DataContext as ItemTimepoint;
+                }
+                it.TimepointValue = float.Parse(tbNewTimepointValue.Text, CultureInfo.InvariantCulture.NumberFormat);
+                it.TimepointMetric = ComboTimepointMetricSelection.SelectedValue.ToString();
+                it.Saved -= Ia_Saved;
+                it.Saved += Ia_Saved;
+                it.BeginEdit();
+                it.ApplyEdit();
+                tbNewTimepointValue.Text = "";
+                tbNewTimepoint.DataContext = null;
+                tbNewTimepoint.Text = "New timepoint";
+            }
+        }
+
+        private void cmdEditTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            ItemTimepoint it = (ItemTimepoint)(sender as Button).DataContext;
+            if (it != null)
+            {
+                tbNewTimepoint.Text = "Edit timepoint";
+                tbNewTimepointValue.Text = it.TimepointValue.ToString();
+                /*
+                for (int i=0; i < ComboTimepointMetricSelection.Items.Count; i++)
+                {
+                    if (ComboTimepointMetricSelection.Items[i].ToString() == it.TimepointMetric)
+                    {
+                        ComboTimepointMetricSelection.SelectedIndex = i;
+                    }
+                }
+                */
+                ComboTimepointMetricSelection.SelectedValue = it.TimepointMetric;
+                tbNewTimepoint.DataContext = it;
+            }
+        }
+
+        private void cmdDeleteTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Delete timepoint?", "Confirm timepoint deletion", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                ItemTimepoint it = (ItemTimepoint) (sender as Button).DataContext;
+                if (it != null)
+                {
+                    it.Delete();
+                    it.Saved -= Ia_Saved;
+                    it.Saved += Ia_Saved;
+                    it.BeginEdit();
+                    it.ApplyEdit();
+                }
+            }
         }
 
         public void UnHookMe()

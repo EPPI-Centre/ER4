@@ -39,6 +39,13 @@
                            FactoryMethod="GetItemArmList"
                            DataChanged="CslaDataProvider_DataChanged_1"
                            />
+        <cslaXAML:CslaDataProvider x:Key="ItemTimepointsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemTimepointList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemTimepointList"
+                           DataChanged="CslaDataProvider_DataChanged_2"
+                           />
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
@@ -69,6 +76,26 @@
                     <ControlTemplate>
                         <Button x:Name="cmdDeletearm" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
                                 Content="Delete arm" Click="cmdDeletearm_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleEditTimepoint">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdEditTimepoint" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}"
+                                Content="Edit timepoint" Click="cmdEditTimepoint_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteTimepoint">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdDeleteTimepoint" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
+                                Content="Delete timepoint" Click="cmdDeleteTimepoint_Click"></Button>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -679,12 +706,53 @@
                                     </telerikGridView:RadGridView.Columns>
                                 </telerikGridView:RadGridView>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Name="tbArmDescriptor" Text="New Arm" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="3,6,3,3"></TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Name="tbArmDescriptor" Text="New arm" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="3,6,3,3"></TextBlock>
                                 <TextBox Grid.Row="2" Grid.Column="1" Name="tbNewArm" Margin="3,3,3,3"></TextBox>
                                 <Button HorizontalAlignment="Center" Name="NewArm" Click="NewArm_Click" Width="25" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Height="25" Grid.Row="2" Grid.Column="2"  Margin="3" ToolTipService.ToolTip="Save arm" >
                                     <Image Source="Icons/AddPDFCode.png" Stretch="None" Width="25" Height="25" />
                                 </Button>
                                 <Button HorizontalAlignment="Center" Name="CancelArm" Click="CancelArm_Click" Width="25" Height="25" Grid.Row="2" Grid.Column="3"  Margin="3" ToolTipService.ToolTip="Cancel" >
+                                    <Image Source="Icons/RedX.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+                        <radDock:RadDocumentPane Header="Study timepoints" x:Name="timepoints" Title="Study timepoints" CanUserClose="False" CanFloat="False" IsEnabled="True" >
+                            <Grid >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="300" />
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"></ColumnDefinition>
+                                    <ColumnDefinition Width="40"></ColumnDefinition>
+                                    <ColumnDefinition Width="170"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="30"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Study timepoints" HorizontalAlignment="Left" FontWeight="Bold" Margin="3,6,3,3"></TextBlock>
+
+                                <telerikGridView:RadGridView x:Name="GridTimepoints" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemTimepointsData}, Path=Data, Mode=TwoWay}"
+                                                             AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Timepoint" DataMemberBinding="{Binding TimepointDisplayValue, Mode=OneWay}" IsReadOnly="True" Width="*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleEditTimepoint}" Width="100" Header="Edit" DataMemberBinding="{Binding ItemTimepointId}"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDeleteTimepoint}" Width="120" Header="Delete" DataMemberBinding="{Binding ItemTimepointId}"></telerikGridView:GridViewDataColumn>
+
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Name="tbNewTimepoint" Text="New timepoint" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="3,6,3,3"></TextBlock>
+                                <TextBox Grid.Row="2" Grid.Column="1" Name="tbNewTimepointValue" Margin="3,3,3,3"></TextBox>
+                                <ComboBox x:Name="ComboTimepointMetricSelection" Grid.Row="2" Grid.Column="2" Margin="3,3,3,3" SelectedValue="Binding SelectedType, Mode=TwoWay"></ComboBox>
+                                <Button HorizontalAlignment="Center" Name="NewTimepoint" Click="NewTimepoint_Click" Width="25" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" Height="25" Grid.Row="2" Grid.Column="3"  Margin="3" ToolTipService.ToolTip="Save timepoint" >
+                                    <Image Source="Icons/AddPDFCode.png" Stretch="None" Width="25" Height="25" />
+                                </Button>
+                                <Button HorizontalAlignment="Center" Name="CancelTimepoint" Click="CancelTimepoint_Click" Width="25" Height="25" Grid.Row="2" Grid.Column="4"  Margin="3" ToolTipService.ToolTip="Cancel" >
                                     <Image Source="Icons/RedX.png" Stretch="None" Width="25" Height="25" />
                                 </Button>
                             </Grid>

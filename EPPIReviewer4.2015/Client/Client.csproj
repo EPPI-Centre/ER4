@@ -408,6 +408,12 @@
     <Compile Include="..\Server\BusinessClasses\ItemSetListAll.cs">
       <Link>BusinessClasses\ItemSetListAll.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemTimepoint.cs">
+      <Link>BusinessClasses\ItemTimepoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemTimepointList.cs">
+      <Link>BusinessClasses\ItemTimepointList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVL.cs">
       <Link>BusinessClasses\ItemTypeNVL.cs</Link>
     </Compile>
@@ -689,6 +695,9 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\TermList.cs">
       <Link>BusinessClasses\TermList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\TimePointTypeList.cs">
+      <Link>BusinessClasses\TimePointTypeList.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\Training.cs">
       <Link>BusinessClasses\Training.cs</Link>
