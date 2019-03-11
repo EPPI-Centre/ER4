@@ -88,65 +88,7 @@ export class editItemDetailsComp implements OnInit {
         else return false;
     }
     public FieldsByType(typeId: number) {
-        //if (typeId == 0) return null;
-        //else
-            if (typeId == 14) {
-            return {
-                parentTitle: { txt: 'Journal', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN', optional: false }
-
-            };
-        }
-        else if (typeId == 2) {
-            return {
-                parentTitle: { txt: 'Parent Title', optional: true }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISBN', optional: false }
-            };
-        }
-        else if (typeId == 3) {
-            return {
-                parentTitle: { txt: 'Book Title', optional: false }
-                , parentAuthors: { txt: 'Editors', optional: false }
-                , standardNumber: { txt: 'ISBN', optional: true }
-            };
-        }
-        else if (typeId == 4) {
-            return {
-                parentTitle: { txt: 'Publ. Title', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-            };
-        }
-        else if (typeId == 5) {
-            return {
-                parentTitle: { txt: 'Conference', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-            };
-        }
-        else if (typeId == 10) {
-            return {
-                parentTitle: { txt: 'Periodical', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: true }
-            };
-        }
-        else if (typeId == 0) {
-                return {
-                    parentTitle: { txt: 'Parent Title', optional: false }
-                    , parentAuthors: { txt: 'Parent Authors', optional: false }
-                    , standardNumber: { txt: 'Standard Number', optional: false }
-                };
-            }
-        else {
-            return {
-                parentTitle: { txt: 'Parent Title', optional: true }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'Standard Number', optional: true }
-            };
-        }
+        return Helpers.FieldsByPubType(typeId);
     }
     private _ItemFlagOptions: KeyValue[] = [new KeyValue('I', 'Included'), new KeyValue('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
     public get ItemFlagOptions(): KeyValue[] {
@@ -223,10 +165,6 @@ export class editItemDetailsComp implements OnInit {
     GoBack() {
         this.router.navigate([this.returnTo]);
     }
-    toHTML(text: string): string {
-        return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    }
-    
 }
 
 

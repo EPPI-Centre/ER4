@@ -3,10 +3,12 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { Item } from '../services/ItemList.service';
+import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 
 
@@ -22,16 +24,28 @@ export class itemDetailsComp implements OnInit {
         private router: Router,
         private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
+        private PriorityScreeningService: PriorityScreeningService,
+        private ItemListService: ItemListService,
         private ModalService: ModalService
     ) {}
 
     @Input() item: Item | undefined;
     @Input() ShowHighlights: boolean = false;
+    @Input() CanEdit: boolean = false;
+    @Input() IsScreening: boolean = false;
     public HAbstract: string = "";
-	public HTitle: string = "";
+    public HTitle: string = "";
+    public showOptionalFields = false;
 
 	private eventsTest: Subject<void> = new Subject<void>();
-
+    public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
+        if (this.IsScreening) {
+            return this.PriorityScreeningService.CurrentItemAdditionalData;
+        }
+        else {
+            return this.ItemListService.CurrentItemAdditionalData;
+        }
+    }
 	ngOnInit() {
 
 
@@ -115,6 +129,9 @@ export class itemDetailsComp implements OnInit {
     }
     toHTML(text: string): string {
         return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+    }
+    public FieldsByType(typeId: number) {
+        return Helpers.FieldsByPubType(typeId);
     }
 }
 

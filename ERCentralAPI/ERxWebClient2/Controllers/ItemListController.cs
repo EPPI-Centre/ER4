@@ -125,6 +125,25 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult FetchAdditionalItemData([FromBody] SingleInt64Criteria itemID)
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ReadOnlySource> dps = new DataPortal<ReadOnlySource>();
+                DataPortal<ItemDuplicatesReadOnlyList> pdp = new DataPortal<ItemDuplicatesReadOnlyList>();
+                ReadOnlySource ros = dps.Fetch(new SingleCriteria<ReadOnlySource, long>(itemID.Value));
+                ItemDuplicatesReadOnlyList dups = pdp.Fetch(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(itemID.Value));
+                AdditionalItemData res = new AdditionalItemData(itemID.Value, ros, dups);
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error fetching ItemTypes");
+                return StatusCode(500, e.Message);
+            }
+        }
 
         [HttpPost("[action]")]
         public IActionResult UpdateItem([FromBody] ItemJSON item)
@@ -317,5 +336,17 @@ namespace ERxWebClient2.Controllers
         public bool isIncluded;
         public bool isItemDeleted;
         public string isLocal;
+    }
+    public class AdditionalItemData
+    {
+        public AdditionalItemData(long ItemId, ReadOnlySource Source, ItemDuplicatesReadOnlyList Duplicates)
+        {
+            this.itemID = ItemId;
+            this.source = Source;
+            this.duplicates = Duplicates;
+        }
+        public long itemID;
+        public ReadOnlySource source;
+        public ItemDuplicatesReadOnlyList duplicates;
     }
 }
