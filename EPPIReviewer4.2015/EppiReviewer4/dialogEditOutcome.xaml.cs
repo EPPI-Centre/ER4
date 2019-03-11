@@ -30,11 +30,10 @@ namespace EppiReviewer4
         }
 
         public OutcomeItemList CurrentOutcomeItemList;
+        public Int64 CurrentItemId;
 
         public void RefreshProviders()
         {
-            //o.SetCalculatedValues();
-            
             Outcome o = this.DataContext as Outcome;
 
             CslaDataProvider provider = this.Resources["ReviewSetOutcomeListData"] as CslaDataProvider;
@@ -57,6 +56,18 @@ namespace EppiReviewer4
             provider3.FactoryParameters.Add(0);
             provider3.FactoryMethod = "GetReadOnlyReviewSetControlList";
             provider3.Refresh();
+
+            CslaDataProvider provider4 = this.Resources["ItemArmsData"] as CslaDataProvider;
+            provider4.FactoryParameters.Clear();
+            provider4.FactoryParameters.Add(CurrentItemId);
+            provider4.FactoryMethod = "GetItemArmList";
+            provider4.Refresh();
+
+            CslaDataProvider provider5 = this.Resources["ItemTimepointsData"] as CslaDataProvider;
+            provider5.FactoryParameters.Clear();
+            provider5.FactoryParameters.Add(CurrentItemId);
+            provider5.FactoryMethod = "GetItemTimepointList";
+            provider5.Refresh();
 
             SetClusteringVisibility();
         }
@@ -136,6 +147,12 @@ namespace EppiReviewer4
                 thisOutcome.ItemAttributeIdIntervention = (ComboBoxIntervention.SelectedItem as ReadOnlyReviewSetIntervention).AttributeId;
             if (ComboBoxControl.SelectedItem != null)
                 thisOutcome.ItemAttributeIdControl = (ComboBoxControl.SelectedItem as ReadOnlyReviewSetControl).AttributeId;
+            if (ComboBoxTimepoint.SelectedItem != null)
+                thisOutcome.ItemTimepointId = (ComboBoxTimepoint.SelectedItem as ItemTimepoint).ItemTimepointId;
+            if (ComboBoxGrp1Arm.SelectedItem != null)
+                thisOutcome.ItemArmIdGrp1 = (ComboBoxGrp1Arm.SelectedItem as ItemArm).ItemArmId;
+            if (ComboBoxGrp2Arm.SelectedItem != null)
+                thisOutcome.ItemArmIdGrp2 = (ComboBoxGrp2Arm.SelectedItem as ItemArm).ItemArmId;
 
             if (thisOutcome.IsNew == true)
             {
@@ -190,67 +207,67 @@ namespace EppiReviewer4
             switch (thisOutcome.NRows)
             {
                 case 0:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
                     break;
 
                 case 1:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
 
                     break;
 
                 case 2:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[6].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[7].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[8].MaxHeight = 0;
-                    break;
-
-                case 3:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
                     break;
 
-                case 4:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
+                case 3:
                     LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
                     break;
 
-                case 5:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
+                case 4:
                     LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
                     break;
 
-                case 6:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
+                case 5:
                     LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    break;
+
+                case 6:
+                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[6].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[7].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
                     break;
             }
             SetClusteringVisibility();
@@ -290,7 +307,10 @@ namespace EppiReviewer4
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ReviewSetControlListData"]);
             if (provider.Error != null)
+            {
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+                return;
+            }
             Outcome o = this.DataContext as Outcome;
             foreach (ReadOnlyReviewSetControl RSC in provider.Data as ReadOnlyReviewSetControlList)
             {
@@ -312,11 +332,11 @@ namespace EppiReviewer4
         {
             if (cbUnitOfAnalysis.IsChecked == true)
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[11].MaxHeight = 35;
             }
             else
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[11].MaxHeight = 0;
                 Outcome o = this.DataContext as Outcome;
                 if (o != null)
                 {
@@ -331,12 +351,12 @@ namespace EppiReviewer4
             Outcome o = this.DataContext as Outcome;
             if (o.Data9 == 0)
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[11].MaxHeight = 0;
                 cbUnitOfAnalysis.IsChecked = false;
             }
             else
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[11].MaxHeight = 35;
                 cbUnitOfAnalysis.IsChecked = true;
             }
         }
@@ -358,6 +378,48 @@ namespace EppiReviewer4
                 parentGrid.SelectAll();
             else
                 parentGrid.UnselectAll();
+        }
+
+        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            if (provider.Error != null)
+            {
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+                return;
+            }
+
+            Outcome o = this.DataContext as Outcome;
+            foreach (ItemArm ia in provider.Data as ItemArmList)
+            {
+                if (ia.ItemArmId == o.ItemArmIdGrp1)
+                {
+                    ComboBoxGrp1Arm.SelectedItem = ia;
+                }
+                if (ia.ItemArmId == o.ItemArmIdGrp2)
+                {
+                    ComboBoxGrp2Arm.SelectedItem = ia;
+                }
+            }
+        }
+
+        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            if (provider.Error != null)
+            {
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+                return;
+            }
+
+            Outcome o = this.DataContext as Outcome;
+            foreach (ItemTimepoint it in provider.Data as ItemTimepointList)
+            {
+                if (it.ItemTimepointId == o.ItemTimepointId)
+                {
+                    ComboBoxTimepoint.SelectedItem = it;
+                }
+            }
         }
     }
 }

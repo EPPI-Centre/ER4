@@ -21,14 +21,13 @@ namespace EppiReviewer4
     public partial class dialogEditOutcomes : UserControl
     {
         private Outcome _selectedOutcome;
-        
 
+        public Int64 CurrentItemId;
         
         private RadWindow windowEditOutcome = new RadWindow();
         private Grid GridEditOutcome = new Grid();
         private dialogEditOutcome dialogEditOutcomeControl = new dialogEditOutcome();
         private RadWConfirmOutcomeDelete windowConfirmOutcomeDelete = new RadWConfirmOutcomeDelete();
-
 
         public dialogEditOutcomes()
         {
@@ -75,6 +74,7 @@ namespace EppiReviewer4
             o.ItemSetId = itemSetid;
             o.OutcomeTypeId = 1;
             GridEditOutcome.DataContext = o;
+            dialogEditOutcomeControl.CurrentItemId = CurrentItemId;
             dialogEditOutcomeControl.CurrentOutcomeItemList = GridOutcomes.ItemsSource as OutcomeItemList;
             dialogEditOutcomeControl.BuildOutcomeClassificationList(this.DataContext as AttributeSet);
             dialogEditOutcomeControl.RefreshProviders();
@@ -86,6 +86,7 @@ namespace EppiReviewer4
             Outcome o = ((Button)(sender)).DataContext as Outcome;
             o.BeginEdit();
             GridEditOutcome.DataContext = o;
+            dialogEditOutcomeControl.CurrentItemId = CurrentItemId;
             dialogEditOutcomeControl.CurrentOutcomeItemList = GridOutcomes.ItemsSource as OutcomeItemList;
             dialogEditOutcomeControl.BuildOutcomeClassificationList(this.DataContext as AttributeSet);
             dialogEditOutcomeControl.RefreshProviders();

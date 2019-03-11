@@ -2807,6 +2807,7 @@ namespace EppiReviewer4
             if ((currentAttributeSet != null) && (currentAttributeSet.ItemData != null))
             {
                 GridEditOutcomes.DataContext = currentAttributeSet;
+                dialogEditOutcomesControl.CurrentItemId = (DataContext as Item).ItemId;
                 windowEditOutcomes.ShowDialog();
                 dialogEditOutcomesControl.RefreshDataProvider();
             }   

@@ -27,6 +27,20 @@
                            FactoryMethod="GetReadOnlyReviewSetControlList"
                            DataChanged="CslaDataProviderReadOnlyReviewSetControlList_DataChanged"
                            />
+        <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemArmList"
+                           DataChanged="CslaDataProvider_DataChanged_1"
+                           />
+        <cslaXAML:CslaDataProvider x:Key="ItemTimepointsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemTimepointList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemTimepointList"
+                           DataChanged="CslaDataProvider_DataChanged_2"
+                           />
     </UserControl.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
@@ -50,80 +64,71 @@
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        
+
         <TextBlock Text="Title" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
         <TextBox Grid.Column="1" Margin="3" Text="{Binding Title, Mode=TwoWay}" Height="35" VerticalAlignment="Top" HorizontalAlignment="Stretch"></TextBox>
         <TextBlock Text="Description" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox Grid.Row="0" Grid.Column="3" Margin="3,3,3,3" Text="{Binding OutcomeDescription, Mode=TwoWay}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"></TextBox>
-        
-        <TextBlock Text="Outcome type" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <ComboBox Grid.Column="1" Grid.Row="1" Margin="3,3,3,3" HorizontalAlignment="Stretch" SelectedIndex="{Binding OutcomeTypeId, Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged">
-            <ComboBox.Items>
-                <ComboBoxItem Content="Manual entry"></ComboBoxItem>
-                <ComboBoxItem Content="Continuous: Ns, means and SD"></ComboBoxItem>
-                <ComboBoxItem Content="Binary: 2 x 2 table"></ComboBoxItem>
-                <ComboBoxItem Content="Continuous: N, Mean, SE"></ComboBoxItem>
-                <ComboBoxItem Content="Continuous: N, Mean, CI"></ComboBoxItem>
-                <ComboBoxItem Content="Continuous: N, t- or p-value"></ComboBoxItem>
-                <ComboBoxItem Content="Diagnostic test: 2 x 2 table"></ComboBoxItem>
-                <ComboBoxItem Content="Correlation coefficient r"></ComboBoxItem>
-            </ComboBox.Items>
-        </ComboBox>
+        <TextBlock Text="Timepoint" Grid.Column="0" HorizontalAlignment="Right" Margin="0,65,3,7"/>
+        <ComboBox x:Name="ComboBoxTimepoint" ItemsSource="{Binding Data, Source={StaticResource ItemTimepointsData}}" Grid.Column="1" Margin="3,59,0,10" HorizontalAlignment="Left" Width="94"/>
 
+        <TextBox Grid.Row="0" Grid.Column="3" Margin="3,3,3,3" Text="{Binding OutcomeDescription, Mode=TwoWay}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"></TextBox>
+        <TextBlock Text="Outcome type" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
         <TextBlock Text="Outcome" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
         <ComboBox x:Name="ComboBoxOutcome" ItemsSource="{Binding Source={StaticResource ReviewSetOutcomeListData}, Path=Data}" Grid.Column="3" Grid.Row="1" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>
         <TextBlock Text="Intervention" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
         <ComboBox x:Name="ComboBoxIntervention" ItemsSource="{Binding Source={StaticResource ReviewSetInterventionListData}, Path=Data}" Grid.Column="1" Grid.Row="2" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>
         <TextBlock Text="Comparison" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <ComboBox x:Name="ComboBoxControl" ItemsSource="{Binding Source={StaticResource ReviewSetControlListData}, Path=Data}" Grid.Column="3" Grid.Row="2" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>        
-        
-        <TextBlock x:Name="TextBlockData1" Text="{Binding Data1Desc, Mode=TwoWay}" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData1" Grid.Row="3" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data1, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData2" Text="{Binding Data2Desc, Mode=TwoWay}" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData2" Grid.Row="3" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data2, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData3" Text="{Binding Data3Desc, Mode=TwoWay}" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData3" Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data3, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData4" Text="{Binding Data4Desc, Mode=TwoWay}" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData4" Grid.Row="4" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data4, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData5" Text="{Binding Data5Desc, Mode=TwoWay}" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData5" Grid.Row="5" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data5, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData6" Text="{Binding Data6Desc, Mode=TwoWay}" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData6" Grid.Row="5" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data6, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData7" Text="{Binding Data7Desc, Mode=TwoWay}" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData7" Grid.Row="6" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data7, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData8" Text="{Binding Data8Desc, Mode=TwoWay}" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData8" Grid.Row="6" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data8, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData11" Text="{Binding Data11Desc, Mode=TwoWay}" Grid.Row="7" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData11" Grid.Row="7" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data11, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData12" Text="{Binding Data12Desc, Mode=TwoWay}" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData12" Grid.Row="7" Grid.Column="3" Margin="3,2,3,4" Text="{Binding Data12, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <ComboBox x:Name="ComboBoxControl" ItemsSource="{Binding Source={StaticResource ReviewSetControlListData}, Path=Data}" Grid.Column="3" Grid.Row="2" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>
+        <TextBlock Text="Group 1 arm" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <ComboBox x:Name="ComboBoxGrp1Arm" ItemsSource="{Binding Source={StaticResource ItemArmsData}, Path=Data}" Grid.Column="1" Grid.Row="3" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>
+        <TextBlock Text="Group 2 arm" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <ComboBox x:Name="ComboBoxGrp2Arm" ItemsSource="{Binding Data, Source={StaticResource ItemArmsData}}" Grid.Column="3" Grid.Row="3" Margin="3,3,3,3" HorizontalAlignment="Left"></ComboBox>
 
-        <TextBlock x:Name="TextBlockData13" Text="{Binding Data13Desc, Mode=TwoWay}" Grid.Row="8" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData13" Grid.Row="8" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data13, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData14" Text="{Binding Data14Desc, Mode=TwoWay}" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData14" Grid.Row="8" Grid.Column="3" Margin="3,2,3,4" Text="{Binding Data14, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData1" Text="{Binding Data1Desc, Mode=TwoWay}" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData1" Grid.Row="4" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data1, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData2" Text="{Binding Data2Desc, Mode=TwoWay}" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData2" Grid.Row="4" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data2, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData3" Text="{Binding Data3Desc, Mode=TwoWay}" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData3" Grid.Row="5" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data3, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData4" Text="{Binding Data4Desc, Mode=TwoWay}" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData4" Grid.Row="5" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data4, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData5" Text="{Binding Data5Desc, Mode=TwoWay}" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData5" Grid.Row="6" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data5, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData6" Text="{Binding Data6Desc, Mode=TwoWay}" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData6" Grid.Row="6" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data6, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData7" Text="{Binding Data7Desc, Mode=TwoWay}" Grid.Row="7" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData7" Grid.Row="7" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data7, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData8" Text="{Binding Data8Desc, Mode=TwoWay}" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData8" Grid.Row="7" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data8, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData11" Text="{Binding Data11Desc, Mode=TwoWay}" Grid.Row="8" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData11" Grid.Row="8" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data11, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData12" Text="{Binding Data12Desc, Mode=TwoWay}" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData12" Grid.Row="8" Grid.Column="3" Margin="3,2,3,4" Text="{Binding Data12, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData13" Text="{Binding Data13Desc, Mode=TwoWay}" Grid.Row="9" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData13" Grid.Row="9" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data13, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData14" Text="{Binding Data14Desc, Mode=TwoWay}" Grid.Row="9" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData14" Grid.Row="9" Grid.Column="3" Margin="3,2,3,4" Text="{Binding Data14, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
 
+        <CheckBox x:Name="cbUnitOfAnalysis" IsChecked="False" Content="Correct for unit of analysis error" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Click="cbUnitOfAnalysis_Click" Margin="3,6,3,3"></CheckBox>
+        <TextBlock x:Name="TextBlockData9" Text="Mean cluster size" Grid.Row="11" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData9" Grid.Row="11" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data9, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <TextBlock x:Name="TextBlockData10" Text="ICC" Grid.Row="11" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBox x:Name="TextBoxData10" Grid.Row="11" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data10, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
 
+        <TextBlock x:Name="TextBlockSMD" Text="{Binding ESDesc, Mode=TwoWay}" Grid.Row="12" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBlock x:Name="TextBoxSMD" Grid.Row="12" Grid.Column="1" Margin="3,6,3,3" Text="{Binding ES, Mode=TwoWay}"></TextBlock>
+        <TextBlock x:Name="TextBlockSE" Text="{Binding SEDesc, Mode=TwoWay}" Grid.Row="12" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
+        <TextBlock x:Name="TextBoxSE" Grid.Row="12" Grid.Column="3" Margin="3,6,3,3" Text="{Binding SEES, Mode=TwoWay}"></TextBlock>
 
-        <CheckBox x:Name="cbUnitOfAnalysis" IsChecked="False" Content="Correct for unit of analysis error" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Left" Click="cbUnitOfAnalysis_Click" Margin="3,6,3,3"></CheckBox>
-        <TextBlock x:Name="TextBlockData9" Text="Mean cluster size" Grid.Row="10" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData9" Grid.Row="10" Grid.Column="1" Margin="3,3,3,3" Text="{Binding Data9, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
-        <TextBlock x:Name="TextBlockData10" Text="ICC" Grid.Row="10" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox x:Name="TextBoxData10" Grid.Row="10" Grid.Column="3" Margin="3,3,3,3" Text="{Binding Data10, Mode=TwoWay}" GotFocus="TextBoxData1_GotFocus"></TextBox>
+        <Button x:Name="cmdSaveOutcome" Content="Save outcome" Grid.Column="1" Grid.Row="13" Click="cmdSaveOutcome_Click" Margin="6,6,6,6"></Button>
+        <Button x:Name="cmdCancel" Content="Cancel" Grid.Column="3" Grid.Row="13" Click="cmdCancel_Click" Margin="6,6,6,6"></Button>
+        <cslaXAML:BusyAnimation x:Name="BusyOutcomes" Grid.Row="13" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetOutcomeListData}, Path=IsBusy}" />
+        <cslaXAML:BusyAnimation x:Name="BusyInterventions" Grid.Row="13" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetInterventionListData}, Path=IsBusy}" />
+        <cslaXAML:BusyAnimation x:Name="BusyBusyControls" Grid.Row="13" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetControlListData}, Path=IsBusy}" />
 
-        <TextBlock x:Name="TextBlockSMD" Text="{Binding ESDesc, Mode=TwoWay}" Grid.Row="11" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBlock x:Name="TextBoxSMD" Grid.Row="11" Grid.Column="1" Margin="3,6,3,3" Text="{Binding ES, Mode=TwoWay}"></TextBlock>
-        <TextBlock x:Name="TextBlockSE" Text="{Binding SEDesc, Mode=TwoWay}" Grid.Row="11" Grid.Column="2" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBlock x:Name="TextBoxSE" Grid.Row="11" Grid.Column="3" Margin="3,6,3,3" Text="{Binding SEES, Mode=TwoWay}"></TextBlock>
-
-        <Button x:Name="cmdSaveOutcome" Content="Save outcome" Grid.Column="1" Grid.Row="12" Click="cmdSaveOutcome_Click" Margin="6,6,6,6"></Button>
-        <Button x:Name="cmdCancel" Content="Cancel" Grid.Column="3" Grid.Row="12" Click="cmdCancel_Click" Margin="6,6,6,6"></Button>
-        <cslaXAML:BusyAnimation x:Name="BusyOutcomes" Grid.Row="12" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetOutcomeListData}, Path=IsBusy}" />
-        <cslaXAML:BusyAnimation x:Name="BusyInterventions" Grid.Row="12" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetInterventionListData}, Path=IsBusy}" />
-        <cslaXAML:BusyAnimation x:Name="BusyBusyControls" Grid.Row="12" Grid.Column="0" IsRunning="{Binding Source={StaticResource ReviewSetControlListData}, Path=IsBusy}" />
-        
         <telerik:RadGridView Grid.Column="4" Grid.Row="0" Margin="6,10" x:Name="GridViewOutcomeCodes" SelectionMode="Extended"
                              ShowGroupPanel="False" AutoGenerateColumns="False" Height="Auto"  Grid.RowSpan="14">
             <telerikGridView:RadGridView.Columns>
@@ -135,6 +140,18 @@
                 <telerikGridView:GridViewDataColumn IsFilterable="True" IsReadOnly="True" IsSortable="True" Width="*" Header="Classifications" DataMemberBinding="{Binding AttributeName}" ></telerikGridView:GridViewDataColumn>
             </telerikGridView:RadGridView.Columns>
         </telerik:RadGridView>
+        <ComboBox Grid.Column="1" Grid.Row="1" Margin="3,3,3,3" HorizontalAlignment="Stretch" SelectedIndex="{Binding OutcomeTypeId, Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem Content="Manual entry"/>
+            <ComboBoxItem Content="Continuous: Ns, means and SD"/>
+            <ComboBoxItem Content="Binary: 2 x 2 table"/>
+            <ComboBoxItem Content="Continuous: N, Mean, SE"/>
+            <ComboBoxItem Content="Continuous: N, Mean, CI"/>
+            <ComboBoxItem Content="Continuous: N, t- or p-value"/>
+            <ComboBoxItem Content="Diagnostic test: 2 x 2 table"/>
+            <ComboBoxItem Content="Correlation coefficient r"/>
+        </ComboBox>
+        
+
         <!--
         <telerik:RadTreeView Grid.Column="4" Grid.RowSpan="6" Height="245" x:Name="TreeViewClassifications"  HorizontalAlignment="Left"
                              IsOptionElementsEnabled="True" ItemsOptionListType="CheckList" IsTriStateMode="False"

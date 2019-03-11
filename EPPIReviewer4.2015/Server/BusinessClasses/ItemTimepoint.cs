@@ -25,7 +25,11 @@ namespace BusinessLibrary.BusinessClasses
 
         public ItemTimepoint() { }
 
-        
+        public override string ToString()
+        {
+            return TimepointDisplayValue;
+        }
+
 
         public static readonly PropertyInfo<Int64> ItemTimepointIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemTimepointId", "ItemTimepointId"));
         public Int64 ItemTimepointId
