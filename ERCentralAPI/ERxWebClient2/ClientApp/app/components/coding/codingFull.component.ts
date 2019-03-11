@@ -72,7 +72,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return true;
     }
     public HelpAndFeebackContext: string = "itemdetails";
-
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights
+    }
     public CheckBoxAutoAdvanceVal: boolean = false;
     onSubmit(f: string) {
     }
