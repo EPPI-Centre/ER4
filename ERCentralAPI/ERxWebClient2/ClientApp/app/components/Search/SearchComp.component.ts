@@ -208,35 +208,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		// logic for enabling visualise button
 		if (this.selectedNode == null) return false;
 		else {
-			if (this.selectedNode.nodeType == "ReviewSet") {
-				let Set = this.selectedNode as ReviewSet;
-				if (!Set) return false;
-				else {
-					if (Set.subTypeName == "Screening") return false;
-					else return Set.allowEditingCodeset;
-				}
-			}
-			else if (this.selectedNode.nodeType == "SetAttribute") {
-				let Att = this.selectedNode as SetAttribute;
-				if (!Att) return false;
-				else {
-					let Set = this._reviewSetsService.FindSetById(Att.set_id);
-					if (!Set) return false;
-					else {
-						if (Set.subTypeName == "Screening") return false;
-						else if (!Set.allowEditingCodeset) return false;
-						else {
-							let level = this._reviewSetsService.AttributeCurrentLevel(Att);
-							if (level && Set.setType && Set.setType.maxDepth > level) {
-								console.log("maxDepth", Set.setType.maxDepth);
-								return true;
-							}
-							else return false;
-						}
-					}
-				}
-			}
-			else return false;
+            if (this.selectedNode.nodeType == "ReviewSet") {
+                let Set = this.selectedNode as ReviewSet;
+                if (!Set) return false;
+                else {
+                    if (Set.subTypeName == "Screening") return false;
+                    else return Set.allowEditingCodeset;
+                }
+            }
+            else {
+                return this._reviewSetsService.CurrentCodeCanHaveChildren;
+            }
 		}
 	}
 

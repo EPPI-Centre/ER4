@@ -8,6 +8,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { singleNode, ReviewSetsService, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
+import { Jsonp } from '@angular/http';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -40,7 +41,6 @@ export class WorkAllocationComp implements OnInit {
 	public NewCodeSection: boolean = false;
 	public numericRandomSample: number = 100;
 	public numericRandomCreate: number = 5;
-	public selectedRandomAllocateDropDown: string = 'No code / code set filter';
 	public DropdownWithWithoutSelectedCode: singleNode | null = null;
 	public DropdownSelectedCodingTool: singleNode | null = null;
 	public DropdownSelectedCodeStudies: singleNode | null = null;
@@ -57,11 +57,11 @@ export class WorkAllocationComp implements OnInit {
 	public DestRevSet: ReviewSet = new ReviewSet();
 	public FiltAttSet: SetAttribute = new SetAttribute();
 	public FiltRevSet: ReviewSet = new ReviewSet();
-	public index: number = 0;
+	//public index: number = 0;
 	public dropdownBasicCodingTool: boolean = false;
 	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
-	public selectedAllocated: any = { key: 1, value: 'No code / coding tool filter' };
+    public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -99,10 +99,11 @@ export class WorkAllocationComp implements OnInit {
 	ngOnInit() {
 		this.RefreshData();
 	}
-	SetRelevantDropDownValues() {
-
-		this.index = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
-		this.selectedRandomAllocateDropDown = this.AllocateOptions[this.index].value;
+    SetRelevantDropDownValues(selection: number) {
+        console.log("SetRelevantDropDownValues", JSON.stringify(selection));
+        let ind = this.AllocateOptions.findIndex(found => found.key == selection);
+        if (ind > -1) this.selectedAllocated = this.AllocateOptions[ind];
+        else this.selectedAllocated = this.AllocateOptions[0];
 	}
 
 	//public openConfirmationDialogWorkAllocation(message: string) {
@@ -139,9 +140,6 @@ export class WorkAllocationComp implements OnInit {
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 	}
 	public NewWorkAllocation() {
-
-		this.RefreshData();
-
 		if (this.RandomlyAssignSection) {
 			this.RandomlyAssignSection = !this.RandomlyAssignSection;
 		}
@@ -160,27 +158,27 @@ export class WorkAllocationComp implements OnInit {
 	public CanAssign() {
 				
 
-		if (this.AllocateOptions[this.index].key == 1
+        if (this.selectedAllocated.key == 1
 			&& this.DropdownSelectedCodingTool != null
 			&& this.DropdownSelectedCodingTool.name != '') {
 			return true;
 
-		} else if (this.AllocateOptions[this.index].key == 2
+        } else if (this.selectedAllocated.key == 2
 			&& this.selectedCodeSetDropDown != null
 			&& this.selectedCodeSetDropDown.name != '') {
 			return true;
 
-		} else if (this.AllocateOptions[this.index].key == 3
+        } else if (this.selectedAllocated.key == 3
 			&& this.selectedCodeSetDropDown != null
 			&& this.selectedCodeSetDropDown.name != '') {
 			return true;
 
-		} else if (this.AllocateOptions[this.index].key == 4
+        } else if (this.selectedAllocated.key == 4
 			&& this.DropdownWithWithoutSelectedCode != null
 			&& this.DropdownWithWithoutSelectedCode.name != '') {
 			return true;
 
-		} else if (this.AllocateOptions[this.index].key == 5
+        } else if (this.selectedAllocated.key == 5
 			&& this.DropdownWithWithoutSelectedCode != null
 			&& this.DropdownWithWithoutSelectedCode.name != '') {
 			return true;
@@ -343,12 +341,7 @@ export class WorkAllocationComp implements OnInit {
 				}
 			);
 	}
-	public nextAllocateDropDownList(num: number, val: string) {
-
-		this.FilterNumber = num;
-		this.selectedRandomAllocateDropDown = val;
-
-	}
+	
 	public CanOnlySelectRoots() : boolean{
 		return true;
 	}

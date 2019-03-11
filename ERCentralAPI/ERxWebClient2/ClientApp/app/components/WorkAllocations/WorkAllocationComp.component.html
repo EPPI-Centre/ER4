@@ -13,17 +13,17 @@
                         <div class="col-12 col-sm-2 text-sm-right" style="">Select From </div>
                         <div class="form-group col-12 col-sm-10">
                             <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
-                                    style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues()"
+                                    style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
                                     (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
                                 <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                                        [selected]="item.selected == item.value || item.value == 'No code / coding tool filter'">
+                                        [selected]="item.key == selectedAllocated.key">
                                     {{item.value}}
                                 </option>
                             </select>
                         </div>
                 </div>
-                <div class="row  " *ngIf="(selectedRandomAllocateDropDown == 'All with this code')
-						||  (selectedRandomAllocateDropDown == 'All without this code' )">
+                <div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
+						||  (selectedAllocated.value == 'All without this code' )">
 
 
                     <div class="col-12 col-sm-2 text-sm-right" style="">
@@ -47,8 +47,8 @@
                 </div>
 
                 <div class="row  "
-                     *ngIf="(selectedRandomAllocateDropDown == 'All with any codes from this coding tool')
-						||  (selectedRandomAllocateDropDown == 'All without any codes from this coding tool' )">
+                     *ngIf="(selectedAllocated.value == 'All with any codes from this coding tool')
+						||  (selectedAllocated.value == 'All without any codes from this coding tool' )">
                     <div class="col-12 col-sm-2 text-sm-right" style="">
                         Select also from
                     </div>
