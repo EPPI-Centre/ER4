@@ -44,7 +44,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	//"ReviewSet":Codesets(ReviewSet) only
 	//"NodeWithChildren":Anything that does have children
 	//"CanHaveChildren": any node that is allowed to contain children(future)
-
+	public IsAdmin: boolean = false;
 
 	public SelectedNodeData: singleNode | null = null;
 	public SelectedNodesData: singleNode[] = [];
