@@ -139,6 +139,9 @@ export class WorkAllocationComp implements OnInit {
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 	}
 	public NewWorkAllocation() {
+
+		this.RefreshData();
+
 		if (this.RandomlyAssignSection) {
 			this.RandomlyAssignSection = !this.RandomlyAssignSection;
 		}
@@ -402,7 +405,7 @@ export class WorkAllocationComp implements OnInit {
 		
 		if (this.CodingToolTree) {
 			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
-			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
+			//console.log(JSON.stringify(this.DropdownSelectedCodingTool));
 		}
 		this.isCollapsedCodingTool = false;
 	}

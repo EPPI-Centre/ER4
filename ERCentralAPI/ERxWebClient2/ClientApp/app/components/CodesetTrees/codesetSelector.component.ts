@@ -57,11 +57,36 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngOnInit() {
 
+		//console.log("Selector init");
+
+
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
 		else {
 
+			if (this.WhatIsSelectable == 'RandomAllocation') {
+
+				this._nodes = [];
+				for (let Rset of this.ReviewSetsService.ReviewSets) {
+					if (Rset.setType.allowRandomAllocation == false) {
+						let newSet = new ReviewSet()
+						newSet.set_id = Rset.set_id;
+						newSet.set_name = Rset.set_name;
+						newSet.set_order = Rset.set_order;
+						newSet.setType = Rset.setType;
+						newSet.nodeType = Rset.nodeType;
+						newSet.allowEditingCodeset = Rset.allowEditingCodeset;
+						newSet.codingIsFinal = Rset.codingIsFinal;
+						newSet.description = Rset.description;
+						this._nodes.push(newSet);
+					}
+					else {
+						this._nodes.push(Rset);
+					}
+				}
+
+			}
         }
 	}
 
@@ -97,13 +122,22 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	
 	}
 
+	private _nodes: singleNode[] = [];
 
     get nodes(): singleNode[] | null {
 
 
-        if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) {
+		if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets
+			&& this.ReviewSetsService.ReviewSets.length > 0) {
 
-            return this.ReviewSetsService.ReviewSets;
+			if (this.WhatIsSelectable == 'RandomAllocation') {
+				//console.log("get nodes in Random alloc mode");
+				return this._nodes;
+				
+			} else {
+				//console.log("get nodes NOT in Random alloc mode");
+				return  this.ReviewSetsService.ReviewSets;
+			}
         }
         else {
             return null;
@@ -178,7 +212,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
 
 			if (node.nodeType == "SetAttribute") {
-				console.log(JSON.stringify(node));
+				//console.log(JSON.stringify(node));
 				this.SelectedNodeData = node;
 	
 				//this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
@@ -187,45 +221,38 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 				this._eventEmitterService.nodeSelected = node;
 			}
 
-		} else if (this.WhatIsSelectable == 'Admin') {
+		} else if (this.WhatIsSelectable == 'RandomAllocation') {
 
 			if (node != null) {
-						
+				let type: iSetType = {
+					setTypeId: 0,
+					setTypeName: '',
+					setTypeDescription: '',
+					allowComparison: false,
+					allowRandomAllocation: false,
+					maxDepth: 1,
+					allowedCodeTypes: [],
+					allowedSetTypesID4Paste: []
+				};	
 				if (node.nodeType == 'ReviewSet') {
-
+					
 					let tempNode: ReviewSet = node as ReviewSet;
+					type = tempNode.setType;
 					let setTemp: any = JSON.stringify(tempNode.setType);
-					let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
-
-					if (setTypeName != null && setTypeName == 'Admininstation') {
+					//let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
+					let allowRandomAllocations: boolean = JSON.parse(setTemp)["allowRandomAllocation"];
+					//console.log('allowRandomAllocation:=======================: ' + allowRandomAllocations);
+					//if (setTypeName != null && setTypeName == 'Admininstation') {
+					if (allowRandomAllocations) {
 
 						this.SelectedNodeData = node;
 						this.selectedNodeInTree.emit();
 						this._eventEmitterService.nodeSelected = node;
 					}
+					//}
 
-				} else if (node.nodeType == 'SetAttribute') {
-
-					// then need to find the set actually
-					let tempAtt: SetAttribute = node as SetAttribute;
-					let Set = this.ReviewSetsService.FindSetById(tempAtt.set_id);
-					if (Set != null) {
-
-						let setTemp: any = JSON.stringify(Set.setType);
-						let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
-
-						//spelling ...
-						if (setTypeName != null && setTypeName == 'Admininstation') {
-
-							this.SelectedNodeData = node;
-							this.selectedNodeInTree.emit();
-							this._eventEmitterService.nodeSelected = node;
-						}
-					}
-
-					return;
-
-				} else {
+				} 
+				else {
 
 					return;
 				}

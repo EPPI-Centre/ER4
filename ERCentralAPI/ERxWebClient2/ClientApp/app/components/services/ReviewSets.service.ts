@@ -451,7 +451,16 @@ export class ReviewSet implements singleNode {
         return -1;//it's used only in attribues, ReviewSets have no parent!
     }
     public description: string = "";
-    setType: iSetType | null = null ;
+	setType: iSetType = {
+		setTypeId: 0,
+		setTypeName: '',
+		setTypeDescription: '',
+		allowComparison: false,
+		allowRandomAllocation: false,
+		maxDepth: 1,
+		allowedCodeTypes: [],
+		allowedSetTypesID4Paste: []
+	};
     nodeType: string = "ReviewSet";
     order: number = 0;
     codingIsFinal: boolean = true;
