@@ -70,22 +70,23 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 				this._nodes = [];
 				for (let Rset of this.ReviewSetsService.ReviewSets) {
-					if (Rset.setType.allowRandomAllocation == false) {
-						let newSet = new ReviewSet()
-                        newSet.set_id = Rset.set_id;
-                        newSet.reviewSetId = Rset.reviewSetId;
-						newSet.set_name = Rset.set_name;
-						newSet.set_order = Rset.set_order;
-						newSet.setType = Rset.setType;
-						newSet.nodeType = Rset.nodeType;
-						newSet.allowEditingCodeset = Rset.allowEditingCodeset;
-						newSet.codingIsFinal = Rset.codingIsFinal;
-						newSet.description = Rset.description;
-						this._nodes.push(newSet);
-					}
-					else {
-						this._nodes.push(Rset);
-					}
+					//if (Rset.setType.allowRandomAllocation == false) {
+					//	let newSet = new ReviewSet()
+     //                   newSet.set_id = Rset.set_id;
+     //                   newSet.reviewSetId = Rset.reviewSetId;
+					//	newSet.set_name = Rset.set_name;
+					//	newSet.set_order = Rset.set_order;
+					//	newSet.setType = Rset.setType;
+					//	newSet.nodeType = Rset.nodeType;
+					//	newSet.allowEditingCodeset = Rset.allowEditingCodeset;
+					//	newSet.codingIsFinal = Rset.codingIsFinal;
+					//	newSet.description = Rset.description;
+					//	this._nodes.push(newSet);
+					//}
+					//else {
+					//	this._nodes.push(Rset);
+					//}
+                    if (Rset.setType.allowRandomAllocation) this._nodes.push(Rset);
 				}
 				console.log('Testing the nodes on the wierd tree: ' + this._nodes.length);
 			}

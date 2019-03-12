@@ -30,9 +30,9 @@ export class WorkAllocationComp implements OnInit {
 
 	
 	@ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
-	@ViewChild('CodingToolTree') CodingToolTree!: codesetSelectorComponent;
-	@ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
-	@ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
+    @ViewChild('CodingToolTree') CodingToolTree!: codesetSelectorComponent;
+    @ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
+    @ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
@@ -44,8 +44,8 @@ export class WorkAllocationComp implements OnInit {
 	public DropdownWithWithoutSelectedCode: singleNode | null = null;
 	public DropdownSelectedCodingTool: singleNode | null = null;
 	public DropdownSelectedCodeStudies: singleNode | null = null;
-	public selectedCodeSetDropDown: ReviewSet = new ReviewSet;
-	public DropDownBasicCodingTool: ReviewSet = new ReviewSet;
+	public selectedCodeSetDropDown: ReviewSet = new ReviewSet();
+	public DropDownBasicCodingTool: ReviewSet = new ReviewSet();
 	public selectedMemberDropDown: Contact = new Contact;
 	public CodeSets: ReviewSet[] = [];
 	public isCollapsedAllocateOptions: boolean = false;
@@ -95,7 +95,17 @@ export class WorkAllocationComp implements OnInit {
 		if (value == 'true' || value == 'false') this._allocateInclOrExcl = value;
 		else console.log("I'm not doing it :-P ", value);
 
-	}
+    }
+    public get NoSuitableCodeSet(): boolean {
+        //console.log("NoSuitableCodeSet", this.CodingToolTree);
+        //if (!this.CodingToolTree) return true;
+        //else if (this.CodingToolTree.nodes && this.CodingToolTree.nodes.length > 0) return false;
+        //else return true;
+        let ind = this._reviewSetsService.ReviewSets.findIndex(found => found.setType.allowRandomAllocation == true);
+        if (ind > -1) return false;
+        else return true;
+    }
+
 	ngOnInit() {
 		this.RefreshData();
 	}
@@ -141,7 +151,7 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public Clear() {
 		
-		this.selectedAllocated = { key: 1, value: 'No code / coding tool filter' };
+        this.selectedAllocated = this.AllocateOptions[0];
 		this.DropdownSelectedCodingTool = null;
 		this.selectedCodeSetDropDown = new ReviewSet();
 		this.DropdownWithWithoutSelectedCode = null;
@@ -169,12 +179,12 @@ export class WorkAllocationComp implements OnInit {
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 
 	}
-	public CanAssign() {
-
+    public CanAssign() {
+        //console.log(this.numericRandomCreate, this.numericRandomSample);
+        if (this.numericRandomCreate == null || this.numericRandomSample == null) return false;
+        else if (this.numericRandomCreate == 0 || this.numericRandomSample == 0) return false;
 		if (this.DropdownSelectedCodingTool != null
 			&& this.DropdownSelectedCodingTool.name != '') {
-
-
 			if (this.selectedAllocated.key == 1
 				&& this.DropdownSelectedCodingTool != null
 				&& this.DropdownSelectedCodingTool.name != '') {
@@ -200,20 +210,18 @@ export class WorkAllocationComp implements OnInit {
 				&& this.DropdownWithWithoutSelectedCode.name != '') {
 				return true;
 
-			} else {
-
-					return false;
+            } else {
+                return false;
 			}
-
-		} else {
-
-					return false;
+        }
+        else {
+            return false;
 		}
 
 	}
 
 	public Assignment() {
-
+        if (!this.CanAssign()) return;
 		this.FilterNumber = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
 
 		//console.log('This is what I mean: ' + this.FilterNumber);
@@ -342,7 +350,11 @@ export class WorkAllocationComp implements OnInit {
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 
 		this.RandomlyAssignSection = false;
-	}
+    }
+    GoToEditCodesets() {
+        this.RandomlyAssignSection = false;
+        this.router.navigate(['EditCodeSets']);
+    }
 	public openConfirmationDialogDeleteWA(workAllocationId: number) {
 
 		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a work allocation', false, '')
@@ -432,9 +444,13 @@ export class WorkAllocationComp implements OnInit {
 	}
 	CloseCodeDropDownCodingTool() {
 		
-		if (this.CodingToolTree) {
+        if (this.CodingToolTree) {
+            //note here ViewChild inside *ngIf are tricky:
+            //https://stackoverflow.com/questions/39366981/angular-2-viewchild-in-ngif
+            //for some reason, when this code executes we do have this.CodingToolTree...
+
 			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
-			//console.log(JSON.stringify(this.DropdownSelectedCodingTool));
+			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
 		}
 		this.isCollapsedCodingTool = false;
 	}

@@ -1,8 +1,8 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
-		<kendo-toolbar-button [text]="'Create Groups for a Coding Tool'" (click)="RandomlyAssign()" [attr.aria-expanded]="!RandomlyAssignSection" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [attr.aria-expanded]="!RandomlyAssignSection" ></kendo-toolbar-button>
 		<!--<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCode()" [attr.aria-expanded]="!NewCodeSection" ></kendo-toolbar-button>-->
-		<kendo-toolbar-button [text]="'Create New Work Allocation'" (click)="NewWorkAllocation()" [attr.aria-expanded]="!AssignWorkSection"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [attr.aria-expanded]="!AssignWorkSection"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->
@@ -27,7 +27,7 @@
 
 
                     <div class="col-12 col-sm-2 text-sm-right" style="">
-                        Please choose:
+                        Select code:
                     </div>
                     <div ngbDropdown class="col-12 col-sm-10">
                         <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
@@ -71,11 +71,11 @@
                 <div class="row mt-2 justify-content-center justify-content-md-start">
                     <div class="col-12 col-md-4 row ">
                         <div class="mr-2 text-right" style="">
-                            Percentage to Allocate
+                            Percentage of references
                         </div>
                         <div class="">
                             <kendo-numerictextbox [(ngModel)]="numericRandomSample"
-                                                  [min]="1" [format]="'n0'"
+                                                  [min]="5" [format]="'n0'"
                                                   [max]="100"
                                                   [step]="1"
                                                   [autoCorrect]="true"
@@ -87,7 +87,7 @@
                     </div>
                     <div class="col-12 col-md-4 row">
                         <div class="text-right mr-2" style="min-width:110px;">
-                            Groups to create
+                            Number of groups
                         </div>
                         <div class="">
                             <kendo-numerictextbox [(ngModel)]="numericRandomCreate"
@@ -114,7 +114,7 @@
                 <div class="row">
                     <div class="col-12 col-sm-2 text-sm-right" style="">Create codes below this code / coding tool </div>
                     <div class="form-group col-12 col-sm-10">
-                        <div ngbDropdown class="" style="min-width:150px;">
+                        <div *ngIf="!NoSuitableCodeSet" ngbDropdown class="" style="min-width:150px;">
                             <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100" id="collapseCodeTreeCodingTool"
                                     style="min-width: 200px; max-width:720px;"
                                     (click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
@@ -130,12 +130,13 @@
                                                  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
                             </div>
                         </div>
-						<div *ngIf="!this.CodeSets">
-							<p>
-								
-							</p>
-						</div>
+                        <div *ngIf="NoSuitableCodeSet" ngbDropdown class="alert alert-danger " style="min-width:150px;">
+                            This review contains no Coding Tools able to receive random allocations. Please use the 
+                            <span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
+                            function to create a new tool (preferably of "Administration" type).
+                        </div>
                     </div>
+
                 </div>
                 <div class="row justify-content-center">
                     <button style="min-width:100px"
@@ -158,9 +159,9 @@
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 			<div class="col-12 col-md-12">
 				<div class="form-group col-md-8 row ">
-					<div class="col-12 col-md-3  text-right" style="min-width:100px;">
-						Code studies in this group:
-					</div>
+                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
+                        Reference group to assign:
+                    </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
 						<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
 								(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
@@ -181,9 +182,9 @@
 					</div>
 				</div>
 				<div class="form-group col-md-8 row ">
-					<div class="col-12 col-md-3  text-right" style="min-width:100px;">
-						Using this codeset:
-					</div>
+                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
+                        Coding tool to use:
+                    </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
 						<button class="btn btn-primary col-12  p-2 m-2" id="dropdownBasicCodingTool" ngbDropdownToggle>
 							{{DropDownBasicCodingTool.name}}
@@ -197,9 +198,9 @@
 					</div>
 				</div>
 				<div class="form-group col-md-8 row">
-					<div class="col-12 col-md-3  text-right" style="min-width:100px;">
-						To this person:
-					</div>
+                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
+                        Reviewer:
+                    </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
 						<button class="btn btn-primary col-12  p-2 m-2" id="dropdownBasicPerson" ngbDropdownToggle>
 							{{selectedMemberDropDown.contactName}}
