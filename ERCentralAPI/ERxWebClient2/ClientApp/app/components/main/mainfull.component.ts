@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationList.service'
+import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
 import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
@@ -63,9 +63,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
-        , private ReviewSetsEditingService: ReviewSetsEditingService
+		, private ReviewSetsEditingService: ReviewSetsEditingService
+		, private workAllocationListService: WorkAllocationListService
     ) {}
-	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     //@ViewChild('tabset') tabset!: NgbTabset;
@@ -352,7 +353,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabstrip.selectTab(1);
 	}
     LoadContactWorkAllocList(workAlloc: WorkAllocation) {
-        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsContactComp.ListSubType);
         else console.log('attempt failed');
     }
     LoadWorkAllocList(workAlloc: WorkAllocation){
@@ -436,7 +437,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
         this.isSourcesPanelVisible = false;
-        if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
+		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();
         //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
@@ -461,10 +462,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
-        this.SourcesService.Clear();
+		this.SourcesService.Clear();
+		this.workAllocationListService.Clear();
 
         if (this.FreqComponent) this.FreqComponent.Clear();
-        if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
+		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
+		if (this.workAllocationCollaborateComp) {
+			console.log('this comp exists');
+			this.workAllocationCollaborateComp.Clear();
+		}
+
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

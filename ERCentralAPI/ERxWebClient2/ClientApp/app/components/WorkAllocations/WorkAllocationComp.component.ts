@@ -139,6 +139,17 @@ export class WorkAllocationComp implements OnInit {
 		}
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 	}
+	public Clear() {
+
+		this.selectedAllocated = { key: 1, value: 'No code / coding tool filter' };
+		this.DropdownSelectedCodingTool = null;
+		this.selectedCodeSetDropDown = new ReviewSet();
+		this.DropdownWithWithoutSelectedCode = null;
+		this.DropdownSelectedCodeStudies = null;
+		this.DropDownBasicCodingTool = new ReviewSet();
+		this.selectedMemberDropDown = new Contact();
+
+	}
 	public NewWorkAllocation() {
 		if (this.RandomlyAssignSection) {
 			this.RandomlyAssignSection = !this.RandomlyAssignSection;
