@@ -250,7 +250,8 @@ export class WorkAllocationComp implements OnInit {
 	
 		}
 			   
-		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
+		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1) {
+			alert('in here now');
 			//this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
@@ -326,6 +327,17 @@ export class WorkAllocationComp implements OnInit {
 		assignParameters.howMany = howMany;
 		assignParameters.numericRandomSample = this.numericRandomSample;
 		assignParameters.RandomSampleIncluded = this.allocateInclOrExcl;
+
+		if (this.numericRandomCreate == null || this.numericRandomCreate == undefined
+			|| this.numericRandomCreate < 1 || this.numericRandomCreate > 10) {
+
+			return;
+		}
+		if (this.numericRandomSample == null || this.numericRandomSample == undefined
+			|| this.numericRandomSample < 1 || this.numericRandomSample > 100) {
+
+			return;
+		}
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 

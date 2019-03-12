@@ -130,15 +130,19 @@
                                                  [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
                             </div>
                         </div>
+						<div *ngIf="!this.CodeSets">
+							<p>
+								
+							</p>
+						</div>
                     </div>
-
                 </div>
                 <div class="row justify-content-center">
                     <button style="min-width:100px"
                             class=" pt-1 m-1 border border-dark rounded k-widget
 								k-numerictextbox btn btn-success" [disabled]="!CanAssign()"
                             (click)="Assignment()">
-                        Assign
+                        Create
                     </button>
                     <button style="min-width:100px"
                             class=" pt-1 m-1 border border-dark rounded
