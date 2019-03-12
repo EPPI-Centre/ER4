@@ -87,7 +87,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 						this._nodes.push(Rset);
 					}
 				}
-
+				console.log('Testing the nodes on the wierd tree: ' + this._nodes.length);
 			}
         }
 	}

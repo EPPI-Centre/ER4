@@ -28,7 +28,7 @@ export class WorkAllocationComp implements OnInit {
 		public _reviewSetsEditingService : ReviewSetsEditingService
     ) { }
 
-
+	
 	@ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
 	@ViewChild('CodingToolTree') CodingToolTree!: codesetSelectorComponent;
 	@ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
@@ -140,7 +140,7 @@ export class WorkAllocationComp implements OnInit {
 		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 	}
 	public Clear() {
-
+		
 		this.selectedAllocated = { key: 1, value: 'No code / coding tool filter' };
 		this.DropdownSelectedCodingTool = null;
 		this.selectedCodeSetDropDown = new ReviewSet();
@@ -148,7 +148,10 @@ export class WorkAllocationComp implements OnInit {
 		this.DropdownSelectedCodeStudies = null;
 		this.DropDownBasicCodingTool = new ReviewSet();
 		this.selectedMemberDropDown = new Contact();
-
+		this.RandomlyAssignSection = false;
+		this.NewCodeSection = false;
+		//alert('Called Clear: ' + this.DropdownSelectedCodingTool);
+		
 	}
 	public NewWorkAllocation() {
 		if (this.RandomlyAssignSection) {
@@ -167,38 +170,48 @@ export class WorkAllocationComp implements OnInit {
 
 	}
 	public CanAssign() {
-				
 
-        if (this.selectedAllocated.key == 1
-			&& this.DropdownSelectedCodingTool != null
+		if (this.DropdownSelectedCodingTool != null
 			&& this.DropdownSelectedCodingTool.name != '') {
-			return true;
 
-        } else if (this.selectedAllocated.key == 2
-			&& this.selectedCodeSetDropDown != null
-			&& this.selectedCodeSetDropDown.name != '') {
-			return true;
 
-        } else if (this.selectedAllocated.key == 3
-			&& this.selectedCodeSetDropDown != null
-			&& this.selectedCodeSetDropDown.name != '') {
-			return true;
+			if (this.selectedAllocated.key == 1
+				&& this.DropdownSelectedCodingTool != null
+				&& this.DropdownSelectedCodingTool.name != '') {
+				return true;
 
-        } else if (this.selectedAllocated.key == 4
-			&& this.DropdownWithWithoutSelectedCode != null
-			&& this.DropdownWithWithoutSelectedCode.name != '') {
-			return true;
+			} else if (this.selectedAllocated.key == 2
+				&& this.selectedCodeSetDropDown != null
+				&& this.selectedCodeSetDropDown.name != '') {
+				return true;
 
-        } else if (this.selectedAllocated.key == 5
-			&& this.DropdownWithWithoutSelectedCode != null
-			&& this.DropdownWithWithoutSelectedCode.name != '') {
-			return true;
+			} else if (this.selectedAllocated.key == 3
+				&& this.selectedCodeSetDropDown != null
+				&& this.selectedCodeSetDropDown.name != '') {
+				return true;
+
+			} else if (this.selectedAllocated.key == 4
+				&& this.DropdownWithWithoutSelectedCode != null
+				&& this.DropdownWithWithoutSelectedCode.name != '') {
+				return true;
+
+			} else if (this.selectedAllocated.key == 5
+				&& this.DropdownWithWithoutSelectedCode != null
+				&& this.DropdownWithWithoutSelectedCode.name != '') {
+				return true;
+
+			} else {
+
+					return false;
+			}
 
 		} else {
 
-			return false;
+					return false;
 		}
+
 	}
+
 	public Assignment() {
 
 		this.FilterNumber = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
