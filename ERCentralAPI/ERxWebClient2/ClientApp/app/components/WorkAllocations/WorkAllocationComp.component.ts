@@ -9,6 +9,7 @@ import { singleNode, ReviewSetsService, ReviewSet, SetAttribute } from '../servi
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
 import { Jsonp } from '@angular/http';
+import { Review } from '../services/review.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -223,16 +224,10 @@ export class WorkAllocationComp implements OnInit {
 	}
 
 	public Assignment() {
+
         if (!this.CanAssign()) return;
 		this.FilterNumber = this.AllocateOptionsDropDown.nativeElement.selectedIndex;
-
-		//console.log('This is what I mean: ' + this.FilterNumber);
-
-		//if (this.DropdownSelectedCodingTool != null && this.DropdownWithWithoutSelectedCode != null) {
-		//	// comma goes here shown by Sergio
-		//	console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
-		//	console.log(' checking nodeType 2 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
-		//}
+				
 		
 		if (this.DropdownWithWithoutSelectedCode != null && this.DropdownWithWithoutSelectedCode.nodeType == 'SetAttribute') {
 
@@ -241,26 +236,41 @@ export class WorkAllocationComp implements OnInit {
 		} else {
 
 			if (this.DropdownWithWithoutSelectedCode == null) {
+
 				this.FiltRevSet = this.selectedCodeSetDropDown as ReviewSet;
+
 			} else {
 				this.FiltRevSet = this.DropdownWithWithoutSelectedCode as ReviewSet;
 			}
 
 		}
+
+		//if (this.DropdownSelectedCodingTool != null ) {
+			// comma goes here shown by Sergio
+			//console.log(' checking nodeType 1 : ' + JSON.stringify(this.DropdownWithWithoutSelectedCode.nodeType) + ' ');
+			//console.log(' testing 1 : ' + JSON.stringify(this.DropdownSelectedCodingTool.nodeType) + ' ');
+		//}
+
 		if (this.DropdownSelectedCodingTool != null && this.DropdownSelectedCodingTool.nodeType == 'SetAttribute') {
+
 			this.DestAttSet = this.DropdownSelectedCodingTool as SetAttribute;
+			//alert(JSON.stringify(this.DestAttSet));
 			
 		} else {
 
-			if (this.DropdownSelectedCodingTool == null) {
-				this.DestRevSet = this.selectedCodeSetDropDown as ReviewSet;
-			} else {
+			if (this.DropdownSelectedCodingTool != null) {
+			//	this.DestRevSet = this.selectedCodeSetDropDown as ReviewSet;
+			//} else {
 				this.DestRevSet = this.DropdownSelectedCodingTool as ReviewSet;
 			}
-	
 		}
-			   
-		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1) {
+
+		console.log(' testing attribtue destination : ' + JSON.stringify(this.DestAttSet.attribute_id));
+		console.log(' testing codeset destination : ' + JSON.stringify(this.DestRevSet.set_id));
+
+		console.log(' testing dropdown : ' + JSON.stringify(this.DropdownSelectedCodingTool));
+		
+		if (this.DestAttSet.attribute_id == -1 && this.DestRevSet.set_id == -1) {
 			alert('in here now');
 			//this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
@@ -348,11 +358,19 @@ export class WorkAllocationComp implements OnInit {
 
 			return;
 		}
+		console.log(JSON.stringify(assignParameters));
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 
+		//this.DropdownSelectedCodingTool = null;
+		//this.DropdownWithWithoutSelectedCode = null;
+		//this.selectedCodeSetDropDown = new ReviewSet();
+		//this.DestRevSet.set_id = -1;
+		//this.DestAttSet.attribute_id = -1;
+
 		this.RandomlyAssignSection = false;
-    }
+	}
+
     GoToEditCodesets() {
         this.RandomlyAssignSection = false;
         this.router.navigate(['EditCodeSets']);
@@ -400,7 +418,7 @@ export class WorkAllocationComp implements OnInit {
 
 		//alert(JSON.stringify(codeset));
 		this.selectedCodeSetDropDown = codeset;
-
+		this.DropdownSelectedCodingTool = null;
 	}
 	setCodeSetDropDown2(codeset: any) {
 
@@ -440,7 +458,7 @@ export class WorkAllocationComp implements OnInit {
 
 		if (this.WithOrWithoutCode) {
 			this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode.SelectedNodeData;
-			
+			this.selectedCodeSetDropDown = new ReviewSet();
 		}
 		this.isCollapsedAllocateOptions = false;
 	}

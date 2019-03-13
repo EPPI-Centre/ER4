@@ -973,8 +973,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		cr.showDeleted = false;
 		cr.pageNumber = 0;
 		cr.searchId = dataItem.searchId;
-		let ListDescription: string = "GetItemSearchList";
-		cr.listType = ListDescription;
+		let ListDescription: string = dataItem.title;
+		cr.listType = 'GetItemSearchList';
 
 		this.ItemListService.FetchWithCrit(cr, ListDescription);
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
