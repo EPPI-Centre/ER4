@@ -85,7 +85,7 @@ namespace EppiReviewer4
         {
             if (mode == "Multiple")
             {
-                TreeViewSelectCode.SelectionMode = Telerik.Windows.Controls.SelectionMode.Multiple;
+                TreeViewSelectCode.SelectionMode = Telerik.Windows.Controls.SelectionMode.Extended;
                 IsMultipleSelect = true;
             }
             else
