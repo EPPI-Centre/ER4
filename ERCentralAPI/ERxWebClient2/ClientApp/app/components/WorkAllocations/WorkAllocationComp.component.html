@@ -10,7 +10,7 @@
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 			<div class="card-body">
                 <div class="row">
-                        <div class="col-12 col-sm-2 text-sm-right" style="">Select From </div>
+                        <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
                         <div class="form-group col-12 col-sm-10">
                             <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
                                     style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
@@ -163,7 +163,7 @@
                         Reference group to assign:
                     </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
+						<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
 								(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
 								[attr.aria-expanded]="!isCollapsedCodeStudies" 
 								aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;"
@@ -186,7 +186,7 @@
                         Coding tool to use:
                     </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button class="btn btn-primary col-12  p-2 m-2" id="dropdownBasicCodingTool" ngbDropdownToggle>
+						<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicCodingTool" ngbDropdownToggle>
 							{{DropDownBasicCodingTool.name}}
 						</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
@@ -202,7 +202,7 @@
                         Reviewer:
                     </div>
 					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button class="btn btn-primary col-12  p-2 m-2" id="dropdownBasicPerson" ngbDropdownToggle>
+						<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicPerson" ngbDropdownToggle>
 							{{selectedMemberDropDown.contactName}}
 						</button>
 						<div ngbDropdownMenu aria-labelledby="dropdownBasicPerson">
@@ -216,8 +216,10 @@
 				<div class="col-md-8 row">
 					<div class="col-md-4"></div>
 					<div class="form-group col-md-8 row">
-						<button class="btn btn-outline-success col-12 col-md-3 p-3 m-3" [disabled]="CanNewWorkAllocationCreate()" (click)="WorkAssignment()" style="min-width:150px;">Assign</button>
-						<button class="btn btn-outline-dark col-12 col-md-3 p-3 m-3" (click)="CloseAssignSection()" style="min-width:150px;">Cancel</button>
+						<button class="pt-1 m-1 border border-dark rounded k-widget
+								k-numerictextbox btn btn-success" [disabled]="CanNewWorkAllocationCreate()" (click)="WorkAssignment()" style="min-width:150px;">Assign</button>
+						<button class="pt-1 m-1 border border-dark rounded
+								k-widget k-numerictextbox btn btn-outline-dark" (click)="CloseAssignSection()" style="min-width:150px;">Cancel</button>
 					</div>
 				</div>
 			</div>
