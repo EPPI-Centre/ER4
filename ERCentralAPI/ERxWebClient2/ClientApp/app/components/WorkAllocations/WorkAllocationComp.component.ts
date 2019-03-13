@@ -62,6 +62,7 @@ export class WorkAllocationComp implements OnInit {
 	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
+	public PanelName: string = '';
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -134,20 +135,23 @@ export class WorkAllocationComp implements OnInit {
 
 	public NewCode() {
 
-		if (this.RandomlyAssignSection) {
-			this.RandomlyAssignSection = !this.RandomlyAssignSection;
+		//if (this.RandomlyAssignSection) {
+		//	this.RandomlyAssignSection = !this.RandomlyAssignSection;
+		//}
+		//this.NewCodeSection = !this.NewCodeSection;
+		if (this.PanelName == 'NewCodeSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'NewCodeSection';
 		}
-		this.NewCodeSection = !this.NewCodeSection;
 	}
 	public RandomlyAssign() {
 
-		if (this.NewCodeSection) {
-			this.NewCodeSection = !this.NewCodeSection;
+		if (this.PanelName == 'RandomlyAssignSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'RandomlyAssignSection';
 		}
-		if (this.AssignWorkSection) {
-			this.AssignWorkSection = !this.AssignWorkSection;
-		}
-		this.RandomlyAssignSection = !this.RandomlyAssignSection;
 	}
 	public Clear() {
 		
@@ -158,25 +162,23 @@ export class WorkAllocationComp implements OnInit {
 		this.DropdownSelectedCodeStudies = null;
 		this.DropDownBasicCodingTool = new ReviewSet();
 		this.selectedMemberDropDown = new Contact();
-		this.RandomlyAssignSection = false;
-		this.NewCodeSection = false;
+		this.PanelName = '';
 		//alert('Called Clear: ' + this.DropdownSelectedCodingTool);
 		
 	}
 	public NewWorkAllocation() {
-		if (this.RandomlyAssignSection) {
-			this.RandomlyAssignSection = !this.RandomlyAssignSection;
+		if (this.PanelName == 'AssignWorkSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'AssignWorkSection';
 		}
-		if (this.NewCodeSection) {
-			this.NewCodeSection = !this.NewCodeSection;
-		}
-		this.AssignWorkSection = !this.AssignWorkSection;
 	}
 	public CloseAssignSection() {
-		this.AssignWorkSection = !this.AssignWorkSection;
+			this.PanelName = '';
 	}
 	public CloseRandomlyAssignSection() {
-		this.RandomlyAssignSection = !this.RandomlyAssignSection;
+
+		this.RandomlyAssign();
 
 	}
     public CanAssign() {
@@ -258,7 +260,8 @@ export class WorkAllocationComp implements OnInit {
 	
 		}
 			   
-		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1 ) {
+		if (this.DestAttSet.attribute_id != -1 && this.DestRevSet.set_id != -1) {
+			alert('in here now');
 			//this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
@@ -334,6 +337,17 @@ export class WorkAllocationComp implements OnInit {
 		assignParameters.howMany = howMany;
 		assignParameters.numericRandomSample = this.numericRandomSample;
 		assignParameters.RandomSampleIncluded = this.allocateInclOrExcl;
+
+		if (this.numericRandomCreate == null || this.numericRandomCreate == undefined
+			|| this.numericRandomCreate < 1 || this.numericRandomCreate > 10) {
+
+			return;
+		}
+		if (this.numericRandomSample == null || this.numericRandomSample == undefined
+			|| this.numericRandomSample < 1 || this.numericRandomSample > 100) {
+
+			return;
+		}
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 
