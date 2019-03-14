@@ -5,11 +5,15 @@ import { WorkAllocationListService, WorkAllocation } from '../services/WorkAlloc
 import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { singleNode, ReviewSetsService, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
+import { singleNode, ReviewSetsService, ReviewSet, SetAttribute, kvAllowedAttributeType } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
 import { Jsonp } from '@angular/http';
 import { Review } from '../services/review.service';
+import { Subscription } from 'rxjs';
+import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
+import { NgForm, FormsModule  } from '@angular/forms';
+import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -33,7 +37,8 @@ export class WorkAllocationComp implements OnInit {
 	@ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
     @ViewChild('CodingToolTree') CodingToolTree!: codesetSelectorComponent;
     @ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
-    @ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
+	@ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
+	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	public ListSubType: string = "GetItemWorkAllocationList";
@@ -111,35 +116,151 @@ export class WorkAllocationComp implements OnInit {
 	ngOnInit() {
 		this.RefreshData();
 	}
+	public get AllowedChildTypes(): kvAllowedAttributeType[] {
+		let res: kvAllowedAttributeType[] = [];
+		if (!this.CurrentNode) return res;
+		let att: SetAttribute | null = null;
+		let Set: ReviewSet | null = null;
+		if (this.CurrentNode.nodeType == "ReviewSet") Set = this.CurrentNode as ReviewSet;
+		else if (this.CurrentNode.nodeType == "SetAttribute") {
+			att = this.CurrentNode as SetAttribute;
+			if (att && att.set_id > 0) Set = this._reviewSetsService.FindSetById(att.set_id);
+			if (!Set) return res;
+		}
+		//console.log("CurrentNode (Set)", Set);
+		if (Set && Set.setType) {
+			//console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
+			return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)'));
+		}
+		return res;
+	}
+	IsNewCodeNameValid() {
+
+		return true;
+		//if (this.PanelName == 'NewCodeSection') {
+		//	if (this._NewCode.attribute_name.trim() != "") return true;
+		//	else return false;
+		//} 
+	}
+	IsServiceBusy(): boolean {
+		if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
+		else return false;
+	}
+	CanWrite(): boolean {
+		//console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
+		if (this.ReviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
+			//console.log('CanWrite', true);
+			return true;
+		}
+		else {
+			//console.log('CanWrite', false);
+			return false;
+		}
+	}
+	public get CurrentCodeCanHaveChildren(): boolean {
+		//safety first, if anything didn't work as expexcted return false;
+		if (!this.CanWrite()) return false;
+		else {
+			return this._reviewSetsService.CurrentCodeCanHaveChildren;
+			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
+		}
+	}
     SetRelevantDropDownValues(selection: number) {
         console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
         if (ind > -1) this.selectedAllocated = this.AllocateOptions[ind];
         else this.selectedAllocated = this.AllocateOptions[0];
 	}
+	private _NewReviewSet: ReviewSet = new ReviewSet();
+	public get NewReviewSet(): ReviewSet {
+		return this._NewReviewSet;
+	}
+	private _NewCode: SetAttribute = new SetAttribute();
+	public get CurrentNode(): singleNode | null {
+		if (!this._reviewSetsService.selectedNode) return null;
+		else return this._reviewSetsService.selectedNode;
+	}
+	public get NewCode(): SetAttribute {
+		return this._NewCode;
+	}
+	CreateNewCode() {
+	
+		if (this.CurrentNode) {
 
-	//public openConfirmationDialogWorkAllocation(message: string) {
-	//	this.confirmationDialogService.confirm('Please confirm', message, false, '')
-	//		.then(
-	//			(confirmed: any) => {
+			this._NewCode.order = this.CurrentNode.attributes.length;
+
+			if (this.CurrentNode.nodeType == "ReviewSet") {
+				this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
+				this._NewCode.parent_attribute_id = 0;
+			}
+			else if (this.CurrentNode.nodeType == "SetAttribute") {
+				this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
+				this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
+			}
+		}
+		else {
+			this._NewReviewSet.order = 0;
+		}
+		console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
+		
+		if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
+			this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
+			this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
+		}
+		else {
+			this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
+			this._NewCode.attribute_type = "Not selectable(no checkbox)";
+		}
+
+		console.log("will create:", this._NewCode, this.CodeTypeSelect);
+		this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
+			.then(
+				success => {
+					if (success && this.CurrentNode) {
+						this.CurrentNode.attributes.push(success);
+						this._reviewSetsService.GetReviewSets();
+						
+					}
+					this._NewCode = new SetAttribute();
+					this.CancelActivity();
 					
-	//				if (confirmed) {
-	//					// do nothing
-	//					this.Assignment();
-	//				} else {
-	//					// do nothing
-	//				}
-	//			}
-	//		)
-	//		.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-	//}
+				},
+				error => {
+					this.CancelActivity();
+					console.log("error saving new code:", error, this._NewCode);
+					
+				})
+			.catch(
+				error => {
+					console.log("error(catch) saving new code:", error, this._NewCode);
+					this.CancelActivity();
+				}
+			);
+	}
+	CancelActivity(refreshTree?: boolean) {
+		if (refreshTree) {
+			if (this._reviewSetsService.selectedNode) {
+				let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
+				let Id: number = -1;
+				if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
+				else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
+				let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
+					console.log("trying to reselect: ", Id);
+					if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
+					else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
+					if (sub) sub.unsubscribe();
+				}
+					, () => { if (sub) sub.unsubscribe(); }
+				);
+				this._reviewSetsService.selectedNode = null;
+				this._reviewSetsService.GetReviewSets();
+			}
+		}
+		this.PanelName = '';
+	}
 
-	public NewCode() {
+	public NewCodeSectionOpen() {
 
-		//if (this.RandomlyAssignSection) {
-		//	this.RandomlyAssignSection = !this.RandomlyAssignSection;
-		//}
-		//this.NewCodeSection = !this.NewCodeSection;
 		if (this.PanelName == 'NewCodeSection') {
 			this.PanelName = '';
 		} else {

@@ -247,7 +247,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
-    public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
+	public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
+		//alert(JSON.stringify(Att));
         let ErrMsg = "Something went wrong: it appears that the Code was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         if (Att.set_id < 1) {
             //bad! can't do this...
