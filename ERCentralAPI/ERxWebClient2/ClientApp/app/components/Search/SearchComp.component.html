@@ -15,7 +15,7 @@
 				<button type="button" class="btn btn-primary"
 						[disabled]="!CanApplySearch()"
 						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-					Run Searches
+					Run Search
 				</button>
 			</div>
 			<div class="col-11 col-md-4 pr-1 pl-1">
@@ -43,7 +43,7 @@
 				<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree"
 						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
 						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
-					{{CurrentDropdownSelectedCode?.name}}
+					 &nbsp;{{CurrentDropdownSelectedCode?.name}}
 				</button>
 				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
