@@ -981,6 +981,21 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
+	Clear() {
+
+		
+		this.CurrentDropdownSelectedCode = null;
+		this.selectedSearchCodeSetDropDown = '';
+		this.selectedSearchDropDown = 'With this code';
+		this.commaIDs = '';
+		this.searchText = '';
+		this.selectedSearchTextDropDown = '';
+		this.searchTextModel = '';
+		this.NewSearchSection = false;
+		this.modelResultsSection = false;
+		this.LogicSection = false;
+	}
+
 }
 
 export interface ReadOnlySource {
