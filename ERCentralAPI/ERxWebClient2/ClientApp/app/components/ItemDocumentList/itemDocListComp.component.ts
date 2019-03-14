@@ -121,7 +121,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     private DoDeleteDoc(DocId: number, Numcodings: number) {
         if (Numcodings > 0){
             this.confirmationDialogService.confirm('Please confirm', 'Deleting a Document is a permanent operation.' +
-                ' This document has been coded ' + Numcodings + ' time(s). All codings associated with this document will be premanently deleted!', false, '')
+                '<br/><b>This document has been coded ' + Numcodings + ' time(s)</b>.<br/> All codings associated with this document will be premanently deleted!', false, '')
                 .then(
                     (confirmed: any) => {
                         if (confirmed) {

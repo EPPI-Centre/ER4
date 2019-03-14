@@ -80,7 +80,7 @@ export class armDetailsComp implements OnInit {
 	
 	public openConfirmationDialogDeleteArms(key: number) {
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			' This Arm is associated with 0 codes.', false, '')
+			'<br />This Arm is associated with 0 codes.', false, '')
 			.then(
 				(confirmed: any) => {
 					console.log('User confirmed:');
@@ -99,8 +99,8 @@ export class armDetailsComp implements OnInit {
 	public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number) {
 		
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
-			' This Arm is associated with ' + numCodings + ' codes.' +
-			'Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,this.confirmationDialogService.UserInputTextArms)
+			'<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>' +
+			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,this.confirmationDialogService.UserInputTextArms)
 			.then(
 			(confirm: any) => {
 								

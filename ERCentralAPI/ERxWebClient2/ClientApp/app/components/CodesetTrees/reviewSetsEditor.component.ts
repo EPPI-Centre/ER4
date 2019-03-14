@@ -86,6 +86,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
         return this._appliedCodes;

@@ -468,7 +468,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.FreqComponent) this.FreqComponent.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {
-			console.log('this comp exists');
+			//console.log('this comp exists');
 			this.workAllocationCollaborateComp.Clear();
 		}
 
