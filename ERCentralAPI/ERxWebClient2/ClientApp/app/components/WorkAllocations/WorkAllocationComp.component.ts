@@ -86,7 +86,9 @@ export class WorkAllocationComp implements OnInit {
 		this._allocateOptions = value;
    
 	}
-
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
 	private _allocateInclOrExcl: string = 'true';
 
 	public get allocateInclOrExcl(): string {
@@ -143,7 +145,7 @@ export class WorkAllocationComp implements OnInit {
 		//} 
 	}
 	IsServiceBusy(): boolean {
-		if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
+		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
 		else return false;
 	}
 	CanWrite(): boolean {
