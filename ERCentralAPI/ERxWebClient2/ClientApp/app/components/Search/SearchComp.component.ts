@@ -101,7 +101,9 @@ export class SearchComp implements OnInit, OnDestroy {
 		checkboxOnly: true,
 		mode: 'single'
 	};
-
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
 	public setSelectableSettings(): void {
 
 		this.selectableSettings = {

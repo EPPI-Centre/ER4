@@ -4,6 +4,7 @@ import { iArm, Item, Arm } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -15,7 +16,8 @@ export class armDetailsComp implements OnInit {
 		private _armsService: ArmsService,
 		private _renderer: Renderer2,
 		private confirmationDialogService: ConfirmationDialogService,
-		private eventsService: EventEmitterService
+        private eventsService: EventEmitterService,
+        private ReviewerIdentityServ: ReviewerIdentityService
 	) { }
 
     public get armsList(): iArm[] {
@@ -46,7 +48,9 @@ export class armDetailsComp implements OnInit {
 	public currentKey: number = 0;
 	public editTitle: boolean = false;
 	public titleModel: string = '';
-
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
     setArm(arm: iArm, key: number) {
 
 		this.currentKey = key;

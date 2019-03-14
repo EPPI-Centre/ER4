@@ -1,11 +1,11 @@
 <div class="containsAtoolbar">
     <kendo-toolbar>
-        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
-        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()"  [disabled]="!HasWriteRights" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights" [data]="data"></kendo-toolbar-splitbutton>
+        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
@@ -262,7 +262,7 @@
         <div *ngIf="CanCreateClassifierCodes()" class="row col-12 m-0 p-0">
             <div style="min-width: 150px; margin:auto;" class="col p-1" *ngIf="selectedNode"> Create codes below this Code / Coding Tool: <b>{{selectedNode.name}}</b></div>
             <div class="m-0 p-0">
-                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCo()">Create</button>
+                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" [disabled]="!HasWriteRights" (click)="CreateCo()">Create</button>
             </div>
         </div>
     </div>

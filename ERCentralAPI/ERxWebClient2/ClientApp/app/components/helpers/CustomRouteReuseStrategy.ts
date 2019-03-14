@@ -100,11 +100,14 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
             handle: handle
         };
 
-        console.log( "store component for reuse:", storedRoute, "into: ", this.storedRoutes );
+        //console.log( "store component for reuse:", storedRoute, "into: ", this.storedRoutes );
         // routes are stored by path - the key is the path name, and the handle is stored under it so that you can only ever have one object stored for a single path
         if (route.routeConfig && route.routeConfig.path) {
-            this.storedRoutes[route.routeConfig.path] = storedRoute;
+            //see: https://stackoverflow.com/questions/346021/how-do-i-remove-objects-from-a-javascript-associative-array
+            if (handle == null) delete this.storedRoutes[route.routeConfig.path];//for some mysterious reasons, this does happen, so remove this stored route...
+            else this.storedRoutes[route.routeConfig.path] = storedRoute;
         }
+        
     }
 
     /**
@@ -115,7 +118,8 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
     shouldAttach(route: ActivatedRouteSnapshot): boolean {
         if (route.routeConfig && route.routeConfig.path) {
             // this will be true if the route has been stored before
-            let canAttach: boolean = !!route.routeConfig && !!this.storedRoutes[route.routeConfig.path];
+            let canAttach: boolean = !!route.routeConfig && !!this.storedRoutes[route.routeConfig.path] && !!this.storedRoutes[route.routeConfig.path];
+            if (canAttach) console.log("Can attach this:", this.storedRoutes[route.routeConfig.path]);
             //Modified BY SG
             //Assumptions:
             //1. we reuse routes only on few big pages.
