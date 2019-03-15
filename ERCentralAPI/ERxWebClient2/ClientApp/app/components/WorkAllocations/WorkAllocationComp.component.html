@@ -1,8 +1,8 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
-		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [attr.aria-expanded]="!RandomlyAssignSection" ></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()" [attr.aria-expanded]="!NewCodeSection" ></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [attr.aria-expanded]="!AssignWorkSection"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->
@@ -274,7 +274,7 @@
 								<td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
 								<td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
 								<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
-								<td class="p-0"><button class="btn btn-danger p-1 m-1" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+								<td class="p-0"><button class="btn btn-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
 							</tr>
 						</tbody>
 					</table>
