@@ -368,6 +368,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.DestinationDataEntryMode = "";
         this.ChangeDataEntryModeMessage = "";
         this._ActivityPanelName = "";
+		
     }
     CodesetTypeChanged(typeId: number) {
         this.NewSetSelectedTypeId = typeId;

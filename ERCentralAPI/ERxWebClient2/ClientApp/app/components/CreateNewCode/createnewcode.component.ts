@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
@@ -33,6 +33,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	public PanelName: string = '';
+	//@Input() PanelNameHolder: string = '';
+	@Output() emitterCancel = new EventEmitter();
 
 	public get AllowedChildTypes(): kvAllowedAttributeType[] {
 		let res: kvAllowedAttributeType[] = [];
@@ -169,6 +171,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 			}
 		}
 		this.PanelName = '';
+		this.emitterCancel.emit();
+
 	}
 
 	public NewCodeSectionOpen() {

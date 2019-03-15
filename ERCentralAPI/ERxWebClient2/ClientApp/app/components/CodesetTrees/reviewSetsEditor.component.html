@@ -174,7 +174,8 @@
                 </form>
             </div>
             <div *ngIf="ActivityPanelName == 'AddCode'" class="container card card-body bg-light">
-                <form class="row" #NewCodeFrom="ngForm">
+				<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
+                <!--<form class="row" #NewCodeFrom="ngForm">
                     <div class="col-12">
                         <div class="form-group">
                             <label for="Codeset_Type">Code Type*</label>
@@ -210,7 +211,7 @@
                             Cancel
                         </button>
                     </div>
-                </form>
+                </form>-->
             </div>
             <div *ngIf="ActivityPanelName == 'EditCode'" class="container card card-body bg-light">
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
