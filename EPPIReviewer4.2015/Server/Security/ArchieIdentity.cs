@@ -115,7 +115,8 @@ namespace BusinessLibrary.Security
         }
 
 #if !SILVERLIGHT
-        string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
+        //string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
+        string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + CochraneOAuthSS)).Trim();
         internal static ArchieIdentity GetArchieIdentity(string code, string status)
         {
             ArchieIdentity res = new ArchieIdentity(code, status, false);
@@ -147,9 +148,9 @@ namespace BusinessLibrary.Security
          //or by validating them against the ER4 DB, this is used when accessing a review (archie will not validate the code+status anymore)
          //also used when the tokens failed and the user Re-authenticated in Archie via the popup (fromLocal == false)
 #if (CSLA_NETCORE)
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #else
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
 #endif
             _code = code;
             _status = status;
@@ -692,9 +693,11 @@ namespace BusinessLibrary.Security
         }
         private bool SaveTokens()
         {
-            if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+            //if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+            //    && ArchieID != null && ArchieID != "")
+            if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                 && ArchieID != null && ArchieID != "")
-            {//we can do something
+                {//we can do something
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -840,11 +843,18 @@ namespace BusinessLibrary.Security
                 }
             }
         }
-        private string oAuthBaseAddress
+        private static string oAuthBaseAddress
         {
             get
             {
                 return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
+            }
+        }
+        private static string CochraneOAuthSS
+        {
+            get
+            {
+                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
             }
         }
         private string Redirect
