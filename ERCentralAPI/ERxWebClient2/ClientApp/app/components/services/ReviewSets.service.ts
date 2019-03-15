@@ -70,8 +70,29 @@ export class ReviewSetsService extends BusyAwareService {
 
 		return true;
     }
+    public get CurrentCodeCanHaveChildren(): boolean {
+        return this.ThisCodeCanHaveChildren(this.selectedNode);
+    }
+    public ThisCodeCanHaveChildren(node: singleNode | null): boolean {
+        if (!node) return false;//??
+        //move the below to ReviewSetsService;
+        else if (node.nodeType == "ReviewSet" && node.allowEditingCodeset) return true;
+        else if (node.nodeType == "SetAttribute") {
+            let Att: SetAttribute = node as SetAttribute;
+            let Set: ReviewSet | null = this.FindSetById(Att.set_id);
+            //console.log("I'm still checking: ", Att, Set);
+            if (Set && Set.setType) {
+                if (!Set.allowEditingCodeset) return false;
+                let maxDepth: number = Set.setType.maxDepth;
+                //console.log("I'm still checking2: ", maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att));
+                return maxDepth > this.AttributeCurrentLevel(Att);
+            }
+            else return false;
+        }
+        else return false;
+    }
 
-     GetReviewSets(): ReviewSet[] {
+    GetReviewSets(): ReviewSet[] {
          //console.log("GetReviewSets");
          this._BusyMethods.push("GetReviewSets");
          this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
@@ -410,6 +431,7 @@ export class ReviewSetsService extends BusyAwareService {
             }
         );
     }
+
 }
 
 export interface singleNode {
@@ -451,7 +473,16 @@ export class ReviewSet implements singleNode {
         return -1;//it's used only in attribues, ReviewSets have no parent!
     }
     public description: string = "";
-    setType: iSetType | null = null ;
+	setType: iSetType = {
+		setTypeId: 0,
+		setTypeName: '',
+		setTypeDescription: '',
+		allowComparison: false,
+		allowRandomAllocation: false,
+		maxDepth: 1,
+		allowedCodeTypes: [],
+		allowedSetTypesID4Paste: []
+	};
     nodeType: string = "ReviewSet";
     order: number = 0;
     codingIsFinal: boolean = true;

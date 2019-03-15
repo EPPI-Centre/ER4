@@ -7,20 +7,20 @@
     <kendo-splitter-pane>
         <div class="pane-content" style="min-height:300px;">
             <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
+            <div *ngIf="!HasWriteRights" class="alert alert-danger m-2">You don't currently have write 'rights', this page is locked in 'read-only' mode.</div>
             <div *ngIf="!SetIsSelected() && !AttributeIsSelected()">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="HasWriteRights" [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                     </kendo-toolbar>
                 </div>
-                <div class="card alert alert-primary m-4" >To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
+                <div class="card alert alert-primary m-4">To Edit a node in the code tree, please select the desired node in the right-hand side tree.</div>
             </div>
-
             <div *ngIf="SetIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="HasWriteRights" [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Edit Coding Tool'" (click)="ShowActivity('EditCodeset')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
@@ -30,7 +30,7 @@
             <div *ngIf="AttributeIsSelected()" class="container pl-0 pr-0">
                 <div class="containsAtoolbar row m-0" style="background-color:#f1f1f8">
                     <kendo-toolbar>
-                        <kendo-toolbar-button [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
+                        <kendo-toolbar-button *ngIf="HasWriteRights" [text]="'Import Coding Tool(s)'" (click)="ShowActivity('ImportCodesets')"></kendo-toolbar-button>
                         <kendo-toolbar-button [text]="'Add Coding Tool'" (click)="ShowActivity('AddCodeSet')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CanEditSelectedNode" [text]="'Edit Code'" (click)="ShowActivity('EditCode')"></kendo-toolbar-button>
                         <kendo-toolbar-button *ngIf="CurrentCodeCanHaveChildren" [text]="'Add Child'" (click)="ShowActivity('AddCode')"></kendo-toolbar-button>
@@ -64,7 +64,7 @@
                                [(ngModel)]="NewReviewSet.set_name" name="set_name"
                                #name="ngModel">
                         <span [hidden]="IsNewSetNameValid()"
-                             class="alert alert-danger small p-1">
+                              class="alert alert-danger small p-1">
                             Name is required
                         </span>
                     </div>
@@ -108,12 +108,13 @@
                 <form class="row" #EditCodesetFrom="ngForm">
                     <div class="col-5">
                         <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
-                        <div >
+                        <div>
                             <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
-                            <kendo-switch name="CanEditSW" class="small small mt-1"
-                                          [(ngModel)]="CurrentNode.allowEditingCodeset"
-                                          [onLabel]="'No'"
-                                          [offLabel]="'Yes'"></kendo-switch>
+                                <kendo-switch name="CanEditSW" class="small small mt-1"
+                                              [disabled]="!HasWriteRights"
+                                              [(ngModel)]="CurrentNode.allowEditingCodeset"
+                                              [onLabel]="'No'"
+                                              [offLabel]="'Yes'"></kendo-switch>
                             </span>
                             <br />
                         </div>
@@ -125,7 +126,7 @@
                                [(ngModel)]="CurrentNode.set_name" name="set_name"
                                #name="ngModel">
                         <span [hidden]="IsEditingNodeNameValid()"
-                             class="alert alert-danger small p-1">
+                              class="alert alert-danger small p-1">
                             Name is required
                         </span>
                     </div>
@@ -143,7 +144,7 @@
                             <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()">Cancel</button>
                             <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
                                 Yes, change to
-                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" 
+                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1"
                                         [disabled]="!CanEditSelectedNode" (click)="DoChangeDataEntry()">
                                     {{DestinationDataEntryMode}}
                                 </button>
@@ -172,7 +173,6 @@
                     </div>
                 </form>
             </div>
-
             <div *ngIf="ActivityPanelName == 'AddCode'" class="container card card-body bg-light">
                 <form class="row" #NewCodeFrom="ngForm">
                     <div class="col-12">
@@ -232,7 +232,7 @@
                             <label for="Codeset_Type">Code Type*</label>
                             <select #EditCodeTypeSelect class="col-md-6 form-control"
                                     (change)="AttributeTypeChanged($event.target.value)" name="Code_Type"
-                                     [(ngModel)]="UpdatingCode.attribute_type_id">
+                                    [(ngModel)]="UpdatingCode.attribute_type_id">
                                 <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
                                     {{type.value}}
                                 </option>
@@ -245,7 +245,7 @@
                                [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
                                #name="ngModel">
                         <span [hidden]="IsNewCodeNameValid()"
-                             class="alert alert-danger small p-1">
+                              class="alert alert-danger small p-1">
                             Name is required
                         </span>
                     </div>

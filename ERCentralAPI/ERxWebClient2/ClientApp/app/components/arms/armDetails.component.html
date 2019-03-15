@@ -6,7 +6,7 @@
 			<div class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
 				Create new study arm:
 				<input #titleModel="ngModel"
-					   required minlength="3"
+					   required minlength="3" 
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
@@ -24,7 +24,7 @@
 					</div>
 
 				</div>
-				<button *ngIf="!titleModel.invalid"
+				<button *ngIf="!titleModel.invalid" [disabled]="!HasWriteRights"
 						class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
 					Add New Study Arm
 				</button >
@@ -44,7 +44,7 @@
 					<td style="width: 15px; white-space:nowrap;" >
 						<span class="table-remove" >
 							<button (click)="editTitle=true; setArm(arm, key)" 
-									
+									 [disabled]="!HasWriteRights"
 									type="button" rounded="true" size="sm" class="btn btn-info">Edit
 							</button>
 						</span>
@@ -52,7 +52,7 @@
 					<td style="width: 15px; white-space:nowrap;" >
 						<span class="table-remove" >
 							<button type="button" rounded="true" size="sm" class="btn btn-danger" 
-									(click)="removeWarning(key)">Remove</button>
+									 [disabled]="!HasWriteRights" (click)="removeWarning(key)">Remove</button>
 						</span>
 					</td>
 				</tr>

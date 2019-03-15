@@ -7,8 +7,9 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
-import { Item } from './ItemList.service';
+import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -19,17 +20,23 @@ import { ModalService } from './modal.service';
     providedIn: 'root',
 })
 
-export class PriorityScreeningService {
+export class PriorityScreeningService extends BusyAwareService {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         private ReviewInfoService: ReviewInfoService,
-        @Inject('BASE_URL') private _baseUrl: string) { }
+        @Inject('BASE_URL') private _baseUrl: string) { super(); }
     @Output() gotList = new EventEmitter();
     @Output() gotItem = new EventEmitter();
     public ScreenedItemIds: number[] = [];
     public CurrentItem: Item = new Item();
     public CurrentItemIndex: number = 0;
+    private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
+    public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
+        if (!this.CurrentItem || !this._CurrentItemAdditionalData) return null;
+        else if (this.CurrentItem.itemId !== this._CurrentItemAdditionalData.itemID) return null;
+        else return this._CurrentItemAdditionalData;
+    }
     private _TrainingList: Training[] = [];
     public get TrainingList(): Training[]{
         //if (this._TrainingList && this.TrainingList.length > 0) {
@@ -98,34 +105,40 @@ export class PriorityScreeningService {
         if (this.CurrentItemIndex > 0) this.FetchScreenedItem(this.CurrentItemIndex - 1);
     }
     private FetchNextItem() {
+        this._BusyMethods.push("FetchNextItem");
         let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
         this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
             body).toPromise().then(
-                success => {
-                    this.CurrentItem = success.item;
-                    let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-                    if (currentIndex == -1) {
-                        this.ScreenedItemIds.push(this.CurrentItem.itemId);
-                        this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-                    }
-                    else this.CurrentItemIndex = currentIndex;
-                    this.CheckRunTraining(success.rank);
-                    this.gotItem.emit();
+            success => {
+                this.RemoveBusy("FetchNextItem");
+                this.CurrentItem = success.item;
+                this.FetchAdditionalItemDetails();
+                let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
+                if (currentIndex == -1) {
+                    this.ScreenedItemIds.push(this.CurrentItem.itemId);
+                    this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
+                }
+                else this.CurrentItemIndex = currentIndex;
+                this.CheckRunTraining(success.rank);
+                this.gotItem.emit();
                 },
-                error => {
-                   this.modalService.SendBackHomeWithError(error); 
+            error => {
+                this.RemoveBusy("FetchNextItem");
+                this.modalService.SendBackHomeWithError(error); 
                 });
     }
 
     private FetchScreenedItem(index: number) {
+        this._BusyMethods.push("FetchScreenedItem");
         let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
         //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
         //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
         this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
             body).toPromise().then(
             success => {
-
+                this.RemoveBusy("FetchScreenedItem");
                     this.CurrentItem = success.item;
+                    this.FetchAdditionalItemDetails();
                     let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
                     if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
                     this.CurrentItemIndex = currentIndex;
@@ -133,10 +146,28 @@ export class PriorityScreeningService {
                     this.gotItem.emit();
                 },
                 error => {
-
+                    this.RemoveBusy("FetchScreenedItem");
                     this.modalService.SendBackHomeWithError(error);
                 });
     }
+
+    public FetchAdditionalItemDetails() {
+        if (this.CurrentItem.itemId !== 0) {
+            this._BusyMethods.push("FetchAdditionalItemDetails");
+            let body = JSON.stringify({ Value: this.CurrentItem.itemId });
+            this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
+                .subscribe(
+                    result => {
+                        this._CurrentItemAdditionalData = result;
+                    }, error => {
+                        this.modalService.GenericError(error);
+                        this.RemoveBusy("FetchAdditionalItemDetails");
+                    }
+                    , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
+                );
+        }
+    }
+
 
     private CheckRunTraining(currentCount: number) {
         let totalScreened = this._TrainingList[0].totalN;

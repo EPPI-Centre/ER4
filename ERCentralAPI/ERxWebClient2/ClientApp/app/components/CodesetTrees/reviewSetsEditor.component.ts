@@ -86,6 +86,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
         return this._appliedCodes;
@@ -204,23 +207,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         //safety first, if anything didn't work as expexcted return false;
         if (!this.CanWrite()) return false;
         else {
-			if (!this.CurrentNode) return false;//??
-			//move the below to ReviewSetsService;
-            else if (this.CurrentNode.nodeType == "ReviewSet" && this.CurrentNode.allowEditingCodeset) return true;
-            else if (this.CurrentNode.nodeType == "SetAttribute") {
-                let Att: SetAttribute = this.CurrentNode as SetAttribute;
-                let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
-                //console.log("I'm still checking: ", Att, Set);
-                if (Set && Set.setType) {
-                    let maxDepth: number = Set.setType.maxDepth;
-                    //console.log("I'm still checking2: ", maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att));
-                    return maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att);
-                }
-                else return false;
-			}
+            return this.ReviewSetsService.CurrentCodeCanHaveChildren;
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
         }
-        return false;
     }
     public SetTypeCanChangeDataEntryMode(): boolean {
         let Set: ReviewSet = this.CurrentNode as ReviewSet;

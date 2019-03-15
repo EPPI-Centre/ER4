@@ -2,10 +2,11 @@ import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, AfterVi
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, ReviewSet, iSetType, SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions, TreeModel, TreeComponent, IActionMapping, TREE_ACTIONS, KEYS } from 'angular-tree-component';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { Node } from '@angular/compiler';
 
 
 @Component({
@@ -44,7 +45,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	//"ReviewSet":Codesets(ReviewSet) only
 	//"NodeWithChildren":Anything that does have children
 	//"CanHaveChildren": any node that is allowed to contain children(future)
-
+	public IsAdmin: boolean = false;
 
 	public SelectedNodeData: singleNode | null = null;
 	public SelectedNodesData: singleNode[] = [];
@@ -57,11 +58,38 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 	ngOnInit() {
 
+		console.log("Selector init");
+
+
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
 		else {
 
+			if (this.WhatIsSelectable == 'RandomAllocation') {
+
+				this._nodes = [];
+				for (let Rset of this.ReviewSetsService.ReviewSets) {
+					//if (Rset.setType.allowRandomAllocation == false) {
+					//	let newSet = new ReviewSet()
+     //                   newSet.set_id = Rset.set_id;
+     //                   newSet.reviewSetId = Rset.reviewSetId;
+					//	newSet.set_name = Rset.set_name;
+					//	newSet.set_order = Rset.set_order;
+					//	newSet.setType = Rset.setType;
+					//	newSet.nodeType = Rset.nodeType;
+					//	newSet.allowEditingCodeset = Rset.allowEditingCodeset;
+					//	newSet.codingIsFinal = Rset.codingIsFinal;
+					//	newSet.description = Rset.description;
+					//	this._nodes.push(newSet);
+					//}
+					//else {
+					//	this._nodes.push(Rset);
+					//}
+                    if (Rset.setType.allowRandomAllocation) this._nodes.push(Rset);
+				}
+				console.log('Testing the nodes on the wierd tree: ' + this._nodes.length);
+			}
         }
 	}
 
@@ -97,13 +125,22 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 	
 	}
 
+	private _nodes: singleNode[] = [];
 
     get nodes(): singleNode[] | null {
 
 
-        if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) {
+		if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets
+			&& this.ReviewSetsService.ReviewSets.length > 0) {
 
-            return this.ReviewSetsService.ReviewSets;
+			if (this.WhatIsSelectable == 'RandomAllocation') {
+				//console.log("get nodes in Random alloc mode");
+				return this._nodes;
+				
+			} else {
+				//console.log("get nodes NOT in Random alloc mode");
+				return  this.ReviewSetsService.ReviewSets;
+			}
         }
         else {
             return null;
@@ -178,16 +215,53 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
 
 			if (node.nodeType == "SetAttribute") {
-				console.log(JSON.stringify(node));
-				this.SelectedNodeData = node;
-	
+				//console.log(JSON.stringify(node));
 				//this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
 				// and raise event to close the drop down
-				this.selectedNodeInTree.emit();
-				this._eventEmitterService.nodeSelected = node;
+                this.SignalGoodNodeSelection(node);
 			}
 
-		} else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
+        }
+        else if (this.WhatIsSelectable == 'RandomAllocation') {
+			if (node != null) {
+				let type: iSetType = {
+					setTypeId: 0,
+					setTypeName: '',
+					setTypeDescription: '',
+					allowComparison: false,
+					allowRandomAllocation: false,
+					maxDepth: 1,
+					allowedCodeTypes: [],
+					allowedSetTypesID4Paste: []
+				};	
+				if (node.nodeType == 'ReviewSet') {
+					
+					let tempNode: ReviewSet = node as ReviewSet;
+					type = tempNode.setType;
+					let setTemp: any = JSON.stringify(tempNode.setType);
+					//let setTypeName: any = JSON.parse(setTemp)["setTypeName"];
+					let allowRandomAllocations: boolean = JSON.parse(setTemp)["allowRandomAllocation"];
+					//console.log('allowRandomAllocation:=======================: ' + allowRandomAllocations);
+					//if (setTypeName != null && setTypeName == 'Admininstation') {
+					if (allowRandomAllocations) {
+
+                        this.SignalGoodNodeSelection(node);
+					}
+					//}
+
+				} 
+                else {
+                    //we have removed children for sets that don't accept random allocations, 
+                    //so now we know the node selected is within a set that does accept them.
+                    //however, we need to check if the node can have children still.
+                    
+                    if (this.ReviewSetsService.ThisCodeCanHaveChildren(node)) this.SignalGoodNodeSelection(node);
+					return;
+				}
+			}
+
+        }
+        else if (node.nodeType == "ReviewSet" && this.IsMultiSelect == false) {
 
 			this.SelectedNodeData = node;
 			this.selectedNodeInTree.emit();
@@ -203,16 +277,17 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
             console.log('you cannot use multiselect here 3');
 
 		} else {
-			this.SelectedNodeData = node;
-			this.selectedNodeInTree.emit();
-			this._eventEmitterService.nodeSelected = node;
-
+            this.SignalGoodNodeSelection(node);
 		}
+    }
 
+    private SignalGoodNodeSelection(node: singleNode) {
+        this.SelectedNodeData = node;
+        this.selectedNodeInTree.emit();
+        this._eventEmitterService.nodeSelected = node;
     }
 
     ngOnDestroy() {
-
     }
 }
 
