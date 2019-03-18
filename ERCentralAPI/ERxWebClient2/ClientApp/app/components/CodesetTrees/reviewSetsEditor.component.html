@@ -92,7 +92,7 @@
                     </div>
                 </form>
             </div>
-            <div *ngIf="ActivityPanelName == 'EditCodeset'" class="container card card-body bg-light">
+            <div *ngIf="ActivityPanelName == 'EditCodeset' && CurrentNode != null" class="container card card-body bg-light">
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
                     <div>Are you sure you want to delete '{{CurrentNode.name}}' and all its codes?</div>
                     <div>This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
