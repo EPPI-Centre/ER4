@@ -113,8 +113,15 @@ export class WorkAllocationComp implements OnInit {
         let ind = this._reviewSetsService.ReviewSets.findIndex(found => found.setType.allowRandomAllocation == true);
         if (ind > -1) return false;
         else return true;
-    }
+	}
+	public NewComparisonSectionOpen() {
 
+		if (this.PanelName == 'NewComparisonSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'NewComparisonSection';
+		}
+	}
 	ngOnInit() {
 		this.RefreshData();
 	}
