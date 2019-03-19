@@ -1,7 +1,7 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
 		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights || !CanCreateNewCode()" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights  || !CanCreateNewCode()" ></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
