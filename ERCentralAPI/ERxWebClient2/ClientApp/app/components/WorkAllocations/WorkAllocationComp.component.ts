@@ -277,6 +277,12 @@ export class WorkAllocationComp implements OnInit {
 			this.PanelName = 'RandomlyAssignSection';
 		}
 	}
+	public CanCreateNewCode(): boolean {
+		  
+		if (this._reviewSetsService.selectedNode) return true;
+		else return false;
+
+	}
 	public Clear() {
 		
         this.selectedAllocated = this.AllocateOptions[0];
