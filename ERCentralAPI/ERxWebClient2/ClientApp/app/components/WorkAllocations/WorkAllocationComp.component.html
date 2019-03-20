@@ -228,8 +228,13 @@
 			</div>
 		</div>
 	</div>
-	<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12 col-md-12 p-0 mb-1">
-		<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
+	<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12  col-md-12 p-0 mb-1">
+		<div *ngIf="CurrentNode">
+			&nbsp;&nbsp;Current coding tool or code: <strong>{{CurrentNode.name}}</strong><br />
+		</div>
+		<div class="border border-primary rounded">
+			<CreateNewCodeComp  (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
+		</div>
 	</div>
 	<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
 		<div class="col-12 row p-0 m-0">

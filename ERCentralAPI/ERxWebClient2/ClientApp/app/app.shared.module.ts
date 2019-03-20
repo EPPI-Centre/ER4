@@ -67,7 +67,7 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
-import { CreateNewCodeComp } from './components/CreateNewCode/createnewcode.component';
+import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
 
 @NgModule({
     declarations: [
