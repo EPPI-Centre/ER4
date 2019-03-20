@@ -167,6 +167,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ClientApp\app\components\Comparison\" />
     <Folder Include="ClientApp\app\components\NewFolder\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
