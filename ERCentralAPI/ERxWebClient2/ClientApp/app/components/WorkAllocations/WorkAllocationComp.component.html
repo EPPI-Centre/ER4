@@ -8,19 +8,19 @@
 <!--<kendo-splitter-pane>-->
 	<div id="RandomlyAssignSection" *ngIf="PanelName == 'RandomlyAssignSection'" class="col-12 col-sm-12 col-md-12 p-0 mb-1" style="min-width:120px;">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="card-body">
+            <div class="card-body">
                 <div class="row">
-                        <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
-                        <div class="form-group col-12 col-sm-10">
-                            <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
-                                    style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
-                                    (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
-                                <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                                        [selected]="item.key == selectedAllocated.key">
-                                    {{item.value}}
-                                </option>
-                            </select>
-                        </div>
+                    <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
+                    <div class="form-group col-12 col-sm-10">
+                        <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
+                                style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
+                                (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
+                            <option *ngFor="let item of AllocateOptions" [value]="item.key"
+                                    [selected]="item.key == selectedAllocated.key">
+                                {{item.value}}
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
 						||  (selectedAllocated.value == 'All without this code' )">
@@ -67,7 +67,7 @@
                         </div>
                     </div>
                 </div>
-				
+
                 <div class="row mt-2 justify-content-center justify-content-md-start">
                     <div class="col-12 col-md-4 row ">
                         <div class="mr-2 text-right" style="">
@@ -100,15 +100,15 @@
                             </kendo-numerictextbox>
                         </div>
                     </div>
-                    
+
                 </div>
-				
+
                 <div class="row my-1 ">
                     <div class="col-12 row justify-content-center justify-content-md-start m-3">
-                            <input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Included </div>
-                            <input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Excluded</div>
+                        <input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
+                        <div class="mr-2"> Included </div>
+                        <input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
+                        <div class="mr-2"> Excluded</div>
                     </div>
                 </div>
                 <div class="row">
@@ -131,7 +131,7 @@
                             </div>
                         </div>
                         <div *ngIf="NoSuitableCodeSet" ngbDropdown class="alert alert-danger " style="min-width:150px;">
-                            This review contains no Coding Tools able to receive random allocations. Please use the 
+                            This review contains no Coding Tools able to receive random allocations. Please use the
                             <span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
                             function to create a new tool (preferably of "Administration" type).
                         </div>
@@ -152,7 +152,10 @@
                         Cancel
                     </button>
                 </div>
-			</div>
+                <div class="row small">
+                    Click&nbsp;<span class="font-weight-bold">Create new code&nbsp;</span>if you need to add a new section in a coding tool. [The 'Create new code' button becomes clickable when you select a node in the tree on the right.]
+                </div>
+            </div>
 		</div>
 	</div>
 	<div id="AssignWorkSection" *ngIf="PanelName == 'AssignWorkSection'" class="col-12 p-0 mb-1">

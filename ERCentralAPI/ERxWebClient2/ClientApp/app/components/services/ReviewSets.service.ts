@@ -148,6 +148,26 @@ export class ReviewSetsService extends BusyAwareService {
     //        localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
     //    else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
     //}
+
+    public get AllowedChildTypesOfSelectedNode(): kvAllowedAttributeType[] {
+        let res: kvAllowedAttributeType[] = [];
+        if (!this.selectedNode) return res;
+        let att: SetAttribute | null = null;
+        let Set: ReviewSet | null = null;
+        if (this.selectedNode.nodeType == "ReviewSet") Set = this.selectedNode as ReviewSet;
+        else if (this.selectedNode.nodeType == "SetAttribute") {
+            att = this.selectedNode as SetAttribute;
+            if (att && att.set_id > 0) Set = this.FindSetById(att.set_id);
+            if (!Set) return res;
+        }
+        //console.log("CurrentNode (Set)", Set);
+        if (Set && Set.setType) {
+            //console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
+            return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)'));
+        }
+        return res;
+    }
+
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         for (let iItemset of data) {

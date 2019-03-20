@@ -395,13 +395,13 @@ export class WorkAllocationComp implements OnInit {
 			}
 		}
 
-		console.log(' testing attribtue destination : ' + JSON.stringify(this.DestAttSet.attribute_id));
-		console.log(' testing codeset destination : ' + JSON.stringify(this.DestRevSet.set_id));
+		//console.log(' testing attribtue destination : ' + JSON.stringify(this.DestAttSet.attribute_id));
+		//console.log(' testing codeset destination : ' + JSON.stringify(this.DestRevSet.set_id));
 
-		console.log(' testing dropdown : ' + JSON.stringify(this.DropdownSelectedCodingTool));
+		//console.log(' testing dropdown : ' + JSON.stringify(this.DropdownSelectedCodingTool));
 		
 		if (this.DestAttSet.attribute_id == -1 && this.DestRevSet.set_id == -1) {
-			alert('in here now');
+			//alert('in here now');
 			//this.openConfirmationDialogWorkAllocation("Please select a coding tool or a Code \n to contain the new codes to be created");
 			return;
 		}
@@ -488,7 +488,7 @@ export class WorkAllocationComp implements OnInit {
 
 			return;
 		}
-		console.log(JSON.stringify(assignParameters));
+		//console.log(JSON.stringify(assignParameters));
 
 		this._reviewSetsEditingService.RandomlyAssignCodeToItem(assignParameters);
 
