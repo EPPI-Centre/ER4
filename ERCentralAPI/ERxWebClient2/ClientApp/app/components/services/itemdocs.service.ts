@@ -26,9 +26,18 @@ export class ItemDocsService {
 
     public _itemDocs: ItemDocument[] = []; 
     private currentItemId: number = 0;
+    private currentDocBin: Blob | null = null;
+    private currentDocBinId: number = 0;
+    public get CurrentDoc() {
+        return this.currentDocBin;
+    }
 
     public FetchDocList(itemID: number) {
-        this.currentItemId = itemID;
+        if (this.currentItemId != itemID) {
+            this.currentDocBin = null;
+            this.currentDocBinId = 0;
+            this.currentItemId = itemID;
+        }
         this.Refresh();
     }
     public Refresh() {
@@ -40,8 +49,9 @@ export class ItemDocsService {
         );
     }
 
-    public GetItemDocument(itemDocumentId: number) {
-        
+    public GetItemDocument(itemDocumentId: number, ForView:boolean = false) {
+        this.currentDocBin = null;
+        this.currentDocBinId = 0;
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
         //console.log(this.ReviewerIdentityService.reviewerIdentity.token);
@@ -56,16 +66,19 @@ export class ItemDocsService {
                 
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
-						blob => {
-							if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-								window.navigator.msSaveOrOpenBlob(blob);
-							}
-							else {
-								URL.createObjectURL(blob);
-								let url = URL.createObjectURL(blob);
-								if (url) window.open(url);
-							}
-                            
+                        blob => {
+                            this.currentDocBin = blob;
+                            this.currentDocBinId = itemDocumentId;
+                            if (!ForView) {
+                                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                                    window.navigator.msSaveOrOpenBlob(blob);
+                                }
+                                else {
+                                    URL.createObjectURL(blob);
+                                    let url = URL.createObjectURL(blob);
+                                    if (url) window.open(url);
+                                }
+                            }
                         });
                 }
             });

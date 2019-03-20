@@ -65,9 +65,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         }
     }
     
-    DownloadDoc(itemDocumentId: number) {
+    DownloadDoc(itemDocumentId: number, ForView: boolean) {
 
-        this.ItemDocsService.GetItemDocument(itemDocumentId);
+        this.ItemDocsService.GetItemDocument(itemDocumentId, ForView);
 
     }
     public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; // 

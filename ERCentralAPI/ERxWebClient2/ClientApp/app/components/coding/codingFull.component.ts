@@ -16,6 +16,8 @@ import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SelectEvent } from '@progress/kendo-angular-layout';
+import { WebViewerComponent } from '../PDFTron/webviewer.component';
+
 
 @Component({
    
@@ -80,6 +82,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
+    public get HasDocForView(): boolean{
+        if (this.ItemDocsService.CurrentDoc) return true;
+        else return false;
+    }
+
+    @ViewChild(WebViewerComponent) private webviewer: WebViewerComponent | null =null;
+
+
+
+
+
 
     ngOnInit() {
         //console.log('init!');

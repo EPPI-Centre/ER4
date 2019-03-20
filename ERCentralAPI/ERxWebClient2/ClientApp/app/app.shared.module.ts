@@ -68,6 +68,8 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CreateNewCode/createnewcode.component';
+import { WebViewerComponent } from './components/PDFTron/webviewer.component';
+import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 
 @NgModule({
     declarations: [
@@ -116,7 +118,9 @@ import { CreateNewCodeComp } from './components/CreateNewCode/createnewcode.comp
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
-		SiteAdminEntryComponent,
+        SiteAdminEntryComponent,
+        PdfTronContainer,
+        WebViewerComponent,
 		CreateNewCodeComp
 	],
     providers: [

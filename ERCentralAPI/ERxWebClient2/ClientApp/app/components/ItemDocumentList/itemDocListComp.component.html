@@ -32,7 +32,8 @@
                     <td class="">{{ ItemDocument.title }}</td>
                     <td class="p-0 m-0 align-middle">
                         <button class="btn btn-outline-danger btn-sm" (click)="DeleteDoc(ItemDocument.itemDocumentId)">Delete</button>
-                        <button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId)">Download</button>
+                        <button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">Download</button>
+                        <button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">View</button>
                     </td>
                 </tr>
             </tbody>

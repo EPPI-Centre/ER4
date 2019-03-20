@@ -164,10 +164,11 @@
 
   <ItemGroup>
     <Content Include="ClientApp\app\components\assets\sales.json" />
+    <Content Include="ClientApp\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\app\components\NewFolder\" />
+    <Folder Include="ClientApp\app\components\PDFTron\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
@@ -218,6 +219,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\ViewOptions.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\webviewer-demo-annotated.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
