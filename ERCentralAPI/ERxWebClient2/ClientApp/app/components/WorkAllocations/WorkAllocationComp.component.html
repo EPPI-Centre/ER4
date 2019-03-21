@@ -282,7 +282,40 @@
 							<td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
 							<td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
 							<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
-							<td class="p-0"><button class="btn btn-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+							<td class="p-0"><button class="btn btn-outline-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="card  col-sm-12 col-md-12 px-1">
+			<h5 class="m-1 p-1 font-weight-bold">Comparisons</h5>
+			<div style="max-height:340px;overflow:auto;">
+				<table class='card-body table table-striped bg-light' *ngIf="_comparisonsService.Comparisons">
+					<thead>
+						<tr class="small">
+							<th>Codes applied from this set</th>
+							<th>Reviewer 1</th>
+							<th>Reviewer 2</th>
+							<th>(Reviewer 3)</th>
+							<th>(Only studies with this code)</th>
+							<th>Date</th>
+							<th>Quick Report</th>
+							<th>stats</th>
+							<th>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="small" *ngFor="let item of _comparisonsService.Comparisons; let i = index">
+							<td>{{ item.setName }}</td>
+							<td>{{ item.contactName1 }}</td>
+							<td>{{ item.contactName2 }}</td>
+							<td>{{ item.contactName3 }}</td>
+							<td>{{ item.attributeName}}</td>
+							<td>{{ item.comparisonDate }}</td>
+							<td><button class="btn btn-outline-success ">&nbsp; Run &nbsp;</button></td>
+							<td><button class="btn btn-outline-info ">&nbsp; View &nbsp;</button></td>
+							<td><button class="btn btn-outline-danger ">&nbsp; Delete &nbsp;</button></td>
 						</tr>
 					</tbody>
 				</table>
@@ -290,3 +323,4 @@
 		</div>
 	</div>
 </div>
+

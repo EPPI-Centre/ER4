@@ -60,6 +60,13 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCreateCodesCommand.cs" Link="Models\ClassifierCreateCodesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierModel.cs" Link="Models\ClassifierModel.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierModelList.cs" Link="Models\ClassifierModelList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Comparison.cs" Link="Models\Comparison.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonAttribute.cs" Link="Models\ComparisonAttribute.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonAttributeList.cs" Link="Models\ComparisonAttributeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonCompleteCommand.cs" Link="Models\ComparisonCompleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonList.cs" Link="Models\ComparisonList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonScreeningCompleteCommand.cs" Link="Models\ComparisonScreeningCompleteCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ComparisonStatsCommand.cs" Link="Models\ComparisonStatsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Contact.cs" Link="Models\Contact.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\GetLatestUpdateMsgCommand.cs" Link="Models\GetLatestUpdateMsgCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ImportItems.cs" Link="Models\ImportItems.cs" />

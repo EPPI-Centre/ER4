@@ -1,0 +1,70 @@
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
+	<form class="row" #NewCodeFromCollaborate="ngForm">
+		<div class="col-12">
+			<div class="form-group">
+				<label for="Codeset_TypeCollaborate">Reviewer 1</label>
+				<select class="col-md-6 form-control" name="NewCode_TypeCollaborate"
+						[disabled]="!HasWriteRights" (change)="SetReviewer1($event.target.value)">
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+							 [value]="member">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<label for="Codeset_TypeCollaborate">Reviewer 2</label>
+				<select class="col-md-6 form-control" name="NewCode_TypeCollaborate"
+						[disabled]="!HasWriteRights" (change)="SetReviewer2($event.target.value)">
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+							 [value]="member">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<label for="Codeset_TypeCollaborate">Reviewer 3 (optional)</label>
+				<select class="col-md-6 form-control" name="NewCode_TypeCollaborate"
+						[disabled]="!HasWriteRights" (change)="SetReviewer3($event.target.value)">
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+							 [value]="member">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<label for="Codeset_TypeCollaborate">Code set</label>
+				<select class="col-md-6 form-control" name="NewCode_TypeCollaborate"
+						[disabled]="!HasWriteRights" (change)="SetCodeSet($event.target.value)">
+					<option *ngFor="let item of CodeSets"  [value]="item">
+						{{item.name}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
+						[disabled]="!HasWriteRights">
+					Set filter (optional)
+				</button>
+			</div>
+		</div>
+		<div class="col-12">
+			<button type="submit" (click)="CreateNewComparison()" class="btn btn-success ml-2 mr-2"
+					[disabled]="!HasWriteRights && CanCreateComparison()">
+				Create Comparison
+			</button>
+			<button class="btn btn-outline-secondary ml-1"
+					(click)="CancelActivity()" style="width:200px;">
+				Cancel
+			</button>
+		</div>
+	</form>
+</div>
+ 

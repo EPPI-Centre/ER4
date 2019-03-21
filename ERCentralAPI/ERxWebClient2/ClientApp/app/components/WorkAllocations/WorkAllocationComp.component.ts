@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
 import { NgForm, FormsModule  } from '@angular/forms';
 import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
+import { ComparisonsService } from '../services/comparisons.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -30,7 +31,8 @@ export class WorkAllocationComp implements OnInit {
 		public itemListService: ItemListService,
 		public confirmationDialogService: ConfirmationDialogService,
 		public _reviewSetsService: ReviewSetsService,
-		public _reviewSetsEditingService : ReviewSetsEditingService
+		public _reviewSetsEditingService: ReviewSetsEditingService,
+		public _comparisonsService: ComparisonsService
     ) { }
 
 	
@@ -536,6 +538,7 @@ export class WorkAllocationComp implements OnInit {
         this.getMembers();
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
+		this._comparisonsService.FetchAll();
 	}
 	public getCodeSets() {
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')

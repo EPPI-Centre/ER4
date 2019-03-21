@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ComparisonCompleteCommand() { }
 #else
-        protected ComparisonCompleteCommand() { }
+        public ComparisonCompleteCommand() { }
 #endif
 
         private int _comparisonId;
