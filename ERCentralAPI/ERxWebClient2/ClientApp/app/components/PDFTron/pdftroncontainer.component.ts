@@ -16,7 +16,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         private ItemDocsService: ItemDocsService
     ) { }
     @ViewChild(WebViewerComponent) private webviewer!: WebViewerComponent;
-
+    private viewerInstance: any;
     ngOnInit() {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
         this.wvDocumentLoadedHandler = this.wvDocumentLoadedHandler.bind(this);
@@ -27,26 +27,29 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         this.webviewer.getElement().addEventListener('documentLoaded', this.wvDocumentLoadedHandler);
         
     }
-    async loadDoc(viewerInstance: any) {
+    async loadDoc() {
+        if (!this.viewerInstance) {
+            //return?
+        }
         let counter: number = 0;
         
-        console.log("viewerInstance ", viewerInstance);
-        while (!viewerInstance == undefined && counter < 3 * 120) {
+        console.log("viewerInstance ", this.viewerInstance);
+        while ((!this.viewerInstance ||!this.ItemDocsService.CurrentDoc) && counter < 3 * 120) {
             counter++;
             await Helpers.Sleep(200);
             console.log("waiting, cycle n: " + counter);
         }
-        if (this.ItemDocsService.CurrentDoc) viewerInstance.loadDocument(this.ItemDocsService.CurrentDoc, { filename: 'myfile.pdf' });
+        if (this.ItemDocsService.CurrentDoc) this.viewerInstance.loadDocument(this.ItemDocsService.CurrentDoc);
         else console.log("I'm giving up :-(");
     }
     wvReadyHandler(): void {
         // now you can access APIs through this.webviewer.getInstance()
         //this.webviewer.getInstance().openElement('notesPanel');
         // see https://www.pdftron.com/documentation/web/guides/ui/apis for the full list of APIs
-        var viewerInstance = this.webviewer.getInstance();
-        viewerInstance.setHeaderItems(function (header: any) {
+        this.viewerInstance = this.webviewer.getInstance();
+        this.viewerInstance.setHeaderItems(function (header: any) {
             var items = header.getItems();
-            console.log('items: ', items);
+            //console.log('items: ', items);
             items.splice(0, 3);
             items.splice(19, 1);
             items.splice(5, 13);
@@ -54,7 +57,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             header.update(items);
             console.log('items: ', header.getItems());
         });
-        viewerInstance.disableTools(['AnnotationEdit',
+        this.viewerInstance.disableTools(['AnnotationEdit',
         //    'AnnotationCreateSticky',
         //    'AnnotationCreateFreeHand',
         //    'AnnotationCreateTextHighlight',
@@ -80,13 +83,13 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         });
 
         // or from the docViewer instance
-        viewerInstance.docViewer.on('annotationsLoaded', () => {
+        this.viewerInstance.docViewer.on('annotationsLoaded', () => {
             console.log('annotations loaded');
         });
 
         
 
-        var docViewer = viewerInstance.docViewer;
+        var docViewer = this.viewerInstance.docViewer;
         var annotManager = docViewer.getAnnotationManager();
         annotManager.on('annotationChanged', function (event: any, annotations: any, action: any ) {
             if (action === 'add') {
@@ -101,7 +104,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 console.log('annotation page number', annot.PageNumber);
             });
         });
-        this.loadDoc(viewerInstance);
+        this.loadDoc();
     }
 
     wvDocumentLoadedHandler(): void {

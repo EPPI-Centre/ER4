@@ -15,8 +15,10 @@ import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { SelectEvent } from '@progress/kendo-angular-layout';
+import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { WebViewerComponent } from '../PDFTron/webviewer.component';
+import { Helpers } from '../helpers/HelperMethods';
+import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 
 
 @Component({
@@ -49,11 +51,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     @ViewChild('ArmsCmp')
     private ArmsCompRef!: any;
     @ViewChild('ItemDetailsCmp')
-    private ItemDetailsCompRef!: any;
+    private ItemDetailsCompRef!: any; 
+
+    @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
+    @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
 
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
+    private subGotPDFforViewing: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
     
     public get itemID(): number {
@@ -83,12 +89,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
     public get HasDocForView(): boolean{
+        //console.log("hasDocForView", this.ItemDocsService.CurrentDoc);
         if (this.ItemDocsService.CurrentDoc) return true;
         else return false;
     }
 
-    @ViewChild(WebViewerComponent) private webviewer: WebViewerComponent | null =null;
-
+   
 
 
 
@@ -120,11 +126,25 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 }
             );
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab())
+
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 
 
+    }
+    async CheckAndMoveToPDFTab() {
+        //console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
+        if (this.HasDocForView) {
+            //console.log("CheckAndMoveToPDFTab2");
+            if (this.pdftroncontainer) this.pdftroncontainer.loadDoc();
+            if (this.tabstrip) {
+                //console.log("CheckAndMoveToPDFTab3");
+                await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
+                this.tabstrip.selectTab(2);
+            }
+        }
     }
     public EditItem() {
         this.router.navigate(['EditItem', this.itemID.toString() + "?return=itemcoding/" + this.itemID.toString()]);
@@ -145,8 +165,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.IsScreening = false;
             this.GetItemCoding();
             //this.ItemListService.eventChange(this.itemID);
-            console.log('fill in arms here teseroo1');
-
+            //console.log('fill in arms here teseroo1');
 		}
 		//console.log('this is item: ' + this.item);
     }
@@ -175,6 +194,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.item = this.PriorityScreeningService.CurrentItem;
         //this.itemID = this.item.itemId;
         this.GetItemCoding();
+        if (this.tabstrip) this.tabstrip.selectTab(0);
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
@@ -427,6 +447,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
     ItemChanged() {
+        if (this.tabstrip) this.tabstrip.selectTab(0);
         this.WipeHighlights();
         this.SetHighlights();
     }
@@ -457,6 +478,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
+        if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
     }
 }
 

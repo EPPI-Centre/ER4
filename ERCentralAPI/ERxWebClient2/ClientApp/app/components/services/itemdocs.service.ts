@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -23,7 +23,7 @@ export class ItemDocsService {
     ) {
        
     }
-
+    @Output() GotDocument = new EventEmitter();
     public _itemDocs: ItemDocument[] = []; 
     private currentItemId: number = 0;
     private currentDocBin: Blob | null = null;
@@ -67,9 +67,12 @@ export class ItemDocsService {
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
                         blob => {
-                            this.currentDocBin = blob;
-                            this.currentDocBinId = itemDocumentId;
-                            if (!ForView) {
+                            if (ForView) {
+                                this.currentDocBin = blob;
+                                this.currentDocBinId = itemDocumentId;
+                                this.GotDocument.emit();
+                            }
+                            else {
                                 if (window.navigator && window.navigator.msSaveOrOpenBlob) {
                                     window.navigator.msSaveOrOpenBlob(blob);
                                 }

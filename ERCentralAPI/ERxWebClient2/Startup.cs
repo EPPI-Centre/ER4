@@ -76,7 +76,7 @@ namespace ERxWebClient2
             }
             app.UseAuthentication();
             var provider = new FileExtensionContentTypeProvider();
-            // Add new mappings
+            // Add new mappings required for the PDF viewer.
             provider.Mappings[".res"] = "application/octet-stream";
             provider.Mappings[".pexe"] = "application/x-pnacl";
             provider.Mappings[".nmf"] = "application/octet-stream";
