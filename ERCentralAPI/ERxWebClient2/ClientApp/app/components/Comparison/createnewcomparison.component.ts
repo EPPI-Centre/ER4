@@ -9,6 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subscription } from 'rxjs';
 import { Review } from '../services/review.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
+import { NONE_TYPE } from '@angular/compiler/src/output/output_ast';
 
 
 @Component({
@@ -36,7 +37,7 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 	public selectedReviewer2: Contact = new Contact();
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public selectedFilter: SetAttribute = new SetAttribute();
+	public selectedFilter!: singleNode;
 	@Output() emitterCancel = new EventEmitter();
 
 
@@ -113,22 +114,50 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 		}
 
 	}
+	setOptionalMember(member: Contact) {
+
+		this.selectedReviewer3.contactId = member.contactId;
+		this.selectedReviewer3.contactName = member.contactName;
+	
+	}
+	setsFilter() {
+
+		if (this._reviewSetsService.selectedNode && this._reviewSetsService.selectedNode.nodeType == "SetAttribute") {
+			this.selectedFilter = this._reviewSetsService.selectedNode as SetAttribute;
+		} 
+
+	}
 	CreateNewComparison() {
 
 		let newComparison: Comparison = new Comparison();
-		newComparison.contactId1 = this.selectedReviewer1.contactId;
-		newComparison.contactName1 = this.selectedReviewer1.contactName;
-		newComparison.contactId2 = this.selectedReviewer2.contactId;
-		newComparison.contactName2 = this.selectedReviewer2.contactName;
-		if (this.selectedReviewer3 != null) { newComparison.contactId3 = this.selectedReviewer3.contactId; }
-		if (this.selectedReviewer3 != null) { newComparison.contactName3 = this.selectedReviewer3.contactName; }
+		let tempReviewer = this._reviewInfoService.Contacts;
+		if (this.selectedReviewer1.contactName == '') {
+			newComparison.contactId1 = tempReviewer[0].contactId;
+			newComparison.contactName1 = tempReviewer[0].contactName;
+		} else {
+			newComparison.contactId1 = this.selectedReviewer1.contactId;
+			newComparison.contactName1 = this.selectedReviewer1.contactName;
+		}
+		if (this.selectedReviewer2.contactName == '') {
+			newComparison.contactId2 = tempReviewer[0].contactId;
+			newComparison.contactName2 = tempReviewer[0].contactName;
+		} else {
+			newComparison.contactId2 = this.selectedReviewer2.contactId;
+			newComparison.contactName2 = this.selectedReviewer2.contactName;
+		}
+
 		if (this.selectedCodeSet) {
 			newComparison.setId = this.selectedCodeSet.set_id;
 			newComparison.setName  = this.selectedCodeSet.set_name;
 		}
-		if (this.selectedFilter) {
-			newComparison.inGroupAttributeId = this.selectedFilter.attribute_id;
-			newComparison.attributeName = this.selectedFilter.attribute_name;
+		if (this.selectedReviewer3.contactName != '') {
+			newComparison.contactId3 = this.selectedReviewer3.contactId;
+			newComparison.contactName3 = this.selectedReviewer3.contactName
+		}
+		if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
+			let temp = this.selectedFilter as SetAttribute;
+			newComparison.inGroupAttributeId = temp.attribute_id ;
+			newComparison.attributeName = temp.attribute_name;
 		}
 
 		console.log('hello' + newComparison);
@@ -171,9 +200,11 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 		this.getMembers();
 		this.getCodeSets();
 		this.getComparisons();
+		this.selectedCodeSet = this.CodeSets[0];
 	}
 	ngOnInit() {
 		this.RefreshData();
+		
 	}
 	ngOnDestroy() {
 

@@ -37,10 +37,11 @@
 			</div>
 		</div>
 		<div class="col-12">
-			<div class="form-group">
+			<div *ngIf="CodeSets" class="form-group">
 				<label for="codeSET">Code set</label>
-				<select class="col-md-6 form-control" name="codeSET" [disabled]="!HasWriteRights" [(ngModel)]="selectedCodeSet" [ngModelOptions]="{standalone: true}">
-					<option *ngFor="let item of _reviewSetsService.ReviewSets" name="codeSET"
+				<select class="col-md-6 form-control" [disabled]="!HasWriteRights"
+						name="codeSET" [(ngModel)]="selectedCodeSet">
+					<option *ngFor="let item of CodeSets" name="codeSET"
 							[ngValue]="item"  [selected]="item == selectedCodeSet">
 						{{item.name}}
 					</option>
@@ -49,8 +50,8 @@
 		</div>
 		<div class="col-12">
 			<div class="form-group">
-				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
-						[disabled]="!HasWriteRights" [(ngModel)]="selectedFilter">
+				<button type="submit" class="btn btn-outline-info ml-2 mr-2" 
+						[disabled]="!HasWriteRights" (click)="setsFilter()">
 					Set filter (optional)
 				</button>
 			</div>
