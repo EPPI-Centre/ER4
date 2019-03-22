@@ -29,29 +29,17 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 		public _reviewSetsEditingService: ReviewSetsEditingService
 	) { }
 
-	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
+	
 	public PanelName: string = '';
 	public CodeSets: ReviewSet[] = [];
 	public selectedReviewer1: Contact = new Contact();
 	public selectedReviewer2: Contact = new Contact();
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
+	public selectedFilter: SetAttribute = new SetAttribute();
 	@Output() emitterCancel = new EventEmitter();
-	SetReviewer1(member: any) {
-		this.selectedReviewer1 = member;
-		alert(this.selectedReviewer1);
-	}
-	SetReviewer2(member: any) {
-		this.selectedReviewer2 = member;
 
-	}
-	SetReviewer3(member: any) {
-		this.selectedReviewer3 = member;
 
-	}
-	SetCodeSet(codeset: any) {
-		this.selectedCodeSet = codeset;
-	}
 	getMembers() {
 
 		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
@@ -136,34 +124,16 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 		if (this.selectedReviewer3 != null) { newComparison.contactName3 = this.selectedReviewer3.contactName; }
 		if (this.selectedCodeSet) {
 			newComparison.setId = this.selectedCodeSet.set_id;
+			newComparison.setName  = this.selectedCodeSet.set_name;
 		}
-		//IN_GROUP_ATTRIBUTE_ID
-		//SET_ID
-		console.log(newComparison);
+		if (this.selectedFilter) {
+			newComparison.inGroupAttributeId = this.selectedFilter.attribute_id;
+			newComparison.attributeName = this.selectedFilter.attribute_name;
+		}
+
+		console.log('hello' + newComparison);
 		this.__comparisonsService.CreateComparison(newComparison);
 
-		//.then(
-		//	success => {
-		//		if (success && this.CurrentNode) {
-		//			this.CurrentNode.attributes.push(success);
-		//			this._reviewSetsService.GetReviewSets();
-
-		//		}
-		//		this._NewCode = new SetAttribute();
-		//		this.CancelActivity();
-
-		//	},
-		//	error => {
-		//		this.CancelActivity();
-		//		console.log("error saving new code:", error, this._NewCode);
-
-		//	})
-		//.catch(
-		//	error => {
-		//		console.log("error(catch) saving new code:", error, this._NewCode);
-		//		this.CancelActivity();
-		//	}
-		//);
 	}
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {

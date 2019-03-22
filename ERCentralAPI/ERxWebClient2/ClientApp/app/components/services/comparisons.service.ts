@@ -56,7 +56,7 @@ export class ComparisonsService extends BusyAwareService {
 	public CreateComparison(comparison: Comparison) {
 
 		this._BusyMethods.push("CreateComparison");
-		alert(comparison.contactName1);
+		console.log('inside the service now' + JSON.stringify(comparison));
 		this._httpC.post<Comparison>(this._baseUrl +
 			'api/Comparisons/CreateComparison', comparison)
 			.subscribe(() => {
