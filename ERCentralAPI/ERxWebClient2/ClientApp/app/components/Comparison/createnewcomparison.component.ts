@@ -1,15 +1,13 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subscription } from 'rxjs';
-import { Review } from '../services/review.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
-import { NONE_TYPE } from '@angular/compiler/src/output/output_ast';
 
 
 @Component({
@@ -18,7 +16,7 @@ import { NONE_TYPE } from '@angular/compiler/src/output/output_ast';
     providers: []
 })
 
-export class CreateNewComparisonComp implements OnInit, OnDestroy {
+export class ComparisonComp implements OnInit {
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _reviewSetsService: ReviewSetsService,
@@ -92,22 +90,14 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
 		}
 	}
-	private _NewReviewSet: ReviewSet = new ReviewSet();
-	public get NewReviewSet(): ReviewSet {
-		return this._NewReviewSet;
-	}
-	private _NewCode: SetAttribute = new SetAttribute();
-	public get CurrentNode(): singleNode | null {
-		if (!this._reviewSetsService.selectedNode) return null;
-		else return this._reviewSetsService.selectedNode;
-	}
-	public get NewCode(): SetAttribute {
-		return this._NewCode;
-	}
 	CanCreateComparison(): boolean {
 
-		if (this.selectedReviewer1.contactName != '' && this.selectedReviewer2.contactName != ''
-			&& this.selectedCodeSet && this.CanWrite()) {
+		if (this.selectedReviewer1.contactName != '' &&
+			this.selectedReviewer2.contactName != '' &&
+			this.selectedCodeSet != null &&
+			this.selectedCodeSet.set_name != ''
+			&& this.CanWrite())
+		{
 			return true;
 		} else {
 			return false;
@@ -126,6 +116,10 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 			this.selectedFilter = this._reviewSetsService.selectedNode as SetAttribute;
 		} 
 
+	}
+	public get CurrentNode(): singleNode | null {
+		if (!this._reviewSetsService.selectedNode) return null;
+		else return this._reviewSetsService.selectedNode;
 	}
 	CreateNewComparison() {
 
@@ -154,16 +148,20 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 			newComparison.contactId3 = this.selectedReviewer3.contactId;
 			newComparison.contactName3 = this.selectedReviewer3.contactName
 		}
-		if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
-			let temp = this.selectedFilter as SetAttribute;
-			newComparison.inGroupAttributeId = temp.attribute_id ;
-			newComparison.attributeName = temp.attribute_name;
+		if (this.selectedFilter != null && this.selectedFilter != undefined) {
+
+			if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
+				let temp = this.selectedFilter as SetAttribute;
+				newComparison.inGroupAttributeId = temp.attribute_id ;
+				newComparison.attributeName = temp.attribute_name;
+				}
 		}
 
-		console.log('hello' + newComparison);
+		//console.log('hello' + newComparison);
 		this.__comparisonsService.CreateComparison(newComparison);
 
 	}
+
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
@@ -206,15 +204,12 @@ export class CreateNewComparisonComp implements OnInit, OnDestroy {
 		this.RefreshData();
 		
 	}
-	ngOnDestroy() {
-
-	}
-    ngAfterViewInit() {
-
+	Clear() {
+		this.selectedCodeSet = new ReviewSet();
+		this.selectedFilter = new SetAttribute();
+		this.selectedReviewer1 = new Contact();
+		this.selectedReviewer2 = new Contact();
+		this.selectedReviewer3 = new Contact();
 	}
 	 
-}
-export interface kvSelectFrom {
-	key: number;
-	value: string;
 }

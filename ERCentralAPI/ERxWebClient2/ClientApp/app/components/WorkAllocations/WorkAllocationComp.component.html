@@ -230,6 +230,7 @@
 	</div>
 </div>
 <div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12 col-md-12 p-0 mb-1">
+	&nbsp;&nbsp;&nbsp; Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
 	<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
 </div>
 <div id="NewComparisonSection" *ngIf="PanelName == 'NewComparisonSection'" class="col-12 col-md-12 p-0 mb-1">
@@ -313,9 +314,9 @@
 							<td>{{ item.contactName3 }}</td>
 							<td>{{ item.attributeName}}</td>
 							<td>{{ item.comparisonDate }}</td>
-							<td><button class="btn btn-outline-success ">&nbsp; Run &nbsp;</button></td>
-							<td><button class="btn btn-outline-info ">&nbsp; View &nbsp;</button></td>
-							<td><button class="btn btn-outline-danger ">&nbsp; Delete &nbsp;</button></td>
+							<td><button class="btn btn-outline-success " (click)="NotImplemented()">&nbsp; Run &nbsp;</button></td>
+							<td><button class="btn btn-outline-info " (click)="NotImplemented()">&nbsp; View &nbsp;</button></td>
+							<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
 						</tr>
 					</tbody>
 				</table>

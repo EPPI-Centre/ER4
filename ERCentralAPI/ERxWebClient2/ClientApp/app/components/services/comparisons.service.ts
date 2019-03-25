@@ -1,13 +1,6 @@
-import { Component, Inject, Injectable, EventEmitter, Output, Input } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { Item } from './ItemList.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSetsService } from './ReviewSets.service';
 
@@ -30,12 +23,17 @@ export class ComparisonsService extends BusyAwareService {
 	private _Comparisons: Comparison[] = [];
 
 	public get Comparisons(): Comparison[] {
-
-		return this._Comparisons;
+		if (this._Comparisons) {
+			return this._Comparisons;
+		} else {
+			return [];
+		}
 	}
 
 	public set Comparisons(comparisons: Comparison[]) {
-		this._Comparisons = comparisons;
+		if (comparisons) {
+			this._Comparisons = comparisons;
+		}
     }
  
     
@@ -45,23 +43,22 @@ export class ComparisonsService extends BusyAwareService {
 			.subscribe(result => {
 
 				this._Comparisons = result;
-				this.ListLoaded.emit();
+				//this.ListLoaded.emit();
 
         }, error => { this.modalService.SendBackHomeWithError(error); }
         );
-
 	}
 
 
 	public CreateComparison(comparison: Comparison) {
 
 		this._BusyMethods.push("CreateComparison");
-		console.log('inside the service now' + JSON.stringify(comparison));
+		//console.log('inside the service now' + JSON.stringify(comparison));
 		this._httpC.post<Comparison>(this._baseUrl +
 			'api/Comparisons/CreateComparison', comparison)
 			.subscribe(() => {
 
-					this.FetchAll();
+				this.FetchAll();
 				this.RemoveBusy("CreateComparison");
 
 			},

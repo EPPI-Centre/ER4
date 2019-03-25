@@ -38,12 +38,12 @@ namespace ERxWebClient2.Controllers
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<ComparisonList> dp = new DataPortal<ComparisonList>();
 				ComparisonList result = dp.Fetch();
-
+				
                 return Ok(result);
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "ComparisonList data portal error");
+                _logger.LogException(e, "Comparison List data portal error");
                 throw;
             }
 
@@ -58,20 +58,21 @@ namespace ERxWebClient2.Controllers
 				if (SetCSLAUser4Writing())
 				{
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-					DataPortal<Comparison> dp = new DataPortal<Comparison>();
-					SingleCriteria<Comparison, int> criteria = new SingleCriteria<Comparison, int>(comparisonId.Value);
-					Comparison result = dp.Fetch(criteria);
+					DataPortal<ComparisonList> dp = new DataPortal<ComparisonList>();
+					ComparisonList result = dp.Fetch();
 
-					result.Delete();
-					result = result.Save();
+					Comparison currentComparison = result.FirstOrDefault(x => x.ComparisonId == comparisonId.Value);
 
-					return Ok(result);
+					currentComparison.Delete();
+					currentComparison = currentComparison.Save();
+
+					return Ok();
 				}
 				else return Forbid();
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparisondata portal error");
+				_logger.LogException(e, "Comparison delete data portal error");
 				throw;
 			}
 		}
@@ -100,7 +101,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Assign Work Allocation data portal error");
+				_logger.LogException(e, "Comparison create data portal error");
 				throw;
 			}
 		}

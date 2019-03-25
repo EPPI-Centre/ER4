@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
 import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
 import { NgForm, FormsModule  } from '@angular/forms';
 import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
-import { ComparisonsService } from '../services/comparisons.service';
+import { ComparisonsService, Comparison } from '../services/comparisons.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -88,7 +88,8 @@ export class WorkAllocationComp implements OnInit {
 		this._allocateOptions = value;
    
 	}
-    public get HasWriteRights(): boolean {
+	public get HasWriteRights(): boolean {
+
         return this.ReviewerIdentityServ.HasWriteRights;
     }
 	private _allocateInclOrExcl: string = 'true';
@@ -531,8 +532,34 @@ export class WorkAllocationComp implements OnInit {
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
+	public openConfirmationDialogDeleteComp(comparisonId: number) {
+
+		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a comparison', false, '')
+			.then(
+				(confirmed: any) => {
+
+					if (confirmed) {
+
+						this.DeleteComparison(comparisonId);
+
+					} else {
+						//alert('did not confirm');
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+
+
+	}
 	removeWarning(workAllocationId: number) {
 		this.openConfirmationDialogDeleteWA(workAllocationId);
+	}
+	removeComparisonWarning(comparisonId: number) {
+		alert('not implemented');
+//		this.openConfirmationDialogDeleteComp(comparisonId);
+	}
+	NotImplemented() {
+		alert('not implemented');
 	}
     public RefreshData() {
         this.getMembers();
@@ -638,6 +665,10 @@ export class WorkAllocationComp implements OnInit {
 	DeleteWorkAllocation(workAllocationId: number) {
 
 		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
+	}
+	DeleteComparison(comparisonId: number) {
+
+		this._comparisonsService.DeleteComparison(comparisonId);
 	}
 	LoadGivenList(workAllocationId: number, subtype: string) {
 				

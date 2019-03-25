@@ -1,5 +1,5 @@
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
-	<form class="row" #NewCodeFromCollaborate="ngForm">
+	<form class="row" >
 		<div class="col-12">
 			<div class="form-group">
 				<label for="rev1">Reviewer 1</label>
@@ -49,11 +49,14 @@
 			</div>
 		</div>
 		<div class="col-12">
-			<div class="form-group">
-				<button type="submit" class="btn btn-outline-info ml-2 mr-2" 
+			<div class="form-group col-12 row">
+				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
 						[disabled]="!HasWriteRights" (click)="setsFilter()">
 					Set filter (optional)
 				</button>
+				<div *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'" class="col-4">
+					Current code Name: <strong>{{CurrentNode.name}}</strong><br />
+				</div>
 			</div>
 		</div>
 		<div class="col-12">
