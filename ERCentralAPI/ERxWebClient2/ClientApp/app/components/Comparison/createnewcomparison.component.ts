@@ -125,38 +125,40 @@ export class ComparisonComp implements OnInit {
 
 		let newComparison: Comparison = new Comparison();
 		let tempReviewer = this._reviewInfoService.Contacts;
-		if (this.selectedReviewer1.contactName == '') {
-			newComparison.contactId1 = tempReviewer[0].contactId;
-			newComparison.contactName1 = tempReviewer[0].contactName;
-		} else {
-			newComparison.contactId1 = this.selectedReviewer1.contactId;
-			newComparison.contactName1 = this.selectedReviewer1.contactName;
-		}
-		if (this.selectedReviewer2.contactName == '') {
-			newComparison.contactId2 = tempReviewer[0].contactId;
-			newComparison.contactName2 = tempReviewer[0].contactName;
-		} else {
-			newComparison.contactId2 = this.selectedReviewer2.contactId;
-			newComparison.contactName2 = this.selectedReviewer2.contactName;
-		}
+		if (tempReviewer) {
 
-		if (this.selectedCodeSet) {
-			newComparison.setId = this.selectedCodeSet.set_id;
-			newComparison.setName  = this.selectedCodeSet.set_name;
-		}
-		if (this.selectedReviewer3.contactName != '') {
-			newComparison.contactId3 = this.selectedReviewer3.contactId;
-			newComparison.contactName3 = this.selectedReviewer3.contactName
-		}
-		if (this.selectedFilter != null && this.selectedFilter != undefined) {
+			if (this.selectedReviewer1.contactName == '') {
+				newComparison.contactId1 = tempReviewer[0].contactId;
+				newComparison.contactName1 = tempReviewer[0].contactName;
+			} else {
+				newComparison.contactId1 = this.selectedReviewer1.contactId;
+				newComparison.contactName1 = this.selectedReviewer1.contactName;
+			}
+			if (this.selectedReviewer2.contactName == '') {
+				newComparison.contactId2 = tempReviewer[0].contactId;
+				newComparison.contactName2 = tempReviewer[0].contactName;
+			} else {
+				newComparison.contactId2 = this.selectedReviewer2.contactId;
+				newComparison.contactName2 = this.selectedReviewer2.contactName;
+			}
 
-			if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
-				let temp = this.selectedFilter as SetAttribute;
-				newComparison.inGroupAttributeId = temp.attribute_id ;
-				newComparison.attributeName = temp.attribute_name;
-				}
-		}
+			if (this.selectedCodeSet) {
+				newComparison.setId = this.selectedCodeSet.set_id;
+				newComparison.setName  = this.selectedCodeSet.set_name;
+			}
+			if (this.selectedReviewer3.contactName != '') {
+				newComparison.contactId3 = this.selectedReviewer3.contactId;
+				newComparison.contactName3 = this.selectedReviewer3.contactName
+			}
+			if (this.selectedFilter != null && this.selectedFilter != undefined) {
 
+				if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
+					let temp = this.selectedFilter as SetAttribute;
+					newComparison.inGroupAttributeId = temp.attribute_id ;
+					newComparison.attributeName = temp.attribute_name;
+					}
+			}
+		}
 		//console.log('hello' + newComparison);
 		this.__comparisonsService.CreateComparison(newComparison);
 
