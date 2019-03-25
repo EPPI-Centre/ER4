@@ -177,10 +177,17 @@ export class WorkAllocationComp implements OnInit {
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
 		}
 	}
+	getStatistics(comparisonId: number) {
+
+		if (this._comparisonsService && comparisonId != null) {
+			this._comparisonsService.FetchStats(comparisonId);
+		}
+	}
     SetRelevantDropDownValues(selection: number) {
         console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
-        if (ind > -1) this.selectedAllocated = this.AllocateOptions[ind];
+		if (ind > -1) this.selectedAllocated = this.
+			AllocateOptions[ind];
         else this.selectedAllocated = this.AllocateOptions[0];
 	}
 	private _NewReviewSet: ReviewSet = new ReviewSet();

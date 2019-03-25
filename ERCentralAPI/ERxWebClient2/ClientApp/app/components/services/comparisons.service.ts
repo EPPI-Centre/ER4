@@ -21,6 +21,7 @@ export class ComparisonsService extends BusyAwareService {
     }
 
 	private _Comparisons: Comparison[] = [];
+	public currentComparison: Comparison = new Comparison();
 
 	public get Comparisons(): Comparison[] {
 		if (this._Comparisons) {
@@ -65,12 +66,15 @@ export class ComparisonsService extends BusyAwareService {
         );
 	}
 
-	public FetchStats() {
+	public FetchStats(ComparisonId: number ) {
 
-		this._httpC.get<ComparisonStatistics[]>(this._baseUrl + 'api/Comparisons/ComparisonStats')
+		let body = JSON.stringify({ Value: ComparisonId });
+		this._httpC.post<ComparisonStatistics[]>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)
 			.subscribe(result => {
 
 				this._Statistics = result;
+				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];
+				console.log(this._Statistics);
 
 			}, error => { this.modalService.SendBackHomeWithError(error); }
 			);

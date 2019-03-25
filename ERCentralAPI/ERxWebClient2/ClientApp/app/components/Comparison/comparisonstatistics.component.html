@@ -1,6 +1,72 @@
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
 	<h4>The statistics are based on the status of the database at the time the comparison was created</h4>
 
+	<p>
+		Number of documents coded by {{_comparisonsService.currentComparison.contactName1}}: {{_comparisonsService.Statistics.nCoded1}}
+	</p>
+	<p>
+		Number of documents coded by {{_comparisonsService.currentComparison.contactName2}}: {{_comparisonsService.Statistics.nCoded2}}
+	</p>
+	<p>
+		Number of documents coded by {{_comparisonsService.currentComparison.contactName3}}: {{_comparisonsService.Statistics.nCoded3}}
+	</p>
+	<p>
+		Number of documents coded by both {{_comparisonsService.currentComparison.contactName1}} and {{_comparisonsService.currentComparison.contactName2}}
+		: {{_comparisonsService.Statistics.n1vs2 }}
+	</p>
+	<p>
+		Number of documents coded by both {{_comparisonsService.currentComparison.contactName2}} and {{_comparisonsService.currentComparison.contactName3}}
+		: {{_comparisonsService.Statistics.n2vs3 }}
+	</p>
+	<p>
+		Number of documents coded by both {{_comparisonsService.currentComparison.contactName1}} and {{_comparisonsService.currentComparison.contactName3}}
+		: {{_comparisonsService.Statistics.n1vs3 }}
+	</p>
+
+	<table>
+		<thead>
+			<tr>
+				<th>
+					Agreements
+				</th>
+				<th>
+					Disagreements
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<button> Stuff 1</button>
+					<button> Complete</button>
+				</td>
+				<td>
+					<button> Stuff 1</button>
+					<button> Reconcile</button>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<button> Stuff 2</button>
+					<button> Complete</button>
+				</td>
+				<td>
+					<button> Stuff 2</button>
+					<button> Reconcile</button>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<button> Stuff 3</button>
+					<button> Complete</button>
+				</td>
+				<td>
+					<button> Stuff 3</button>
+					<button> Reconcile</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
 
 </div>
- 

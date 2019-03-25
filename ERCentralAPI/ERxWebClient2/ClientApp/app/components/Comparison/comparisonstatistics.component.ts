@@ -36,13 +36,6 @@ export class ComparisonStatsComp implements OnInit {
 	public selectedFilter!: singleNode;
 	@Output() emitterCancel = new EventEmitter();
 
-	getStatistics() {
-
-		if (!this._comparisonsService.Statistics || this._comparisonsService.Statistics.length <= 0) {
-			this._comparisonsService.FetchStats();
-		}
-	}
-
 	//getMembers() {
 
 	//	if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
@@ -163,7 +156,7 @@ export class ComparisonStatsComp implements OnInit {
 		//this.getMembers();
 		//this.getCodeSets();
 		//this.getComparisons();
-		this.getStatistics();
+		//this.getStatistics();
 		this.selectedCodeSet = this.CodeSets[0];
 	}
 	ngOnInit() {
