@@ -18,7 +18,6 @@ import { Review } from './review.service';
 })
 
 export class ItemCodingService extends BusyAwareService {
-    @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -27,9 +26,11 @@ export class ItemCodingService extends BusyAwareService {
     ) { super(); }
 
 
+    @Output() DataChanged = new EventEmitter();
+    @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
-
+    private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
 
     public get ItemCodingList(): ItemSet[] {
         //if (this._ItemCodingList.length == 0) {
@@ -49,7 +50,11 @@ export class ItemCodingService extends BusyAwareService {
         this._ItemCodingList = icl;
         this.Save();
     }
-        
+    public get CurrentItemAttPDFCoding(): ItemAttPDFCoding {
+        return this._CurrentItemAttPDFCoding;
+    }
+
+
     public Fetch(ItemId: number) {
         this._BusyMethods.push("Fetch");
         //this.itemID.next(ItemId); 
@@ -70,6 +75,25 @@ export class ItemCodingService extends BusyAwareService {
                 this.modalService.SendBackHomeWithError(error);
             }
             , () => { this.RemoveBusy("Fetch");}
+            );
+    }
+
+    public FetchItemAttPDFCoding(criteria: ItemAttPDFCodingCrit) {
+        this._BusyMethods.push("FetchItemAttPDFCoding");
+        //this.itemID.next(ItemId); 
+        //console.log('FetchCoding');
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+            criteria).subscribe(result => {
+                console.log("FetchItemAttPDFCoding", result);
+                this._CurrentItemAttPDFCoding.Criteria = criteria;
+                this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("FetchItemAttPDFCoding");
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("FetchItemAttPDFCoding"); }
             );
     }
     
@@ -567,6 +591,14 @@ export class ItemCodingService extends BusyAwareService {
         }
         return result;
     }
+    public FindROItemAttributeByAttribute(Att: SetAttribute): ReadOnlyItemAttribute | null {
+        let set = this.FindItemSetBySetId(Att.set_id);
+        if (!set) return null;
+        for (let ROatt of set.itemAttributesList) {
+            if (ROatt.attributeId == Att.attribute_id && ROatt.armId == Att.armId) return ROatt;
+        }
+        return null;
+    }
 }
 
 export class ItemSet {
@@ -697,4 +729,17 @@ export class QuickQuestionReportOptions {
     ShowInfobox: boolean = true;
     ShowCodedText: boolean = true;
     ShowCodeIds: boolean = false;
+}
+
+export class ItemAttPDFCodingCrit {
+    constructor(itemDocId: number, itemAttId: number) {
+        this.itemDocumentId = itemDocId;
+        this.itemAttributeId = itemAttId;
+    }
+    public itemDocumentId: number = 0;
+    public itemAttributeId: number = 0;
+}
+export class ItemAttPDFCoding {
+    public Criteria: ItemAttPDFCodingCrit = new ItemAttPDFCodingCrit(0,0);
+    public ItemAttPDFCoding: any = null;
 }

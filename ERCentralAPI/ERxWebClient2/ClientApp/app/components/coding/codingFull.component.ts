@@ -94,7 +94,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return false;
     }
 
-   
+    public get IsPDFtabSelected(): boolean {
+        return (this.HelpAndFeebackContext == "itemdetails\\pdf");
+    }
 
 
 
@@ -467,6 +469,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
         else if (e.title == 'Study Arms') {
             this.HelpAndFeebackContext = "itemdetails\\arms";
+        }
+        else if (e.title == 'PDF') {
+            this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
         else {
             this.HelpAndFeebackContext = "itemdetails";

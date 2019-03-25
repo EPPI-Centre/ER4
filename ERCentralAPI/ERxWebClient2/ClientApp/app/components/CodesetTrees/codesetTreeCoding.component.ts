@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, Attribute } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -11,6 +11,8 @@ import { ArmsService } from '../services/arms.service';
 import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
 import { TreeNode } from '@angular/router/src/utils/tree';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
+import { ItemDocsService } from '../services/itemdocs.service';
 
 @Component({
     selector: 'codesetTreeCoding',
@@ -35,11 +37,14 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
        private modalService: NgbModal,
+       private ItemCodingService: ItemCodingService,
+       private ItemDocsService: ItemDocsService,
        private armsService: ArmsService
     ) { }
     //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
     public showManualModal: boolean = false;
+    @Input() InitiateFetchPDFCoding = false;
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
@@ -264,7 +269,15 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 		//alert('in node: ' + node.name)
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        
+        if (this.InitiateFetchPDFCoding && node.isSelected && this.ItemDocsService.CurrentDocId !== 0 && node.nodeType == "SetAttribute") {
+            const att = node as SetAttribute;
+            if (att) {
+                const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(att);
+                console.log("we might need to fetch PDF coding", ROatt);
+                if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId))
+            }
+            
+        }
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();

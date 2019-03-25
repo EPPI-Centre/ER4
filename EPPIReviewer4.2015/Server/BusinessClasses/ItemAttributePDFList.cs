@@ -21,8 +21,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributePDFList : DynamicBindingListBase<ItemAttributePDF>
     {
+        public ItemAttributePDFList() { }
 #if SILVERLIGHT
-    public ItemAttributePDFList() { }
+    
     public ItemAttributePDF FindPerPage(int page)
     {
 
@@ -40,8 +41,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         return false;
     }
-#else
-        private ItemAttributePDFList() { }
+
 #endif
     public static void GetItemAttributePDFList(Int64 ItemDocumentId, Int64 ItemAttributeId, EventHandler<DataPortalResult<ItemAttributePDFList>> handler)
     {
@@ -84,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class iaPDFListSelCrit : BusinessBase //Csla.CriteriaBase
     {
-        private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(typeof(iaPDFListSelCrit), new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        public static readonly PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(typeof(iaPDFListSelCrit), new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
         public Int64 ItemDocumentId
         {
             get { return ReadProperty(ItemDocumentIdProperty); }
@@ -94,7 +94,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(typeof(iaPDFListSelCrit), new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(typeof(iaPDFListSelCrit), new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
         public Int64 ItemAttributeId
         {
             get { return ReadProperty(ItemAttributeIdProperty); }

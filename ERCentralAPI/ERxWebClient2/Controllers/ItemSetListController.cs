@@ -156,6 +156,24 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult FetchPDFCoding([FromBody] MVCiaPDFListSelCrit MVCsel)
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ItemAttributePDFList> dp = new DataPortal<ItemAttributePDFList>();
+                ItemAttributePDFList result = dp.Fetch(new iaPDFListSelCrit(MVCsel.itemDocumentId, MVCsel.itemAttributeId));
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error when fetching PDFCoding: docID ={0} iaID ={1]", MVCsel.itemDocumentId, MVCsel.itemAttributeId);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     
 
@@ -221,5 +239,10 @@ namespace ERxWebClient2.Controllers
         public int setId;
         public string itemIds;
         public string searchIds;
+    }
+    public class MVCiaPDFListSelCrit
+    {
+        public Int64 itemDocumentId;
+        public Int64 itemAttributeId;
     }
 }

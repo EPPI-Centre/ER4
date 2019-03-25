@@ -25,8 +25,9 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemAttributePDF : BusinessBase<ItemAttributePDF>
     {
-#if SILVERLIGHT
         public ItemAttributePDF() { }
+#if SILVERLIGHT
+        
         public ItemAttributePDF(Int64 itemDocumentId, Int64 itemAttributeId, int page)
         {
             inPageSelections = new MobileList<InPageSelections>();
@@ -96,15 +97,11 @@ namespace BusinessLibrary.BusinessClasses
             return res;
         }
 
-#else
-        private ItemAttributePDF() 
-        {
-            inPageSelections = new MobileList<InPageSelections>();
-        }
+
         
 #endif
         private static readonly char[] charsTosnip = { '¬' };
-        private static PropertyInfo<Int64> ItemAttributePDFIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributePDFId", "ItemAttributePDFId"));
+        public static readonly PropertyInfo<Int64> ItemAttributePDFIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributePDFId", "ItemAttributePDFId"));
         public Int64 ItemAttributePDFId
         {
             get
@@ -113,7 +110,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
+        public static readonly PropertyInfo<Int64> ItemDocumentIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemDocumentId", "ItemDocumentId"));
         public Int64 ItemDocumentId
         {
             get
@@ -126,7 +123,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
+        public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
         public Int64 ItemAttributeId
         {
             get
@@ -138,7 +135,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemAttributeIdProperty, value);
             }
         }
-        private static PropertyInfo<string> ShapeTxtProperty = RegisterProperty<string>(new PropertyInfo<string>("ShapeTxt", "ShapeTxt"));
+        public static readonly PropertyInfo<string> ShapeTxtProperty = RegisterProperty<string>(new PropertyInfo<string>("ShapeTxt", "ShapeTxt"));
         public string ShapeTxt
         {
             get { return GetProperty(ShapeTxtProperty); }
@@ -148,14 +145,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<MobileList<InPageSelections>> inPageSelectionsProperty = RegisterProperty<MobileList<InPageSelections>>(new PropertyInfo<MobileList<InPageSelections>>("inPageSelections", "inPageSelections"));
+        public static readonly PropertyInfo<MobileList<InPageSelections>> inPageSelectionsProperty = RegisterProperty<MobileList<InPageSelections>>(new PropertyInfo<MobileList<InPageSelections>>("inPageSelections", "inPageSelections"));
         public MobileList<InPageSelections> inPageSelections
         {
             get { return GetProperty(inPageSelectionsProperty); }
             set { SetProperty(inPageSelectionsProperty, value); }
         }
 
-        private static PropertyInfo<int> PageProperty = RegisterProperty<int>(new PropertyInfo<int>("Page", "Page"));
+        public static readonly PropertyInfo<int> PageProperty = RegisterProperty<int>(new PropertyInfo<int>("Page", "Page"));
         public int Page
         {
             get
@@ -215,6 +212,7 @@ namespace BusinessLibrary.BusinessClasses
                 end = int.Parse(tarr[1]);
                 tStr = textsels[i];
                 ppas = new InPageSelections(start, end, tStr);
+                if (returnValue.inPageSelections == null) returnValue.inPageSelections = new MobileList<InPageSelections>();
                 returnValue.inPageSelections.Add(ppas);
             }
             returnValue.MarkOld();
@@ -302,7 +300,7 @@ namespace BusinessLibrary.BusinessClasses
     public class InPageSelections : BusinessBase<InPageSelections>, IComparable<InPageSelections>
     {
         
-        private static PropertyInfo<int> StartProperty = RegisterProperty<int>(new PropertyInfo<int>("Start", "Start"));
+        public static readonly PropertyInfo<int> StartProperty = RegisterProperty<int>(new PropertyInfo<int>("Start", "Start"));
         public int Start
         {
             get { return GetProperty(StartProperty); }
@@ -312,7 +310,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<int> EndProperty = RegisterProperty<int>(new PropertyInfo<int>("End", "End"));
+        public static readonly PropertyInfo<int> EndProperty = RegisterProperty<int>(new PropertyInfo<int>("End", "End"));
         public int End
         {
             get { return GetProperty(EndProperty); }
@@ -322,7 +320,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<string> SelTxtProperty = RegisterProperty<string>(new PropertyInfo<string>("SelTxt", "SelTxt"));
+        public static readonly PropertyInfo<string> SelTxtProperty = RegisterProperty<string>(new PropertyInfo<string>("SelTxt", "SelTxt"));
         public string SelTxt
         {
             get { return GetProperty(SelTxtProperty); }

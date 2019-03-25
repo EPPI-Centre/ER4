@@ -3,6 +3,7 @@ import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemDocsService } from '../services/itemdocs.service';
+import { ItemCodingService } from '../services/ItemCoding.service';
 
 declare const PDFTron: any;
 declare let licenseKey: string;
@@ -13,7 +14,8 @@ declare let licenseKey: string;
 })
 export class PdfTronContainer implements OnInit, AfterViewInit {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
-        private ItemDocsService: ItemDocsService
+        private ItemDocsService: ItemDocsService,
+        private ItemCodingService: ItemCodingService
     ) { }
     @ViewChild(WebViewerComponent) private webviewer!: WebViewerComponent;
     private viewerInstance: any;
@@ -25,7 +27,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     ngAfterViewInit() {
         this.webviewer.getElement().addEventListener('ready', this.wvReadyHandler);
         this.webviewer.getElement().addEventListener('documentLoaded', this.wvDocumentLoadedHandler);
-        
+        this.ItemCodingService.ItemAttPDFCodingChanged.subscribe(() => this.buildHighlights());
     }
     async loadDoc() {
         if (!this.viewerInstance) {
@@ -104,7 +106,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 console.log('annotation page number', annot.PageNumber);
             });
         });
-        this.loadDoc();
+        //this.loadDoc();
     }
 
     wvDocumentLoadedHandler(): void {
@@ -124,5 +126,63 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         //annotManager.addAnnotation(rectangle);
         //annotManager.drawAnnotations(rectangle.PageNumber);
         // see https://www.pdftron.com/api/web/PDFTron.WebViewer.html for the full list of low-level APIs
+    }
+
+    buildHighlights(): void {
+        console.log("buildHighlights", this.ItemCodingService.CurrentItemAttPDFCoding);
+        if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+            var docViewer = this.viewerInstance.docViewer;
+            var annotManager = docViewer.getAnnotationManager();
+            var iFrame = document.querySelector('iframe');
+            if (iFrame && iFrame.contentWindow) {
+                var Annotations = (iFrame.contentWindow as any).Annotations;
+                (iFrame.contentWindow as any).Annotations = null;
+                for (let sel of this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+                    var Highl = new Annotations.TextHighlightAnnotation();
+                    
+                    Highl.setPageNumber(sel.page);
+                    console.log("created:", Highl);
+                    //"F1M66.8976,140.856L368.306,140.856L368.306,160.47L66.8976,160.47z"
+                    let rectSt: string = sel.shapeTxt;
+                    rectSt = rectSt.substr(3);
+                    let i = rectSt.indexOf(',');
+                    let x1 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+                    i = rectSt.indexOf('L');
+                    let y1 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+
+                    i = rectSt.indexOf(',');
+                    let x2 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+                    i = rectSt.indexOf('L');
+                    let y2 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+
+                    i = rectSt.indexOf(',');
+                    let x3 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+                    i = rectSt.indexOf('L');
+                    let y3 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+
+                    i = rectSt.indexOf(',');
+                    let x4 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+                    i = rectSt.indexOf('L');
+                    let y4 = +rectSt.substr(0, i) * 0.75;
+                    rectSt = rectSt.substr(i + 1);
+                    let rec = new Annotations.Rect(x1, y1, x3, y3);
+                    console.log("Rect: ", rec);
+                    Highl.setRect(rec);
+                    Highl.setContents(sel.inPageSelections[0].selTxt);
+                    console.log("addAnnotation", Highl);
+                    annotManager.addAnnotation(Highl);
+                    console.log("redrawAnnotation");
+                    annotManager.redrawAnnotation(Highl);
+                    console.log("AQQQ", (iFrame.contentWindow as any).Annotations);
+                }
+            }
+        }
     }
 }

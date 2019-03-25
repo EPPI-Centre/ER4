@@ -31,7 +31,9 @@ export class ItemDocsService {
     public get CurrentDoc() {
         return this.currentDocBin;
     }
-
+    public get CurrentDocId(): number {
+        return this.currentDocBinId;
+    }
     public FetchDocList(itemID: number) {
         if (this.currentItemId != itemID) {
             this.currentDocBin = null;
