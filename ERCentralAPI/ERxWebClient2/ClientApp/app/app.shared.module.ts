@@ -69,6 +69,7 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
+import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 
 @NgModule({
     declarations: [
@@ -119,7 +120,8 @@ import { ComparisonComp } from './components/Comparison/createnewcomparison.comp
         SiteAdminComponent,
 		SiteAdminEntryComponent,
 		CreateNewCodeComp,
-		ComparisonComp
+		ComparisonComp,
+		ComparisonStatsComp
 	],
     providers: [
         EventEmitterService,

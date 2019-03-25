@@ -35,7 +35,23 @@ export class ComparisonsService extends BusyAwareService {
 			this._Comparisons = comparisons;
 		}
     }
- 
+
+	private _Statistics: ComparisonStatistics[] = [];
+
+	public get Statistics(): ComparisonStatistics[] {
+		if (this._Statistics) {
+			return this._Statistics;
+		} else {
+			return [];
+		}
+	}
+
+	public set Statistics(stats: ComparisonStatistics[]) {
+		if (stats) {
+			this._Statistics = stats;
+		}
+	}
+
     
     public FetchAll() {
 
@@ -49,6 +65,17 @@ export class ComparisonsService extends BusyAwareService {
         );
 	}
 
+	public FetchStats() {
+
+		this._httpC.get<ComparisonStatistics[]>(this._baseUrl + 'api/Comparisons/ComparisonStats')
+			.subscribe(result => {
+
+				this._Statistics = result;
+
+			}, error => { this.modalService.SendBackHomeWithError(error); }
+			);
+
+	}
 
 	public CreateComparison(comparison: Comparison) {
 
@@ -71,9 +98,7 @@ export class ComparisonsService extends BusyAwareService {
 				}
 			);
 	}
-
 	
-
 	public DeleteComparison(ComparisonId: number) {
 
 		let body = JSON.stringify({ Value: ComparisonId });
@@ -110,5 +135,27 @@ export class Comparison {
 	contactName3: string = '';
 	attributeName: string = '';
 	setName: string = '';
+
+}
+
+export class ComparisonStatistics {
+
+	comparisonId: number = 0;
+	N1vs2: number = 0;
+	N2vs3: number = 0;
+	N1vs3: number = 0;
+	disagreements1vs2: number = 0;
+	disagreements2vs3: number = 0;
+	disagreements1vs3: number = 0;
+	Ncoded1: number = 0;
+	Ncoded2: number = 0;
+	Ncoded3: number = 0;
+	CanComplete1vs2: number = 0;
+	CanComplete1vs3: number = 0;
+	CanComplete2vs3: number = 0;
+	Scdisagreements1vs2: number = 0;
+	Scdisagreements2vs3: number = 0;
+	Scdisagreements1vs3: number = 0;
+	isScreening: boolean = false;
 
 }

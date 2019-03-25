@@ -48,8 +48,7 @@ namespace ERxWebClient2.Controllers
             }
 
         }
-
-
+		
 		[HttpPost("[action]")]
 		public IActionResult DeleteComparison([FromBody] SingleIntCriteria comparisonId)
 		{
@@ -76,7 +75,30 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-		//AssignWorkAllocation
+
+		[HttpPost("[action]")]
+		public IActionResult ComparisonStats([FromBody] SingleIntCriteria comparisonId)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+
+					ComparisonStatsCommand cmd = new ComparisonStatsCommand(comparisonId.Value);
+					DataPortal <ComparisonStatsCommand> dp = new DataPortal<ComparisonStatsCommand>();
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd);
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison Statistics data portal error");
+				throw;
+			}
+		}
+		
 		[HttpPost("[action]")]
 		public IActionResult CreateComparison([FromBody] JObject comparison)
 		{
