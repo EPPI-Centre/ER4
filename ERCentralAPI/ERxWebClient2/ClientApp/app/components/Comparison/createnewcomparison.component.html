@@ -1,0 +1,74 @@
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
+	<form class="row" >
+		<div class="col-12">
+			<div class="form-group">
+				<label for="rev1">Reviewer 1</label>
+				<select class="col-md-6 form-control" name="rev1"
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1" >
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+							 [ngValue]="member" [selected]="member == selectedReviewer1">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<label for="rev2">Reviewer 2</label>
+				<select class="col-md-6 form-control" name="rev2"
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2" >
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+							 [ngValue]="member" [selected]="member == selectedReviewer2">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group">
+				<label for="rev3">Reviewer 3 (optional)</label>
+				<select class="col-md-6 form-control" name="rev3"
+						[disabled]="!HasWriteRights"  [(ngModel)]="selectedReviewer3">
+					<option *ngFor="let member of _reviewInfoService.Contacts" 
+						name="rev3"	  [ngValue]="member" [selected]="member == selectedReviewer3">
+						{{member.contactName}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div *ngIf="CodeSets" class="form-group">
+				<label for="codeSET">Code set</label>
+				<select class="col-md-6 form-control" [disabled]="!HasWriteRights"
+						name="codeSET" [(ngModel)]="selectedCodeSet">
+					<option *ngFor="let item of CodeSets" name="codeSET"
+							[ngValue]="item"  [selected]="item == selectedCodeSet">
+						{{item.name}}
+					</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group col-12 row">
+				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
+						[disabled]="!HasWriteRights" (click)="setsFilter()">
+					Set filter (optional)
+				</button>
+				<div *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'" class="col-4">
+					Current code Name: <strong>{{CurrentNode.name}}</strong><br />
+				</div>
+			</div>
+		</div>
+		<div class="col-12">
+			<button type="submit" (click)="CreateNewComparison()" class="btn btn-success ml-2 mr-2"
+					[disabled]="!HasWriteRights && CanCreateComparison()">
+				Create Comparison
+			</button>
+			<button class="btn btn-outline-secondary ml-1"
+					(click)="CancelActivity()" style="width:200px;">
+				Cancel
+			</button>
+		</div>
+	</form>
+</div>
+ 

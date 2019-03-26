@@ -86,6 +86,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
         return this._appliedCodes;
@@ -177,22 +180,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         return this._ItemsWithIncompleteCoding;
     }
     public get AllowedChildTypes(): kvAllowedAttributeType[] {
-        let res: kvAllowedAttributeType[] = [];
-        if (!this.CurrentNode) return res;
-        let att: SetAttribute | null = null;
-        let Set: ReviewSet | null = null;
-        if (this.CurrentNode.nodeType == "ReviewSet") Set = this.CurrentNode as ReviewSet;
-        else if (this.CurrentNode.nodeType == "SetAttribute") {
-            att = this.CurrentNode as SetAttribute;
-            if (att && att.set_id > 0) Set = this.ReviewSetsService.FindSetById(att.set_id);
-            if (!Set) return res;
-        }
-        //console.log("CurrentNode (Set)", Set);
-        if (Set && Set.setType) {
-            //console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
-            return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)') );
-        }
-        return res;
+        return this.ReviewSetsService.AllowedChildTypesOfSelectedNode;
     }
     public get CurrentCodeLevel(): number {
         if (!this.CurrentNode) return -1;//??
@@ -204,23 +192,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         //safety first, if anything didn't work as expexcted return false;
         if (!this.CanWrite()) return false;
         else {
-			if (!this.CurrentNode) return false;//??
-			//move the below to ReviewSetsService;
-            else if (this.CurrentNode.nodeType == "ReviewSet" && this.CurrentNode.allowEditingCodeset) return true;
-            else if (this.CurrentNode.nodeType == "SetAttribute") {
-                let Att: SetAttribute = this.CurrentNode as SetAttribute;
-                let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
-                //console.log("I'm still checking: ", Att, Set);
-                if (Set && Set.setType) {
-                    let maxDepth: number = Set.setType.maxDepth;
-                    //console.log("I'm still checking2: ", maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att));
-                    return maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att);
-                }
-                else return false;
-			}
+            return this.ReviewSetsService.CurrentCodeCanHaveChildren;
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
         }
-        return false;
     }
     public SetTypeCanChangeDataEntryMode(): boolean {
         let Set: ReviewSet = this.CurrentNode as ReviewSet;
@@ -379,6 +353,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.DestinationDataEntryMode = "";
         this.ChangeDataEntryModeMessage = "";
         this._ActivityPanelName = "";
+		
     }
     CodesetTypeChanged(typeId: number) {
         this.NewSetSelectedTypeId = typeId;

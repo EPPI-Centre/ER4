@@ -101,7 +101,9 @@ export class SearchComp implements OnInit, OnDestroy {
 		checkboxOnly: true,
 		mode: 'single'
 	};
-
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
 	public setSelectableSettings(): void {
 
 		this.selectableSettings = {
@@ -208,35 +210,17 @@ export class SearchComp implements OnInit, OnDestroy {
 		// logic for enabling visualise button
 		if (this.selectedNode == null) return false;
 		else {
-			if (this.selectedNode.nodeType == "ReviewSet") {
-				let Set = this.selectedNode as ReviewSet;
-				if (!Set) return false;
-				else {
-					if (Set.subTypeName == "Screening") return false;
-					else return Set.allowEditingCodeset;
-				}
-			}
-			else if (this.selectedNode.nodeType == "SetAttribute") {
-				let Att = this.selectedNode as SetAttribute;
-				if (!Att) return false;
-				else {
-					let Set = this._reviewSetsService.FindSetById(Att.set_id);
-					if (!Set) return false;
-					else {
-						if (Set.subTypeName == "Screening") return false;
-						else if (!Set.allowEditingCodeset) return false;
-						else {
-							let level = this._reviewSetsService.AttributeCurrentLevel(Att);
-							if (level && Set.setType && Set.setType.maxDepth > level) {
-								console.log("maxDepth", Set.setType.maxDepth);
-								return true;
-							}
-							else return false;
-						}
-					}
-				}
-			}
-			else return false;
+            if (this.selectedNode.nodeType == "ReviewSet") {
+                let Set = this.selectedNode as ReviewSet;
+                if (!Set) return false;
+                else {
+                    if (Set.subTypeName == "Screening") return false;
+                    else return Set.allowEditingCodeset;
+                }
+            }
+            else {
+                return this._reviewSetsService.CurrentCodeCanHaveChildren;
+            }
 		}
 	}
 
@@ -991,12 +975,27 @@ export class SearchComp implements OnInit, OnDestroy {
 		cr.showDeleted = false;
 		cr.pageNumber = 0;
 		cr.searchId = dataItem.searchId;
-		let ListDescription: string = "GetItemSearchList";
-		cr.listType = ListDescription;
+		let ListDescription: string = dataItem.title;
+		cr.listType = 'GetItemSearchList';
 
 		this.ItemListService.FetchWithCrit(cr, ListDescription);
 		this._eventEmitter.PleaseSelectItemsListTab.emit();
 
+	}
+
+	Clear() {
+
+		
+		this.CurrentDropdownSelectedCode = null;
+		this.selectedSearchCodeSetDropDown = '';
+		this.selectedSearchDropDown = 'With this code';
+		this.commaIDs = '';
+		this.searchText = '';
+		this.selectedSearchTextDropDown = '';
+		this.searchTextModel = '';
+		this.NewSearchSection = false;
+		this.modelResultsSection = false;
+		this.LogicSection = false;
 	}
 
 }

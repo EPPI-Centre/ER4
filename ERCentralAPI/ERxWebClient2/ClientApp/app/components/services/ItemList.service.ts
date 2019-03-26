@@ -8,6 +8,8 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { ArmsService } from './arms.service';
 import { Subject } from 'rxjs';
+import { Helpers } from '../helpers/HelperMethods';
+import { ReadOnlySource } from './sources.service';
 
 @Injectable({
     providedIn: 'root',
@@ -43,7 +45,7 @@ export class ItemListService extends BusyAwareService {
     private _currentItem: Item = new Item();
     private _ItemTypes: any[] = [];
     public get ItemTypes(): any[] {
-        console.log("Get ItemTypes");
+        //console.log("Get ItemTypes");
         return this._ItemTypes;
     }
     public ListDescription: string = "";
@@ -56,6 +58,12 @@ export class ItemListService extends BusyAwareService {
     }
     public get currentItem(): Item {
         return this._currentItem;
+    }
+    private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
+    public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
+        if (!this._currentItem || !this._CurrentItemAdditionalData) return null;
+        else if (this._currentItem.itemId !== this._CurrentItemAdditionalData.itemID) return null;
+        else return this._CurrentItemAdditionalData;
     }
     public FetchWithCrit(crit: Criteria, listDescription: string) {
         this._BusyMethods.push("FetchWithCrit");
@@ -88,12 +96,18 @@ export class ItemListService extends BusyAwareService {
     }
     public FetchItemTypes() {
         this._BusyMethods.push("FetchItemTypes");
-        this._httpC.get<any[]>(this._baseUrl + 'api/ItemList/ItemTypes')
+        this._httpC.get<KeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
             .subscribe(
             (res) => {
                 this.RemoveBusy("FetchItemTypes"); 
+                //putting the "journal" type close to the top...
+                let i = res.findIndex(found => found.key == '14');
+                if (i > -1) {
+                    let j = res.splice(i, 1);
+                    res.splice(1,0, j[0]);
+                }
                 this._ItemTypes = res;
-                console.log(res);
+                //console.log(res);
             }
             , (err) => {
                 this.RemoveBusy("FetchItemTypes");
@@ -101,6 +115,56 @@ export class ItemListService extends BusyAwareService {
             }
             );
     }
+    public FetchAdditionalItemDetails() {
+        console.log("FetchAdditionalItemDetails");
+        if (this._currentItem.itemId !== 0) {
+            this._BusyMethods.push("FetchAdditionalItemDetails");
+            let body = JSON.stringify({ Value: this._currentItem.itemId });
+            this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
+                .subscribe(
+                    result => {
+                        this._CurrentItemAdditionalData = result;
+                    }, error => {
+                        this.ModalService.GenericError(error);
+                        this.RemoveBusy("FetchAdditionalItemDetails");
+                    }
+                    , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
+                );
+        }
+    }
+    
+    public UpdateItem(item: Item) {
+        this._BusyMethods.push("UpdateItem");
+        this._httpC.post<Item>(this._baseUrl + 'api/ItemList/UpdateItem', item)
+            .subscribe(
+                result => {
+                   //if we get an item back, put it in the list substituting it via itemID
+                    if (item.itemId == 0) {
+                        //we created a new item, add to current list, so users can see it immediately...
+                        //this._currentItem = result;//not sure we need this...
+                        this.ItemList.items.push(result);
+                    }
+                    else {
+                        //try to replace item in current list. We use the client side object 'cause the typename might otherwise be wrong.
+                        let i = this.ItemList.items.findIndex(found => found.itemId == item.itemId);
+                        if (i !== -1) {
+                            //console.log("replacing updated item.", this.ItemList.items[i]);
+                            this.ItemList.items[i] = item;
+                            console.log("replaced updated item.");//, this.ItemList.items[i]);
+                        }
+                        else {
+                            console.log("updated item not replaced: could not find it...");
+                        }
+                    }
+                }, error => {
+                    this.ModalService.GenericError(error);
+                    this.RemoveBusy("UpdateItem");
+                }
+            , () => { this.RemoveBusy("UpdateItem"); }
+            );
+    }
+
+
     public GetIncludedItems() {
         let cr: Criteria = new Criteria();
         cr.listType = 'StandardItemList';
@@ -195,9 +259,10 @@ export class ItemListService extends BusyAwareService {
     private ChangingItem(newItem: Item) {
         //console.log('ChangingItem');
         this._currentItem = newItem;
+        this._CurrentItemAdditionalData = null;
+        this.FetchAdditionalItemDetails();
         //this.SaveCurrentItem();
-		console.log('This is when this is emitted actually');
-
+		//console.log('This is when this is emitted actually');
 		this.ItemChanged.emit(newItem);
     }
 	public getItem(itemId: number): Item {
@@ -233,11 +298,11 @@ export class ItemListService extends BusyAwareService {
     public getFirst(): Item {
         let ff = this.ItemList.items[0];
         if (ff != undefined && ff != null) {
-            this.ChangingItem(ff);
+            //this.ChangingItem(ff);
             return ff;
         }
         else {
-            this.ChangingItem(new Item());
+            //this.ChangingItem(new Item());
             return new Item();
         }
     }
@@ -245,11 +310,11 @@ export class ItemListService extends BusyAwareService {
         
         let ff = this.ItemList.items.findIndex(found => found.itemId == itemId);
         if (ff != undefined && ff != null && ff > -1 && ff < this._ItemList.items.length) {
-            this.ChangingItem(this._ItemList.items[ff - 1]);
+            //this.ChangingItem(this._ItemList.items[ff - 1]);
             return this._ItemList.items[ff - 1];
         }
         else {
-            this.ChangingItem(new Item());
+            //this.ChangingItem(new Item());
             return new Item();
         }
         
@@ -270,22 +335,22 @@ export class ItemListService extends BusyAwareService {
         //console.log(ff);
         if (ff != undefined && ff != null && ff > -1 && ff + 1 < this._ItemList.items.length) {
             //console.log('I am emitting');
-            this.ChangingItem(this._ItemList.items[ff + 1]);
+            //this.ChangingItem(this._ItemList.items[ff + 1]);
             return this._ItemList.items[ff + 1];
         }
         else {
-            this.ChangingItem(new Item());
+            //this.ChangingItem(new Item());
             return new Item();
         }
 	}
     public getLast(): Item {
         let ff = this.ItemList.items[this._ItemList.items.length - 1];
         if (ff != undefined && ff != null) {
-            this.ChangingItem(ff);
+            //this.ChangingItem(ff);
             return ff;
         }
         else {
-            this.ChangingItem(new Item());
+            //this.ChangingItem(new Item());
             return new Item();
         }
     }
@@ -407,11 +472,11 @@ export class ItemListService extends BusyAwareService {
             + ((it.keywords != null && it.keywords.length > 2) ? it.keywords.trim() + newLine : "");
         let Month: number | null, Yr: number | null;
         let tmpDate: string = "";
-        Month = ItemListService.SafeParseInt(it.month);
+        Month = Helpers.SafeParseInt(it.month);
         if (!Month || (Month < 1 || Month > 12)) {
             Month = 1 + it.month.length > 2 ? calend.indexOf(it.month.substring(0, 3)) + 1 : 0;
         }
-        Yr = this.SafeParseInt(it.year);
+        Yr = Helpers.SafeParseInt(it.year);
         if (it.year !== "" && Yr) {
             if (Yr > 0) {
                 if (Yr < 20) Yr += 1900;
@@ -487,18 +552,7 @@ export class ItemListService extends BusyAwareService {
         res = res.replace("   ", " ");
         return res;
     }
-    public static SafeParseInt(str: string): number | null {
-        let retValue: number | null = null;
-        if (str !== null) {
-            if (str.length > 0) {
-                let tmp = Number(str);
-                if (!isNaN(tmp)) {
-                    retValue = parseInt(str);
-                }
-            }
-        }
-        return retValue;
-    }
+    
 
 
     //public Save() {
@@ -653,6 +707,23 @@ export class ItemDocument {
     public isSelfDirty: boolean = false;
     public isSelfValid: boolean = false;
     public isValid: boolean = false;
-
+}
+export interface iAdditionalItemDetails {
+    itemID: number;
+    duplicates: iItemDuplicatesReadOnly[];
+    readonlysource: ReadOnlySource;
+}
+export interface iItemDuplicatesReadOnly {
+    itemId: number;
+    shortTitle: string;
+    sourceName: string;
+}
+export class KeyValue {//used in more than one place...
+    constructor(k: string, v: string) {
+        this.key = k;
+        this.value = v;
+    }
+    key: string;
+    value: string;
 }
 

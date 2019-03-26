@@ -63,7 +63,6 @@ export class ReviewInfoService extends BusyAwareService{
             this.modalService.SendBackHomeWithError(error);
         }
 		);
-
 	}
 
 	public FetchReviewMembers() {

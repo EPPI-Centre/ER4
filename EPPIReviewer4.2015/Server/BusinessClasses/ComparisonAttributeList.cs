@@ -32,7 +32,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ComparisonAttributeList() { }
 #else
-        private ComparisonAttributeList() { }
+        public  ComparisonAttributeList() { }
 #endif
 
 

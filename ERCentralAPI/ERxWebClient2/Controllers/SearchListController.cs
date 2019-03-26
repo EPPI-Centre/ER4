@@ -353,15 +353,14 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-				if (SetCSLAUser4Writing())
-				{
-					//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
-					DataPortal<SearchVisualiseList> dp = new DataPortal<SearchVisualiseList>();
-					SingleCriteria<SearchVisualiseList, int> criteria = new SingleCriteria<SearchVisualiseList, int>(ID.searchId);
-					SearchVisualiseList result = dp.Fetch(criteria);
-					return Ok(result);
-				}
-				else return Forbid();
+                SetCSLAUser();
+				
+				//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
+				DataPortal<SearchVisualiseList> dp = new DataPortal<SearchVisualiseList>();
+				SingleCriteria<SearchVisualiseList, int> criteria = new SingleCriteria<SearchVisualiseList, int>(ID.searchId);
+				SearchVisualiseList result = dp.Fetch(criteria);
+				return Ok(result);
+				
 
 			}
 			catch (Exception e)

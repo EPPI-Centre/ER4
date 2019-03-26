@@ -22,11 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDuplicatesReadOnlyList : ReadOnlyListBase<ItemDuplicatesReadOnlyList, ItemDuplicatesReadOnly>
     {
-#if SILVERLIGHT
         public ItemDuplicatesReadOnlyList() { }
-#else
-        private ItemDuplicatesReadOnlyList() { }
-#endif
+
 
         public static void getItemDuplicatesReadOnlyList(long ItemID, EventHandler<DataPortalResult<ItemDuplicatesReadOnlyList>> handler)
         {
@@ -63,9 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
-
         
-
 
 #endif
     }

@@ -1,12 +1,11 @@
 <div class="card p-2 m-2">
-	<div class="modal-header alert-danger">
+	<div class="modal-header alert-info">
 		<h4 class="modal-title">{{ title }}</h4>
-		<button type="button" class="close" aria-label="Close" (click)="dismiss()">
+		<!--<button type="button" class="close" aria-label="Close" (click)="dismiss()">
 			<span aria-hidden="true">&times;</span>
-		</button>
+		</button>-->
 	</div>
-	<div class="modal-body bg-white">
-		{{ message }}
+	<div class="modal-body bg-white" [innerHTML]="message">
 	</div>
 	<div *ngIf="ShowInputTextWarning">
 		<input class="form-control rounded border border-dark" type="text" name="ShowInputTextWarning"  

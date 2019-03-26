@@ -70,8 +70,29 @@ export class ReviewSetsService extends BusyAwareService {
 
 		return true;
     }
+    public get CurrentCodeCanHaveChildren(): boolean {
+        return this.ThisCodeCanHaveChildren(this.selectedNode);
+    }
+    public ThisCodeCanHaveChildren(node: singleNode | null): boolean {
+        if (!node) return false;//??
+        //move the below to ReviewSetsService;
+        else if (node.nodeType == "ReviewSet" && node.allowEditingCodeset) return true;
+        else if (node.nodeType == "SetAttribute") {
+            let Att: SetAttribute = node as SetAttribute;
+            let Set: ReviewSet | null = this.FindSetById(Att.set_id);
+            //console.log("I'm still checking: ", Att, Set);
+            if (Set && Set.setType) {
+                if (!Set.allowEditingCodeset) return false;
+                let maxDepth: number = Set.setType.maxDepth;
+                //console.log("I'm still checking2: ", maxDepth > this.ReviewSetsService.AttributeCurrentLevel(Att));
+                return maxDepth > this.AttributeCurrentLevel(Att);
+            }
+            else return false;
+        }
+        else return false;
+    }
 
-     GetReviewSets(): ReviewSet[] {
+    GetReviewSets(): ReviewSet[] {
          //console.log("GetReviewSets");
          this._BusyMethods.push("GetReviewSets");
          this._httpC.get<iReviewSet[]>(this._baseUrl + 'api/Codeset/CodesetsByReview').subscribe(
@@ -127,6 +148,26 @@ export class ReviewSetsService extends BusyAwareService {
     //        localStorage.setItem('ReviewSets', JSON.stringify(this._ReviewSets));
     //    else if (localStorage.getItem('ReviewSets')) localStorage.removeItem('ReviewSets');
     //}
+
+    public get AllowedChildTypesOfSelectedNode(): kvAllowedAttributeType[] {
+        let res: kvAllowedAttributeType[] = [];
+        if (!this.selectedNode) return res;
+        let att: SetAttribute | null = null;
+        let Set: ReviewSet | null = null;
+        if (this.selectedNode.nodeType == "ReviewSet") Set = this.selectedNode as ReviewSet;
+        else if (this.selectedNode.nodeType == "SetAttribute") {
+            att = this.selectedNode as SetAttribute;
+            if (att && att.set_id > 0) Set = this.FindSetById(att.set_id);
+            if (!Set) return res;
+        }
+        //console.log("CurrentNode (Set)", Set);
+        if (Set && Set.setType) {
+            //console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
+            return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)'));
+        }
+        return res;
+    }
+
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
         for (let iItemset of data) {
@@ -410,6 +451,7 @@ export class ReviewSetsService extends BusyAwareService {
             }
         );
     }
+
 }
 
 export interface singleNode {
@@ -451,7 +493,16 @@ export class ReviewSet implements singleNode {
         return -1;//it's used only in attribues, ReviewSets have no parent!
     }
     public description: string = "";
-    setType: iSetType | null = null ;
+	setType: iSetType = {
+		setTypeId: 0,
+		setTypeName: '',
+		setTypeDescription: '',
+		allowComparison: false,
+		allowRandomAllocation: false,
+		maxDepth: 1,
+		allowedCodeTypes: [],
+		allowedSetTypesID4Paste: []
+	};
     nodeType: string = "ReviewSet";
     order: number = 0;
     codingIsFinal: boolean = true;

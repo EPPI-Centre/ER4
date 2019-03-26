@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { Item, ItemListService } from '../services/ItemList.service';
+import { Item, ItemListService, KeyValue } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { isString } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 
@@ -28,81 +29,13 @@ export class editItemDetailsComp implements OnInit {
         public ItemListService: ItemListService,
         private ModalService: ModalService
     ) {}
-
-    private item: Item | null = null;
-    private OriginalItem: Item | null = null;//used to support "cancel".
-    private subItemIDinPath: Subscription | null = null;
-    private subReturnTo: Subscription | null = null;
-    private itemString: string = '0';
-    public showOptionalFields = false;
-    private returnTo: string = "Main";
-    private _ItemTypes: any[] = [];
-    public get ItemTypes(): any {
-        //looking at this.ItemListService.ItemTypes makes the service fetch the data if it's not already there
-        //the below is a system to make it ask only once
-        if (this._ItemTypes.length == 0 && this.ItemListService.ItemTypes.length > 0) this._ItemTypes = this.ItemListService.ItemTypes;
-        else if (this._ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
-        return this._ItemTypes;
-    }
-    public FieldsByType(typeId: number) {
-        if (typeId == 0) return null;
-        else if (typeId == 14) {
-            return {
-                parentTitle: { txt: 'Journal', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN', optional: false }
-
-            };
-        }
-        else if (typeId == 2) {
-            return {
-                parentTitle: { txt: 'Parent Title', optional: true }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISBN', optional: false }
-            };
-        }
-        else if (typeId == 3) {
-            return {
-                parentTitle: { txt: 'Book Title', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: false }
-                , standardNumber: { txt: 'ISBN', optional: true }
-            };
-        }
-        else if (typeId == 4) {
-            return {
-                parentTitle: { txt: 'Publ. Title', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-            };
-        }
-        else if (typeId == 5) {
-            return {
-                parentTitle: { txt: 'Conference', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: false }
-            };
-        }
-        else if (typeId == 10) {
-            return {
-                parentTitle: { txt: 'Periodical', optional: false }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'ISSN/ISBN', optional: true }
-            };
-        }
-        else {
-            return {
-                parentTitle: { txt: 'Parent Title', optional: true }
-                , parentAuthors: { txt: 'Parent Authors', optional: true }
-                , standardNumber: { txt: 'Standard Number', optional: true }
-            };
-        }
-    }
-	ngOnInit() {
+    ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
         else {
             if (!this.ReviewerIdentityServ.HasWriteRights) this.GoBack();
+            if (this.ItemListService.ItemTypes.length == 0) this.ItemListService.FetchItemTypes();
             this.subReturnTo = this.route.queryParams.subscribe(params => {
                 if (params['return']) this.returnTo = params['return'];
                 else this.returnTo = "Main";
@@ -117,6 +50,21 @@ export class editItemDetailsComp implements OnInit {
             });
         }
     }
+    public item: Item | null = null;
+    private OriginalItem: Item | null = null;//used to support "cancel".
+    private subItemIDinPath: Subscription | null = null;
+    private subReturnTo: Subscription | null = null;
+    private itemString: string = '0';
+    public showOptionalFields = false;
+    private returnTo: string = "Main";
+    private _ItemTypes: KeyValue[] = [];
+    public get ItemTypes(): KeyValue[] {
+        //looking at this.ItemListService.ItemTypes makes the service fetch the data if it's not already there
+        //the below is a system to make it ask only once
+        if (this._ItemTypes.length == 0 && this.ItemListService.ItemTypes.length > 0) this._ItemTypes = this.ItemListService.ItemTypes;
+        else if (this._ItemTypes.length == 0 && !this.ItemListService.IsBusy) this.ItemListService.FetchItemTypes();
+        return this._ItemTypes;
+    }
     private wasEdited: boolean = false;
     public get Edited(): boolean {
         if (this.item == null || this.OriginalItem == null) return false;
@@ -129,12 +77,65 @@ export class editItemDetailsComp implements OnInit {
         }
         return false;
     }
-    SaveAndClose() {
+    public get CanSave(): boolean {
+        if (!this.ReviewerIdentityServ.HasWriteRights) return false;
+        else if (!this.item) return false;
+        else if (this.item.typeId == 0) return false;
+        else return true;
+    }
+    public get IsServiceBusy(): boolean {
+        if (this.ItemListService.IsBusy) return true;
+        else return false;
+    }
+    public FieldsByType(typeId: number) {
+        return Helpers.FieldsByPubType(typeId);
+    }
+    private _ItemFlagOptions: KeyValue[] = [new KeyValue('I', 'Included'), new KeyValue('E', 'Excluded')];//, new KeyValueState('D', 'Deleted') can't do deleted 'cause BO doesn't save this state...
+    public get ItemFlagOptions(): KeyValue[] {
+        return this._ItemFlagOptions;
+    }
+   
+    public get ItemFlagStatus(): KeyValue {
+        let i = this._ItemFlagOptions.findIndex(found => (this.item != null && found.key == this.item.itemStatus));
+        if (i == -1) return this._ItemFlagOptions[0];
+        else return this._ItemFlagOptions[i];
+    }
+    public SetItemFlagStatus(val: string) {
+        if (this.item)
+        {
+            this.item.itemStatus = val;
+            if (val == "I") {
+                this.item.itemStatusTooltip = "Included in review";
+            }
+            else if (val == "E") {
+                this.item.itemStatusTooltip = "Excluded from review";
+            }
+            //else if (val == "D") {
+            //    this.item.itemStatusTooltip = "Deleted";
+            //}
+        }
+    }
+    TypeChanged() {
+        console.log("type changed: ", this.item);
+        let i = this.ItemTypes.findIndex(found => this.item != null && found.key == this.item.typeId.toString())
+        if (i >= -1 && this.item) {
+            this.item.typeName = this.ItemTypes[i].value;
+        }
+    }
+    
+    async SaveAndClose() {
         this.Save();
+        let i = 1;
+        while (this.ItemListService.IsBusy && i < 3 * 120) {
+            i++;
+            await Helpers.Sleep(200);
+            console.log("waiting, cycle n: " + i);
+        }
         this.GoBack();
     }
+    
     Save() {
-
+        if (this.item) this.ItemListService.UpdateItem(this.item);
     }
     private GetItem() {
         if (this.itemString == "0") {
@@ -164,10 +165,8 @@ export class editItemDetailsComp implements OnInit {
     GoBack() {
         this.router.navigate([this.returnTo]);
     }
-    toHTML(text: string): string {
-        return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-    }
 }
+
 
 
 
