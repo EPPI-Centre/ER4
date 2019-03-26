@@ -640,6 +640,7 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
 		this.showAssignmentNotification("Success");
 		this.AssignWorkSection = false;
+		this.PanelName = '';
 	}
 	CanNewWorkAllocationCreate(): boolean {
 
