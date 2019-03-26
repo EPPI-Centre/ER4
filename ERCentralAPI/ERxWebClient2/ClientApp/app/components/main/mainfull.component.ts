@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationList.service'
+import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
 import { Criteria, ItemList } from '../services/ItemList.service'
 import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
@@ -23,6 +23,7 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.component';
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
+import { SearchComp } from '../Search/SearchComp.component';
 
 
 
@@ -63,15 +64,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
-        , private ReviewSetsEditingService: ReviewSetsEditingService
+		, private ReviewSetsEditingService: ReviewSetsEditingService
+		, private workAllocationListService: WorkAllocationListService
     ) {}
-	@ViewChild('WorkAllocationContactList') workAllocationsComp!: WorkAllocationContactListComp;
+	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     //@ViewChild('tabset') tabset!: NgbTabset;
     @ViewChild('ItemList') ItemListComponent!: ItemListComp;
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
+	@ViewChild('SearchComp') SearchComp!: SearchComp;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -89,7 +92,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
-    public isSourcesPanelCollapsed: boolean = false;
+    public isSourcesPanelVisible: boolean = false;
     public isReviewPanelCollapsed: boolean = false;
     public isWorkAllocationsPanelCollapsed: boolean = false;
     private statsSub: Subscription = new Subscription();
@@ -114,6 +117,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowHideQuickQuestionReport();
         }
     }];
+    public ImportOrNewDDData: Array<any> = [{
+        text: 'New Reference',
+        click: () => {
+            this.NewReference();
+        }
+    }];
+    
+    
+
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -316,7 +328,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return '&darr;';
 	}
     public get SourcesPanelTogglingSymbol(): string {
-        if (this.isSourcesPanelCollapsed) return '&uarr;';
+        if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
 	ngAfterViewInit() {
@@ -343,7 +355,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.tabstrip.selectTab(1);
 	}
     LoadContactWorkAllocList(workAlloc: WorkAllocation) {
-        if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
+		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsContactComp.ListSubType);
         else console.log('attempt failed');
     }
     LoadWorkAllocList(workAlloc: WorkAllocation){
@@ -365,10 +377,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 
     toggleSourcesPanel() {
-        if (!this.isSourcesPanelCollapsed) {
+        if (!this.isSourcesPanelVisible) {
             this.SourcesService.FetchSources();
         }
-        this.isSourcesPanelCollapsed = !this.isSourcesPanelCollapsed;
+        this.isSourcesPanelVisible = !this.isSourcesPanelVisible;
     }
     getDaysLeftAccount() {
 
@@ -409,23 +421,25 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this._searchService.Fetch();
 		}
 		else if (e.title == 'Collaborate') {
-            this.HelpAndFeebackContext = "main\\collaborate";
-            if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
+			this.HelpAndFeebackContext = "main\\collaborate";
+			if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
 			this.ShowItemsTable = false;
-			//this._searchService.Fetch();
 		}
         else {
             this.HelpAndFeebackContext = "main\\reviewhome";
             this.ShowItemsTable = false;
         }
     }
+    NewReference() {
+        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
+    }
 
     Reload() {
         this.Clear();
         console.log('Reload mainfull');
         this.reviewSetsService.GetReviewSets();
-        this
-        if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
+        this.isSourcesPanelVisible = false;
+		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();
         //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
@@ -450,8 +464,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
+		this.SourcesService.Clear();
+		this.workAllocationListService.Clear();
+
         if (this.FreqComponent) this.FreqComponent.Clear();
-        if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
+		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
+		if (this.workAllocationCollaborateComp) {
+			//console.log('this comp exists');
+			this.workAllocationCollaborateComp.Clear();
+		}
+		if (this.SearchComp) {
+			this.SearchComp.Clear();
+		}
+
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

@@ -13,6 +13,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewSetsEditingService, ReadOnlyTemplateReview } from '../services/ReviewSetsEditing.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'importCodesetsWizard',
@@ -110,19 +111,17 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
             console.log("finished waiting for codesets import...")
             let cycle: number = 0;
             //SUPER UGLY: donkey alert!!!
-            await this.Sleep(500);
+            await Helpers.Sleep(500);
             while (this.ReviewSetsEditingService.IsBusy && cycle < 600) {
                 cycle++;
-                await this.Sleep(100);
+                await Helpers.Sleep(100);
             }
             this.BackToMain();
         }
     }
-    Sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    
     OpenListOfSets(roTr: ReadOnlyTemplateReview) {
-        if (roTr.templateName == "Manually pick from Public Coding Tools..." && roTr.templateId == 1000) {
+        if (roTr.templateName == "Manually pick from Public codesets..." && roTr.templateId == 1000) {
             this.WizStep = 2.1;
             this.ReviewSetsEditingService.FetchReviewSets4Copy(false);
         }

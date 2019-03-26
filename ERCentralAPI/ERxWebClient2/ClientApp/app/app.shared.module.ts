@@ -39,7 +39,8 @@ import { InputsModule } from '@progress/kendo-angular-inputs';
 import { NotificationModule } from '@progress/kendo-angular-notification';
 import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
-import { DialogsModule  } from '@progress/kendo-angular-dialog';
+import { DialogsModule } from '@progress/kendo-angular-dialog';
+import { UploadModule } from '@progress/kendo-angular-upload';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
@@ -65,6 +66,8 @@ import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationC
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
+import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
+import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
 
 @NgModule({
     declarations: [
@@ -89,6 +92,7 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
         ItemCodingComp,
         ItemCodingFullComp,
         itemDetailsComp,
+        editItemDetailsComp,
         paginatorComp,
 		StatusBarComponent,
 		InfoBoxModalContent,
@@ -112,7 +116,8 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
-        SiteAdminEntryComponent
+		SiteAdminEntryComponent,
+		CreateNewCodeComp
 	],
     providers: [
         EventEmitterService,
@@ -136,6 +141,7 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
         DialogsModule,
         ToolBarModule,
         InputsModule,
+        UploadModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,
@@ -149,6 +155,8 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
 			{ path: 'BuildModel', component: BuildModelComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
+            { path: 'EditItem/:itemId', component: editItemDetailsComp },
+            { path: 'EditItem', component: editItemDetailsComp },
             { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent }, 

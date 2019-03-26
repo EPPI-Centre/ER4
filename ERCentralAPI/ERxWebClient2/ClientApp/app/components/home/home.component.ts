@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'home',
@@ -58,8 +59,7 @@ export class HomeComponent implements OnInit {
         );
     }
     FormatDate(DateSt: string): string {
-        let date: Date = new Date(DateSt);
-        return date.toLocaleDateString();
+        return Helpers.FormatDate(DateSt);
     }
 }
 class versionInfo {

@@ -7,6 +7,7 @@ import { ItemListService } from '../services/ItemList.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -54,7 +55,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
-        console.log("rev srcs:", this.SourcesService.ReviewSources.length);
+        //console.log("rev srcs:", this.SourcesService.ReviewSources.length);
         return this.SourcesService.ReviewSources;
     }
     private GotSourcesSubs: Subscription = new Subscription();
@@ -169,20 +170,18 @@ export class SourcesComponent implements OnInit, OnDestroy {
             this.SourcesService.UpdateSource(this._CurrentSource);
         }
     }
-    SourceUpdated() {
+    async SourceUpdated() {
         let counter: number = 0;
         //setTimeout(() => {
             while (this.SourcesService.IsBusy && counter < 3*120) {
                 counter++;
-                this.Sleep(200);
+                await Helpers.Sleep(200);
                 console.log("waiting, cycle n: " + counter);
             }
-        //}, 200);//will remain here for up to 2 minutes (200ms*3*120)... counter ensures we won't have an endless loop.
+        //will remain here for up to 72s (200ms*3*120)... counter ensures we won't have an endless loop.
         this.showUploadedNotification(this.SourcesService.LastUploadOrUpdateStatus);
     }
-    Sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    
     private showUploadedNotification(status: string): void {
 
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
@@ -229,8 +228,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
         }
     }
     FormatDate(DateSt: string): string {
-        let date: Date = new Date(DateSt);
-        return date.toLocaleDateString();
+        return Helpers.FormatDate2(DateSt);
     }
     public CanWrite(): boolean {
         //console.log('CanWrite? is busy: ', this.SourcesService.IsBusy);

@@ -25,17 +25,20 @@ export class ItemDocsService {
     }
 
     public _itemDocs: ItemDocument[] = []; 
-   
+    private currentItemId: number = 0;
 
     public FetchDocList(itemID: number) {
-
-        let body = JSON.stringify({ Value: itemID });
+        this.currentItemId = itemID;
+        this.Refresh();
+    }
+    public Refresh() {
+        if (this.currentItemId == 0) return;
+        let body = JSON.stringify({ Value: this.currentItemId });
         this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
             (res) => { this._itemDocs = res }
             , error => { this.modalService.GenericError(error); }
         );
     }
-
 
     public GetItemDocument(itemDocumentId: number) {
         
@@ -66,6 +69,49 @@ export class ItemDocsService {
                         });
                 }
             });
+    }
+
+    public DeleteDocWarning(DocId: number) {
+
+        let ErrMsg = "Something went wrong when checking if it's safe to delete this document. \r\n If the problem persists, please contact EPPISupport.";
+        let body = JSON.stringify({ Value: DocId });
+
+        return this._httpC.post<number>(this._baseUrl + 'api/ItemDocumentList/DeleteDocWarning', body).toPromise()
+            .then(
+                (result) => {
+                    return result;
+                }
+                , (error) => {
+                    console.log('error in DeleteDocWarning() rejected', error);
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return -1;
+                }
+            )
+            .catch(
+                (error) => {
+                    console.log('error in DeleteDocWarning() catch', error);
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    return -1;
+                }
+            );
+
+    }
+
+    DeleteItemDoc(ID: number) {
+
+        let ErrMsg = "Something went wrong when deleting the document. \r\n If the problem persists, please contact EPPISupport.";
+        let body = JSON.stringify({ Value: ID });
+        this._httpC.post(this._baseUrl + 'api/ItemDocumentList/DeleteDoc', body).subscribe(
+                (result) => {
+                    console.log(result);
+                    this.Refresh();
+                }
+                , (error) => {
+                    this.modalService.GenericErrorMessage(ErrMsg);
+                    console.log(error);
+                    this.Refresh();
+                }
+            );
 
     }
     

@@ -12,6 +12,7 @@ import { ModalService } from './modal.service';
 import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Search } from './search.service';
+import { WorkAllocation } from './WorkAllocationList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -216,7 +217,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 
             }
         );
-    }
+	}
+
 
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry
         this._BusyMethods.push("ReviewSetCheckCodingStatus");
@@ -245,7 +247,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 }
             );
     }
-    public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
+	public SaveNewAttribute(Att: SetAttribute): Promise<SetAttribute | null> {
+		//alert(JSON.stringify(Att));
         let ErrMsg = "Something went wrong: it appears that the Code was not saved correctly. \r\n Reloading the review is probably wise. \r\n If the problem persists, please contact EPPISupport.";
         if (Att.set_id < 1) {
             //bad! can't do this...
@@ -526,7 +529,32 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("PerformClusterCommand");
             }
         );
-    }
+	}
+	
+	public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
+
+		// is there a need for busy methods here I would say yes...
+		this._BusyMethods.push("RandomlyAssignCodeToItem");
+
+		this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
+			'api/Codeset/PerformRandomAllocate', assignParameters)
+			.subscribe(() => {
+
+				// do not want to change the below but it seems
+				// to return an array here
+				this.ReviewSetsService.GetReviewSets();
+				this.RemoveBusy("RandomlyAssignCodeToItem");
+
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+				, () => {
+					this.RemoveBusy("RandomlyAssignCodeToItem");
+				}
+			);
+	}
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -607,4 +635,15 @@ export class ClassifierCommand {
 	public attributeId: number = 0;
 	public setId: number = 0;
 
+}
+
+export class PerformRandomAllocateCommand {
+	FilterType: string = '';
+	attributeIdFilter: number = 0;
+	setIdFilter: number = 0
+	attributeId: number = 0;
+	setId: number = 0;
+	howMany: number = 0;
+	numericRandomSample: number = 0;
+	RandomSampleIncluded: string = '';
 }

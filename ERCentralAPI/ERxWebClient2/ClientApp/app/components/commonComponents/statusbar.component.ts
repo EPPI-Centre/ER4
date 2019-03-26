@@ -111,7 +111,7 @@ export class StatusBarComponent implements OnInit {
     }
 
     public UpdateStatus(msg: string) {
-
+        console.log("UpdateStatus:", msg);
         let msgSt: string = msg;
         if (msg.substr(0, 1) == "!") {
 
@@ -155,7 +155,7 @@ export class StatusBarComponent implements OnInit {
 
     pressedMore() {
 
-        this.modalMsg = this.fullMsg;
+        this.modalMsg = this.ReviewerIdentityServ.currentStatus;
         this.openMsg(this.content);
 
     }
@@ -167,8 +167,8 @@ export class StatusBarComponent implements OnInit {
     openMsg(content : any) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {
 
-        }
-        );
+        }, (reject) => { }
+        ).catch(() => { });
     }
     //openMsgAndSendHome(content: any) {
     //    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((res) => {

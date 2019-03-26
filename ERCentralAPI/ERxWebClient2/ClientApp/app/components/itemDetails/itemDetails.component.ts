@@ -3,10 +3,12 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { Item } from '../services/ItemList.service';
+import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 
 
@@ -18,18 +20,32 @@ import { ModalService } from '../services/modal.service';
 })
 export class itemDetailsComp implements OnInit {
 
-    constructor(private ReviewerTermsService: ReviewerTermsService,
+    constructor(
+        private router: Router,
+        private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
+        private PriorityScreeningService: PriorityScreeningService,
+        private ItemListService: ItemListService,
         private ModalService: ModalService
     ) {}
 
     @Input() item: Item | undefined;
     @Input() ShowHighlights: boolean = false;
+    @Input() CanEdit: boolean = false;
+    @Input() IsScreening: boolean = false;
     public HAbstract: string = "";
-	public HTitle: string = "";
+    public HTitle: string = "";
+    public showOptionalFields = false;
 
 	private eventsTest: Subject<void> = new Subject<void>();
-
+    public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
+        if (this.IsScreening) {
+            return this.PriorityScreeningService.CurrentItemAdditionalData;
+        }
+        else {
+            return this.ItemListService.CurrentItemAdditionalData;
+        }
+    }
 	ngOnInit() {
 
 
@@ -51,7 +67,12 @@ export class itemDetailsComp implements OnInit {
 	}
 	ItemChanged() {
 		alert('item changed!!');
-	}
+    }
+    EditItem() {
+        if (this.item) {
+            this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
+        }
+    }
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
@@ -108,6 +129,9 @@ export class itemDetailsComp implements OnInit {
     }
     toHTML(text: string): string {
         return text.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
+    }
+    public FieldsByType(typeId: number) {
+        return Helpers.FieldsByPubType(typeId);
     }
 }
 

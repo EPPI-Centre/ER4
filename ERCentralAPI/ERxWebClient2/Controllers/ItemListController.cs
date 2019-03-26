@@ -106,32 +106,147 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
-        [HttpPost("[action]")]
-        public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+
+        [HttpGet("[action]")]
+        public IActionResult ItemTypes()
         {
             try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-                DataPortal<ItemList> dp = new DataPortal<ItemList>();
-                SelectionCriteria crit = new SelectionCriteria();
-                crit.WorkAllocationId = AllocationId;
-                crit.ListType = ListType;
-                crit.PageSize = pageSize;
-                crit.PageNumber = pageNumber;
-                ItemList result = dp.Fetch(crit);
-                //return Json(result);
-
-                return Ok(new ItemList4Json(result));
+                ItemTypeNVLFactory factory = new ItemTypeNVLFactory();
+                ItemTypeNVL res = factory.FetchItemTypeNVL();
+                //DataPortal<ItemTypeNVL> dp = new DataPortal<ItemTypeNVL>();
+                //ItemTypeNVL res = dp.Fetch();
+                return Ok(res);
             }
-            catch (Exception)
+            catch(Exception e)
             {
-
-                throw;
+                _logger.LogError(e, "Error fetching ItemTypes");
+                return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult FetchAdditionalItemData([FromBody] SingleInt64Criteria itemID)
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<ReadOnlySource> dps = new DataPortal<ReadOnlySource>();
+                DataPortal<ItemDuplicatesReadOnlyList> pdp = new DataPortal<ItemDuplicatesReadOnlyList>();
+                ReadOnlySource ros = dps.Fetch(new SingleCriteria<ReadOnlySource, long>(itemID.Value));
+                ItemDuplicatesReadOnlyList dups = pdp.Fetch(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(itemID.Value));
+                AdditionalItemData res = new AdditionalItemData(itemID.Value, ros, dups);
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error fetching ItemTypes");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult UpdateItem([FromBody] ItemJSON item)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<Item> dp = new DataPortal<Item>();
+                    SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
+                    Item CSLAItem = item.itemId == 0 ? new Item() : dp.Fetch(criteria);
+                    UpdateItemData(item, CSLAItem);
+                    CSLAItem = CSLAItem.Save();
+                    return Ok(CSLAItem);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error when Updating an Item : {0}", item);
+                return StatusCode(500, e.Message);
+            }
+        }
+        private void UpdateItemData(ItemJSON item, Item CSLAItem)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (item.itemId == 0)
+            {
+                CSLAItem.CreatedBy = ri.Name;
+                CSLAItem.DateCreated = DateTime.Now;
+            }
+            CSLAItem.BeginEdit();
+            CSLAItem.Title = item.title;
+            CSLAItem.DateEdited = DateTime.Now;
+            CSLAItem.TypeId = item.typeId;
+            CSLAItem.ParentTitle = item.parentTitle;
+            CSLAItem.ShortTitle = item.shortTitle;
+            CSLAItem.EditedBy = ri.Name;
+            CSLAItem.Year = item.year;
+            CSLAItem.Month = item.month;
+            CSLAItem.StandardNumber = item.standardNumber;
+            CSLAItem.City = item.city;
+            CSLAItem.Country = item.country;
+            CSLAItem.Publisher = item.publisher;
+            CSLAItem.Institution = item.institution;
+            CSLAItem.Volume = item.volume;
+            CSLAItem.Pages = item.pages;
+            CSLAItem.Edition = item.edition;
+            CSLAItem.Issue = item.issue;
+            CSLAItem.Availability = item.availability;
+            CSLAItem.URL = item.url;
+            CSLAItem.Comments = item.comments;
+            if (item.itemStatus.ToUpper() == "I" || item.itemStatus.ToUpper() == "")
+            {
+                CSLAItem.IsItemDeleted = false;
+                CSLAItem.IsIncluded = true;
+            }
+            else if (item.itemStatus.ToUpper() == "D")
+            {
+                CSLAItem.IsItemDeleted = true;
+                CSLAItem.IsIncluded = false;
+            }
+            else if (item.itemStatus.ToUpper() == "E")
+            {
+                CSLAItem.IsItemDeleted = false;
+                CSLAItem.IsIncluded = false;
+            }
+            CSLAItem.DOI = item.doi;
+            CSLAItem.Keywords = item.keywords;
+            CSLAItem.Authors = item.authors;
+            CSLAItem.ParentAuthors = item.parentAuthors;
+            CSLAItem.Abstract = item.@abstract;
+            CSLAItem.ApplyEdit();
+        }
+        //[HttpPost("[action]")]
+        //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+        //{
+        //    try
+        //    {
+        //        SetCSLAUser();
+        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+        //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
+        //        SelectionCriteria crit = new SelectionCriteria();
+        //        crit.WorkAllocationId = AllocationId;
+        //        crit.ListType = ListType;
+        //        crit.PageSize = pageSize;
+        //        crit.PageNumber = pageNumber;
+        //        ItemList result = dp.Fetch(crit);
+        //        //return Json(result);
+
+        //        return Ok(new ItemList4Json(result));
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
     }
     public class SelCritMVC
     {
@@ -188,5 +303,50 @@ namespace ERxWebClient2.Controllers
         }
         public ItemList4Json(ItemList list)
         { _list = list; }
+    }
+    public class ItemJSON
+    {
+        public Int64 itemId;
+        public string title;
+        public int typeId;
+        public string itemStatus;
+        public string parentTitle;
+        public string shortTitle;
+        public string editedBy;
+        public string year;
+        public string month;
+        public string standardNumber;
+        public string city;
+        public string country;
+        public string publisher;
+        public string institution;
+        public string volume;
+        public string pages;
+        public string edition;
+        public string issue;
+        public string availability;
+        public string url;
+        public string comments;
+        public string doi;
+        public string keywords;
+        public string authors;
+        public string parentAuthors;
+        public string @abstract;
+
+        public bool isIncluded;
+        public bool isItemDeleted;
+        public string isLocal;
+    }
+    public class AdditionalItemData
+    {
+        public AdditionalItemData(long ItemId, ReadOnlySource Source, ItemDuplicatesReadOnlyList Duplicates)
+        {
+            this.itemID = ItemId;
+            this.source = Source;
+            this.duplicates = Duplicates;
+        }
+        public long itemID;
+        public ReadOnlySource source;
+        public ItemDuplicatesReadOnlyList duplicates;
     }
 }

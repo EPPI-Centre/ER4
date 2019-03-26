@@ -133,7 +133,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
 
     public LoginReq(u: string, p: string) {
-        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
@@ -155,7 +155,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
     
     public LoginToReview(RevId: number) {
-        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
@@ -183,7 +183,7 @@ export class ReviewerIdentityService implements OnDestroy {
 
     public LoginToFullReview(RevId: number) {
 
-        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
@@ -209,7 +209,7 @@ export class ReviewerIdentityService implements OnDestroy {
             );
     }
     public LoginReqSA(u: string, p: string, rid: number) {
-        (this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();
         let cred = new LoginCredsSA(u, p, rid);//
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
@@ -220,7 +220,7 @@ export class ReviewerIdentityService implements OnDestroy {
                     this.StartLogonTicketTimer();
                     this.ReviewInfoService.Fetch();
                     this.ReviewerTermsService.Fetch();
-                    this.router.navigate(['Main']);
+                    //this.router.navigate(['Main']);
                     this.OpeningNewReview.emit();
                 }
             }, error => {

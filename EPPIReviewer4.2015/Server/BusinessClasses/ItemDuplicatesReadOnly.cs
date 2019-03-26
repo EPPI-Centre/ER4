@@ -21,18 +21,14 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDuplicatesReadOnly : ReadOnlyBase<ItemDuplicatesReadOnly>
     {
+        public ItemDuplicatesReadOnly() { }
 
-#if SILVERLIGHT
-    public ItemDuplicatesReadOnly() { }
-#else
-        private ItemDuplicatesReadOnly() { }
-#endif
         public override string ToString()
         {
             return this.ShortTitle;
         }
 
-        //private static PropertyInfo<int> GroupIdProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupId", "GroupId"));
+        //public static readonly PropertyInfo<int> GroupIdProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupId", "GroupId"));
         //public int GroupId
         //{
         //    get
@@ -41,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
         //    }
         //}
         //SHORT_TITLE, I.ITEM_ID, SOURCE_NAME, ITEM_DUPLICATE_GROUP_ID GROUP_ID
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -49,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ItemIdProperty);
             }
         }
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
         public string ShortTitle
         {
             get
@@ -57,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ShortTitleProperty);
             }
         }
-        private static PropertyInfo<string> SourceNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceName", "SourceName"));
+        public static readonly PropertyInfo<string> SourceNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SourceName", "SourceName"));
         public string SourceName
         {
             get
@@ -65,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SourceNameProperty);
             }
         }
-        //private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
+        //public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
         //public int ReviewId
         //{
         //    get

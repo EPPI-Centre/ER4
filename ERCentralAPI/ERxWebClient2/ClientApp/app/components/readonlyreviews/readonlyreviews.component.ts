@@ -7,6 +7,7 @@ import { readonlyreviewsService, ReadOnlyReview } from '../services/readonlyrevi
 import { ModalService } from '../services/modal.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'readonlyreviews',
@@ -53,8 +54,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         this.sort = sort;
     }
     FormatDate(DateSt: string): string {
-        let date: Date = new Date(DateSt);
-        return date.toLocaleDateString();
+        return Helpers.FormatDate2(DateSt);
     }
 
     onSubmit(f: string) {

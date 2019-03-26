@@ -77,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
                     { 
                         this.Clear();
                         throw new DataPortalException("Execution still Running", this);
-                    }//currently if SISS package has saved data but results were never collected the query will delete results from the temp query and return -3
+                    }
                     else if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-3")
                     {//we'll see if this happens frequently
                         this.Clear();

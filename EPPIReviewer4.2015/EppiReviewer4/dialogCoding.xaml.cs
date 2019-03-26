@@ -1150,21 +1150,45 @@ namespace EppiReviewer4
         {
             bool warn = false;
             windowConfirmDocDelete.cmdDeleteDoc.Tag = (sender as Button).Tag;
-            warn = codesTreeControl.isItemDocumentTextCoded((long)((sender as Button).Tag));
-            if (warn)
+            ItemDocumentDeleteWarningCommand cmd = new ItemDocumentDeleteWarningCommand((long)windowConfirmDocDelete.cmdDeleteDoc.Tag);
+            DataPortal<ItemDocumentDeleteWarningCommand> dp = new DataPortal<ItemDocumentDeleteWarningCommand>();
+            dp.ExecuteCompleted += (o, e2) =>
             {
-                windowConfirmDocDelete.TextBlockCheckDeleteDocDetails.Text = @"This Document appears to have been coded. 
-If you delete this file, it's coding information will be lost as well. This action cannot be undone.
-Proceed?";
-                windowConfirmDocDelete.ShowDialog();
-            }
-            if (!warn)
-            {
-                windowConfirmDocDelete.TextBlockCheckDeleteDocDetails.Text = @"This Document does not appear to have been coded. No additional information will be deleted.
-Proceed?";
-                windowConfirmDocDelete.ShowDialog();
-            }
-            //if (isItemDocumentTextCoded()) ;
+                windowConfirmDocDelete.BusyCheckDocDelete.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    windowConfirmDocDelete.Close();
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else 
+                {
+                    cmd = e2.Object as ItemDocumentDeleteWarningCommand;
+                    if (cmd == null)
+                    {//just being safe here, shouldn't happen...
+                        windowConfirmDocDelete.Close();
+                        return;
+                    }
+                    if (cmd.NumCodings > 0)
+                    {
+                        windowConfirmDocDelete.WarningBorder.Background = new SolidColorBrush(Colors.Orange);
+                        windowConfirmDocDelete.TextBlockCheckDeleteDocDetails.Text = "This Document appears to have been coded " + cmd.NumCodings + " time(s)." + Environment.NewLine
+                                    +"If you delete this file, its coding information will be lost. This action cannot be undone." + Environment.NewLine
+                                    + "Proceed?";
+                    }
+                    else
+                    {
+                        windowConfirmDocDelete.TextBlockCheckDeleteDocDetails.Text = "This Document does not appear to have been coded. No additional information will be deleted when deleting this Document." + Environment.NewLine
+                                                                                    +"Proceed?";
+                    }
+                }
+            };
+            
+            SolidColorBrush AllClearBg = new SolidColorBrush(Colors.Transparent);
+            windowConfirmDocDelete.WarningBorder.Background = AllClearBg;
+            windowConfirmDocDelete.BusyCheckDocDelete.IsRunning = true;
+            windowConfirmDocDelete.TextBlockCheckDeleteDocDetails.Text = "Loading...";
+            windowConfirmDocDelete.ShowDialog();
+            dp.BeginExecute(cmd);
         }
 
         private void cmdDeleteDoc_Click(object sender, RoutedEventArgs e)

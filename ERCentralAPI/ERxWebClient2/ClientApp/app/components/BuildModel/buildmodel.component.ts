@@ -31,14 +31,12 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	public modelNameText: string = '';
 	public DD1: string = '0';
 	public DD2: string = '0';
-
 	public get DataSource(): GridDataResult {
 		return {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
 	}
-	
 	CanOnlySelectRoots() {
 
 		return true;

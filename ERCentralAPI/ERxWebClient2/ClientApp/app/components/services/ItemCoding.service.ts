@@ -72,6 +72,7 @@ export class ItemCodingService extends BusyAwareService {
             , () => { this.RemoveBusy("Fetch");}
             );
     }
+    
     private SelfSubscription4QuickCodingReport: Subscription | null = null;
     private _CodingReport: string = "";
     public get CodingReport(): string {

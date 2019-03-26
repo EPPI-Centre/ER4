@@ -1,26 +1,23 @@
 <div class="containsAtoolbar">
     <kendo-toolbar>
-        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" style="border-color: #04070b;background-color: indianred;"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" style="border-color: #04070b;background-color: aliceblue;"></kendo-toolbar-button>
-        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [data]="data"></kendo-toolbar-splitbutton>
-        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Classify     '" (click)="Classify()" [attr.aria-expanded]="!ModelSection" aria-controls="collapseExample3" class="btn-outline-danger"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()"  [disabled]="!HasWriteRights" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-splitbutton [text]="'Combine'" (click)="CombineSearches()" [disabled]="!HasWriteRights" [data]="data"></kendo-toolbar-splitbutton>
+        <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" ></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-
 <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
 	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 		<div class="row mt-1 mb-2">
-
 			<div class="col-12 col-md-3 ">
 				<button type="button" class="btn btn-primary"
 						[disabled]="!CanApplySearch()"
 						(click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
-					Get Searches
+					Run Search
 				</button>
 			</div>
-
 			<div class="col-11 col-md-4 pr-1 pl-1">
 				<div ngbDropdown>
 					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
@@ -46,7 +43,7 @@
 				<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree"
 						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
 						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
-					{{CurrentDropdownSelectedCode?.name}}
+					 &nbsp;{{CurrentDropdownSelectedCode?.name}}
 				</button>
 				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
@@ -111,8 +108,6 @@
 
 					</div>
 
-
-
 					<br> &nbsp;<b>IN</b>
 					<!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
 					<div ngbDropdown class="d-inline-block col-md-12 p-0 m-0">
@@ -152,7 +147,6 @@
 		</div>
 	</div>
 </div>
-
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
     <table class="table col-md-12 ">
         <tr>
@@ -260,18 +254,15 @@
         </button>
     </div>
 </div>
-
-
-
 <div id="visualiseSection" *ngIf="ShowVisualiseSection" class="container-fluid bg-light p-1 m-1">
     <div ngbDropdown class="card col-12 px-1 ">
-        <div *ngIf="!CanCreateClassifierCodes()" class="col-12 alert alert-danger mt-1 mb-1 mr-1 ml-0 pl-1 p-0">
-            &nbsp;To create codes to represent the classifier result, please select a code on the right.
-        </div>
+		<div *ngIf="!CanCreateClassifierCodes()" class="col-12 alert alert-danger mt-1 mb-1 mr-1 ml-0 pl-1 p-0">
+			&nbsp;To represent the classifier result as codes, select a location in a coding tool to the right.
+		</div>
         <div *ngIf="CanCreateClassifierCodes()" class="row col-12 m-0 p-0">
             <div style="min-width: 150px; margin:auto;" class="col p-1" *ngIf="selectedNode"> Create codes below this Code / Coding Tool: <b>{{selectedNode.name}}</b></div>
             <div class="m-0 p-0">
-                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" (click)="CreateCodesBelow()">Create</button>
+                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" [disabled]="!HasWriteRights" (click)="CreateCo()">Create</button>
             </div>
         </div>
     </div>
@@ -299,7 +290,6 @@
         </div>
     </div>
 </div>
-
 <div class="card col-12 bg-light">
 	
     <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"

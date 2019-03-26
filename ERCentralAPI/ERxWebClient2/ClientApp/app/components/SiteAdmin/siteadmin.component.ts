@@ -6,6 +6,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { FeedbackAndClientError, OnlineHelpService } from '../services/onlinehelp.service';
 import { GridDataResult, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@progress/kendo-data-query';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -26,12 +27,15 @@ export class SiteAdminComponent implements OnInit {
     ) {    }
 
     ngOnInit() {
+        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
         else this.OnlineHelpService.GetFeedbackMessageList();
     }
     public Uname: string = "";
     public Pw: string = "";
     public revId: string = "";
+    //public LoggedStatus: string = "";
+    subOpeningReview: Subscription | null = null;
     public get FeedbackMessageList(): FeedbackAndClientError[] {
         return this.OnlineHelpService.FeedbackMessageList;
     }
@@ -77,11 +81,19 @@ export class SiteAdminComponent implements OnInit {
         else return false;
     }
     OpenRev() {
+        //this.LoggedStatus == "";
         let rid = parseInt(this.revId, 10)
         if (!isNaN(rid) && rid > 0) {
+            //this.BackToMain();
             this.ReviewerIdentityServ.LoginReqSA(this.Uname, this.Pw, rid);
         }
     }
+    //public  CheckLoggedStatus() {
+    //    if (this.ReviewerIdentityServ.reviewerIdentity && this.ReviewerIdentityServ.reviewerIdentity.reviewId != 0) {
+    //        this.LoggedStatus =  "Rid=" + this.ReviewerIdentityServ.reviewerIdentity.reviewId + " " + this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated;
+    //    }
+    //    else this.LoggedStatus = "Nope: " + this.ReviewerIdentityServ.reviewerIdentity.reviewId;
+    //}
     //protected pageChange({ skip, take }: PageChangeEvent): void {
     //    this.skip = skip;
     //    this.pageSize = take;

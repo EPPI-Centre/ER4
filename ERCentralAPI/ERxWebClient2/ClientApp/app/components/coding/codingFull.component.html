@@ -35,7 +35,7 @@
 				<kendo-tabstrip (tabSelect)="onTabSelect($event)">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
-							<itemDetailsComp #ItemDetailsCmp [item]="item" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
+							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 					<kendo-tabstrip-tab [title]="'Study Arms'">

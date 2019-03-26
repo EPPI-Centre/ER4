@@ -87,17 +87,19 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				
-				SetCSLAUser();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
-				SingleCriteria<WorkAllocation, int> criteria = new SingleCriteria<WorkAllocation, int>(workAllocationId.Value);
-				WorkAllocation result = dp.Fetch(criteria);
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
+					SingleCriteria<WorkAllocation, int> criteria = new SingleCriteria<WorkAllocation, int>(workAllocationId.Value);
+					WorkAllocation result = dp.Fetch(criteria);
 
-				result.Delete();
-				result = result.Save();
+					result.Delete();
+					result = result.Save();
 
-				return Ok(result);
+					return Ok(result);
+				}
+				else return Forbid();
 			}
 			catch (Exception e)
 			{
@@ -105,12 +107,54 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
+		//AssignWorkAllocation
+		[HttpPost("[action]")]
+		public IActionResult AssignWorkAllocation([FromBody] WorkAllocationJSON workAllocation)
+		{
+			try
+			{
 
+				if (SetCSLAUser4Writing())
+				{
 
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					WorkAllocation newWA = new WorkAllocation();
+					DataPortal<WorkAllocation> dp = new DataPortal<WorkAllocation>();
+
+					newWA.AttributeId = workAllocation.attributeId;
+					newWA.SetId = workAllocation.setId;
+					int contactID = 0;
+					bool res = int.TryParse(workAllocation.contactId, out contactID);
+					if (res)
+					{
+						newWA.ContactId = contactID;
+					}
+					newWA = newWA.Save();
+
+					return Ok();
+				}
+				else return Forbid();
+				
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Assign Work Allocation data portal error");
+				throw;
+			}
+		}
 	}
 	public class WorkAllocationJSON
 	{
-		public long itemid { get; set; }
+		public int workAllocationId { get; set; }
+		public string contactName{ get; set; }
+		public string contactId { get; set; }
+		public string setName { get; set; }
+		public int setId { get; set; }
+		public string attributeName { get; set; }
+		public int attributeId { get; set; }
+		public int totalAllocation { get; set; }
+		public int totalStarted { get; set; }
+		public int totalRemaining { get; set; }
 
 	}
 }

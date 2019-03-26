@@ -7,6 +7,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -191,9 +192,8 @@ export class PubMedComponent implements OnInit, OnDestroy {
             return this.SourcesService.IsSourceNameValid(this._DataToCheck.itemsList.sourceName);
         };
     }
-    FormatDate(DateSt: string): string {//DONKEY! replicated code :-(
-        let date: Date = new Date();
-        return date.toLocaleDateString();
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
     }
     ngOnDestroy(): void {
         if (this.gotPmSearchToCheckSubs) this.gotPmSearchToCheckSubs.unsubscribe();
