@@ -15,6 +15,7 @@ import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.compon
 import { NgForm, FormsModule  } from '@angular/forms';
 import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -32,7 +33,8 @@ export class WorkAllocationComp implements OnInit {
 		public confirmationDialogService: ConfirmationDialogService,
 		public _reviewSetsService: ReviewSetsService,
 		public _reviewSetsEditingService: ReviewSetsEditingService,
-		public _comparisonsService: ComparisonsService
+		public _comparisonsService: ComparisonsService,
+		public _notificationService: NotificationService
     ) { }
 
 	
@@ -606,14 +608,37 @@ export class WorkAllocationComp implements OnInit {
 		this.selectedMemberDropDown = member;
 		this.workAllocation.contactId = member.contactId
 	}
+	private showAssignmentNotification(status: string): void {
+
+		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
+		let contentSt: string = "";
+		if (status == "Success") {
+			typeElement = "success";
+			contentSt = 'Assignment updated succesfully.';
+		}//type: { style: 'error', icon: true }
+		else {
+			typeElement = "error";
+			contentSt = 'The Assignment creation failed, if the problem persists, please contact EPPISupport.';
+		}
+		this._notificationService.show({
+			content: contentSt,
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: typeElement, icon: true },
+			closable: true
+		});
+	}
+
 	WorkAssignment() {
-			
+
+
 		let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		this.workAllocation.attributeId = setAtt.attribute_id;
 		this.workAllocation.setId = this.DropDownBasicCodingTool.set_id;
 		let contact: Contact = this.selectedMemberDropDown;
 		this.workAllocation.contactId = contact.contactId.toString();
 		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
+		this.showAssignmentNotification("Success");
 		this.AssignWorkSection = false;
 	}
 	CanNewWorkAllocationCreate(): boolean {
