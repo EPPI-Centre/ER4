@@ -19,7 +19,9 @@ export class ComparisonsService extends BusyAwareService {
     ) {
         super();
     }
-
+	public Agreements1: number = 0;
+	public Agreements2: number = 0;
+	public Agreements3: number = 0;
 	private _Comparisons: Comparison[] = [];
 	public currentComparison: Comparison = new Comparison();
 
@@ -37,17 +39,26 @@ export class ComparisonsService extends BusyAwareService {
 		}
     }
 
-	private _Statistics: ComparisonStatistics[] = [];
+	private _Statistics: ComparisonStatistics = new ComparisonStatistics();
 
-	public get Statistics(): ComparisonStatistics[] {
+	public get Statistics(): ComparisonStatistics {
 		if (this._Statistics) {
 			return this._Statistics;
 		} else {
-			return [];
+			return new ComparisonStatistics();
 		}
 	}
+	public calculateStats() {
 
-	public set Statistics(stats: ComparisonStatistics[]) {
+		let stats: ComparisonStatistics = this._Statistics;
+		//console.log(stats.canComplete1vs2 + 'true');
+		this.Agreements1 = stats.n1vs2 - stats.disagreements1vs2;
+		this.Agreements2 = stats.n1vs3 - stats.disagreements1vs3;
+		this.Agreements3 = stats.n2vs3 - stats.disagreements2vs3;
+		//alert('asdf ' + test.n2vs3);
+
+	}
+	public set Statistics(stats: ComparisonStatistics) {
 		if (stats) {
 			this._Statistics = stats;
 		}
@@ -66,15 +77,15 @@ export class ComparisonsService extends BusyAwareService {
         );
 	}
 
-	public FetchStats(ComparisonId: number ) {
+	public  FetchStatsAsync(ComparisonId: number ) {
 
 		let body = JSON.stringify({ Value: ComparisonId });
-		this._httpC.post<ComparisonStatistics[]>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)
+		 this._httpC.post<ComparisonStatistics>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)
 			.subscribe(result => {
-
 				this._Statistics = result;
 				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];
-				console.log(this._Statistics);
+				//console.log(this._Statistics);
+				this.calculateStats();
 
 			}, error => { this.modalService.SendBackHomeWithError(error); }
 			);
@@ -125,41 +136,41 @@ export class ComparisonsService extends BusyAwareService {
 
 export class Comparison {
 
-	comparisonId: number = 0;
-	isScreening: boolean = false;
-	reviewId: number = 0;
-	inGroupAttributeId: number = 0;
-	setId: number = 0;
-	comparisonDate: string = "";
-	contactId1: number = 0;
-	contactId2: number = 0;
-	contactId3: number = 0;
-	contactName1: string = '';
-	contactName2: string = '';
-	contactName3: string = '';
-	attributeName: string = '';
-	setName: string = '';
+	public comparisonId: number = 0;
+	public isScreening: boolean = false;
+	public reviewId: number = 0;
+	public inGroupAttributeId: number = 0;
+	public setId: number = 0;
+	public comparisonDate: string = "";
+	public contactId1: number = 0;
+	public contactId2: number = 0;
+	public contactId3: number = 0;
+	public contactName1: string = '';
+	public contactName2: string = '';
+	public contactName3: string = '';
+	public attributeName: string = '';
+	public setName: string = '';
 
 }
 
 export class ComparisonStatistics {
 
-	comparisonId: number = 0;
-	N1vs2: number = 0;
-	N2vs3: number = 0;
-	N1vs3: number = 0;
-	disagreements1vs2: number = 0;
-	disagreements2vs3: number = 0;
-	disagreements1vs3: number = 0;
-	Ncoded1: number = 0;
-	Ncoded2: number = 0;
-	Ncoded3: number = 0;
-	CanComplete1vs2: number = 0;
-	CanComplete1vs3: number = 0;
-	CanComplete2vs3: number = 0;
-	Scdisagreements1vs2: number = 0;
-	Scdisagreements2vs3: number = 0;
-	Scdisagreements1vs3: number = 0;
-	isScreening: boolean = false;
+	public comparisonId: number = 0;
+	public n1vs2: number = 0;
+	public n2vs3: number = 0;
+	public n1vs3: number = 0;
+	public disagreements1vs2: number = 0;
+	public disagreements2vs3: number = 0;
+	public disagreements1vs3: number = 0;
+	public ncoded1: number = 0;
+	public ncoded2: number = 0;
+	public ncoded3: number = 0;
+	public canComplete1vs2: boolean = false;
+	public canComplete1vs3: boolean = false;
+	public canComplete2vs3: boolean = false;
+	public scdisagreements1vs2: number = 0;
+	public scdisagreements2vs3: number = 0;
+	public scdisagreements1vs3: number = 0;
+	public isScreening: boolean = false;
 
 }

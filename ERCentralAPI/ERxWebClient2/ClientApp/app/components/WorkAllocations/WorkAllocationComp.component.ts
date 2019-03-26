@@ -183,7 +183,7 @@ export class WorkAllocationComp implements OnInit {
 	getStatistics(comparisonId: number) {
 
 		if (this._comparisonsService && comparisonId != null) {
-			this._comparisonsService.FetchStats(comparisonId);
+			this._comparisonsService.FetchStatsAsync(comparisonId);
 		}
 	}
     SetRelevantDropDownValues(selection: number) {
@@ -628,7 +628,10 @@ export class WorkAllocationComp implements OnInit {
 			closable: true
 		});
 	}
-
+	calculateStats() {
+		alert('calling');
+		this._comparisonsService.calculateStats();
+	}
 	WorkAssignment() {
 
 

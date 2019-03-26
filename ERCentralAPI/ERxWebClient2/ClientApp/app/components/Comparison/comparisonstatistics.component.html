@@ -31,11 +31,10 @@
 					{{_comparisonsService.currentComparison.contactName2}}
 				</span>
 				<div class="col-9 row">
-					<button class="btn btn-outline-info col-3" > Stuff 1</button>
-					<button class="btn btn-outline-info col-3" > Complete</button>
-
-					<button class="btn btn-outline-info col-3" > Stuff 1</button>
-					<button class="btn btn-outline-info col-3" > Reconcile</button>
+					<button class="btn btn-outline-info col-3"> {{_comparisonsService.Agreements1}}  / {{_comparisonsService.Statistics.n1vs2 }} (list)</button>
+					<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" [disabled]="!checkCanComplete1()"> Complete</button>
+					<button class="btn btn-outline-info col-3"> {{_comparisonsService.Statistics.disagreements1vs2 }}  / {{_comparisonsService.Statistics.n1vs2 }} (list)</button>
+					<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" > Reconcile</button>
 				</div>
 			</div>
 			<div class="col-12 row"
@@ -45,11 +44,11 @@
 					{{_comparisonsService.currentComparison.contactName3}}
 				</span>
 				<div class="col-9 row">
-					<button class="btn btn-outline-info col-3"> Stuff 2</button>
-					<button class="btn btn-outline-info col-3"> Complete</button>
+					<button class="btn btn-outline-info col-3"> {{_comparisonsService.Agreements2 }}  / {{_comparisonsService.Statistics.n2vs3 }} (list)</button>
+					<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" [disabled]="!checkCanComplete2()"> Complete</button>
 
-					<button class="btn btn-outline-info col-3"> Stuff 2</button>
-					<button class="btn btn-outline-info col-3"> Reconcile</button>
+					<button class="btn btn-outline-info col-3">{{_comparisonsService.Statistics.disagreements2vs3 }}  / {{_comparisonsService.Statistics.n2vs3 }} (list)</button>
+					<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
 				</div>
 			</div>
 			<div class="col-12 row"
@@ -60,11 +59,11 @@
 					</span>
 					<div class="col-9 row" 
 						 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-						<button class="btn btn-outline-info col-3"> Stuff 3</button>
-						<button class="btn btn-outline-info col-3"> Complete</button>
+						<button class="btn btn-outline-info col-3"> {{_comparisonsService.Agreements3 }} / {{_comparisonsService.Statistics.n1vs3 }} (list)</button>
+						<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" [disabled]="!checkCanComplete3()"> Complete</button>
 
-						<button class="btn btn-outline-info col-3"> Stuff 3</button>
-						<button class="btn btn-outline-info col-3"> Reconcile</button>
+						<button class="btn btn-outline-info col-3"> {{_comparisonsService.Statistics.disagreements1vs3 }}  / {{_comparisonsService.Statistics.n1vs3 }} (list)</button>
+						<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
 					</div>
 			</div>
 		</div>
