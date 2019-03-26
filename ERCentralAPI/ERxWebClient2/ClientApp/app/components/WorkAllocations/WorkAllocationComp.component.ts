@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
@@ -43,6 +43,7 @@ export class WorkAllocationComp implements OnInit {
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
+
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
 	public AssignWorkSection: boolean = false;

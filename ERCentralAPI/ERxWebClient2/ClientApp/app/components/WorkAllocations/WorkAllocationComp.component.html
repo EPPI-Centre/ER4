@@ -308,22 +308,27 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="small" *ngFor="let item of _comparisonsService.Comparisons; let i = index">
-							<td>{{ item.setName }}</td>
-							<td>{{ item.contactName1 }}</td>
-							<td>{{ item.contactName2 }}</td>
-							<td>{{ item.contactName3 }}</td>
-							<td>{{ item.attributeName}}</td>
-							<td>{{ item.comparisonDate }}</td>
-							<td><button class="btn btn-outline-success " (click)="NotImplemented()">&nbsp; Run &nbsp;</button></td>
-							<td><button class="btn btn-outline-info " (click)="getStatistics(item.comparisonId)">&nbsp; View &nbsp;</button></td>
-							<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
-						</tr>
+						<ng-container class="small" *ngFor="let item of _comparisonsService.Comparisons; let i = index">
+							<tr>
+								<td>{{ item.setName }}</td>
+								<td>{{ item.contactName1 }}</td>
+								<td>{{ item.contactName2 }}</td>
+								<td>{{ item.contactName3 }}</td>
+								<td>{{ item.attributeName}}</td>
+								<td>{{ item.comparisonDate }}</td>
+								<td><button class="btn btn-outline-success " (click)="NotImplemented()">&nbsp; Run &nbsp;</button></td>
+								<td><button class="btn btn-outline-info " (click)="getStatistics(item.comparisonId)">&nbsp; View &nbsp;</button></td>
+								<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
+							</tr>
+							<tr>
+								<td colspan="8">
+									<ComparisonStatsComp [rowSelected]="item.comparisonId">
+									</ComparisonStatsComp>
+								</td>
+							</tr>
+						</ng-container>
 					</tbody>
 				</table>
-				<ComparisonStatsComp>
-
-				</ComparisonStatsComp>
 			</div>
 		</div>
 	</div>

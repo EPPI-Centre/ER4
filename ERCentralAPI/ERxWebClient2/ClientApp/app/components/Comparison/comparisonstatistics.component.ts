@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
@@ -35,6 +35,7 @@ export class ComparisonStatsComp implements OnInit {
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	public selectedFilter!: singleNode;
 	@Output() emitterCancel = new EventEmitter();
+	@Input('rowSelected') rowSelected!: number;
 
 	//getMembers() {
 
