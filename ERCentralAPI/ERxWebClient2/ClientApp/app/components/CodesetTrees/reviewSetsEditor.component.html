@@ -37,9 +37,9 @@
                     </kendo-toolbar>
                 </div>
             </div>
-            <div *ngIf="CurrentNode">
-                Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
-            </div>
+			<div *ngIf="CurrentNode">
+				&nbsp;&nbsp;&nbsp; Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
+			</div>
             <div *ngIf="ActivityPanelName == 'AddCodeSet'" class="container card card-body bg-light">
                 <form class="row" #NewCodesetFrom="ngForm">
                     <div class="col-5">

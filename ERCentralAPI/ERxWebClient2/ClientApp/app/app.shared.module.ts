@@ -67,7 +67,9 @@ import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
 import { WorkAllocationContactListComp } from './components/WorkAllocations/WorkAllocationContactListComp.component';
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
-import { CreateNewCodeComp } from './components/CreateNewCode/createnewcode.component';
+import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
+import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
+import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 
@@ -118,10 +120,12 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
-        SiteAdminEntryComponent,
+		SiteAdminEntryComponent,
+		CreateNewCodeComp,
+		ComparisonComp,
+		ComparisonStatsComp
         PdfTronContainer,
-        WebViewerComponent,
-		CreateNewCodeComp
+        WebViewerComponent
 	],
     providers: [
         EventEmitterService,

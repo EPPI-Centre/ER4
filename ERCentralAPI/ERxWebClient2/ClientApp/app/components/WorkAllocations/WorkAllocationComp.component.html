@@ -1,284 +1,336 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
-		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create new code'" (click)="NewCodeSectionOpen()" [disabled]="!HasWriteRights  || !CanCreateNewCode()"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create comparison'" (click)="NewComparisonSectionOpen()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->
-	<div id="RandomlyAssignSection" *ngIf="PanelName == 'RandomlyAssignSection'" class="col-12 col-sm-12 col-md-12 p-0 mb-1" style="min-width:120px;">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="card-body">
-                <div class="row">
-                        <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
-                        <div class="form-group col-12 col-sm-10">
-                            <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
-                                    style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
-                                    (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
-                                <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                                        [selected]="item.key == selectedAllocated.key">
-                                    {{item.value}}
-                                </option>
-                            </select>
-                        </div>
-                </div>
-                <div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
+<div id="RandomlyAssignSection" *ngIf="PanelName == 'RandomlyAssignSection'" class="col-12 col-sm-12 col-md-12 p-0 mb-1" style="min-width:120px;">
+	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+		<div class="card-body">
+			<div class="row">
+				<div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
+				<div class="form-group col-12 col-sm-10">
+					<select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
+							style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
+							(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
+						<option *ngFor="let item of AllocateOptions" [value]="item.key"
+								[selected]="item.key == selectedAllocated.key">
+							{{item.value}}
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
 						||  (selectedAllocated.value == 'All without this code' )">
 
 
-                    <div class="col-12 col-sm-2 text-sm-right" style="">
-                        Select code:
-                    </div>
-                    <div ngbDropdown class="col-12 col-sm-10">
-                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
-                                id="dropdownTreeRandomAllocate"
-                                style="min-width: 200px; max-width:720px;"
-                                (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions; dropdownTree11 = false; isCollapsedCodingTool = false"
-                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
-                            {{DropdownWithWithoutSelectedCode?.name}}
-                        </button>
-                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
-                            <codesetSelector [IsMultiSelect]="false"
-                                             [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
-                                             (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"
-                                             [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-                        </div>
-                    </div>
-                </div>
+				<div class="col-12 col-sm-2 text-sm-right" style="">
+					Select code:
+				</div>
+				<div ngbDropdown class="col-12 col-sm-10">
+					<button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
+							id="dropdownTreeRandomAllocate"
+							style="min-width: 200px; max-width:720px;"
+							(click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions; dropdownTree11 = false; isCollapsedCodingTool = false"
+							[attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+						{{DropdownWithWithoutSelectedCode?.name}}
+					</button>
+					<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
+						<codesetSelector [IsMultiSelect]="false"
+										 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
+										 (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"
+										 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+			</div>
 
-                <div class="row  "
-                     *ngIf="(selectedAllocated.value == 'All with any codes from this coding tool')
+			<div class="row  "
+				 *ngIf="(selectedAllocated.value == 'All with any codes from this coding tool')
 						||  (selectedAllocated.value == 'All without any codes from this coding tool' )">
-                    <div class="col-12 col-sm-2 text-sm-right" style="">
-                        Select also from
-                    </div>
-                    <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
-                        <button class="btn btn-outline-secondary dropdown-toggle col-12"
-                                style="min-width: 200px; max-width:720px;"
-                                (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false; isCollapsedCodeStudies = false;"
-                                id="dropdownBasicCodingTool" ngbDropdownToggle>
-                            {{selectedCodeSetDropDown.name}}
-                        </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-                            <button (click)="setCodeSetDropDown(item)"
-                                    *ngFor="let item of CodeSets;" class="dropdown-item">
-                                {{item.name}}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-				
-                <div class="row mt-2 justify-content-center justify-content-md-start">
-                    <div class="col-12 col-md-4 row ">
-                        <div class="mr-2 text-right" style="">
-                            Percentage of references
-                        </div>
-                        <div class="">
-                            <kendo-numerictextbox [(ngModel)]="numericRandomSample"
-                                                  [min]="5" [format]="'n0'"
-                                                  [max]="100"
-                                                  [step]="1"
-                                                  [autoCorrect]="true"
-                                                  class="border border-dark rounded mt-1"
-                                                  style="width: 100px;">
+				<div class="col-12 col-sm-2 text-sm-right" style="">
+					Select also from
+				</div>
+				<div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+					<button class="btn btn-outline-secondary dropdown-toggle col-12"
+							style="min-width: 200px; max-width:720px;"
+							(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false; isCollapsedCodeStudies = false;"
+							id="dropdownBasicCodingTool" ngbDropdownToggle>
+						{{selectedCodeSetDropDown.name}}
+					</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+						<button (click)="setCodeSetDropDown(item)"
+								*ngFor="let item of CodeSets;" class="dropdown-item">
+							{{item.name}}
+						</button>
+					</div>
+				</div>
+			</div>
 
-                            </kendo-numerictextbox>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 row">
-                        <div class="text-right mr-2" style="min-width:110px;">
-                            Number of groups
-                        </div>
-                        <div class="">
-                            <kendo-numerictextbox [(ngModel)]="numericRandomCreate"
-                                                  [min]="1" [format]="'n0'"
-                                                  [max]="10"
-                                                  [step]="1"
-                                                  [autoCorrect]="true"
-                                                  class="border border-dark rounded mt-1"
-                                                  style="width: 100px;">
-                            </kendo-numerictextbox>
-                        </div>
-                    </div>
-                    
-                </div>
-				
-                <div class="row my-1 ">
-                    <div class="col-12 row justify-content-center justify-content-md-start m-3">
-                            <input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Included </div>
-                            <input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Excluded</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-sm-2 text-sm-right" style="">Create codes below this code / coding tool </div>
-                    <div class="form-group col-12 col-sm-10">
-                        <div *ngIf="!NoSuitableCodeSet" ngbDropdown class="" style="min-width:150px;">
-                            <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100" id="collapseCodeTreeCodingTool"
-                                    style="min-width: 200px; max-width:720px;"
-                                    (click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
-                                    [attr.aria-expanded]="!isCollapsedCodingTool"
-                                    aria-controls="collapseCodeTreeCodingTool">
-                                {{DropdownSelectedCodingTool?.name}}
-                            </button>
-                            <div class="dropdown-menu " id="collapseCodeTreeCodingTool"
-                                 [ngbCollapse]="!isCollapsedCodingTool">
-                                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'RandomAllocation'"
-                                                 [MaxHeight]="500" #CodingToolTree
-                                                 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
-                                                 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
-                            </div>
-                        </div>
-                        <div *ngIf="NoSuitableCodeSet" ngbDropdown class="alert alert-danger " style="min-width:150px;">
-                            This review contains no Coding Tools able to receive random allocations. Please use the 
-                            <span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
-                            function to create a new tool (preferably of "Administration" type).
-                        </div>
-                    </div>
+			<div class="row mt-2 justify-content-center justify-content-md-start">
+				<div class="col-12 col-md-4 row ">
+					<div class="mr-2 text-right" style="">
+						Percentage of references
+					</div>
+					<div class="">
+						<kendo-numerictextbox [(ngModel)]="numericRandomSample"
+											  [min]="5" [format]="'n0'"
+											  [max]="100"
+											  [step]="1"
+											  [autoCorrect]="true"
+											  class="border border-dark rounded mt-1"
+											  style="width: 100px;">
 
-                </div>
-                <div class="row justify-content-center">
-                    <button style="min-width:100px"
-                            class=" pt-1 m-1 border border-dark rounded k-widget
+						</kendo-numerictextbox>
+					</div>
+				</div>
+				<div class="col-12 col-md-4 row">
+					<div class="text-right mr-2" style="min-width:110px;">
+						Number of groups
+					</div>
+					<div class="">
+						<kendo-numerictextbox [(ngModel)]="numericRandomCreate"
+											  [min]="1" [format]="'n0'"
+											  [max]="10"
+											  [step]="1"
+											  [autoCorrect]="true"
+											  class="border border-dark rounded mt-1"
+											  style="width: 100px;">
+						</kendo-numerictextbox>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="row my-1 ">
+				<div class="col-12 row justify-content-center justify-content-md-start m-3">
+					<input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
+					<div class="mr-2"> Included </div>
+					<input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
+					<div class="mr-2"> Excluded</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12 col-sm-2 text-sm-right" style="">Create codes below this code / coding tool </div>
+				<div class="form-group col-12 col-sm-10">
+					<div *ngIf="!NoSuitableCodeSet" ngbDropdown class="" style="min-width:150px;">
+						<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100" id="collapseCodeTreeCodingTool"
+								style="min-width: 200px; max-width:720px;"
+								(click)="isCollapsedCodingTool = !isCollapsedCodingTool; dropdownBasicCodingTool = false; isCollapsedAllocateOptions = false"
+								[attr.aria-expanded]="!isCollapsedCodingTool"
+								aria-controls="collapseCodeTreeCodingTool">
+							{{DropdownSelectedCodingTool?.name}}
+						</button>
+						<div class="dropdown-menu " id="collapseCodeTreeCodingTool"
+							 [ngbCollapse]="!isCollapsedCodingTool">
+							<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'RandomAllocation'"
+											 [MaxHeight]="500" #CodingToolTree
+											 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
+											 [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+						</div>
+					</div>
+					<div *ngIf="NoSuitableCodeSet" ngbDropdown class="alert alert-danger " style="min-width:150px;">
+						This review contains no Coding Tools able to receive random allocations. Please use the
+						<span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
+						function to create a new tool (preferably of "Administration" type).
+					</div>
+				</div>
+
+			</div>
+			<div class="row justify-content-center">
+				<button style="min-width:100px"
+						class=" pt-1 m-1 border border-dark rounded k-widget
 								k-numerictextbox btn btn-success" [disabled]="!CanAssign()"
-                            (click)="Assignment()">
-                        Create
-                    </button>
-                    <button style="min-width:100px"
-                            class=" pt-1 m-1 border border-dark rounded
+						(click)="Assignment()">
+					Create
+				</button>
+				<button style="min-width:100px"
+						class=" pt-1 m-1 border border-dark rounded
 								k-widget k-numerictextbox btn btn-outline-dark "
-                            (click)="CloseRandomlyAssignSection()">
-                        Cancel
-                    </button>
-                </div>
+						(click)="CloseRandomlyAssignSection()">
+					Cancel
+				</button>
 			</div>
 		</div>
 	</div>
-	<div id="AssignWorkSection" *ngIf="PanelName == 'AssignWorkSection'" class="col-12 p-0 mb-1">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="col-12 col-md-12">
-				<div class="form-group col-md-8 row ">
-                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
-                        Reference group to assign:
-                    </div>
-					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
-								(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
-								[attr.aria-expanded]="!isCollapsedCodeStudies" 
-								aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;"
-								>
-							{{DropdownSelectedCodeStudies?.name}}
-						</button>
-						<div ngbDropdownMenu class="dropdown-menu"
-							 id="collapseCodeTreeCodeStudies"
-							 [ngbCollapse]="!isCollapsedCodeStudies">
-							<codesetSelector [IsMultiSelect]="false"
-											 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #CodeStudiesTree
-											 (selectedNodeInTree)="CloseCodeDropDownStudies()"
-											 [rootsOnly]="!CanOnlySelectRoots()">
-							</codesetSelector>
-						</div>
+</div>
+<div id="AssignWorkSection" *ngIf="PanelName == 'AssignWorkSection'" class="col-12 p-0 mb-1">
+	<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+		<div class="col-12 col-md-12">
+			<div class="form-group col-md-8 row ">
+				<div class="col-12 col-md-3  text-right" style="min-width:100px;">
+					Reference group to assign:
+				</div>
+				<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
+					<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
+							(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
+							[attr.aria-expanded]="!isCollapsedCodeStudies"
+							aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;">
+						{{DropdownSelectedCodeStudies?.name}}
+					</button>
+					<div ngbDropdownMenu class="dropdown-menu"
+						 id="collapseCodeTreeCodeStudies"
+						 [ngbCollapse]="!isCollapsedCodeStudies">
+						<codesetSelector [IsMultiSelect]="false"
+										 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #CodeStudiesTree
+										 (selectedNodeInTree)="CloseCodeDropDownStudies()"
+										 [rootsOnly]="!CanOnlySelectRoots()">
+						</codesetSelector>
 					</div>
 				</div>
-				<div class="form-group col-md-8 row ">
-                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
-                        Coding tool to use:
-                    </div>
-					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicCodingTool" ngbDropdownToggle>
-							{{DropDownBasicCodingTool.name}}
+			</div>
+			<div class="form-group col-md-8 row ">
+				<div class="col-12 col-md-3  text-right" style="min-width:100px;">
+					Coding tool to use:
+				</div>
+				<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
+					<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicCodingTool" ngbDropdownToggle>
+						{{DropDownBasicCodingTool.name}}
+					</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+						<button (click)="setCodeSetDropDown2(item);"
+								*ngFor="let item of CodeSets;" class="dropdown-item">
+							{{item.name}}
 						</button>
-						<div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-							<button (click)="setCodeSetDropDown2(item);"
-									*ngFor="let item of CodeSets;" class="dropdown-item">
-								{{item.name}}
-							</button>
-						</div>
 					</div>
 				</div>
+			</div>
+			<div class="form-group col-md-8 row">
+				<div class="col-12 col-md-3  text-right" style="min-width:100px;">
+					Reviewer:
+				</div>
+				<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
+					<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicPerson" ngbDropdownToggle>
+						{{selectedMemberDropDown.contactName}}
+					</button>
+					<div ngbDropdownMenu aria-labelledby="dropdownBasicPerson">
+						<button (click)="SetMemberDropDown(member); "
+								*ngFor="let member of reviewInfoService.Contacts" class="dropdown-item">
+							{{member.contactName}}
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8 row">
+				<div class="col-md-4"></div>
 				<div class="form-group col-md-8 row">
-                    <div class="col-12 col-md-3  text-right" style="min-width:100px;">
-                        Reviewer:
-                    </div>
-					<div ngbDropdown class="col-12 col-md-8" style="min-width:150px;">
-						<button class="btn btn-outline-primary col-12  p-2 m-2" id="dropdownBasicPerson" ngbDropdownToggle>
-							{{selectedMemberDropDown.contactName}}
-						</button>
-						<div ngbDropdownMenu aria-labelledby="dropdownBasicPerson">
-							<button (click)="SetMemberDropDown(member); "
-									*ngFor="let member of reviewInfoService.Contacts" class="dropdown-item">
-								{{member.contactName}}
-							</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-8 row">
-					<div class="col-md-4"></div>
-					<div class="form-group col-md-8 row">
-						<button class="pt-1 m-1 border border-dark rounded k-widget
-								k-numerictextbox btn btn-success" [disabled]="CanNewWorkAllocationCreate()" (click)="WorkAssignment()" style="min-width:150px;">Assign</button>
-						<button class="pt-1 m-1 border border-dark rounded
-								k-widget k-numerictextbox btn btn-outline-dark" (click)="CloseAssignSection()" style="min-width:150px;">Cancel</button>
-					</div>
+					<button class="pt-1 m-1 border border-dark rounded k-widget
+								k-numerictextbox btn btn-success" [disabled]="CanNewWorkAllocationCreate()" (click)="WorkAssignment()" style="min-width:150px;">
+						Assign
+					</button>
+					<button class="pt-1 m-1 border border-dark rounded
+								k-widget k-numerictextbox btn btn-outline-dark" (click)="CloseAssignSection()" style="min-width:150px;">
+						Cancel
+					</button>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12 col-md-12 p-0 mb-1">
-		<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
-	</div>
-	<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
-		<div class="col-12 row p-0 m-0">
-			<div class="card  col-sm-12 col-md-3 px-1">
-				<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
-				<div style="max-height:340px;overflow:auto;">
-					<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
-						<thead>
-							<tr class="small">
-								<th>ID</th>
-								<th>Name</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
-								<td>{{ member.contactId }}</td>
-								<td>{{ member.contactName }}</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+</div>
+<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12 col-md-12 p-0 mb-1">
+	&nbsp;&nbsp;&nbsp; Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
+	<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
+</div>
+<div id="NewComparisonSection" *ngIf="PanelName == 'NewComparisonSection'" class="col-12 col-md-12 p-0 mb-1">
+	<CreateNewComparisonComp (emitterCancel)="CancelActivity()"></CreateNewComparisonComp>
+</div>
+
+<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
+	<div class="col-12 row p-0 m-0">
+		<div class="card  col-sm-12 col-md-3 px-1">
+			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
+			<div style="max-height:340px;overflow:auto;">
+				<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
+					<thead>
+						<tr class="small">
+							<th>ID</th>
+							<th>Name</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+							<td>{{ member.contactId }}</td>
+							<td>{{ member.contactName }}</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			<div class="card col-sm-12 col-md-9 px-1 ">
-				<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
-				<div style="max-height:340px;overflow:auto;">
-					<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
-						<thead>
+		</div>
+		<div class="card col-sm-12 col-md-9 px-1 ">
+			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
+			<div style="max-height:340px;overflow:auto;">
+				<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Contact</th>
+							<th>Study Group</th>
+							<th>Codes to apply</th>
+							<th>Allocated</th>
+							<th>Started</th>
+							<th>Remaining</th>
+							<th>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
+							<td>{{ wa.contactId }}</td>
+							<td>{{ wa.contactName }}</td>
+							<td>{{ wa.attributeName }}</td>
+							<td>{{wa.setName}}</td>
+							<td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
+							<td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
+							<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
+							<td class="p-0"><button class="btn btn-outline-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="card  col-sm-12 col-md-12 px-1">
+			<h5 class="m-1 p-1 font-weight-bold">Comparisons</h5>
+			<div style="max-height:340px;overflow:auto;">
+				<table class='card-body table table-striped bg-light' *ngIf="_comparisonsService.Comparisons">
+					<thead>
+						<tr class="small">
+							<th>Buttons</th>
+							<th>Codes applied from this set</th>
+							<th>Reviewer 1</th>
+							<th>Reviewer 2</th>
+							<th>(Reviewer 3)</th>
+							<th>(Only studies with this code)</th>
+							<th>Date</th>
+							<th>Quick Report</th>
+							<th>stats</th>
+							<th>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container class="small" *ngFor="let item of _comparisonsService.Comparisons; let i = index">
 							<tr>
-								<th>ID</th>
-								<th>Contact</th>
-								<th>Study Group</th>
-								<th>Codes to apply</th>
-								<th>Allocated</th>
-								<th>Started</th>
-								<th>Remaining</th>
-								<th>Delete</th>
+								<td>{{ item.setName }}</td>
+								<td>{{ item.contactName1 }}</td>
+								<td>{{ item.contactName2 }}</td>
+								<td>{{ item.contactName3 }}</td>
+								<td>{{ item.attributeName}}</td>
+								<td>{{ item.comparisonDate }}</td>
+								<td><button class="btn btn-outline-success " (click)="NotImplemented()">&nbsp; Run &nbsp;</button></td>
+								<td><button class="btn btn-outline-info " (click)="getStatistics(item.comparisonId)">&nbsp; View &nbsp;</button></td>
+								<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
 							</tr>
-						</thead>
-						<tbody>
-							<tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
-								<td>{{ wa.contactId }}</td>
-								<td>{{ wa.contactName }}</td>
-								<td>{{ wa.attributeName }}</td>
-								<td>{{wa.setName}}</td>
-								<td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
-								<td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
-								<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
-								<td class="p-0"><button class="btn btn-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
+							<tr>
+								<td colspan="8">
+									<ComparisonStatsComp [rowSelected]="item.comparisonId">
+									</ComparisonStatsComp>
+								</td>
 							</tr>
-						</tbody>
-					</table>
-				</div>
+						</ng-container>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
+</div>
+

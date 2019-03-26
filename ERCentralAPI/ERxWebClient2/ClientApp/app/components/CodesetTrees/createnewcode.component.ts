@@ -36,23 +36,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 	//@Input() PanelNameHolder: string = '';
 	@Output() emitterCancel = new EventEmitter();
 
-	public get AllowedChildTypes(): kvAllowedAttributeType[] {
-		let res: kvAllowedAttributeType[] = [];
-		if (!this.CurrentNode) return res;
-		let att: SetAttribute | null = null;
-		let Set: ReviewSet | null = null;
-		if (this.CurrentNode.nodeType == "ReviewSet") Set = this.CurrentNode as ReviewSet;
-		else if (this.CurrentNode.nodeType == "SetAttribute") {
-			att = this.CurrentNode as SetAttribute;
-			if (att && att.set_id > 0) Set = this._reviewSetsService.FindSetById(att.set_id);
-			if (!Set) return res;
-		}
-		//console.log("CurrentNode (Set)", Set);
-		if (Set && Set.setType) {
-			//console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
-			return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)'));
-		}
-		return res;
+    public get AllowedChildTypes(): kvAllowedAttributeType[] {
+        return this._reviewSetsService.AllowedChildTypesOfSelectedNode;  
 	}
 	IsNewCodeNameValid() {
 
