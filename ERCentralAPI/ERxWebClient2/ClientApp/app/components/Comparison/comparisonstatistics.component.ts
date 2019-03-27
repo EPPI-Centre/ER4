@@ -92,10 +92,6 @@ export class ComparisonStatsComp implements OnInit {
 	
 	public RefreshData() {
 
-		//this.getMembers();
-		//this.getCodeSets();
-		//this.getComparisons();
-		//this.getStatistics();
 		this.selectedCodeSet = this.CodeSets[0];
 	}
 	ngOnInit() {

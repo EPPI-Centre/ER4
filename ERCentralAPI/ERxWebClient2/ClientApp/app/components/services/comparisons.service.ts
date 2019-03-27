@@ -77,7 +77,7 @@ export class ComparisonsService extends BusyAwareService {
         );
 	}
 
-	public  FetchStatsAsync(ComparisonId: number ) {
+	public  FetchStats(ComparisonId: number ) {
 
 		let body = JSON.stringify({ Value: ComparisonId });
 		 this._httpC.post<ComparisonStatistics>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)

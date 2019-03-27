@@ -565,8 +565,8 @@ export class WorkAllocationComp implements OnInit {
 		this.openConfirmationDialogDeleteWA(workAllocationId);
 	}
 	removeComparisonWarning(comparisonId: number) {
-		alert('not implemented');
-//		this.openConfirmationDialogDeleteComp(comparisonId);
+		
+		this.openConfirmationDialogDeleteComp(comparisonId);
 	}
 	NotImplemented() {
 		alert('not implemented');

@@ -98,7 +98,8 @@ export class WorkAllocationListService extends BusyAwareService {
 	public DeleteWorkAllocation(workAllocationId: number) {
 
 		let body = JSON.stringify({ Value: workAllocationId });
-		this._httpC.post<WorkAllocation>(this._baseUrl + 'api/WorkAllocationContactList/DeleteWorkAllocation', body)
+		this._httpC.post<WorkAllocation>(this._baseUrl +
+			'api/WorkAllocationContactList/DeleteWorkAllocation', body)
 			.subscribe(() => {
 
 				this.FetchAll();
