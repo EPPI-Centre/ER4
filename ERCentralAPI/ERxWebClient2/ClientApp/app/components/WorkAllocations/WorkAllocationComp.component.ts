@@ -183,7 +183,7 @@ export class WorkAllocationComp implements OnInit {
 	getStatistics(comparisonId: number) {
 
 		if (this._comparisonsService && comparisonId != null) {
-			this._comparisonsService.FetchStatsAsync(comparisonId);
+			this._comparisonsService.FetchStats(comparisonId);
 		}
 	}
     SetRelevantDropDownValues(selection: number) {
