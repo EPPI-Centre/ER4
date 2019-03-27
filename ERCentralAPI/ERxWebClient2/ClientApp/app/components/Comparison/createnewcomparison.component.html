@@ -5,6 +5,7 @@
 				<label for="rev1">Reviewer 1</label>
 				<select class="col-md-6 form-control" name="rev1"
 						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1" >
+					<option> </option>
 					<option *ngFor="let member of Contacts" 
 							 [ngValue]="member" [selected]="member == selectedReviewer1">
 						{{member.contactName}}
@@ -16,9 +17,10 @@
 			<div class="form-group">
 				<label for="rev2">Reviewer 2</label>
 				<select class="col-md-6 form-control" name="rev2"
-						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2" >
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
-							 [ngValue]="member" [selected]="member == selectedReviewer2">
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2">
+					<option> </option>
+					<option *ngFor="let member of Contacts"
+							[ngValue]="member" [selected]="member == selectedReviewer2">
 						{{member.contactName}}
 					</option>
 				</select>
@@ -28,9 +30,10 @@
 			<div class="form-group">
 				<label for="rev3">Reviewer 3 (optional)</label>
 				<select class="col-md-6 form-control" name="rev3"
-						[disabled]="!HasWriteRights"  [(ngModel)]="selectedReviewer3">
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
-						name="rev3"	  [ngValue]="member" [selected]="member == selectedReviewer3">
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer3">
+					<option> </option>
+					<option *ngFor="let member of Contacts"
+							name="rev3" [ngValue]="member" [selected]="member == selectedReviewer3">
 						{{member.contactName}}
 					</option>
 				</select>
@@ -61,7 +64,7 @@
 		</div>
 		<div class="col-12">
 			<button type="submit" (click)="CreateNewComparison()" class="btn btn-success ml-2 mr-2"
-					[disabled]="!HasWriteRights && CanCreateComparison()">
+					[disabled]="!HasWriteRights || CanCreateComparison()">
 				Create Comparison
 			</button>
 			<button class="btn btn-outline-secondary ml-1"

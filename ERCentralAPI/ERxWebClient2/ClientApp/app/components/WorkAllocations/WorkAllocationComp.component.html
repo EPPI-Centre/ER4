@@ -237,9 +237,9 @@
 	<CreateNewComparisonComp (emitterCancel)="CancelActivity()"></CreateNewComparisonComp>
 </div>
 
-<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
-	<div class="col-12 row p-0 m-0">
-		<div class="card  col-sm-12 col-md-3 px-1">
+<div class="col-12 p-0 mb-1 bg-light " style="min-height:300px;">
+	<div class="col-12 row ">
+		<div class="card  col-sm-12 col-md-3 px-1  p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
 			<div style="max-height:340px;overflow:auto;">
 				<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
@@ -258,7 +258,7 @@
 				</table>
 			</div>
 		</div>
-		<div class="card col-sm-12 col-md-9 px-1 ">
+		<div class="card col-sm-12 col-md-8 px-1  p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
 			<div style="max-height:340px;overflow:auto;">
 				<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
@@ -289,13 +289,12 @@
 				</table>
 			</div>
 		</div>
-		<div class="card  col-sm-12 col-md-12 px-1">
+		<div class="card  col-sm-12 col-md-12 px-1 p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold">Comparisons</h5>
 			<div style="max-height:340px;overflow:auto;">
 				<table class='card-body table table-striped bg-light' *ngIf="_comparisonsService.Comparisons">
 					<thead>
 						<tr class="small">
-							<th>Buttons</th>
 							<th>Codes applied from this set</th>
 							<th>Reviewer 1</th>
 							<th>Reviewer 2</th>

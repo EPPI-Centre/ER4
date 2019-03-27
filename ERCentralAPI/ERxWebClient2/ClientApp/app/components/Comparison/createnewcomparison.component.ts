@@ -41,6 +41,21 @@ export class ComparisonComp implements OnInit {
 	@Output() emitterCancel = new EventEmitter();
 
 
+	private _Contacts: Contact[] = [];
+
+	public get Contacts(): Contact[] {
+
+		this._Contacts = this._reviewInfoService.Contacts;
+
+		if (this._Contacts) {
+			return this._Contacts;
+		} 
+		else {
+			this._Contacts = [];
+			return this._Contacts;
+		}
+	}
+	
 	getMembers() {
 
 		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
@@ -49,15 +64,7 @@ export class ComparisonComp implements OnInit {
 		this._reviewInfoService.FetchReviewMembers();
 
 	}
-	//public getCodeSets() {
-	//	this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-	//	.map(
-	//		(y: ReviewSet) => {
 
-	//			return y;
-	//		}
-	//	);
-	//}
 	getComparisons() {
 
 		if (!this.__comparisonsService.Comparisons || this.__comparisonsService.Comparisons.length <= 0) {
@@ -100,12 +107,19 @@ export class ComparisonComp implements OnInit {
 			this.selectedCodeSet.set_name != ''
 			&& this.CanWrite())
 		{
-			return true;
-		} else {
-			return false;
-		}
+			if (this.selectedReviewer1.contactName != this.selectedReviewer2.contactName &&
+				this.selectedReviewer1.contactName != this.selectedReviewer3.contactName &&
+				this.selectedReviewer3.contactName != this.selectedReviewer2.contactName ) {
+				return false;
+			} else {
+				return true;
+			}
 
+		} else {
+			return true;
+		}
 	}
+
 	setOptionalMember(member: Contact) {
 
 		this.selectedReviewer3.contactId = member.contactId;
