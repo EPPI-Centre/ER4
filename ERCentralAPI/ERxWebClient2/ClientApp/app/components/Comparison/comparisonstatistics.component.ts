@@ -70,23 +70,23 @@ export class ComparisonStatsComp implements OnInit {
 	}
 	public checkCanComplete1(): boolean {
 
-		let stats: ComparisonStatistics = this._comparisonsService.Statistics;
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 
-		return stats.canComplete1vs2;
+		return stats.RawStats.canComplete1vs2;
 
 	}
 	public checkCanComplete2(): boolean {
 
-		let stats: ComparisonStatistics = this._comparisonsService.Statistics;
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 
-		return stats.canComplete2vs3;
+		return stats.RawStats.canComplete2vs3;
 
 	}
 	public checkCanComplete3(): boolean {
 
-		let stats: ComparisonStatistics = this._comparisonsService.Statistics;
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 
-		return stats.canComplete1vs3;
+		return stats.RawStats.canComplete1vs3;
 
 	}
 	

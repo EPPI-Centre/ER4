@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSetsService } from './ReviewSets.service';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -76,7 +77,7 @@ export class ComparisonsService extends BusyAwareService {
 			.subscribe(result => {
                 this._Statistics = new ComparisonStatistics(result, ComparisonId);
 				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];//consider a get
-				//console.log(this._Statistics);
+				console.log(this._Statistics);
 				//this.calculateStats();
                 this.RemoveBusy("FetchStats");
              }, error => {
@@ -179,10 +180,10 @@ export class ComparisonStatistics {
     public get Agreements1(): number {
         return this.RawStats.n1vs2 - this.RawStats.disagreements1vs2;
     };
-    public Agreements2(): number {
+    public get Agreements2(): number {
         return this.RawStats.n1vs3 - this.RawStats.disagreements1vs3;
     };
-    public Agreements3(): number {
+    public get Agreements3(): number {
         return this.RawStats.n2vs3 - this.RawStats.disagreements2vs3;
     };
 }
@@ -194,7 +195,6 @@ export interface iComparisonStatistics {
     disagreements1vs2: number;
     disagreements2vs3: number;
     disagreements1vs3: number;
-
     ncoded1: number;
     ncoded2: number;
     ncoded3: number;

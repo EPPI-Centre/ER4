@@ -628,10 +628,10 @@ export class WorkAllocationComp implements OnInit {
 			closable: true
 		});
 	}
-	calculateStats() {
-		alert('calling');
-		this._comparisonsService.calculateStats();
-	}
+	//calculateStats() {
+	//	alert('calling');
+	//	this._comparisonsService.calculateStats();
+	//}
 	WorkAssignment() {
 
 
