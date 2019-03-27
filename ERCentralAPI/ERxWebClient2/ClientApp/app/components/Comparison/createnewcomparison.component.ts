@@ -30,7 +30,9 @@ export class ComparisonComp implements OnInit {
 
 	
 	public PanelName: string = '';
-	public CodeSets: ReviewSet[] = [];
+    public get CodeSets(): ReviewSet[] {
+        return this._reviewSetsService.ReviewSets;
+    }
 	public selectedReviewer1: Contact = new Contact();
 	public selectedReviewer2: Contact = new Contact();
 	public selectedReviewer3: Contact = new Contact();
@@ -47,15 +49,15 @@ export class ComparisonComp implements OnInit {
 		this._reviewInfoService.FetchReviewMembers();
 
 	}
-	public getCodeSets() {
-		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-		.map(
-			(y: ReviewSet) => {
+	//public getCodeSets() {
+	//	this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
+	//	.map(
+	//		(y: ReviewSet) => {
 
-				return y;
-			}
-		);
-	}
+	//			return y;
+	//		}
+	//	);
+	//}
 	getComparisons() {
 
 		if (!this.__comparisonsService.Comparisons || this.__comparisonsService.Comparisons.length <= 0) {
@@ -198,7 +200,7 @@ export class ComparisonComp implements OnInit {
 	public RefreshData() {
 
 		this.getMembers();
-		this.getCodeSets();
+		//this.getCodeSets();
 		this.getComparisons();
 		this.selectedCodeSet = this.CodeSets[0];
 	}

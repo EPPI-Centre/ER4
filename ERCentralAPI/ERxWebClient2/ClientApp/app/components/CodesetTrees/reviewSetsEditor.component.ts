@@ -23,7 +23,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
 
     constructor(private router: Router,
                 @Inject('BASE_URL') private _baseUrl: string,
-        public ReviewerIdentityServ: ReviewerIdentityService,
+        private ReviewerIdentityServ: ReviewerIdentityService,
         private ReviewSetsService: ReviewSetsService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
         private ReviewInfoService: ReviewInfoService

@@ -19,9 +19,7 @@ export class ComparisonsService extends BusyAwareService {
     ) {
         super();
     }
-	public Agreements1: number = 0;
-	public Agreements2: number = 0;
-	public Agreements3: number = 0;
+	
 	private _Comparisons: Comparison[] = [];
 	public currentComparison: Comparison = new Comparison();
 
@@ -39,57 +37,53 @@ export class ComparisonsService extends BusyAwareService {
 		}
     }
 
-	private _Statistics: ComparisonStatistics = new ComparisonStatistics();
+	private _Statistics: ComparisonStatistics | null = null;
 
-	public get Statistics(): ComparisonStatistics {
-		if (this._Statistics) {
-			return this._Statistics;
-		} else {
-			return new ComparisonStatistics();
-		}
+    public get Statistics(): ComparisonStatistics | null {
+		return this._Statistics;		
 	}
-	public calculateStats() {
+	//public calculateStats() {
 
-		let stats: ComparisonStatistics = this._Statistics;
-		//console.log(stats.canComplete1vs2 + 'true');
-		this.Agreements1 = stats.n1vs2 - stats.disagreements1vs2;
-		this.Agreements2 = stats.n1vs3 - stats.disagreements1vs3;
-		this.Agreements3 = stats.n2vs3 - stats.disagreements2vs3;
-		//alert('asdf ' + test.n2vs3);
+	//	let stats: ComparisonStatistics = this._Statistics;
+	//	//console.log(stats.canComplete1vs2 + 'true');
+	//	this.Agreements1 = stats.RawStats.n1vs2 - stats.disagreements1vs2;
+	//	this.Agreements2 = stats.n1vs3 - stats.disagreements1vs3;
+	//	this.Agreements3 = stats.n2vs3 - stats.disagreements2vs3;
+	//	//alert('asdf ' + test.n2vs3);
 
-	}
-	public set Statistics(stats: ComparisonStatistics) {
-		if (stats) {
-			this._Statistics = stats;
-		}
-	}
+	//}
+	
 
     
     public FetchAll() {
-
+        this._BusyMethods.push("FetchAll");
 		this._httpC.get<Comparison[]>(this._baseUrl + 'api/Comparisons/ComparisonList')
 			.subscribe(result => {
-
 				this._Comparisons = result;
 				//this.ListLoaded.emit();
-
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+                this.RemoveBusy("FetchAll");
+            }, error => {
+                this.RemoveBusy("FetchAll");
+                this.modalService.SendBackHomeWithError(error);
+            }
         );
 	}
 
 	public  FetchStats(ComparisonId: number ) {
-
+        this._BusyMethods.push("FetchStats");
 		let body = JSON.stringify({ Value: ComparisonId });
-		 this._httpC.post<ComparisonStatistics>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)
+		 this._httpC.post<iComparisonStatistics>(this._baseUrl + 'api/Comparisons/ComparisonStats', body)
 			.subscribe(result => {
-				this._Statistics = result;
-				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];
+                this._Statistics = new ComparisonStatistics(result, ComparisonId);
+				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];//consider a get
 				//console.log(this._Statistics);
-				this.calculateStats();
-
-			}, error => { this.modalService.SendBackHomeWithError(error); }
-			);
-
+				//this.calculateStats();
+                this.RemoveBusy("FetchStats");
+             }, error => {
+                 this.RemoveBusy("FetchStats");
+                 this.modalService.SendBackHomeWithError(error);
+             }
+             );
 	}
 
 	public CreateComparison(comparison: Comparison) {
@@ -115,20 +109,23 @@ export class ComparisonsService extends BusyAwareService {
 	}
 	
 	public DeleteComparison(ComparisonId: number) {
-
+        this._BusyMethods.push("DeleteComparison");
 		let body = JSON.stringify({ Value: ComparisonId });
 
 		this._httpC.post<Comparison>(this._baseUrl + 'api/Comparisons/DeleteComparison', body)
 			.subscribe(() => {
-
+                this.RemoveBusy("DeleteComparison");
 				this.FetchAll();
 			},
-			error => { this.modalService.SendBackHomeWithError(error); }
+            error => {
+                this.RemoveBusy("DeleteComparison");
+                this.modalService.SendBackHomeWithError(error);
+            }
 		 );
-
 	}
 
-	public Clear() {
+    public Clear() {
+        //clear current stats details AS Well!
 		this._Comparisons = [];
 	}
 
@@ -154,23 +151,58 @@ export class Comparison {
 }
 
 export class ComparisonStatistics {
+    public constructor(data: iComparisonStatistics, comparisonID: number) {
+        this.RawStats = data;
+        this.comparisonID = comparisonID;
+    }
+    public RawStats: iComparisonStatistics;
+    public comparisonID: number;
+	//public comparisonId: number = 0;
+	//public n1vs2: number = 0;
+	//public n2vs3: number = 0;
+	//public n1vs3: number = 0;
+	//public disagreements1vs2: number = 0;
+	//public disagreements2vs3: number = 0;
+ //   public disagreements1vs3: number = 0;
 
-	public comparisonId: number = 0;
-	public n1vs2: number = 0;
-	public n2vs3: number = 0;
-	public n1vs3: number = 0;
-	public disagreements1vs2: number = 0;
-	public disagreements2vs3: number = 0;
-	public disagreements1vs3: number = 0;
-	public ncoded1: number = 0;
-	public ncoded2: number = 0;
-	public ncoded3: number = 0;
-	public canComplete1vs2: boolean = false;
-	public canComplete1vs3: boolean = false;
-	public canComplete2vs3: boolean = false;
-	public scdisagreements1vs2: number = 0;
-	public scdisagreements2vs3: number = 0;
-	public scdisagreements1vs3: number = 0;
-	public isScreening: boolean = false;
+	//public ncoded1: number = 0;
+	//public ncoded2: number = 0;
+	//public ncoded3: number = 0;
+	//public canComplete1vs2: boolean = false;
+	//public canComplete1vs3: boolean = false;
+	//public canComplete2vs3: boolean = false;
+	//public scdisagreements1vs2: number = 0;
+	//public scdisagreements2vs3: number = 0;
+	//public scdisagreements1vs3: number = 0;
+    //public isScreening: boolean = false;
+    
+    public get Agreements1(): number {
+        return this.RawStats.n1vs2 - this.RawStats.disagreements1vs2;
+    };
+    public Agreements2(): number {
+        return this.RawStats.n1vs3 - this.RawStats.disagreements1vs3;
+    };
+    public Agreements3(): number {
+        return this.RawStats.n2vs3 - this.RawStats.disagreements2vs3;
+    };
+}
+export interface iComparisonStatistics {
+    comparisonId: number;
+    n1vs2: number;
+    n2vs3: number;
+    n1vs3: number;
+    disagreements1vs2: number;
+    disagreements2vs3: number;
+    disagreements1vs3: number;
 
+    ncoded1: number;
+    ncoded2: number;
+    ncoded3: number;
+    canComplete1vs2: boolean;
+    canComplete1vs3: boolean;
+    canComplete2vs3: boolean;
+    scdisagreements1vs2: number;
+    scdisagreements2vs3: number;
+    scdisagreements1vs3: number;
+    isScreening: boolean;
 }

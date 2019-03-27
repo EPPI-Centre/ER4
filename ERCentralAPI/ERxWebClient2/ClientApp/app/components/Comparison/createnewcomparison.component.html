@@ -5,7 +5,7 @@
 				<label for="rev1">Reviewer 1</label>
 				<select class="col-md-6 form-control" name="rev1"
 						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1" >
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
+					<option *ngFor="let member of Contacts" 
 							 [ngValue]="member" [selected]="member == selectedReviewer1">
 						{{member.contactName}}
 					</option>
