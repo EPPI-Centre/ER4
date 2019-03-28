@@ -2,20 +2,18 @@ import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input } fro
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
-import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { singleNode, ReviewSetsService, ReviewSet, SetAttribute, kvAllowedAttributeType } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
-import { Jsonp } from '@angular/http';
-import { Review } from '../services/review.service';
 import { Subscription } from 'rxjs';
-import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
-import { NgForm, FormsModule  } from '@angular/forms';
-import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { ComparisonComp } from '../Comparison/createnewcomparison.component';
+import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
+import { ItemListComp } from '../ItemList/itemListComp.component';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -29,7 +27,6 @@ export class WorkAllocationComp implements OnInit {
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
 		private _workAllocationListService: WorkAllocationListService,
 		private reviewInfoService: ReviewInfoService,
-		private itemListService: ItemListService,
 		private confirmationDialogService: ConfirmationDialogService,
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
@@ -43,8 +40,14 @@ export class WorkAllocationComp implements OnInit {
     @ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
 	@ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
+	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
+	@ViewChild('ComparisonStatsCompList') ComparisonStatsComp!: ComparisonStatsComp;
+	//@ViewChild('tabstrip') public tabstrip!: TabStripComponent;
+	//@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
+	@Input() tabstrip!: TabStripComponent;
+	@Input() ItemList!: ItemListComp;
 
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
@@ -718,6 +721,17 @@ export class WorkAllocationComp implements OnInit {
 				return;
 			}
 		}
+	}
+	LoadComparisonList(comparison: Comparison) {
+		alert('close');
+		if (this.ItemList) {
+			alert('close2');
+			this.ItemList.LoadComparisonList(comparison,
+				this.ComparisonStatsComp.ListSubType);
+		}
+	}
+	GoToItemList() {
+		this.tabstrip.selectTab(1);
 	}
 }
 

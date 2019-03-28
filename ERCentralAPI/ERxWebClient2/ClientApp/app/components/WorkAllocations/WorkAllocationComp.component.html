@@ -321,7 +321,9 @@
 							</tr>
 							<tr>
 								<td colspan="8">
-									<ComparisonStatsComp [rowSelected]="item.comparisonId">
+									<ComparisonStatsComp #ComparisonStatsCompList  [rowSelected]="item.comparisonId"
+									(ComparisonClicked)="GoToItemList()"
+                                    (criteriaChange)="LoadComparisonList(item)">
 									</ComparisonStatsComp>
 								</td>
 							</tr>

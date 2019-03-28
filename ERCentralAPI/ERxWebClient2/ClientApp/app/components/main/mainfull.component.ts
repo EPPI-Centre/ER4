@@ -26,8 +26,6 @@ import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 
-
-
 @Component({
     selector: 'mainComp',
     templateUrl: './mainfull.component.html'
@@ -364,6 +362,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
 	}
+
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {
 		//	console.log('tabs experiment');

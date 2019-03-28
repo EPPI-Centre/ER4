@@ -115,7 +115,10 @@
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'Collaborate'">
                         <ng-template kendoTabContent>
-                            <WorkAllocationComp #WorkAllocationCollaborateList (AllocationClicked)="GoToItemList()"
+                            <WorkAllocationComp #WorkAllocationCollaborateList 
+												[tabstrip]="tabstrip"
+												[ItemList]="ItemListComponent"
+												(AllocationClicked)="GoToItemList()"
                                                 (criteriaChange)='LoadWorkAllocList($event)' class="bg-light"></WorkAllocationComp>
                         </ng-template>
                     </kendo-tabstrip-tab>

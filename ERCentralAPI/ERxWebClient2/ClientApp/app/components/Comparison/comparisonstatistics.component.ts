@@ -28,10 +28,10 @@ export class ComparisonStatsComp implements OnInit {
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	public selectedFilter!: singleNode;
-
-	@Output() emitterCancel = new EventEmitter();
+	@Output() criteriaChange = new EventEmitter();
+	@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
-
+	public ListSubType: string = "ComparisonAgree1vs2";
 
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
@@ -82,6 +82,20 @@ export class ComparisonStatsComp implements OnInit {
 
 		return stats.RawStats.canComplete1vs3;
 
+	}	
+	LoadComparisonList(comparisonId: number, subtype: string) {
+
+		alert('here');
+		for (let item of this._comparisonsService.Comparisons) {
+			if (item.comparisonId == comparisonId) {
+				alert('and here..');
+				console.log('about to emit: ' + subtype + ' ' + JSON.stringify(item));
+				this.ListSubType = subtype;
+				this.criteriaChange.emit(item);
+				this.ComparisonClicked.emit();
+				return;
+			}
+		}
 	}
 	
 	public RefreshData() {

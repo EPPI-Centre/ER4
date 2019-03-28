@@ -6,6 +6,7 @@ import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { _localeFactory } from '@angular/core/src/application_module';
+import { Comparison } from '../services/comparisons.service';
 
 @Component({
     selector: 'ItemListComp',
@@ -137,27 +138,44 @@ export class ItemListComp implements OnInit {
             else return "";
         } else return "";
     }
-    public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
+	public LoadWorkAllocList(variableEntity: any, ListSubType: string) {
+
+		if (variableEntity.comparisonId) {
+			this.LoadComparisonList(variableEntity, ListSubType);
+		} else {
+
+			variableEntity = variableEntity as WorkAllocation;
+		
         //this.allItemsSelected = false;
         let crit = new Criteria();
         crit.listType = ListSubType;
-        crit.workAllocationId = workAlloc.workAllocationId;
+		crit.workAllocationId = variableEntity.workAllocationId;
         let ListDescr: string = "";
         if (ListSubType == 'GetItemWorkAllocationListRemaining') {
-            ListDescr = "work allocation remaining: " + workAlloc.attributeName;
+			ListDescr = "work allocation remaining: " + variableEntity.attributeName;
         }
         else if (ListSubType == 'GetItemWorkAllocationListStarted') {
-            ListDescr = "work allocation started: " + workAlloc.attributeName;
+			ListDescr = "work allocation started: " + variableEntity.attributeName;
         }
         else if (ListSubType == 'GetItemWorkAllocationList') {
-            ListDescr = "total work allocation: " + workAlloc.attributeName;
+			ListDescr = "total work allocation: " + variableEntity.attributeName;
         }
         else {
             ListDescr = "work allocation (unknown)";
         }      
-		this.ItemListService.FetchWithCrit(crit, ListDescr);
+			this.ItemListService.FetchWithCrit(crit, ListDescr);
+		}
 
-    }
+	}
+	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
+
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		console.log('checking: ' + JSON.stringify(crit));
+		this.ItemListService.FetchWithCrit(crit, ListSubType);
+
+	}
 
     OpenItem(itemId: number) {
 
