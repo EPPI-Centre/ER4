@@ -1,24 +1,22 @@
 import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { error } from '@angular/compiler/src/util';
-import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { iArm, Item, ItemListService, Arm } from './ItemList.service';
+import { iArm, Item,  Arm } from './ItemList.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ArmsService implements OnInit{
+export class ArmsService extends BusyAwareService implements OnInit  {
 
     constructor(
-        private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
+		private _http: HttpClient,
         private modalService: ModalService,
-        private ItemListService: ItemListService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-       
-	}
+        super();
+    }
 	ngOnInit() {
 
 	}
@@ -30,22 +28,6 @@ export class ArmsService implements OnInit{
             this._arms = [];
             return this._arms;
         }
-
-        //if (!this._arms) {//null => we need local storage
-        //    const ArmsJson = localStorage.getItem('ItemArms');
-        //    if (!ArmsJson) this._arms = new Array<arm>();
-        //    else {
-        //        let tArms: arm[] = JSON.parse(ArmsJson);
-        //        if (tArms == undefined || tArms == null || tArms.length == 0) {
-        //            this._arms = new Array<arm>();
-        //        }
-        //        else {
-        //            //console.log("Got workAllocations from LS");
-        //            this._arms = tArms;
-        //        }
-        //    }
-        //}
-        //return this._arms;
     }
     public set arms(arms: iArm[]) {
         this._arms = arms;
@@ -88,6 +70,7 @@ export class ArmsService implements OnInit{
     }
     public FetchArms(currentItem: Item) {
 
+		this._BusyMethods.push("FetchArms");
 		this._currentItem = currentItem;
         let body = JSON.stringify({ Value: currentItem.itemId });
 
@@ -98,14 +81,18 @@ export class ArmsService implements OnInit{
 				   currentItem.arms = this.arms;
 				   this._selectedArm = null;
 				   this.gotArms.emit(this.arms);
-
-				}, error => { this.modalService.SendBackHomeWithError(error); }
+				   this.RemoveBusy("FetchArms");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchArms");
+			}
 			);
 			return currentItem.arms;
 	}
 
 	public CreateArm(currentArm: Arm): Promise<Arm> {
 
+		this._BusyMethods.push("CreateArm");
 		let ErrMsg = "Something went wrong when creating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
 		return this._http.post<Arm>(this._baseUrl + 'api/ItemArmList/CreateArm',
@@ -115,11 +102,13 @@ export class ArmsService implements OnInit{
 						(result) => {
 	
 							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+							this.RemoveBusy("CreateArm");
 							return result;
 						}
 						, (error) => {
 							this.arms = this.FetchArms(this._currentItem);		
 							this.modalService.GenericErrorMessage(ErrMsg);
+							this.RemoveBusy("CreateArm");
 							return error;
 						}
 						)
@@ -127,6 +116,7 @@ export class ArmsService implements OnInit{
 							(error) => {
 								this.arms = this.FetchArms(this._currentItem);		
 								this.modalService.GenericErrorMessage(ErrMsg);
+								this.RemoveBusy("CreateArm");
 								return error;
 							}
 		);
@@ -136,7 +126,7 @@ export class ArmsService implements OnInit{
 
 	public UpdateArm(currentArm: iArm) {
 
-
+		this._BusyMethods.push("UpdateArm");
 		let ErrMsg = "Something went wrong when updating an arm. \r\n If the problem persists, please contact EPPISupport.";
 
 		this._http.post<iArm[]>(this._baseUrl + 'api/ItemArmList/UpdateArm',
@@ -146,17 +136,19 @@ export class ArmsService implements OnInit{
 				(result) => {
 
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("UpdateArm");
 					return result;
 				}
 				, (error) => {
 					this.arms = this.FetchArms(this._currentItem);		
 					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("UpdateArm");
 					return error;
 				});
 	}
 
 	public DeleteWarningArm(arm: iArm) {
-		
+		this._BusyMethods.push("DeleteWarningArm");
 		let ErrMsg = "Something went wrong when warning of deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 		let cmd: ItemArmDeleteWarningCommandJSON = new ItemArmDeleteWarningCommandJSON();
 		cmd.itemArmId = arm.itemArmId;
@@ -170,7 +162,7 @@ export class ArmsService implements OnInit{
 
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					// Logic here to show various error messages...
-
+					this.RemoveBusy("DeleteWarningArm");
 					return result;
 				}
 				, (error) => {
@@ -178,6 +170,7 @@ export class ArmsService implements OnInit{
 					cmd.numCodings = -1;
 					console.log('error in DeleteWarningArm() rejected', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteWarningArm");
 					return cmd;
 				}
 			)
@@ -186,7 +179,8 @@ export class ArmsService implements OnInit{
 
 					cmd.numCodings = -1;
 					console.log('error in DeleteWarningArm() catch', error);
-					this.modalService.GenericErrorMessage(ErrMsg);
+				this.modalService.GenericErrorMessage(ErrMsg);
+				this.RemoveBusy("DeleteWarningArm");
 					return cmd;
 				}
 			);
@@ -194,7 +188,7 @@ export class ArmsService implements OnInit{
 	}
 
 	DeleteArm(arm: iArm) {
-
+		this._BusyMethods.push("DeleteArm");
 			let ErrMsg = "Something went wrong when deleting an arm. \r\n If the problem persists, please contact EPPISupport.";
 			
 			this._http.post<iArm>(this._baseUrl + 'api/ItemArmList/DeleteArm',
@@ -203,12 +197,14 @@ export class ArmsService implements OnInit{
 				(result) => {
 
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteArm");
 					return result;
 				}
 				, (error) => {
 
 					this.arms = this.FetchArms(this._currentItem);					
 					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteArm");
 					return error;
 				}
 				);

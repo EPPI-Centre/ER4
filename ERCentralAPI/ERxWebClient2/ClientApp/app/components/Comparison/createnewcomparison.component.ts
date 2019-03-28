@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewSetsService, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -17,15 +16,12 @@ import { ComparisonsService, Comparison } from '../services/comparisons.service'
 })
 
 export class ComparisonComp implements OnInit {
-    constructor(private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string,
+    constructor(
 		private _reviewSetsService: ReviewSetsService,
-		public __comparisonsService: ComparisonsService,
-		public _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService,
-		public _reviewInfoService: ReviewInfoService,
-		public _reviewerIdentityServ: ReviewerIdentityService,
-		public _reviewSetsEditingService: ReviewSetsEditingService
+		private __comparisonsService: ComparisonsService,
+		private _reviewInfoService: ReviewInfoService,
+		private _reviewerIdentityServ: ReviewerIdentityService,
+		private _reviewSetsEditingService: ReviewSetsEditingService
 	) { }
 
 	

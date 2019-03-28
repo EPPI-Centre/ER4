@@ -1,12 +1,10 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
-import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 
@@ -21,9 +19,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
 		private _reviewSetsService: ReviewSetsService,
-		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService
+		private reviewSetsService: ReviewSetsService,
+		private _buildModelService: BuildModelService,
+		private _eventEmitterService: EventEmitterService
 	) { }
 
 	public selectedModelDropDown1: string = '';

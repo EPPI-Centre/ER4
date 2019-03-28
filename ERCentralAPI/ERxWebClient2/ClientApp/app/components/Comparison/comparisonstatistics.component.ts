@@ -1,8 +1,6 @@
 import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
+import {  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -16,15 +14,11 @@ import { ComparisonsService, ComparisonStatistics } from '../services/comparison
 })
 
 export class ComparisonStatsComp implements OnInit {
-    constructor(private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string,
-		private _reviewSetsService: ReviewSetsService,
-		public _comparisonsService: ComparisonsService,
-		public _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService,
-		public _reviewInfoService: ReviewInfoService,
-		public _reviewerIdentityServ: ReviewerIdentityService,
-		public _reviewSetsEditingService: ReviewSetsEditingService
+    constructor(
+		private _comparisonsService: ComparisonsService,
+		private _reviewInfoService: ReviewInfoService,
+		private _reviewerIdentityServ: ReviewerIdentityService,
+		private _reviewSetsEditingService: ReviewSetsEditingService
 	) { }
 		
 	public PanelName: string = '';

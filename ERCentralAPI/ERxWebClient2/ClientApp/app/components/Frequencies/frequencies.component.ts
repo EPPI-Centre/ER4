@@ -17,9 +17,9 @@ export class frequenciesComp implements OnInit {
 
     constructor(
         private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService,
+		private ItemListService: ItemListService,
         private route: ActivatedRoute,
-        public reviewSetsService: ReviewSetsService,
+		private reviewSetsService: ReviewSetsService,
         private frequenciesService: frequenciesService,
         private _eventEmitter: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string

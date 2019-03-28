@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
-import { Observable, Subscription } from 'rxjs';
+import {  Subscription } from 'rxjs';
 import { BuildModelService } from './buildmodel.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
@@ -21,7 +21,7 @@ export class ClassifierService extends BusyAwareService {
         private _httpC: HttpClient,
 		private modalService: ModalService,
 		private reviewInfoService: ReviewInfoService,
-		public _buildModelService: BuildModelService,
+		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
@@ -79,6 +79,7 @@ export class ClassifierService extends BusyAwareService {
 				}
 
 				this.IamVerySorryRefresh();
+				this.RemoveBusy("CreateAsync");
 			},
 			error => {
                 this.RemoveBusy("CreateAsync");
@@ -110,7 +111,8 @@ export class ClassifierService extends BusyAwareService {
 		)
 			.subscribe(result => {
 				
-					console.log(result)
+				console.log(result);
+				this.RemoveBusy("Apply");
 				},
             error => {
                 this.RemoveBusy("Apply");

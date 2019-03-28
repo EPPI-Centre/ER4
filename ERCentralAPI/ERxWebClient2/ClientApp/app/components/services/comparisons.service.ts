@@ -2,20 +2,18 @@ import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ReviewSetsService } from './ReviewSets.service';
-import { Observable } from 'rxjs';
+
 
 @Injectable({
     providedIn: 'root',
 })
 
 export class ComparisonsService extends BusyAwareService {
-    private sub: any;
+
     @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
-		private _reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -43,18 +41,6 @@ export class ComparisonsService extends BusyAwareService {
     public get Statistics(): ComparisonStatistics | null {
 		return this._Statistics;		
 	}
-	//public calculateStats() {
-
-	//	let stats: ComparisonStatistics = this._Statistics;
-	//	//console.log(stats.canComplete1vs2 + 'true');
-	//	this.Agreements1 = stats.RawStats.n1vs2 - stats.disagreements1vs2;
-	//	this.Agreements2 = stats.n1vs3 - stats.disagreements1vs3;
-	//	this.Agreements3 = stats.n2vs3 - stats.disagreements2vs3;
-	//	//alert('asdf ' + test.n2vs3);
-
-	//}
-	
-
     
     public FetchAll() {
         this._BusyMethods.push("FetchAll");
@@ -158,25 +144,6 @@ export class ComparisonStatistics {
     }
     public RawStats: iComparisonStatistics;
     public comparisonID: number;
-	//public comparisonId: number = 0;
-	//public n1vs2: number = 0;
-	//public n2vs3: number = 0;
-	//public n1vs3: number = 0;
-	//public disagreements1vs2: number = 0;
-	//public disagreements2vs3: number = 0;
- //   public disagreements1vs3: number = 0;
-
-	//public ncoded1: number = 0;
-	//public ncoded2: number = 0;
-	//public ncoded3: number = 0;
-	//public canComplete1vs2: boolean = false;
-	//public canComplete1vs3: boolean = false;
-	//public canComplete2vs3: boolean = false;
-	//public scdisagreements1vs2: number = 0;
-	//public scdisagreements2vs3: number = 0;
-	//public scdisagreements1vs3: number = 0;
-    //public isScreening: boolean = false;
-    
     public get Agreements1(): number {
         return this.RawStats.n1vs2 - this.RawStats.disagreements1vs2;
     };

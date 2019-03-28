@@ -36,15 +36,15 @@ export class SearchComp implements OnInit, OnDestroy {
 	   
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		public ItemListService: ItemListService,
-		public _searchService: searchService,
-		public _reviewSetsEditingServ: ReviewSetsEditingService,
+		private ItemListService: ItemListService,
+		private _searchService: searchService,
+		private _reviewSetsEditingServ: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
         private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
-		public _sourcesService: SourcesService,
+		private _sourcesService: SourcesService,
 		private confirmationDialogService: ConfirmationDialogService
 	) {
 		

@@ -27,14 +27,14 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 export class WorkAllocationComp implements OnInit {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-		public _workAllocationListService: WorkAllocationListService,
-		public reviewInfoService: ReviewInfoService,
-		public itemListService: ItemListService,
-		public confirmationDialogService: ConfirmationDialogService,
-		public _reviewSetsService: ReviewSetsService,
-		public _reviewSetsEditingService: ReviewSetsEditingService,
-		public _comparisonsService: ComparisonsService,
-		public _notificationService: NotificationService
+		private _workAllocationListService: WorkAllocationListService,
+		private reviewInfoService: ReviewInfoService,
+		private itemListService: ItemListService,
+		private confirmationDialogService: ConfirmationDialogService,
+		private _reviewSetsService: ReviewSetsService,
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		private _comparisonsService: ComparisonsService,
+		private _notificationService: NotificationService
     ) { }
 
 	

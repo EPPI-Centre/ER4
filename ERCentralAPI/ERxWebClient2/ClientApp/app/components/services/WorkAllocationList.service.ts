@@ -1,27 +1,18 @@
-import { Component, Inject, Injectable, EventEmitter, Output, Input } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { isPlatformServer, isPlatformBrowser } from '@angular/common';
-import { PLATFORM_ID } from '@angular/core';
+import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { Item } from './ItemList.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ReviewSetsService } from './ReviewSets.service';
+
 
 @Injectable({
     providedIn: 'root',
 })
 
 export class WorkAllocationListService extends BusyAwareService {
-    private sub: any;
     @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
-		private _reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -49,24 +40,33 @@ export class WorkAllocationListService extends BusyAwareService {
     
     public Fetch() {
 
+		this._BusyMethods.push("FetchWorkAllocation");
 		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocationContactList')
 			.subscribe(result => {
 
 			this._ContactWorkAllocations = result;
-            this.ListLoaded.emit();
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+				this.ListLoaded.emit();
+				this.RemoveBusy("FetchWorkAllocation");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchWorkAllocation");
+			}
         );
 
 	}
 
 	public FetchAll() {
 
+		this._BusyMethods.push("FetchAllWorkAllocation");
 		this._httpC.get<WorkAllocation[]>(this._baseUrl + 'api/WorkAllocationContactList/WorkAllocations')
 			.subscribe(result => {
 
 			this._allWorkAllocationsForReview = result;
-
-		}, error => { this.modalService.SendBackHomeWithError(error); }
+				this.RemoveBusy("FetchAllWorkAllocation");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchAllWorkAllocation");
+			}
 		);
 
 	}
@@ -97,14 +97,19 @@ export class WorkAllocationListService extends BusyAwareService {
 
 	public DeleteWorkAllocation(workAllocationId: number) {
 
+		this._BusyMethods.push("DeleteWorkAllocation");
 		let body = JSON.stringify({ Value: workAllocationId });
 		this._httpC.post<WorkAllocation>(this._baseUrl +
 			'api/WorkAllocationContactList/DeleteWorkAllocation', body)
 			.subscribe(() => {
 
 				this.FetchAll();
+				this.RemoveBusy("DeleteWorkAllocation");
 			},
-			error => { this.modalService.SendBackHomeWithError(error); }
+			error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("DeleteWorkAllocation");
+			}
 		 );
 
 	}
