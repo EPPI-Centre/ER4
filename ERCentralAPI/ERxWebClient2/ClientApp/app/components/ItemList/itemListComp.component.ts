@@ -138,41 +138,33 @@ export class ItemListComp implements OnInit {
             else return "";
         } else return "";
     }
-	public LoadWorkAllocList(variableEntity: any, ListSubType: string) {
+	public LoadWorkAllocList(workAlloc: WorkAllocation, ListSubType: string) {
 
-		if (variableEntity.comparisonId) {
-			this.LoadComparisonList(variableEntity, ListSubType);
-		} else {
-
-			variableEntity = variableEntity as WorkAllocation;
-		
         //this.allItemsSelected = false;
         let crit = new Criteria();
         crit.listType = ListSubType;
-		crit.workAllocationId = variableEntity.workAllocationId;
+		crit.workAllocationId = workAlloc.workAllocationId;
         let ListDescr: string = "";
         if (ListSubType == 'GetItemWorkAllocationListRemaining') {
-			ListDescr = "work allocation remaining: " + variableEntity.attributeName;
+			ListDescr = "work allocation remaining: " + workAlloc.attributeName;
         }
         else if (ListSubType == 'GetItemWorkAllocationListStarted') {
-			ListDescr = "work allocation started: " + variableEntity.attributeName;
+			ListDescr = "work allocation started: " + workAlloc.attributeName;
         }
         else if (ListSubType == 'GetItemWorkAllocationList') {
-			ListDescr = "total work allocation: " + variableEntity.attributeName;
+			ListDescr = "total work allocation: " + workAlloc.attributeName;
         }
         else {
             ListDescr = "work allocation (unknown)";
         }      
 			this.ItemListService.FetchWithCrit(crit, ListDescr);
-		}
-
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
-		console.log('checking: ' + JSON.stringify(crit));
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this.ItemListService.FetchWithCrit(crit, ListSubType);
 
 	}

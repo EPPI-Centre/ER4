@@ -31,7 +31,8 @@ export class ComparisonStatsComp implements OnInit {
 	@Output() criteriaChange = new EventEmitter();
 	@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
-	public ListSubType: string = "ComparisonAgree1vs2";
+	@Output() setListSubType = new EventEmitter();
+	public ListSubType: string = "";
 
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
@@ -85,12 +86,11 @@ export class ComparisonStatsComp implements OnInit {
 	}	
 	LoadComparisonList(comparisonId: number, subtype: string) {
 
-		alert('here');
+
 		for (let item of this._comparisonsService.Comparisons) {
 			if (item.comparisonId == comparisonId) {
-				alert('and here..');
-				console.log('about to emit: ' + subtype + ' ' + JSON.stringify(item));
 				this.ListSubType = subtype;
+				this.setListSubType.emit(this.ListSubType);
 				this.criteriaChange.emit(item);
 				this.ComparisonClicked.emit();
 				return;

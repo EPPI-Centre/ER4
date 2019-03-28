@@ -723,14 +723,19 @@ export class WorkAllocationComp implements OnInit {
 		}
 	}
 	LoadComparisonList(comparison: Comparison) {
-		alert('close');
+
 		if (this.ItemList) {
-			alert('close2');
+
 			this.ItemList.LoadComparisonList(comparison,
 				this.ComparisonStatsComp.ListSubType);
 		}
 	}
+	setCompListType($event: any) {
+		this.ComparisonStatsComp.ListSubType = $event;
+
+	}
 	GoToItemList() {
+
 		this.tabstrip.selectTab(1);
 	}
 }
