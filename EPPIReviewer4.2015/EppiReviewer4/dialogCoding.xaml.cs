@@ -201,6 +201,7 @@ namespace EppiReviewer4
             ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
             ComboTimepointMetricSelection.SelectedIndex = 5;
         }
+
         public void PrepareCodingOnly()
         {
             CodingOnlyMode = true;
@@ -241,7 +242,7 @@ namespace EppiReviewer4
 
         void dialogCoding_CloseWindowRequest(object sender, EventArgs e)
         {
-            PaneItemDetails[1].Control.IsEnabled = false; 
+            PaneItemDetails[1].Control.IsEnabled = false;
         }
 
         ItemDocument CurrentTextDocument;
@@ -454,7 +455,9 @@ namespace EppiReviewer4
 
         private void GetItemArmList(Item item)
         {
-            CslaDataProvider provider = this.Resources["ItemArmsData"] as CslaDataProvider;
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider;
+            provider.DataChanged -= ItemArmsDataChanged;
+            provider.DataChanged += ItemArmsDataChanged;
             provider.FactoryParameters.Clear();
             provider.FactoryParameters.Add(item.ItemId);
             provider.FactoryMethod = "GetItemArmList";
@@ -462,9 +465,12 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
+        
         private void GetItemTimepointList(Item item)
         {
-            CslaDataProvider provider = this.Resources["ItemTimepointsData"] as CslaDataProvider;
+            CslaDataProvider provider = App.Current.Resources["ItemTimepointsData"] as CslaDataProvider;
+            provider.DataChanged -= ItemTimepointsDataChanged;
+            provider.DataChanged += ItemTimepointsDataChanged;
             provider.FactoryParameters.Clear();
             provider.FactoryParameters.Add(item.ItemId);
             provider.FactoryMethod = "GetItemTimepointList";
@@ -2982,10 +2988,10 @@ namespace EppiReviewer4
             dp.BeginExecute(command);
         }
 
-        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
+        private void ItemArmsDataChanged(object sender, EventArgs e)
         {
             this.IsEnabled = true;
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider; ;
             if (provider.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
             if (provider.IsBusy == false)
@@ -2998,7 +3004,7 @@ namespace EppiReviewer4
 
         private void NewArm_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider; ;
             if (tbNewArm.Text != null && provider != null)
             {
                 if (tbNewArm.Text == "")
@@ -3043,7 +3049,7 @@ namespace EppiReviewer4
         {
             if (e.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
-            CslaDataProvider_DataChanged_1(sender, e);
+            ItemArmsDataChanged(sender, e);
         }
 
         private void CancelArm_Click(object sender, RoutedEventArgs e)
@@ -3079,16 +3085,16 @@ namespace EppiReviewer4
             ia.ApplyEdit();
         }
 
-        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
+        private void ItemTimepointsDataChanged(object sender, EventArgs e)
         {
             this.IsEnabled = true;
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
             if (provider.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
             if (provider.IsBusy == false)
             {
                 GridTimepoints.IsEnabled = true;
-                tbNewTimepointValue.DataContext = null;
+                tbNewTimepoint.DataContext = null;
             }
         }
 
@@ -3101,7 +3107,7 @@ namespace EppiReviewer4
 
         private void NewTimepoint_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
             if (tbNewTimepoint.Text != null && provider != null)
             {
                 float result = 0;

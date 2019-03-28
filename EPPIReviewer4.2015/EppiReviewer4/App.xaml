@@ -106,6 +106,21 @@
                            FactoryMethod="GetSearchVisualiseList" 
                            DataChanged="CslaDataProvider_DataChanged_3"
                            />
+            <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemArmList"
+                           DataChanged="CslaDataProvider_DataChanged_4"
+                           />
+            <cslaXAML:CslaDataProvider x:Key="ItemTimepointsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ItemTimepointList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetItemTimepointList"
+                           DataChanged="CslaDataProvider_DataChanged_6"
+                           />
+            
         </ResourceDictionary>
 
 

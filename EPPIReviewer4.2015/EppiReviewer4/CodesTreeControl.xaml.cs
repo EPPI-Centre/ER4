@@ -101,11 +101,14 @@ namespace EppiReviewer4
             windowEditOutcomes.ResizeMode = ResizeMode.CanResize;
             windowEditOutcomes.WindowStartupLocation = Telerik.Windows.Controls.WindowStartupLocation.CenterScreen;
             windowEditOutcomes.Width= 500;
+            windowEditOutcomes.CanClose = false;
             //windowEditOutcomes.RestrictedAreaMargin = thk;
             windowEditOutcomes.IsRestricted = true;
             //windowEditOutcomes.Opened="windowEditOutcomes_Opened"
             GridEditOutcomes.Children.Add(dialogEditOutcomesControl);
             windowEditOutcomes.Content = GridEditOutcomes;
+            dialogEditOutcomesControl.CloseWindowRequest += DialogEditOutcomesControl_CloseWindowRequest;
+            dialogEditOutcomesControl.ShowEditOutcomeGrid += DialogEditOutcomesControl_ShowEditOutcomeGrid;
 
             windowReports.Header = "Report viewer";
             windowReports.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
@@ -152,11 +155,24 @@ namespace EppiReviewer4
             windowCheckAttributeDelete.cmdDeleteCode_Clicked +=new EventHandler<RoutedEventArgs>(cmdDeleteCode_Click);
 
             //end of RadW hookers
+
+            // set up outcomes control
+            dialogEditOutcome dialogEditOutcomeControl = new dialogEditOutcome();
+            GridEditOutcome.Children.Add(dialogEditOutcomeControl);
         }
 
-        
+        private void DialogEditOutcomesControl_ShowEditOutcomeGrid(object sender, EventArgs e)
+        {
+            CodingGrid.Visibility = Visibility.Collapsed;
+            GridEditOutcome.Visibility = Visibility.Visible;
+        }
 
-        
+        private void DialogEditOutcomesControl_CloseWindowRequest(object sender, EventArgs e)
+        {
+            GridEditOutcome.Visibility = Visibility.Collapsed;
+            CodingGrid.Visibility = Visibility.Visible;
+        }
+
         public RadRichTextBox rich
         {
             get { return _rich; }
@@ -1427,6 +1443,10 @@ namespace EppiReviewer4
 
         private void doLoadItemAttributes(List<ItemSet> data)
         {
+            // in case the dialog was closed with the outcomes editing open
+            GridEditOutcome.Visibility = Visibility.Collapsed;
+            CodingGrid.Visibility = Visibility.Visible;
+
             CurrentItemData = data; // JT added storing this 10/06/2018 in order to support arms
             ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
             Int64 CurrentArm = 0;
@@ -2834,8 +2854,11 @@ namespace EppiReviewer4
             {
                 GridEditOutcomes.DataContext = currentAttributeSet;
                 dialogEditOutcomesControl.CurrentItemId = (DataContext as Item).ItemId;
-                windowEditOutcomes.ShowDialog();
+                dialogEditOutcomesControl.dialogEditOutcomeControl = GridEditOutcome.FindChildByType<dialogEditOutcome>();
+                dialogEditOutcomesControl.GridEditOutcome = GridEditOutcome;
                 dialogEditOutcomesControl.RefreshDataProvider();
+                dialogEditOutcomesControl.ThisWindow = windowEditOutcomes;
+                windowEditOutcomes.ShowDialog();
             }   
             else
             {

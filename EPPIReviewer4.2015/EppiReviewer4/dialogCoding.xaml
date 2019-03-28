@@ -32,20 +32,6 @@
                            FactoryMethod="GetItemAttributePDFList"
                            DataChanged="ItemAttributePDFList_DataChanged"
                            />
-        <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
-                           ManageObjectLifetime="True"
-                           IsInitialLoadEnabled="False"
-                           ObjectType="BusinessLibrary.BusinessClasses.ItemArmList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
-                           FactoryMethod="GetItemArmList"
-                           DataChanged="CslaDataProvider_DataChanged_1"
-                           />
-        <cslaXAML:CslaDataProvider x:Key="ItemTimepointsData"
-                           ManageObjectLifetime="True"
-                           IsInitialLoadEnabled="False"
-                           ObjectType="BusinessLibrary.BusinessClasses.ItemTimepointList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
-                           FactoryMethod="GetItemTimepointList"
-                           DataChanged="CslaDataProvider_DataChanged_2"
-                           />
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>

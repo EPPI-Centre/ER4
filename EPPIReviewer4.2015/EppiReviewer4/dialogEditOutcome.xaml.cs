@@ -57,78 +57,116 @@ namespace EppiReviewer4
             provider3.FactoryMethod = "GetReadOnlyReviewSetControlList";
             provider3.Refresh();
 
-            CslaDataProvider provider4 = this.Resources["ItemArmsData"] as CslaDataProvider;
-            provider4.FactoryParameters.Clear();
-            provider4.FactoryParameters.Add(CurrentItemId);
-            provider4.FactoryMethod = "GetItemArmList";
-            provider4.Refresh();
+            provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
+            foreach (ItemTimepoint it in provider.Data as ItemTimepointList)
+            {
+                if (it.ItemTimepointId == o.ItemTimepointId)
+                {
+                    ComboBoxTimepoint.SelectedItem = it;
+                }
+            }
 
-            CslaDataProvider provider5 = this.Resources["ItemTimepointsData"] as CslaDataProvider;
-            provider5.FactoryParameters.Clear();
-            provider5.FactoryParameters.Add(CurrentItemId);
-            provider5.FactoryMethod = "GetItemTimepointList";
-            provider5.Refresh();
+            provider = ((CslaDataProvider)App.Current.Resources["ItemArmsData"]);
+            foreach (ItemArm ia in provider.Data as ItemArmList)
+            {
+                if (ia.ItemArmId == o.ItemArmIdGrp1)
+                {
+                    ComboBoxGrp1Arm.SelectedItem = ia;
+                }
+                if (ia.ItemArmId == o.ItemArmIdGrp2)
+                {
+                    ComboBoxGrp2Arm.SelectedItem = ia;
+                }
+            }
 
             SetClusteringVisibility();
         }
 
         public void BuildOutcomeClassificationList(AttributeSet attributeSet)
         {
-            List<AttributeSet> OutcomeClassificationList = new List<AttributeSet>();
-            //TreeViewClassifications.Items.Clear();
+            TreeViewClassifications.Items.Clear();
             ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
             if (rsl != null)
             {
                 ReviewSet rs = rsl.GetReviewSet(attributeSet.SetId);
                 if (rs != null)
                 {
-                    AddCodes(OutcomeClassificationList, rs.Attributes);
-                    GridViewOutcomeCodes.ItemsSource = OutcomeClassificationList;
-                    foreach (AttributeSet attributeset in (GridViewOutcomeCodes.ItemsSource as List<AttributeSet>))
-                    {
-                        foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
-                        {
-                            if (oia.AttributeId == attributeset.AttributeId)
-                            {
-                                GridViewOutcomeCodes.SelectedItems.Add(attributeset);
-                            }
-                        }
-                    }
+                    AddClassificationTreeCodes(rs.Attributes, null);
                 }
             }
         }
 
-        private List<AttributeSet> AddCodes(List<AttributeSet> theList, AttributeSetList attributes)
+        private void AddClassificationTreeCodes(AttributeSetList attributes, RadTreeViewItem currentParent)
         {
-            RadTreeViewItem currentParent = null;
             foreach (AttributeSet attribute in attributes)
             {
-                AddCodes(theList, attribute.Attributes);
-                if (attribute.AttributeTypeId == 9)
+                RadTreeViewItem newItem = new RadTreeViewItem();
+                newItem.Header = attribute.AttributeName;
+                newItem.Tag = attribute.AttributeId;
+                newItem.DoubleClick += new EventHandler<Telerik.Windows.RadRoutedEventArgs>(newItem_DoubleClick);
+                if (attribute.AttributeTypeId == 1)
                 {
-                    if (currentParent == null && attribute.HostAttribute != null)
+                    newItem.OptionType = OptionListType.None;
+                }
+                else
+                {
+                    newItem.OptionType = OptionListType.CheckList;
+                }
+                foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
+                {
+                    if (oia.AttributeId == attribute.AttributeId)
                     {
-                        currentParent = new RadTreeViewItem();
-                        currentParent.Header = attribute.HostAttribute.AttributeName;
-                        //TreeViewClassifications.Items.Add(currentParent);
-                        currentParent.OptionType = OptionListType.None;
+                        newItem.IsChecked = true;
                     }
-                    RadTreeViewItem newItem = new RadTreeViewItem();
-                    newItem.Header = attribute.AttributeName;
-                    newItem.Tag = attribute.AttributeId;
-                    newItem.DoubleClick += new EventHandler<Telerik.Windows.RadRoutedEventArgs>(newItem_DoubleClick);
-                    if (currentParent != null)
-                    {
-                        currentParent.Items.Add(newItem);
-                    }
-                    else
-                    {
-                        //TreeViewClassifications.Items.Add(newItem);
-                    }
-                    theList.Add(attribute);
+                }
+                if (attribute.AttributeTypeId > 1) // have to do this after the checking is set, or we trigger the event
+                {
+                    newItem.Checked += OutcomeClassificationItem_Checked;
+                    newItem.Unchecked += OutcomeClassificationItem_Unchecked;
+                }
+
+                if (currentParent != null)
+                {
+                    currentParent.Items.Add(newItem);
+                }
+                else
+                {
+                    TreeViewClassifications.Items.Add(newItem);
+                }
+                AddClassificationTreeCodes(attribute.Attributes, newItem);
+            }
+        }
+
+        private void OutcomeClassificationItem_Unchecked(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            RadTreeViewItem item = e.OriginalSource as RadTreeViewItem;
+            foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
+            {
+                if (oia.AttributeId == Convert.ToInt64(item.Tag.ToString()))
+                {
+                    (DataContext as Outcome).OutcomeCodes.Remove(oia);
+                    break;
                 }
             }
-            return theList;
+        }
+
+        private void OutcomeClassificationItem_Checked(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            RadTreeViewItem item = e.OriginalSource as RadTreeViewItem;
+
+            // This is probably unnecessary, but better be safe, than risk ending up with multiple codes saved for some reason
+            foreach (OutcomeItemAttribute oia1 in (DataContext as Outcome).OutcomeCodes)
+            {
+                if (oia1.AttributeId == Convert.ToInt64(item.Tag.ToString()))
+                {
+                    return;
+                }
+            }
+
+            OutcomeItemAttribute oia = new OutcomeItemAttribute();
+            oia.AttributeId = Convert.ToInt64(item.Tag.ToString());
+            oia.AttributeName = item.Header.ToString();
+            (DataContext as Outcome).OutcomeCodes.Add(oia);
         }
 
         void newItem_DoubleClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
@@ -170,17 +208,18 @@ namespace EppiReviewer4
                     else
                     {
                         string attributes = "";
-                        foreach (AttributeSet attributeSet in GridViewOutcomeCodes.SelectedItems)
+                        foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
                         {
                             if (attributes == "")
                             {
-                                attributes = attributeSet.AttributeId.ToString();
+                                attributes = oia.AttributeId.ToString();
                             }
                             else
                             {
-                                attributes += "," + attributeSet.AttributeId.ToString();
+                                attributes += "," + oia.AttributeId.ToString();
                             }
                         }
+                        
                         DataPortal<OutcomeItemAttributesCommand> dp = new DataPortal<OutcomeItemAttributesCommand>();
                         OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
                             (e2.NewObject as Outcome).OutcomeId,
@@ -380,46 +419,6 @@ namespace EppiReviewer4
                 parentGrid.UnselectAll();
         }
 
-        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
-        {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
-            if (provider.Error != null)
-            {
-                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
-                return;
-            }
 
-            Outcome o = this.DataContext as Outcome;
-            foreach (ItemArm ia in provider.Data as ItemArmList)
-            {
-                if (ia.ItemArmId == o.ItemArmIdGrp1)
-                {
-                    ComboBoxGrp1Arm.SelectedItem = ia;
-                }
-                if (ia.ItemArmId == o.ItemArmIdGrp2)
-                {
-                    ComboBoxGrp2Arm.SelectedItem = ia;
-                }
-            }
-        }
-
-        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
-        {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
-            if (provider.Error != null)
-            {
-                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
-                return;
-            }
-
-            Outcome o = this.DataContext as Outcome;
-            foreach (ItemTimepoint it in provider.Data as ItemTimepointList)
-            {
-                if (it.ItemTimepointId == o.ItemTimepointId)
-                {
-                    ComboBoxTimepoint.SelectedItem = it;
-                }
-            }
-        }
     }
 }
