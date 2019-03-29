@@ -25,6 +25,7 @@ import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
+import { Comparison } from '../services/comparisons.service';
 
 @Component({
     selector: 'mainComp',
@@ -184,14 +185,22 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
 	dtTrigger: Subject<any> = new Subject();
-
+	private ListSubType: string = '';
     ngOnInit() {
         console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
             }
-        )
+		)
+
+		this._eventEmitter.criteriaComparisonChange.subscribe(
+			(item: Comparison) => {
+				this.LoadComparisonList(item, this.ListSubType);
+			}
+		)
+
+
 
 
         //this.reviewSetsService.GetReviewSets();
@@ -204,7 +213,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
         //this.searchService.Fetch();
-    }
+	}
+	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
+
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		this.ItemListService.FetchWithCrit(crit, listDescription);
+
+	}
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }

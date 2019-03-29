@@ -26,6 +26,7 @@ export class ComparisonComp implements OnInit {
 
 	
 	public PanelName: string = '';
+	public chosenFilter: SetAttribute | null = null;
     public get CodeSets(): ReviewSet[] {
         return this._reviewSetsService.ReviewSets;
     }
@@ -33,7 +34,7 @@ export class ComparisonComp implements OnInit {
 	public selectedReviewer2: Contact = new Contact();
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public selectedFilter!: singleNode;
+	public selectedFilter!: SetAttribute;
 	@Output() emitterCancel = new EventEmitter();
 
 
@@ -51,7 +52,23 @@ export class ComparisonComp implements OnInit {
 			return this._Contacts;
 		}
 	}
-	
+	canSetFilter(): boolean {
+		if (this._reviewSetsService.selectedNode
+			&& this._reviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
+		return false;
+	}
+	SetFilter() {
+		if (this._reviewSetsService.selectedNode && this._reviewSetsService.selectedNode.nodeType == "SetAttribute")
+			this.chosenFilter = this._reviewSetsService.selectedNode as SetAttribute;
+		if (this.chosenFilter) {
+			this.selectedFilter = this.chosenFilter;
+		}
+		
+	}
+	clearChosenFilter() {
+		this.chosenFilter = null;
+		this.selectedFilter = new SetAttribute();
+	}
 	getMembers() {
 
 		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
@@ -213,6 +230,8 @@ export class ComparisonComp implements OnInit {
 		//this.getCodeSets();
 		this.getComparisons();
 		this.selectedCodeSet = this.CodeSets[0];
+		this.selectedFilter = new SetAttribute();
+		this.chosenFilter = null;
 	}
 	ngOnInit() {
 		this.RefreshData();

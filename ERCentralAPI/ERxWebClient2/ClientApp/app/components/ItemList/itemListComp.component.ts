@@ -163,9 +163,19 @@ export class ItemListComp implements OnInit {
 
 		let crit = new Criteria();
 		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '' ;
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' +  comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
-		this.ItemListService.FetchWithCrit(crit, ListSubType);
+		this.ItemListService.FetchWithCrit(crit, listDescription );
 
 	}
 

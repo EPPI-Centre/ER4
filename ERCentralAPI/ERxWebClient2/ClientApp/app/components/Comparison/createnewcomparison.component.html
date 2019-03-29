@@ -53,13 +53,19 @@
 		</div>
 		<div class="col-12">
 			<div class="form-group col-12 row">
-				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
+				<!--<button type="submit" class="btn btn-outline-info ml-2 mr-2"
 						[disabled]="!HasWriteRights" (click)="setsFilter()">
 					Set filter (optional)
-				</button>
+				</button>-->
+				<div style="width:200px;"><span class="mt-1">Selected Filter: &nbsp;</span></div>
 				<div *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'" class="col-4">
-					Current code Name: <strong>{{CurrentNode.name}}</strong><br />
+					<span [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{chosenFilter?.name}}&nbsp;</span>
 				</div>
+				<div class="col-4">
+					<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+					<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+				</div>
+			
 			</div>
 		</div>
 		<div class="col-12">

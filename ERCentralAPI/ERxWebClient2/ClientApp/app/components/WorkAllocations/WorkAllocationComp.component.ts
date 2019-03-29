@@ -722,22 +722,12 @@ export class WorkAllocationComp implements OnInit {
 			}
 		}
 	}
-	LoadComparisonList(comparison: Comparison) {
 
-		if (this.ItemList) {
-
-			this.ItemList.LoadComparisonList(comparison,
-				this.ComparisonStatsComp.ListSubType);
-		}
-	}
 	setCompListType($event: any) {
 		this.ComparisonStatsComp.ListSubType = $event;
 
 	}
-	GoToItemList() {
 
-		this.tabstrip.selectTab(1);
-	}
 }
 
 export interface kvSelectFrom {

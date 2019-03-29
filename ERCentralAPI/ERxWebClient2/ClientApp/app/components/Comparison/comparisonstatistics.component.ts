@@ -5,6 +5,7 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ComparisonsService, ComparisonStatistics } from '../services/comparisons.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -18,7 +19,8 @@ export class ComparisonStatsComp implements OnInit {
 		private _comparisonsService: ComparisonsService,
 		private _reviewInfoService: ReviewInfoService,
 		private _reviewerIdentityServ: ReviewerIdentityService,
-		private _reviewSetsEditingService: ReviewSetsEditingService
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		private _eventEmitter: EventEmitterService
 	) { }
 		
 	public PanelName: string = '';
@@ -92,7 +94,7 @@ export class ComparisonStatsComp implements OnInit {
 				this.ListSubType = subtype;
 				this.setListSubType.emit(this.ListSubType);
 				this.criteriaChange.emit(item);
-				this.ComparisonClicked.emit();
+				this._eventEmitter.PleaseSelectItemsListTab.emit();
 				return;
 			}
 		}
