@@ -4,8 +4,9 @@ import {  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ComparisonsService, ComparisonStatistics } from '../services/comparisons.service';
+import { ComparisonsService, ComparisonStatistics, Comparison } from '../services/comparisons.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ItemListService, Criteria } from '../services/ItemList.service';
 
 
 @Component({
@@ -20,7 +21,8 @@ export class ComparisonStatsComp implements OnInit {
 		private _reviewInfoService: ReviewInfoService,
 		private _reviewerIdentityServ: ReviewerIdentityService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
-		private _eventEmitter: EventEmitterService
+		private _eventEmitter: EventEmitterService,
+		private _ItemListService: ItemListService
 	) { }
 		
 	public PanelName: string = '';
@@ -86,18 +88,40 @@ export class ComparisonStatsComp implements OnInit {
 		return stats.RawStats.canComplete1vs3;
 
 	}	
-	LoadComparisonList(comparisonId: number, subtype: string) {
 
+	LoadComparisonList(comparisonId: number, subtype: string) {
 
 		for (let item of this._comparisonsService.Comparisons) {
 			if (item.comparisonId == comparisonId) {
 				this.ListSubType = subtype;
 				this.setListSubType.emit(this.ListSubType);
-				this.criteriaChange.emit(item);
+				//this.criteriaChange.emit(item);
+				this.LoadComparisons(item, this.ListSubType);
 				this._eventEmitter.PleaseSelectItemsListTab.emit();
 				return;
 			}
 		}
+
+	}
+
+	public LoadComparisons(comparison: Comparison, ListSubType: string) {
+
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		this._ItemListService.FetchWithCrit(crit, listDescription);
+
 	}
 	
 	public RefreshData() {

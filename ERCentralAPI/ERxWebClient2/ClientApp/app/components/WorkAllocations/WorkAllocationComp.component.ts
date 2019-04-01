@@ -723,11 +723,15 @@ export class WorkAllocationComp implements OnInit {
 		}
 	}
 
+	//LoadComparisonList(comparison: Comparison) {
+
+	//	this..LoadComparisonList(comparison, this.ListSubType);
+	//}
+
 	setCompListType($event: any) {
 		this.ComparisonStatsComp.ListSubType = $event;
 
 	}
-
 }
 
 export interface kvSelectFrom {

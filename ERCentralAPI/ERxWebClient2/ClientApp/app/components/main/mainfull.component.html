@@ -40,7 +40,8 @@
                                         </div>
                                         <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                                          style="max-height: 520px;"></readonlyreviews>
-                                        <WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadContactWorkAllocList($event)'
+                                        <WorkAllocationContactListComp #WorkAllocationContactList 
+																	   (criteriaChange)='LoadContactWorkAllocList($event)'
                                                                        (AllocationClicked)="GoToItemList()"
                                                                        [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
                                                                        resizable r-directions="['right']" r-flex="true"
@@ -94,7 +95,7 @@
                             <quickcodingreport *ngIf="ShowQuickQuestionReport" Aim="QuickQuestionReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>
                             <div class="card card-body bg-light p-1" style="min-height:300px;">
-                                <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                                <ItemListComp #ItemList  Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                             </div>
                         </ng-template>
                     </kendo-tabstrip-tab>
@@ -117,7 +118,8 @@
                         <ng-template kendoTabContent>
                             <WorkAllocationComp #WorkAllocationCollaborateList 
 												(AllocationClicked)="GoToItemList()"
-                                                (criteriaChange)='LoadWorkAllocList($event)' class="bg-light"></WorkAllocationComp>
+                                                (criteriaChange)='LoadWorkAllocList($event)' 
+												class="bg-light"></WorkAllocationComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
                 </kendo-tabstrip>
