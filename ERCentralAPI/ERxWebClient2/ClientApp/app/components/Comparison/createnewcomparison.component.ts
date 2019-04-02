@@ -28,7 +28,7 @@ export class ComparisonComp implements OnInit {
 	public PanelName: string = '';
 	public chosenFilter: SetAttribute | null = null;
     public get CodeSets(): ReviewSet[] {
-        return this._reviewSetsService.ReviewSets;
+		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
     }
 	public selectedReviewer1: Contact = new Contact();
 	public selectedReviewer2: Contact = new Contact();
@@ -118,7 +118,9 @@ export class ComparisonComp implements OnInit {
 			this.selectedReviewer2.contactName != '' &&
 			this.selectedCodeSet != null &&
 			this.selectedCodeSet.set_name != ''
-			&& this.CanWrite())
+			&& this.CanWrite()
+
+			)
 		{
 			if (this.selectedReviewer1.contactName != this.selectedReviewer2.contactName &&
 				this.selectedReviewer1.contactName != this.selectedReviewer3.contactName &&
@@ -132,7 +134,6 @@ export class ComparisonComp implements OnInit {
 			return true;
 		}
 	}
-
 	setOptionalMember(member: Contact) {
 
 		this.selectedReviewer3.contactId = member.contactId;
@@ -141,7 +142,8 @@ export class ComparisonComp implements OnInit {
 	}
 	setsFilter() {
 
-		if (this._reviewSetsService.selectedNode && this._reviewSetsService.selectedNode.nodeType == "SetAttribute") {
+		if (this._reviewSetsService.selectedNode &&
+			this._reviewSetsService.selectedNode.nodeType == "SetAttribute") {
 			this.selectedFilter = this._reviewSetsService.selectedNode as SetAttribute;
 		} 
 
@@ -192,7 +194,6 @@ export class ComparisonComp implements OnInit {
 		this.__comparisonsService.CreateComparison(newComparison);
 
 	}
-
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
@@ -244,5 +245,4 @@ export class ComparisonComp implements OnInit {
 		this.selectedReviewer2 = new Contact();
 		this.selectedReviewer3 = new Contact();
 	}
-	 
 }

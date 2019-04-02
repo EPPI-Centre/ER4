@@ -63,7 +63,8 @@ export class ComparisonsService extends BusyAwareService {
 			.subscribe(result => {
                 this._Statistics = new ComparisonStatistics(result, ComparisonId);
 				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];//consider a get
-				console.log(this._Statistics);
+				
+				//console.log(this.currentComparison)
 				//this.calculateStats();
                 this.RemoveBusy("FetchStats");
              }, error => {
@@ -138,21 +139,32 @@ export class Comparison {
 }
 
 export class ComparisonStatistics {
-    public constructor(data: iComparisonStatistics, comparisonID: number) {
+	public constructor(data: iComparisonStatistics, comparisonID: number) {
         this.RawStats = data;
         this.comparisonID = comparisonID;
     }
     public RawStats: iComparisonStatistics;
     public comparisonID: number;
-    public get Agreements1(): number {
+	public get Agreements1(): number {
+		
         return this.RawStats.n1vs2 - this.RawStats.disagreements1vs2;
     };
-    public get Agreements2(): number {
+	public get Agreements2(): number {
         return this.RawStats.n1vs3 - this.RawStats.disagreements1vs3;
     };
     public get Agreements3(): number {
         return this.RawStats.n2vs3 - this.RawStats.disagreements2vs3;
-    };
+	};
+	public get SCAgreements1(): number {
+		
+		return this.RawStats.n1vs2 - this.RawStats.scDisagreements1vs2;
+	};
+	public get SCAgreements2(): number {
+		return this.RawStats.n1vs3 - this.RawStats.scDisagreements1vs3;
+	};
+	public get SCAgreements3(): number {
+		return this.RawStats.n2vs3 - this.RawStats.scDisagreements2vs3;
+	};
 }
 export interface iComparisonStatistics {
     comparisonId: number;
@@ -168,8 +180,8 @@ export interface iComparisonStatistics {
     canComplete1vs2: boolean;
     canComplete1vs3: boolean;
     canComplete2vs3: boolean;
-    scdisagreements1vs2: number;
-    scdisagreements2vs3: number;
-    scdisagreements1vs3: number;
+    scDisagreements1vs2: number;
+    scDisagreements2vs3: number;
+    scDisagreements1vs3: number;
     isScreening: boolean;
 }

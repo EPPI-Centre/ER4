@@ -81,6 +81,7 @@ export class ComparisonStatsComp implements OnInit {
 		return stats.RawStats.canComplete2vs3;
 
 	}
+	
 	public checkCanComplete3(): boolean {
 
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
@@ -88,7 +89,6 @@ export class ComparisonStatsComp implements OnInit {
 		return stats.RawStats.canComplete1vs3;
 
 	}	
-
 	LoadComparisonList(comparisonId: number, subtype: string) {
 
 		for (let item of this._comparisonsService.Comparisons) {
@@ -103,7 +103,6 @@ export class ComparisonStatsComp implements OnInit {
 		}
 
 	}
-
 	public LoadComparisons(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
@@ -123,7 +122,6 @@ export class ComparisonStatsComp implements OnInit {
 		this._ItemListService.FetchWithCrit(crit, listDescription);
 
 	}
-	
 	public RefreshData() {
 
 		this.selectedCodeSet = this.CodeSets[0];
