@@ -488,6 +488,26 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> ItemTimepointMetricProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemTimepointMetric", "ItemTimepointMetric"));
+        [JsonProperty]
+        public string ItemTimepointMetric
+        {
+            get
+            {
+                return GetProperty(TimepointDisplayValueProperty).IndexOf(' ') > 0 ? GetProperty(TimepointDisplayValueProperty).Substring(GetProperty(TimepointDisplayValueProperty).IndexOf(' ') + 1) : "";
+            }
+        }
+
+        public static readonly PropertyInfo<string> ItemTimepointValueProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemTimepointValue", "ItemTimepointValue"));
+        [JsonProperty]
+        public string ItemTimepointValue
+        {
+            get
+            {
+                return GetProperty(TimepointDisplayValueProperty).IndexOf(' ') > 0 ? GetProperty(TimepointDisplayValueProperty).Substring(0, GetProperty(TimepointDisplayValueProperty).IndexOf(' ')) : "";
+            }
+        }
+
         public static readonly PropertyInfo<Int64> ItemArmIdGrp1Property = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemArmIdGrp1", "ItemArmIdGrp1"));
         [JsonProperty]
         public Int64 ItemArmIdGrp1
@@ -1786,7 +1806,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public string GetOutcomeHeaders()
         {
-            string retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+            string retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Arm 1</td><td>Arm 2</td><td>Type</td>";
             switch (OutcomeTypeId)
             {
                 case 0: // manual entry
@@ -1833,8 +1853,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public string GetOutcomeStats()
         {
-            string retVal = "<tr><td>" + Title + "</td><td>" + OutcomeDescription.Replace("\r", "<br />") + "</td><td>" + OutcomeText + "</td><td>" + InterventionText +
-                "</td><td>" + ControlText + "</td>";
+            string retVal = "<tr><td>" + Title + "</td><td>" + OutcomeDescription.Replace("\r", "<br />") + "</td><td>" + TimepointDisplayValue + "</td><td>" + OutcomeText + "</td><td>" + InterventionText +
+                "</td><td>" + ControlText + "</td><td>" + grp1ArmName + "</td><td>" + grp2ArmName + "</td>";
             switch (OutcomeTypeId)
             {
                 case 0: // manual entry

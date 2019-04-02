@@ -42,7 +42,8 @@ using Csla.Xaml;
 using Telerik.Windows.Documents.FormatProviders.Txt;
 using Telerik.Windows.Documents.TextSearch;
 using Telerik.Windows.Documents;
-//using Telerik.Windows.Documents.UI;
+using Telerik.Windows.Documents.UI;
+using Telerik.Windows.Controls.RichTextBoxUI;
 using System.Globalization;
 
 using System.Text;
@@ -2420,7 +2421,19 @@ namespace EppiReviewer4
             imagetest.Source = imsource;
             return;
             */
+
             ReviewInfo rInfo = ((App)(Application.Current)).GetReviewInfo();
+
+            // JT experimenting with document conversion
+            /*
+            string html = "<html><body><table><tr><td>hello</td><td> world</td></tr></table></body></html>";
+            Telerik.Windows.Documents.FormatProviders.Html.HtmlFormatProvider htmlprov = new Telerik.Windows.Documents.FormatProviders.Html.HtmlFormatProvider();
+            Telerik.Windows.Documents.Model.RadDocument doc = new Telerik.Windows.Documents.Model.RadDocument();
+            doc = htmlprov.Import(html);
+            Telerik.Windows.Documents.FormatProviders.Xaml.XamlFormatProvider prov = new Telerik.Windows.Documents.FormatProviders.Xaml.XamlFormatProvider();
+            string output = prov.Export(doc);
+            return;
+            */
 
             if (this.pdfViewer.Document == null || this.pdfViewer.Document.Selection.IsEmpty)
             {
