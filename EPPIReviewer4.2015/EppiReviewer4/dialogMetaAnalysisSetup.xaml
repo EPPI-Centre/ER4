@@ -511,12 +511,17 @@
                 <telerikGridView:GridViewDataColumn UniqueName="SEESColumn" Header="SE" DataMemberBinding="{Binding SEES}" Width="65" DataFormatString="{}{0:F2}" IsReadOnly="True" CellStyle="{StaticResource statsStyle}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="titleColumn" Header="Study" DataMemberBinding="{Binding ShortTitle}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="DescColumn" Header="Outcome description" DataMemberBinding="{Binding Title}" Width="SizeToHeader" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                <telerikGridView:GridViewDataColumn UniqueName="OutcomeTypeName" Header="Type" DataMemberBinding="{Binding OutcomeTypeName}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn UniqueName="TimepointColumn" Header="Timepoint" DataMemberBinding="{Binding TimepointDisplayValue}" Width="SizeToHeader" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+
+                        <telerikGridView:GridViewDataColumn UniqueName="OutcomeTypeName" Header="Type" DataMemberBinding="{Binding OutcomeTypeName}" Width="80" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="OutcomeColumn" Header="Outcome" DataMemberBinding="{Binding OutcomeText}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="InterventionColumn" Header="Intervention" DataMemberBinding="{Binding InterventionText}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn UniqueName="ComparisonColumn" Header="Comparison" DataMemberBinding="{Binding ControlText}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
 
-                <telerikGridView:GridViewDataColumn UniqueName="aa1" Header="" DataMemberBinding="{Binding aa1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn UniqueName="Arm1Column" Header="Arm 1" DataMemberBinding="{Binding grp1ArmName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn UniqueName="Arm2Column" Header="Arm 2" DataMemberBinding="{Binding grp2ArmName}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+
+                        <telerikGridView:GridViewDataColumn UniqueName="aa1" Header="" DataMemberBinding="{Binding aa1}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
                 <telerikGridView:GridViewDataColumn UniqueName="aa2" Header="" DataMemberBinding="{Binding aa2}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
                 <telerikGridView:GridViewDataColumn UniqueName="aa3" Header="" DataMemberBinding="{Binding aa3}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
                 <telerikGridView:GridViewDataColumn UniqueName="aa4" Header="" DataMemberBinding="{Binding aa4}" Width="80" IsReadOnly="True" CellStyle="{StaticResource aaStyle}"></telerikGridView:GridViewDataColumn>
