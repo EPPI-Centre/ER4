@@ -63,6 +63,9 @@ namespace EppiReviewer4
         AttributeSetToPasteList toPlist;
         public List<ItemSet> CurrentItemData = null;
 
+        public event EventHandler RequestLargerOutcomePane;
+        public event EventHandler RequestReturnOutcomePaneToNormal;
+
         private RadWClassifier windowClassifier = new RadWClassifier();
 
         //first bunch of lines to make the read-only UI work
@@ -164,12 +167,20 @@ namespace EppiReviewer4
         private void DialogEditOutcomesControl_ShowEditOutcomeGrid(object sender, EventArgs e)
         {
             CodingGrid.Visibility = Visibility.Collapsed;
+
+            if (this.RequestLargerOutcomePane != null)
+                this.RequestLargerOutcomePane.Invoke(this, EventArgs.Empty);
+
             GridEditOutcome.Visibility = Visibility.Visible;
         }
 
         private void DialogEditOutcomesControl_CloseWindowRequest(object sender, EventArgs e)
         {
             GridEditOutcome.Visibility = Visibility.Collapsed;
+
+            if (this.RequestReturnOutcomePaneToNormal != null)
+                this.RequestReturnOutcomePaneToNormal.Invoke(this, EventArgs.Empty);
+
             CodingGrid.Visibility = Visibility.Visible;
         }
 

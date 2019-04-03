@@ -81,6 +81,8 @@ namespace EppiReviewer4
         private RadUpload RadUp = new RadUpload();
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
 
+        private double CurrentcodesTreeContainerWidth = 330;
+
         public List<Int64> ScreenedItemIds;
 
         // maybe we should move these to a central location for this kind of thing??
@@ -198,9 +200,23 @@ namespace EppiReviewer4
             }
             RadUp.Filter = filefilt.Trim(';');
 
+            codesTreeControl.RequestLargerOutcomePane += CodesTreeControl_RequestLargerOutcomePane;
+            codesTreeControl.RequestReturnOutcomePaneToNormal += CodesTreeControl_RequestReturnOutcomePaneToNormal;
+
             TimePointTypeList tptl = new BusinessLibrary.BusinessClasses.TimePointTypeList();
             ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
             ComboTimepointMetricSelection.SelectedIndex = 5;
+        }
+
+        private void CodesTreeControl_RequestReturnOutcomePaneToNormal(object sender, EventArgs e)
+        {
+            codesTreeContainer.Width = CurrentcodesTreeContainerWidth;
+        }
+
+        private void CodesTreeControl_RequestLargerOutcomePane(object sender, EventArgs e)
+        {
+            CurrentcodesTreeContainerWidth = codesTreeContainer.Width;
+            codesTreeContainer.Width = 500;
         }
 
         public void PrepareCodingOnly()

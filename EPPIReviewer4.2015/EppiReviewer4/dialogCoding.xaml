@@ -180,7 +180,7 @@
 
         <radDock:RadDocking AllowUnsafeMode="True" >
             
-            <radDock:RadSplitContainer InitialPosition="DockedLeft" Width="330">
+            <radDock:RadSplitContainer x:Name="codesTreeContainer" InitialPosition="DockedLeft" Width="330">
                 <radDock:RadPaneGroup x:Name="PaneGroupCodeSets">
                     <radDock:RadDocumentPane Header="Codes" Title="Codes" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
                         <Grid x:Name="CodingGrid">
