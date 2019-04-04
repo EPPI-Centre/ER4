@@ -244,6 +244,7 @@
     <Compile Include="BusinessClasses\ItemLink.cs" />
     <Compile Include="BusinessClasses\ItemLinkList.cs" />
     <Compile Include="BusinessClasses\ItemTimepoint.cs" />
+    <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemTimepointList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />

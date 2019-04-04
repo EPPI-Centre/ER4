@@ -159,6 +159,9 @@ CREATE procedure [dbo].[st_ItemTimepointDelete]
 As
 
 SET NOCOUNT ON
+	UPDATE TB_ITEM_OUTCOME
+		SET ITEM_TIMEPOINT_ID = NULL
+		WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
 
 	DELETE FROM TB_ITEM_TIMEPOINT
 		WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
@@ -676,3 +679,99 @@ SET NOCOUNT ON
 --*/
 SET NOCOUNT OFF
 
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 04/04/2019 08:28:38 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemArmDelete]
+(
+	@ITEM_ARM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	DELETE FROM TB_ITEM_ATTRIBUTE where ITEM_ARM_ID = @ITEM_ARM_ID
+	DELETE FROM TB_ITEM_ARM
+		WHERE ITEM_ARM_ID = @ITEM_ARM_ID
+
+	UPDATE TB_ITEM_OUTCOME
+		SET ITEM_ARM_ID_GRP1 = NULL
+		WHERE ITEM_ARM_ID_GRP1 = @ITEM_ARM_ID
+
+	UPDATE TB_ITEM_OUTCOME
+		SET ITEM_ARM_ID_GRP2 = NULL
+		WHERE ITEM_ARM_ID_GRP2 = @ITEM_ARM_ID
+
+SET NOCOUNT OFF
+
+GO
+
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 04/04/2019 08:26:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER PROCEDURE [dbo].[st_ItemArmDeleteWarning]
+	@ITEM_ID BIGINT,
+	@ARM_ID BIGINT,
+	@NUM_CODINGS INT OUTPUT,
+	@NUM_OUTCOMES INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_CODINGS = COUNT(DISTINCT TB_ITEM_ATTRIBUTE.ITEM_ATTRIBUTE_ID) FROM TB_ITEM_ATTRIBUTE
+		INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = TB_ITEM_ATTRIBUTE.ITEM_ID
+			AND TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+			AND TB_ITEM_REVIEW.ITEM_ID = @ITEM_ID
+		WHERE TB_ITEM_ATTRIBUTE.ITEM_ARM_ID = @ARM_ID
+
+	SELECT @NUM_OUTCOMES = COUNT(DISTINCT ITO.OUTCOME_ID) FROM TB_ITEM_OUTCOME ITO
+		WHERE ITO.ITEM_ARM_ID_GRP1 = @ARM_ID OR ITO.ITEM_ARM_ID_GRP2 = @ARM_ID
+
+SET NOCOUNT OFF
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemTimepointDeleteWarning]    Script Date: 04/04/2019 08:26:42 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+create PROCEDURE [dbo].[st_ItemTimepointDeleteWarning]
+	@ITEM_ID BIGINT,
+	@TIMEPOINT_ID BIGINT,
+	@NUM_OUTCOMES INT OUTPUT,
+	@REVIEW_ID INT
+As
+
+SET NOCOUNT ON
+
+	SELECT @NUM_OUTCOMES = COUNT(DISTINCT ITO.OUTCOME_ID) FROM TB_ITEM_OUTCOME ITO
+		WHERE ITO.ITEM_TIMEPOINT_ID = @TIMEPOINT_ID
+
+SET NOCOUNT OFF

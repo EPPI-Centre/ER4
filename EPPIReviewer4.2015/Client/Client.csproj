@@ -411,6 +411,9 @@
     <Compile Include="..\Server\BusinessClasses\ItemTimepoint.cs">
       <Link>BusinessClasses\ItemTimepoint.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ItemTimepointDeleteWarningCommand.cs">
+      <Link>BusinessClasses\ItemTimepointDeleteWarningCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ItemTimepointList.cs">
       <Link>BusinessClasses\ItemTimepointList.cs</Link>
     </Compile>

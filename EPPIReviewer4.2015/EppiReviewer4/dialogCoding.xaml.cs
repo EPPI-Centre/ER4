@@ -80,6 +80,7 @@ namespace EppiReviewer4
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
+        private RadWCheckTimepointDelete WindowCheckTimepointDelete = new RadWCheckTimepointDelete();
 
         private double CurrentcodesTreeContainerWidth = 330;
 
@@ -185,6 +186,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
             WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
+            WindowCheckTimepointDelete.cmdTimepointDeletedInWindow += WindowCheckTimepointDelete_cmdTimepointDeletedInWindow;
 
             //end hooking up radW events
 
@@ -207,6 +209,8 @@ namespace EppiReviewer4
             ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
             ComboTimepointMetricSelection.SelectedIndex = 5;
         }
+
+        
 
         private void CodesTreeControl_RequestReturnOutcomePaneToNormal(object sender, EventArgs e)
         {
@@ -3200,28 +3204,39 @@ namespace EppiReviewer4
             }
         }
 
-        private void cmdDeleteTimepoint_Click(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("Delete timepoint?", "Confirm timepoint deletion", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                ItemTimepoint it = (ItemTimepoint) (sender as Button).DataContext;
-                if (it != null)
-                {
-                    it.Delete();
-                    it.Saved -= Ia_Saved;
-                    it.Saved += Ia_Saved;
-                    it.BeginEdit();
-                    it.ApplyEdit();
-                }
-            }
-        }
-
         public void UnHookMe()
         {
             codesTreeControl.UnHookMe();
         }
 
-        
+        private void WindowCheckTimepointDelete_cmdTimepointDeletedInWindow(object sender, RoutedEventArgs e)
+        {
+            this.IsEnabled = false;
+            WindowCheckTimepointDelete.Close();
+            ItemTimepoint it = sender as ItemTimepoint;
+            if (it == null) return;
+            it.Saved -= It_Saved;
+            it.Saved += It_Saved;
+            it.BeginEdit();
+            it.ApplyEdit();
+        }
+
+        private void cmdDeleteTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            ItemTimepoint Deleting = (sender as Button).DataContext as ItemTimepoint;
+            if (Deleting == null) return;
+            WindowCheckTimepointDelete.StartChecking(Deleting);
+            WindowCheckTimepointDelete.ShowDialog();
+        }
+
+        private void It_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            if (e.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
+            ItemTimepointsDataChanged(sender, e);
+        }
+
+
 
     } // END DIALOG CONTROL
     

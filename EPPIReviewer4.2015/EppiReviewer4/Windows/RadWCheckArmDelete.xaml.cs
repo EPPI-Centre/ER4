@@ -66,6 +66,7 @@ namespace EppiReviewer4
                     {
                         TextBlockCheckDeleteArmDetails.Text = "Deleting an Arm is a permanent operation and will delete all coding associated with the Arm."
                             + Environment.NewLine + "This Arm is associated with " + e2.Object.NumCodings.ToString() + " codes."
+                            + Environment.NewLine + "This Arm is associated with " + e2.Object.NumOutcomes.ToString() + " outcomes."
                             + Environment.NewLine + "Please type 'I confirm' in the box below if you are sure you want to proceed.";
                         WarningBorder.Background = this.WarningBg;
                         txtBoxConfirm.Visibility = Visibility.Visible;
