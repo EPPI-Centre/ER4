@@ -58,6 +58,7 @@ namespace EppiReviewer4
             provider3.Refresh();
 
             provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
+            ComboBoxTimepoint.SelectedItem = null;
             foreach (ItemTimepoint it in provider.Data as ItemTimepointList)
             {
                 if (it.ItemTimepointId == o.ItemTimepointId)
@@ -67,6 +68,8 @@ namespace EppiReviewer4
             }
 
             provider = ((CslaDataProvider)App.Current.Resources["ItemArmsData"]);
+            ComboBoxGrp1Arm.SelectedItem = null;
+            ComboBoxGrp2Arm.SelectedItem = null;
             foreach (ItemArm ia in provider.Data as ItemArmList)
             {
                 if (ia.ItemArmId == o.ItemArmIdGrp1)
