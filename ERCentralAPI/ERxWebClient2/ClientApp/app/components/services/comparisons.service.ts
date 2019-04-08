@@ -133,6 +133,8 @@ export class ComparisonsService extends BusyAwareService {
     public Clear() {
         //clear current stats details AS Well!
 		this._Comparisons = [];
+		this.currentComparison = new Comparison();
+
 	}
 
 }

@@ -102,7 +102,6 @@ export class ComparisonStatsComp implements OnInit {
 		return stats.RawStats.canComplete2vs3;
 
 	}
-	
 	public checkCanComplete3(): boolean {
 
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
@@ -110,6 +109,7 @@ export class ComparisonStatsComp implements OnInit {
 		return stats.RawStats.canComplete1vs3;
 
 	}	
+
 	LoadComparisonList(comparisonId: number, subtype: string) {
 
 		for (let item of this._comparisonsService.Comparisons) {
@@ -152,7 +152,7 @@ export class ComparisonStatsComp implements OnInit {
 		this.ListSubType = listSubType;
 
 		let currentComparison: Comparison = this._comparisonsService.currentComparison;
-		console.log(currentComparison);
+		//console.log(currentComparison);
 	
 		if (members == '1And2') {
 			let contact = new Contact();
