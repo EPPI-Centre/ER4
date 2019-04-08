@@ -155,7 +155,8 @@ export class ItemListService extends BusyAwareService {
                         else {
                             console.log("updated item not replaced: could not find it...");
                         }
-                    }
+					}
+					this.RemoveBusy("UpdateItem");
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("UpdateItem");

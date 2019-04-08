@@ -5,19 +5,22 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class readonlyreviewsService {
+export class readonlyreviewsService extends BusyAwareService  {
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
-    ) { }
+	) {
+		super();
+	}
 
     private _ReviewList: ReadOnlyReview[] = [];
 
@@ -45,10 +48,14 @@ export class readonlyreviewsService {
 
 
     public Fetch() {
-
+		this._BusyMethods.push("Fetch");
         return this._httpC.get<ReadOnlyReview[]>(this._baseUrl + 'api/review/readonlyreviews').subscribe(result => {
-            this.ReadOnlyReviews = result;
-        }, error => { this.modalService.GenericError(error); }
+			this.ReadOnlyReviews = result;
+			this.RemoveBusy("Fetch");
+		}, error => {
+			this.RemoveBusy("Fetch");
+			this.modalService.GenericError(error);
+		}
         );
     }
 

@@ -9,19 +9,20 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ItemDocsService {
+export class ItemDocsService extends BusyAwareService   {
 
     constructor(
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-       
+		super();
     }
 
     public _itemDocs: ItemDocument[] = []; 
@@ -41,7 +42,9 @@ export class ItemDocsService {
     }
 
     public GetItemDocument(itemDocumentId: number) {
-        
+
+
+		this._BusyMethods.push("GetItemDocument");
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
         //console.log(this.ReviewerIdentityService.reviewerIdentity.token);
@@ -66,31 +69,37 @@ export class ItemDocsService {
 								if (url) window.open(url);
 							}
                             
-                        });
+						});
+					this.RemoveBusy("GetItemDocument");
                 }
-            });
+			});
+		this.RemoveBusy("GetItemDocument");
     }
 
     public DeleteDocWarning(DocId: number) {
 
+		this._BusyMethods.push("DeleteDocWarning");
         let ErrMsg = "Something went wrong when checking if it's safe to delete this document. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: DocId });
 
         return this._httpC.post<number>(this._baseUrl + 'api/ItemDocumentList/DeleteDocWarning', body).toPromise()
             .then(
-                (result) => {
+			(result) => {
+				this.RemoveBusy("DeleteDocWarning");
                     return result;
                 }
                 , (error) => {
                     console.log('error in DeleteDocWarning() rejected', error);
-                    this.modalService.GenericErrorMessage(ErrMsg);
+					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteDocWarning");
                     return -1;
                 }
             )
             .catch(
                 (error) => {
                     console.log('error in DeleteDocWarning() catch', error);
-                    this.modalService.GenericErrorMessage(ErrMsg);
+					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteDocWarning");
                     return -1;
                 }
             );
@@ -99,17 +108,20 @@ export class ItemDocsService {
 
     DeleteItemDoc(ID: number) {
 
+		this._BusyMethods.push("DeleteItemDoc");
         let ErrMsg = "Something went wrong when deleting the document. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: ID });
         this._httpC.post(this._baseUrl + 'api/ItemDocumentList/DeleteDoc', body).subscribe(
                 (result) => {
-                    console.log(result);
-                    this.Refresh();
+					console.log(result);
+					this.Refresh();
+					this.RemoveBusy("DeleteItemDoc");
                 }
                 , (error) => {
                     this.modalService.GenericErrorMessage(ErrMsg);
                     console.log(error);
-                    this.Refresh();
+					this.Refresh();
+					this.RemoveBusy("DeleteItemDoc");
                 }
             );
 

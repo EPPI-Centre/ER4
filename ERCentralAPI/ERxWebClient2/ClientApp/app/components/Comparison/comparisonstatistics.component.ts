@@ -1,5 +1,4 @@
 import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import {  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
