@@ -32,23 +32,10 @@ export class ComparisonComp implements OnInit {
 	public selectedReviewer2: Contact = new Contact();
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public selectedFilter!: SetAttribute;
 	@Output() emitterCancel = new EventEmitter();
 
-
-	private _Contacts: Contact[] = [];
-
 	public get Contacts(): Contact[] {
-
-		this._Contacts = this._reviewInfoService.Contacts;
-
-		if (this._Contacts) {
-			return this._Contacts;
-		} 
-		else {
-			this._Contacts = [];
-			return this._Contacts;
-		}
+		return this._reviewInfoService.Contacts;
 	}
 	canSetFilter(): boolean {
 		if (this._reviewSetsService.selectedNode
@@ -58,14 +45,14 @@ export class ComparisonComp implements OnInit {
 	SetFilter() {
 		if (this._reviewSetsService.selectedNode && this._reviewSetsService.selectedNode.nodeType == "SetAttribute")
 			this.chosenFilter = this._reviewSetsService.selectedNode as SetAttribute;
-		if (this.chosenFilter) {
-			this.selectedFilter = this.chosenFilter;
-		}
+		//if (this.chosenFilter) {
+		//	this.selectedFilter = this.chosenFilter;
+		//}
 		
 	}
 	clearChosenFilter() {
 		this.chosenFilter = null;
-		this.selectedFilter = new SetAttribute();
+		//this.selectedFilter = new SetAttribute();
 	}
 	getMembers() {
 
@@ -112,17 +99,17 @@ export class ComparisonComp implements OnInit {
 	}
 	CanCreateComparison(): boolean {
 
-		if (this.selectedReviewer1.contactName != '' &&
-			this.selectedReviewer2.contactName != '' &&
+		if (this.selectedReviewer1.contactId > 0 &&
+			this.selectedReviewer2.contactId > 0 &&
 			this.selectedCodeSet != null &&
-			this.selectedCodeSet.set_name != ''
+			this.selectedCodeSet.setType.allowComparison &&
+			this.selectedCodeSet.set_id > 0
 			&& this.CanWrite()
-
 			)
 		{
-			if (this.selectedReviewer1.contactName != this.selectedReviewer2.contactName &&
-				this.selectedReviewer1.contactName != this.selectedReviewer3.contactName &&
-				this.selectedReviewer3.contactName != this.selectedReviewer2.contactName ) {
+			if (this.selectedReviewer1.contactId != this.selectedReviewer2.contactId &&
+				this.selectedReviewer1.contactId != this.selectedReviewer3.contactId &&
+				this.selectedReviewer3.contactId != this.selectedReviewer2.contactId ) {
 				return false;
 			} else {
 				return true;
@@ -138,56 +125,42 @@ export class ComparisonComp implements OnInit {
 		this.selectedReviewer3.contactName = member.contactName;
 	
 	}
-	setsFilter() {
 
-		if (this._reviewSetsService.selectedNode &&
-			this._reviewSetsService.selectedNode.nodeType == "SetAttribute") {
-			this.selectedFilter = this._reviewSetsService.selectedNode as SetAttribute;
-		} 
-
-	}
 	public get CurrentNode(): singleNode | null {
 		if (!this._reviewSetsService.selectedNode) return null;
 		else return this._reviewSetsService.selectedNode;
 	}
 	CreateNewComparison() {
-
+		if(this.CanCreateComparison()) return;
 		let newComparison: Comparison = new Comparison();
-		let tempReviewer = this._reviewInfoService.Contacts;
-		if (tempReviewer) {
+		
 
-			if (this.selectedReviewer1.contactName == '') {
-				newComparison.contactId1 = tempReviewer[0].contactId;
-				newComparison.contactName1 = tempReviewer[0].contactName;
-			} else {
-				newComparison.contactId1 = this.selectedReviewer1.contactId;
-				newComparison.contactName1 = this.selectedReviewer1.contactName;
-			}
-			if (this.selectedReviewer2.contactName == '') {
-				newComparison.contactId2 = tempReviewer[0].contactId;
-				newComparison.contactName2 = tempReviewer[0].contactName;
-			} else {
-				newComparison.contactId2 = this.selectedReviewer2.contactId;
-				newComparison.contactName2 = this.selectedReviewer2.contactName;
-			}
-
-			if (this.selectedCodeSet) {
-				newComparison.setId = this.selectedCodeSet.set_id;
-				newComparison.setName  = this.selectedCodeSet.set_name;
-			}
-			if (this.selectedReviewer3.contactName != '') {
-				newComparison.contactId3 = this.selectedReviewer3.contactId;
-				newComparison.contactName3 = this.selectedReviewer3.contactName
-			}
-			if (this.selectedFilter != null && this.selectedFilter != undefined) {
-
-				if (this.selectedFilter.name != '' && this.selectedFilter.nodeType == 'SetAttribute') {
-					let temp = this.selectedFilter as SetAttribute;
-					newComparison.inGroupAttributeId = temp.attribute_id ;
-					newComparison.attributeName = temp.attribute_name;
-					}
-			}
+		if (this.selectedReviewer1.contactId > 0) {
+			newComparison.contactId1 = this.selectedReviewer1.contactId;
+			newComparison.contactName1 = this.selectedReviewer1.contactName;
 		}
+		if (this.selectedReviewer2.contactId > 0) {
+			newComparison.contactId2 = this.selectedReviewer2.contactId;
+			newComparison.contactName2 = this.selectedReviewer2.contactName;
+		} 
+		if (this.selectedReviewer3.contactId > 0) {
+			newComparison.contactId3 = this.selectedReviewer3.contactId;
+			newComparison.contactName3 = this.selectedReviewer3.contactName
+		}
+
+		if (this.selectedCodeSet) {
+			newComparison.setId = this.selectedCodeSet.set_id;
+			newComparison.setName  = this.selectedCodeSet.set_name;
+		}
+		
+		if (this.chosenFilter) {
+			if (this.chosenFilter.name != '' && this.chosenFilter.nodeType == 'SetAttribute') {
+				let temp = this.chosenFilter as SetAttribute;
+				newComparison.inGroupAttributeId = temp.attribute_id ;
+				newComparison.attributeName = temp.attribute_name;
+				}
+		}
+		
 		//console.log('hello' + newComparison);
 		this.__comparisonsService.CreateComparison(newComparison);
 
@@ -226,10 +199,8 @@ export class ComparisonComp implements OnInit {
 	public RefreshData() {
 
 		this.getMembers();
-		//this.getCodeSets();
 		this.getComparisons();
 		this.selectedCodeSet = this.CodeSets[0];
-		this.selectedFilter = new SetAttribute();
 		this.chosenFilter = null;
 	}
 	ngOnInit() {
@@ -238,7 +209,7 @@ export class ComparisonComp implements OnInit {
 	}
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
-		this.selectedFilter = new SetAttribute();
+		this.chosenFilter = new SetAttribute();
 		this.selectedReviewer1 = new Contact();
 		this.selectedReviewer2 = new Contact();
 		this.selectedReviewer3 = new Contact();

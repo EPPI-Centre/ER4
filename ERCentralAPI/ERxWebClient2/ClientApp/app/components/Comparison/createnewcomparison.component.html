@@ -56,9 +56,9 @@
 				<div style="min-width: 100px;">
 				<span >Selected Filter: &nbsp;</span>
 				</div>
-				<div class="col-10" *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'">
+				<div class="col-10" *ngIf="chosenFilter && chosenFilter.nodeType == 'SetAttribute'">
 					<span>
-						<b>{{chosenFilter?.name}}</b>
+						<b>{{chosenFilter.name}}</b>
 					</span>
 				</div>
 			</div>
