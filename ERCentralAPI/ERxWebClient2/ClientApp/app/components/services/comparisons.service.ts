@@ -47,7 +47,6 @@ export class ComparisonsService extends BusyAwareService {
 		this._httpC.get<Comparison[]>(this._baseUrl + 'api/Comparisons/ComparisonList')
 			.subscribe(result => {
 				this._Comparisons = result;
-				//this.ListLoaded.emit();
                 this.RemoveBusy("FetchAll");
             }, error => {
                 this.RemoveBusy("FetchAll");
@@ -64,8 +63,6 @@ export class ComparisonsService extends BusyAwareService {
                 this._Statistics = new ComparisonStatistics(result, ComparisonId);
 				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];//consider a get
 				
-				//console.log(this.currentComparison)
-				//this.calculateStats();
                 this.RemoveBusy("FetchStats");
              }, error => {
                  this.RemoveBusy("FetchStats");
@@ -95,7 +92,28 @@ export class ComparisonsService extends BusyAwareService {
 				}
 			);
 	}
-	
+
+	public CompleteComparison(completeComparison: iCompleteComparison) {
+
+		this._BusyMethods.push("CompleteComparison");
+		//let body = JSON.stringify({ Value: ComparisonId });
+		return this._httpC.post<string>(this._baseUrl +
+			'api/Comparisons/CompleteComparison', completeComparison)
+			.toPromise().then(
+
+			(result: string) => {
+
+				this.RemoveBusy("CompleteComparison");
+				return result;
+
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("CompleteComparison");
+				}
+			);
+	}
+		
 	public DeleteComparison(ComparisonId: number) {
         this._BusyMethods.push("DeleteComparison");
 		let body = JSON.stringify({ Value: ComparisonId });
@@ -166,6 +184,7 @@ export class ComparisonStatistics {
 		return this.RawStats.n2vs3 - this.RawStats.scDisagreements2vs3;
 	};
 }
+
 export interface iComparisonStatistics {
     comparisonId: number;
     n1vs2: number;
@@ -184,4 +203,12 @@ export interface iComparisonStatistics {
     scDisagreements2vs3: number;
     scDisagreements1vs3: number;
     isScreening: boolean;
+}
+
+export interface iCompleteComparison {
+
+	comparisonId: number;
+	whichReviewers: string;
+	contactId: number;
+
 }

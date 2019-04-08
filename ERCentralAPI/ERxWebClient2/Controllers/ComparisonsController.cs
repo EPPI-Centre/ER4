@@ -98,7 +98,50 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-		
+
+		[HttpPost("[action]")]
+		public IActionResult CompleteComparison([FromBody] ComparisonCompleteJSON comparisonComplete)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+
+					if (comparisonComplete.whichReviewers.Contains("Sc"))
+					{
+						ComparisonScreeningCompleteCommand cmd = new ComparisonScreeningCompleteCommand(
+							comparisonComplete.comparisonid,
+							comparisonComplete.whichReviewers,
+							comparisonComplete.contactId
+						);
+						DataPortal<ComparisonScreeningCompleteCommand> dp = new DataPortal<ComparisonScreeningCompleteCommand>();
+						cmd = dp.Execute(cmd);
+
+						return Ok(cmd);
+					}
+					else
+					{
+						ComparisonCompleteCommand cmd = new ComparisonCompleteCommand(
+							comparisonComplete.comparisonid,
+							comparisonComplete.whichReviewers,
+							comparisonComplete.contactId
+						);
+						DataPortal<ComparisonCompleteCommand> dp = new DataPortal<ComparisonCompleteCommand>();
+						cmd = dp.Execute(cmd);
+
+						return Ok(cmd);
+					}
+					
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison Complete data portal error");
+				throw;
+			}
+		}
+
 		[HttpPost("[action]")]
 		public IActionResult CreateComparison([FromBody] JObject comparison)
 		{
@@ -127,5 +170,12 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
+	}
+
+	public class ComparisonCompleteJSON
+	{
+		public int comparisonid {get; set;}
+		public string whichReviewers { get; set; }
+		public int contactId { get; set; }
 	}
 }

@@ -23,54 +23,56 @@
 		Number of documents coded by both {{_comparisonsService.currentComparison.contactName1}} and {{_comparisonsService.currentComparison.contactName3}}
 		: {{_comparisonsService.Statistics.RawStats.n1vs3 }}
 	</p>
-	<kendo-tabstrip >
-		<kendo-tabstrip-tab [selected]="true" [title]="'Full'">
-			<ng-template kendoTabContent>
-				<div class="col-12 row card bg-light card-body rounded border-success">
-					<div class="col-12 row">
-						<span class="col-3">
-							{{_comparisonsService.currentComparison.contactName1}} versus
-							{{_comparisonsService.currentComparison.contactName2}}
-						</span>
-						<div class="col-9 row">
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2')"> {{_comparisonsService.Statistics.Agreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
-							<button class="btn btn-outline-info col-3" [disabled]="!checkCanComplete1()"> Complete</button>
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2')"> {{_comparisonsService.Statistics.RawStats.disagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
-							<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+	<kendo-tabstrip>
+		<div *ngIf="tabSelected == 'AgreeStats'">
+			<kendo-tabstrip-tab [selected]="true" [title]="'Full'">
+				<ng-template kendoTabContent>
+					<div class="col-12 row card bg-light card-body rounded border-success">
+						<div class="col-12 row">
+							<span class="col-3">
+								{{_comparisonsService.currentComparison.contactName1}} versus
+								{{_comparisonsService.currentComparison.contactName2}}
+							</span>
+							<div class="col-9 row">
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2')"> {{_comparisonsService.Statistics.Agreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
+								<button class="btn btn-outline-info col-3" (click)="SendToComplete('1And2','ComparisonAgree1vs2')" [disabled]="!checkCanComplete1()"> Complete</button>
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2')"> {{_comparisonsService.Statistics.RawStats.disagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
+								<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+							</div>
 						</div>
-					</div>
-					<div class="col-12 row"
-						 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-						<span class="col-3">
-							{{_comparisonsService.currentComparison.contactName2}} versus
-							{{_comparisonsService.currentComparison.contactName3}}
-						</span>
-						<div class="col-9 row">
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree2vs3')"> {{_comparisonsService.Statistics.Agreements2 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)</button>
-							<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" [disabled]="!checkCanComplete2()"> Complete</button>
-
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3')">{{_comparisonsService.Statistics.RawStats.disagreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)</button>
-							<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
-						</div>
-					</div>
-					<div class="col-12 row"
-						 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-						<span class=" col-3">
-							{{_comparisonsService.currentComparison.contactName1}} versus
-							{{_comparisonsService.currentComparison.contactName3}}
-						</span>
-						<div class="col-9 row"
+						<div class="col-12 row"
 							 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3')"> {{_comparisonsService.Statistics.Agreements3 }} / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)</button>
-							<button (click)="alert('not implemented')" class="btn btn-outline-info col-3" [disabled]="!checkCanComplete3()"> Complete</button>
+							<span class="col-3">
+								{{_comparisonsService.currentComparison.contactName2}} versus
+								{{_comparisonsService.currentComparison.contactName3}}
+							</span>
+							<div class="col-9 row">
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree2vs3')"> {{_comparisonsService.Statistics.Agreements2 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)</button>
+								<button class="btn btn-outline-info col-3" (click)="SendToComplete('2And3', 'ComparisonAgree2vs3')" [disabled]="!checkCanComplete2()"> Complete</button>
 
-							<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3')"> {{_comparisonsService.Statistics.RawStats.disagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)</button>
-							<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3')">{{_comparisonsService.Statistics.RawStats.disagreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)</button>
+								<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+							</div>
+						</div>
+						<div class="col-12 row"
+							 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+							<span class=" col-3">
+								{{_comparisonsService.currentComparison.contactName1}} versus
+								{{_comparisonsService.currentComparison.contactName3}}
+							</span>
+							<div class="col-9 row"
+								 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3')"> {{_comparisonsService.Statistics.Agreements3 }} / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)</button>
+								<button class="btn btn-outline-info col-3" (click)="SendToComplete('1And3', 'ComparisonAgree1vs3')" [disabled]="!checkCanComplete3()"> Complete</button>
+
+								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3')"> {{_comparisonsService.Statistics.RawStats.disagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)</button>
+								<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			</ng-template>
-		</kendo-tabstrip-tab>
+				</ng-template>
+			</kendo-tabstrip-tab>
+		</div>
 		<div *ngIf="_comparisonsService.Statistics.RawStats.isScreening">
 			<kendo-tabstrip-tab [title]="'Include/Exclude Only'">
 				<ng-template kendoTabContent>
@@ -82,9 +84,9 @@
 							</span>
 							<div class="col-9 row">
 								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2Sc')"> {{_comparisonsService.Statistics.SCAgreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
-								<button class="btn btn-outline-info col-3" [disabled]="!checkCanComplete1()"> Complete</button>
+								<button class="btn btn-outline-info col-3" (click)="SendToComplete()" [disabled]="!checkCanComplete1()"> Complete</button>
 								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2Sc')"> {{_comparisonsService.Statistics.RawStats.scDisagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)</button>
-								<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+								<button class="btn btn-outline-info col-3"> Reconcile</button>
 							</div>
 						</div>
 						<div class="col-12 row"
@@ -114,6 +116,33 @@
 
 								<button class="btn btn-outline-info col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3Sc')"> {{_comparisonsService.Statistics.RawStats.scDisagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)</button>
 								<button (click)="alert('not implemented')" class="btn btn-outline-info col-3"> Reconcile</button>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+			</kendo-tabstrip-tab>
+		</div>
+		<div *ngIf="CompleteSectionShow">
+			<kendo-tabstrip-tab [selected]="tabSelected == 'confirm'" [title]="'Complete Agreed Coding'">
+				<ng-template kendoTabContent>
+					<div class="col-12 row card bg-light card-body rounded border-success">
+						<div class="col-12 row">
+							Do you want to use the data entered by 
+							<div *ngFor="let item of lstContacts">
+								<p>&nbsp; {{item.contactName}} &nbsp; </p>
+							</div>			
+							? (The codes will be identical, but they
+							may differ in terms of additional text entered.)
+							<select class="col-md-6 form-control" name="rev3"
+									[disabled]="!HasWriteRights" [(ngModel)]="selectedCompleteUser">
+								<option *ngFor="let member of lstContacts"
+										 [ngValue]="member" [selected]="member == selectedCompleteUser">
+									{{member.contactName}}
+								</option>
+							</select>
+							<div class="col-12 row">
+								<button class="btn btn-outline-success" (click)="Complete(_comparisonsService.currentComparison)">&nbsp; Confirm&nbsp; </button>
+								<button (click)="CloseConfirm()" class="btn btn-outline-dark">&nbsp; Cancel&nbsp; </button>
 							</div>
 						</div>
 					</div>

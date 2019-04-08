@@ -4,9 +4,10 @@ import {  ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ComparisonsService, ComparisonStatistics, Comparison } from '../services/comparisons.service';
+import { ComparisonsService, ComparisonStatistics, Comparison, iCompleteComparison } from '../services/comparisons.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -22,7 +23,8 @@ export class ComparisonStatsComp implements OnInit {
 		private _reviewerIdentityServ: ReviewerIdentityService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
-		private _ItemListService: ItemListService
+		private _ItemListService: ItemListService,
+		private _notificationService: NotificationService
 	) { }
 		
 	public PanelName: string = '';
@@ -32,11 +34,30 @@ export class ComparisonStatsComp implements OnInit {
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	public selectedFilter!: singleNode;
+	public CompleteSectionShow: boolean = false;
+	public tabSelected: string = 'AgreeStats';
+	public lstContacts: Array<Contact> = new Array();
 	@Output() criteriaChange = new EventEmitter();
 	@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
 	public ListSubType: string = "";
+	public selectedCompleteUser: Contact = new Contact();
+
+	private _Contacts: Contact[] = [];
+
+	public get Contacts(): Contact[] {
+
+		this._Contacts = this._reviewInfoService.Contacts;
+		
+		if (this._Contacts) {
+			return this._Contacts;
+		}
+		else {
+			this._Contacts = [];
+			return this._Contacts;
+		}
+	}
 
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
@@ -102,6 +123,77 @@ export class ComparisonStatsComp implements OnInit {
 			}
 		}
 
+	}
+	Complete(currentComparison: Comparison) {
+
+		var completeComparison = <iCompleteComparison>{};
+		completeComparison.comparisonId = currentComparison.comparisonId;
+		completeComparison.contactId = this.selectedCompleteUser.contactId;
+		completeComparison.whichReviewers = this.ListSubType;
+		console.log(completeComparison);
+
+		this._comparisonsService.CompleteComparison(completeComparison).then(
+			(res: any) => {
+
+				this._notificationService.show({
+					content: 'Number of records affected is: ' + res.numberAffected,
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: "warning", icon: true },
+					closable: true,
+					hideAfter: 3000
+				});
+				this.CloseConfirm();
+			}
+			);
+	}
+	SendToComplete(members: string, listSubType: string) {
+
+		this.ListSubType = listSubType;
+
+		let currentComparison: Comparison = this._comparisonsService.currentComparison;
+		console.log(currentComparison);
+	
+		if (members == '1And2') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId1;
+			contact.contactName = currentComparison.contactName1;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId2;
+			contact.contactName = currentComparison.contactName2;
+			this.lstContacts.push(contact);
+
+		}else if (members == '2And3') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId2;
+			contact.contactName = currentComparison.contactName2;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId3;
+			contact.contactName = currentComparison.contactName3;
+			this.lstContacts.push(contact);
+
+		}else if (members == '1And3') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId1;
+			contact.contactName = currentComparison.contactName1;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId3;
+			contact.contactName = currentComparison.contactName3;
+			this.lstContacts.push(contact);
+		}
+		this.tabSelected = 'confirm';
+		this.CompleteSectionShow = true;
+
+	}
+	CloseConfirm() {
+
+		this.tabSelected = 'AgreeStats';
+		this.CompleteSectionShow = false;
+		this.lstContacts = [];
+		this.ListSubType = '';
 	}
 	public LoadComparisons(comparison: Comparison, ListSubType: string) {
 

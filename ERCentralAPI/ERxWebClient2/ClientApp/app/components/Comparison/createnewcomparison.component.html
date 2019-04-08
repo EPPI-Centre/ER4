@@ -53,24 +53,23 @@
 		</div>
 		<div class="col-12">
 			<div class="form-group col-12 row">
-				<!--<button type="submit" class="btn btn-outline-info ml-2 mr-2"
-						[disabled]="!HasWriteRights" (click)="setsFilter()">
-					Set filter (optional)
-				</button>-->
-				<div style="width:200px;"><span class="mt-1">Selected Filter: &nbsp;</span></div>
-				<div *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'" class="col-4">
-					<span [className]="chosenFilter != null ? 'somekindofBackground' : ''">{{chosenFilter?.name}}&nbsp;</span>
+				<div style="min-width: 100px;">
+				<span >Selected Filter: &nbsp;</span>
 				</div>
-				<div class="col-4">
-					<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
-					<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+				<div class="col-10" *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'">
+					<span>
+						<b>{{chosenFilter?.name}}</b>
+					</span>
 				</div>
-			
+			</div>
+			<div class="col-12 m-2">
+				<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+				<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
 			</div>
 		</div>
 		<div class="col-12">
 			<button type="submit" (click)="CreateNewComparison()" class="btn btn-success ml-2 mr-2"
-					[disabled]="!HasWriteRights || CanCreateComparison()">
+					[disabled]="!HasWriteRights || CanCreateComparison()" style="width:200px;">
 				Create Comparison
 			</button>
 			<button class="btn btn-outline-secondary ml-1"
