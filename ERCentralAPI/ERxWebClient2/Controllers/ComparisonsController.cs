@@ -48,7 +48,37 @@ namespace ERxWebClient2.Controllers
             }
 
         }
-		
+		//ComparisonReport
+		[HttpPost("[action]")]
+		public IActionResult ComparisonReport([FromBody] ComparisonAttributeSelectionJSON comparisonAttributesCriteria)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					ComparisonAttributeSelectionCriteria crit = new ComparisonAttributeSelectionCriteria(
+						typeof(ComparisonAttributeList),
+						comparisonAttributesCriteria.comparisonid,
+						comparisonAttributesCriteria.parentAttributeId,
+						comparisonAttributesCriteria.setId
+						);
+					
+					DataPortal<ComparisonAttributeList> dp = new DataPortal<ComparisonAttributeList>();
+					ComparisonAttributeList report = dp.Fetch(crit);
+
+					return Ok(report);
+	
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison Complete data portal error");
+				throw;
+			}
+		}
+
+
 		[HttpPost("[action]")]
 		public IActionResult DeleteComparison([FromBody] SingleIntCriteria comparisonId)
 		{
@@ -177,5 +207,13 @@ namespace ERxWebClient2.Controllers
 		public int comparisonid {get; set;}
 		public string whichReviewers { get; set; }
 		public int contactId { get; set; }
+	}
+
+	public class ComparisonAttributeSelectionJSON
+	{
+		public int comparisonid { get; set; }
+		public Int64 parentAttributeId { get; set; }
+		public int setId { get; set; }
+
 	}
 }

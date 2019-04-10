@@ -289,6 +289,7 @@
 				</table>
 			</div>
 		</div>
+		
 		<div class="card  col-sm-12 col-md-12 px-1 p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold">Comparisons</h5>
 			<div style="max-height:340px;overflow:auto;">
@@ -315,20 +316,51 @@
 								<td>{{ item.contactName3 }}</td>
 								<td>{{ item.attributeName}}</td>
 								<td>{{ item.comparisonDate }}</td>
-								<td><button class="btn btn-outline-success " (click)="NotImplemented()">&nbsp; Run &nbsp;</button></td>
+								<td><button class="btn btn-outline-success " (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>
 								<td><button class="btn btn-outline-info " (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
 								<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
 							</tr>
 							<tr>
 								<td colspan="8">
-									<ComparisonStatsComp #ComparisonStatsCompList  
+									<ComparisonStatsComp *ngIf="PanelName == 'getStats'" #ComparisonStatsCompList
 														 [rowSelected]="item.comparisonId"
 														 (criteriaChange)="LoadComparisonList()"
-                   									(setListSubType)="setCompListType($event)"
-									>
+														 (setListSubType)="setCompListType($event)">
 									</ComparisonStatsComp>
+
+									<div *ngIf="PanelName == 'runQuickReport' && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" class="card  col-sm-12 col-md-12 px-1 p-2 m-2">
+										<h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
+										<div class="col-12 card bg-light card-body rounded border-success">
+											<div class="col-12 row">
+												<span class="col-4">
+													Please select the 'parent' coding tool or child code from the
+													codes tree on the right hand side that you wish to run this
+													comparison against
+												</span>
+												<div class="col-4">
+													<div><span class="col-2">Selected Filter: &nbsp;</span></div>
+													<div class="border"><span class="border-dark">{{chosenFilter?.name}}&nbsp;</span></div>
+												</div>
+												<div class="col-4">
+													<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+													<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+												</div>
+											</div>
+												<div class="col-4">
+													<button (click)="RunHTMLComparisonReport()"
+															class="btn btn-outline-info">
+														Run
+													</button>
+												</div>
+											</div>
+									</div>
 								</td>
 							</tr>
+							<!--<tr>
+								<td colspan="12">
+								
+								</td>
+							</tr>-->
 						</ng-container>
 					</tbody>
 				</table>

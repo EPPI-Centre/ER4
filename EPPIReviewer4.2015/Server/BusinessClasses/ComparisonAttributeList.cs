@@ -71,19 +71,19 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ComparisonAttributeSelectionCriteria : Csla.CriteriaBase<ComparisonAttributeSelectionCriteria>
     {
-        private static PropertyInfo<int> ComparisonIdProperty = RegisterProperty<int>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<int>("ComparisonId", "ComparisonId"));
+		public static PropertyInfo<int> ComparisonIdProperty = RegisterProperty<int>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<int>("ComparisonId", "ComparisonId"));
         public int ComparisonId
         {
             get { return ReadProperty(ComparisonIdProperty); }
         }
 
-        private static PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
+		public static PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
         public Int64 ParentAttributeId
         {
             get { return ReadProperty(ParentAttributeIdProperty); }
         }
 
-        private static PropertyInfo<Int64> SetIdProperty = RegisterProperty<Int64>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<Int64>("SetId", "SetId"));
+		public static PropertyInfo<Int64> SetIdProperty = RegisterProperty<Int64>(typeof(ComparisonAttributeSelectionCriteria), new PropertyInfo<Int64>("SetId", "SetId"));
         public Int64 SetId
         {
             get { return ReadProperty(SetIdProperty); }

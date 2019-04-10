@@ -19,8 +19,6 @@ import { Subscription } from 'rxjs';
     
 export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
 
-   
-
     constructor(private router: Router,
                 @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,

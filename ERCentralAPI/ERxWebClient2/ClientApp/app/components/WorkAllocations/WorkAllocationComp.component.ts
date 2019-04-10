@@ -14,6 +14,7 @@ import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { ItemListComp } from '../ItemList/itemListComp.component';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -31,7 +32,8 @@ export class WorkAllocationComp implements OnInit {
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		private _comparisonsService: ComparisonsService,
-		private _notificationService: NotificationService
+		private _notificationService: NotificationService,
+		private _eventEmitterService: EventEmitterService
     ) { }
 
 	
@@ -42,8 +44,6 @@ export class WorkAllocationComp implements OnInit {
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('ComparisonStatsCompList') ComparisonStatsComp!: ComparisonStatsComp;
-	//@ViewChild('tabstrip') public tabstrip!: TabStripComponent;
-	//@ViewChild('ItemList') ItemListComponent!: ItemListComp;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
 	@Input() tabstrip!: TabStripComponent;
@@ -77,6 +77,8 @@ export class WorkAllocationComp implements OnInit {
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 	public PanelName: string = '';
+	private runQuickReport: boolean = false;
+	public chosenFilter: SetAttribute | null = null;
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
@@ -130,6 +132,13 @@ export class WorkAllocationComp implements OnInit {
 		} else {
 			this.PanelName = 'NewComparisonSection';
 		}
+	}
+	SetFilter() {
+		if (this._reviewSetsService.selectedNode)
+			this.chosenFilter = this._reviewSetsService.selectedNode as SetAttribute;
+	}
+	clearChosenFilter() {
+		this.chosenFilter = null;
 	}
 	ngOnInit() {
 		this.RefreshData();
@@ -185,8 +194,47 @@ export class WorkAllocationComp implements OnInit {
 	}
 	getStatistics(comparisonId: number) {
 
+		if (this.PanelName == 'getStats') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'getStats'
+		}
 		if (this._comparisonsService && comparisonId != null) {
 			this._comparisonsService.FetchStats(comparisonId);
+		}
+	}
+	RunHTMLComparisonReport() {
+
+		if (this.chosenFilter == null) {
+			return;
+		}
+		if (this._comparisonsService.currentComparison == null) {
+			return;
+		}
+		let ParentAttributeId: number = 0;
+		let SetId: number = 0;
+
+		if (this.chosenFilter.nodeType == 'AttributeSet')
+		{
+			ParentAttributeId = this.chosenFilter.attribute_id;
+			SetId = this.chosenFilter.set_id;
+		}else
+		{
+			if (this.chosenFilter.nodeType == 'ReviewSet')
+			{
+				SetId = this.chosenFilter.set_id;
+			}
+		}
+		this._comparisonsService.FetchComparisonReport(this._comparisonsService.currentComparison.comparisonId, ParentAttributeId, SetId);
+
+	}
+	getPanelRunQuickReport(comparisonId: number) {
+		
+		this._comparisonsService.currentComparison = this._comparisonsService.Comparisons.filter(x => x.comparisonId == comparisonId)[0];
+		if (this.PanelName == 'runQuickReport') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'runQuickReport'
 		}
 	}
     SetRelevantDropDownValues(selection: number) {
@@ -207,6 +255,11 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public get NewCode(): SetAttribute {
 		return this._NewCode;
+	}
+	canSetFilter(): boolean {
+		if (this._reviewSetsService.selectedNode
+			) return true;
+		return false;
 	}
 	CreateNewCode() {
 	

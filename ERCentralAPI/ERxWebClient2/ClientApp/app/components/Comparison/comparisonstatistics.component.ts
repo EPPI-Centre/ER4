@@ -25,7 +25,8 @@ export class ComparisonStatsComp implements OnInit {
 		private _ItemListService: ItemListService,
 		private _notificationService: NotificationService
 	) { }
-		
+
+	private comparisonID: number = 0;
 	public PanelName: string = '';
 	public CodeSets: ReviewSet[] = [];
 	public selectedReviewer1: Contact = new Contact();
@@ -34,11 +35,13 @@ export class ComparisonStatsComp implements OnInit {
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	public selectedFilter!: singleNode;
 	public CompleteSectionShow: boolean = false;
+	public RunQuickReportShow: boolean = false;
 	public tabSelected: string = 'AgreeStats';
 	public lstContacts: Array<Contact> = new Array();
 	@Output() criteriaChange = new EventEmitter();
 	@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
+	//@Input('runQuickReport') runQuickReport!: boolean;
 	@Output() setListSubType = new EventEmitter();
 	public ListSubType: string = "";
 	public selectedCompleteUser: Contact = new Contact();
@@ -218,6 +221,7 @@ export class ComparisonStatsComp implements OnInit {
 		this.selectedCodeSet = this.CodeSets[0];
 	}
 	ngOnInit() {
+
 		this.RefreshData();
 		
 	}

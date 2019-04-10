@@ -41,7 +41,29 @@ export class ComparisonsService extends BusyAwareService {
     public get Statistics(): ComparisonStatistics | null {
 		return this._Statistics;		
 	}
-    
+
+	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number)
+	{
+		this._BusyMethods.push("FetchStats");
+		let compReport: ComparisonAttributeSelectionCriteria = new ComparisonAttributeSelectionCriteria();
+		compReport.comparisonId = comparisonId;
+		compReport.parentAttributeId = ParentAttributeId;
+		compReport.setId = SetId;
+		this._httpC.post<ComparisonAttributeSelectionCriteria>(this._baseUrl + 'api/Comparisons/ComparisonReport', compReport)
+			.subscribe(result => {
+
+				alert('returned from the report');
+				
+				this.RemoveBusy("FetchStats");
+			},
+				error => {
+					this.RemoveBusy("FetchStats");
+					this.modalService.SendBackHomeWithError(error);
+				}
+			);
+
+	}
+
     public FetchAll() {
         this._BusyMethods.push("FetchAll");
 		this._httpC.get<Comparison[]>(this._baseUrl + 'api/Comparisons/ComparisonList')
@@ -64,10 +86,11 @@ export class ComparisonsService extends BusyAwareService {
 				this.currentComparison = this.Comparisons.filter(x => x.comparisonId == ComparisonId)[0];//consider a get
 				
                 this.RemoveBusy("FetchStats");
-             }, error => {
-                 this.RemoveBusy("FetchStats");
-                 this.modalService.SendBackHomeWithError(error);
-             }
+			 },
+				 error => {
+					 this.RemoveBusy("FetchStats");
+					 this.modalService.SendBackHomeWithError(error);
+				 }
              );
 	}
 
@@ -107,11 +130,11 @@ export class ComparisonsService extends BusyAwareService {
 				return result;
 
 			},
-				error => {
-					this.modalService.GenericError(error);
-					this.RemoveBusy("CompleteComparison");
-				}
-			);
+			error => {
+				this.modalService.GenericError(error);
+				this.RemoveBusy("CompleteComparison");
+			}
+		);
 	}
 		
 	public DeleteComparison(ComparisonId: number) {
@@ -185,6 +208,12 @@ export class ComparisonStatistics {
 	public get SCAgreements3(): number {
 		return this.RawStats.n2vs3 - this.RawStats.scDisagreements2vs3;
 	};
+}
+
+export class ComparisonAttributeSelectionCriteria {
+	comparisonId: number = 0;
+	parentAttributeId: number = 0;
+	setId: number = 0;
 }
 
 export interface iComparisonStatistics {
