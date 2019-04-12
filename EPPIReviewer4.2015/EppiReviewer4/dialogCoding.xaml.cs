@@ -45,8 +45,7 @@ using Telerik.Windows.Documents;
 
 using System.Text;
 using System.Threading.Tasks;
-
-
+using Telerik.Windows.Documents.Fixed.FormatProviders.Text;
 
 namespace EppiReviewer4
 {
@@ -2176,11 +2175,68 @@ namespace EppiReviewer4
                     pdfViewerToggleBusy(false);
                     return;
                 }
+                string documentContent = "";
+                bool AlreadyTriedToGetContent = false;
                 foreach (RadFixedPage page in this.pdfViewer.Document.Pages)
                 {
                     if (codinglist.containsPage(page.PageNo))
                     {
-                        PathGeometry pg = codinglist.FindPerPage(page.PageNo).Shape;
+                        ItemAttributePDF codingInPage = codinglist.FindPerPage(page.PageNo);
+                        if (codingInPage.HasAngularSelections)
+                        {
+                            //at least one selection was created in the Angular UI => we don't have the start-end char offset values for it...
+                            //we will try to reconstruct the intervals in char offsets hoping to get them right, otherwise signal we didn't get them right!
+                            //this is necessary to make the ER4 UI cope with selections made in the Angular UI.
+                            if (documentContent == "" && !AlreadyTriedToGetContent)
+                            {
+                                AlreadyTriedToGetContent = true;
+                                TextFormatProvider tfProv = new TextFormatProvider();
+                                documentContent = tfProv.Export(this.pdfViewer.Document);//this might not work, if Telerik components can't get the text...
+                            }
+                            if (documentContent != "")
+                            {
+                                //get the page in question
+                                int startOfPage = documentContent.IndexOf("----------- Page" + page.PageNo + " ------------");
+                                if (startOfPage != -1)
+                                {//the "else" case shouldn't ever happen, if it happens we can't even try
+                                    startOfPage = startOfPage + ("----------- Page" + page.PageNo + " ------------").Length + 2;//otherwise our "page" will contain the separating TXT... +2 is because of \r\n...
+                                    int endOfPage = documentContent.IndexOf("----------- Page" + (page.PageNo + 1) + " ------------");
+                                    if (endOfPage == -1) endOfPage = documentContent.Length;
+                                    //else endOfPage = endOfPage - ("----------- Page" + (page.PageNo + 1) + " ------------").Length;
+                                    string pageString = documentContent.Substring(startOfPage, endOfPage - startOfPage);
+                                    pageString = pageString.Replace("\r\n", " ");
+                                    foreach (InPageSelections inPageSel in codingInPage.inPageSelections)
+                                    {
+                                        if (inPageSel.Start == 0 && inPageSel.End == 0)
+                                        {//this was created in Angular, let's try to fix it...
+                                            int FoundCount = 0;
+                                            int internalIndex = 0, prevIndex = 0;
+                                            while (internalIndex != -1 && (FoundCount == 0 || FoundCount == 1))
+                                            {
+                                                prevIndex = internalIndex;
+                                                internalIndex = pageString.IndexOf(inPageSel.SelTxt, prevIndex + (FoundCount == 0 ? 0 : inPageSel.SelTxt.Length));
+                                                if (internalIndex != -1)
+                                                {
+                                                    FoundCount++;
+                                                }
+                                            }
+                                            if (FoundCount == 1)
+                                            {//GOOD. This means we found only one instance of the text that was selected: we can update it
+                                                inPageSel.Start = prevIndex;
+                                                inPageSel.End = inPageSel.Start + inPageSel.SelTxt.Length;
+                                                
+                                            }
+                                        }
+                                    }
+                                    if (!codingInPage.HasAngularSelections)
+                                    {
+                                        codingInPage.Shape = new PathGeometry();//see code re PathGeometry just below. We changed this codingInPage by adding new start/end offsets, and we managed to get it all done :-).
+                                        //so, given the code below, doing this will make sure we save the changes
+                                    }
+                                }
+                            }
+                        }
+                        PathGeometry pg = codingInPage.Shape;
                         if (pg == null || pg.Figures == null || pg.Figures.Count == 0)
                         {//for some reason, the shape txt is missing in the db, rebuild it!
                             ItemAttributePDF iap = codinglist.FindPerPage(page.PageNo);
@@ -2450,14 +2506,28 @@ namespace EppiReviewer4
                 dp.BeginExecute(command);
                 return;//we exit here as we'll recall the whole thing in the ExecuteCompleted block above.
             }
-            List<int[]> perPageIndex = PerPageSelections();
+            List<int[]> perPageIndex = PerPageSelections();//this gets the start/end list of existing selections.
             RadFixedPage start = this.pdfViewer.Document.Selection.StartPosition.Page;
             RadFixedPage end = this.pdfViewer.Document.Selection.EndPosition.Page;
             TextPosition tp = this.pdfViewer.Document.Selection.EndPosition;
             ItemDocument iDoc = GetCurrentDocBO();
             int ii = 0;
+            //cycle through pages in selection.
             for (int i = start.PageNo - 1; i <= end.PageNo - 1; i++)
             {
+                ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
+                if (ppas != null && ppas.HasAngularSelections)
+                {//we can't (reliably) do this, show an alert and let the user deal with it.
+                    string Msg = "Unfortunately, this page contains at least" + Environment.NewLine
+                        + "one selection made in the web interface." + Environment.NewLine
+                        + "This sometimes makes it impossible to edit selections in here." + Environment.NewLine
+                        + "If you need to overcome this problem you can use the 'Reset' button, " + Environment.NewLine
+                        + "and re-do the selections you are seeing in this page." + Environment.NewLine
+                        + "With our apologies for the inconvenience." + Environment.NewLine;
+                    RadWindow.Alert(Msg);
+                    return;
+                }
+                //use char "start/end" offsets to create page selections, one by one
                 PDFCodingHelper.selectOnPage(this.pdfViewer, this.pdfViewer.Document.Pages[i], perPageIndex[ii][0], perPageIndex[ii][1]);
                 PathGeometry s = this.pdfViewer.Document.Selection.GetSelectionGeometry(this.pdfViewer.Document.Pages[i]);
                 if (!highlights.ContainsKey(this.pdfViewer.Document.Pages[i]))
@@ -2465,12 +2535,12 @@ namespace EppiReviewer4
                     highlights.Add(this.pdfViewer.Document.Pages[i], new PathGeometry { FillRule = FillRule.Nonzero });
                 }
 
-                ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
+                
                 if (ppas == null)
                 {
                     ppas = new ItemAttributePDF(iDoc.ItemDocumentId, aset.ItemData.ItemAttributeId, i + 1);
                 }
-
+                
                 PDFCodingHelper.AddSel(s, perPageIndex[ii][0]
                                 , perPageIndex[ii][1]
                                 , this.pdfViewer.Document.Selection.GetSelectedText()
@@ -2574,20 +2644,30 @@ namespace EppiReviewer4
             int ii = 0;
             for (int i = start - 1; i <= end - 1; i++)
             {
+                ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
+                if (ppas != null && ppas.HasAngularSelections)
+                {//we can't do this, show an alert and let the user deal with it.
+                    string Msg = "Unfortunately, this page contains at least" + Environment.NewLine
+                        + "one selection made in the web interface." + Environment.NewLine
+                        + "This sometimes makes it impossible to edit selections in here." + Environment.NewLine
+                        + "If you need to overcome this problem you can use the 'Reset' button, " + Environment.NewLine
+                        + "and re-do the selections you are seeing in this page." + Environment.NewLine
+                        + "With our apologies for the inconvenience." + Environment.NewLine;
+                    RadWindow.Alert(Msg);
+                    return;
+                }
                 PDFCodingHelper.selectOnPage(this.pdfViewer, this.pdfViewer.Document.Pages[i], perPageIndex[ii][0], perPageIndex[ii][1]);
                 PathGeometry s = this.pdfViewer.Document.Selection.GetSelectionGeometry(this.pdfViewer.Document.Pages[i]);
                 if (!highlights.ContainsKey(this.pdfViewer.Document.Pages[i]))
                 {
                     highlights.Add(this.pdfViewer.Document.Pages[i], new PathGeometry { FillRule = FillRule.Nonzero });
                 }
-                ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
                 if (ppas == null)
                 {//there is no selection in the page, so there is nothing to unselect here!
                     continue;
                     //ppas = new PdfPageAttrSel(i + 1);
                     ////this.highlights[this.pdfViewer.Document.Pages[i]] = ppas;
                 }
-
                 PDFCodingHelper.RemoveSel(s, perPageIndex[ii][0]
                                 , perPageIndex[ii][1]
                                 , this.pdfViewer.Document.Selection.GetSelectedText()
@@ -2644,6 +2724,17 @@ namespace EppiReviewer4
             TextPosition tp = this.pdfViewer.Document.Selection.EndPosition;
 
 
+            //Commented code which I've used to verify that getting text from selection uses the same "text extractor" as textFormatProvider.Export(this.pdfViewer.Document);
+            //TextFormatProvider textFormatProvider = new TextFormatProvider();
+            //string text = textFormatProvider.Export(this.pdfViewer.Document);
+            ////----------- Page1 ------------
+            //List<string> pages = text.Split(new[] { "----------- Page1 ------------\r\n", "----------- Page2 ------------" }, StringSplitOptions.RemoveEmptyEntries).ToList<string>();
+            //this.pdfViewer.Document.Selection.SetSelectionStart(new TextPosition(this.pdfViewer.Document.Pages[0], 0));
+            //this.pdfViewer.Document.Selection.SetSelectionEnd(new TextPosition(this.pdfViewer.Document.Pages[0], pages[0].Length - 100));
+            //string wholeselPg = this.pdfViewer.Document.Selection.GetSelectedText();
+            //bool areEq = (pages[0].Substring(0, wholeselPg.Length) == wholeselPg);
+            //RadWindow.Alert("Are selections equal? " + areEq);
+            //Console.Write(text);
             if (start.PageNo > end.PageNo)
             {
 

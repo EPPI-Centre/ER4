@@ -187,6 +187,17 @@ namespace BusinessLibrary.BusinessClasses
                 return res;
             }
         }
+        public bool HasAngularSelections
+        {
+            get
+            {
+                foreach (InPageSelections iPsel in this.inPageSelections)
+                {
+                    if (iPsel.Start == 0 && iPsel.End == 0) return true;
+                }
+                return false;
+            }
+        }
 #if !SILVERLIGHT
         public static ItemAttributePDF GetItemAttributePDF(SafeDataReader reader)
         {

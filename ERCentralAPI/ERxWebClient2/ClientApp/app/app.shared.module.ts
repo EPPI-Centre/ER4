@@ -123,7 +123,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 		SiteAdminEntryComponent,
 		CreateNewCodeComp,
 		ComparisonComp,
-		ComparisonStatsComp
+		ComparisonStatsComp,
         PdfTronContainer,
         WebViewerComponent
 	],

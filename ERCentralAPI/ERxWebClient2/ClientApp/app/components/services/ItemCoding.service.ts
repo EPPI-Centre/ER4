@@ -83,7 +83,7 @@ export class ItemCodingService extends BusyAwareService {
         //this.itemID.next(ItemId); 
         //console.log('FetchCoding');
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
-        this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+        this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
             criteria).subscribe(result => {
                 console.log("FetchItemAttPDFCoding", result);
                 this._CurrentItemAttPDFCoding.Criteria = criteria;
@@ -741,5 +741,21 @@ export class ItemAttPDFCodingCrit {
 }
 export class ItemAttPDFCoding {
     public Criteria: ItemAttPDFCodingCrit = new ItemAttPDFCodingCrit(0,0);
-    public ItemAttPDFCoding: any = null;
+    public ItemAttPDFCoding: ItemAttributePDF[] | null = null;
+}
+
+
+export class ItemAttributePDF {
+    inPageSelections: InPageSelection[] = [];
+    itemAttributeId: number = 0;
+    itemAttributePDFId: number= 0;
+    itemDocumentId: number = 0;
+    page: number = 0;
+    shapeTxt: string = "";
+}
+
+export class InPageSelection {
+    start: number = 0;
+    end: number = 0;
+    selTxt: string = "";
 }
