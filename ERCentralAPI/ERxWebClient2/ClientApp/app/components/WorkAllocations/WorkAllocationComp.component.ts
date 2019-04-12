@@ -72,13 +72,11 @@ export class WorkAllocationComp implements OnInit {
 	public DestRevSet: ReviewSet = new ReviewSet();
 	public FiltAttSet: SetAttribute = new SetAttribute();
 	public FiltRevSet: ReviewSet = new ReviewSet();
-	//public index: number = 0;
 	public dropdownBasicCodingTool: boolean = false;
 	public dropdownBasicPerson: boolean = false;
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 	public PanelName: string = '';
-	private runQuickReport: boolean = false;
 	public chosenFilter: SetAttribute | null = null;
 
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},

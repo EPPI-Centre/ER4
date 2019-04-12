@@ -50,11 +50,8 @@ import { Comparison } from '../services/comparisons.service';
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
-        public ReviewerIdentityServ: ReviewerIdentityService,
-        //private ReviewInfoService: ReviewInfoService,
-        public reviewSetsService: ReviewSetsService,
-        @Inject('BASE_URL') private _baseUrl: string,
-        private _httpC: HttpClient,
+        private ReviewerIdentityServ: ReviewerIdentityService,
+        private reviewSetsService: ReviewSetsService,
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
         private _eventEmitter: EventEmitterService,
