@@ -269,14 +269,18 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 		//alert('in node: ' + node.name)
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        if (this.InitiateFetchPDFCoding && node.isSelected && this.ItemDocsService.CurrentDocId !== 0 && node.nodeType == "SetAttribute") {
-            const att = node as SetAttribute;
-            if (att) {
+        const att = node as SetAttribute;
+        if (att && node.nodeType == "SetAttribute" ) {
+            this.ItemCodingService.SelectedSetAttribute = att;
+            if (this.InitiateFetchPDFCoding && node.isSelected && this.ItemDocsService.CurrentDocId !== 0) {
                 const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(att);
                 console.log("we might need to fetch PDF coding", ROatt);
-                if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId))
+                if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
+                else this.ItemCodingService.ClearItemAttPDFCoding();
             }
-            
+        } else {
+            this.ItemCodingService.ClearItemAttPDFCoding();
+            this.ItemCodingService.SelectedSetAttribute = null;//remove selection, PDF should not load highlights.
         }
     }
     ngOnDestroy() {

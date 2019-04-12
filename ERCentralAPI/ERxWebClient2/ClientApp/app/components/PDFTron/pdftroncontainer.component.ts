@@ -3,7 +3,7 @@ import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ItemCodingService, InPageSelection } from '../services/ItemCoding.service';
+import { ItemCodingService, InPageSelection, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
 import { Console } from '@angular/core/src/console';
 
 declare const PDFTron: any;
@@ -19,10 +19,12 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         private ItemDocsService: ItemDocsService,
         private ItemCodingService: ItemCodingService
     ) { }
+    
     @ViewChild(WebViewerComponent) private webviewer!: WebViewerComponent;
     private viewerInstance: any;
     private docViewer: any;
     annotManager: any;
+    public importingAnnots: boolean = false;
     //PDFNet: any;
     ngOnInit() {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
@@ -111,42 +113,56 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
 
         this.docViewer = this.viewerInstance.docViewer;
         this.annotManager = this.docViewer.getAnnotationManager();
-        this.annotManager.on('annotationChanged', function (event: any, annotations: any, action: any ) {
-            if (action === 'add') {
-                console.log('this is a change that added annotations', annotations, action);
-                if (annotations[0].Quads) console.log("Quads: ", JSON.stringify(annotations[0].Quads));
-                else console.log("No Quads");
-            } else if (action === 'modify') {
-                console.log('this change modified annotations');
-            } else if (action === 'delete') {
-                console.log('there were annotations deleted');
-            }
-
-            annotations.forEach(function (annot: any) {
-                console.log('annotation page number', annot.PageNumber);
-            });
-        });
-        //this.loadDoc();
+        this.annotManager.on('annotationChanged', (event: any, annotations: any, action: any) => this.AnnotationChangedHandler(event, annotations, action));
     }
 
     wvDocumentLoadedHandler(): void {
+        //TODO: if a code is selected, get the PDFCoding...
+        console.log("wvDocumentLoadedHandler");
+        if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding
+            && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0
+            && this.ItemDocsService.CurrentDoc
+            && this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId == this.ItemDocsService.CurrentDocId
+        ) {
+            console.log("wvDocumentLoadedHandler1");
+            this.buildHighlights();
+        }
+        else if (
+            this.ItemDocsService.CurrentDoc
+            && this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId !== this.ItemDocsService.CurrentDocId
+            && this.ItemCodingService.SelectedSetAttribute
+        ) {
+            //we have a doc, but doc coding isn't right, go fetch it.
+            const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(this.ItemCodingService.SelectedSetAttribute);
+            console.log("wvDocumentLoadedHandler2 fetch PDF coding", ROatt);
+            if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
+            else this.ItemCodingService.ClearItemAttPDFCoding();
+        }
+        else {
+            console.log("wvDocumentLoadedHandler3 don't know why I'm here:",
+                this.ItemDocsService.CurrentDocId,
+                this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId,
+                this.ItemCodingService.SelectedSetAttribute
+            )
+        }
+
+
+        this.viewerInstance.setFitMode("FitWidth");
+
         // you can access docViewer object for low-level APIs
-        const { docViewer } = this.webviewer.getInstance();
-        const all = this.webviewer.getInstance();
         //const annotManager = docViewer.getAnnotationManager();
         // and access classes defined in the WebViewer iframe
-        const { Annotations } = this.webviewer.getWindow();
-        const rectangle = new Annotations.RectangleAnnotation();
-        this.viewerInstance.setFitMode("FitWidth");
-        rectangle.PageNumber = 2;
-        rectangle.X = 100;
-        rectangle.Y = 100;
-        rectangle.Width = 250;
-        rectangle.Height = 250;
-        rectangle.StrokeThickness = 5;
-        rectangle.Author = this.annotManager.getCurrentUser();
-        this.annotManager.addAnnotation(rectangle);
-        this.annotManager.drawAnnotations(rectangle.PageNumber);
+        //const { Annotations } = this.webviewer.getWindow();
+        //const rectangle = new Annotations.RectangleAnnotation();
+        //rectangle.PageNumber = 2;
+        //rectangle.X = 100;
+        //rectangle.Y = 100;
+        //rectangle.Width = 250;
+        //rectangle.Height = 250;
+        //rectangle.StrokeThickness = 5;
+        //rectangle.Author = this.annotManager.getCurrentUser();
+        //this.annotManager.addAnnotation(rectangle);
+        //this.annotManager.drawAnnotations(rectangle.PageNumber);
         // see https://www.pdftron.com/api/web/PDFTron.WebViewer.html for the full list of low-level APIs
     }
 
@@ -259,6 +275,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     }
     
     async buildHighlights() {
+        this.importingAnnots = true;
         if (this.annotManager) {
             this.deleteAnnotations(this.annotManager);
         }
@@ -403,153 +420,11 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             }
             //AllContinuousSelections now needs to receive one or more string description for a rectangle.
             //var iFrame = document.querySelector('iframe');
-            return;
         }
-
-
-        //console.log("buildHighlights", this.ItemCodingService.CurrentItemAttPDFCoding);
-        //var annotManager = this.docViewer.getAnnotationManager();
-        
-        if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0) {
-            
-            
-            
-            
-
-            //const reader = await PDFnet.ElementReader.create();
-            //try: https://www.pdftron.com/documentation/samples/js/text-position
-
-
-            //if (iFrame && iFrame.contentWindow) {
-                //const Annotations = this.webviewer.getWindow();
-                const { Annotations } = this.webviewer.getWindow();
-                
-                console.log("Doc:", GenDoc);
-                let Txt: string = "";
-                
-                let doc = await GenDoc.getPDFDoc();
-                await GenDoc.loadPageText(0, (pageTxt: string) => { Txt = pageTxt });
-                console.log("What doc?", doc);
-                console.log("\n\n\n\n\n\n\nPage txt:\n", Txt, "\n\nEnd PAGE txt\n\n\n\n\n");
-                doc.initSecurityHandler();
-                // Locks all PNaCl operations on the document
-                doc.lock();
-
-                // insert user code after this point
-                var pgnum = await doc.getPageCount();
-                //alert("Test Complete! Your file has " + pgnum + " pages");
-
-
-                //annotManager.deleteAnnotations(Annotations);
-                //let elCnt = await PDFnet.runWithCleanup(async () => await this.TestAPICall(1, "", doc));
-                //console.log("page has " + elCnt + " elements!\n\n\n\n\n");
-                //(iFrame.contentWindow as any).Annotations = null;
-                for (let sel of this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
-                    
-
-
-                    const Highl = new Annotations.TextHighlightAnnotation();
-                    //console.log("created:", Highl);
-                    let aQuads: any[] = [];
-                    let rectSt0: string = sel.shapeTxt;
-                    rectSt0 = rectSt0.substr(3);
-                    let RectsA = rectSt0.split("zM");
-                    for (let rectSt of RectsA) {
-                        let i = rectSt.indexOf(',');
-                        let x1 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y1 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x2 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y2 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x3 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y3 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x4 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.length - 1;
-                        let y4 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        let quad = {
-                            "x1": x1,
-                            "x2": x2,
-                            "x3": x3,
-                            "x4": x4,
-                            "y1": y1,
-                            "y2": y2,
-                            "y3": y3,
-                            "y4": y4
-                        }
-                        aQuads.push(quad);
-                        //let rec = new Annotations.Rect(x1, y1, x3, y3);
-                        let PDFpoint1 = GenDoc.getPDFCoordinates(sel.page - 1, x1, y1);
-                        let PDFpoint2 = GenDoc.getPDFCoordinates(sel.page - 1, x3, y3);
-                        let ydiff = (PDFpoint1.y - PDFpoint2.y)/4;
-                        PDFpoint1.y = PDFpoint1.y - ydiff;
-                        PDFpoint2.y = PDFpoint2.y + ydiff;
-                        console.log(PDFpoint1, PDFpoint2);
-                        let rec = await PDFnet.Rect.init(PDFpoint2.x, PDFpoint2.y, PDFpoint1.x, PDFpoint1.y);
-                        let textinSel = await this.readTextFromRect(sel.page, rec, reader, doc, PDFnet);
-                        console.log("Got some text:\n" + textinSel);
-                        //console.log("Rect: ", rec, rec.getHeight(), rec.getWidth());
-                        Highl.setContents(sel.inPageSelections[0].selTxt);
-                        Highl.setRect(rec);
-                        Highl.NoView = false;
-                        Highl.Hidden = false;
-                        //Highl.setWidth(rec.getWidth());
-                        //Highl.setHeight(rec.getHeight());
-                        //console.log("ann X, y", Highl.getX(), Highl.getY());
-                        Highl.Author = this.annotManager.getCurrentUser();
-                        Highl.StrokeColor = new Annotations.Color(136, 39, 31);
-
-                        //console.log("redrawAnnotation", Highl);
-                        //annotManager.redrawAnnotation(Highl);
-
-                        //const rectangle = new Annotations.RectangleAnnotation();
-                        //rectangle.PageNumber = sel.page;
-                        //rectangle.X = x1;
-                        //rectangle.Y = y1;
-                        //rectangle.Width = rec.getWidth();
-                        //rectangle.Height = rec.getHeight();
-                        //rectangle.StrokeThickness = 0.5;
-                        //rectangle.Author = annotManager.getCurrentUser();
-                        //annotManager.addAnnotation(rectangle);
-
-
-
-                    }
-                    for (let InPgSel of sel.inPageSelections) {
-                        //this.findShapeFromText(InPgSel, sel.page, doc, aQuads,
-                        //    Annotations, this.webviewer.getInstance(), this.annotManager);
-                    }
-
-
-                    ////Highl.Quads = aQuads;
-                    //Highl.setPageNumber(sel.page);
-                    ////Highl.FillColor = new Annotations.Color(255, 234, 12);
-                    //Highl.StrokeColor = new Annotations.Color(250, 224, 6);
-                    ////Highl.$i = new Annotations.Color(247, 247, 227);
-                    //console.log("addAnnotation", Highl);
-                    //annotManager.addAnnotation(Highl);
-                    this.annotManager.drawAnnotations(sel.page);
-                    //annotManager.redrawAnnotation(Highl);
-                    //console.log("AQQQ", (iFrame.contentWindow as any).Annotations);
-                }
-            //}
-        }
+        this.importingAnnots = false;
     }
+
+
 
     findShapeFromText(InPgSel: InPageSelection, page:number, doc: any, shapesToMatch: any[],
         Annotations: any, ViewerInstance: any, annotationManager: any): any {
@@ -631,6 +506,33 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         }
         console.log("Annots after deleting:", annotManager.getAnnotationsList(), annotManager.getAnnotationsList().length);
         console.log(""); console.log("");
+    }
+
+    private AnnotationChangedHandler(event: any, annotations: any, action: any) {
+        if (this.importingAnnots) return; //we do nothing when we're adding the annotations from the API call...
+        if (action === 'add') {
+            console.log('this is a change that added annotations', annotations, action);
+            const { Annotations } = this.webviewer.getWindow();
+            if (annotations[0] instanceof Annotations.TextHighlightAnnotation) {
+                
+                let highlightAnnotation = annotations[0];
+                highlightAnnotation.NoResize = true;
+                this.annotManager.redrawAnnotation(highlightAnnotation);
+                if (annotations[0].Quads) console.log("Quads: ", JSON.stringify(annotations[0].Quads));
+                else console.log("No Quads");
+                let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
+                const xfdfString = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
+                console.log("xfdfString:", xfdfString);//we'll add the xfdfString to the object to save on the server...
+            }
+        } else if (action === 'modify') {
+            console.log('this change modified annotations');
+        } else if (action === 'delete') {
+            console.log('there were annotations deleted');
+        }
+
+        annotations.forEach(function (annot: any) {
+            console.log('annotation page number', annot.PageNumber);
+        });
     }
 
     async TestAPICall(page: number, pos: any, doc: any) {

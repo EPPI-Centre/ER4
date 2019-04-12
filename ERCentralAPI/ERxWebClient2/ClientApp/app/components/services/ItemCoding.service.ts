@@ -53,7 +53,7 @@ export class ItemCodingService extends BusyAwareService {
     public get CurrentItemAttPDFCoding(): ItemAttPDFCoding {
         return this._CurrentItemAttPDFCoding;
     }
-
+    public SelectedSetAttribute: SetAttribute | null = null;//used to fetch PDF coding...
 
     public Fetch(ItemId: number) {
         this._BusyMethods.push("Fetch");
@@ -96,7 +96,9 @@ export class ItemCodingService extends BusyAwareService {
             , () => { this.RemoveBusy("FetchItemAttPDFCoding"); }
             );
     }
-    
+    public ClearItemAttPDFCoding() {
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+    }
     private SelfSubscription4QuickCodingReport: Subscription | null = null;
     private _CodingReport: string = "";
     public get CodingReport(): string {
