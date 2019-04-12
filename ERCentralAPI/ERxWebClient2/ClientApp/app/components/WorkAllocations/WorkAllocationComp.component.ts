@@ -209,7 +209,7 @@ export class WorkAllocationComp implements OnInit {
 			this._comparisonsService.FetchStats(comparisonId);
 		}
 	}
-	async RunHTMLComparisonReport() {
+	RunHTMLComparisonReport() {
 
 		if (this.chosenFilter == null) {
 			return;
@@ -232,30 +232,11 @@ export class WorkAllocationComp implements OnInit {
 			}
 		}
 
-		await this._comparisonsService.FetchComparisonReport(
+		this._comparisonsService.FetchComparisonReport(
 			this._comparisonsService.currentComparison.comparisonId,
 			ParentAttributeId, SetId, this.chosenFilter);
 	}
-	//public OpenInNewWindow(ReportHTML: any) {
-	//	if (ReportHTML.length < 1) return;
-
-	//	let Pagelink = "about:blank";
-	//	let pwa = window.open(Pagelink, "_new");
-	//	//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
-	//	if (pwa) {
-	//		pwa.document.open();
-	//		pwa.document.write(this.AddHTMLFrame(ReportHTML));
-	//		pwa.document.close();
-	//	}
-	//}
-
- //   private AddHTMLFrame(report: string): string {
-	//	let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Comparison Report</title><link rel='stylesheet' href='" + this._baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
-	//	//res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
-	//	//res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
-	//	res += "</BODY></HTML>";
-	//	return res;
-	//}
+	
 	getPanelRunQuickReport(comparisonId: number) {
 		
 		this._comparisonsService.currentComparison = this._comparisonsService.Comparisons.filter(x => x.comparisonId == comparisonId)[0];
