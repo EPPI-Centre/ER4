@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -48,10 +49,17 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
 		//ComparisonReport
 		[HttpPost("[action]")]
 		public IActionResult ComparisonReport([FromBody] ComparisonAttributeSelectionJSON comparisonAttributesCriteria)
 		{
+			SetAttribute chosenAttFilter = new SetAttribute();
+			ReviewSet chosenSetFilter = new ReviewSet();
+			Comparison comparison = new Comparison();
+
+			comparison = comparisonAttributesCriteria.comparison;
+
 			try
 			{
 				if (SetCSLAUser4Writing())
@@ -64,10 +72,11 @@ namespace ERxWebClient2.Controllers
 						);
 					
 					DataPortal<ComparisonAttributeList> dp = new DataPortal<ComparisonAttributeList>();
-					ComparisonAttributeList report = dp.Fetch(crit);
+					ComparisonAttributeList reportList = dp.Fetch(crit);
 
-					return Ok(report);
-	
+
+					return Ok(reportList);
+
 				}
 				else return Forbid();
 			}
@@ -77,8 +86,7 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-
-
+			   
 		[HttpPost("[action]")]
 		public IActionResult DeleteComparison([FromBody] SingleIntCriteria comparisonId)
 		{
@@ -200,6 +208,7 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
+
 	}
 
 	public class ComparisonCompleteJSON
@@ -214,6 +223,8 @@ namespace ERxWebClient2.Controllers
 		public int comparisonid { get; set; }
 		public Int64 parentAttributeId { get; set; }
 		public int setId { get; set; }
-
+		public Comparison comparison { get; set; }
 	}
+
+
 }

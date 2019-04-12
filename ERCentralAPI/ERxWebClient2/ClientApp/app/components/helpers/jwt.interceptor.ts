@@ -12,7 +12,7 @@ export class JwtInterceptor implements HttpInterceptor {
         //const userJson = localStorage.getItem('currentErUser');
         
         //let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
-
+		
         const currentUser: ReviewerIdentity = this.ReviewerIdentityServ.reviewerIdentity;
 
         if (request.method == 'POST') {

@@ -2,6 +2,7 @@ import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ReviewSet, SetAttribute } from './ReviewSets.service';
 
 
 @Injectable({
@@ -42,26 +43,167 @@ export class ComparisonsService extends BusyAwareService {
 		return this._Statistics;		
 	}
 
-	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number)
+	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenFilter: any)  : Promise<any>
 	{
-		this._BusyMethods.push("FetchStats");
+		
+		this._BusyMethods.push("FetchComparisonReport");
+		let comparison: Comparison = this._Comparisons.filter(x => x.comparisonId == comparisonId)[0];
 		let compReport: ComparisonAttributeSelectionCriteria = new ComparisonAttributeSelectionCriteria();
 		compReport.comparisonId = comparisonId;
 		compReport.parentAttributeId = ParentAttributeId;
 		compReport.setId = SetId;
-		this._httpC.post<ComparisonAttributeSelectionCriteria>(this._baseUrl + 'api/Comparisons/ComparisonReport', compReport)
-			.subscribe(result => {
-
-				alert('returned from the report');
-				
-				this.RemoveBusy("FetchStats");
+		compReport.comparison = comparison;
+		let chosenSetFilter: ReviewSet = new ReviewSet();
+		let chosenAttFilter: SetAttribute = new SetAttribute();
+		if (ParentAttributeId == 0) {
+			chosenSetFilter = chosenFilter as ReviewSet;
+		} else {
+			chosenAttFilter = chosenFilter as SetAttribute;
+		}
+		return this._httpC.post<any>(
+			this._baseUrl + 'api/Comparisons/ComparisonReport',
+			compReport
+			)
+			.toPromise().then(
+				(res) => {
+					
+					//console.log(JSON.stringify(res));
+					let reportHTML: string = this.GenerateReportHTMLHere(res,
+						chosenAttFilter, chosenSetFilter, comparison);
+					this.OpenInNewWindow(reportHTML);
+					this.RemoveBusy("FetchComparisonReport");
 			},
-				error => {
-					this.RemoveBusy("FetchStats");
-					this.modalService.SendBackHomeWithError(error);
-				}
-			);
 
+			error => {
+				this.RemoveBusy("FetchComparisonReport");
+				this.modalService.SendBackHomeWithError(error);
+			}
+			);
+	}
+
+	private GenerateReportHTMLHere(comparisonAttributeList: ComparisonAttribute[] ,
+		chosenFilter: SetAttribute  ,
+		chosenSetFilter: ReviewSet ,
+		comparison: Comparison 
+	): string {
+
+		let thirdReviewerIncluded: boolean = false;
+		let report: string  = "<html><body><p><h3>Comparison report between: <i>" + comparison.contactName1 + "</i> and <i>" +
+			comparison.contactName2 + "</i>";
+		if (comparison.contactName3 != "") {
+			report += " and <i>" + comparison.contactName3 + "</i>";
+		}
+		report += "</h3>";
+		report += "<P>This report is based on the status of the database at the time the comparison was created. Any coding ‘completed’ after the comparison was created will be displayed also in the Agreed column.</P>";
+		if (chosenFilter.attribute_id != -1) {
+			report += "<h4>" + chosenFilter.name + "</h4>";
+		}
+		if (chosenSetFilter.set_id != -1) {
+			report += "<h4>" + chosenSetFilter.set_name + "</h4>";
+		}
+		report += "<table border='1'><tr><td>Id</td><td>Item</td><td>" + comparison.contactName1 + "</td><td>" + comparison.contactName2 + "</td>";
+		if (comparison.contactName3 != "") {
+			report += "<td>" + comparison.contactName3 + "</td>";
+			thirdReviewerIncluded = true;
+		}
+		report += "<td>Agreed version</td></tr>";
+		let list: ComparisonAttribute[] = comparisonAttributeList;
+		let CurrentItemId: number = -1;
+		let CurrentItem: string = "";
+		let Reviewer1: string =  "";
+		let Reviewer2: string =  "";
+		let Reviewer3: string =  "";
+		let Agreed: string = "";
+		console.log('list length in report: ' + list.length);
+		for(let item of list)
+		{
+			if (item.itemId != CurrentItemId) {
+				if (CurrentItemId != -1) {
+					report += "<tr><td valign='top'>" + CurrentItemId + "</td><td valign='top'>" + CurrentItem + "</td>";
+					report += "<td valign='top'>" + Reviewer1 + "</td>";
+					report += "<td valign='top'>" + Reviewer2 + "</td>";
+					if (thirdReviewerIncluded == true) {
+						report += "<td valign='top'>" + Reviewer3 + "</td>";
+					}
+					report += "<td valign='top'>" + Agreed + "</td>";
+					report += "</tr>";
+				}
+				Reviewer1 = "";
+				Reviewer2 = "";
+				Reviewer3 = "";
+				Agreed = "";
+				CurrentItemId = item.itemId;
+				CurrentItem = item.itemTitle;
+			}
+			if ((item.contactId == comparison.contactId1) && (item.isCompleted == false)) {
+				if (Reviewer1 == "")
+					Reviewer1 = item.attributeNameWithArm4HTML;
+				else
+					Reviewer1 += "<br><br>" + item.attributeNameWithArm4HTML;
+				if (item.additionalText != "")
+					Reviewer1 += "<br><i> " + item.additionalText + "</i>";
+			}
+			else {
+				if ((item.contactId == comparison.contactId2) && (item.isCompleted == false)) {
+					if (Reviewer2 == "")
+						Reviewer2 = item.attributeNameWithArm4HTML;
+					else
+						Reviewer2 += "<br><br>" + item.attributeNameWithArm4HTML;
+					if (item.additionalText != "")
+						Reviewer2 += "<br><i> " + item.additionalText + "</i>";
+				}
+				else {
+					if ((item.contactId == comparison.contactId3) && (item.isCompleted == false)) {
+						if (Reviewer3 == "")
+							Reviewer3 = item.attributeNameWithArm4HTML;
+						else
+							Reviewer3 += "<br><br>" + item.attributeNameWithArm4HTML;
+						if (item.additionalText != "")
+							Reviewer3 += "<br><i> " + item.additionalText + "</i>";
+					}
+					else {
+						if (item.isCompleted == true) {
+							if (Agreed == "")
+								Agreed = item.attributeNameWithArm4HTML;
+							else
+								Agreed += "<br><br>" + item.attributeNameWithArm4HTML;
+							if (item.additionalText != "")
+								Agreed += "<br><i> " + item.additionalText + "</i>";
+						}
+					}
+				}
+			}
+		}
+		report += "<tr><td valign='top'>" + CurrentItemId + "</td><td valign='top'>" + CurrentItem + "</td>";
+		report += "<td valign='top'>" + Reviewer1 + "</td>";
+		report += "<td valign='top'>" + Reviewer2 + "</td>";
+		if (thirdReviewerIncluded == true) {
+			report += "<td valign='top'>" + Reviewer3 + "</td>";
+		}
+		report += "<td valign='top'>" + Agreed + "</td>";
+		report += "</tr>";
+		report += "</table></p>";
+		return report;
+	}
+
+	private AddHTMLFrame(report: string): string {
+		let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Comparison Report</title><link rel='stylesheet' href='" + this._baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+		//res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
+		//res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
+		res += "</BODY></HTML>";
+		return res;
+	}
+	public OpenInNewWindow(ReportHTML: any) {
+		if (ReportHTML.length < 1) return;
+
+		let Pagelink = "about:blank";
+		let pwa = window.open(Pagelink, "_new");
+		//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
+		if (pwa) {
+			pwa.document.open();
+			pwa.document.write(this.AddHTMLFrame(ReportHTML));
+			pwa.document.close();
+		}
 	}
 
     public FetchAll() {
@@ -214,6 +356,7 @@ export class ComparisonAttributeSelectionCriteria {
 	comparisonId: number = 0;
 	parentAttributeId: number = 0;
 	setId: number = 0;
+	comparison: any = null;
 }
 
 export interface iComparisonStatistics {
@@ -241,5 +384,22 @@ export interface iCompleteComparison {
 	comparisonId: number;
 	whichReviewers: string;
 	contactId: number;
+
+}
+
+export class ComparisonAttribute {
+
+	comparisonAttributeId: number = 0;
+	comparisonId: number = 0;
+	itemId: number = 0;
+	attributeId: number = 0;
+	additionalText: string = '';
+	contactId: number = 0;
+	setId: number = 0;
+	attributeName: string = '';
+	attributeNameWithArm4HTML: string = '';
+	itemTitle: string = '';
+	itemArm: string = '';
+	isCompleted: boolean = false;
 
 }
