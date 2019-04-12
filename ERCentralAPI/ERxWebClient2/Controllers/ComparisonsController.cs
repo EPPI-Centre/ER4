@@ -54,8 +54,6 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult ComparisonReport([FromBody] ComparisonAttributeSelectionJSON comparisonAttributesCriteria)
 		{
-			SetAttribute chosenAttFilter = new SetAttribute();
-			ReviewSet chosenSetFilter = new ReviewSet();
 			Comparison comparison = new Comparison();
 
 			comparison = comparisonAttributesCriteria.comparison;
