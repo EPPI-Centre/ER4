@@ -96,8 +96,214 @@ export class ItemCodingService extends BusyAwareService {
             , () => { this.RemoveBusy("FetchItemAttPDFCoding"); }
             );
     }
+    public SaveItemAttPDFCoding(perPageXML: string, itemAttributeId: number) {
+        this._BusyMethods.push("SaveItemAttPDFCoding");
+        let parser = new DOMParser();
+        let xmlDoc = parser.parseFromString(perPageXML, "text/xml");
+        let xAnnots = xmlDoc.getElementsByTagName("highlight");
+        let defmtx = xmlDoc.getElementsByTagName("defmtx");
+        if (!xAnnots || xAnnots.length == 0 || !defmtx || defmtx.length == 0) {
+            this.RemoveBusy("SaveItemAttPDFCoding");
+            return;
+        }
+        let matrix = defmtx[0].getAttribute("matrix");
+        let pageSize = 810;//we need to invert coordinates we're getting. PDFTron is giving us the wrong kind...
+        //810 is a random value I've seen on an A4 PDF...
+        if (matrix) {
+            let mmm = matrix.split(",");
+            if (mmm.length > 0) {
+                pageSize = (+mmm[mmm.length - 1]) / 0.75;
+            }
+        }
+        let iaPDF: MVCiaPDFCodingPage = new MVCiaPDFCodingPage();
+        let pageNst = xAnnots[0].getAttribute("page");
+        let pageN = -1;
+        if (pageNst) pageN = +pageNst;
+        if (pageN !== null && pageN > -1) {
+            pageN++;
+        }
+        else pageN = -1;
+        iaPDF.Page = pageN;
+        let existing: ItemAttributePDF | undefined = undefined;
+        iaPDF.PdfTronXml = perPageXML;
+        iaPDF.ItemDocumentId = this.CurrentItemAttPDFCoding.Criteria.itemDocumentId;
+        if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+            //good, we have this and should check if we need to change the object for a given page...
+            existing = this.CurrentItemAttPDFCoding.ItemAttPDFCoding.find(found => found.page == pageN);
+            //if (exsting) {
+            //    //iaPDF.itemAttributeId = exsting.itemAttributeId;
+            //    iaPDF.ItemAttributePDFId = exsting.itemAttributePDFId;
+            //    iaPDF.ItemDocumentId = exsting.itemDocumentId;
+            //    //iaPDF.Page = exsting.page;
+            //    //rootdone = true;
+            //}
+        }
+        iaPDF.ItemAttributeId = itemAttributeId;
+        iaPDF.ItemDocumentId = this.CurrentItemAttPDFCoding.Criteria.itemDocumentId;
+        iaPDF.ShapeTxt = "F1";
+        let WorkingInPageSel: InPageSelection[] = [];//we use this to handle exsisting inpage sels, without touching the original array.
+        if (existing) {
+            WorkingInPageSel = existing.inPageSelections.slice(0);
+            iaPDF.ItemAttributePDFId = existing.itemAttributePDFId;
+        }
+        for (let i = 0; i < xAnnots.length; i++) {
+            //build shapes and inpageselections, trying to keep those we can retain (to keep char offsets as in ER4)
+            let xAnn = xAnnots[i];
+            let tronShapeSt = xAnn.getAttribute("coords");
+            if (!tronShapeSt) tronShapeSt = "";
+            let coords = tronShapeSt.split(',');
+            
+
+            while (coords.length != 0) {
+                let removed = coords.splice(0, 8);
+                //order of these is all mixed up because the XML uses the "wrong" kind of coordinates
+                iaPDF.ShapeTxt += "M" + (+removed[0] / 0.75).toFixed(3) + ",";
+                iaPDF.ShapeTxt += (pageSize - (+removed[5] / 0.75)).toFixed(3) + "L";
+                iaPDF.ShapeTxt += (+removed[2] / 0.75).toFixed(3) + ",";
+                iaPDF.ShapeTxt += (pageSize - (+removed[7] / 0.75)).toFixed(3) + "L";
+                iaPDF.ShapeTxt += (+removed[6] / 0.75).toFixed(3) + ",";
+                iaPDF.ShapeTxt += (pageSize - (+removed[1] / 0.75)).toFixed(3) + "L";
+                iaPDF.ShapeTxt += (+removed[4] / 0.75).toFixed(3) + ",";
+                iaPDF.ShapeTxt += (pageSize - (+removed[3] / 0.75)).toFixed(3) + "z";
+
+                //if (currCoord == "x1") {
+                //    currCoord = "y1";
+                //    iaPDF.ShapeTxt += "M" + (+coords[0] / 0.75) + ",";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "y1") {
+                //    currCoord = "x2";
+                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "x2") {
+                //    currCoord = "y2";
+                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "y2") {
+                //    currCoord = "x3";
+                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "x3") {
+                //    currCoord = "y3";
+                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "y3") {
+                //    currCoord = "x4";
+                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "x4") {
+                //    currCoord = "y4";
+                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
+                //    coords.shift();
+                //}
+                //else if (currCoord == "y4") {
+                //    currCoord = "x1";
+                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "z";
+                //    coords.shift();
+                //}
+            }
+            
+            let content = xAnn.getElementsByTagName("contents");
+            if (content && content.length > 0
+                && content[0].childNodes
+                && content[0].childNodes.length > 0
+                && content[0].childNodes[0].nodeValue
+            ) {
+                let selt = content[0].childNodes[0].nodeValue;
+                if (existing !== undefined && selt) {
+                    //we'll try to find selections, keep them if they exist.
+                    let exsInPageSels = WorkingInPageSel.filter(found => found.selTxt == selt);
+                    if (exsInPageSels.length == 0 && WorkingInPageSel.length > 0 &&  selt.length > 15) {
+                        //we'll try again, removing spaces
+                        exsInPageSels = existing.inPageSelections.filter(found => selt && found.selTxt.replace(/\s/g, '') == selt.replace(/\s/g, ''));
+                    }
+                    if (exsInPageSels.length >= 1) {
+                        //we have 1 or more selections with the same text (go figure), we need to remove one from WorkingInPageSel so not to match it again
+                        let newSel: CSLAInPageSelection = { End: exsInPageSels[0].end, Start: exsInPageSels[0].start, SelTxt: exsInPageSels[0].selTxt };
+                        iaPDF.InPageSelections.push(newSel);
+                        WorkingInPageSel.splice(WorkingInPageSel.indexOf(exsInPageSels[0]), 1);
+                    }
+                    else { //exsInPageSels.length == 0
+                        let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
+                        iaPDF.InPageSelections.push(newSel);
+                    }
+                }
+                else if (selt) {
+                    //this is fresh coding for current page, we can't try to recycle anything.
+                    let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
+                    iaPDF.InPageSelections.push(newSel);
+                }
+                else {//uh? can't do much...
+                    console.log("One annotation didn't contain any text!", content[0].childNodes[0]);
+                }
+               
+            }
+        }
+        let endpoint = iaPDF.ItemAttributePDFId === 0 ? "api/ItemSetList/CreatePDFCodingPage" : "api/ItemSetList/UpdatePDFCodingPage";
+        this._httpC.post<ItemAttributePDF>(this._baseUrl + endpoint,
+            iaPDF).subscribe(result => {
+                console.log("SaveItemAttPDFCoding // " + endpoint, result);
+                if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null ) {
+                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
+                }
+                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) =>  result.itemAttributePDFId == found.itemAttributePDFId)
+                if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
+                else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
+                //this._CurrentItemAttPDFCoding.Criteria = criteria;
+                //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                //this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("SaveItemAttPDFCoding");
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("SaveItemAttPDFCoding"); }
+            );
+    }
+    public DeleteItemAttPDFCodingPage(page: number, itemAttributeId: number) {
+        this._BusyMethods.push("DeleteItemAttPDFCodingPage");
+        console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId);
+        let existing: ItemAttributePDF | undefined = undefined;
+        
+        if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+            //good, we have this and should check if we need to change the object for a given page...
+            existing = this.CurrentItemAttPDFCoding.ItemAttPDFCoding.find(found => found.page == page);
+        }
+        if (existing == undefined) {
+            //not good. We don't know what to delete...
+            this.RemoveBusy("DeleteItemAttPDFCodingPage");
+            this.modalService.GenericErrorMessage("Sorry, we can't find the PDF-coding to delete. \nNo Data was changed!\nIf the problem persists, please contact EPPISupport.")
+            return;
+        }
+        let body = JSON.stringify({ Value: existing.itemAttributePDFId });
+        this._httpC.post<ItemAttributePDF>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
+            body).subscribe(result => {
+                console.log("DeleteItemAttPDFCodingPage" , result);
+                if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
+                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
+                }
+                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result.itemAttributePDFId == found.itemAttributePDFId)
+                if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
+                else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
+                //this._CurrentItemAttPDFCoding.Criteria = criteria;
+                //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                //this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("DeleteItemAttPDFCodingPage");
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("DeleteItemAttPDFCodingPage"); }
+            );
+
+    }
     public ClearItemAttPDFCoding() {
+        console.log("ClearItemAttPDFCoding");
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        this.ItemAttPDFCodingChanged.emit();
     }
     private SelfSubscription4QuickCodingReport: Subscription | null = null;
     private _CodingReport: string = "";
@@ -754,10 +960,26 @@ export class ItemAttributePDF {
     itemDocumentId: number = 0;
     page: number = 0;
     shapeTxt: string = "";
+    pdfTronXml: string = "";
 }
 
 export class InPageSelection {
     start: number = 0;
     end: number = 0;
     selTxt: string = "";
+}
+export class CSLAInPageSelection {
+    Start: number = 0;
+    End: number = 0;
+    SelTxt: string = "";
+}
+
+export class MVCiaPDFCodingPage {
+    public ItemAttributePDFId: number = 0;
+    public ItemDocumentId: number = 0;
+    public ItemAttributeId: number = 0;
+    public ShapeTxt: string = "";
+    public InPageSelections: CSLAInPageSelection[] = [];
+    public Page: number = 0;
+    public PdfTronXml: string = "";
 }

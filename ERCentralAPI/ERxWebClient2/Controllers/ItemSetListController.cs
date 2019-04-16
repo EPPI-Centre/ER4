@@ -174,6 +174,143 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult CreatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributePDF ToSave = ItemAttributePDF.GetNewItemAttributePDF(MVCcodingInPage.Page);
+                    ToSave.ItemAttributeId = MVCcodingInPage.ItemAttributeId;
+                    ToSave.ItemDocumentId = MVCcodingInPage.ItemDocumentId;
+                    ToSave.ShapeTxt = MVCcodingInPage.ShapeTxt;
+                    ToSave.PdfTronXml = MVCcodingInPage.PdfTronXml;
+                    ToSave.inPageSelections = new Csla.Core.MobileList<InPageSelections>();
+                    foreach (InPageSelections inpsel in MVCcodingInPage.InPageSelections)
+                    {
+                        ToSave.inPageSelections.Add(inpsel);
+                    }
+                    DataPortal<ItemAttributePDF> dp2 = new DataPortal<ItemAttributePDF>();
+                    ToSave = dp2.Update(ToSave);
+                    return Ok(ToSave);
+                    
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcodingInPage);
+                _logger.LogError(e, "Dataportal Error with CreatePDFCodingPage: {0}", json);
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult UpdatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemAttributePDF> dp = new DataPortal<ItemAttributePDF>();
+                    ItemAttributePDF ToSave = dp.Fetch(new ItemAttributePDFSingleCriteria(MVCcodingInPage.ItemAttributePDFId));
+                    if (ToSave != null)
+                    {//all is well: we can change what we need.
+                        ToSave.ShapeTxt = MVCcodingInPage.ShapeTxt;
+                        ToSave.PdfTronXml = MVCcodingInPage.PdfTronXml;
+                        //CslaInpsels is used to rebuild the "inpage selections" with some care...
+                        Csla.Core.MobileList<InPageSelections> CslaInpsels = new Csla.Core.MobileList<InPageSelections>();
+                        foreach (InPageSelections inpsel in MVCcodingInPage.InPageSelections)
+                        {
+                            CslaInpsels.Add(inpsel);
+                        }
+                        //previous attemp: do reconstuctions on server side...
+                        //ToSave.inPageSelections.Clear();
+                        //List<InPageSelections> ToKeepAside = new List<InPageSelections>();
+                        //foreach (InPageSelections inpsel in MVCcodingInPage.InPageSelections)
+                        //{//we'll try to match selections, and keep the indexes in place for those that weren't touched...
+                        //    List<InPageSelections> ToKeep = ToSave.inPageSelections.FindAll(found => found.SelTxt == inpsel);
+                        //    if (ToKeep.Count == 1)
+                        //    {//keep unchanged.
+                        //        CslaInpsels.Add(ToKeep[0]);
+                        //    }
+                        //    else if (ToKeep.Count == 0 && inpsel.Length > 15)//safety first: we try to re-identify the selection, but only if it's reasonably long
+                        //    {
+                        //        //try again, stripping spaces
+                        //        ToKeep = ToSave.inPageSelections.FindAll(found => found.SelTxt.Replace(" ", "") == inpsel.Replace(" ", ""));
+                        //        if (ToKeep.Count == 1)
+                        //        {//keep unchanged.
+                        //            CslaInpsels.Add(ToKeep[0]);
+                        //        }
+                        //        else if (ToKeep.Count == 0)
+                        //        {//this is new, we can't find it...
+                        //            CslaInpsels.Add(new InPageSelections(0, 0, inpsel));
+                        //        }
+                        //        else if (ToKeep.Count > 1)
+                        //        {//remove one of the matches (should not match again!).
+                        //            CslaInpsels.Add(ToKeep[0]);
+                        //            ToSave.inPageSelections.Remove(ToKeep[0]);
+                        //        }
+                        //    }
+                        //    else if (ToKeep.Count == 0)
+                        //    {//this is new, we can't find it...
+                        //        CslaInpsels.Add(new InPageSelections(0, 0, inpsel));
+                        //    }
+                        //    else if (ToKeep.Count > 1)
+                        //    {//remove one of the matches (should not match again!).
+                        //        CslaInpsels.Add(ToKeep[0]);
+                        //        ToSave.inPageSelections.Remove(ToKeep[0]);
+                        //    }
+                        //}
+                        ToSave.inPageSelections = CslaInpsels;
+                        DataPortal<ItemAttributePDF> dp2 = new DataPortal<ItemAttributePDF>();
+                        ToSave = dp2.Update(ToSave);
+                        return Ok(ToSave);
+                    }
+                    else return NotFound();
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcodingInPage);
+                _logger.LogError(e, "Dataportal Error with UpdatePDFCodingPage: {0}", json);
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeletePDFCodingPage([FromBody] SingleInt64Criteria ItemAttributePDFId)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemAttributePDF> dp = new DataPortal<ItemAttributePDF>();
+                    ItemAttributePDF ToDelete = dp.Fetch(new ItemAttributePDFSingleCriteria(ItemAttributePDFId.Value));
+                    
+                    if (ToDelete != null)
+                    {//all is well: we can change what we need.
+                        ToDelete.Delete();
+                        ToDelete = ToDelete.Save();
+                        return Ok(ItemAttributePDFId.Value);//to retrun the ID so that it can be removed from client.
+                    }
+                    else return NotFound();
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(ItemAttributePDFId.Value);
+                _logger.LogError(e, "Dataportal Error with DeletePDFCodingPage: {0}", ItemAttributePDFId.Value);
+                throw;
+            }
+        }
     }
     
 
@@ -244,5 +381,15 @@ namespace ERxWebClient2.Controllers
     {
         public Int64 itemDocumentId;
         public Int64 itemAttributeId;
+    }
+    public class MVCiaPDFCodingPage
+    {
+        public Int64 ItemAttributePDFId;
+        public Int64 ItemDocumentId;
+        public Int64 ItemAttributeId;
+        public string ShapeTxt;
+        public InPageSelections[] InPageSelections;
+        public int Page;
+        public string PdfTronXml;
     }
 }

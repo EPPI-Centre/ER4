@@ -278,6 +278,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
                 if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
                 else this.ItemCodingService.ClearItemAttPDFCoding();
             }
+            else this.ItemCodingService.ClearItemAttPDFCoding();
         } else {
             this.ItemCodingService.ClearItemAttPDFCoding();
             this.ItemCodingService.SelectedSetAttribute = null;//remove selection, PDF should not load highlights.

@@ -48,6 +48,7 @@
                     <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
                         <ng-template kendoTabContent>
                             <div *ngIf="item" style="min-height:600px;">
+                                <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
                                 <pdftroncontainer #pdftroncontainer></pdftroncontainer>
                             </div>
                         </ng-template>

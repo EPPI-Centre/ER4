@@ -24,7 +24,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     private viewerInstance: any;
     private docViewer: any;
     annotManager: any;
-    public importingAnnots: boolean = false;
+    public AvoidHandlingAnnotationChanges: boolean = false;
+    
     //PDFNet: any;
     ngOnInit() {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
@@ -166,119 +167,14 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         // see https://www.pdftron.com/api/web/PDFTron.WebViewer.html for the full list of low-level APIs
     }
 
-    buildHighlightsByGeometry(): void {
-        console.log("buildHighlights", this.ItemCodingService.CurrentItemAttPDFCoding);
-        //var annotManager = this.docViewer.getAnnotationManager();
-        if (this.annotManager) {
-            this.deleteAnnotations(this.annotManager);
-        }
-        if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0) {
-           
-            var iFrame = document.querySelector('iframe');
-
-            //try: https://www.pdftron.com/documentation/samples/js/text-position
-
-
-            if (iFrame && iFrame.contentWindow) {
-                //const Annotations = this.webviewer.getWindow();
-                const { Annotations } = this.webviewer.getWindow();
-                //annotManager.deleteAnnotations(Annotations);
-
-                //(iFrame.contentWindow as any).Annotations = null;
-                for (let sel of this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
-                    const Highl = new Annotations.TextHighlightAnnotation();
-                    //console.log("created:", Highl);
-                    let aQuads: any[] = [];
-                    let rectSt0: string = sel.shapeTxt;
-                    rectSt0 = rectSt0.substr(3);
-                    let RectsA = rectSt0.split("zM");
-                    for (let rectSt of RectsA) {
-                        let i = rectSt.indexOf(',');
-                        let x1 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y1 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x2 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y2 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x3 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.indexOf('L');
-                        let y3 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-
-                        i = rectSt.indexOf(',');
-                        let x4 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        i = rectSt.length-1;
-                        let y4 = +rectSt.substr(0, i) * 0.75;
-                        rectSt = rectSt.substr(i + 1);
-                        let quad = {
-                            "x1": x1,
-                            "x2": x2,
-                            "x3": x3,
-                            "x4": x4,
-                            "y1": y1,
-                            "y2": y2,
-                            "y3": y3,
-                            "y4": y4
-                        }
-                        aQuads.push(quad);
-                        let rec = new Annotations.Rect(x1, y1, x3, y3);
-                        console.log("Rect: ", rec, rec.getHeight(), rec.getWidth());
-                        Highl.setContents(sel.inPageSelections[0].selTxt);
-                        Highl.setRect(rec);
-                        Highl.NoView = false;
-                        Highl.Hidden = false;
-                        //Highl.setWidth(rec.getWidth());
-                        //Highl.setHeight(rec.getHeight());
-                        //console.log("ann X, y", Highl.getX(), Highl.getY());
-                        Highl.Author = this.annotManager.getCurrentUser();
-                        Highl.StrokeColor = new Annotations.Color(136, 39, 31);
-                        
-                        //console.log("redrawAnnotation", Highl);
-                        //annotManager.redrawAnnotation(Highl);
-
-                        //const rectangle = new Annotations.RectangleAnnotation();
-                        //rectangle.PageNumber = sel.page;
-                        //rectangle.X = x1;
-                        //rectangle.Y = y1;
-                        //rectangle.Width = rec.getWidth();
-                        //rectangle.Height = rec.getHeight();
-                        //rectangle.StrokeThickness = 0.5;
-                        //rectangle.Author = annotManager.getCurrentUser();
-                        //annotManager.addAnnotation(rectangle);
-
-
-                        
-                    }
-                    Highl.Quads = aQuads;
-                    Highl.setPageNumber(sel.page);
-                    //Highl.FillColor = new Annotations.Color(255, 234, 12);
-                    Highl.StrokeColor = new Annotations.Color(250, 224, 6);
-                    //Highl.$i = new Annotations.Color(247, 247, 227);
-                    console.log("addAnnotation", Highl);
-                    this.annotManager.addAnnotation(Highl);
-                    this.annotManager.drawAnnotations(sel.page);
-                    //annotManager.redrawAnnotation(Highl);
-                    //console.log("AQQQ", (iFrame.contentWindow as any).Annotations);
-                }
-            }
-        }
-    }
+    
     
     async buildHighlights() {
-        this.importingAnnots = true;
+        console.log("buildHighlights");
         if (this.annotManager) {
             this.deleteAnnotations(this.annotManager);
         }
+        this.AvoidHandlingAnnotationChanges = true;
 
         //what we need is:
         //create highlights based on the text, so that shapes "know" what text they belong to.
@@ -288,11 +184,13 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         //create one annotation per element in Arr, put it into the element, show the annotation.
 
         //let's start by creating one TextWithShapes obj for each "sel.inPageSelections[0].selTxt"
-        let AllContinuousSelections: TextWithShapes[] = [];
+        
         let AllInputShapes: string[] = []; //will receive one string per page...
-
+        let AllContinuousSelections: TextWithShapes[] = [];
         var docViewer = this.webviewer.getInstance().docViewer;
+        if (!docViewer) return;
         var GenDoc = docViewer.getDocument();
+        if (!GenDoc) return;
         let doc = await GenDoc.getPDFDoc();
         const PDFnet = this.webviewer.getPDFNet();
         try { await PDFnet.initialize(); }
@@ -300,59 +198,43 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         const reader = await this.webviewer.getPDFNet().ElementReader.create();
         const { Annotations } = this.webviewer.getWindow();
         console.log("PDFNet", PDFnet);
-
+        
         if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0) {
             for (let sel of this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+                let HasDataToSave: boolean = false;
                 //from the DB, we get one ItemAttPDFCoding per page!
-                AllInputShapes = sel.shapeTxt.substring(3).split("zM");
-                AllContinuousSelections = [];
-                for (let inPsel of sel.inPageSelections) {
-                    let inPageTwS: TextWithShapes = new TextWithShapes();
-                    inPageTwS.Page = sel.page;
-                    inPageTwS.FullSelectedText = inPsel.selTxt.trim();
-                    AllContinuousSelections.push(inPageTwS);
-                    
+
+                if (sel.pdfTronXml !== "") {//if we have the XML for this page, we build the annotations from that...
+                    //build the annotations from XML, we'll use the XML itself to create the ER-proper data when saving changes.
+                    console.log("We have the XML annotation");
+                    this.annotManager.importAnnotations(sel.pdfTronXml);
                 }
-                //now we want to see which InputShapes belong to what TextWithShapes
-                for (let i = 0; i < AllInputShapes.length; i++) {
-                    let quad = TextWithShapes.BuildQuad(AllInputShapes[i]);
-                    console.log("quad s:", quad);
-                    let PDFpoint1 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x1, quad.y1);
-                    let PDFpoint2 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x3, quad.y3);
-                    let ydiff = (PDFpoint1.y - PDFpoint2.y) / 4;
-                    PDFpoint1.y = PDFpoint1.y - ydiff;
-                    PDFpoint2.y = PDFpoint2.y + ydiff;
-                    console.log(PDFpoint1, PDFpoint2);
-                    let rec = await PDFnet.Rect.init(PDFpoint2.x, PDFpoint2.y, PDFpoint1.x, PDFpoint1.y);
-                    let textinSel = (await this.readTextFromRect(sel.page, rec, reader, doc, PDFnet)).trim();
-                    console.log("looking for:", textinSel)
-                    let myCurrentSelectIndex = AllContinuousSelections.findIndex(found =>  found.FullSelectedText.indexOf(textinSel) != -1);
-                    console.log("my curr sel ind:", AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1));
-                    if (myCurrentSelectIndex != -1) {
-                        //yay! the text underneath the current shape belongs to AllContinuousSelections[myCurrentSelectIndex]
-                        AllContinuousSelections[myCurrentSelectIndex].ShapesStrings.push(AllInputShapes[i]);
-                        //we found where the current shape belongs, so let's remove it
-                        AllInputShapes.splice(i, 1);//this also means we don't need to increase i:
-                        i--;
-                        continue;
+                //else try to rebuild it...
+                else {
+                    AllInputShapes = sel.shapeTxt.substring(3).split("zM");
+                    AllContinuousSelections = [];
+                    for (let inPsel of sel.inPageSelections) {
+                        let inPageTwS: TextWithShapes = new TextWithShapes();
+                        inPageTwS.Page = sel.page;
+                        inPageTwS.FullSelectedText = inPsel.selTxt.trim();
+                        AllContinuousSelections.push(inPageTwS);
+
                     }
-                    else {
-                        console.log("did not find this string!!!!!!!\n\n Try again...\n\n", textinSel, AllInputShapes[i]);
-                        //replace(/\r\n/g, '<br />')
-                        if (textinSel.length > 6) textinSel = textinSel.substring(1, textinSel.length - 1);
-                        textinSel = textinSel.replace(/[ \t]/g, '');
-                        myCurrentSelectIndex = AllContinuousSelections.findIndex(
-                            found => found.FullSelectedText.replace(/[ \t]/g, '')
-                                .replace(/ﬀ/g, 'f‌f')
-                                .replace(/ﬃ/g, 'f‌f‌i')
-                                .replace(/ﬄ/g, 'f‌f‌l')
-                                .replace(/ﬁ/g, 'f‌i')
-                                .replace(/ﬂ/g, 'fl')
-                                .replace(/ﬅ/g, 'ſt')
-                                .replace(/Ꝡ/g, 'VY')
-                                .replace(/ꝡ/g, 'vy')
-                                .indexOf(textinSel) != -1
-                        );
+                    //now we want to see which InputShapes belong to what TextWithShapes
+                    for (let i = 0; i < AllInputShapes.length; i++) {
+                        let quad = TextWithShapes.BuildQuad(AllInputShapes[i]);
+                        console.log("quad s:", quad);
+                        let PDFpoint1 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x1, quad.y1);
+                        let PDFpoint2 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x3, quad.y3);
+                        let ydiff = (PDFpoint1.y - PDFpoint2.y) / 4;
+                        PDFpoint1.y = PDFpoint1.y - ydiff;
+                        PDFpoint2.y = PDFpoint2.y + ydiff;
+                        console.log(PDFpoint1, PDFpoint2);
+                        let rec = await PDFnet.Rect.init(PDFpoint2.x, PDFpoint2.y, PDFpoint1.x, PDFpoint1.y);
+                        let textinSel = (await this.readTextFromRect(sel.page, rec, reader, doc, PDFnet)).trim();
+                        console.log("looking for:", textinSel)
+                        let myCurrentSelectIndex = AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1);
+                        console.log("my curr sel ind:", AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1));
                         if (myCurrentSelectIndex != -1) {
                             //yay! the text underneath the current shape belongs to AllContinuousSelections[myCurrentSelectIndex]
                             AllContinuousSelections[myCurrentSelectIndex].ShapesStrings.push(AllInputShapes[i]);
@@ -361,67 +243,101 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             i--;
                             continue;
                         }
-                    }
-                }
-                console.log("done one page, results of step 1:", AllContinuousSelections, AllInputShapes);
-                if (AllInputShapes.length > 0) {
-                    //something didn't work, if we have only one in AllInputShapes, find the corresponding empty AllContinuousSelections, fill it in and be done with it.
-                    if (AllInputShapes.length == 1) {
-                        for (let csel of AllContinuousSelections) {
-                            if (csel.ShapesStrings.length == 0) {
-                                //found it!
-                                csel.ShapesStrings.push(AllInputShapes[0]);
+                        else {
+                            console.log("did not find this string!!!!!!!\n\n Try again...\n\n", textinSel, AllInputShapes[i]);
+                            //replace(/\r\n/g, '<br />')
+                            if (textinSel.length > 6) textinSel = textinSel.substring(1, textinSel.length - 1);
+                            textinSel = textinSel.replace(/[ \t]/g, '');
+                            myCurrentSelectIndex = AllContinuousSelections.findIndex(
+                                found => found.FullSelectedText.replace(/[ \t]/g, '')
+                                    .replace(/ﬀ/g, 'f‌f')
+                                    .replace(/ﬃ/g, 'f‌f‌i')
+                                    .replace(/ﬄ/g, 'f‌f‌l')
+                                    .replace(/ﬁ/g, 'f‌i')
+                                    .replace(/ﬂ/g, 'fl')
+                                    .replace(/ﬅ/g, 'ſt')
+                                    .replace(/Ꝡ/g, 'VY')
+                                    .replace(/ꝡ/g, 'vy')
+                                    .replace(/Ð/g, '–')
+                                    .indexOf(textinSel) != -1
+                            );
+                            if (myCurrentSelectIndex != -1) {
+                                //yay! the text underneath the current shape belongs to AllContinuousSelections[myCurrentSelectIndex]
+                                AllContinuousSelections[myCurrentSelectIndex].ShapesStrings.push(AllInputShapes[i]);
+                                //we found where the current shape belongs, so let's remove it
+                                AllInputShapes.splice(i, 1);//this also means we don't need to increase i:
+                                i--;
+                                continue;
                             }
                         }
                     }
-                    else {
-                        //find the empty AllContinuousSelections, get rid of them, create a blank new AllContinuousSelection with no text but the shapes.
-                        for (let i = 0; i < AllContinuousSelections.length;) {
-                            if (AllContinuousSelections[i].ShapesStrings.length == 0) {
-                                AllContinuousSelections.splice(i, 1);
+                    console.log("done one page, results of step 1:", AllContinuousSelections, AllInputShapes);
+                    if (AllInputShapes.length > 0) {
+                        //something didn't work, if we have only one in AllInputShapes, find the corresponding empty AllContinuousSelections, fill it in and be done with it.
+                        if (AllInputShapes.length == 1) {
+                            for (let csel of AllContinuousSelections) {
+                                if (csel.ShapesStrings.length == 0) {
+                                    //found it!
+                                    csel.ShapesStrings.push(AllInputShapes[0]);
+                                }
                             }
-                            else i++;
                         }
-                        let inPageTwS: TextWithShapes = new TextWithShapes();
-                        inPageTwS.Page = sel.page;
-                        inPageTwS.FullSelectedText = "";
-                        for (let shape of AllInputShapes) {
-                            inPageTwS.ShapesStrings.push(shape);
+                        else {
+                            //find the empty AllContinuousSelections, get rid of them, create a blank new AllContinuousSelection with no text but the shapes.
+                            for (let i = 0; i < AllContinuousSelections.length;) {
+                                if (AllContinuousSelections[i].ShapesStrings.length == 0) {
+                                    AllContinuousSelections.splice(i, 1);
+                                }
+                                else i++;
+                            }
+                            let inPageTwS: TextWithShapes = new TextWithShapes();
+                            inPageTwS.Page = sel.page;
+                            inPageTwS.FullSelectedText = "";
+                            for (let shape of AllInputShapes) {
+                                inPageTwS.ShapesStrings.push(shape);
+                            }
+                            AllContinuousSelections.push(inPageTwS);
                         }
-                        AllContinuousSelections.push(inPageTwS);
                     }
-                }
-                for (let pSel of AllContinuousSelections) {
-                    
-                    const Highl = new Annotations.TextHighlightAnnotation();
-                    Highl.setContents(pSel.FullSelectedText);
-                    Highl.NoView = false;
-                    Highl.Hidden = false;
-                    Highl.Author = this.annotManager.getCurrentUser();
-                    Highl.setPageNumber(sel.page);
-                    //Highl.FillColor = new Annotations.Color(255, 234, 12);
-                    if (pSel.FullSelectedText.length > 0) {
-                        Highl.StrokeColor = new Annotations.Color(250, 224, 6);
-                    }
-                    else {
-                        Highl.StrokeColor = new Annotations.Color(255, 124, 6);
-                    }
+                    for (let pSel of AllContinuousSelections) {
 
-                    //Highl.$i = new Annotations.Color(247, 247, 227);
-                    
-                    if (pSel.ShapesStrings.length > 0) {
-                        Highl.Quads = pSel.Quads;
-                        console.log("addAnnotation", Highl);
-                        this.annotManager.addAnnotation(Highl);
+                        const Highl = new Annotations.TextHighlightAnnotation();
+                        Highl.setContents(pSel.FullSelectedText);
+                        Highl.NoView = false;
+                        Highl.Hidden = false;
+                        Highl.Author = this.annotManager.getCurrentUser();
+                        Highl.setPageNumber(sel.page);
+                        //Highl.FillColor = new Annotations.Color(255, 234, 12);
+                        if (pSel.FullSelectedText.length > 0) {
+                            Highl.StrokeColor = new Annotations.Color(250, 224, 6);
+                        }
+                        else {
+                            Highl.StrokeColor = new Annotations.Color(255, 124, 6);
+                        }
+
+                        //Highl.$i = new Annotations.Color(247, 247, 227);
+
+                        if (pSel.ShapesStrings.length > 0) {
+                            Highl.Quads = pSel.Quads;
+                            console.log("addAnnotation", Highl);
+                            this.annotManager.addAnnotation(Highl);
+                            HasDataToSave = true;
+                        }
+                        else console.log("broken ann:", Highl);
                     }
-                    else console.log("broken ann:", Highl);
+                    this.annotManager.drawAnnotations(sel.page);
                 }
-                this.annotManager.drawAnnotations(sel.page);
+                if (HasDataToSave) {
+                    //we have rebuilt the XML from the ER4 annots, let's save it...
+                    let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == sel.page);
+                    const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
+                    this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                }
             }
             //AllContinuousSelections now needs to receive one or more string description for a rectangle.
             //var iFrame = document.querySelector('iframe');
         }
-        this.importingAnnots = false;
+        this.AvoidHandlingAnnotationChanges = false;
     }
 
 
@@ -489,7 +405,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         });
     }
     private deleteAnnotations(annotManager: any) {
-        //console.log("deleteAnnotations");
+        console.log("deleteAnnotations");
+        this.AvoidHandlingAnnotationChanges = true;
         let Annots: any[] = annotManager.getAnnotationsList();
         //if (Annots) console.log("Annots to delete:", Annots, Annots.length);
         let count = Annots.length;
@@ -497,37 +414,56 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         for (i = 0; i < count; i++) {
             let annot = Annots[0];
             //console.log("deleting annot: " + (i+1) + " of " + count, annot);
-            try {
-                annotManager.deleteAnnotation(annot, true, true);
+            if (annot.Subject === "Highlight" || annot.Subject === null ) {
+                try {
+                    annotManager.deleteAnnotation(annot, true, true);
+                }
+                catch (e) {
+                    console.log("error deleting annot:", e);
+                }
             }
-            catch (e) {
-                console.log("error deleting annot:", e);
-            }
+            else console.log("Not deleting this annot:", annot);
         }
-        console.log("Annots after deleting:", annotManager.getAnnotationsList(), annotManager.getAnnotationsList().length);
-        console.log(""); console.log("");
+        //console.log("Annots after deleting:", annotManager.getAnnotationsList(), annotManager.getAnnotationsList().length);
+        //console.log(""); console.log("");
+        this.AvoidHandlingAnnotationChanges = false;
     }
 
     private AnnotationChangedHandler(event: any, annotations: any, action: any) {
-        if (this.importingAnnots) return; //we do nothing when we're adding the annotations from the API call...
-        if (action === 'add') {
-            console.log('this is a change that added annotations', annotations, action);
-            const { Annotations } = this.webviewer.getWindow();
-            if (annotations[0] instanceof Annotations.TextHighlightAnnotation) {
-                
-                let highlightAnnotation = annotations[0];
+        if (this.AvoidHandlingAnnotationChanges) return; //we do nothing when we're handling annotations from code-behind...
+        if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0) {
+            alert("Sorry\n Need to manually add the code first, for now...");
+            return;
+        }
+        const { Annotations } = this.webviewer.getWindow();
+        if (annotations[0] instanceof Annotations.TextHighlightAnnotation) {
+            let highlightAnnotation = annotations[0];
+            
+            if (annotations[0].Quads) console.log("Quads: ", JSON.stringify(annotations[0].Quads));
+            else console.log("No Quads");
+            let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
+            const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
+            console.log("xfdfString:", xfdfString);//we'll parse the xfdfString to save on the server...
+            if (action === 'add') {
+                console.log('this is a change that added annotations', annotations, action);
                 highlightAnnotation.NoResize = true;
                 this.annotManager.redrawAnnotation(highlightAnnotation);
-                if (annotations[0].Quads) console.log("Quads: ", JSON.stringify(annotations[0].Quads));
-                else console.log("No Quads");
-                let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
-                const xfdfString = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
-                console.log("xfdfString:", xfdfString);//we'll add the xfdfString to the object to save on the server...
+                this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+
+            } else if (action === 'modify') {
+                console.log('this change modified annotations', annotations);
+            } else if (action === 'delete') {
+                //do we delete just one annotation but some remain? In which case, it's an update...
+                
+                let ind = xfdfString.indexOf("</highlight>");
+                if (ind > -1) this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                else {
+                    //do the delete thing...
+                    this.ItemCodingService.DeleteItemAttPDFCodingPage(highlightAnnotation.PageNumber, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                }
+                console.log('there were annotations deleted', annotations);
+                
             }
-        } else if (action === 'modify') {
-            console.log('this change modified annotations');
-        } else if (action === 'delete') {
-            console.log('there were annotations deleted');
         }
 
         annotations.forEach(function (annot: any) {

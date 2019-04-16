@@ -187,6 +187,18 @@ namespace BusinessLibrary.BusinessClasses
                 return res;
             }
         }
+
+
+        public static readonly PropertyInfo<string> PdfTronXmlProperty = RegisterProperty<string>(new PropertyInfo<string>("PdfTronXml", "PdfTronXml"));
+        public string PdfTronXml
+        {
+            get { return GetProperty(PdfTronXmlProperty); }
+            set
+            {
+                SetProperty(PdfTronXmlProperty, value);
+            }
+        }
+
         public bool HasAngularSelections
         {
             get
@@ -201,15 +213,27 @@ namespace BusinessLibrary.BusinessClasses
 #if !SILVERLIGHT
         public static ItemAttributePDF GetItemAttributePDF(SafeDataReader reader)
         {
-            
+            ItemAttributePDF returnValue = new ItemAttributePDF();
+            returnValue.FillDataFromReader(reader);
+            return returnValue;
+        }
+
+        public static ItemAttributePDF GetNewItemAttributePDF(int Page)
+        {//only do the page as it's readonly (no setter), rest is done via the controller in MVC
+            ItemAttributePDF returnValue = new ItemAttributePDF();
+            returnValue.LoadProperty<int>(PageProperty, Page);
+            return returnValue;
+        }
+        private void FillDataFromReader(SafeDataReader reader)
+        {
             string[] sten;
             string[] textsels;
-            ItemAttributePDF returnValue = new ItemAttributePDF();
-            returnValue.LoadProperty<Int64>(ItemAttributePDFIdProperty, reader.GetInt64("ITEM_ATTRIBUTE_PDF_ID"));
-            returnValue.LoadProperty<Int64>(ItemDocumentIdProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
-            returnValue.LoadProperty<Int64>(ItemAttributeIdProperty, reader.GetInt64("ITEM_ATTRIBUTE_ID"));
-            returnValue.LoadProperty<int>(PageProperty, reader.GetInt32("PAGE"));
-            returnValue.LoadProperty<string>(ShapeTxtProperty, reader.GetString("SHAPE_TEXT"));
+            LoadProperty<Int64>(ItemAttributePDFIdProperty, reader.GetInt64("ITEM_ATTRIBUTE_PDF_ID"));
+            LoadProperty<Int64>(ItemDocumentIdProperty, reader.GetInt64("ITEM_DOCUMENT_ID"));
+            LoadProperty<Int64>(ItemAttributeIdProperty, reader.GetInt64("ITEM_ATTRIBUTE_ID"));
+            LoadProperty<int>(PageProperty, reader.GetInt32("PAGE"));
+            LoadProperty<string>(ShapeTxtProperty, reader.GetString("SHAPE_TEXT"));
+            LoadProperty<string>(PdfTronXmlProperty, reader.GetString("PDFTRON_XML"));
             sten = reader.GetString("SELECTION_INTERVALS").Split(charsTosnip);
             textsels = reader.GetString("SELECTION_TEXTS").Split(charsTosnip);
             int start, end;
@@ -223,12 +247,34 @@ namespace BusinessLibrary.BusinessClasses
                 end = int.Parse(tarr[1]);
                 tStr = textsels[i];
                 ppas = new InPageSelections(start, end, tStr);
-                if (returnValue.inPageSelections == null) returnValue.inPageSelections = new MobileList<InPageSelections>();
-                returnValue.inPageSelections.Add(ppas);
+                if (inPageSelections == null) inPageSelections = new MobileList<InPageSelections>();
+                inPageSelections.Add(ppas);
             }
-            returnValue.MarkOld();
-            return returnValue;
+            MarkOld();
+            return;
         }
+
+        protected void DataPortal_Fetch(ItemAttributePDFSingleCriteria criteria)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ItemAttributePDFSinglePage", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_PDF_ID", criteria.ItemAttributePDFId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            FillDataFromReader(reader);
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -246,6 +292,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SHAPE_TEXT", ShapeTxt));
                     command.Parameters.Add(new SqlParameter("@INTERVALS", Intervals));
                     command.Parameters.Add(new SqlParameter("@TEXTS", Texts));
+#if (CSLA_NETCORE)
+                    //saving or inserting an Item_AttributePDF row:
+                    //when this comes from Angular, the PdfTronXml is current, when it comes from ER4, it means this value is now invalid.
+                    //SP will wipe it (default value is "")
+                    command.Parameters.Add(new SqlParameter("@PDFTRON_XML", PdfTronXml));
+#endif
                     command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_PDF_ID", 0));
                     command.Parameters["@ITEM_ATTRIBUTE_PDF_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -280,6 +332,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SHAPE_TEXT", ShapeTxt));
                     command.Parameters.Add(new SqlParameter("@INTERVALS", Intervals));
                     command.Parameters.Add(new SqlParameter("@TEXTS", Texts));
+#if (CSLA_NETCORE)
+                    //saving or inserting an Item_AttributePDF row:
+                    //when this comes from Angular, the PdfTronXml is current, when it comes from ER4, it means this value is now invalid.
+                    //SP will wipe it (default value is "")
+                    command.Parameters.Add(new SqlParameter("@PDFTRON_XML", PdfTronXml));
+#endif
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -362,5 +420,21 @@ namespace BusinessLibrary.BusinessClasses
             // the underlying Double values. 
             return Start.CompareTo(other.Start);
         }
+    }
+
+    [Serializable] 
+    public class ItemAttributePDFSingleCriteria: CriteriaBase<ItemAttributePDFSingleCriteria>
+    {
+        private static PropertyInfo<Int64> ItemAttributePDFIdProperty = RegisterProperty<Int64>(typeof(ItemAttributePDFSingleCriteria), new PropertyInfo<Int64>("ItemAttributePDFId", "ItemAttributePDFId"));
+        public Int64 ItemAttributePDFId
+        {
+            get { return ReadProperty(ItemAttributePDFIdProperty); }
+        }
+        public ItemAttributePDFSingleCriteria(Int64 itemAttributePDFId)
+        {
+            LoadProperty(ItemAttributePDFIdProperty, itemAttributePDFId);
+        }
+
+        public ItemAttributePDFSingleCriteria() { }
     }
 }

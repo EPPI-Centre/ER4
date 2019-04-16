@@ -97,7 +97,14 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get IsPDFtabSelected(): boolean {
         return (this.HelpAndFeebackContext == "itemdetails\\pdf");
     }
-
+    public IsServiceBusy4PDF(): boolean {
+        if (this.ItemCodingService.IsBusy
+            || this.ReviewSetsService.IsBusy
+            //|| this.armservice.IsBusy
+            //|| this.ItemDocsService.IsBusy
+        ) return true;
+        else return false;
+    }
 
 
 
