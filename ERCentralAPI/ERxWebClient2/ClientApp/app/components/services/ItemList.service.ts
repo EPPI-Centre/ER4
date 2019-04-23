@@ -79,8 +79,10 @@ export class ItemListService extends BusyAwareService {
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(
                 list => {
-                    this._Criteria.totalItems = this.ItemList.totalItemCount;
-                    this.SaveItems(list, this._Criteria);
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					console.log();
+					this.SaveItems(list, this._Criteria);
+					console.log(JSON.stringify(this.ItemList.items[0]));
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");

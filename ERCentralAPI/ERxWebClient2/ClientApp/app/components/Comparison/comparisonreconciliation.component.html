@@ -1,0 +1,102 @@
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary ">
+	<button class="btn-info pull-right col-md-3" 
+			(click)="BackToMain()">
+		Close/back
+	</button>
+	<form class="row">
+		<div class="col-12">
+			<h1>Comparison Reconciliation</h1>
+			<div *ngFor="let item of ItemListService.ItemList.items">
+			==>	{{item.title}}
+			</div>
+
+			<!--<table>
+		<thead>
+		<tr>
+			<th>C filter</th>
+			<th>Item</th>
+			<th>Contact 1</th>
+			<th>Contact 2</th>
+			<th>Contact 3</th>
+		</tr>
+		</thead>
+		<tr>
+			<td>
+				TICK GOES HERE
+			</td>
+			<td>
+				Akers (2010)
+			</td>
+			<td>
+				Whole Study
+				<button class="btn btn-danger"></button>
+			</td>
+			<td>
+				Whole Study
+				<button class="btn btn-info"></button>
+			</td>
+			<td>
+				Whole Study
+				<button class="btn btn-light"></button>
+			</td>
+		</tr>
+	</table>-->
+		</div>
+		<div class="col-12 row p-2 m-2">
+			<div class="col-5">
+				<div *ngIf="ShowHighlights" >
+					<h4 [innerHTML]="HTitle"></h4>
+				</div>
+				<div *ngIf="!ShowHighlights" >
+					<h4>{{item.title}}</h4>
+				</div>
+
+				<div class="row w-100 p-0 m-0 border-bottom">
+					<div class="p-1 ml-1 mt-1 font-weight-bold">
+						Author(s)
+					</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.authors}}
+					</div>
+				</div>
+				<div class="row w-100 p-0 m-0 border-bottom ">
+					<div class="col-4 row p-0 m-0">
+						<div class="p-1 ml-1 mt-1 font-weight-bold" >ID</div>
+						<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
+					</div>
+				</div>
+				<div class="row w-100 p-0 m-0 border-bottom  ">
+					<div class="w-50 row p-0 m-0">
+						<div class="p-1 ml-1 mt-1 font-weight-bold" >Year</div>
+						<div class="col p-1 m-1 bg-white">
+							{{item.year}}
+						</div>
+					</div>
+				</div>
+				<div class="row w-100 p-0 m-0 border-bottom  ">
+					<div class="w-50 row p-0 m-0">
+						<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
+						<div class="col p-1 m-1 bg-white">
+							{{item.shortTitle}}
+						</div>
+					</div>
+					<div class="w-50 row p-0 m-0">
+						<div class="p-1 ml-1 mt-1 font-weight-bold" >Pages</div>
+						<div class="col p-1 m-1 bg-white">
+							{{item.pages}}
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			<div class="col-5 row">
+				<div *ngIf="ShowHighlights" class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b> 
+				<div [innerHTML]="HAbstract"></div></div>
+				<div class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b>
+				{{item.abstract}}</div>
+
+			</div>
+		</div>
+	</form>
+</div>
+ 

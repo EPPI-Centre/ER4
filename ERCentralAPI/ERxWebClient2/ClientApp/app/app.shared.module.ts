@@ -70,6 +70,7 @@ import { editItemDetailsComp } from './components/itemDetails/editItemDetails.co
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
+import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
 
 @NgModule({
     declarations: [
@@ -121,7 +122,8 @@ import { ComparisonStatsComp } from './components/Comparison/comparisonstatistic
 		SiteAdminEntryComponent,
 		CreateNewCodeComp,
 		ComparisonComp,
-		ComparisonStatsComp
+		ComparisonStatsComp,
+		ComparisonReconciliationComp
 	],
     providers: [
         EventEmitterService,
@@ -161,7 +163,8 @@ import { ComparisonStatsComp } from './components/Comparison/comparisonstatistic
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },
             { path: 'EditItem', component: editItemDetailsComp },
-            { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+			{ path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent }, 
             { path: 'SiteAdmin', component: SiteAdminComponent },

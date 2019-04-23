@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import {  ReviewSet, singleNode } from '../services/ReviewSets.service';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -7,6 +7,7 @@ import { ComparisonsService, ComparisonStatistics, Comparison, iCompleteComparis
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -16,7 +17,8 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 })
 
 export class ComparisonStatsComp implements OnInit {
-    constructor(
+	constructor(
+		private router: Router,
 		private _comparisonsService: ComparisonsService,
 		private _reviewInfoService: ReviewInfoService,
 		private _reviewerIdentityServ: ReviewerIdentityService,
@@ -125,6 +127,19 @@ export class ComparisonStatsComp implements OnInit {
 			}
 		}
 
+	}
+	LoadReconciliation(comparisonId: number, subtype: string) {
+		for (let item of this._comparisonsService.Comparisons) {
+			if (item.comparisonId == comparisonId) {
+				this.ListSubType = subtype;
+				this.LoadComparisons(item, this.ListSubType);
+				
+				this.GoToReconcile();
+			}
+		}
+	}
+	GoToReconcile() {
+		this.router.navigate(['Reconciliation']);
 	}
 	Complete(currentComparison: Comparison) {
 
