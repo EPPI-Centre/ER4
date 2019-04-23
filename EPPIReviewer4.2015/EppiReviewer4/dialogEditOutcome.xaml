@@ -30,7 +30,7 @@
     </UserControl.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="85"></ColumnDefinition>
+            <ColumnDefinition Width="120"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="120"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -50,7 +50,7 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
         </Grid.RowDefinitions>
 
         <TextBlock Text="Title" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
@@ -126,8 +126,8 @@
             </telerikGridView:RadGridView.Columns>
         </telerik:RadGridView>
         -->
-        <telerik:RadTreeView Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" x:Name="TreeViewClassifications"  
-                             IsOptionElementsEnabled="True" IsTriStateMode="False"
+        <telerik:RadTreeView Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" x:Name="TreeViewClassifications"  
+                             IsOptionElementsEnabled="True" IsTriStateMode="False" BorderBrush="Aquamarine" BorderThickness="1"
                              Margin="5,5,5,5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         </telerik:RadTreeView>
         

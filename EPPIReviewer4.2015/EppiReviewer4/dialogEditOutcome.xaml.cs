@@ -174,9 +174,9 @@ namespace EppiReviewer4
 
         void newItem_DoubleClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
-            MessageBox.Show("clicked");
-            RadTreeViewItem rtvi = sender as RadTreeViewItem;
-            int i = Convert.ToInt32(rtvi.Tag);
+            //MessageBox.Show("clicked");
+            //RadTreeViewItem rtvi = sender as RadTreeViewItem;
+            //int i = Convert.ToInt32(rtvi.Tag);
         }
 
         private void cmdSaveOutcome_Click(object sender, RoutedEventArgs e)
