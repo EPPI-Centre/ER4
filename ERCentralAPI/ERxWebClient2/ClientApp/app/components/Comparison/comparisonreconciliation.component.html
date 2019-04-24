@@ -4,43 +4,30 @@
 		Close/back
 	</button>
 	<form class="row">
-		<div class="col-12">
+		<div class="col-12 row">
 			<h1>Comparison Reconciliation</h1>
-			<div *ngFor="let item of ItemListService.ItemList.items">
-			==>	{{item.title}}
-			</div>
+			<div class="col-6">
+				<div *ngFor="let item of ItemListService.ItemList.items">
+					{{item.itemId}}
+				</div>
 
-			<!--<table>
-		<thead>
-		<tr>
-			<th>C filter</th>
-			<th>Item</th>
-			<th>Contact 1</th>
-			<th>Contact 2</th>
-			<th>Contact 3</th>
-		</tr>
-		</thead>
-		<tr>
-			<td>
-				TICK GOES HERE
-			</td>
-			<td>
-				Akers (2010)
-			</td>
-			<td>
-				Whole Study
-				<button class="btn btn-danger"></button>
-			</td>
-			<td>
-				Whole Study
-				<button class="btn btn-info"></button>
-			</td>
-			<td>
-				Whole Study
-				<button class="btn btn-light"></button>
-			</td>
-		</tr>
-	</table>-->
+				<div>
+					{{item.title}}
+				</div>
+
+			</div>
+			<table class="col-6">
+				<thead>
+				<th># Policy ID</th>
+				<th>Policy name</th>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of ItemListService.ItemList.items">
+						<td>{{item.itemId}}}</td>
+						<td>{{policy.name}}</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 		<div class="col-12 row p-2 m-2">
 			<div class="col-5">
@@ -48,8 +35,9 @@
 					<h4 [innerHTML]="HTitle"></h4>
 				</div>
 				<div *ngIf="!ShowHighlights" >
-					<h4>{{item.title}}</h4>
-				</div>
+					<h4>{{item.title
+				}}</h4>
+			</div>
 
 				<div class="row w-100 p-0 m-0 border-bottom">
 					<div class="p-1 ml-1 mt-1 font-weight-bold">
@@ -90,8 +78,6 @@
 				
 			</div>
 			<div class="col-5 row">
-				<div *ngIf="ShowHighlights" class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b> 
-				<div [innerHTML]="HAbstract"></div></div>
 				<div class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b>
 				{{item.abstract}}</div>
 
