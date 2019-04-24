@@ -84,7 +84,10 @@ export class ReconcilingItemList
 		public Attributes: ReconcilingCode[] = [];
 		public Items: ReconcilingItem[] = [];
 		public Description: string = '';
-		public Comparison: Comparison = new Comparison();
+		get Comparison(): Comparison {
+			return this._Comparison;
+		}
+		private _Comparison: Comparison = new Comparison();
 		public ShowReviewer3: boolean = false;
 		public Reviewer3Visibility: Visibility = Visibility.Collapsed;
 		public Reviewer1: string = '';
@@ -104,7 +107,7 @@ export class ReconcilingItemList
 	{
 		this.Items = [];
 		this.Attributes = [];
-		this.Comparison = comp;
+		this._Comparison = comp;
 		this.Description = Descr;
 
 		for(let CaSet of Set.attributes)
@@ -155,53 +158,58 @@ export class ReconcilingItemList
 				if (iSet.contactId == this._Comparison.contactId1) {
 					itSetR1 = iSet.itemSetId;
 
-					for(let roia of iSet.itemAttributes)
+					for(let roia of iSet.itemAttributesList)
 					{
-						ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
-						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
+						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
+						if (r0 != null)
+						//this is necessary to avoid trying to add a code that 
+						//belongs to the item, but is coming from a dead branch(a
+						//code for wich one of the parents got deleted) !
 						{//in such situations r0 is null
-							ReconcilingCode r = r0.Clone();
-							r.InfoBox = roia.AdditionalText;
-							r.ArmID = roia.ArmId;
-							r.ArmName = roia.ArmTitle;
-							r1.Add(r);
+							let r: ReconcilingCode = r0.Clone();
+
+							r.InfoBox = roia.additionalText;
+							r.ArmID = roia.armId;
+							r.ArmName = roia.armTitle;
+							r1.push(r);
 						}
 					}
 				}
-				else if (iSet.ContactId == _Comparison.ContactId2) {
-					itSetR2 = iSet.ItemSetId;
-					foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributes)
-					{
-						ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
-						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
-						{//in such situations r0 is null
-							ReconcilingCode r = r0.Clone();
-							r.InfoBox = roia.AdditionalText;
-							r.ArmID = roia.ArmId;
-							r.ArmName = roia.ArmTitle;
-							r2.Add(r);
-						}
-					}
-				}
-				else if (iSet.ContactId == _Comparison.ContactId3) {
-					itSetR3 = iSet.ItemSetId;
-					foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributes)
-					{
-						ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
-						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
-						{//in such situations r0 is null
-							ReconcilingCode r = r0.Clone();
-							r.InfoBox = roia.AdditionalText;
-							r.ArmID = roia.ArmId;
-							r.ArmName = roia.ArmTitle;
-							r3.Add(r);
-						}
-					}
-				}
+				//else if (iSet.ContactId == _Comparison.ContactId2) {
+				//	itSetR2 = iSet.ItemSetId;
+				//	foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributes)
+				//	{
+				//		ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
+				//		if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
+				//		{//in such situations r0 is null
+				//			ReconcilingCode r = r0.Clone();
+				//			r.InfoBox = roia.AdditionalText;
+				//			r.ArmID = roia.ArmId;
+				//			r.ArmName = roia.ArmTitle;
+				//			r2.Add(r);
+				//		}
+				//	}
+				//}
+				//else if (iSet.ContactId == _Comparison.ContactId3) {
+				//	itSetR3 = iSet.ItemSetId;
+				//	foreach(ReadOnlyItemAttribute roia in iSet.ItemAttributes)
+				//	{
+				//		ReconcilingCode r0 = GetReconcilingCodeFromID(roia.AttributeId);
+				//		if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
+				//		{//in such situations r0 is null
+				//			ReconcilingCode r = r0.Clone();
+				//			r.InfoBox = roia.AdditionalText;
+				//			r.ArmID = roia.ArmId;
+				//			r.ArmName = roia.ArmTitle;
+				//			r3.Add(r);
+				//		}
+				//	}
+				//}
+
 			}
 		}
-		this._Items.Add(new ReconcilingItem(item, isCompleted, r1, r2, r3, 
-		CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
+		//this._Items.Add(new ReconcilingItem(item, isCompleted, r1, r2, r3, 
+		//CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
 
 	}
 	
