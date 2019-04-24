@@ -100,9 +100,35 @@ export class ItemCodingService extends BusyAwareService {
         this._BusyMethods.push("SaveItemAttPDFCoding");
         let parser = new DOMParser();
         let xmlDoc = parser.parseFromString(perPageXML, "text/xml");
+        let parsererror = xmlDoc.getElementsByTagName("parsererror")
+        if (parsererror && parsererror.length > 0) {
+            //ugh, some bad chars in here...
+            //perPageXML = perPageXML.replace(/<contents>/g, '<contents><![CDATA[').replace(/<\/contents>/g, ']]><\/contents>').replace('encoding="UTF-8"', 'encoding="UTF-16"')
+            //console.log("sanitised: ", perPageXML);
+            let done = false;
+            let contIndex = 0;
+            while (!done) {
+                contIndex = perPageXML.indexOf("<contents>", contIndex);
+                if (contIndex == -1) {
+                    done = true;
+                }
+                else {
+                    let endIndex = perPageXML.indexOf("</contents>", contIndex);
+                    let toclean = perPageXML.substr(contIndex + 10, endIndex - contIndex - 10);
+                    console.log("toclean: ", toclean, contIndex, endIndex);
+                    let cleaned = encodeURI(toclean);
+                    perPageXML = perPageXML.substr(0, contIndex + 10) + cleaned + perPageXML.substr(endIndex);
+                    contIndex = endIndex;
+                }
+            }
+            console.log("sanitised: ", perPageXML);
+            xmlDoc = parser.parseFromString(perPageXML, "text/xml");
+            
+        }
         let xAnnots = xmlDoc.getElementsByTagName("highlight");
         let defmtx = xmlDoc.getElementsByTagName("defmtx");
         if (!xAnnots || xAnnots.length == 0 || !defmtx || defmtx.length == 0) {
+            console.log("Can't do, missing data:", xAnnots, defmtx, xmlDoc);
             this.RemoveBusy("SaveItemAttPDFCoding");
             return;
         }
@@ -146,102 +172,84 @@ export class ItemCodingService extends BusyAwareService {
             WorkingInPageSel = existing.inPageSelections.slice(0);
             iaPDF.ItemAttributePDFId = existing.itemAttributePDFId;
         }
-        for (let i = 0; i < xAnnots.length; i++) {
-            //build shapes and inpageselections, trying to keep those we can retain (to keep char offsets as in ER4)
-            let xAnn = xAnnots[i];
-            let tronShapeSt = xAnn.getAttribute("coords");
-            if (!tronShapeSt) tronShapeSt = "";
-            let coords = tronShapeSt.split(',');
-            
-
-            while (coords.length != 0) {
-                let removed = coords.splice(0, 8);
-                //order of these is all mixed up because the XML uses the "wrong" kind of coordinates
-                iaPDF.ShapeTxt += "M" + (+removed[0] / 0.75).toFixed(3) + ",";
-                iaPDF.ShapeTxt += (pageSize - (+removed[5] / 0.75)).toFixed(3) + "L";
-                iaPDF.ShapeTxt += (+removed[2] / 0.75).toFixed(3) + ",";
-                iaPDF.ShapeTxt += (pageSize - (+removed[7] / 0.75)).toFixed(3) + "L";
-                iaPDF.ShapeTxt += (+removed[6] / 0.75).toFixed(3) + ",";
-                iaPDF.ShapeTxt += (pageSize - (+removed[1] / 0.75)).toFixed(3) + "L";
-                iaPDF.ShapeTxt += (+removed[4] / 0.75).toFixed(3) + ",";
-                iaPDF.ShapeTxt += (pageSize - (+removed[3] / 0.75)).toFixed(3) + "z";
-
-                //if (currCoord == "x1") {
-                //    currCoord = "y1";
-                //    iaPDF.ShapeTxt += "M" + (+coords[0] / 0.75) + ",";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "y1") {
-                //    currCoord = "x2";
-                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "x2") {
-                //    currCoord = "y2";
-                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "y2") {
-                //    currCoord = "x3";
-                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "x3") {
-                //    currCoord = "y3";
-                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "y3") {
-                //    currCoord = "x4";
-                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "L";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "x4") {
-                //    currCoord = "y4";
-                //    iaPDF.ShapeTxt += (+coords[0] / 0.75) + ",";
-                //    coords.shift();
-                //}
-                //else if (currCoord == "y4") {
-                //    currCoord = "x1";
-                //    iaPDF.ShapeTxt += pageSize - (+coords[0] / 0.75) + "z";
-                //    coords.shift();
-                //}
+        let color: string | null = "";
+        if (xAnnots.length > 0) {
+            color = xAnnots[0].getAttribute("color");
+        }
+        console.log("color, existing: ", color, existing);
+        if (color == "#FF7C06") {
+            //this is the special case where we can't match the shapes with the text, we'll add the XML for speed, but leave the rest untouched.
+            if (existing !== undefined) {
+                //we have the data to save...
+                for (let inPSel of existing.inPageSelections) {
+                    let newinPSel = {
+                        Start: inPSel.start,
+                        End: inPSel.end,
+                        SelTxt: inPSel.selTxt
+                    }
+                    iaPDF.InPageSelections.push(newinPSel);
+                }
+                console.log("special case add XML only: ", iaPDF);
+                iaPDF.ShapeTxt = existing.shapeTxt;
             }
-            
-            let content = xAnn.getElementsByTagName("contents");
-            if (content && content.length > 0
-                && content[0].childNodes
-                && content[0].childNodes.length > 0
-                && content[0].childNodes[0].nodeValue
-            ) {
-                let selt = content[0].childNodes[0].nodeValue;
-                if (existing !== undefined && selt) {
-                    //we'll try to find selections, keep them if they exist.
-                    let exsInPageSels = WorkingInPageSel.filter(found => found.selTxt == selt);
-                    if (exsInPageSels.length == 0 && WorkingInPageSel.length > 0 &&  selt.length > 15) {
-                        //we'll try again, removing spaces
-                        exsInPageSels = existing.inPageSelections.filter(found => selt && found.selTxt.replace(/\s/g, '') == selt.replace(/\s/g, ''));
+        }
+        else {
+            for (let i = 0; i < xAnnots.length; i++) {
+                //build shapes and inpageselections, trying to keep those we can retain (to keep char offsets as in ER4)
+                let xAnn = xAnnots[i];
+                let tronShapeSt = xAnn.getAttribute("coords");
+                if (!tronShapeSt) tronShapeSt = "";
+                let coords = tronShapeSt.split(',');
+
+
+                while (coords.length != 0) {
+                    let removed = coords.splice(0, 8);
+                    //order of these is all mixed up because the XML uses the "wrong" kind of coordinates
+                    iaPDF.ShapeTxt += "M" + (+removed[0] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[5] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[2] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[7] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[6] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[1] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[4] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[3] / 0.75)).toFixed(3) + "z";
+                }
+
+                let content = xAnn.getElementsByTagName("contents");
+                if (content && content.length > 0
+                    && content[0].childNodes
+                    && content[0].childNodes.length > 0
+                    && content[0].childNodes[0].nodeValue
+                ) {
+                    let selt = content[0].childNodes[0].nodeValue;
+                    if (existing !== undefined && selt) {
+                        //we'll try to find selections, keep them if they exist.
+                        let exsInPageSels = WorkingInPageSel.filter(found => found.selTxt == selt);
+                        if (exsInPageSels.length == 0 && WorkingInPageSel.length > 0 && selt.length > 15) {
+                            //we'll try again, removing spaces
+                            exsInPageSels = existing.inPageSelections.filter(found => selt && found.selTxt.replace(/\s/g, '') == selt.replace(/\s/g, ''));
+                        }
+                        if (exsInPageSels.length >= 1) {
+                            //we have 1 or more selections with the same text (go figure), we need to remove one from WorkingInPageSel so not to match it again
+                            let newSel: CSLAInPageSelection = { End: exsInPageSels[0].end, Start: exsInPageSels[0].start, SelTxt: exsInPageSels[0].selTxt };
+                            iaPDF.InPageSelections.push(newSel);
+                            WorkingInPageSel.splice(WorkingInPageSel.indexOf(exsInPageSels[0]), 1);
+                        }
+                        else { //exsInPageSels.length == 0
+                            let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
+                            iaPDF.InPageSelections.push(newSel);
+                        }
                     }
-                    if (exsInPageSels.length >= 1) {
-                        //we have 1 or more selections with the same text (go figure), we need to remove one from WorkingInPageSel so not to match it again
-                        let newSel: CSLAInPageSelection = { End: exsInPageSels[0].end, Start: exsInPageSels[0].start, SelTxt: exsInPageSels[0].selTxt };
-                        iaPDF.InPageSelections.push(newSel);
-                        WorkingInPageSel.splice(WorkingInPageSel.indexOf(exsInPageSels[0]), 1);
-                    }
-                    else { //exsInPageSels.length == 0
+                    else if (selt) {
+                        //this is fresh coding for current page, we can't try to recycle anything.
                         let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
                         iaPDF.InPageSelections.push(newSel);
                     }
+                    else {//uh? can't do much...
+                        console.log("One annotation didn't contain any text!", content[0].childNodes[0]);
+                    }
+
                 }
-                else if (selt) {
-                    //this is fresh coding for current page, we can't try to recycle anything.
-                    let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
-                    iaPDF.InPageSelections.push(newSel);
-                }
-                else {//uh? can't do much...
-                    console.log("One annotation didn't contain any text!", content[0].childNodes[0]);
-                }
-               
             }
         }
         let endpoint = iaPDF.ItemAttributePDFId === 0 ? "api/ItemSetList/CreatePDFCodingPage" : "api/ItemSetList/UpdatePDFCodingPage";

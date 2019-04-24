@@ -43,10 +43,8 @@ export class WebViewerComponent implements AfterViewInit {
         return await this.viewer.nativeElement.querySelector('iframe').PDFNet.ElementReader.create();
     }
     getPDFNet() {
-        let aaa = this.viewer.nativeElement.querySelector('iframe');
-        let bb = this.viewer.nativeElement;
         let something = this.getWindow();
-        let counter: number = 0;
+        //let counter: number = 0;
         //while ((!something) && counter < 3 * 20) {
         //    counter++;
         //    await Helpers.Sleep(200);
