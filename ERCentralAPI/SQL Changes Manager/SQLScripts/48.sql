@@ -1,5 +1,7 @@
-﻿/****** Object:  Table [dbo].[tb_REVIEW_JOB]    Script Date: 2/10/2019 10:01:39 AM ******/
+﻿USE [Reviewer]
+GO
 
+/****** Object:  Table [dbo].[tb_REVIEW_JOB]    Script Date: 2/10/2019 10:01:39 AM ******/
 
 SET ANSI_NULLS ON
 GO
@@ -9,7 +11,7 @@ GO
 
 IF (NOT EXISTS (SELECT * 
                  FROM INFORMATION_SCHEMA.TABLES 
-                 WHERE TABLE_NAME = tb_REVIEW_JOB))
+                 WHERE TABLE_NAME = N'tb_REVIEW_JOB'))
 BEGIN
 
 CREATE TABLE [dbo].[tb_REVIEW_JOB](
@@ -37,35 +39,30 @@ ALTER TABLE [dbo].[tb_REVIEW_JOB] CHECK CONSTRAINT [FK_tb_REVIEW_JOB_TB_REVIEW]
 END -- CREATE TB_REVIEW_JOB
 
 BEGIN TRANSACTION
-SET QUOTED_IDENTIFIER ON
-SET ARITHABORT ON
-SET NUMERIC_ROUNDABORT OFF
-SET CONCAT_NULL_YIELDS_NULL ON
-SET ANSI_NULLS ON
-SET ANSI_PADDING ON
-SET ANSI_WARNINGS ON
-COMMIT
-BEGIN TRANSACTION
 GO
+IF COL_LENGTH('dbo.TB_ITEM', 'SearchText') IS NULL
+begin
+BEGIN TRANSACTION
 ALTER TABLE dbo.TB_ITEM ADD
 	SearchText nvarchar(500) NULL
-GO
+
 ALTER TABLE dbo.TB_ITEM SET (LOCK_ESCALATION = TABLE)
-GO
 COMMIT
-GO
 
 SET ANSI_PADDING ON
-GO
 
 CREATE NONCLUSTERED INDEX [NonClusteredIndex-20190210-225706] ON [dbo].[TB_ITEM]
 (
 	[SearchText] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 
+END
 GO
 
-
+IF (NOT EXISTS (SELECT * 
+                 FROM INFORMATION_SCHEMA.TABLES 
+                 WHERE TABLE_NAME = N'TB_ITEM_TIMEPOINT'))
+begin
 
 CREATE TABLE [dbo].[TB_ITEM_TIMEPOINT](
 	[ITEM_TIMEPOINT_ID] [bigint] IDENTITY(1,1) NOT NULL,
@@ -77,23 +74,29 @@ CREATE TABLE [dbo].[TB_ITEM_TIMEPOINT](
 	[ITEM_TIMEPOINT_ID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-GO
+
 
 ALTER TABLE [dbo].[TB_ITEM_TIMEPOINT]  WITH CHECK ADD  CONSTRAINT [FK_TB_ITEM_TIMEPOINT_TB_ITEM] FOREIGN KEY([ITEM_ID])
 REFERENCES [dbo].[TB_ITEM] ([ITEM_ID])
-GO
+
 
 ALTER TABLE [dbo].[TB_ITEM_TIMEPOINT] CHECK CONSTRAINT [FK_TB_ITEM_TIMEPOINT_TB_ITEM]
-GO
+
 
 ALTER TABLE [dbo].[TB_ITEM_TIMEPOINT]  WITH CHECK ADD  CONSTRAINT [FK_TB_ITEM_TIMEPOINT_TB_ITEM_TIMEPOINT] FOREIGN KEY([ITEM_TIMEPOINT_ID])
 REFERENCES [dbo].[TB_ITEM_TIMEPOINT] ([ITEM_TIMEPOINT_ID])
-GO
 
 ALTER TABLE [dbo].[TB_ITEM_TIMEPOINT] CHECK CONSTRAINT [FK_TB_ITEM_TIMEPOINT_TB_ITEM_TIMEPOINT]
-GO
+end
+go
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemTimepointUpdate]') AND type in (N'P', N'PC'))
+
+DROP PROCEDURE [dbo].[st_ItemTimepointUpdate]
 
 GO
+
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointUpdate]    Script Date: 07/03/2019 13:03:20 ******/
 SET ANSI_NULLS ON
 GO
@@ -118,6 +121,10 @@ SET NOCOUNT ON
 SET NOCOUNT OFF
 
 
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemTimepointList]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemTimepointList]
 GO
 
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointList]    Script Date: 07/03/2019 13:03:18 ******/
@@ -145,6 +152,8 @@ SET NOCOUNT OFF
 
 GO
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemTimepointDelete]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemTimepointDelete]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointDelete]    Script Date: 07/03/2019 13:03:16 ******/
 SET ANSI_NULLS ON
@@ -170,6 +179,11 @@ SET NOCOUNT OFF
 
 
 GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemTimepointCreate]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemTimepointCreate]
+GO
+
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointCreate]    Script Date: 09/03/2019 22:47:48 ******/
 SET ANSI_NULLS ON
 GO
@@ -204,12 +218,17 @@ GO
 
 USE [Reviewer]
 GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_OutcomeItemList]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_OutcomeItemList]
+GO
+
 /****** Object:  StoredProcedure [dbo].[st_OutcomeItemList]    Script Date: 11/03/2019 08:49:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER procedure [dbo].[st_OutcomeItemList]
+create procedure [dbo].[st_OutcomeItemList]
 (
 	@REVIEW_ID INT,
 	@ITEM_SET_ID BIGINT
@@ -247,11 +266,10 @@ left outer join TB_ITEM_ARM arm2 on arm2.ITEM_ARM_ID = TB_ITEM_OUTCOME.ITEM_ARM_
 
 WHERE TB_ITEM_OUTCOME.ITEM_SET_ID = @ITEM_SET_ID
 
-
 SET NOCOUNT OFF
-
-USE [Reviewer]
 GO
+
+
 /****** Object:  StoredProcedure [dbo].[st_OutcomeSingle]    Script Date: 11/03/2019 08:48:03 ******/
 SET ANSI_NULLS ON
 GO
@@ -300,7 +318,7 @@ WHERE TB_ITEM_OUTCOME.OUTCOME_ID = @OUTCOME_ID
 
 SET NOCOUNT OFF
 
-USE [Reviewer]
+
 GO
 /****** Object:  StoredProcedure [dbo].[st_OutcomeItemUpdate]    Script Date: 11/03/2019 10:29:39 ******/
 SET ANSI_NULLS ON
@@ -368,7 +386,7 @@ SET NOCOUNT ON
 
 SET NOCOUNT OFF
 
-USE [Reviewer]
+
 GO
 /****** Object:  StoredProcedure [dbo].[st_OutcomeItemInsert]    Script Date: 11/03/2019 10:29:47 ******/
 SET ANSI_NULLS ON
@@ -467,7 +485,6 @@ SET NOCOUNT ON
 SET NOCOUNT OFF
 
 
-USE [Reviewer]
 GO
 /****** Object:  StoredProcedure [dbo].[st_OutcomeList]    Script Date: 11/03/2019 12:50:34 ******/
 SET ANSI_NULLS ON
@@ -681,8 +698,6 @@ SET NOCOUNT OFF
 
 GO
 
-USE [Reviewer]
-GO
 /****** Object:  StoredProcedure [dbo].[st_ItemArmDelete]    Script Date: 04/04/2019 08:28:38 ******/
 SET ANSI_NULLS ON
 GO
@@ -713,8 +728,6 @@ SET NOCOUNT OFF
 GO
 
 
-USE [Reviewer]
-GO
 /****** Object:  StoredProcedure [dbo].[st_ItemArmDeleteWarning]    Script Date: 04/04/2019 08:26:42 ******/
 SET ANSI_NULLS ON
 GO
@@ -749,7 +762,8 @@ SET NOCOUNT OFF
 
 GO
 
-USE [Reviewer]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemTimepointDeleteWarning]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemTimepointDeleteWarning]
 GO
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointDeleteWarning]    Script Date: 04/04/2019 08:26:42 ******/
 SET ANSI_NULLS ON
