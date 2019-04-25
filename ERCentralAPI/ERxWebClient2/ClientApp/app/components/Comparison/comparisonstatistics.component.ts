@@ -227,7 +227,7 @@ export class ComparisonStatsComp implements OnInit {
 		crit.description = listDescription;
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
-		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		//console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this._ItemListService.FetchWithCrit(crit, listDescription);
 
 	}

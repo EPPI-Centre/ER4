@@ -74,7 +74,7 @@ export class ItemListService extends BusyAwareService {
         ) {
             crit.pageSize = this._ItemList.pagesize;
         }
-        console.log("FetchWithCrit", this._Criteria.listType);
+       // console.log("FetchWithCrit", this._Criteria.listType);
         this.ListDescription = listDescription;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(
@@ -82,7 +82,7 @@ export class ItemListService extends BusyAwareService {
 					this._Criteria.totalItems = this.ItemList.totalItemCount;
 					console.log();
 					this.SaveItems(list, this._Criteria);
-					console.log(JSON.stringify(this.ItemList.items[0]));
+					//console.log(JSON.stringify(this.ItemList.items[0]));
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
@@ -411,7 +411,7 @@ export class ItemListService extends BusyAwareService {
         for (let Itm of this.SelectedItems) {
             res += ItemListService.ExportItemToRIS(Itm);
         }
-        console.log("SelectedItemsToRIStext", res);
+        //console.log("SelectedItemsToRIStext", res);
         return res;
     }
 

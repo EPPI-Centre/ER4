@@ -4,40 +4,38 @@
 		Close/back
 	</button>
 	<form class="row">
-		<div class="col-12 row">
+		<div  class="col-12 row">
 			<h1>Comparison Reconciliation</h1>
 			<div class="col-6">
-				<!--<div *ngFor="let item of ItemListService.ItemList.items">
-					{{item.itemId}}
-				</div>
 
-				<div>
-					{{item.title}}
-				</div>
-
-			</div>
-			<table class="col-6">
-				<thead>
-				<th># Policy ID</th>
-				<th>Policy name</th>
+			<table class="col-6" *ngIf="localList.Items" >
+				<thead>	
+					<tr>
+						<th> ITEM ID</th>
+						<th>CodesReviewer1</th>
+						<th>CodesReviewer2</th>
+						<th>CodesReviewer3</th>
+					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let item of ItemListService.ItemList.items">
-						<td>{{item.itemId}}}</td>
-						<td>{{policy.name}}</td>
+					<tr 
+						*ngFor="let recon of localList.Items">
+						<td>2345634</td>
+						<td>{{recon.CodesReviewer1}}</td>
+						<td>{{recon.CodesReviewer2}}</td>
+						<td>{{recon.CodesReviewer3}}</td>
 					</tr>
 				</tbody>
-			</table>-->
+			</table>
 			</div>
 		</div>
-		<div class="col-12 row p-2 m-2">
+		<div *ngIf="item" class="col-12 row p-2 m-2">
 			<div class="col-5">
-				<div *ngIf="ShowHighlights" >
+				<div  >
 					<h4 [innerHTML]="HTitle"></h4>
 				</div>
-				<div *ngIf="!ShowHighlights" >
-					<h4>{{item.title
-				}}</h4>
+				<div  >
+					<h4>{{item.title}}</h4>
 			</div>
 
 				<div class="row w-100 p-0 m-0 border-bottom">

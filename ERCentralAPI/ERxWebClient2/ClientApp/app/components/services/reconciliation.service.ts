@@ -6,6 +6,7 @@ import { ComparisonsService, Comparison } from './comparisons.service';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
+import { ignoreElements } from 'rxjs/operators';
 
 @Injectable({
 
@@ -24,57 +25,37 @@ export class ReconciliationService extends BusyAwareService {
         super();
     }
 
-	//private _ClassifierModelList: ClassifierModel[] = [];
-	////@Output() searchesChanged = new EventEmitter();
-	////public crit: CriteriaSearch = new CriteriaSearch();
-	//public searchToBeDeleted: string = '';//WHY string?
+	FetchItemSetList(ItemIDCrit: number): Promise<ItemSet[]> {
 
-	//public get ClassifierModelList(): ClassifierModel[] {
+		this._BusyMethods.push("FetchItemSetList");
 
-	//	return this._ClassifierModelList;
+		let body = JSON.stringify({ Value: ItemIDCrit });
 
-	//}
+		return this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
+			)
+			.toPromise().then(
 
-	//public set ClassifierModelList(models: ClassifierModel[]) {
+			(res) => {
 
-	//	this._ClassifierModelList = models;
-	//}
+				console.log('Inside the API we have: ' + res);
 
-	//Fetch() {
-
-	//	this._BusyMethods.push("Fetch");
-
-	//	this._httpC.get<any>(this._baseUrl + 'api/Classifier/GetClassifierModelList',
-	//	)
-	//		.subscribe(result => {
-
-	//			this.ClassifierModelList = result;
-	//			console.log(result)
-	//		},
-	//			error => {
-	//				this.modalService.GenericError(error);
- //                   this.RemoveBusy("Fetch");
-	//			}
-	//			, () => {
-	//				this.RemoveBusy("Fetch");
-	//			}
-	//		);
-
-	//}
+				return res;
+			}
+		);
+	}
 
 	ngOnInit() {
-
-		
+				
 	}
 	
 }
 
-
 enum Visibility {
+
 	Visible = 0,
 	Collapsed = 1
-}
 
+}
 export class ReconcilingItemList {
 
 	private _Attributes: ReconcilingCode[] = [];
@@ -99,15 +80,25 @@ export class ReconcilingItemList {
 		return null;
 	}
 
-	public ReconcilingItemList(Set: ReviewSet, comp: Comparison, Descr: string) {
+	constructor(Set: ReviewSet, comp: Comparison, Descr: string) {
 		this._Items = [];
 		this._Attributes = [];
 		this._Comparison = comp;
 		this.Description = Descr;
 
-		for (let CaSet of Set.attributes) {
-			this.buildToPasteFlatUnsortedList(CaSet, "");
+		//console.log('got inside the constructor: ', Set.attributes.length);
+		if (Set != null && Set != undefined ) {
+
+			if (Set.attributes != null && Set.attributes.length > 0) {
+
+				for (let CaSet of Set.attributes) {
+					this.buildToPasteFlatUnsortedList(CaSet, "");
+				}
+
+				}
+
 		}
+
 	}
 
 	private buildToPasteFlatUnsortedList(aSet: SetAttribute, path: string): any {//this is recursive!!
@@ -115,16 +106,29 @@ export class ReconcilingItemList {
 		let astp: ReconcilingCode = new ReconcilingCode(aSet.attribute_id,
 			aSet.attributeSetId, aSet.attribute_name, path);
 
+		//console.log(' Inside buildToPasteFlatUnsortedList ');
+
 		this._Attributes.push(astp);
+		//console.log(JSON.stringify(astp));
+
 		for (let CaSet of aSet.attributes) {
+
 			this.buildToPasteFlatUnsortedList(CaSet, path + "<¬sep¬>" + aSet.attribute_name);
 		}
+		
+
 	}
 
-
 	public AddItem(item: Item, itemSetList: ItemSet[]): any {
+
+		//console.log(this._Comparison);
+		//console.log(itemSetList);
+		//console.log(itemSetList.length);
+		//console.log('got here number 1');
+
 		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return;
 
+		console.log('got here 2');
 		let isCompleted: boolean = false;
 		let CompletedBy: string = "";
 		let CompletedByID: number = 0;
@@ -134,9 +138,9 @@ export class ReconcilingItemList {
 		let r3: ReconcilingCode[] = [];
 
 		let itSetR1: number = -1, itSetR2: number = -1, itSetR3: number = -1;
-
-
+		console.log('got here 3');
 		for (let iSet of itemSetList) {
+			console.log('got here 4');
 			if (iSet.setId != this.Comparison.setId) continue;
 			else {
 
@@ -203,13 +207,13 @@ export class ReconcilingItemList {
 
 			}
 		}
+		console.log('got here 3');
 		this._Items.push(new ReconcilingItem(item, isCompleted, r1, r2, r3,
 			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
-
+		console.log('hence we have: ' + this._Items.length);
 	}
 
 }
-
 export class ReconcilingCode {
 
 	private _ID: number = 0;
@@ -281,7 +285,6 @@ export class ReconcilingCode {
 		return res;
 	}
 }
-
 export class ReconcilingItem {
 
 
