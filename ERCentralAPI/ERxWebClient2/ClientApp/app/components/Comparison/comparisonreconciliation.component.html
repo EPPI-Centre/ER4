@@ -1,33 +1,40 @@
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary ">
-	<button class="btn-info pull-right col-md-3" 
+	<button class="btn-info pull-right col-md-2" 
 			(click)="BackToMain()">
 		Close/back
 	</button>
-	<form class="row">
-		<div  class="col-12 row">
-			<h1>Comparison Reconciliation</h1>
-			<div class="col-6">
+	<form class="row card">
+		<div  class="col-12 row card-deck bg-light">
+			<h3>Comparison Reconciliation</h3>
+			
 
-			<table class="col-6" *ngIf="localList.Items" >
+			<table class="col-12 table table-bordered table-striped" *ngIf="localList.Items" >
 				<thead>	
 					<tr>
 						<th> ITEM ID</th>
-						<th>CodesReviewer1</th>
-						<th>CodesReviewer2</th>
-						<th>CodesReviewer3</th>
+						<th> Short Title</th>
+						<th>{{CurrentComparison.contactName1}}</th>
+						<th>{{CurrentComparison.contactName2}}</th>
+						<th>{{CurrentComparison.contactName3}}</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr 
-						*ngFor="let recon of localList.Items">
-						<td>2345634</td>
-						<td>{{recon.CodesReviewer1}}</td>
-						<td>{{recon.CodesReviewer2}}</td>
-						<td>{{recon.CodesReviewer3}}</td>
+					<tr *ngFor="let recon of localList.Items; let i = index">
+						<td>{{recon.Item.itemId}}</td>
+						<td>{{recon.Item.shortTitle}}</td>
+						<td>
+							<span>
+								{{recon.CodesReviewer1[i].Name}}
+								<!--{{recon.CodesReviewer1[i].Name}}-->
+							</span>
+						</td>
+						
+						<td>blaj </td>
+						<td>blah</td>
 					</tr>
 				</tbody>
 			</table>
-			</div>
+			
 		</div>
 		<div *ngIf="item" class="col-12 row p-2 m-2">
 			<div class="col-5">

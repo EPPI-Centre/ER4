@@ -128,13 +128,13 @@ export class ComparisonStatsComp implements OnInit {
 		}
 
 	}
+
 	LoadReconciliation(comparisonId: number, subtype: string) {
 		for (let item of this._comparisonsService.Comparisons) {
 			if (item.comparisonId == comparisonId) {
+
 				this.ListSubType = subtype;
-				this.LoadComparisons(item, this.ListSubType);
-				
-				this.GoToReconcile();
+				this.LoadComparisonsWithPromise(item, this.ListSubType);
 			}
 		}
 	}
@@ -227,9 +227,37 @@ export class ComparisonStatsComp implements OnInit {
 		crit.description = listDescription;
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
-		//console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		crit.setId = comparison.setId;
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this._ItemListService.FetchWithCrit(crit, listDescription);
+		console.log('checking: ' + JSON.stringify(this._ItemListService.ItemList.items.length));
+	}
+	public LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
 
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		crit.setId = comparison.setId;
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		this._ItemListService.FetchWithItems(crit, listDescription).then(
+
+			(res: any) => {
+
+				console.log(JSON.stringify(res.length));
+				this.GoToReconcile();
+			}
+			
+			);
 	}
 	public RefreshData() {
 

@@ -3,7 +3,7 @@ import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSe
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
-import { ItemListService, Item } from '../services/ItemList.service';
+import { ItemListService, Item, Criteria } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { Review } from '../services/review.service';
@@ -21,10 +21,10 @@ export class ComparisonReconciliationComp implements OnInit {
 		private router: Router, 
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewInfoService: ReviewInfoService,
-		private ItemListService: ItemListService,
-		private comparisonsService: ComparisonsService,
-		private itemCodingService: ItemCodingService,
-		private reconciliationService: ReconciliationService
+		private _ItemListService: ItemListService,
+		private _comparisonsService: ComparisonsService,
+		private _itemCodingService: ItemCodingService,
+		private _reconciliationService: ReconciliationService
 	) { }
 
 	private ComparisonDescription: string = '';
@@ -56,61 +56,102 @@ export class ComparisonReconciliationComp implements OnInit {
 	clearChosenFilter() {
 		this.chosenFilter = null;
 	}
+	public LoadComparisons(comparison: Comparison, ListSubType: string) {
 
-	public RefreshData() {
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
 
-		console.log('About to refresh the data...');
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		console.log('checking: ' + listDescription);
+
+		this._ItemListService.FetchWithCrit(crit, listDescription);
+
+		console.log('length of item list for this page: ' + this._ItemListService.ItemList.items.length);
+		this.item = this._ItemListService.ItemList.items[0];
+	}
+	getReconciliations() {
 
 		if (this.item != null && this.item != undefined) {
 
 			// Fill with dummy reference data for viewing the reference information
-			this.item = this.ItemListService.ItemList.items[0];
-			this.CurrentComparison = this.comparisonsService.currentComparison;
-			//console.log(' current comparison: ' + JSON.stringify(this.CurrentComparison));
+			this.item = this._ItemListService.ItemList.items[0];
+			this.CurrentComparison = this._comparisonsService.currentComparison;
+			
 			this.ReviewSet = this._reviewSetsService.GetReviewSets().filter(
 				x => x.set_id == this.CurrentComparison.setId)[0];
 			//console.log(' current review Set: ' + JSON.stringify(this.ReviewSet));
 
 
 			// fill the reconciliation list accordingly
-			let testLocalList: any = new ReconcilingItemList(this.ReviewSet,
+			this.localList = new ReconcilingItemList(this.ReviewSet,
 				this.CurrentComparison, "testing right now");
 
-		
+			console.log(' current comparison inside localist: ' + JSON.stringify(this.localList.Comparison));
+
 			//1 -> So i need to do a command to call an ItemSetList thingy
 			let ItemSetListTest: ItemSet[] = [];
 
-			this.reconciliationService.FetchItemSetList(this.item.itemId)
+			this._reconciliationService.FetchItemSetList(this.item.itemId)
 
 				.then(
-						(res: ItemSet[]) => {
+					(res: ItemSet[]) => {
 
-							ItemSetListTest = res;
-							//console.log('test item set list: '
-							//	+ ItemSetListTest.length);
+						ItemSetListTest = res;
+						//
+						//2 -> So I then need to fill the above locallist.
+						for (var i = 0; i < ItemSetListTest.length; i++) {
+
+							console.log('a count on how many times we are adding an item: ' +
+								JSON.stringify(ItemSetListTest[i]));
+
 						}
+
+						for (var i = 0; i < this._ItemListService.ItemList.items.length; i++) {
+
+							// this needs to be a new itemSetList each time by calling the arms below
+							// needs to loop and be async await....
+							this.localList.AddItem(this._ItemListService.ItemList.items[i], ItemSetListTest);
+						}
+					}
 				);
-
-			//2 -> So I then need to fill the above locallist.
-			for (var i = 0; i < this.ItemListService.ItemList.items.length; i++) {
 			
-				this.localList.AddItem(this.ItemListService.ItemList.items[i], ItemSetListTest);
-			}	
 
-
-			console.log('We have here: ' + this.localList.Items.length );
+			console.log('We have here: ' + this.localList.Items.length);
 
 			//3 -> Then I need to get the arm list
 			//GetItemArmList(items[CurrentItem]);
 
-			console.log('number of locallist items are: ', testLocalList.length)
+			//console.log('number of locallist items are: ', testLocalList.length)
 
 		}
+	}
+
+	public RefreshData() {
+
+
+		//alert('got here without rerouting' );
+
+		this.getReconciliations();
+
+		//console.log('About to refresh the data...' + JSON.stringify(this._ItemListService.ItemList.items[0]));
 
 	}
 
 	ngOnInit() {
 		console.log('Initialising...');
+		this.item = this._ItemListService.ItemList.items[0];
+
 		this.RefreshData();
 	}
 	BackToMain() {

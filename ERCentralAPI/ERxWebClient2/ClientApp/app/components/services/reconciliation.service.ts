@@ -37,7 +37,7 @@ export class ReconciliationService extends BusyAwareService {
 
 			(res) => {
 
-				console.log('Inside the API we have: ' + res);
+				console.log('Inside the API we have: ' + JSON.stringify(res));
 
 				return res;
 			}
@@ -95,7 +95,7 @@ export class ReconcilingItemList {
 					this.buildToPasteFlatUnsortedList(CaSet, "");
 				}
 
-				}
+			}
 
 		}
 
@@ -121,9 +121,9 @@ export class ReconcilingItemList {
 
 	public AddItem(item: Item, itemSetList: ItemSet[]): any {
 
-		//console.log(this._Comparison);
-		//console.log(itemSetList);
-		//console.log(itemSetList.length);
+		//console.log(JSON.stringify(this._Comparison) + '\n');
+		//console.log(itemSetList + '\n');
+		//console.log(itemSetList.length + '\n');
 		//console.log('got here number 1');
 
 		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return;
@@ -140,7 +140,8 @@ export class ReconcilingItemList {
 		let itSetR1: number = -1, itSetR2: number = -1, itSetR3: number = -1;
 		console.log('got here 3');
 		for (let iSet of itemSetList) {
-			console.log('got here 4');
+			console.log('got here 4 setID: ' + iSet.setId);
+			console.log('got here 4 comparison: ' + JSON.stringify(this.Comparison));
 			if (iSet.setId != this.Comparison.setId) continue;
 			else {
 
@@ -153,8 +154,9 @@ export class ReconcilingItemList {
 
 				if (iSet.contactId == this._Comparison.contactId1) {
 					itSetR1 = iSet.itemSetId;
-
+					console.log('got here 5');
 					for (let roia of iSet.itemAttributesList) {
+						console.log('got here 6');
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)
 						//this is necessary to avoid trying to add a code that 
@@ -171,12 +173,12 @@ export class ReconcilingItemList {
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId2) {
-
+					console.log('got here 7');
 					itSetR2 = iSet.itemSetId;
 
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.itemAttributeId);
-
+						console.log('got here 8');
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
 							let r: ReconcilingCode = r0.Clone();
@@ -188,13 +190,13 @@ export class ReconcilingItemList {
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId3) {
-
+					console.log('got here 9');
 					itSetR3 = iSet.itemSetId;
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
-
+							console.log('got here 10');
 							let r = r0.Clone();
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
@@ -207,10 +209,13 @@ export class ReconcilingItemList {
 
 			}
 		}
-		console.log('got here 3');
+		
 		this._Items.push(new ReconcilingItem(item, isCompleted, r1, r2, r3,
 			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
-		console.log('hence we have: ' + this._Items.length);
+		for (var i = 0; i < r1.length; i++) {
+			console.log('hence we have: ' + JSON.stringify(r1[i]) + '\n');
+		}
+		
 	}
 
 }
@@ -289,7 +294,7 @@ export class ReconcilingItem {
 
 
 	private _Item: Item = new Item();
-	get item(): Item { return this._Item; }
+	get Item(): Item { return this._Item; }
 
 	private _IsCompleted: boolean = false;
 	get IsCompleted(): boolean { return this._IsCompleted; }
