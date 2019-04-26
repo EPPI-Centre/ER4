@@ -29,6 +29,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     public sub: Subscription | null = null;
     public ShowUpload: boolean = false;
     @Input() itemID: number = 0;
+    @Input() ShowViewButton: boolean = true;
     public get HasWriteRights(): boolean {
         return this.itemID != 0 && this.ReviewerIdentityServ.HasWriteRights;
     }

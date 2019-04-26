@@ -68,27 +68,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
-                        MVCcmd.saveType
-                        , MVCcmd.itemAttributeId
-                        , MVCcmd.itemSetId
-                        , MVCcmd.additionalText
-                        , MVCcmd.attributeId
-                        , MVCcmd.setId
-                        , MVCcmd.itemId
-                        , MVCcmd.itemArmId
-                        , MVCcmd.revInfo.ToCSLAReviewInfo()
-                        //,rinf
-                        );
-                    DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
-                    cmd = dp.Execute(cmd);
-                    MVCcmd.additionalText = cmd.AdditionalText;
-                    MVCcmd.attributeId = cmd.AttributeId;
-                    MVCcmd.itemArmId = cmd.ItemArmId;
-                    MVCcmd.itemAttributeId = cmd.ItemAttributeId;
-                    MVCcmd.itemId = cmd.ItemId;
-                    MVCcmd.itemSetId = cmd.ItemSetId;
-                    MVCcmd.setId = cmd.SetId;
+                    MVCcmd = InternalExcecuteItemAttributeSaveCommand(MVCcmd);
                     return Ok(MVCcmd);
                 }
                 else return Forbid();
@@ -100,6 +80,31 @@ namespace ERxWebClient2.Controllers
                 _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
                 throw;
             }
+        }
+        private MVCItemAttributeSaveCommand InternalExcecuteItemAttributeSaveCommand(MVCItemAttributeSaveCommand MVCcmd)
+        {
+            ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
+                        MVCcmd.saveType
+                        , MVCcmd.itemAttributeId
+                        , MVCcmd.itemSetId
+                        , MVCcmd.additionalText
+                        , MVCcmd.attributeId
+                        , MVCcmd.setId
+                        , MVCcmd.itemId
+                        , MVCcmd.itemArmId
+                        , MVCcmd.revInfo.ToCSLAReviewInfo()
+                        //,rinf
+                        );
+            DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
+            cmd = dp.Execute(cmd);
+            MVCcmd.additionalText = cmd.AdditionalText;
+            MVCcmd.attributeId = cmd.AttributeId;
+            MVCcmd.itemArmId = cmd.ItemArmId;
+            MVCcmd.itemAttributeId = cmd.ItemAttributeId;
+            MVCcmd.itemId = cmd.ItemId;
+            MVCcmd.itemSetId = cmd.ItemSetId;
+            MVCcmd.setId = cmd.SetId;
+            return MVCcmd;
         }
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkInsertCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
@@ -183,6 +188,16 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     ItemAttributePDF ToSave = ItemAttributePDF.GetNewItemAttributePDF(MVCcodingInPage.Page);
+                    //first of all, see if we need to create ItemAttribute and ItemSet 
+                    if (MVCcodingInPage.CreateInfo != null)
+                    {
+                        //we'll execute an ItemAttributeSaveCommand first, then use this to fill-in the details needed on client side
+                        //ItemAttribute and ItemSet records and IDS get created as needed in here.
+                        MVCcodingInPage.CreateInfo = InternalExcecuteItemAttributeSaveCommand(MVCcodingInPage.CreateInfo);
+                        MVCcodingInPage.ItemAttributeId = MVCcodingInPage.CreateInfo.itemAttributeId;
+                    }
+
+
                     ToSave.ItemAttributeId = MVCcodingInPage.ItemAttributeId;
                     ToSave.ItemDocumentId = MVCcodingInPage.ItemDocumentId;
                     ToSave.ShapeTxt = MVCcodingInPage.ShapeTxt;
@@ -194,7 +209,10 @@ namespace ERxWebClient2.Controllers
                     }
                     DataPortal<ItemAttributePDF> dp2 = new DataPortal<ItemAttributePDF>();
                     ToSave = dp2.Update(ToSave);
-                    return Ok(ToSave);
+                    CreatePDFCodingPageResult result = new CreatePDFCodingPageResult();
+                    result.createInfo = MVCcodingInPage.CreateInfo;
+                    result.iaPDFpage = ToSave;
+                    return Ok(result);
                     
                 }
                 else return Forbid();
@@ -268,7 +286,11 @@ namespace ERxWebClient2.Controllers
                         ToSave.inPageSelections = CslaInpsels;
                         DataPortal<ItemAttributePDF> dp2 = new DataPortal<ItemAttributePDF>();
                         ToSave = dp2.Update(ToSave);
-                        return Ok(ToSave);
+                        CreatePDFCodingPageResult result = new CreatePDFCodingPageResult();
+                        result.createInfo = MVCcodingInPage.CreateInfo;
+                        result.iaPDFpage = ToSave;
+                        return Ok(result);
+                        //return Ok(ToSave);
                     }
                     else return NotFound();
                 }
@@ -391,5 +413,11 @@ namespace ERxWebClient2.Controllers
         public InPageSelections[] InPageSelections;
         public int Page;
         public string PdfTronXml;
+        public MVCItemAttributeSaveCommand CreateInfo;
+    }
+    public class CreatePDFCodingPageResult
+    {
+        public MVCItemAttributeSaveCommand createInfo;
+        public ItemAttributePDF iaPDFpage;
     }
 }

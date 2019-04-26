@@ -276,9 +276,13 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
                 const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(att);
                 console.log("we might need to fetch PDF coding", ROatt);
                 if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
-                else this.ItemCodingService.ClearItemAttPDFCoding();
+                else {
+                    this.ItemCodingService.ClearItemAttPDFCoding();
+                }
             }
-            else this.ItemCodingService.ClearItemAttPDFCoding();
+            else {
+                this.ItemCodingService.ClearItemAttPDFCoding();
+            }
         } else {
             this.ItemCodingService.ClearItemAttPDFCoding();
             this.ItemCodingService.SelectedSetAttribute = null;//remove selection, PDF should not load highlights.

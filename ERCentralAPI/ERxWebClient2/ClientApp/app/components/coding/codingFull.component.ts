@@ -94,8 +94,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return false;
     }
 
-    public get IsPDFtabSelected(): boolean {
-        return (this.HelpAndFeebackContext == "itemdetails\\pdf");
+    public get ShouldFetchPDFCoding(): boolean {//tells the tree component whether we should go fetch the PDF coding details...
+        if (this.HelpAndFeebackContext == "itemdetails\\pdf") return true;
+        else if (this.ItemDocsService._itemDocs.filter(found => found.itemDocumentId == this.ItemDocsService.CurrentDocId).length > 0) return true;
+        else return false;
     }
     public IsServiceBusy4PDF(): boolean {
         if (this.ItemCodingService.IsBusy
@@ -391,43 +393,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //update local version of the coding...
             
             if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
-                let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
-                newItemA.additionalText = cmdResult.additionalText;
-                newItemA.armId = cmdResult.itemArmId;
-                newItemA.armTitle = "";
-                newItemA.attributeId = cmdResult.attributeId;
-                newItemA.itemAttributeId = cmdResult.itemAttributeId;
-                if (itemSet) itemSet.itemAttributesList.push(newItemA);
-                else {//didn't have the itemSet, so need to create it...
-                    let newItemSet: ItemSet = new ItemSet();
-                    newItemSet.contactId = this.ReviewerIdentityServ.reviewerIdentity.userId;
-                    newItemSet.contactName = this.ReviewerIdentityServ.reviewerIdentity.name; 
-                    let setDest = this.ReviewSetsService.FindSetById(cmd.setId);
-                    if (setDest) {
-                        newItemSet.isCompleted = setDest.codingIsFinal;
-                        newItemSet.setName = setDest.set_name;
-                    }
-                    newItemSet.isLocked = false;
-                    newItemSet.itemId = cmdResult.itemId;
-                    newItemSet.itemSetId = cmdResult.itemSetId;
-                    newItemSet.setId = cmdResult.setId;
-                    newItemSet.itemAttributesList.push(newItemA);
-                    this.ItemCodingService.ItemCodingList.push(newItemSet);
-                }
+                this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
+                //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
             }
             else if (cmd.saveType == "Delete") {
-                
+                this.ItemCodingService.ApplyDeleteItemAttribute(itemSet, itemAtt);
                 //if (itemSet) console.log(itemSet.itemAttributesList.length);
                 //if (itemAtt) console.log(itemAtt.attributeId);
-                if (itemSet && itemAtt) {
-                    //remove the itemAttribute from itemSet
-                    itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
-                    if (itemSet.itemAttributesList.length == 0) {
-                        //if itemset does not have item attributes, remove the itemset
-                        this.ItemCodingService.ItemCodingList = this.ItemCodingService.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
-                    }
-                    //if (itemSet) console.log(itemSet.itemAttributesList.length);
-                }
             }
             
             this.SetCoding();

@@ -1,10 +1,15 @@
-﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input } from '@angular/core';
 import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ItemCodingService, InPageSelection, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
+import { ItemCodingService, InPageSelection, ItemAttPDFCodingCrit, ItemSet } from '../services/ItemCoding.service';
 import { Console } from '@angular/core/src/console';
+import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
+import { ArmsService } from '../services/arms.service';
+import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewSets.service';
+import { Item } from '../services/ItemList.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 declare const PDFTron: any;
 //declare const PDFNet: any; 
@@ -17,10 +22,14 @@ declare let licenseKey: string;
 export class PdfTronContainer implements OnInit, AfterViewInit {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
         private ItemDocsService: ItemDocsService,
-        private ItemCodingService: ItemCodingService
+        private ItemCodingService: ItemCodingService,
+        private armsService: ArmsService,
+        private ReviewSetsService: ReviewSetsService,
+        private ReviewInfoService: ReviewInfoService
     ) { }
     
     @ViewChild(WebViewerComponent) private webviewer!: WebViewerComponent;
+    @Input() ItemID: number = 0;
     private viewerInstance: any;
     private docViewer: any;
     private annotManager: any;
@@ -152,7 +161,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             else this.ItemCodingService.ClearItemAttPDFCoding();
         }
         else {
-            console.log("wvDocumentLoadedHandler3 don't know why I'm here:",
+            console.log("wvDocumentLoadedHandler3 nothing to do (docId, crit.docId, selected attId):",
                 this.ItemDocsService.CurrentDocId,
                 this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId,
                 this.ItemCodingService.SelectedSetAttribute
@@ -185,10 +194,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         console.log("buildHighlights");
         let AllInputShapes: string[] = []; //will receive one string per page...
         let AllContinuousSelections: TextWithShapes[] = [];
-        let docViewer: any = null;
-        if (this.viewerInstance) docViewer = this.viewerInstance.docViewer;
-        if (!docViewer) return;
-        var GenDoc = docViewer.getDocument();
+        
+        if (!this.docViewer) return;
+        var GenDoc = this.docViewer.getDocument();
         if (!GenDoc) return;
         let doc = await GenDoc.getPDFDoc();
         
@@ -198,41 +206,34 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         //console.log("PDFNet", this.PDFnet);
 
         if (this.annotManager) {
-            //let Pn = GenDoc.getPageCount() - 1;
-            //if (Pn > -1) {
-            //    for (let i = 0; i < Pn; i++) {
-            //        await this.annotManager.drawAnnotations(i);
-            //    }
-            //}
-            await this.deleteAnnotations(this.annotManager, Annotations);
-            //await Helpers.Sleep(400);
-            //this.deleteAnnotations(this.annotManager, Annotations);
+            await this.deleteAnnotations(this.annotManager, Annotations);//deletes Highlight annotations only. Handles AvoidHandlingAnnotationChanges on its own.
         }
         this.AvoidHandlingAnnotationChanges = true;
 
         //what we need is:
+        //if we have an XML description of the annotations, use that, otherwise
         //create highlights based on the text, so that shapes "know" what text they belong to.
-        //First bit is to cycle through let RectsA = rectSt0.split("zM");
-        //for (let rectSt of RectsA) {...}
-        //for each rectangle, find the corresponding string, get an arr of "selectedTxt" with its shape strings and a (now) empty field for the annotation.
-        //create one annotation per element in Arr, put it into the element, show the annotation.
-
-        //let's start by creating one TextWithShapes obj for each "sel.inPageSelections[0].selTxt"
         
         
         
+        //if we have data, show it. Otherwise we've already deleted any old highlight...
         if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0) {
             for (let sel of this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
-                let HasDataToSave: boolean = false;
-                //from the DB, we get one ItemAttPDFCoding per page!
-
+                let HasDataToSave: boolean = false;//this is used to figure out whether we're creating new annotations when only ER4 is present
+                
                 if (sel.pdfTronXml !== "") {//if we have the XML for this page, we build the annotations from that...
                     //build the annotations from XML, we'll use the XML itself to create the ER-proper data when saving changes.
-                    console.log("We have the XML annotation");
+                    //console.log("We have the XML annotation");
                     this.annotManager.importAnnotations(sel.pdfTronXml);
                 }
                 //else try to rebuild it...
                 else {
+                    //First bit is to cycle through let RectsA = rectSt0.split("zM");
+                    //for (let rectSt of RectsA) {...}
+                    //for each rectangle, find the corresponding string, get an arr of "selectedTxt" with its shape strings and a (now) empty field for the annotation.
+                    //create one annotation per element in Arr, put it into the element, show the annotation.
+                    //let's start by creating one TextWithShapes obj for each "sel.inPageSelections[0].selTxt"
+
                     AllInputShapes = sel.shapeTxt.substring(3).split("zM");
                     AllContinuousSelections = [];
                     for (let inPsel of sel.inPageSelections) {
@@ -240,23 +241,25 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                         inPageTwS.Page = sel.page;
                         inPageTwS.FullSelectedText = inPsel.selTxt.trim();
                         AllContinuousSelections.push(inPageTwS);
-
                     }
                     //now we want to see which InputShapes belong to what TextWithShapes
                     for (let i = 0; i < AllInputShapes.length; i++) {
                         let quad = TextWithShapes.BuildQuad(AllInputShapes[i]);
-                        console.log("quad s:", quad);
+                        //console.log("quad s:", quad);
                         let PDFpoint1 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x1, quad.y1);
                         let PDFpoint2 = GenDoc.getPDFCoordinates(sel.page - 1, quad.x3, quad.y3);
+                        //we are creating a very short (reduced height) rectangule to avoid finding letters from the rows above and below, hence the /4 operation and +-ydiff.
                         let ydiff = (PDFpoint1.y - PDFpoint2.y) / 4;
                         PDFpoint1.y = PDFpoint1.y - ydiff;
                         PDFpoint2.y = PDFpoint2.y + ydiff;
-                        console.log(PDFpoint1, PDFpoint2);
+                        //console.log(PDFpoint1, PDFpoint2);
                         let rec = await this.PDFnet.Rect.init(PDFpoint2.x, PDFpoint2.y, PDFpoint1.x, PDFpoint1.y);
+
+                        //readTextFromRect(...) uses PDFTron full API to extract text from the shape we've created.
                         let textinSel = (await this.readTextFromRect(sel.page, rec, reader, doc, this.PDFnet)).trim();
-                        console.log("looking for:", textinSel)
+                        //console.log("looking for:", textinSel)
                         let myCurrentSelectIndex = AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1);
-                        console.log("my curr sel ind:", AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1));
+                        //console.log("my curr sel ind:", AllContinuousSelections.findIndex(found => found.FullSelectedText.indexOf(textinSel) != -1));
                         if (myCurrentSelectIndex != -1) {
                             //yay! the text underneath the current shape belongs to AllContinuousSelections[myCurrentSelectIndex]
                             AllContinuousSelections[myCurrentSelectIndex].ShapesStrings.push(AllInputShapes[i]);
@@ -266,9 +269,11 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             continue;
                         }
                         else {
-                            console.log("did not find this string!!!!!!!\n\n Try again...\n\n", textinSel, AllInputShapes[i]);
-                            //replace(/\r\n/g, '<br />')
-                            if (textinSel.length > 6) textinSel = textinSel.substring(1, textinSel.length - 1);
+                            //console.log("did not find this string!!!!!!!\n\n Try again...\n\n", textinSel, AllInputShapes[i]);
+                            //we try again, but this time, full blooded (slower)
+                            //we remove spaces and tabs, and also replace the horrible "double chars" that frequently appear in PDFs.
+                            //if the string is longish, remove first and last char, they sometimes fall without our visual boundaries...
+                            if (textinSel.length > 9) textinSel = textinSel.substring(1, textinSel.length - 1);
                             textinSel = textinSel.replace(/[ \t]/g, '');
                             myCurrentSelectIndex = AllContinuousSelections.findIndex(
                                 found => found.FullSelectedText.replace(/[ \t]/g, '')
@@ -293,7 +298,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             }
                         }
                     }
-                    console.log("done one page, results of step 1:", AllContinuousSelections, AllInputShapes);
+                    //console.log("done one page, results of step 1:", AllContinuousSelections, AllInputShapes);
+                    //AllInputShapes contains ER4 selections that we couldn't match :-(
                     if (AllInputShapes.length > 0) {
                         //something didn't work, if we have only one in AllInputShapes, find the corresponding empty AllContinuousSelections, fill it in and be done with it.
                         if (AllInputShapes.length == 1) {
@@ -305,7 +311,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             }
                         }
                         else {
-                            //find the empty AllContinuousSelections, get rid of them, create a blank new AllContinuousSelection with no text but the shapes.
+                            //can't save this one, page has more than one unrecognised selection.
+                            //find the empty AllContinuousSelections, get rid of all of them, create a blank new AllContinuousSelection with no text but the shapes.
                             for (let i = 0; i < AllContinuousSelections.length;) {
                                 if (AllContinuousSelections[i].ShapesStrings.length == 0) {
                                     AllContinuousSelections.splice(i, 1);
@@ -321,6 +328,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             AllContinuousSelections.push(inPageTwS);
                         }
                     }
+                    //AllContinuousSelections can now be used to create new PDF-native annotations.
                     for (let pSel of AllContinuousSelections) {
 
                         const Highl = new Annotations.TextHighlightAnnotation();
@@ -334,114 +342,52 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                             Highl.StrokeColor = new Annotations.Color(250, 224, 6);
                         }
                         else {
+                            //special colour to signal this page-wide annotation wasn't recognised from ER4 data.
                             Highl.StrokeColor = new Annotations.Color(255, 124, 6);
                         }
 
                         //Highl.$i = new Annotations.Color(247, 247, 227);
 
-                        if (pSel.ShapesStrings.length > 0) {
+                        if (pSel.ShapesStrings.length > 0) {//in the odd case that we don't have ShapesStrings, attempting the below would crash...
                             Highl.Quads = pSel.Quads;
-                            console.log("addAnnotation", Highl);
+                            //console.log("addAnnotation", Highl);
                             //Highl.Custom = "ERx";
                             this.annotManager.addAnnotation(Highl);
+                            //we are adding an annotation based on ER4 selections, so we'll save the resulting XML, to avoid re-doing the above each time a user fetches this data.
                             HasDataToSave = true;
                         }
                         else console.log("broken ann:", Highl);
                     }
-                    await this.annotManager.drawAnnotations(sel.page);
+                    await this.annotManager.drawAnnotations(sel.page);//we can only draw annotations on a per page basis :-(
                 }
                 if (HasDataToSave) {
                     //we have rebuilt the XML from the ER4 annots, let's save it...
                     let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == sel.page);
                     const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
-                    console.log("We'll try to save some changes:", xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                    //console.log("We'll try to save some changes:", xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
                     this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
                 }
-            }
-            //AllContinuousSelections now needs to receive one or more string description for a rectangle.
-            //var iFrame = document.querySelector('iframe');
+            }           
         }
-        this.AvoidHandlingAnnotationChanges = false;
+        this.AvoidHandlingAnnotationChanges = false;//all done! Changes to annotations will now be due to user actions.
     }
 
 
 
-    findShapeFromText(InPgSel: InPageSelection, page:number, doc: any, shapesToMatch: any[],
-        Annotations: any, ViewerInstance: any, annotationManager: any): any {
-        //this is a failed attempt: page indexes are just different :-((((
-        //to make things worse, doc.getTextPosition returns quads on a per-char basis, so we can't compare like for li
-        doc.loadPageText(page-1, function (text: string) {
-            var textStartIndex = 0;
-            var textIndex;
-            var annotations: any[] = [];
-            console.log("Searching...", shapesToMatch, "InPgSel: " + InPgSel.start, InPgSel.end, InPgSel.selTxt);// , "page: " + page, "fullpage: " + text);
-            
-                //console.log("Found text", InPgSel.selTxt, textIndex);
-                
-                // Get text position
-            doc.getTextPosition(Number(page - 1), InPgSel.start, InPgSel.start + InPgSel.selTxt.length, function (quads: any) {
-                    console.log("got the pos:", quads);
-                for (let shapeToMatch of shapesToMatch) {
-                    let minx = Math.min(shapeToMatch.x1, shapeToMatch.x2, shapeToMatch.x3, shapeToMatch.x4);
-                    let maxx = Math.max(shapeToMatch.x1, shapeToMatch.x2, shapeToMatch.x3, shapeToMatch.x4);
-                    let miny = Math.min(shapeToMatch.y1, shapeToMatch.y2, shapeToMatch.y3, shapeToMatch.y4);
-                    let maxy = Math.max(shapeToMatch.y1, shapeToMatch.y2, shapeToMatch.y3, shapeToMatch.y4);
-                    console.log("minMaxes:", minx, miny, maxx, maxy);
-                    let minPindex = quads.findIndex((found: any) => (Math.abs(minx - found.x1) < 0.95 && Math.abs(miny - found.y3) < 1.5));
-                    let maxPindex = quads.findIndex((found: any) => (Math.abs(maxx - found.x1) < 0.95 && Math.abs(maxy - found.y3) < 1.5));
-                    if (minPindex > -1 && maxPindex > -1)
-                        //if (Math.abs(shapeToMatch.x1 - quads[0].x1) < 0.95
-                        //    //&& Math.abs(shapeToMatch.x3 - quads[quads.length - 1].x3) < 0.95
-                        //    //&& Math.abs(shapeToMatch.y1 - quads[0].y3) < 1.5
-                        //    //&& Math.abs(shapeToMatch.y3 - quads[quads.length - 1].y1) < 1.5
-                        //)
-                        {
-                            console.log("We found a match for ", shapeToMatch);
-                            var annotation = new Annotations.TextHighlightAnnotation();
-                            annotation.Author = ViewerInstance.getAnnotationUser();
-                            annotation.PageNumber = page;
-                            annotation.Quads = [shapeToMatch];
-                            annotation.StrokeColor = new Annotations.Color(250, 224, 6);
-                            annotations.push(annotation);
-                            break;
-                        }
-                    }
-
-
-                    //this doesn't work, the quads are one per letter, not the whole selection :-(
-                    //for (let foundQ of quads) {
-                    //    let foundIndex = shapesToMatch.findIndex((found) => (Math.abs(found.x1 - foundQ.x1) < 0.1 && Math.abs(found.y3 - foundQ.y3) < 0.1)) ;
-                    //    if (foundIndex > -1) {
-                    //        console.log("Quad was found:", foundQ);
-                    //        var annotation = new Annotations.TextHighlightAnnotation();
-                    //        annotation.Author = ViewerInstance.getAnnotationUser();
-                    //        annotation.PageNumber = page;
-                    //        annotation.Quads = quads;
-                    //        annotation.StrokeColor = new Annotations.Color(250, 224, 6);
-                    //        annotations.push(annotation);
-                    //    }
-                    //}
-                    
-                });
-            
-            annotationManager.addAnnotations(annotations);
-            //annotationManager.selectAnnotations(annotations);
-        });
-    }
-
-
+    
+    //this method is called often: any time we need to show a different set of highlights...
+    //despite the name, it only deletes annotations of type "Highlight":
+    //it will remove any (PDF-native) Highlight that was present in the uploaded PDF.
+    //such highlights will be shown if the user "Downloads" it, though.
     private async deleteAnnotations(annotManager: any, Annotations: any) {
         console.log("deleteAnnotations");
-
         this.AvoidHandlingAnnotationChanges = true;
         
         let Annots: any[] = annotManager.getAnnotationsList();
-        await annotManager.drawAnnotationsFromList(Annots);
-        Annots = annotManager.getAnnotationsList();
+        
         //if (Annots) console.log("Annots to delete:", Annots, Annots.length);
-        let retryCount = 0;
-        let i = 0;
-        for (i = 0; i < Annots.length && retryCount < 50; i++) {
+        
+        for (let i = 0; i < Annots.length; i++) {
             let annot = Annots[i];
             //console.log("deleting annot: " + (i+1) + " of " + count, annot);
             //if (annot && annot !== undefined && (annot.Subject === "Highlight" || annot.Subject === null)) {
@@ -458,27 +404,12 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                         console.log("error deleting annot:", e);
                     }
                 }
-                //else {
-                //    let byId = annotManager.getAnnotationById(annot.Id);
-                //    if (byId && (byId.Subject === "Highlight" || byId instanceof Annotations.TextHighlightAnnotation)) {
-                //        console.log("byId worked!", byId);
-                //        annotManager.deleteAnnotation(annot, true, true);
-                //        //annotManager.deleteAnnotation(annot, false, true);
-                //        //Annots.splice(i, 1);
-                //    }
-                //    else {
-                //        console.log("byId did not work...", byId);
-                //    }
-                //    //console.log("not a HighL:", annot);
-                //}
             }
             else {
-                console.log("Not deleting this annot:", retryCount, i);
-
-                Annots = annotManager.getAnnotationsList();
-                i = -1;
-                retryCount++;
-                
+                console.log("Not deleting this annot (null or undefined):", i);
+                //Annots = annotManager.getAnnotationsList();
+                //i = -1;
+                //retryCount++;
             }
         }
         //console.log("Annots after deleting:", annotManager.getAnnotationsList(), annotManager.getAnnotationsList().length);
@@ -486,10 +417,13 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         this.AvoidHandlingAnnotationChanges = false;
     }
 
+    //this executes whenever annotations are changed, even if done programmatically,
+    //we use this.AvoidHandlingAnnotationChanges to figure if the change is user-initiated or not.
     private AnnotationChangedHandler(event: any, annotations: any, action: any) {
-        console.log("AnnotationChangedHandler, action:", action);
+        //console.log("AnnotationChangedHandler, action:", action);
         const { Annotations } = this.webviewer.getWindow();
         if (this.AvoidHandlingAnnotationChanges) {
+            //when an annot is added programmatically, make sure we don't allow editing it...
             if (action === 'add') {
                 for (let ann of annotations) {
                     if (ann instanceof Annotations.TextHighlightAnnotation) {
@@ -501,16 +435,48 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             }
             return; //we do nothing else when we're handling annotations from code-behind...
         }
-        if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0) {
-            alert("Sorry\n Need to manually add the code first, for now...");
+        let cmd: ItemAttributeSaveCommand = new ItemAttributeSaveCommand();//we'll fill this one in if needed
+        if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0 && this.ItemCodingService.SelectedSetAttribute) {
+            //this is crucial: need to make sure that this happens ONLY when it's the user 
+            //who has generated a new selection for a code that hasn't been applied to current item
+            //in testing as of 26/04/2019, it appears to be the case, but might need more work. (i.e. the AvoidHandlingAnnotationChanges flag is sufficient)
+            //in case, we can consider using event.imported, see: https://www.pdftron.com/documentation/web/guides/annotation-events/
+            //see also the next IF
+
+            
+            ///are we sure this is a user generated insert? (can add 1 highlight per event only)
+            if (annotations && annotations.length == 1 && annotations[0] instanceof Annotations.TextHighlightAnnotation && action === 'add') {
+                //we fill-in the ItemAttributeSaveCommand object, so that the API controller will create the ItemAttribute record, as well as the ItemSet one, if needed.
+                //by sending the cmd object in the request, we avoid having to orchestrate 2 API calls in strict succession (can't save PDF coding without an ItemAttributeId)
+                cmd.additionalText = "";
+                cmd.attributeId = this.ItemCodingService.SelectedSetAttribute.attribute_id;
+                cmd.itemArmId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
+                cmd.itemId = this.ItemID;
+                cmd.revInfo = this.ReviewInfoService.ReviewInfo;
+                cmd.saveType = "Insert";
+                cmd.setId = this.ItemCodingService.SelectedSetAttribute.set_id;
+                let itemSet: ItemSet | null = this.ItemCodingService.FindItemSetBySetId(this.ItemCodingService.SelectedSetAttribute.set_id);
+                if (itemSet) {
+                    //we have an item set to use, so put the relevant data in cmd. Otherwise, default value is fine.
+                    cmd.itemSetId = itemSet.itemSetId;
+                }
+                console.log("create coding from PDF tab:", cmd);
+            }
+            //return;
+        }
+        else if (!this.ItemCodingService.SelectedSetAttribute) {
+            //we don't know what code we're supposed to attach the PDF text to :-(
+            //most likely user has not selected a code from the tree (left side) or has selected a ReviewSet, or user does not have the right to edit...
+            //if we're here we know that AvoidHandlingAnnotationChanges == false,
+            //we can call delete annotations (will end by setting it to false)
+
+            this.deleteAnnotations(this.annotManager, Annotations);//we just delete it, consider showing an explanation...
             return;
         }
         
         if (annotations[0] instanceof Annotations.TextHighlightAnnotation) {
             let highlightAnnotation = annotations[0];
             
-            //if (annotations[0].Quads) console.log("Quads: ", JSON.stringify(annotations[0].Quads));
-            //else console.log("No Quads");
             
             if (action === 'add') {
                 console.log('this is a change that added annotations', annotations, action);
@@ -519,46 +485,41 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 this.annotManager.redrawAnnotation(highlightAnnotation);
                 let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
                 const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
-                this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
-                console.log("xfdfString (add):", xfdfString);
+                //API call!!! save changes.
+                this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId, cmd);
+                //console.log("xfdfString (add):", xfdfString);
 
             } else if (action === 'modify') {
+                //uh? this should not be allowed...
                 console.log('this change modified annotations', annotations);
             } else if (action === 'delete') {
-                //do we delete just one annotation but some remain? In which case, it's an update...
-                let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
+                //do we delete just one annotation in current page but some other annotation remain? In which case, it's an update...
+                let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => 
+                    found.PageNumber == highlightAnnotation.PageNumber && found instanceof Annotations.TextHighlightAnnotation
+                );
                 const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
                 let ind = xfdfString.indexOf("</highlight>");
-                if (ind > -1) this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                //if the exported XML has highlights and we have an item attribute record associated with it, save what's left.
+                if (
+                    ind > -1
+                    && this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId > 0
+                ) this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
                 else {
-                    //do the delete thing...
+                    //do the delete thing... removes the whole record for a page in the PDF ('cause it's empty, now)
                     this.ItemCodingService.DeleteItemAttPDFCodingPage(highlightAnnotation.PageNumber, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
                 }
-                console.log('there were annotations deleted', annotations, xfdfString);
+                //console.log('there were annotations deleted', annotations, xfdfString);
                 
             }
         }
 
-        annotations.forEach(function (annot: any) {
-            console.log('annotation page number', annot.PageNumber);
-        });
+        //annotations.forEach(function (annot: any) {
+        //    console.log('annotation page number', annot.PageNumber);
+        //});
     }
 
-    async TestAPICall(page: number, pos: any, doc: any) {
-        const reader = await this.webviewer.getPDFNet().ElementReader.create();
-        let count = 0;
-        let element;
-        let PDFpage = await doc.getPage(page );
-        console.log("page: ", page, PDFpage);
-        
-        reader.beginOnPage(PDFpage);
-        while ((element = await reader.next()) !== null) {
-            count++;
-        }
-        reader.end();
-        return count;
-    }
-
+    
+    //method is called by buildHighlights when trying to rebuild annotations from ER4 data
     private async readTextFromRect(page: number, pos: any, reader: any, doc: any, PDFnet: any) {
         //let elCnt = await PDFnet.runWithCleanup(async () => await this.TestAPICall(1, "", doc));
         let srchStr = '';
@@ -574,7 +535,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     private async IntersectByLines(page: number, startReader: boolean, reader: any, pos: any, srchStr: string, doc: any, PDFnet: any) {
         const TextExtractor = await PDFnet.TextExtractor.create();
         let intersectLinesText = "";
+        //pos is key: since we know where we're looking we start from here, makes the whole thing much faster!
         TextExtractor.begin(await doc.getPage(page), pos);
+
         //if (startReader) reader.beginOnPage(await doc.getPage(page));
         for (let line = await TextExtractor.getFirstLine(); await line.isValid(); line = await line.getNextLine()) {
             let bbox0;
@@ -595,15 +558,10 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                         {
                             //the word in this line intersects with our rectangle!
                             //we now check if the intersect is substantial.
-                            //1. get the intersection "y coords"
-
                             let ItrsY1 = Math.max(bbox.y1, pos.y1);
                             let ItrsY2 = Math.min(bbox.y2, pos.y2);
                             if (ItrsY2 - ItrsY1 > (bbox.y2 - bbox.y1) / 2.1) {
-                                //intersection is 50% or more, it's substantial!
-                                //qwertyuiopasdfghjklzxcvbnm
-                                //qypgj
-                                //tidfhjkl
+                                //intersection is  substantial!
                                 //console.log("found word:", word);
                                 intersectLinesText += await word.getString() + " ";
                             }
@@ -612,39 +570,11 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 }
             }
         }
-        return intersectLinesText;
+        return intersectLinesText;//this string will be used to match with text from ER4 data...
     }
-    private async rectTextSearch(page: number, startReader: boolean, reader: any, pos: any, srchStr: string, doc: any, PDFnet: any) {
-        console.log("starting rectTextSearch \n", page, startReader, reader, pos, srchStr, doc, PDFnet);
-        if (startReader) reader.beginOnPage(await doc.getPage(page));
-        let element, arr;
-        while ((element = await reader.next()) !== null) {
-            let bbox;
-            let elType = await element.getType();
-            //console.log("type =", elType);
-            switch (elType) {
-                case PDFnet.Element.Type.e_text:
-                    bbox = await element.getBBox();
-                    //console.log("Rectangles:", bbox, pos);
-                    if (bbox && await bbox.intersectRect(bbox, pos)) {
-                        arr = await element.getTextString();
-                        //if (arr && arr.length > 0) console.log("el text:", arr);
-                        srchStr += arr + '\n';
-                    }
-                    break;
-                case PDFnet.Element.Type.e_text_new_line:
-                    break;
-                case PDFnet.Element.Type.e_form:
-                    reader.formBegin();
-                    srchStr += await this.rectTextSearch(page, false, reader, pos, srchStr, doc, PDFnet); // possibly need srchStr = ...
-                    reader.end();
-                    break;
-            }
-        }
-        reader.end();
-        return srchStr;
-    }
+    
 }
+
 export class TextWithShapes {
     FullSelectedText: string = "";
     ShapesStrings: string[] = [];
@@ -669,6 +599,8 @@ export class TextWithShapes {
     //    }
     //    return aQuads;
     //}
+
+    //important method: given a (rectangle) shape as described by ER4, build the "Quad" used in PDFTron
     public static BuildQuad(SingleRectStr: string): any {
         let i = SingleRectStr.indexOf(',');
         let x1 = +SingleRectStr.substr(0, i) * 0.75;
@@ -710,3 +642,123 @@ export class TextWithShapes {
         return quad;
     }
 }
+
+
+//minimal test example to use the full PDFTron API
+//to call it: 
+//let elCnt = await PDFnet.runWithCleanup(async () => await this.TestAPICall(1, "", doc));
+//PDFnet.runWithCleanup(...) is KEY. You NEED to use it in order to access the full API.
+//async TestAPICall(page: number, pos: any, doc: any) {
+//    const reader = await this.webviewer.getPDFNet().ElementReader.create();
+//    let count = 0;
+//    let element;
+//    let PDFpage = await doc.getPage(page);
+//    console.log("page: ", page, PDFpage);
+
+//    reader.beginOnPage(PDFpage);
+//    while ((element = await reader.next()) !== null) {
+//        count++;
+//    }
+//    reader.end();
+//    return count;
+//}
+
+
+//OLD code that works, but isn't used...
+//findShapeFromText(InPgSel: InPageSelection, page: number, doc: any, shapesToMatch: any[],
+//    Annotations: any, ViewerInstance: any, annotationManager: any): any {
+//    //this is a failed attempt: page indexes are just different :-((((
+//    //to make things worse, doc.getTextPosition returns quads on a per-char basis, so we can't compare like for li
+//    doc.loadPageText(page - 1, function (text: string) {
+//        var textStartIndex = 0;
+//        var textIndex;
+//        var annotations: any[] = [];
+//        console.log("Searching...", shapesToMatch, "InPgSel: " + InPgSel.start, InPgSel.end, InPgSel.selTxt);// , "page: " + page, "fullpage: " + text);
+
+//        //console.log("Found text", InPgSel.selTxt, textIndex);
+
+//        // Get text position
+//        doc.getTextPosition(Number(page - 1), InPgSel.start, InPgSel.start + InPgSel.selTxt.length, function (quads: any) {
+//            console.log("got the pos:", quads);
+//            for (let shapeToMatch of shapesToMatch) {
+//                let minx = Math.min(shapeToMatch.x1, shapeToMatch.x2, shapeToMatch.x3, shapeToMatch.x4);
+//                let maxx = Math.max(shapeToMatch.x1, shapeToMatch.x2, shapeToMatch.x3, shapeToMatch.x4);
+//                let miny = Math.min(shapeToMatch.y1, shapeToMatch.y2, shapeToMatch.y3, shapeToMatch.y4);
+//                let maxy = Math.max(shapeToMatch.y1, shapeToMatch.y2, shapeToMatch.y3, shapeToMatch.y4);
+//                console.log("minMaxes:", minx, miny, maxx, maxy);
+//                let minPindex = quads.findIndex((found: any) => (Math.abs(minx - found.x1) < 0.95 && Math.abs(miny - found.y3) < 1.5));
+//                let maxPindex = quads.findIndex((found: any) => (Math.abs(maxx - found.x1) < 0.95 && Math.abs(maxy - found.y3) < 1.5));
+//                if (minPindex > -1 && maxPindex > -1)
+//                //if (Math.abs(shapeToMatch.x1 - quads[0].x1) < 0.95
+//                //    //&& Math.abs(shapeToMatch.x3 - quads[quads.length - 1].x3) < 0.95
+//                //    //&& Math.abs(shapeToMatch.y1 - quads[0].y3) < 1.5
+//                //    //&& Math.abs(shapeToMatch.y3 - quads[quads.length - 1].y1) < 1.5
+//                //)
+//                {
+//                    console.log("We found a match for ", shapeToMatch);
+//                    var annotation = new Annotations.TextHighlightAnnotation();
+//                    annotation.Author = ViewerInstance.getAnnotationUser();
+//                    annotation.PageNumber = page;
+//                    annotation.Quads = [shapeToMatch];
+//                    annotation.StrokeColor = new Annotations.Color(250, 224, 6);
+//                    annotations.push(annotation);
+//                    break;
+//                }
+//            }
+
+
+//            //this doesn't work, the quads are one per letter, not the whole selection :-(
+//            //for (let foundQ of quads) {
+//            //    let foundIndex = shapesToMatch.findIndex((found) => (Math.abs(found.x1 - foundQ.x1) < 0.1 && Math.abs(found.y3 - foundQ.y3) < 0.1)) ;
+//            //    if (foundIndex > -1) {
+//            //        console.log("Quad was found:", foundQ);
+//            //        var annotation = new Annotations.TextHighlightAnnotation();
+//            //        annotation.Author = ViewerInstance.getAnnotationUser();
+//            //        annotation.PageNumber = page;
+//            //        annotation.Quads = quads;
+//            //        annotation.StrokeColor = new Annotations.Color(250, 224, 6);
+//            //        annotations.push(annotation);
+//            //    }
+//            //}
+
+//        });
+
+//        annotationManager.addAnnotations(annotations);
+//        //annotationManager.selectAnnotations(annotations);
+//    });
+//}
+
+//OLD code that works, but is too slow!
+//private async rectTextSearch(page: number, startReader: boolean, reader: any, pos: any, srchStr: string, doc: any, PDFnet: any) {
+//    console.log("starting rectTextSearch \n", page, startReader, reader, pos, srchStr, doc, PDFnet);
+//    if (startReader) reader.beginOnPage(await doc.getPage(page));
+//    let element, arr;
+//    while ((element = await reader.next()) !== null) {
+//        let bbox;
+//        let elType = await element.getType();
+//        //console.log("type =", elType);
+//        switch (elType) {
+//            case PDFnet.Element.Type.e_text:
+//                bbox = await element.getBBox();
+//                //console.log("Rectangles:", bbox, pos);
+//                if (bbox && await bbox.intersectRect(bbox, pos)) {
+//                    arr = await element.getTextString();
+//                    //if (arr && arr.length > 0) console.log("el text:", arr);
+//                    srchStr += arr + '\n';
+//                }
+//                break;
+//            case PDFnet.Element.Type.e_text_new_line:
+//                break;
+//            case PDFnet.Element.Type.e_form:
+//                reader.formBegin();
+//                srchStr += await this.rectTextSearch(page, false, reader, pos, srchStr, doc, PDFnet); // possibly need srchStr = ...
+//                reader.end();
+//                break;
+//        }
+//    }
+//    reader.end();
+//    return srchStr;
+//}
+
+
+

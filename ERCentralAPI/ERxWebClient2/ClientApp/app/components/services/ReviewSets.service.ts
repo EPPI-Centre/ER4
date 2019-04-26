@@ -275,6 +275,7 @@ export class ReviewSetsService extends BusyAwareService {
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                             dest.isSelected = true;
+                            console.log("I'm doing it..................................");
                             dest.additionalText = itemAttribute.additionalText;
                             destSet.codingComplete = true;
                              }

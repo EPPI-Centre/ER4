@@ -31,7 +31,7 @@
                     <td class="">{{ ItemDocument.shortTitle }}</td>
                     <td class="">{{ ItemDocument.title }}</td>
                     <td class="p-0 m-0 align-middle">
-                        <button *ngIf="ItemDocument.extension.toLowerCase() == '.pdf'" 
+                        <button *ngIf="ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf'" 
                                 class="btn btn-outline-success btn-sm mr-1" title="View" 
                                 (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
                             <i class="fa fa-eye"></i>

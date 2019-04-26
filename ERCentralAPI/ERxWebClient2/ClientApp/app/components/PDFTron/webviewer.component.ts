@@ -9,10 +9,12 @@ declare const PDFNet: any;
 
 @Component({
   selector: 'app-webviewer',
-    template: '<div #viewer style="width: 100%; height: 600px; min-height:300px;"></div>',
-    styles: ['div { width: 100%; height: 100%; min-height:300px;}'
-    ]
+    template: '<div style="position:absolute; top:5em; left:0; padding-bottom:5.2em; height:100%; width:100%"><div #viewer class="iframe-container" style="width: 100%; height:100%; position:relative"></div></div>',
+    styles: [``]
 })
+
+//template: '<div #viewer style="width: 100%; height: 600px; min-height:300px;"></div>',
+//    styles: ['div { width: 100%; height: 100%; min-height:300px;}'
 export class WebViewerComponent implements AfterViewInit {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
         private ItemDocsService: ItemDocsService

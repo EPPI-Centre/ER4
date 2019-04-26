@@ -7,7 +7,7 @@
         <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
             <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
                 <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
-                <codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="IsPDFtabSelected"></codesetTreeCoding>
+                <codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
             </div>
 			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
@@ -35,7 +35,7 @@
                 <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
                     <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
                         <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights"></itemDetailsComp>
+                            <itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'Study Arms'">
@@ -49,7 +49,7 @@
                         <ng-template kendoTabContent>
                             <div *ngIf="item" style="min-height:600px;">
                                 <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
-                                <pdftroncontainer #pdftroncontainer></pdftroncontainer>
+                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
                             </div>
                         </ng-template>
                     </kendo-tabstrip-tab>
