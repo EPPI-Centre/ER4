@@ -34,6 +34,7 @@ export class ComparisonReconciliationComp implements OnInit {
 	public CurrentComparison: Comparison = new Comparison();
 	private ReviewSet: ReviewSet = new ReviewSet();
 	public item: Item = new Item();
+	public panelItem: Item | undefined = new Item();
 	public PanelName: string = '';
 	public chosenFilter: SetAttribute | null = null;
     public get CodeSets(): ReviewSet[] {
@@ -85,7 +86,13 @@ export class ComparisonReconciliationComp implements OnInit {
 		if (this.item != null && this.item != undefined) {
 
 			// Fill with dummy reference data for viewing the reference information
-			this.item = this._ItemListService.ItemList.items[0];
+			//if (itemid = 0) {
+			//	this.item = this._ItemListService.ItemList.items[0];
+			//} else {
+			//	this.item = this._ItemListService.ItemList.items.filter(
+			//		x => x.itemId = itemid)[0];
+			//}
+			
 			this.CurrentComparison = this._comparisonsService.currentComparison;
 			
 			this.ReviewSet = this._reviewSetsService.GetReviewSets().filter(
@@ -143,12 +150,19 @@ export class ComparisonReconciliationComp implements OnInit {
 				}
 			);
 	}
+	public ReconRowClick(itemid: number) {
+
+		//alert(itemid);
+		let tempItemList = this._ItemListService.ItemList.items;
+		this.panelItem = tempItemList.find(x => x.itemId == itemid);
+
+	}
 
 	public RefreshData() {
 
 
 		//alert('got here without rerouting' );
-
+		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
 
 		//console.log('About to refresh the data...' + JSON.stringify(this._ItemListService.ItemList.items[0]));
@@ -186,7 +200,7 @@ export class ComparisonReconciliationComp implements OnInit {
 	ngOnInit() {
 		console.log('Initialising...');
 		this.item = this._ItemListService.ItemList.items[0];
-
+		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.RefreshData();
 	}
 	BackToMain() {

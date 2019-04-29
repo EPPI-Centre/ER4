@@ -19,10 +19,10 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let recon of localList.Items; let i = index">
+					<tr *ngFor="let recon of localList.Items; let i = index" (click)="ReconRowClick(recon.Item.itemId)">
 						
 						<td class="col-1"> <input type="checkbox" name="name1" />&nbsp; </td>
-						<td class="col-1">{{recon.Item.itemId}}</td>
+						<td class="col-1">{{_ItemListService.ItemList.items[i].itemId}}</td>
 						<td class="col-2">
 							{{recon.Item.shortTitle}}
 
@@ -79,7 +79,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div *ngIf="item" class="col-12 row p-2 m-2">
+		<div *ngIf="panelItem" class="col-12 row p-2 m-2">
 			<div class="col-5 row">
 				<div class="row col-12 border-top   ml-0 pl-0">
 					<div class="row w-100 p-0 m-0 border-bottom">
@@ -87,7 +87,7 @@
 							Title
 						</div>
 						<div class="col p-1 m-1 bg-white">
-							{{item.title}}
+							{{panelItem.title}}
 						</div>
 					</div>
 
@@ -96,20 +96,20 @@
 							Author(s)
 						</div>
 						<div class="col p-1 m-1 bg-white">
-							{{item.authors}}
+							{{panelItem.authors}}
 						</div>
 					</div>
 					<div class="row w-100 p-0 m-0 border-bottom ">
 						<div class="col-4 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
-							<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
+							<div class="col p-1 m-1 bg-white">{{panelItem.itemId}}</div>
 						</div>
 					</div>
 					<div class="row w-100 p-0 m-0 border-bottom  ">
 						<div class="w-50 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
 							<div class="col p-1 m-1 bg-white">
-								{{item.year}}
+								{{panelItem.year}}
 							</div>
 						</div>
 					</div>
@@ -117,22 +117,29 @@
 						<div class="w-50 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
 							<div class="col p-1 m-1 bg-white">
-								{{item.shortTitle}}
+								{{panelItem.shortTitle}}
 							</div>
 						</div>
 						<div class="w-50 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">Pages</div>
 							<div class="col p-1 m-1 bg-white">
-								{{item.pages}}
+								{{panelItem.pages}}
 							</div>
 						</div>
 					</div>
 				</div>
+				<div *ngIf="item" class="row col-12 card card-body bg-light p-2 m-2"
+					 style="overflow-x:auto;">
+					<ItemDocListComp class="" [itemID]="panelItem.itemId">
+
+					</ItemDocListComp>
+				</div>
 			</div>
 			<div class="col-5 row">
-				<div class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b>
-				{{item.abstract}}</div>
-
+				<div class="row col-12 border-top   ml-0 pl-0">
+					<b>Abstract:&nbsp;</b>
+					{{panelItem.abstract}}
+				</div>
 			</div>
 		</div>
 	</form>
