@@ -298,6 +298,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
         }
+        this.ItemCodingService.Clear();
     }
     goToItem(item: Item) {
         this.WipeHighlights();

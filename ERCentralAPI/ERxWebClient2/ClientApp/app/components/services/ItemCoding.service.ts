@@ -384,7 +384,7 @@ export class ItemCodingService extends BusyAwareService {
     }
     public ClearItemAttPDFCoding() {
         console.log("ClearItemAttPDFCoding");
-        this.SelectedSetAttribute = null;
+        
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
         this.ItemAttPDFCodingChanged.emit();
     }
@@ -410,6 +410,8 @@ export class ItemCodingService extends BusyAwareService {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
             this.SelfSubscription4QuickCodingReport = null;
         }
+        this._BusyMethods == [];
+        this.SelectedSetAttribute = null;
         this.ClearItemAttPDFCoding();
     }
     private _ItemsToReport: Item[] = [];

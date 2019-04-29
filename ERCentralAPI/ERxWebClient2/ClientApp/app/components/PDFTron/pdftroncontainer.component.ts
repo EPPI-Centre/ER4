@@ -44,10 +44,16 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         this.wvAnnotationsLoaded = this.wvAnnotationsLoaded.bind(this);
     }
     public get CurrentSelectedCode(): string {
-        if (this.ItemCodingService.SelectedSetAttribute && this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)) {
+        if (this.ItemCodingService.SelectedSetAttribute) {
             return this.ItemCodingService.SelectedSetAttribute.attribute_name;
         }
         else return "No valid selection";
+    }
+    public get CanWritePDFCoding(): string {
+        if (!this.ItemCodingService.SelectedSetAttribute) return "No Code";
+        else if (!this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute) && this.ReviewerIdentityServ.HasWriteRights) return "Coding locked";
+        else if (!this.ReviewerIdentityServ.HasWriteRights) return "Read Only";
+        else return "yes";
     }
 
     ngAfterViewInit() {
@@ -215,7 +221,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
                 return;//Don't even try...
             }
         }
-        this.ItemCodingService.markBusyBuildingHighlights();
+        
         let AllInputShapes: string[] = []; //will receive one string per page...
         let AllContinuousSelections: TextWithShapes[] = [];
         
@@ -223,7 +229,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         var GenDoc = this.docViewer.getDocument();
         if (!GenDoc) return;
         let doc = await GenDoc.getPDFDoc();
-        
+        this.ItemCodingService.markBusyBuildingHighlights();
         
         const reader = await this.PDFnet.ElementReader.create();
         const { Annotations } = this.webviewer.getWindow();
@@ -638,8 +644,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         return intersectLinesText;//this string will be used to match with text from ER4 data...
     }
     ngOnDestroy() {
-        //console.log('killing pdftroncontainer comp');
+        console.log('killing pdftroncontainer comp');
         if (this.subBuildHighlights) this.subBuildHighlights.unsubscribe();
+        this.ItemCodingService.Clear();
     }
 }
 
