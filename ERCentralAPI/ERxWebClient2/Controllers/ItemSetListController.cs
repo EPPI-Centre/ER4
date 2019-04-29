@@ -168,27 +168,53 @@ namespace ERxWebClient2.Controllers
 				{
 					ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
 					Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
+					int bt = Convert.ToInt16(data.GetValue("contactID").ToString());
+					bool CompleteOrNot = Convert.ToBoolean(data.GetValue("CompleteOrNot").ToString());
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 					DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
-					long isi = -1; string completor = "";
-					//if (comparison.ContactId1 == (int)bt.Tag)
-					//{
-					//	isi = data.ItemSetR1;
-					//	completor = comparison.ContactName1;
-					//}
-					//else if (comparison.ContactId2 == (int)bt.Tag)
-					//{
-					//	isi = data.ItemSetR2;
-					//	completor = comparison.ContactName2;
-					//}
-					//else if (comparison.ContactId3 == (int)bt.Tag)
-					//{
-					//	isi = data.ItemSetR3;
-					//	completor = comparison.ContactName3;
-					//}
-					ItemSetCompleteCommand command = new ItemSetCompleteCommand(isi, true, false);
+					long isi = -1; string completor = ""; ItemSetCompleteCommand command;
+					if (CompleteOrNot)
+					{
+						if (comparison.ContactId1 == bt)
+						{
+							isi = recon._ItemSetR1;
+							completor = comparison.ContactName1;
+						}
+						else if (comparison.ContactId2 == bt)
+						{
+							isi = recon._ItemSetR2;
+							completor = comparison.ContactName2;
+						}
+						else if (comparison.ContactId3 == bt)
+						{
+							isi = recon._ItemSetR3;
+							completor = comparison.ContactName3;
+						}
+						command = new ItemSetCompleteCommand(isi, true, false);
+					}
+					else
+					{
+						int completedByID = recon._CompletedByID;
+						if (comparison.ContactId1 == completedByID)
+						{
+							isi = recon._ItemSetR1;
+						}
+						else if (comparison.ContactId2 == completedByID)
+						{
+							isi = recon._ItemSetR2;
+						}
+						else if (comparison.ContactId3 == completedByID)
+						{
+							isi = recon._ItemSetR3;
+						}
+						else
+						{
+							isi = recon._CompletedItemSetID;
+						}
+						command = new ItemSetCompleteCommand(isi, false, false);
+					}
 
-					dp.BeginExecute(command);
+					command = dp.Execute(command);
 
 					return Ok();
 				}
@@ -204,8 +230,7 @@ namespace ERxWebClient2.Controllers
 
 
 	}
-
-    
+	    
 
     public class MVCItemAttributeSaveCommand
     {
@@ -295,7 +320,6 @@ namespace ERxWebClient2.Controllers
 
 		public List<ItemArm> _ItemArms { get; set; }
 	}
-
 	public class ReconcilingCode
 	{
 		public long _ID { get; set; }
@@ -306,5 +330,6 @@ namespace ERxWebClient2.Controllers
 		public string _Fullpath { get; set; }
 		public string _InfoBox{ get; set; }
 	}
+
 }
 

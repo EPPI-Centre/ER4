@@ -34,7 +34,7 @@
 						</td>
 						<td class="col-2">
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon)" class="btn btn-success  pull-right">
+								<button  (click)="Complete(recon, CurrentComparison.contactId1)" class="btn btn-success  pull-right">
 									Complete
 								</button>
 							</span>
@@ -49,7 +49,7 @@
 						</td>
 						<td class="col-2">
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon)"  class="btn btn-success  pull-right">
+								<button  (click)="Complete(recon,CurrentComparison.contactId2)"  class="btn btn-success  pull-right">
 									Complete
 								</button>
 							</span>
@@ -63,7 +63,7 @@
 						</td>
 						<td class="col-2">
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon)"  class="btn btn-success pull-right">
+								<button  (click)="Complete(recon, CurrentComparison.contactId3)"  class="btn btn-success pull-right">
 									Complete
 								</button>
 							</span>

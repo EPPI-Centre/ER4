@@ -44,11 +44,11 @@ export class ReconciliationService extends BusyAwareService {
 		);
 	}
 
-	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison): any {
+	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison, contactID: number, completeOrNot: boolean): any {
 
 		this._BusyMethods.push("ItemSetCompleteComparison");
 
-		let body = JSON.stringify({ ReconcilingItem: recon , Comparison: comp  });
+		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot });
 
 		return this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
 		)

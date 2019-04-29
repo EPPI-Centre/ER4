@@ -157,17 +157,27 @@ export class ComparisonReconciliationComp implements OnInit {
 	UnComplete(recon: ReconcilingItem) {
 
 		console.log(recon);
+		console.log(this.CurrentComparison);
+		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
+			.then(
+
+				() => {
+
+					this.RefreshData();
+				}
+
+			);
 	}
-	Complete(recon: ReconcilingItem) {
+	Complete(recon: ReconcilingItem, contactID: number) {
 
 		console.log(recon);
 		console.log(this.CurrentComparison);
-		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison)
+		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true)
 			.then(
 
 			() => {
 
-				alert('completed this one...');
+				this.RefreshData();
 			}
 			
 			);
