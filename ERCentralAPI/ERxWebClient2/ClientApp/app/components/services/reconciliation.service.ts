@@ -124,7 +124,7 @@ export class ReconcilingItemList {
 		//console.log(JSON.stringify(this._Comparison) + '\n');
 		//console.log(itemSetList + '\n');
 		//console.log(itemSetList.length + '\n');
-		//console.log('got here number 1');
+		console.log('For this ITEM we have the following: ' + item.shortTitle + '\n');
 
 		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return;
 
@@ -169,6 +169,9 @@ export class ReconcilingItemList {
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r1.push(r);
+							let test1: any = r1[r1.length - 1];
+						
+							//console.log('hence we have: ' + JSON.stringify(test1) + '\n');
 						}
 					}
 				}
@@ -177,7 +180,7 @@ export class ReconcilingItemList {
 					itSetR2 = iSet.itemSetId;
 
 					for (let roia of iSet.itemAttributesList) {
-						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.itemAttributeId);
+						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						console.log('got here 8');
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
@@ -186,6 +189,9 @@ export class ReconcilingItemList {
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r2.push(r);
+							let test2: any = r2[r2.length - 1];
+							//console.log('hence we have: ' + r2.length);
+							//console.log('hence we have: ' + JSON.stringify(test2) + '\n');
 						}
 					}
 				}
@@ -202,19 +208,23 @@ export class ReconcilingItemList {
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r3.push(r);
-
+							let test3: any = r3[r3.length - 1];
+							//console.log('hence we have: ' + r3.length);
+							//console.log('hence we have: ' + JSON.stringify(test3) + '\n');
 						}
 					}
 				}
 
 			}
 		}
-		
+		console.log('hence we have for r1: ' + r1.length);
+		console.log('hence we have for r2: ' + r2.length);
+		console.log('hence we have for r3: ' + r3.length);
 		this._Items.push(new ReconcilingItem(item, isCompleted, r1, r2, r3,
 			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
-		for (var i = 0; i < r1.length; i++) {
-			console.log('hence we have: ' + JSON.stringify(r1[i]) + '\n');
-		}
+		//for (var i = 0; i < r1.length; i++) {
+			
+		//}
 		
 	}
 

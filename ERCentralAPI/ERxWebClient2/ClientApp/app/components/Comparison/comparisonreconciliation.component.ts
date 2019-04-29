@@ -91,8 +91,7 @@ export class ComparisonReconciliationComp implements OnInit {
 			this.ReviewSet = this._reviewSetsService.GetReviewSets().filter(
 				x => x.set_id == this.CurrentComparison.setId)[0];
 			//console.log(' current review Set: ' + JSON.stringify(this.ReviewSet));
-
-
+			
 			// fill the reconciliation list accordingly
 			this.localList = new ReconcilingItemList(this.ReviewSet,
 				this.CurrentComparison, "testing right now");
@@ -100,32 +99,11 @@ export class ComparisonReconciliationComp implements OnInit {
 			console.log(' current comparison inside localist: ' + JSON.stringify(this.localList.Comparison));
 
 			//1 -> So i need to do a command to call an ItemSetList thingy
-			let ItemSetListTest: ItemSet[] = [];
+			let i: number = 0;
 
-			this._reconciliationService.FetchItemSetList(this.item.itemId)
+			this.recursiveItemList(i);
 
-				.then(
-					(res: ItemSet[]) => {
-
-						ItemSetListTest = res;
-						//
-						//2 -> So I then need to fill the above locallist.
-						for (var i = 0; i < ItemSetListTest.length; i++) {
-
-							console.log('a count on how many times we are adding an item: ' +
-								JSON.stringify(ItemSetListTest[i]));
-
-						}
-
-						for (var i = 0; i < this._ItemListService.ItemList.items.length; i++) {
-
-							// this needs to be a new itemSetList each time by calling the arms below
-							// needs to loop and be async await....
-							this.localList.AddItem(this._ItemListService.ItemList.items[i], ItemSetListTest);
-						}
-					}
-				);
-			
+			console.log('going through each item and calling the below');
 
 			console.log('We have here: ' + this.localList.Items.length);
 
@@ -135,6 +113,35 @@ export class ComparisonReconciliationComp implements OnInit {
 			//console.log('number of locallist items are: ', testLocalList.length)
 
 		}
+	}
+	public setsAmount(len: number): any {
+
+		return	Array.from({ length: len }, (v, k) => k + 1);
+	}
+
+	public recursiveItemList(i: number) {
+
+		let ItemSetListTest: ItemSet[] = [];
+		this._reconciliationService.FetchItemSetList(this._ItemListService.ItemList.items[i].itemId)
+
+			.then(
+				(res: ItemSet[]) => {
+
+					ItemSetListTest = res;
+
+					// this needs to be a new itemSetList each time by calling the arms below
+					// needs to loop and be async await....
+					this.localList.AddItem(this._ItemListService.ItemList.items[i], ItemSetListTest);
+					console.log('calling recursive part ======== ' + i);
+					if (i < this._ItemListService.ItemList.items.length-1) {
+
+						i = i + 1;
+						this.recursiveItemList(i);
+					} else {
+						return;
+					}
+				}
+			);
 	}
 
 	public RefreshData() {

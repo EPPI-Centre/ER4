@@ -4,11 +4,11 @@
 		Close/back
 	</button>
 	<form class="row card">
-		<div  class="col-12 row card-deck bg-light">
+		<div  class="col-12 row card-deck bg-light"
+			  style="max-height:600px; overflow:scroll;"  >
 			<h3>Comparison Reconciliation</h3>
-			
-
-			<table class="col-12 table table-bordered table-striped" *ngIf="localList.Items" >
+			<table class="col-12 table table-bordered table-striped" *ngIf="localList.Items" 
+				 >
 				<thead>	
 					<tr>
 						<th> ITEM ID</th>
@@ -23,18 +23,33 @@
 						<td>{{recon.Item.itemId}}</td>
 						<td>{{recon.Item.shortTitle}}</td>
 						<td>
-							<span>
-								{{recon.CodesReviewer1[i].Name}}
-								<!--{{recon.CodesReviewer1[i].Name}}-->
+							<span *ngFor="let j of setsAmount(recon.CodesReviewer1.length)">
+								<br />
+								<button class="btn btn-outline-primary">
+									{{recon.CodesReviewer1[j-1].Name}}
+								</button>
+							</span>
+							<br />
+						</td>
+						<td>
+							<span *ngFor="let k of setsAmount(recon.CodesReviewer2.length)">
+								<br />
+								<button class="btn btn-outline-info">
+									{{recon.CodesReviewer2[k-1].Name}}
+								</button>
+							</span> 
+						</td>
+						<td>
+							<span *ngFor="let l of setsAmount(recon.CodesReviewer3.length)">
+								<br />
+								<button class="btn btn-outline-dark">
+									{{recon.CodesReviewer3[l-1].Name}}
+								</button>
 							</span>
 						</td>
-						
-						<td>blaj </td>
-						<td>blah</td>
 					</tr>
 				</tbody>
 			</table>
-			
 		</div>
 		<div *ngIf="item" class="col-12 row p-2 m-2">
 			<div class="col-5">
