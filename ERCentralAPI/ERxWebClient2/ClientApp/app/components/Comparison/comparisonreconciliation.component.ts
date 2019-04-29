@@ -154,6 +154,24 @@ export class ComparisonReconciliationComp implements OnInit {
 		//console.log('About to refresh the data...' + JSON.stringify(this._ItemListService.ItemList.items[0]));
 
 	}
+	UnComplete(recon: ReconcilingItem) {
+
+		console.log(recon);
+	}
+	Complete(recon: ReconcilingItem) {
+
+		console.log(recon);
+		console.log(this.CurrentComparison);
+		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison)
+			.then(
+
+			() => {
+
+				alert('completed this one...');
+			}
+			
+			);
+	}
 
 	ngOnInit() {
 		console.log('Initialising...');

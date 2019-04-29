@@ -38,10 +38,29 @@ export class ReconciliationService extends BusyAwareService {
 			(res) => {
 
 				console.log('Inside the API we have: ' + JSON.stringify(res));
-
+				this.RemoveBusy('FetchItemSetList');
 				return res;
 			}
 		);
+	}
+
+	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison): any {
+
+		this._BusyMethods.push("ItemSetCompleteComparison");
+
+		let body = JSON.stringify({ ReconcilingItem: recon , Comparison: comp  });
+
+		return this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
+		)
+			.toPromise().then(
+
+				(res) => {
+
+					console.log('Inside the API we have: ' + JSON.stringify(res));
+					this.RemoveBusy('ItemSetCompleteComparison');
+					return res;
+				}
+			);
 	}
 
 	ngOnInit() {
@@ -354,3 +373,10 @@ export class ReconcilingItem {
 	}
 
 }
+
+//export class ReconcileAndCompare {
+
+//	public recon: ReconcilingItem;
+//	public comp: Comparison;
+
+//}

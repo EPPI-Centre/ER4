@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -156,7 +157,54 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-    }
+
+		[HttpPost("[action]")]
+		public IActionResult CompleteComparison([FromBody] JObject data)
+		{
+			try
+			{
+
+				if (SetCSLAUser4Writing())
+				{
+					ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
+					Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
+					long isi = -1; string completor = "";
+					//if (comparison.ContactId1 == (int)bt.Tag)
+					//{
+					//	isi = data.ItemSetR1;
+					//	completor = comparison.ContactName1;
+					//}
+					//else if (comparison.ContactId2 == (int)bt.Tag)
+					//{
+					//	isi = data.ItemSetR2;
+					//	completor = comparison.ContactName2;
+					//}
+					//else if (comparison.ContactId3 == (int)bt.Tag)
+					//{
+					//	isi = data.ItemSetR3;
+					//	completor = comparison.ContactName3;
+					//}
+					ItemSetCompleteCommand command = new ItemSetCompleteCommand(isi, true, false);
+
+					dp.BeginExecute(command);
+
+					return Ok();
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison create data portal error");
+				throw;
+			}
+		}
+
+
+	}
+
     
 
     public class MVCItemAttributeSaveCommand
@@ -222,4 +270,41 @@ namespace ERxWebClient2.Controllers
         public string itemIds;
         public string searchIds;
     }
+	public class ReconcilingItem 
+	{
+		
+		public Item _Item { get; set; }
+
+		public bool _IsCompleted { get; set; }
+
+		public int _CompletedByID { get; set; }
+		
+		public long _CompletedItemSetID { get; set; }
+
+		public string _CompletedByName { get; set; }
+
+		public List<ReconcilingCode> _CodesReviewer1 { get; set; }
+		public List<ReconcilingCode> _CodesReviewer2 { get; set; }
+
+		public List<ReconcilingCode> _CodesReviewer3;
+
+		public long _ItemSetR1 { get; set; }
+		public long _ItemSetR2 { get; set; }
+		public long _ItemSetR3 { get; set; }
+
+
+		public List<ItemArm> _ItemArms { get; set; }
+	}
+
+	public class ReconcilingCode
+	{
+		public long _ID { get; set; }
+		public long _AttributeSetID { get; set; }
+		public long _ArmID{ get; set; }
+		public string _Name{ get; set; }
+		public string _ArmName{ get; set; }
+		public string _Fullpath { get; set; }
+		public string _InfoBox{ get; set; }
+	}
 }
+

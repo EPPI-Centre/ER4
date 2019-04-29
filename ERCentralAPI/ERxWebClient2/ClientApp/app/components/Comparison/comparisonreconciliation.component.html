@@ -1,16 +1,16 @@
-<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary ">
-	<button class="btn-info pull-right col-md-2" 
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 border border-primary m-2 p-2">
+	<button class="btn btn-dark pull-right col-md-2" 
 			(click)="BackToMain()">
 		Close/back
 	</button>
-	<form class="row card">
-		<div  class="col-12 row card-deck bg-light"
+	<form class="row card m-3 p-3">
+		<div class="col-12 card-body bg-light "
 			  style="max-height:600px; overflow:scroll;"  >
 			<h3>Comparison Reconciliation</h3>
-			<table class="col-12 table table-bordered table-striped" *ngIf="localList.Items" 
-				 >
+			<table class="card-body col-12 table table-bordered table-striped" *ngIf="localList.Items">
 				<thead>	
 					<tr>
+						<th>Completed</th>
 						<th> ITEM ID</th>
 						<th> Short Title</th>
 						<th>{{CurrentComparison.contactName1}}</th>
@@ -20,83 +20,114 @@
 				</thead>
 				<tbody>
 					<tr *ngFor="let recon of localList.Items; let i = index">
-						<td>{{recon.Item.itemId}}</td>
-						<td>{{recon.Item.shortTitle}}</td>
-						<td>
+						
+						<td class="col-1"> <input type="checkbox" name="name1" />&nbsp; </td>
+						<td class="col-1">{{recon.Item.itemId}}</td>
+						<td class="col-2">
+							{{recon.Item.shortTitle}}
+
+							<span *ngIf="recon.IsCompleted">
+								<button (click)="UnComplete(recon)" class="btn btn-danger pull-right">
+									Un-Complete
+								</button>
+							</span>
+						</td>
+						<td class="col-2">
+							<span *ngIf="!recon.IsCompleted">
+								<button  (click)="Complete(recon)" class="btn btn-success  pull-right">
+									Complete
+								</button>
+							</span>
 							<span *ngFor="let j of setsAmount(recon.CodesReviewer1.length)">
 								<br />
 								<button class="btn btn-outline-primary">
 									{{recon.CodesReviewer1[j-1].Name}}
 								</button>
 							</span>
+
 							<br />
 						</td>
-						<td>
+						<td class="col-2">
+							<span *ngIf="!recon.IsCompleted">
+								<button  (click)="Complete(recon)"  class="btn btn-success  pull-right">
+									Complete
+								</button>
+							</span>
 							<span *ngFor="let k of setsAmount(recon.CodesReviewer2.length)">
 								<br />
 								<button class="btn btn-outline-info">
 									{{recon.CodesReviewer2[k-1].Name}}
 								</button>
-							</span> 
+							</span>
+
 						</td>
-						<td>
+						<td class="col-2">
+							<span *ngIf="!recon.IsCompleted">
+								<button  (click)="Complete(recon)"  class="btn btn-success pull-right">
+									Complete
+								</button>
+							</span>
 							<span *ngFor="let l of setsAmount(recon.CodesReviewer3.length)">
 								<br />
 								<button class="btn btn-outline-dark">
 									{{recon.CodesReviewer3[l-1].Name}}
 								</button>
 							</span>
+
 						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<div *ngIf="item" class="col-12 row p-2 m-2">
-			<div class="col-5">
-				<div  >
-					<h4 [innerHTML]="HTitle"></h4>
-				</div>
-				<div  >
-					<h4>{{item.title}}</h4>
-			</div>
+			<div class="col-5 row">
+				<div class="row col-12 border-top   ml-0 pl-0">
+					<div class="row w-100 p-0 m-0 border-bottom">
+						<div class="p-1 ml-1 mt-1 font-weight-bold">
+							Title
+						</div>
+						<div class="col p-1 m-1 bg-white">
+							{{item.title}}
+						</div>
+					</div>
 
-				<div class="row w-100 p-0 m-0 border-bottom">
-					<div class="p-1 ml-1 mt-1 font-weight-bold">
-						Author(s)
-					</div>
-					<div class="col p-1 m-1 bg-white">
-						{{item.authors}}
-					</div>
-				</div>
-				<div class="row w-100 p-0 m-0 border-bottom ">
-					<div class="col-4 row p-0 m-0">
-						<div class="p-1 ml-1 mt-1 font-weight-bold" >ID</div>
-						<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
-					</div>
-				</div>
-				<div class="row w-100 p-0 m-0 border-bottom  ">
-					<div class="w-50 row p-0 m-0">
-						<div class="p-1 ml-1 mt-1 font-weight-bold" >Year</div>
+					<div class="row w-100 p-0 m-0 border-bottom">
+						<div class="p-1 ml-1 mt-1 font-weight-bold">
+							Author(s)
+						</div>
 						<div class="col p-1 m-1 bg-white">
-							{{item.year}}
+							{{item.authors}}
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom ">
+						<div class="col-4 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
+							<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom  ">
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
+							<div class="col p-1 m-1 bg-white">
+								{{item.year}}
+							</div>
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom  ">
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
+							<div class="col p-1 m-1 bg-white">
+								{{item.shortTitle}}
+							</div>
+						</div>
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Pages</div>
+							<div class="col p-1 m-1 bg-white">
+								{{item.pages}}
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row w-100 p-0 m-0 border-bottom  ">
-					<div class="w-50 row p-0 m-0">
-						<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
-						<div class="col p-1 m-1 bg-white">
-							{{item.shortTitle}}
-						</div>
-					</div>
-					<div class="w-50 row p-0 m-0">
-						<div class="p-1 ml-1 mt-1 font-weight-bold" >Pages</div>
-						<div class="col p-1 m-1 bg-white">
-							{{item.pages}}
-						</div>
-					</div>
-				</div>
-				
 			</div>
 			<div class="col-5 row">
 				<div class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b>
