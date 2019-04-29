@@ -1,4 +1,4 @@
-﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy } from '@angular/core';
 import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -10,6 +10,7 @@ import { ArmsService } from '../services/arms.service';
 import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewSets.service';
 import { Item } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { Subscription } from 'rxjs';
 
 declare const PDFTron: any;
 //declare const PDFNet: any; 
@@ -19,7 +20,7 @@ declare let licenseKey: string;
     selector: 'pdftroncontainer',
     templateUrl: './pdftroncontainer.component.html'
 })
-export class PdfTronContainer implements OnInit, AfterViewInit {
+export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
         private ItemDocsService: ItemDocsService,
         private ItemCodingService: ItemCodingService,
@@ -35,6 +36,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     private annotManager: any;
     public AvoidHandlingAnnotationChanges: boolean = false;
     private PDFnet: any;
+    private subBuildHighlights: Subscription | null = null;
     //PDFNet: any;
     ngOnInit() {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
@@ -51,11 +53,12 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     ngAfterViewInit() {
         this.webviewer.getElement().addEventListener('ready', this.wvReadyHandler);
         this.webviewer.getElement().addEventListener('documentLoaded', this.wvDocumentLoadedHandler);
-        this.ItemCodingService.ItemAttPDFCodingChanged.subscribe(() =>
-        {
-            console.log("sub buildH");
-            this.buildHighlights();
-        });
+        if (this.subBuildHighlights === null) {
+            this.subBuildHighlights = this.ItemCodingService.ItemAttPDFCodingChanged.subscribe(() => {
+                console.log("sub buildH");
+                this.buildHighlights();
+            });
+        }
     }
     async loadDoc() {
         let counter: number = 0;
@@ -198,6 +201,21 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
     
     async buildHighlights() {
         console.log("buildHighlights");
+        if (this.ItemCodingService.IsBusy) {
+            //we try to avoid doing this if the service is busy. 
+            let counter: number = 0;
+            //console.log("viewerInstance ", this.viewerInstance);
+            while (this.ItemCodingService.IsBusy && counter < 4 * 60) {//wait up to 1m...
+                counter++;
+                await Helpers.Sleep(200);
+                //console.log("waiting, cycle n: " + counter);
+            }
+            if (this.ItemCodingService.IsBusy) {
+                alert("Sorry.\n We could not load the current highlights in the allocated time.\n Please try again after a few seconds.");
+                return;//Don't even try...
+            }
+        }
+        this.ItemCodingService.markBusyBuildingHighlights();
         let AllInputShapes: string[] = []; //will receive one string per page...
         let AllContinuousSelections: TextWithShapes[] = [];
         
@@ -366,7 +384,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                     }
                     await this.annotManager.drawAnnotations(sel.page);//we can only draw annotations on a per page basis :-(
                 }
-                if (HasDataToSave) {
+                if (HasDataToSave && this.ReviewerIdentityServ.HasWriteRights) {
                     //we have rebuilt the XML from the ER4 annots, let's save it...
                     let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == sel.page);
                     const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
@@ -375,6 +393,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 }
             }           
         }
+        this.ItemCodingService.removeBusyBuildingHighlights();
         this.AvoidHandlingAnnotationChanges = false;//all done! Changes to annotations will now be due to user actions.
     }
 
@@ -479,8 +498,23 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             //most likely user has not selected a code from the tree (left side) or has selected a ReviewSet, or user does not have the right to edit...
             //if we're here we know that AvoidHandlingAnnotationChanges == false,
             //we can call delete annotations (will end by setting it to false)
-
-            this.deleteAnnotations(this.annotManager, Annotations);//we just delete it, consider showing an explanation...
+            let annot = annotations[0];
+            console.log("Delete ann on this basis: (selected, can write)", this.ItemCodingService.SelectedSetAttribute, this.ReviewerIdentityServ.HasWriteRights);
+            if (action === 'add') {
+                let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+                this.AvoidHandlingAnnotationChanges = true;
+                this.annotManager.deleteAnnotation(annot, true, true);//we just delete it, consider showing an explanation...
+                this.AvoidHandlingAnnotationChanges = currentAvoidState;
+            }
+            else if (action === 'delete' && (!this.ReviewerIdentityServ.HasWriteRights || (this.ItemCodingService.SelectedSetAttribute && !this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute))))
+            {
+                //user can't delete this (read only, OR locked coding), so we'll put it back in...
+                console.log("trying to re-add annotation (v0)");
+                let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+                this.AvoidHandlingAnnotationChanges = true;
+                this.annotManager.addAnnotation(annot);
+                this.AvoidHandlingAnnotationChanges = currentAvoidState;
+            }
             return;
         }
         
@@ -498,7 +532,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 let fAnnots = this.annotManager.getAnnotationsList().filter((found: any) => found.PageNumber == highlightAnnotation.PageNumber);
                 const xfdfString: string = this.annotManager.exportAnnotations({ annotList: fAnnots, links: false, widgets: false });
                 //API call!!! save changes.
-                this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId, cmd);
+                if (this.ReviewerIdentityServ.HasWriteRights)
+                    this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId, cmd);
                 //console.log("xfdfString (add):", xfdfString);
 
             } else if (action === 'modify') {
@@ -515,10 +550,28 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
                 if (
                     ind > -1
                     && this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId > 0
-                ) this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                ) {
+                    if (this.ReviewerIdentityServ.HasWriteRights)
+                        this.ItemCodingService.SaveItemAttPDFCoding(xfdfString, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                    else {
+                        console.log("trying to re-add annotation (v1)");
+                        let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+                        this.AvoidHandlingAnnotationChanges = true;
+                        this.annotManager.addAnnotation(highlightAnnotation);
+                        this.AvoidHandlingAnnotationChanges = currentAvoidState;
+                    }
+                }
                 else {
                     //do the delete thing... removes the whole record for a page in the PDF ('cause it's empty, now)
-                    this.ItemCodingService.DeleteItemAttPDFCodingPage(highlightAnnotation.PageNumber, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                    if (this.ReviewerIdentityServ.HasWriteRights)
+                        this.ItemCodingService.DeleteItemAttPDFCodingPage(highlightAnnotation.PageNumber, this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId);
+                    else {
+                        console.log("trying to re-add annotation (v2)");
+                        let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+                        this.AvoidHandlingAnnotationChanges = true;
+                        this.annotManager.addAnnotation(highlightAnnotation);
+                        this.AvoidHandlingAnnotationChanges = currentAvoidState;
+                    }
                 }
                 //console.log('there were annotations deleted', annotations, xfdfString);
                 
@@ -584,7 +637,10 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         }
         return intersectLinesText;//this string will be used to match with text from ER4 data...
     }
-    
+    ngOnDestroy() {
+        //console.log('killing pdftroncontainer comp');
+        if (this.subBuildHighlights) this.subBuildHighlights.unsubscribe();
+    }
 }
 
 export class TextWithShapes {

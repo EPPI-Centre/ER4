@@ -384,6 +384,7 @@ export class ItemCodingService extends BusyAwareService {
     }
     public ClearItemAttPDFCoding() {
         console.log("ClearItemAttPDFCoding");
+        this.SelectedSetAttribute = null;
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
         this.ItemAttPDFCodingChanged.emit();
     }
@@ -873,16 +874,16 @@ export class ItemCodingService extends BusyAwareService {
                 //if itemset to be used is locked, we should not even have tried, so tricky case...
                 if (itemSet.isCompleted) {
                     if (itemSet.isLocked) {
-                        alert('Coding is locked! We shouldn\'t be doing this...');
-                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
+                        //alert('Coding is locked! We shouldn\'t be doing this...');
+                        //throw new Error('Coding is locked! We shouldn\'t be doing this...');
                     }
                     result = itemSet;
                     break;
                 }
                 else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
                     if (itemSet.isLocked) {
-                        alert('Coding is locked! We shouldn\'t be doing this...');
-                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
+                        //alert('Coding is locked! We shouldn\'t be doing this...');
+                        //throw new Error('Coding is locked! We shouldn\'t be doing this...');
                     }
                     result = itemSet;
                     break;
@@ -898,6 +899,12 @@ export class ItemCodingService extends BusyAwareService {
             if (ROatt.attributeId == Att.attribute_id && ROatt.armId == Att.armId) return ROatt;
         }
         return null;
+    }
+    public markBusyBuildingHighlights(): void {
+        this._BusyMethods.push("BuildingHighlights");
+    }
+    public removeBusyBuildingHighlights(): void {
+        this.RemoveBusy("BuildingHighlights");
     }
 }
 
