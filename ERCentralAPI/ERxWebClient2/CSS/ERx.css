@@ -113,3 +113,9 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     pointer-events: none;
     opacity: 0.3;
 }
+
+/*force the PDFtron iframe to use the available height*/
+.iframe-container-75vh iframe {
+    min-height:580px;
+    height:80vh;
+}

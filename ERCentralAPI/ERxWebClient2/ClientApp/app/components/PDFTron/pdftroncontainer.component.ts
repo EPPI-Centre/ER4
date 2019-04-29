@@ -17,7 +17,7 @@ declare let licenseKey: string;
 
 @Component({
     selector: 'pdftroncontainer',
-    template: '<app-webviewer style="height:100%;" ></app-webviewer>'
+    templateUrl: './pdftroncontainer.component.html'
 })
 export class PdfTronContainer implements OnInit, AfterViewInit {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
@@ -40,6 +40,12 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
         this.wvDocumentLoadedHandler = this.wvDocumentLoadedHandler.bind(this);
         this.wvAnnotationsLoaded = this.wvAnnotationsLoaded.bind(this);
+    }
+    public get CurrentSelectedCode(): string {
+        if (this.ItemCodingService.SelectedSetAttribute && this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)) {
+            return this.ItemCodingService.SelectedSetAttribute.attribute_name;
+        }
+        else return "No valid selection";
     }
 
     ngAfterViewInit() {
@@ -436,7 +442,10 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             return; //we do nothing else when we're handling annotations from code-behind...
         }
         let cmd: ItemAttributeSaveCommand = new ItemAttributeSaveCommand();//we'll fill this one in if needed
-        if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0 && this.ItemCodingService.SelectedSetAttribute) {
+        if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0
+            && this.ItemCodingService.SelectedSetAttribute
+            && this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)
+        ) {
             //this is crucial: need to make sure that this happens ONLY when it's the user 
             //who has generated a new selection for a code that hasn't been applied to current item
             //in testing as of 26/04/2019, it appears to be the case, but might need more work. (i.e. the AvoidHandlingAnnotationChanges flag is sufficient)
@@ -464,8 +473,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             }
             //return;
         }
-        else if (!this.ItemCodingService.SelectedSetAttribute) {
+        else if (!this.ItemCodingService.SelectedSetAttribute || !this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)) {
             //we don't know what code we're supposed to attach the PDF text to :-(
+            //OR: coding is locked, OR we don't have write rights.
             //most likely user has not selected a code from the tree (left side) or has selected a ReviewSet, or user does not have the right to edit...
             //if we're here we know that AvoidHandlingAnnotationChanges == false,
             //we can call delete annotations (will end by setting it to false)
@@ -474,7 +484,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit {
             return;
         }
         
-        if (annotations[0] instanceof Annotations.TextHighlightAnnotation) {
+        if (annotations[0] instanceof Annotations.TextHighlightAnnotation
+            && this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)
+        ) {
             let highlightAnnotation = annotations[0];
             
             
