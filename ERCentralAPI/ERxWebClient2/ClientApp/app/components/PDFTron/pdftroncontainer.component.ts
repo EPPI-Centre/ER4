@@ -37,6 +37,11 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     public AvoidHandlingAnnotationChanges: boolean = false;
     private PDFnet: any;
     private subBuildHighlights: Subscription | null = null;
+    private _currentDocId: number = 0;
+    //used by the parent, to figure out if loading the doc is needed or if it's already here.
+    public get currentDocId(): number {
+        return this._currentDocId;
+    }
     //PDFNet: any;
     ngOnInit() {
         this.wvReadyHandler = this.wvReadyHandler.bind(this);
@@ -155,6 +160,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
 
     wvDocumentLoadedHandler(): void {
         //TODO: if a code is selected, get the PDFCoding...
+        this._currentDocId = this.ItemDocsService.CurrentDocId;
         console.log("wvDocumentLoadedHandler");
         if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding
             && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0
