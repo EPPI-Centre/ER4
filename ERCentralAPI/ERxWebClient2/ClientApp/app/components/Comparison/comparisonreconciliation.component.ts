@@ -7,6 +7,7 @@ import { ItemListService, Item, Criteria } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { Review } from '../services/review.service';
+import { ItemDocsService } from '../services/itemdocs.service';
 
 
 @Component({
@@ -24,7 +25,8 @@ export class ComparisonReconciliationComp implements OnInit {
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
 		private _itemCodingService: ItemCodingService,
-		private _reconciliationService: ReconciliationService
+		private _reconciliationService: ReconciliationService,
+		private _ItemDocsService: ItemDocsService
 	) { }
 
 	private ComparisonDescription: string = '';
@@ -155,6 +157,7 @@ export class ComparisonReconciliationComp implements OnInit {
 		//alert(itemid);
 		let tempItemList = this._ItemListService.ItemList.items;
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
+		this.getItemDocuments(itemid);
 
 	}
 
@@ -164,8 +167,13 @@ export class ComparisonReconciliationComp implements OnInit {
 		//alert('got here without rerouting' );
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
-
+		this.getItemDocuments(this.panelItem.itemId);
 		//console.log('About to refresh the data...' + JSON.stringify(this._ItemListService.ItemList.items[0]));
+
+	}
+	getItemDocuments(itemid: number) {
+
+		this._ItemDocsService.FetchDocList(itemid);
 
 	}
 	UnComplete(recon: ReconcilingItem) {

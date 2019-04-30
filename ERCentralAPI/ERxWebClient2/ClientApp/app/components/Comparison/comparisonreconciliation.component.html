@@ -21,9 +21,9 @@
 				<tbody>
 					<tr *ngFor="let recon of localList.Items; let i = index" (click)="ReconRowClick(recon.Item.itemId)">
 						
-						<td class="col-1"> <input type="checkbox" name="name1" />&nbsp; </td>
-						<td class="col-1">{{_ItemListService.ItemList.items[i].itemId}}</td>
-						<td class="col-2">
+						<td > <input type="checkbox" name="name1" />&nbsp; </td>
+						<td >{{_ItemListService.ItemList.items[i].itemId}}</td>
+						<td >
 							{{recon.Item.shortTitle}}
 
 							<span *ngIf="recon.IsCompleted">
@@ -32,7 +32,7 @@
 								</button>
 							</span>
 						</td>
-						<td class="col-2">
+						<td >
 							<span *ngIf="!recon.IsCompleted">
 								<button  (click)="Complete(recon, CurrentComparison.contactId1)" class="btn btn-success  pull-right">
 									Complete
@@ -47,7 +47,7 @@
 
 							<br />
 						</td>
-						<td class="col-2">
+						<td >
 							<span *ngIf="!recon.IsCompleted">
 								<button  (click)="Complete(recon,CurrentComparison.contactId2)"  class="btn btn-success  pull-right">
 									Complete
@@ -61,7 +61,7 @@
 							</span>
 
 						</td>
-						<td class="col-2">
+						<td >
 							<span *ngIf="!recon.IsCompleted">
 								<button  (click)="Complete(recon, CurrentComparison.contactId3)"  class="btn btn-success pull-right">
 									Complete
@@ -128,10 +128,9 @@
 						</div>
 					</div>
 				</div>
-				<div *ngIf="item" class="row col-12 card card-body bg-light p-2 m-2"
+				<div *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
 					 style="overflow-x:auto;">
-					<ItemDocListComp class="" [itemID]="panelItem.itemId">
-
+					<ItemDocListComp class="" [itemID]="panelItem.itemId" [showUpload]="false">
 					</ItemDocListComp>
 				</div>
 			</div>
