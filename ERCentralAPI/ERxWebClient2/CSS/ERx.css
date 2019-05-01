@@ -119,3 +119,25 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     min-height:580px;
     height:80vh;
 }
+
+
+/*Very special properties for contents of tabs
+    this hides/shows the tabs in a special way (not Telerik's own) because otherwise PDFTron can't work in FireFox (any version).
+    See: https://groups.google.com/forum/#!topic/pdfnet-webviewer/pxbrn_apLKM
+    and https://www.pdftron.com/documentation/web/faq/loading-errors/#getcomputedstyle-is-null for the details.
+*/
+.specialHideSystem > .k-content.k-state-active {
+    height: auto;
+    width: auto;
+    position: inherit;
+    top: auto;
+}
+
+.specialHideSystem > .k-content {
+    /*background: aqua;*/
+    display: block !important;
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: -9000px;
+}
