@@ -8,6 +8,7 @@ import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { Review } from '../services/review.service';
 import { ItemDocsService } from '../services/itemdocs.service';
+import { ArmsService } from '../services/arms.service';
 
 
 @Component({
@@ -24,9 +25,10 @@ export class ComparisonReconciliationComp implements OnInit {
 		private _reviewInfoService: ReviewInfoService,
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
-		private _itemCodingService: ItemCodingService,
 		private _reconciliationService: ReconciliationService,
-		private _ItemDocsService: ItemDocsService
+		private _ItemDocsService: ItemDocsService,
+		private _armsService: ArmsService
+
 	) { }
 
 	private ComparisonDescription: string = '';
@@ -39,6 +41,7 @@ export class ComparisonReconciliationComp implements OnInit {
 	public panelItem: Item | undefined = new Item();
 	public PanelName: string = '';
 	public chosenFilter: SetAttribute | null = null;
+
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
     }
@@ -123,11 +126,10 @@ export class ComparisonReconciliationComp implements OnInit {
 
 		}
 	}
-	public setsAmount(len: number): any {
+	public reconcilingCodeArrayLength(len: number): any {
 
 		return	Array.from({ length: len }, (v, k) => k + 1);
 	}
-
 	public recursiveItemList(i: number) {
 
 		let ItemSetListTest: ItemSet[] = [];
@@ -154,27 +156,49 @@ export class ComparisonReconciliationComp implements OnInit {
 	}
 	public ReconRowClick(itemid: number) {
 
-		//alert(itemid);
 		let tempItemList = this._ItemListService.ItemList.items;
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
+		this.getItemDetailTest();
 
 	}
-
 	public RefreshData() {
 
-
-		//alert('got here without rerouting' );
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
-		this.getItemDocuments(this.panelItem.itemId);
-		//console.log('About to refresh the data...' + JSON.stringify(this._ItemListService.ItemList.items[0]));
+		if (this.panelItem) {
+
+			this.getItemDocuments(this.panelItem.itemId);
+		}
+		// then the arms for the item are filled.
+		//this.getItemArms();
+		this._reconciliationService.FetchArmsForReconItems(this._ItemListService.ItemList.items);
+
+		//alert('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
 
 	}
 	getItemDocuments(itemid: number) {
 
 		this._ItemDocsService.FetchDocList(itemid);
+		
+	}
+	getItemDetailTest() {
 
+		//if (this.panelItem) {
+		//	this._armsService.FetchArms(this.panelItem);
+		//	alert(JSON.stringify(this.panelItem.arms));
+		//	console.log(this.panelItem);
+		//}
+		//console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
+		console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
+	}
+	public hideme = [];
+	ShowFullPath(): boolean {
+
+		if (true) {
+
+		}
+		return false;
 	}
 	UnComplete(recon: ReconcilingItem) {
 
@@ -182,12 +206,9 @@ export class ComparisonReconciliationComp implements OnInit {
 		console.log(this.CurrentComparison);
 		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
 			.then(
-
 				() => {
-
 					this.RefreshData();
 				}
-
 			);
 	}
 	Complete(recon: ReconcilingItem, contactID: number) {
@@ -196,15 +217,11 @@ export class ComparisonReconciliationComp implements OnInit {
 		console.log(this.CurrentComparison);
 		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true)
 			.then(
-
-			() => {
-
-				this.RefreshData();
-			}
-			
+				() => {
+					this.RefreshData();
+				}
 			);
 	}
-
 	ngOnInit() {
 		console.log('Initialising...');
 		this.item = this._ItemListService.ItemList.items[0];
@@ -218,5 +235,6 @@ export class ComparisonReconciliationComp implements OnInit {
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 	}
+
 }
 

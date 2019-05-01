@@ -32,48 +32,95 @@
 								</button>
 							</span>
 						</td>
-						<td >
+						<td>
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon, CurrentComparison.contactId1)" class="btn btn-success  pull-right">
+								<button (click)="Complete(recon, CurrentComparison.contactId1)"
+										class="btn btn-success  pull-right">
 									Complete
 								</button>
 							</span>
-							<span *ngFor="let j of setsAmount(recon.CodesReviewer1.length)">
+							<span *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 								<br />
-								<button class="btn btn-outline-primary">
+								<button class="btn btn-outline-primary" *ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
+										(click)="ShowFullPath(recon.CodesReviewer1[j-1])">
 									{{recon.CodesReviewer1[j-1].Name}}
 								</button>
 							</span>
-
 							<br />
+							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+								<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
+									<b>{{a.title}}</b>
+									<!-- Need a loop in here for the codes in this arm -->
+									<span *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
+										<span *ngIf="recon.CodesReviewer1[j-1].ArmID != 0">
+											<br />
+											<span  [hidden]="!hideme[j]">
+												{{recon.CodesReviewer1[j-1].Fullpath}}
+												<br />
+											</span>
+											<button class="btn btn-outline-primary" (click)="hideme[j] = !hideme[j]">
+												{{recon.CodesReviewer1[j-1].Name}}
+											</button>
+										</span>
+									</span>
+								</span>
+							</span>
 						</td>
-						<td >
+						<td>
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon,CurrentComparison.contactId2)"  class="btn btn-success  pull-right">
+								<button (click)="Complete(recon,CurrentComparison.contactId2)" class="btn btn-success  pull-right">
 									Complete
 								</button>
 							</span>
-							<span *ngFor="let k of setsAmount(recon.CodesReviewer2.length)">
+							<span *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 								<br />
 								<button class="btn btn-outline-info">
 									{{recon.CodesReviewer2[k-1].Name}}
 								</button>
 							</span>
-
+							<br />
+							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+								<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
+									<b>{{b.title}}</b>
+									<!-- Need a loop in here for the codes in this arm -->
+									<span *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
+										<span *ngIf="recon.CodesReviewer2[k-1].ArmID != 0">
+											<br />
+											<button class="btn btn-outline-primary">
+												{{recon.CodesReviewer2[k-1].Name}}
+											</button>
+										</span>
+									</span>
+								</span>
+							</span>
 						</td>
-						<td >
+						<td>
 							<span *ngIf="!recon.IsCompleted">
-								<button  (click)="Complete(recon, CurrentComparison.contactId3)"  class="btn btn-success pull-right">
+								<button (click)="Complete(recon, CurrentComparison.contactId3)" class="btn btn-success pull-right">
 									Complete
 								</button>
 							</span>
-							<span *ngFor="let l of setsAmount(recon.CodesReviewer3.length)">
+							<span *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 								<br />
 								<button class="btn btn-outline-dark">
 									{{recon.CodesReviewer3[l-1].Name}}
 								</button>
 							</span>
-
+							<br />
+							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+								<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
+									<b>{{c.title}}</b>
+									<!-- Need a loop in here for the codes in this arm -->
+									<span *ngFor="let z of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
+										<span *ngIf="recon.CodesReviewer3[z-1].ArmID != 0">
+											<br />
+											<button class="btn btn-outline-primary">
+												{{recon.CodesReviewer3[z-1].Name}}
+											</button>
+										</span>
+									</span>
+								</span>
+							</span>
 						</td>
 					</tr>
 				</tbody>

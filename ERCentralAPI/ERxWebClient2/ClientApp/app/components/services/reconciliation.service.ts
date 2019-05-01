@@ -7,6 +7,7 @@ import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
 import { ignoreElements } from 'rxjs/operators';
+import { ArmsService } from './arms.service';
 
 @Injectable({
 
@@ -18,8 +19,7 @@ export class ReconciliationService extends BusyAwareService {
 
     constructor(
         private _httpC: HttpClient,
-		private modalService: ModalService,
-		private comparisonsService: ComparisonsService,
+		private _armsService: ArmsService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();
@@ -35,13 +35,22 @@ export class ReconciliationService extends BusyAwareService {
 			)
 			.toPromise().then(
 
-			(res) => {
+			(res: ItemSet[]) => {
 
 				console.log('Inside the API we have: ' + JSON.stringify(res));
 				this.RemoveBusy('FetchItemSetList');
 				return res;
 			}
 		);
+	}
+
+	FetchArmsForReconItems(items: Item[]): Item[] {
+
+		for (var i = 0; i < items.length; i++) {
+
+			this._armsService.FetchPromiseArms(items[i]);
+		}
+		return items;
 	}
 
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison, contactID: number, completeOrNot: boolean): any {
@@ -157,10 +166,10 @@ export class ReconcilingItemList {
 		let r3: ReconcilingCode[] = [];
 
 		let itSetR1: number = -1, itSetR2: number = -1, itSetR3: number = -1;
-		console.log('got here 3');
+		//console.log('got here 3');
 		for (let iSet of itemSetList) {
-			console.log('got here 4 setID: ' + iSet.setId);
-			console.log('got here 4 comparison: ' + JSON.stringify(this.Comparison));
+			//console.log('got here 4 setID: ' + iSet.setId);
+			//console.log('got here 4 comparison: ' + JSON.stringify(this.Comparison));
 			if (iSet.setId != this.Comparison.setId) continue;
 			else {
 
@@ -173,9 +182,9 @@ export class ReconcilingItemList {
 
 				if (iSet.contactId == this._Comparison.contactId1) {
 					itSetR1 = iSet.itemSetId;
-					console.log('got here 5');
+					//console.log('got here 5');
 					for (let roia of iSet.itemAttributesList) {
-						console.log('got here 6');
+						//console.log('got here 6');
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)
 						//this is necessary to avoid trying to add a code that 
@@ -189,18 +198,19 @@ export class ReconcilingItemList {
 							r.ArmName = roia.armTitle;
 							r1.push(r);
 							let test1: any = r1[r1.length - 1];
-						
-							//console.log('hence we have: ' + JSON.stringify(test1) + '\n');
+							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
+							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
+							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
 						}
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId2) {
-					console.log('got here 7');
+					//console.log('got here 7');
 					itSetR2 = iSet.itemSetId;
 
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
-						console.log('got here 8');
+						//console.log('got here 8');
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
 							let r: ReconcilingCode = r0.Clone();
@@ -211,17 +221,20 @@ export class ReconcilingItemList {
 							let test2: any = r2[r2.length - 1];
 							//console.log('hence we have: ' + r2.length);
 							//console.log('hence we have: ' + JSON.stringify(test2) + '\n');
+							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
+							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
+							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
 						}
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId3) {
-					console.log('got here 9');
+					//console.log('got here 9');
 					itSetR3 = iSet.itemSetId;
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
-							console.log('got here 10');
+							//console.log('got here 10');
 							let r = r0.Clone();
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
@@ -230,6 +243,9 @@ export class ReconcilingItemList {
 							let test3: any = r3[r3.length - 1];
 							//console.log('hence we have: ' + r3.length);
 							//console.log('hence we have: ' + JSON.stringify(test3) + '\n');
+							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
+							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
+							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
 						}
 					}
 				}
