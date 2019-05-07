@@ -53,14 +53,20 @@
 									<!-- Need a loop in here for the codes in this arm -->
 									<span *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 										<span *ngIf="recon.CodesReviewer1[j-1].ArmID != 0">
-											<br />
-											<span  [hidden]="!hideme[j]">
-												{{recon.CodesReviewer1[j-1].Fullpath}}
-												<br />
-											</span>
+
 											<button class="btn btn-outline-primary" (click)="hideme[j] = !hideme[j]">
 												{{recon.CodesReviewer1[j-1].Name}}
 											</button>
+											<span [hidden]="!hideme[j]">
+														<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
+													{{item}}
+													<i class="fa fa-arrow-right" 
+													   aria-hidden="true">
+													</i>
+												</span>
+												<br />
+											</span>
+											<br />
 										</span>
 									</span>
 								</span>

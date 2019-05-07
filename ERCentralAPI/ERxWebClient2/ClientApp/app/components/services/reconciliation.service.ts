@@ -140,8 +140,9 @@ export class ReconcilingItemList {
 		//console.log(JSON.stringify(astp));
 
 		for (let CaSet of aSet.attributes) {
-
-			this.buildToPasteFlatUnsortedList(CaSet, path + "<¬sep¬>" + aSet.attribute_name);
+			//
+			this.buildToPasteFlatUnsortedList(CaSet, path + "," + aSet.attribute_name);
+			//this.buildToPasteFlatUnsortedList(CaSet, pathaSet.attribute_name]);
 		}
 		
 

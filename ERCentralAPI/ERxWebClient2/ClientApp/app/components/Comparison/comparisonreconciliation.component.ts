@@ -115,6 +115,7 @@ export class ComparisonReconciliationComp implements OnInit {
 
 			this.recursiveItemList(i);
 
+
 			console.log('going through each item and calling the below');
 
 			console.log('We have here: ' + this.localList.Items.length);
@@ -160,6 +161,10 @@ export class ComparisonReconciliationComp implements OnInit {
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
 		this.getItemDetailTest();
+		// Just need to find the correct indexes here to see
+		// what data is coming back...or use the controller
+		//then convert it to an arrow in html...(2 hours probably..)
+		console.log(this.localList.Items[1].CodesReviewer1[1].Fullpath);
 
 	}
 	public RefreshData() {
@@ -190,7 +195,16 @@ export class ComparisonReconciliationComp implements OnInit {
 		//	console.log(this.panelItem);
 		//}
 		//console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
-		console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
+		console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1]));
+		//console.log('testing' + this.localList.Items[1].CodesReviewer1[1].Fullpath.split(','));
+	}
+	getReconSplitArray(fullPath: string): string[] {
+
+		if (fullPath != '') {
+			return fullPath.split(',');
+		} else {
+			return [];
+		}
 	}
 	public hideme = [];
 	ShowFullPath(): boolean {
