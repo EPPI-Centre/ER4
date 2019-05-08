@@ -1504,6 +1504,32 @@ namespace EppiReviewer4
                     else
                     {
                         currentAttributeSet.ItemData.AdditionalText = windowAdditionalText.TextBoxAdditionalText.Text;
+                        ReviewSetsList reviewSets = TreeView.ItemsSource as ReviewSetsList;
+                        currentAttributeSet.ItemData.ItemAttributeId = e2.Object.ItemAttributeId;
+                        currentAttributeSet.ItemData.ItemSetId = e2.Object.ItemSetId;
+                        reviewSets.LoadingAttributes = true; // setting this so that the autosave insert doesn't kick in
+                        currentAttributeSet.IsSelected = true;
+                        foreach (ItemSet iSet in CurrentItemData) // need to update data that is already here...
+                        {
+                            if (iSet.SetId == currentAttributeSet.ItemData.SetId)
+                            {
+                                for ( int i = 0; i < iSet.ItemAttributesList.Count; i++)
+                                {
+                                    ReadOnlyItemAttribute roia = iSet.ItemAttributesList[i];
+                                    if (roia.ItemAttributeId == e2.Object.ItemAttributeId)
+                                    {//this is the one we should update it, we've found it :-)
+                                        //however, we can't update it, 'cause it's a readOnly object, so we'll substitute it.
+                                        ReadOnlyItemAttribute NewRoia = ReadOnlyItemAttribute.ReadOnlyItemAttribute_From_ItemAttributeData(currentAttributeSet.ItemData);
+                                        iSet.ItemAttributes.RemoveFromReadOnlyItemAttributeList(roia);
+                                        iSet.ItemAttributes.AddToReadOnlyItemAttributeList(NewRoia);
+                                        break;//stop the for cycle, we've found what's needed.
+                                    }
+                                }
+                                break;//stop the foreach cycle
+                            }
+                        }
+                        //currentAttributeSet.ItemData = itemData;
+                        reviewSets.LoadingAttributes = false;
                     }
                 };
                 BusyLoading.IsRunning = true;

@@ -1,26 +1,26 @@
 <div class="containsAtoolbar">
 	<kendo-toolbar class="small" style="background-color: #f5f6fa;">
 		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create New Code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights" ></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create new code'"  (click)="NewCodeSectionOpen()"  [disabled]="!HasWriteRights  || !CanCreateNewCode()" ></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->
 	<div id="RandomlyAssignSection" *ngIf="PanelName == 'RandomlyAssignSection'" class="col-12 col-sm-12 col-md-12 p-0 mb-1" style="min-width:120px;">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="card-body">
+            <div class="card-body">
                 <div class="row">
-                        <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
-                        <div class="form-group col-12 col-sm-10">
-                            <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
-                                    style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
-                                    (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
-                                <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                                        [selected]="item.key == selectedAllocated.key">
-                                    {{item.value}}
-                                </option>
-                            </select>
-                        </div>
+                    <div class="col-12 col-sm-2 text-sm-right" style="">Select from </div>
+                    <div class="form-group col-12 col-sm-10">
+                        <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
+                                style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)"
+                                (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
+                            <option *ngFor="let item of AllocateOptions" [value]="item.key"
+                                    [selected]="item.key == selectedAllocated.key">
+                                {{item.value}}
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row  " *ngIf="(selectedAllocated.value == 'All with this code')
 						||  (selectedAllocated.value == 'All without this code' )">
@@ -67,7 +67,7 @@
                         </div>
                     </div>
                 </div>
-				
+
                 <div class="row mt-2 justify-content-center justify-content-md-start">
                     <div class="col-12 col-md-4 row ">
                         <div class="mr-2 text-right" style="">
@@ -100,15 +100,15 @@
                             </kendo-numerictextbox>
                         </div>
                     </div>
-                    
+
                 </div>
-				
+
                 <div class="row my-1 ">
                     <div class="col-12 row justify-content-center justify-content-md-start m-3">
-                            <input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Included </div>
-                            <input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
-                            <div class="mr-2"> Excluded</div>
+                        <input class="mt-1 mr-1 ml-sm-4" type="radio" value="true" [(ngModel)]="allocateInclOrExcl">
+                        <div class="mr-2"> Included </div>
+                        <input class="mt-1 mr-1" type="radio" value="false" [(ngModel)]="allocateInclOrExcl">
+                        <div class="mr-2"> Excluded</div>
                     </div>
                 </div>
                 <div class="row">
@@ -131,7 +131,7 @@
                             </div>
                         </div>
                         <div *ngIf="NoSuitableCodeSet" ngbDropdown class="alert alert-danger " style="min-width:150px;">
-                            This review contains no Coding Tools able to receive random allocations. Please use the 
+                            This review contains no Coding Tools able to receive random allocations. Please use the
                             <span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
                             function to create a new tool (preferably of "Administration" type).
                         </div>
@@ -152,7 +152,10 @@
                         Cancel
                     </button>
                 </div>
-			</div>
+                <div class="row small">
+                    Click&nbsp;<span class="font-weight-bold">Create new code&nbsp;</span>if you need to add a new section in a coding tool. [The 'Create new code' button becomes clickable when you select a node in the tree on the right.]
+                </div>
+            </div>
 		</div>
 	</div>
 	<div id="AssignWorkSection" *ngIf="PanelName == 'AssignWorkSection'" class="col-12 p-0 mb-1">
@@ -225,50 +228,12 @@
 			</div>
 		</div>
 	</div>
-	<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12 col-md-12 p-0 mb-1">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1 form-group">
-			<div *ngIf="CurrentNode">
-				Current code (set) Name: <strong>{{CurrentNode.name}}</strong><br />
-			</div>
-			<form class="row" #NewCodeFromCollaborate="ngForm">
-				<div class="col-12">
-					<div class="form-group">
-						<label for="Codeset_TypeCollaborate">Code Type*</label>
-						<select #CodeTypeSelectCollaborate class="col-md-6 form-control" name="NewCode_TypeCollaborate"
-								[disabled]="!CurrentCodeCanHaveChildren">
-							<option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
-								{{type.value}}
-							</option>
-						</select>
-					</div>
-				</div>
-				<div class="form-group col-12">
-					<label for="source_NameCollaborate">Code Name*</label>
-					<input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-						   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
-						   #name="ngModel">
-					<span [hidden]="IsNewCodeNameValid()"
-						  class="alert alert-danger small p-1">
-						Name is required
-					</span>
-				</div>
-				<div class="form-group col-12 mt-2">
-					<label for="newSetDescriptionCollaborate">Description (optional)</label>
-					<textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
-							  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-				</div>
-				<div class="col-12">
-					<button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
-						Create
-					</button>
-					<button class="btn btn-outline-secondary ml-1"
-							(click)="CancelActivity()" style="width:200px;">
-						Cancel
-					</button>
-				</div>
-			</form>
-
-
+	<div id="NewCodeSection" *ngIf="PanelName == 'NewCodeSection'" class="col-12  col-md-12 p-0 mb-1">
+		<div *ngIf="CurrentNode">
+			&nbsp;&nbsp;Current coding tool or code: <strong>{{CurrentNode.name}}</strong><br />
+		</div>
+		<div class="border border-primary rounded">
+			<CreateNewCodeComp  (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
 		</div>
 	</div>
 	<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">

@@ -37,9 +37,9 @@
                     </kendo-toolbar>
                 </div>
             </div>
-            <div *ngIf="CurrentNode">
-                Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
-            </div>
+			<div *ngIf="CurrentNode">
+				&nbsp;&nbsp;&nbsp; Current code (or set) Name: <strong>{{CurrentNode.name}}</strong><br />
+			</div>
             <div *ngIf="ActivityPanelName == 'AddCodeSet'" class="container card card-body bg-light">
                 <form class="row" #NewCodesetFrom="ngForm">
                     <div class="col-5">
@@ -92,7 +92,7 @@
                     </div>
                 </form>
             </div>
-            <div *ngIf="ActivityPanelName == 'EditCodeset'" class="container card card-body bg-light">
+            <div *ngIf="ActivityPanelName == 'EditCodeset' && CurrentNode != null" class="container card card-body bg-light">
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
                     <div>Are you sure you want to delete '{{CurrentNode.name}}' and all its codes?</div>
                     <div>This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
@@ -174,7 +174,8 @@
                 </form>
             </div>
             <div *ngIf="ActivityPanelName == 'AddCode'" class="container card card-body bg-light">
-                <form class="row" #NewCodeFrom="ngForm">
+				<CreateNewCodeComp (emitterCancel)="CancelActivity()"></CreateNewCodeComp>
+                <!--<form class="row" #NewCodeFrom="ngForm">
                     <div class="col-12">
                         <div class="form-group">
                             <label for="Codeset_Type">Code Type*</label>
@@ -210,7 +211,7 @@
                             Cancel
                         </button>
                     </div>
-                </form>
+                </form>-->
             </div>
             <div *ngIf="ActivityPanelName == 'EditCode'" class="container card card-body bg-light">
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">

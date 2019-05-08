@@ -180,22 +180,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         return this._ItemsWithIncompleteCoding;
     }
     public get AllowedChildTypes(): kvAllowedAttributeType[] {
-        let res: kvAllowedAttributeType[] = [];
-        if (!this.CurrentNode) return res;
-        let att: SetAttribute | null = null;
-        let Set: ReviewSet | null = null;
-        if (this.CurrentNode.nodeType == "ReviewSet") Set = this.CurrentNode as ReviewSet;
-        else if (this.CurrentNode.nodeType == "SetAttribute") {
-            att = this.CurrentNode as SetAttribute;
-            if (att && att.set_id > 0) Set = this.ReviewSetsService.FindSetById(att.set_id);
-            if (!Set) return res;
-        }
-        //console.log("CurrentNode (Set)", Set);
-        if (Set && Set.setType) {
-            //console.log("allowed child types... ", Set.setType.allowedCodeTypes, Set.setType.allowedCodeTypes[0].key, Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)')));
-            return Set.setType.allowedCodeTypes.filter(res => !res.value.endsWith('- N/A)') );
-        }
-        return res;
+        return this.ReviewSetsService.AllowedChildTypesOfSelectedNode;
     }
     public get CurrentCodeLevel(): number {
         if (!this.CurrentNode) return -1;//??
@@ -368,6 +353,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.DestinationDataEntryMode = "";
         this.ChangeDataEntryModeMessage = "";
         this._ActivityPanelName = "";
+		
     }
     CodesetTypeChanged(typeId: number) {
         this.NewSetSelectedTypeId = typeId;

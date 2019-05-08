@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <div class="row m-1 p-1" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S'}" >
+    <div class="row m-1 p-1" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S'}">
         <div class="row w-100 col-12 p-0 m-0">
             <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Ref. Type </div>
             <div class="col-sm-5 col-12 p-1">
@@ -118,17 +118,23 @@
                 </div>
             </div>
         </div>
-        <div class="row w-100 p-0 m-0">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Url</div>
-                <div class="col p-0 m-1">
-                    <input class="p-1 w-100" type="text" [(ngModel)]="item.url" />
-                </div>
+        <div class="row w-100 p-0 m-0 ">
+            <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Url</div>
+            <div class="col p-0 m-1">
+                <input class="p-1 w-100" type="text" [(ngModel)]="item.url" />
             </div>
+        </div>
+        <div class="row w-100 p-0 m-0">
             <div class="w-50 row p-0 m-0">
                 <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">DOI</div>
                 <div class="col p-0 m-1">
                     <input class="p-1 w-100" type="text" [(ngModel)]="item.doi" />
+                </div>
+            </div>
+            <div class="w-50 row p-0 m-0">
+                <div class="p-1 ml-1" style="min-width:90px;">Availability</div>
+                <div class="col p-0 m-1">
+                    <input class="p-1 w-100" type="text" [(ngModel)]="item.availability" />
                 </div>
             </div>
         </div>

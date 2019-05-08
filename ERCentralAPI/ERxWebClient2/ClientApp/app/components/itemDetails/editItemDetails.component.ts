@@ -50,7 +50,7 @@ export class editItemDetailsComp implements OnInit {
             });
         }
     }
-    private item: Item | null = null;
+    public item: Item | null = null;
     private OriginalItem: Item | null = null;//used to support "cancel".
     private subItemIDinPath: Subscription | null = null;
     private subReturnTo: Subscription | null = null;
