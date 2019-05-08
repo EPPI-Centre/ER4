@@ -195,7 +195,7 @@ export class ComparisonReconciliationComp implements OnInit {
 		//	console.log(this.panelItem);
 		//}
 		//console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1].arms));
-		console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1]));
+		//console.log('Arms here now?: ' + JSON.stringify(this._ItemListService.ItemList.items[1]));
 		//console.log('testing' + this.localList.Items[1].CodesReviewer1[1].Fullpath.split(','));
 	}
 	getReconSplitArray(fullPath: string): string[] {
