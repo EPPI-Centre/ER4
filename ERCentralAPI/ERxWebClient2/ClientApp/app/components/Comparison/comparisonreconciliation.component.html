@@ -40,8 +40,7 @@
 							</span>
 							<span *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 								<br />
-								<button class="btn btn-outline-primary" *ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
-										(click)="ShowFullPath(recon.CodesReviewer1[j-1])">
+								<button class="btn btn-outline-primary" *ngIf="recon.CodesReviewer1[j-1].ArmID == 0">
 									{{recon.CodesReviewer1[j-1].Name}}
 								</button>
 							</span>
@@ -49,7 +48,7 @@
 							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
 								<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
 									<b>{{a.title}}</b>
-									<!-- Need a loop in here for the codes in this arm -->
+
 									<span *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 										<span class="row" *ngIf="recon.CodesReviewer1[j-1].ArmID != 0">
 											<span [hidden]="!hideme[j]">
@@ -86,8 +85,7 @@
 							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
 								<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
 									<b>{{b.title}}</b>
-									<!-- Need a loop in here for the codes in this arm -->
-									<!-- Need a loop in here for the codes in this arm -->
+
 									<span *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 										<span class="row"  *ngIf="recon.CodesReviewer2[k-1].ArmID != 0">
 											<span [hidden]="!hideme[k]">
@@ -133,8 +131,7 @@
 							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
 								<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
 									<b>{{c.title}}</b>
-									<!-- Need a loop in here for the codes in this arm -->
-									<!-- Need a loop in here for the codes in this arm -->
+
 									<span *ngFor="let z of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 										<span class="row"  *ngIf="recon.CodesReviewer3[z-1].ArmID != 0">
 											<span [hidden]="!hideme[z]">

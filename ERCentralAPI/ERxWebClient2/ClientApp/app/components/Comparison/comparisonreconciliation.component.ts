@@ -1,9 +1,9 @@
-import { Component,  OnInit,  Output, EventEmitter } from '@angular/core';
+import { Component,  OnInit } from '@angular/core';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
-import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
-import { ItemListService, Item, Criteria } from '../services/ItemList.service';
+import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
@@ -29,52 +29,16 @@ export class ComparisonReconciliationComp implements OnInit {
 
 	private localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
 		new Comparison(), ""
-		);
-	public CurrentComparison: Comparison = new Comparison();
+	);
 	private ReviewSet: ReviewSet = new ReviewSet();
-	public item: Item = new Item();
+	private item: Item = new Item();
+	public CurrentComparison: Comparison = new Comparison();
 	public panelItem: Item | undefined = new Item();
-	public PanelName: string = '';
-	public chosenFilter: SetAttribute | null = null;
 	public hideme = [];
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
     }
-	public selectedReviewer1: Contact = new Contact();
-	public selectedReviewer2: Contact = new Contact();
-	public selectedReviewer3: Contact = new Contact();
-	public selectedCodeSet: ReviewSet = new ReviewSet();
-	@Output() emitterCancel = new EventEmitter();
 
-	public get Contacts(): Contact[] {
-		return this._reviewInfoService.Contacts;
-	}
-	canSetFilter(): boolean {
-		if (this._reviewSetsService.selectedNode
-			&& this._reviewSetsService.selectedNode.nodeType == "SetAttribute") return true;
-		return false;
-	}
-	clearChosenFilter() {
-		this.chosenFilter = null;
-	}
-	public LoadComparisons(comparison: Comparison, ListSubType: string) {
-
-		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
-		}
-		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
-		crit.description = listDescription;
-		crit.listType = ListSubType;
-		crit.comparisonId = comparison.comparisonId;
-		this._ItemListService.FetchWithCrit(crit, listDescription);
-		this.item = this._ItemListService.ItemList.items[0];
-	}
 	getReconciliations() {
 
 		if (this.item != null && this.item != undefined) {
@@ -87,11 +51,7 @@ export class ComparisonReconciliationComp implements OnInit {
 			this.recursiveItemList(i);
 		}
 	}
-	public reconcilingCodeArrayLength(len: number): any {
-
-		return	Array.from({ length: len }, (v, k) => k + 1);
-	}
-	public recursiveItemList(i: number) {
+	recursiveItemList(i: number) {
 		let ItemSetListTest: ItemSet[] = [];
 		this._reconciliationService.FetchItemSetList(this._ItemListService.ItemList.items[i].itemId)
 
@@ -109,41 +69,26 @@ export class ComparisonReconciliationComp implements OnInit {
 				}
 			);
 	}
-	public ReconRowClick(itemid: number) {
-
-		let tempItemList = this._ItemListService.ItemList.items;
-		this.panelItem = tempItemList.find(x => x.itemId == itemid);
-		this.getItemDocuments(itemid);
-	}
-	public RefreshData() {
+	RefreshData() {
 
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
 		if (this.panelItem) {
-
 			this.getItemDocuments(this.panelItem.itemId);
 		}
-
 		this._reconciliationService.FetchArmsForReconItems(this._ItemListService.ItemList.items);
 	}
 	getItemDocuments(itemid: number) {
 		this._ItemDocsService.FetchDocList(itemid);
 	}
-	getReconSplitArray(fullPath: string): string[] {
+	public getReconSplitArray(fullPath: string): string[] {
 		if (fullPath != '') {
 			return fullPath.split(',');
 		} else {
 			return [];
 		}
 	}
-	ShowFullPath(): boolean {
-
-		if (true) {
-
-		}
-		return false;
-	}
-	UnComplete(recon: ReconcilingItem) {
+	public UnComplete(recon: ReconcilingItem) {
 
 		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
 			.then(
@@ -152,7 +97,7 @@ export class ComparisonReconciliationComp implements OnInit {
 				}
 			);
 	}
-	Complete(recon: ReconcilingItem, contactID: number) {
+	public Complete(recon: ReconcilingItem, contactID: number) {
 
 		this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true)
 			.then(
@@ -160,6 +105,16 @@ export class ComparisonReconciliationComp implements OnInit {
 					this.RefreshData();
 				}
 			);
+	}
+	public reconcilingCodeArrayLength(len: number): any {
+
+		return Array.from({ length: len }, (v, k) => k + 1);
+	}
+	public ReconRowClick(itemid: number) {
+
+		let tempItemList = this._ItemListService.ItemList.items;
+		this.panelItem = tempItemList.find(x => x.itemId == itemid);
+		this.getItemDocuments(itemid);
 	}
 	ngOnInit() {
 		this.item = this._ItemListService.ItemList.items[0];
@@ -170,8 +125,10 @@ export class ComparisonReconciliationComp implements OnInit {
 		this.router.navigate(['Main']);
 	}
 	Clear() {
-		this.selectedCodeSet = new ReviewSet();
-		// NEED TO ADD CODE FOR THIS...!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		 this.CurrentComparison = new Comparison();
+		 this.panelItem  = new Item();
+		 this.hideme = [];
 	}
 }
 

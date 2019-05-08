@@ -6,6 +6,7 @@ import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
 import { ArmsService } from './arms.service';
+import { ModalService } from './modal.service';
 
 @Injectable({
 
@@ -18,6 +19,7 @@ export class ReconciliationService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
 		private _armsService: ArmsService,
+		private _modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();
@@ -35,10 +37,16 @@ export class ReconciliationService extends BusyAwareService {
 			(res: ItemSet[]) => {
 				this.RemoveBusy('FetchItemSetList');
 				return res;
+			},
+			(error) => {
+				this.RemoveBusy("FetchItemSetList");
+				this._modalService.GenericError(error);
+				return error;
 			}
 		);
 	}
 
+	//Check this later...
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
@@ -47,17 +55,23 @@ export class ReconciliationService extends BusyAwareService {
 		return items;
 	}
 
-	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison, contactID: number, completeOrNot: boolean): any {
+	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison,
+		contactID: number, completeOrNot: boolean): Promise<ItemSet> {
 
 		this._BusyMethods.push("ItemSetCompleteComparison");
 		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot });
 
-		return this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
+		return this._httpC.post<ItemSet>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
 		)
 			.toPromise().then(
 				(res) => {
 					this.RemoveBusy('ItemSetCompleteComparison');
 					return res;
+				},
+				(error) => {
+					this.RemoveBusy("ItemSetCompleteComparison");
+					this._modalService.GenericError(error);
+					return error;
 				}
 			);
 	}
