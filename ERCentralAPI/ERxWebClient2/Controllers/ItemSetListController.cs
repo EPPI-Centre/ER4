@@ -58,7 +58,7 @@ namespace ERxWebClient2.Controllers
             }
             catch(Exception e)
             {               
-                _logger.LogError(e, "Error when fetching a set list: {0}", ItemIDCrit.Value);
+                _logger.LogError(e, "Error when fetching a item set list: {0}", ItemIDCrit.Value);
                 return StatusCode(500, e.Message);
             }
         }
@@ -163,7 +163,6 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-
 				if (SetCSLAUser4Writing())
 				{
 					ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
@@ -223,14 +222,11 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison create data portal error");
+				_logger.LogException(e, "Comparison complete or uncomplete data portal error");
 				throw;
 			}
 		}
-
-
 	}
-	    
 
     public class MVCItemAttributeSaveCommand
     {
@@ -299,20 +295,13 @@ namespace ERxWebClient2.Controllers
 	{
 		
 		public Item _Item { get; set; }
-
 		public bool _IsCompleted { get; set; }
-
 		public int _CompletedByID { get; set; }
-		
 		public long _CompletedItemSetID { get; set; }
-
 		public string _CompletedByName { get; set; }
-
 		public List<ReconcilingCode> _CodesReviewer1 { get; set; }
 		public List<ReconcilingCode> _CodesReviewer2 { get; set; }
-
 		public List<ReconcilingCode> _CodesReviewer3;
-
 		public long _ItemSetR1 { get; set; }
 		public long _ItemSetR2 { get; set; }
 		public long _ItemSetR3 { get; set; }

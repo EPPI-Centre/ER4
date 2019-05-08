@@ -1,12 +1,10 @@
 import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ComparisonsService, Comparison } from './comparisons.service';
+import {  Comparison } from './comparisons.service';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
-import { ignoreElements } from 'rxjs/operators';
 import { ArmsService } from './arms.service';
 
 @Injectable({
@@ -28,7 +26,6 @@ export class ReconciliationService extends BusyAwareService {
 	FetchItemSetList(ItemIDCrit: number): Promise<ItemSet[]> {
 
 		this._BusyMethods.push("FetchItemSetList");
-
 		let body = JSON.stringify({ Value: ItemIDCrit });
 
 		return this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
@@ -36,8 +33,6 @@ export class ReconciliationService extends BusyAwareService {
 			.toPromise().then(
 
 			(res: ItemSet[]) => {
-
-				console.log('Inside the API we have: ' + JSON.stringify(res));
 				this.RemoveBusy('FetchItemSetList');
 				return res;
 			}
@@ -47,7 +42,6 @@ export class ReconciliationService extends BusyAwareService {
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
-
 			this._armsService.FetchPromiseArms(items[i]);
 		}
 		return items;
@@ -56,16 +50,12 @@ export class ReconciliationService extends BusyAwareService {
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison, contactID: number, completeOrNot: boolean): any {
 
 		this._BusyMethods.push("ItemSetCompleteComparison");
-
 		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot });
 
 		return this._httpC.post<any>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
 		)
 			.toPromise().then(
-
 				(res) => {
-
-					console.log('Inside the API we have: ' + JSON.stringify(res));
 					this.RemoveBusy('ItemSetCompleteComparison');
 					return res;
 				}
@@ -114,15 +104,11 @@ export class ReconcilingItemList {
 		this._Comparison = comp;
 		this.Description = Descr;
 
-		//console.log('got inside the constructor: ', Set.attributes.length);
 		if (Set != null && Set != undefined ) {
-
 			if (Set.attributes != null && Set.attributes.length > 0) {
-
 				for (let CaSet of Set.attributes) {
 					this.buildToPasteFlatUnsortedList(CaSet, "");
 				}
-
 			}
 
 		}
@@ -134,30 +120,17 @@ export class ReconcilingItemList {
 		let astp: ReconcilingCode = new ReconcilingCode(aSet.attribute_id,
 			aSet.attributeSetId, aSet.attribute_name, path);
 
-		//console.log(' Inside buildToPasteFlatUnsortedList ');
-
 		this._Attributes.push(astp);
-		//console.log(JSON.stringify(astp));
 
 		for (let CaSet of aSet.attributes) {
-			//
 			this.buildToPasteFlatUnsortedList(CaSet, path + "," + aSet.attribute_name);
-			//this.buildToPasteFlatUnsortedList(CaSet, pathaSet.attribute_name]);
 		}
-		
-
 	}
 
 	public AddItem(item: Item, itemSetList: ItemSet[]): any {
 
-		//console.log(JSON.stringify(this._Comparison) + '\n');
-		//console.log(itemSetList + '\n');
-		//console.log(itemSetList.length + '\n');
-		console.log('For this ITEM we have the following: ' + item.shortTitle + '\n');
-
 		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return;
 
-		console.log('got here 2');
 		let isCompleted: boolean = false;
 		let CompletedBy: string = "";
 		let CompletedByID: number = 0;
@@ -167,10 +140,8 @@ export class ReconcilingItemList {
 		let r3: ReconcilingCode[] = [];
 
 		let itSetR1: number = -1, itSetR2: number = -1, itSetR3: number = -1;
-		//console.log('got here 3');
+
 		for (let iSet of itemSetList) {
-			//console.log('got here 4 setID: ' + iSet.setId);
-			//console.log('got here 4 comparison: ' + JSON.stringify(this.Comparison));
 			if (iSet.setId != this.Comparison.setId) continue;
 			else {
 
@@ -183,35 +154,24 @@ export class ReconcilingItemList {
 
 				if (iSet.contactId == this._Comparison.contactId1) {
 					itSetR1 = iSet.itemSetId;
-					//console.log('got here 5');
 					for (let roia of iSet.itemAttributesList) {
-						//console.log('got here 6');
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)
-						//this is necessary to avoid trying to add a code that 
-						//belongs to the item, but is coming from a dead branch(a
-						//code for wich one of the parents got deleted) !
-						{//in such situations r0 is null
+						{
 							let r: ReconcilingCode = r0.Clone();
 
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r1.push(r);
-							let test1: any = r1[r1.length - 1];
-							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
-							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
-							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
+							
 						}
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId2) {
-					//console.log('got here 7');
 					itSetR2 = iSet.itemSetId;
-
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
-						//console.log('got here 8');
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
 						{//in such situations r0 is null
 							let r: ReconcilingCode = r0.Clone();
@@ -219,49 +179,28 @@ export class ReconcilingItemList {
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r2.push(r);
-							let test2: any = r2[r2.length - 1];
-							//console.log('hence we have: ' + r2.length);
-							//console.log('hence we have: ' + JSON.stringify(test2) + '\n');
-							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
-							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
-							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
 						}
 					}
 				}
 				else if (iSet.contactId == this._Comparison.contactId3) {
-					//console.log('got here 9');
 					itSetR3 = iSet.itemSetId;
 					for (let roia of iSet.itemAttributesList) {
 						let r0: ReconcilingCode | null = this.GetReconcilingCodeFromID(roia.attributeId);
 						if (r0 != null)//this is necessary to avoid trying to add a code that belongs to the item, but is coming from a dead branch (a code for wich one of the parents got deleted)!
-						{//in such situations r0 is null
-							//console.log('got here 10');
+						{
 							let r = r0.Clone();
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
 							r3.push(r);
-							let test3: any = r3[r3.length - 1];
-							//console.log('hence we have: ' + r3.length);
-							//console.log('hence we have: ' + JSON.stringify(test3) + '\n');
-							console.log('hence we have full path: ' + JSON.stringify(r.Fullpath) + '\n');
-							console.log('hence we have armID: ' + JSON.stringify(r.ArmID) + '\n');
-							console.log('hence we have ArmName: ' + JSON.stringify(r.ArmName) + '\n');
 						}
 					}
 				}
 
 			}
 		}
-		console.log('hence we have for r1: ' + r1.length);
-		console.log('hence we have for r2: ' + r2.length);
-		console.log('hence we have for r3: ' + r3.length);
 		this._Items.push(new ReconcilingItem(item, isCompleted, r1, r2, r3,
 			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
-		//for (var i = 0; i < r1.length; i++) {
-			
-		//}
-		
 	}
 
 }
@@ -337,8 +276,6 @@ export class ReconcilingCode {
 	}
 }
 export class ReconcilingItem {
-
-
 	private _Item: Item = new Item();
 	get Item(): Item { return this._Item; }
 
@@ -386,14 +323,5 @@ export class ReconcilingItem {
 		this._ItemSetR1 = itemsetR1;
 		this._ItemSetR2 = itemsetR2;
 		this._ItemSetR3 = itemsetR3;
-
 	}
-
 }
-
-//export class ReconcileAndCompare {
-
-//	public recon: ReconcilingItem;
-//	public comp: Comparison;
-
-//}
