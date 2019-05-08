@@ -90,13 +90,13 @@ export class ArmsService extends BusyAwareService implements OnInit  {
 			return currentItem.arms;
 	}
 
-	public FetchPromiseArms(currentItem: Item): iArm[] {
+	public FetchPromiseArms(currentItem: Item): Promise<iArm[]> {
 
 		this._BusyMethods.push("FetchPromiseArms");
 		this._currentItem = currentItem;
 		let body = JSON.stringify({ Value: currentItem.itemId });
 
-		this._http.post<iArm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
+		return this._http.post<iArm[]>(this._baseUrl + 'api/ItemArmList/GetArms',
 
 			body).toPromise().then(
 
@@ -104,17 +104,17 @@ export class ArmsService extends BusyAwareService implements OnInit  {
 					this.arms = result;
 					currentItem.arms = this.arms;
 					this.RemoveBusy("FetchPromiseArms");
+					return result;
 					
+			},
+
+			(error) => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchArms");
+				return error;
 			}
-
-			//, error => {
-			//	this.modalService.SendBackHomeWithError(error);
-			//	this.RemoveBusy("FetchArms");
-			//}
 		);
-		return this.arms;
 	}
-
 
 	public CreateArm(currentArm: Arm): Promise<Arm> {
 

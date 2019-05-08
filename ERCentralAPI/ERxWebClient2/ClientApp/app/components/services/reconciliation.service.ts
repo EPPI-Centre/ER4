@@ -46,7 +46,6 @@ export class ReconciliationService extends BusyAwareService {
 		);
 	}
 
-	//Check this later...
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
@@ -54,6 +53,7 @@ export class ReconciliationService extends BusyAwareService {
 		}
 		return items;
 	}
+
 
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison,
 		contactID: number, completeOrNot: boolean): Promise<ItemSet> {
