@@ -427,8 +427,14 @@ namespace BusinessLibrary.Security
                     string result = "";
                     if (dict.ContainsKey("groupRoles"))
                     {
+#if (CSLA_NETCORE)
+                        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
+                        object[] roles = dict["groupRoles"] as object[];
+                        foreach(Newtonsoft.Json.Linq.JToken role in meR)
+#else
                         object[] roles = dict["groupRoles"] as object[];
                         foreach (Dictionary<string, object> role in roles)
+#endif
                         {
                             if (role["name"].ToString().ToLower() != "possible contributor"
                                 && role["name"].ToString().ToLower() != "mailing list"
@@ -436,7 +442,18 @@ namespace BusinessLibrary.Security
                             {
                                 if (dict.ContainsKey("user"))
                                 {
-                                    Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
+#if (CSLA_NETCORE)
+                                    var userD = dict["user"]  as Newtonsoft.Json.Linq.JToken; 
+                                    if (userD != null && userD["userId"] != null)
+                                    {
+                                        ArchieID = userD["userId"].ToString();
+                                        result = "OK";
+                                        break;
+                                    }
+                                    else result = "no userId for this person!";
+#else
+                                     Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
+
                                     if (userD.ContainsKey("userId"))
                                     {
                                         ArchieID = userD["userId"].ToString();
@@ -449,6 +466,7 @@ namespace BusinessLibrary.Security
                                     //    "userName": "rasmus.moustgaard@gmail.com",
                                     //    "link": "https://test-archie.cochrane.org/rest/users/z1607150942450721585638601392868"
                                     //  },
+#endif
                                 }
                                 else
                                 {
@@ -847,14 +865,31 @@ namespace BusinessLibrary.Security
         {
             get
             {
+#if (!CSLA_NETCORE)
                 return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
+#else
+                string host = Environment.MachineName.ToLower();
+                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                {//use live address: this is the real published ER4
+                    return "https://login.cochrane.org/";
+                }
+                else
+                {//not a live publish, use test archie 
+                    return "https://test-login.cochrane.org/";
+                }
+
+#endif
             }
         }
         private static string CochraneOAuthSS
         {
             get
             {
+#if (!CSLA_NETCORE)
                 return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
+#else
+                return "***REMOVED***";
+#endif
             }
         }
         private string Redirect
@@ -1055,5 +1090,5 @@ namespace BusinessLibrary.Security
         }
 #endif
 
+                    }
         }
-}

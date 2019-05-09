@@ -175,6 +175,11 @@ namespace BusinessLibrary.Security
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, reviewId, LoginMode));
         }
 #if (CSLA_NETCORE)
+        public static ReviewerIdentity GetIdentity(string ArchieCode, string Status, string LoginMode, int reviewId)
+        {
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(ArchieCode, Status, LoginMode, reviewId));
+        }
+
         public static ReviewerIdentity GetIdentity(int contactId, int reviewId, string displayName)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(contactId, reviewId, displayName, "ERWeb"));

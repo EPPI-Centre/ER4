@@ -39,7 +39,32 @@ export class HomeComponent implements OnInit {
             return;
         }
         this.ReviewerIdentityServ.LoginReq(u, p);
-    };
+    }
+    GoToArchie() {
+        //
+        let url = "";
+        let redirectUri = this._baseUrl + "ArchieCallBack";
+        redirectUri = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";//temporary!!!!!!!
+        if (this._baseUrl.indexOf("://eppi.ioe.ac.uk") != -1) {
+            //this is the production environment, go there
+            url = "https://vno-account.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+        }
+        else {
+            //go to test env
+            url = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+        }
+        url += redirectUri + "&scope=document person&state=";
+        var state = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (var i = 0; i < 12; i++) {//generate a random string of 12 chars...
+            state += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        url += state + "&access_type=offline";
+        url = encodeURI(url);
+        console.log("Trying this URL:", url);
+        window.location.href = url;
+    }
     
     LoginFailed() {
         this.ShowLoginFailed = true;

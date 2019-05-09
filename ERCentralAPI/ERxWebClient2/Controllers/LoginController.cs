@@ -50,6 +50,28 @@ namespace ERxWebClient2.Controllers
                 return Forbid();
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult LoginFromArchie([FromBody] ArchieLoginCreds lc)
+        {
+
+            try
+            {
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.code, lc.state, "Archie", 0);
+                if (ri.IsAuthenticated)
+                {
+                    ri.Token = BuildToken(ri);
+                    lc.reviewerIdentity = ri;
+                    return Ok(lc);
+                }
+                else { return Forbid(); }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Logging in exception!");
+                return Forbid();
+            }
+        }
+
         [Authorize]
         [HttpPost("[action]")]
         public IActionResult LoginToReview([FromBody] SingleIntCriteria RevIDCrit)
@@ -161,7 +183,13 @@ namespace ERxWebClient2.Controllers
         public string Username { get; set; }
         public string Password { get; set; }
     }
-
+    public class ArchieLoginCreds
+    {
+        public string code { get; set; }
+        public string state { get; set; }
+        public string error { get; set; }
+        public ReviewerIdentity reviewerIdentity { get; set; }
+    }
     public class LoginCredsSA
     {
         public string Username { get; set; }

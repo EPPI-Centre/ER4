@@ -15,6 +15,7 @@ import { ReviewerTermsService } from './ReviewerTerms.service';
 import { ModalService } from './modal.service';
 import { take } from 'lodash';
 import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
+import { stack } from '@progress/kendo-drawing';
 
 
 @Injectable({
@@ -153,7 +154,31 @@ export class ReviewerIdentityService implements OnDestroy {
             );
 
     }
-    
+
+    public LoginViaArchieReq(code: string, state: string) {
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        let reqpar = new ArchieLoginCreds(code, state);
+        return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LoginFromArchie',
+            reqpar).subscribe(res => {
+                if (res.error !== "") {
+                    //to be confirmed
+                }
+                else if (res.reviewerIdentity && res.reviewerIdentity.userId > 0) {
+                    //good, things worked
+                    this.reviewerIdentity = res.reviewerIdentity;
+                    this.router.navigate(['intropage']);
+                }
+            }, error => {
+                ////check error is 401, if it is show modal and on modal close, go home
+                //if (error = 401) this.SendBackHome();
+
+                this.LoginFailed.emit();
+            }
+            );
+
+    }
+
+
     public LoginToReview(RevId: number) {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
@@ -389,6 +414,16 @@ class LoginCredsSA {
     public Password: string = "";
     public RevId: number;
 }
+class ArchieLoginCreds {
+    constructor(Code: string, State: string) {
+        this.code = Code;
+        this.state = State;
+    }
+    public code: string = "";
+    public state: string = "";
+    public error: string = "";
+    public reviewerIdentity: ReviewerIdentity | null = null;
+    }
 class LogonTicketCheck {
     constructor(u: string, g: string) {
         this.userId = u;
