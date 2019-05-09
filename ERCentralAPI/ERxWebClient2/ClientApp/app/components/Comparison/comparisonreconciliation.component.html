@@ -48,9 +48,13 @@
 										</i>
 									</span>
 									<br />
+									<span>
+										{{recon.CodesReviewer1[j-1].InfoBox}}
+									</span>
 								</span>
 								<button class="btn btn-outline-primary" *ngIf="recon.CodesReviewer1[j-1].ArmID == 0" (click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
-									{{recon.CodesReviewer1[j-1].Name}}
+									{{recon.CodesReviewer1[j-1].Name
+										}}
 								</button>
 							</span>
 							<br />
@@ -93,6 +97,9 @@
 										</i>
 									</span>
 									<br />
+									<span>
+										{{recon.CodesReviewer2[k-1].InfoBox}}
+									</span>
 								</span>
 								<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0" class="btn btn-outline-info"  (click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
 									{{recon.CodesReviewer2[k-1].Name}}
@@ -139,6 +146,9 @@
 										</i>
 									</span>
 									<br />
+									<span>
+										{{recon.CodesReviewer3[l-1].InfoBox}}
+									</span>
 								</span>
 								<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0" class="btn btn-outline-dark" (click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
 									{{recon.CodesReviewer3[l-1].Name}}
