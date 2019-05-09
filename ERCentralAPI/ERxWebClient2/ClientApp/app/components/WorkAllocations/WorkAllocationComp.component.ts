@@ -14,7 +14,6 @@ import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { ItemListComp } from '../ItemList/itemListComp.component';
-import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -33,7 +32,6 @@ export class WorkAllocationComp implements OnInit {
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		private _comparisonsService: ComparisonsService,
 		private _notificationService: NotificationService,
-		private _eventEmitterService: EventEmitterService,
 		 @Inject('BASE_URL') private _baseUrl: string
     ) { }
 

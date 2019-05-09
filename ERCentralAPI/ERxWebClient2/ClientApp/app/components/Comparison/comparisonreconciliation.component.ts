@@ -33,6 +33,10 @@ export class ComparisonReconciliationComp implements OnInit {
 	public CurrentComparison: Comparison = new Comparison();
 	public panelItem: Item | undefined = new Item();
 	public hideme = [];
+	public hidemeOne = [];
+	public hidemeTwo = [];
+	public hidemeThree = [];
+	public hidemearms = [];
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
     }
