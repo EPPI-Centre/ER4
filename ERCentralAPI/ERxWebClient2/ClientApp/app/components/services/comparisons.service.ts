@@ -261,6 +261,7 @@ export class ComparisonsService extends BusyAwareService {
 	public CompleteComparison(completeComparison: iCompleteComparison) {
 
 		this._BusyMethods.push("CompleteComparison");
+
 		//let body = JSON.stringify({ Value: ComparisonId });
 		return this._httpC.post<string>(this._baseUrl +
 			'api/Comparisons/CompleteComparison', completeComparison)

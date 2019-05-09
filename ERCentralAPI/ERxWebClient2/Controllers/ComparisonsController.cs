@@ -80,7 +80,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison Complete data portal error");
+				_logger.LogException(e, "Comparison Report data portal error");
 				throw;
 			}
 		}

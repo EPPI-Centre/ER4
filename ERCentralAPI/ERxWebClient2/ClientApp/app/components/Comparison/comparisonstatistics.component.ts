@@ -28,28 +28,22 @@ export class ComparisonStatsComp implements OnInit {
 		private _notificationService: NotificationService
 	) { }
 
-	private comparisonID: number = 0;
-	public PanelName: string = '';
-	public CodeSets: ReviewSet[] = [];
-	public selectedReviewer1: Contact = new Contact();
-	public selectedReviewer2: Contact = new Contact();
-	public selectedReviewer3: Contact = new Contact();
+	private PanelName: string = '';
+	private CodeSets: ReviewSet[] = [];
 	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public selectedFilter!: singleNode;
+
 	public CompleteSectionShow: boolean = false;
-	public RunQuickReportShow: boolean = false;
 	public tabSelected: string = 'AgreeStats';
 	public lstContacts: Array<Contact> = new Array();
-	@Output() criteriaChange = new EventEmitter();
-	@Output() ComparisonClicked = new EventEmitter();
+
+	//@Output() criteriaChange = new EventEmitter();
+	//@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
-	//@Input('runQuickReport') runQuickReport!: boolean;
 	@Output() setListSubType = new EventEmitter();
+
 	public ListSubType: string = "";
 	public selectedCompleteUser: Contact = new Contact();
-
 	private _Contacts: Contact[] = [];
-
 	public get Contacts(): Contact[] {
 
 		this._Contacts = this._reviewInfoService.Contacts;
@@ -62,65 +56,45 @@ export class ComparisonStatsComp implements OnInit {
 			return this._Contacts;
 		}
 	}
-
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
 	}
-
 	IsServiceBusy(): boolean {
 		if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this._reviewInfoService.IsBusy) return true;
 		else return false;
 	}
 	CanWrite(): boolean {
-		//console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
 		if (this._reviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
-			//console.log('CanWrite', true);
 			return true;
 		}
 		else {
-			//console.log('CanWrite', false);
 			return false;
 		}
 	}
-	
-	public NewComparisonStatsSectionOpen() {
-
+	NewComparisonStatsSectionOpen() {
 		if (this.PanelName == 'NewComparisonStatsSection') {
 			this.PanelName = '';
 		} else {
 			this.PanelName = 'NewComparisonStatsSection';
 		}
-		
 	}
 	public checkCanComplete1(): boolean {
-
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
-
 		return stats.RawStats.canComplete1vs2;
-
 	}
 	public checkCanComplete2(): boolean {
-
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
-
 		return stats.RawStats.canComplete2vs3;
-
 	}
 	public checkCanComplete3(): boolean {
-
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
-
 		return stats.RawStats.canComplete1vs3;
-
 	}	
-
-	LoadComparisonList(comparisonId: number, subtype: string) {
-
+	public LoadComparisonList(comparisonId: number, subtype: string) {
 		for (let item of this._comparisonsService.Comparisons) {
 			if (item.comparisonId == comparisonId) {
 				this.ListSubType = subtype;
 				this.setListSubType.emit(this.ListSubType);
-				//this.criteriaChange.emit(item);
 				this.LoadComparisons(item, this.ListSubType);
 				this._eventEmitter.PleaseSelectItemsListTab.emit();
 				return;
@@ -128,8 +102,7 @@ export class ComparisonStatsComp implements OnInit {
 		}
 
 	}
-
-	LoadReconciliation(comparisonId: number, subtype: string) {
+	public LoadReconciliation(comparisonId: number, subtype: string) {
 		for (let item of this._comparisonsService.Comparisons) {
 			if (item.comparisonId == comparisonId) {
 
@@ -141,13 +114,11 @@ export class ComparisonStatsComp implements OnInit {
 	GoToReconcile() {
 		this.router.navigate(['Reconciliation']);
 	}
-	Complete(currentComparison: Comparison) {
-
+	public Complete(currentComparison: Comparison) {
 		var completeComparison = <iCompleteComparison>{};
 		completeComparison.comparisonId = currentComparison.comparisonId;
 		completeComparison.contactId = this.selectedCompleteUser.contactId;
 		completeComparison.whichReviewers = this.ListSubType;
-		console.log(completeComparison);
 
 		this._comparisonsService.CompleteComparison(completeComparison).then(
 			(res: any) => {
@@ -164,13 +135,10 @@ export class ComparisonStatsComp implements OnInit {
 			}
 			);
 	}
-	SendToComplete(members: string, listSubType: string) {
+	public SendToComplete(members: string, listSubType: string) {
 
 		this.ListSubType = listSubType;
-
 		let currentComparison: Comparison = this._comparisonsService.currentComparison;
-		//console.log(currentComparison);
-	
 		if (members == '1And2') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId1;
@@ -205,14 +173,14 @@ export class ComparisonStatsComp implements OnInit {
 		this.CompleteSectionShow = true;
 
 	}
-	CloseConfirm() {
+	public CloseConfirm() {
 
 		this.tabSelected = 'AgreeStats';
 		this.CompleteSectionShow = false;
 		this.lstContacts = [];
 		this.ListSubType = '';
 	}
-	public LoadComparisons(comparison: Comparison, ListSubType: string) {
+	LoadComparisons(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
 		crit.listType = ListSubType;
@@ -228,11 +196,9 @@ export class ComparisonStatsComp implements OnInit {
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
-		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this._ItemListService.FetchWithCrit(crit, listDescription);
-		console.log('checking: ' + JSON.stringify(this._ItemListService.ItemList.items.length));
 	}
-	public LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
+	LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
 		crit.listType = ListSubType;
@@ -248,28 +214,19 @@ export class ComparisonStatsComp implements OnInit {
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
-		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
 		this._ItemListService.FetchWithItems(crit, listDescription).then(
-
-			(res: any) => {
-
-				console.log(JSON.stringify(res.length));
-				this.GoToReconcile();
-			}
-			
+				() => {
+					this.GoToReconcile();
+				}
 			);
 	}
-	public RefreshData() {
-
+	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
 	}
 	ngOnInit() {
-
 		this.RefreshData();
-		
 	}
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 	}
-	 
 }

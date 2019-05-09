@@ -198,14 +198,17 @@ export class WorkAllocationComp implements OnInit {
 	}
 	getStatistics(comparisonId: number) {
 
+	
 		if (this.PanelName == 'getStats') {
 			this.PanelName = '';
 		} else {
 			this.PanelName = 'getStats'
+			if (this._comparisonsService && comparisonId != null) {
+				
+				this._comparisonsService.FetchStats(comparisonId);
+			}
 		}
-		if (this._comparisonsService && comparisonId != null) {
-			this._comparisonsService.FetchStats(comparisonId);
-		}
+		
 	}
 	RunHTMLComparisonReport() {
 
