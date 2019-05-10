@@ -20,8 +20,8 @@ CREATE TABLE [dbo].[Papers](
 	[ReferenceCount] [bigint] NULL,
 	[CitationCount] [bigint] NULL,
 	[EstimatedCitationCount] [int] NULL,
-	[CreatedDate] [datetime] NULL,
-	[SearchText] [nvarchar](500) NULL
+	[OriginalVenue] [nvarchar](max) NULL,
+	[CreatedDate] [datetime] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 DROP TABLE IF EXISTS [dbo].[PaperReferences]
@@ -89,16 +89,15 @@ CREATE TABLE [dbo].[FieldOfStudyChildren](
 	[ChildFieldOfStudyId] [bigint] NULL
 ) ON [PRIMARY]
 
-DROP TABLE IF EXISTS [dbo].[FieldOfStudyRelationship]
-CREATE TABLE [dbo].[FieldOfStudyRelationship](
+DROP TABLE IF EXISTS [dbo].[RelatedFieldOfStudy]
+CREATE TABLE [dbo].[RelatedFieldOfStudy](
 	[FieldOfStudyId1] [bigint] NULL,
-	[DisplayName1] [nvarchar](1000) NULL,
 	[Type1] [nvarchar](1000) NULL,
 	[FieldOfStudyId2] [bigint] NULL,
-	[DisplayName2] [nvarchar](1000) NULL,
 	[Type2] [nvarchar](1000) NULL,
 	[Rank] [float] NULL
 ) ON [PRIMARY]
+GO
 
 DROP TABLE IF EXISTS [dbo].[FieldsOfStudy]
 CREATE TABLE [dbo].[FieldsOfStudy](

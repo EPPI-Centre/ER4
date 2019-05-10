@@ -1,0 +1,651 @@
+﻿USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemDuplicateFindNew]    Script Date: 5/9/2019 9:09:48 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		James
+-- Create date: 10/02/2019
+-- Description:	New dedup routine
+-- =============================================
+ALTER PROCEDURE [dbo].[st_ItemDuplicateFindNew]
+	@ReviewId int = 0
+--,	@ContactId int = 0 -- ******************currently not implemented in the c# code ***********************************
+AS
+BEGIN
+	return; -- **************************************** N.B. - TO KEEP IT SAFE FOR NOW ****************************
+
+	SET NOCOUNT ON;
+	Declare @LAST_RUN NVARCHAR(50)
+	Declare @START_TIME DATETIME
+	
+	select TOP(1) @LAST_RUN =  CURRENT_STATE, @START_TIME = @START_TIME
+		FROM TB_REVIEW_JOB
+		WHERE REVIEW_ID = @ReviewId AND JOB_TYPE = 'Deduplication'
+		ORDER BY REVIEW_JOB_ID DESC
+
+	IF @LAST_RUN = 'Running' AND @START_TIME > DATEADD(HOUR, -1, @START_TIME)
+	BEGIN --send back a return code to signify that the dedup is still running
+		return 1
+	END
+	ELSE
+	IF @LAST_RUN = 'Error' OR  (@START_TIME < DATEADD(HOUR, -1, @START_TIME) and @LAST_RUN = 'Running')
+	BEGIN
+		return -3 -- Error when running the last dedup. Should we cancel it here and rerun??
+	END
+
+	INSERT INTO tb_REVIEW_JOB(REVIEW_ID, START_TIME, JOB_TYPE, CURRENT_STATE, SUCCESS)
+	VALUES(@ReviewId, GETDATE(), 'Deduplication', 'Running', 0)
+	declare @ReviewJobId int = @@identity
+
+	-- if there are no items to evaluate, just go back
+	declare @check int = (SELECT COUNT(ITEM_ID) from TB_ITEM_REVIEW where REVIEW_ID = @ReviewId and IS_DELETED = 0)
+	if @check = 0 
+	BEGIN
+		Return -1
+	END
+
+-- ************************************ NEW DUPLICATE CHECK ALGORITHM STARTS **************************************	
+
+declare @MatchedStepDoi Table
+(
+	RecordId bigint
+,	PaperId bigint
+,	JournalLeven float
+,	JournalJaro float
+,	VolumeMatch int
+,	PageMatch int
+,	YearMatch int
+,	OneYearIsNull int
+,	AllAuthorsLeven float
+,	FirstAuthorLeven float
+,	AllAuthorsJaro float
+,	FirstAuthorJaro float
+,	TitleLeven float
+,	RegJLikePaperJ bit
+,	PaperJLikeRegJ bit
+,	AutoMatchScore float
+,	INDEX IX_RecordId NONCLUSTERED (RecordId)
+,	INDEX IX_PaperId NONCLUSTERED (PaperId)
+)
+declare @MatchedStepSearchText Table
+(
+	RecordId bigint
+,	PaperId bigint
+,	JournalLeven float
+,	JournalJaro float
+,	VolumeMatch int
+,	PageMatch int
+,	YearMatch int
+,	OneYearIsNull int
+,	AllAuthorsLeven float
+,	FirstAuthorLeven float
+,	AllAuthorsJaro float
+,	FirstAuthorJaro float
+,	TitleLeven float
+,	RegJLikePaperJ bit
+,	PaperJLikeRegJ bit
+,	AutoMatchScore float
+,	INDEX IX_RecordId NONCLUSTERED (RecordId)
+,	INDEX IX_PaperId NONCLUSTERED (PaperId)
+)
+declare @MatchedStepPubMed Table
+(
+	RecordId bigint
+,	PaperId bigint
+,	JournalLeven float
+,	JournalJaro float
+,	VolumeMatch int
+,	PageMatch int
+,	YearMatch int
+,	OneYearIsNull int
+,	AllAuthorsLeven float
+,	FirstAuthorLeven float
+,	AllAuthorsJaro float
+,	FirstAuthorJaro float
+,	TitleLeven float
+,	RegJLikePaperJ bit
+,	PaperJLikeRegJ bit
+,	AutoMatchScore float
+,	INDEX IX_RecordId NONCLUSTERED (RecordId)
+,	INDEX IX_PaperId NONCLUSTERED (PaperId)
+)
+declare @MatchedStepVolFirstPage Table
+(
+	RecordId bigint
+,	PaperId bigint
+,	JournalLeven float
+,	JournalJaro float
+,	VolumeMatch int
+,	PageMatch int
+,	YearMatch int
+,	OneYearIsNull int
+,	AllAuthorsLeven float
+,	FirstAuthorLeven float
+,	AllAuthorsJaro float
+,	FirstAuthorJaro float
+,	TitleLeven float
+,	RegJLikePaperJ bit
+,	PaperJLikeRegJ bit
+,	AutoMatchScore float
+,	INDEX IX_RecordId NONCLUSTERED (RecordId)
+,	INDEX IX_PaperId NONCLUSTERED (PaperId)
+)
+declare @Results Table
+(
+	RecordId bigint
+,	PaperId bigint
+,	JournalLeven float
+,	JournalJaro float
+,	VolumeMatch int
+,	PageMatch int
+,	YearMatch int
+,	OneYearIsNull int
+,	AllAuthorsLeven float
+,	FirstAuthorLeven float
+,	AllAuthorsJaro float
+,	FirstAuthorJaro float
+,	TitleLeven float
+,	RegJLikePaperJ bit
+,	PaperJLikeRegJ bit
+,	AutoMatchScore float
+,	INDEX IX_RecordId NONCLUSTERED (RecordId)
+,	INDEX IX_PaperId NONCLUSTERED (PaperId)
+)
+declare @ItemInfo Table
+(
+	ItemId bigint
+,	Info int
+)
+DECLARE @ExistingDuplicates Table
+(
+	ItemId bigint
+,	DuplicateItemId bigint
+)
+insert into @MatchedStepDoi(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, OneYearIsNull,
+	AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro,
+	TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+select distinct
+	t.ITEM_ID
+,	p.ITEM_ID
+,	AcademicTest.dbo.LevenshteinSVF(t.PARENT_TITLE, p.PARENT_TITLE) as JournalLev
+,	iif(t.PARENT_TITLE is not null and p.PARENT_TITLE is not null, AcademicTest.dbo.Jaro(t.PARENT_TITLE, p.PARENT_TITLE), -1) as JournalJaro
+,	iif(t.VOLUME = p.VOLUME and not t.VOLUME is null, 1, 0) VolMatch
+,	iif(iif (CHARINDEX('-', t.PAGES, 0) > 0, substring(t.PAGES, 0, CHARINDEX('-', t.PAGES, 0))  , t.PAGES) =
+		iif (CHARINDEX('-', p.PAGES, 0) > 0, substring(p.PAGES, 0, CHARINDEX('-', p.PAGES, 0))  , p.PAGES), 1, 0) PageMatch
+--,	iif(t.first_page = p.First_Page, 1, 0) PageMatch
+,	iif(NOT t.YEAR is null AND t.YEAR = p.YEAR, 1, 0) YearMatch
+,	iif(t.YEAR is null or p.YEAR is null, 1,0) OneYearIsNull
+,	AcademicTest.dbo.LevenshteinSVF(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)), 
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsLev
+,	AcademicTest.dbo.Jaro(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)),
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsJaro
+,	AcademicTest.dbo.LevenshteinSVF(IA1.LAST, IA2.LAST) FirstAuthorLev
+,	AcademicTest.dbo.Jaro(IA1.LAST, IA2.LAST) FirstAuthorJaro
+,	AcademicTest.dbo.LevenshteinSVF(p.SearchText, t.SearchText) TitleLeven
+,	iif(t.PARENT_TITLE like CONCAT(p.PARENT_TITLE, '%'), 1, 0) RegJLikePaperJ
+,	iif(p.PARENT_TITLE like CONCAT(t.PARENT_TITLE, '%'), 1, 0) PaperJLikeRegJ
+from TB_ITEM t
+inner join TB_ITEM p on p.DOI = t.DOI and not p.ITEM_ID = t.ITEM_ID
+inner join TB_ITEM_REVIEW IR ON IR.ITEM_ID = T.ITEM_ID AND IR.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = P.ITEM_ID AND IR2.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+left join TB_ITEM_AUTHOR ia1 on ia1.ITEM_ID = t.ITEM_ID and ia1.RANK = 1
+left join TB_ITEM_AUTHOR IA2 ON IA2.ITEM_ID = P.ITEM_ID AND IA2.RANK = 1
+	where not t.TITLE is null AND LEN(T.DOI) > 5 and t.ITEM_ID < p.ITEM_ID
+
+update @MatchedStepDoi
+set AutoMatchScore = 1 where
+	((JournalLeven >= 90 AND VolumeMatch = 1 AND PageMatch = 1) OR
+	(JournalLeven < 90 AND VolumeMatch = 1 AND PageMatch = 1 and AllAuthorsLeven > 30) OR
+	(JournalLeven >= 50 and VolumeMatch = 1 and PageMatch = 1 AND FirstAuthorLeven >= 90))
+
+insert into @MatchedStepSearchText(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, OneYearIsNull, AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+select distinct
+	t.ITEM_ID
+,	p.ITEM_ID
+,	AcademicTest.dbo.LevenshteinSVF(t.PARENT_TITLE, p.PARENT_TITLE) as JournalLev
+,	iif(t.PARENT_TITLE  is not  null and p.PARENT_TITLE  is not  null, AcademicTest.dbo.Jaro(t.PARENT_TITLE, p.PARENT_TITLE), -1) as JournalJaro
+,	iif(t.VOLUME = p.VOLUME and not t.VOLUME is null, 1, 0) VolMatch
+,	iif(iif (CHARINDEX('-', t.PAGES, 0) > 0, substring(t.PAGES, 0, CHARINDEX('-', t.PAGES, 0))  , t.PAGES) =
+		iif (CHARINDEX('-', p.PAGES, 0) > 0, substring(p.PAGES, 0, CHARINDEX('-', p.PAGES, 0))  , p.PAGES), 1, 0) PageMatch
+--,	iif(t.first_page = p.First_Page, 1, 0) PageMatch
+,	iif(NOT t.YEAR is null AND t.YEAR = p.YEAR, 1, 0) YearMatch
+,	iif(t.YEAR is null or p.YEAR is null, 1,0) OneYearIsNull
+,	AcademicTest.dbo.LevenshteinSVF(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)), 
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsLev
+,	AcademicTest.dbo.Jaro(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)),
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsJaro
+,	AcademicTest.dbo.LevenshteinSVF(IA1.LAST, IA2.LAST) FirstAuthorLev
+,	AcademicTest.dbo.Jaro(IA1.LAST, IA2.LAST) FirstAuthorJaro
+,	AcademicTest.dbo.LevenshteinSVF(p.SearchText, t.SearchText) TitleLeven
+,	iif(t.PARENT_TITLE like CONCAT(p.PARENT_TITLE, '%'), 1, 0) RegJLikePaperJ
+,	iif(p.PARENT_TITLE like CONCAT(t.PARENT_TITLE, '%'), 1, 0) PaperJLikeRegJ
+from TB_ITEM t
+inner join TB_ITEM p on p.SearchText = t.SearchText and not p.ITEM_ID = t.ITEM_ID
+inner join TB_ITEM_REVIEW IR ON IR.ITEM_ID = T.ITEM_ID AND IR.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = P.ITEM_ID AND IR2.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+left join TB_ITEM_AUTHOR ia1 on ia1.ITEM_ID = t.ITEM_ID and ia1.RANK = 1
+left join TB_ITEM_AUTHOR IA2 ON IA2.ITEM_ID = P.ITEM_ID AND IA2.RANK = 1
+	where not t.TITLE is null and t.ITEM_ID < p.ITEM_ID
+
+update @MatchedStepSearchText
+set AutoMatchScore = 1 where
+	((JournalLeven >= 90 AND VolumeMatch = 1 AND PageMatch = 1) OR
+	(JournalLeven < 90 AND VolumeMatch = 1 AND PageMatch = 1 and AllAuthorsLeven > 30) OR
+	(JournalLeven >= 50 and VolumeMatch = 1 and PageMatch = 1 AND FirstAuthorLeven >= 90))
+
+insert into @MatchedStepPubMed(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, OneYearIsNull, AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+select distinct
+	t.ITEM_ID
+,	p.ITEM_ID
+,	AcademicTest.dbo.LevenshteinSVF(t.PARENT_TITLE, p.PARENT_TITLE) as JournalLev
+,	iif(t.PARENT_TITLE  is not  null and p.PARENT_TITLE  is not  null, AcademicTest.dbo.Jaro(t.PARENT_TITLE, p.PARENT_TITLE), -1) as JournalJaro
+,	iif(t.VOLUME = p.VOLUME and not t.VOLUME is null, 1, 0) VolMatch
+,	iif(iif (CHARINDEX('-', t.PAGES, 0) > 0, substring(t.PAGES, 0, CHARINDEX('-', t.PAGES, 0))  , t.PAGES) =
+		iif (CHARINDEX('-', p.PAGES, 0) > 0, substring(p.PAGES, 0, CHARINDEX('-', p.PAGES, 0))  , p.PAGES), 1, 0) PageMatch
+--,	iif(t.first_page = p.First_Page, 1, 0) PageMatch
+,	iif(NOT t.YEAR is null AND t.YEAR = p.YEAR, 1, 0) YearMatch
+,	iif(t.YEAR is null or p.YEAR is null, 1,0) OneYearIsNull
+,	AcademicTest.dbo.LevenshteinSVF(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)), 
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsLev
+,	AcademicTest.dbo.Jaro(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)),
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsJaro
+,	AcademicTest.dbo.LevenshteinSVF(IA1.LAST, IA2.LAST) FirstAuthorLev
+,	AcademicTest.dbo.Jaro(IA1.LAST, IA2.LAST) FirstAuthorJaro
+,	AcademicTest.dbo.LevenshteinSVF(p.SearchText, t.SearchText) TitleLeven
+,	iif(t.PARENT_TITLE like CONCAT(p.PARENT_TITLE, '%'), 1, 0) RegJLikePaperJ
+,	iif(p.PARENT_TITLE like CONCAT(t.PARENT_TITLE, '%'), 1, 0) PaperJLikeRegJ
+from TB_ITEM t
+inner join TB_ITEM p on p.OLD_ITEM_ID = t.OLD_ITEM_ID and not p.ITEM_ID = t.ITEM_ID
+inner join TB_ITEM_REVIEW IR ON IR.ITEM_ID = T.ITEM_ID AND IR.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = P.ITEM_ID AND IR2.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+left join TB_ITEM_AUTHOR ia1 on ia1.ITEM_ID = t.ITEM_ID and ia1.RANK = 1
+left join TB_ITEM_AUTHOR IA2 ON IA2.ITEM_ID = P.ITEM_ID AND IA2.RANK = 1
+	where not t.TITLE is null and t.ITEM_ID < p.ITEM_ID 
+	and not t.VOLUME is null and not t.VOLUME = ''
+	and not t.PAGES is null and not t.PAGES = ''
+
+update @MatchedStepPubMed
+set AutoMatchScore = 1 where
+	((JournalLeven >= 90 AND VolumeMatch = 1 AND PageMatch = 1) OR
+	(JournalLeven < 90 AND VolumeMatch = 1 AND PageMatch = 1 and AllAuthorsLeven > 30) OR
+	(JournalLeven >= 50 and VolumeMatch = 1 and PageMatch = 1 AND FirstAuthorLeven >= 90))
+
+insert into @MatchedStepVolFirstPage(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, OneYearIsNull, AllAuthorsLeven, AllAuthorsJaro,
+	FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+select distinct
+	t.ITEM_ID
+,	p.ITEM_ID
+,	AcademicTest.dbo.LevenshteinSVF(t.PARENT_TITLE, p.PARENT_TITLE) as JournalLev
+,	iif(t.PARENT_TITLE  is not  null and p.PARENT_TITLE  is not  null, AcademicTest.dbo.Jaro(t.PARENT_TITLE, p.PARENT_TITLE), -1) as JournalJaro
+,	1 as VolumeMatch
+,	1 as PageMatch
+,	iif(NOT t.YEAR is null AND t.YEAR = p.YEAR, 1, 0) YearMatch
+,	iif(t.YEAR is null or p.YEAR is null, 1,0) OneYearIsNull
+,	AcademicTest.dbo.LevenshteinSVF(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)), 
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsLev
+,	AcademicTest.dbo.Jaro(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(t.ITEM_ID, 0)),
+		AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(P.ITEM_ID, 0))) CondensedAuthorsJaro
+,	AcademicTest.dbo.LevenshteinSVF(IA1.LAST, IA2.LAST) FirstAuthorLev
+,	AcademicTest.dbo.Jaro(IA1.LAST, IA2.LAST) FirstAuthorJaro
+,	AcademicTest.dbo.LevenshteinSVF(p.SearchText, t.SearchText) TitleLeven
+,	iif(t.PARENT_TITLE like CONCAT(p.PARENT_TITLE, '%'), 1, 0) RegJLikePaperJ
+,	iif(p.PARENT_TITLE like CONCAT(t.PARENT_TITLE, '%'), 1, 0) PaperJLikeRegJ
+from TB_ITEM t
+inner join TB_ITEM p on p.VOLUME = t.VOLUME and 
+	iif (CHARINDEX('-', t.PAGES, 0) > 0, substring(t.PAGES, 0, CHARINDEX('-', t.PAGES, 0))  , t.PAGES) =
+		iif (CHARINDEX('-', p.PAGES, 0) > 0, substring(p.PAGES, 0, CHARINDEX('-', p.PAGES, 0))  , p.PAGES)
+	and not p.ITEM_ID = t.ITEM_ID
+inner join TB_ITEM_REVIEW IR ON IR.ITEM_ID = T.ITEM_ID AND IR.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+INNER JOIN TB_ITEM_REVIEW IR2 ON IR2.ITEM_ID = P.ITEM_ID AND IR2.REVIEW_ID = @ReviewId and ir.IS_DELETED = 'false'
+left join TB_ITEM_AUTHOR ia1 on ia1.ITEM_ID = t.ITEM_ID and ia1.RANK = 1
+left join TB_ITEM_AUTHOR IA2 ON IA2.ITEM_ID = P.ITEM_ID AND IA2.RANK = 1
+	where not t.TITLE is null and t.ITEM_ID < p.ITEM_ID and len(t.pages) > 1
+
+update @MatchedStepVolFirstPage
+	set AutoMatchScore = 1 where
+	(JournalLeven + AllAuthorsLeven + FirstAuthorLeven + TitleLeven) / 4 >= 50 and TitleLeven >= 85
+
+insert into @Results
+	select * from @MatchedStepSearchText order by AutoMatchScore
+
+delete from doi
+	from @MatchedStepDoi doi
+		inner join @Results r on r.PaperId = doi.PaperId and r.RecordId = doi.RecordId and r.AutoMatchScore = doi.AutoMatchScore
+
+insert into @Results(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+	select doi.RecordId, doi.PaperId, doi.JournalLeven, doi.JournalJaro, doi.VolumeMatch, doi.PageMatch, YearMatch, doi.AllAuthorsLeven,
+		doi.AllAuthorsJaro, doi.FirstAuthorLeven, doi.FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ
+		from @MatchedStepDoi doi 
+		order by AutoMatchScore
+
+delete from pm
+	from @MatchedStepPubMed pm
+	inner join @Results r on r.PaperId = pm.PaperId and r.RecordId = pm.RecordId and r.AutoMatchScore = pm.AutoMatchScore
+
+insert into @Results(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+	select pubmed.RecordId, pubmed.PaperId, pubmed.JournalLeven, pubmed.JournalJaro, pubmed.VolumeMatch, pubmed.PageMatch, YearMatch, pubmed.AllAuthorsLeven,
+		pubmed.AllAuthorsJaro, pubmed.FirstAuthorLeven, pubmed.FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ
+		from @MatchedStepPubMed pubmed 
+		order by AutoMatchScore
+
+delete from volf
+	from @MatchedStepVolFirstPage volf
+	inner join @Results r on r.PaperId = volf.PaperId and r.RecordId = volf.RecordId and r.AutoMatchScore = volf.AutoMatchScore
+
+insert into @Results(RecordId, PaperId, JournalLeven, JournalJaro, VolumeMatch,
+	PageMatch, YearMatch, AllAuthorsLeven, AllAuthorsJaro, FirstAuthorLeven, FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ)
+	select VolFirst.RecordId, VolFirst.PaperId, VolFirst.JournalLeven, VolFirst.JournalJaro, VolFirst.VolumeMatch, VolFirst.PageMatch, YearMatch, VolFirst.AllAuthorsLeven,
+		VolFirst.AllAuthorsJaro, VolFirst.FirstAuthorLeven, VolFirst.FirstAuthorJaro, TitleLeven, RegJLikePaperJ, PaperJLikeRegJ
+		from @MatchedStepVolFirstPage VolFirst 
+		order by AutoMatchScore
+
+
+-- ********** SANITY CHECK: should only be 1 automatch for any combination of record and paper ID where automatchscore = 1 *************
+
+--select count(*) from @Results r
+--	inner join @Results r2 on r2.PaperId = r.RecordId and r2.RecordId = r.PaperId
+
+-- ********** THE ABOVE COUNT MUST BE ZERO. Need to address if it's not. **********************
+
+
+-- clear out some of the noise
+
+DELETE FROM @Results
+	WHERE OneYearIsNull = 0 and not
+	(
+		(TitleLeven > 90 and AllAuthorsJaro > 0.9)
+		or (TitleLeven > 90 and PageMatch = 1)
+		or (TitleLeven > 90 and JournalJaro > 0.9)
+		or (AllAuthorsJaro > 0.9 and JournalJaro > 0.9)
+		or (AllAuthorsJaro > 0.9 and PageMatch = 1)
+		or (JournalJaro > 0.9 and PageMatch = 1)
+	) 
+
+delete from @Results
+	where not TitleLeven >= 40
+--delete from @Results
+--	where not AllAuthorsJaro >= 0.75
+
+-- Set AutoMatchScore for everything that's not automatch = 1
+update @Results
+	set AutoMatchScore = ((TitleLeven / 100) + (VolumeMatch * 0.75) + (PageMatch * 0.75) + 
+		(YearMatch * 0.75) + (JournalJaro * 0.5) + (AllAuthorsJaro * 0.5)) / 4.25
+	where AutoMatchScore is null
+
+-- ***************************************************************************************************************************************************
+--	 ******************************************* BEGIN IDENTIFY GROUPS (I.E. CLUSTERS WITHIN THE GRAPH OF RELATIONSHIPS) *************************
+-- FROM: https://www.itprotoday.com/sql-server/t-sql-puzzle-challenge-grouping-connected-items
+-- ***************************************************************************************************************************************************
+
+declare @t1 table
+(
+	id1 bigint not null
+,	id2 bigint not null
+--,	CONSTRAINT PK_T1 PRIMARY KEY (id1, id2)
+--,	CONSTRAINT CHK_T1_id1_LT_id2 CHECK (id1 < id2)
+)
+
+Insert into @t1(id1, id2)
+	select recordid, paperid from @Results  order by AutoMatchScore, RecordId
+ 
+--CREATE UNIQUE CLUSTERED INDEX idx_id1_id2 ON #T1(id1, id2);
+--CREATE UNIQUE NONCLUSTERED INDEX idx_id2_id1 ON #T1(id2, id1);
+ 
+declare @g table
+(
+  id bigint NOT NULL,
+  grp INT NOT NULL,
+  lvl INT NOT NULL,
+  PRIMARY KEY NONCLUSTERED (id),
+  UNIQUE CLUSTERED(lvl, id)
+)
+ 
+DECLARE @lvl AS INT = 1, @added AS INT, @id1 AS INT, @id2 AS INT;
+DECLARE @CurIds AS TABLE(id INT NOT NULL);
+ 
+SELECT TOP (1) @id1 = id1, @id2 = id2
+FROM @t1
+ORDER BY id1, id2;
+ 
+SET @added = @@ROWCOUNT;
+ 
+WHILE @added > 0
+BEGIN
+  INSERT INTO @g(id, grp, lvl) VALUES
+    (@id1, @id1, @lvl),
+    (@id2, @id1, @lvl);
+ 
+  DELETE FROM @t1 WHERE id1 = @id1 AND id2 = @id2;
+ 
+  WHILE @added > 0
+  BEGIN
+    SET @lvl += 1;
+ 
+    DELETE FROM @CurIds;
+ 
+    DELETE FROM @t1
+      OUTPUT deleted.id2 AS id INTO @CurIds(id)
+    FROM @g AS G
+      INNER JOIN @t1 AS T1 
+        ON G.id = T1.id1
+    WHERE lvl = @lvl - 1;
+     
+    INSERT INTO @g(id, grp, lvl)
+      SELECT DISTINCT id, @id1 AS grp, @lvl AS lvl
+      FROM @CurIds AS C
+      WHERE NOT EXISTS
+          ( SELECT * FROM @g AS G
+            WHERE G.id = C.id );
+ 
+    SET @added = @@ROWCOUNT;
+ 
+    DELETE FROM @CurIds;
+ 
+    DELETE FROM @t1
+      OUTPUT deleted.id1 AS id INTO @CurIds(id)
+    FROM @g AS G
+      INNER JOIN @t1 AS T1
+        ON G.id = T1.id2
+    WHERE lvl = @lvl - 1;           
+   
+    INSERT INTO @g(id, grp, lvl)
+      SELECT DISTINCT id, @id1 AS grp, @lvl AS lvl
+      FROM @CurIds AS C
+      WHERE NOT EXISTS
+          ( SELECT * FROM @g AS G
+            WHERE G.id = C.id );
+ 
+    SET @added += @@ROWCOUNT;
+ 
+  END;
+ 
+  SELECT TOP (1) @id1 = id1, @id2 = id2
+  FROM @t1
+  ORDER BY id1, id2;
+ 
+  SET @added = @@ROWCOUNT;
+END;
+ 
+-- end group identification
+-- ****************************************************************************************************************************************************
+
+--Grab the info we need to work out which record has more information
+insert into @ItemInfo(ItemId, Info)
+	SELECT ITEM_ID,
+		iif(i.TITLE is null or i.TITLE = '', 0, 2) +
+		iif(dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) is null or dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) = '', 0, 2) +
+		iif(i.PARENT_TITLE is null or i.PARENT_TITLE = '', 0, 1) +
+		iif(I.YEAR is null or I.YEAR = '', 0, 2) +
+		iif(I.VOLUME is null or I.VOLUME = '', 0, 1) +
+		iif(I.ISSUE is null or I.ISSUE = '', 0, 1) +
+		iif(I.PAGES is null or I.PAGES = '', 0, 1) +
+		iif(I.DOI is null or I.DOI = '', 0, 1) +
+		iif(I.OLD_ITEM_ID is null or I.OLD_ITEM_ID = '', 0, 1) +
+		iif(I.ABSTRACT is null or I.ABSTRACT = '', 0, 1)
+	from @Results r
+	join TB_ITEM i on i.ITEM_ID = r.RecordId
+
+insert into @ItemInfo(ItemId, Info)
+	SELECT ITEM_ID,
+		iif(i.TITLE is null or i.TITLE = '', 0, 2) +
+		iif(dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) is null or dbo.fn_REBUILD_AUTHORS(i.ITEM_ID, 0) = '', 0, 2) +
+		iif(i.PARENT_TITLE is null or i.PARENT_TITLE = '', 0, 1) +
+		iif(I.YEAR is null or I.YEAR = '', 0, 2) +
+		iif(I.VOLUME is null or I.VOLUME = '', 0, 1) +
+		iif(I.ISSUE is null or I.ISSUE = '', 0, 1) +
+		iif(I.PAGES is null or I.PAGES = '', 0, 1) +
+		iif(I.DOI is null or I.DOI = '', 0, 1) +
+		iif(I.OLD_ITEM_ID is null or I.OLD_ITEM_ID = '', 0, 1) +
+		iif(I.ABSTRACT is null or I.ABSTRACT = '', 0, 1)
+	from @Results r
+	join TB_ITEM i on i.ITEM_ID = r.PaperId
+
+-- We give a boost to records that are the master of an automatch
+update Iinfo
+	set Info = Info + 5
+	from @ItemInfo Iinfo
+	Join @Results r on r.RecordId = Iinfo.ItemId and r.AutoMatchScore = 1
+
+-- ************ Now ensure that we don't mess up existing duplicates *******************
+-- We make existing master records contain lots more information than before
+
+Insert into @ExistingDuplicates(ItemId, DuplicateItemId)
+	select ITEM_ID, MASTER_ITEM_ID from TB_ITEM_REVIEW where not MASTER_ITEM_ID is null
+
+update Iinfo
+	set Info = Info + 50 -- i.e. if you're already the master of a confirmed duplicate, you'll win
+	FROM @ItemInfo Iinfo
+	JOIN @ExistingDuplicates ed on ed.ItemId = Iinfo.ItemId
+
+declare @GroupMasters Table
+(
+	GroupId bigint
+,	MasterId bigint
+)
+;with TopInfos as
+(select grp, id, rn = ROW_NUMBER() OVER (PARTITION BY grp order by info desc, id) from @g g -- top row in each group has most info. Where there's a tie, the lower ID wins
+		inner join @ItemInfo ii on g.id = ii.ItemId
+)
+insert into @GroupMasters(GroupId, MasterId)
+select grp, id from TopInfos where rn = 1
+
+update g
+	set g.grp = gm.MasterId -- change the group masters (where necessary - some won't change of course, but this won't harm those groups)
+	from @g g
+	join @GroupMasters gm on gm.GroupId = g.grp
+
+update @g
+	set lvl = 0
+
+-- put the auto-matched data in
+update g
+	set lvl = 1
+	from @g g
+	join @Results r on r.RecordId = g.grp and r.PaperId = g.id
+	where r.AutoMatchScore = 1
+update g
+	set lvl = 1
+	from @g g
+	join @Results r on r.PaperId = g.grp and r.RecordId = g.id
+	where r.AutoMatchScore = 1
+
+-- ******************** Clean out existing duplicate groups for this review
+
+delete from TB_ITEM_DUPLICATE_GROUP_MEMBERS
+	where ITEM_DUPLICATE_GROUP_ID in (select item_duplicate_group_id from TB_ITEM_DUPLICATE_GROUP where REVIEW_ID = @ReviewId)
+delete from TB_ITEM_DUPLICATE_GROUP where REVIEW_ID = @ReviewId
+
+-- ***************** Now finally we write the data to the DB
+
+-- create groups with master record ids
+insert into TB_ITEM_DUPLICATE_GROUP(REVIEW_ID, ORIGINAL_ITEM_ID)
+select distinct @ReviewId, grp from @g
+
+-- put master records into the group members table
+insert into TB_ITEM_DUPLICATE_GROUP_MEMBERS(ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, SCORE, IS_CHECKED, IS_DUPLICATE)
+SELECT item_duplicate_group_id, item_review_id, 1, 'true', 0
+from TB_ITEM_DUPLICATE_GROUP idg
+inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = idg.ORIGINAL_ITEM_ID and ir.REVIEW_ID = @ReviewId
+
+-- update group table with the master member id now we know what it is
+
+update idg
+	set Master_MEMBER_ID = idgm.GROUP_MEMBER_ID
+	FROM TB_ITEM_DUPLICATE_GROUP IDG
+	JOIN TB_ITEM_DUPLICATE_GROUP_MEMBERS IDGM ON IDGM.ITEM_DUPLICATE_GROUP_ID = IDG.ITEM_DUPLICATE_GROUP_ID
+
+	-- ***************** YIKES - NEED TO RESTRICT TO CURRENT REVIEW !!!!!!!!!!!! ****************
+	
+-- put child (duplicate) records into the group members table
+insert into TB_ITEM_DUPLICATE_GROUP_MEMBERS(ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, SCORE, IS_CHECKED, IS_DUPLICATE)
+select item_duplicate_group_id, item_review_id, g.lvl, 0, 0
+from TB_ITEM_DUPLICATE_GROUP idg
+inner join @g g on g.grp = idg.ORIGINAL_ITEM_ID
+inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = g.id and ir.REVIEW_ID = @ReviewId
+where g.id <> g.grp -- i.e. no masters should be inserted here
+
+-- !!!!!!!!!!!! THE BELOW DOESN'T TAKE INTO ACCOUNT THE KNOWN NOT-DUPLICATES. NEED TO ADD THIS IN !!!!!!!!!!!!!!!!!!!!!!!
+
+-- We put into the table all known duplicates (i.e. that have previously been marked as duplicates either automatically or manually.
+-- These need adding, as duplicates are 'deleted' items, and so don't get retrieved for matching in the original queries.
+
+-- (i.e. we don't need to worry about these ones, as they are already taken care of)
+delete from ed
+	from @ExistingDuplicates ed
+	inner join @g g on g.grp = ed.ItemId and g.id = ed.DuplicateItemId
+-- as above, but the other way around (Putting in for safety, but nothing should be deleted here)
+delete from ed
+	from @ExistingDuplicates ed
+	inner join @g g on g.grp = ed.DuplicateItemId and g.id = ed.ItemId
+
+-- if there is anything left in ExistingDuplicates then we need to add them to the mix
+insert into TB_ITEM_DUPLICATE_GROUP_MEMBERS(ITEM_DUPLICATE_GROUP_ID, ITEM_REVIEW_ID, SCORE, IS_CHECKED, IS_DUPLICATE)
+select item_duplicate_group_id, item_review_id, 0, 1, 1
+from TB_ITEM_DUPLICATE_GROUP idg
+inner join @ExistingDuplicates ed on ed.ItemId = idg.ORIGINAL_ITEM_ID
+inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = ed.DuplicateItemId and ir.REVIEW_ID = @ReviewId
+
+-- nearly there! Now we just update the table and add the similarity scores
+-- why do it from pulling more data from tb_item etc? Because there may be situations where we don't have similarity scores for some matches
+-- (i.e. an item has been pulled into a group, but doesn't have huge similarity with the master. Hopefully rare, but possible.)
+
+update tdgm
+	set score = (
+		(AcademicTest.dbo.LevenshteinSVF(it_mstr.TITLE, it_dup.TITLE) / 100) +
+		(iif(it_mstr.VOLUME = it_dup.VOLUME and not it_mstr.VOLUME is null, 1, 0) * 0.75) +
+		(iif(iif (CHARINDEX('-', it_mstr.PAGES, 0) > 0, substring(it_mstr.PAGES, 0, CHARINDEX('-', it_mstr.PAGES, 0))  , it_mstr.PAGES) =
+			iif (CHARINDEX('-', it_dup.PAGES, 0) > 0, substring(it_dup.PAGES, 0, CHARINDEX('-', it_dup.PAGES, 0))  , it_dup.PAGES), 1, 0) * 0.75) +
+		(iif(NOT it_mstr.YEAR is null AND it_mstr.YEAR = it_dup.YEAR, 1, 0) * 0.75) +
+		(iif(it_mstr.PARENT_TITLE is not null and it_dup.PARENT_TITLE is not null, AcademicTest.dbo.Jaro(it_mstr.PARENT_TITLE, it_dup.PARENT_TITLE), -1) * 0.5) +
+		(AcademicTest.dbo.Jaro(AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(it_mstr.ITEM_ID, 0)),
+			AcademicTest.dbo.ToShortSearchText(DBO.fn_REBUILD_AUTHORS(it_dup.ITEM_ID, 0))) * 0.5)
+	) / 4.25
+		
+	from TB_ITEM_DUPLICATE_GROUP_MEMBERS tdgm
+	inner join TB_ITEM_REVIEW ir_dup on ir_dup.ITEM_REVIEW_ID = tdgm.ITEM_REVIEW_ID and ir_dup.REVIEW_ID = @ReviewId
+	inner join TB_ITEM it_dup on it_dup.ITEM_ID = ir_dup.ITEM_ID
+
+	inner join TB_ITEM_DUPLICATE_GROUP idg on idg.ITEM_DUPLICATE_GROUP_ID = tdgm.ITEM_DUPLICATE_GROUP_ID
+	inner join TB_ITEM_DUPLICATE_GROUP_MEMBERS tdgm_mstr on tdgm_mstr.GROUP_MEMBER_ID = idg.MASTER_MEMBER_ID
+	inner join TB_ITEM_REVIEW ir_mstr on ir_mstr.ITEM_REVIEW_ID = tdgm_mstr.ITEM_REVIEW_ID
+	inner join TB_ITEM it_mstr on it_mstr.ITEM_ID = ir_mstr.ITEM_ID
+	
+	where tdgm.IS_CHECKED = 0 and tdgm.SCORE = 0
+-- ******************* last of all, update the tb_review_job table
+
+UPDATE tb_REVIEW_JOB
+	set END_TIME = getdate()
+,	CURRENT_STATE = 'Complete'
+,	SUCCESS = 1
+	where REVIEW_JOB_ID = @ReviewJobId
+
+END
