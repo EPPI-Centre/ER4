@@ -23,7 +23,19 @@ export class ArchieCallBackComponent implements OnInit {
             if (params['error']) this.Error = params['error'];
             if (this.Error != "") this.Phase = "Error";
             else {
-                this.ReviewerIdentityServ.LoginViaArchieReq(this.Code, this.State);
+                this.ReviewerIdentityServ.LoginViaArchieReq(this.Code, this.State).then(res => {
+                    console.log("Back into callback:", res);
+                    if (res == undefined) {
+                        console.log("Back into callback:", 1);
+                        this.Phase = "Error";
+                        this.Error = "Authentication failed in an unexpected way, please try again. If the problem persists, please contact EPPI-Support."
+                    }
+                    else if (res.name == "{UnidentifiedArchieUser}") {
+                        //we need to link the Archie user to an existing or new ER user
+                        console.log("Back into callback:", 2);
+                        this.Phase = "LinkAccount";
+                    }
+                });
             }
         });
     }

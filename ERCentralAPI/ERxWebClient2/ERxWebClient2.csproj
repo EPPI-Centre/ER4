@@ -47,6 +47,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" Link="Models\ArchieAbstractClasses\ArchieCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieReviewPrepareCommand.cs" Link="Models\ArchieReviewPrepareCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieReviewUndoCheckoutCommand.cs" Link="Models\ArchieReviewUndoCheckoutCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeMoveCommand.cs" Link="Models\AttributeMoveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetDeleteCommand.cs" Link="Models\AttributeSetDeleteCommand.cs" />
@@ -95,6 +100,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReview.cs" Link="Models\ReadOnlyArchieReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReviewList.cs" Link="Models\ReadOnlyArchieReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRuleList.cs" Link="Models\ReadOnlyImportFilterRuleList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />

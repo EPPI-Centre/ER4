@@ -10,7 +10,9 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
 
-#if!SILVERLIGHT
+
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -20,17 +22,31 @@ using System.IO;
 using System.Xml.Linq;
 #endif
 #if CSLA_NETCORE
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 #endif
+
+using Newtonsoft.Json;
+
 
 namespace BusinessLibrary.Security
 {
 
     [Serializable]
+    
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
         public ArchieIdentity()
         { }
+
+        private static void BuildConfig()
+        {
+#if CSLA_NETCORE
+            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
+            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
+
+            RootConfig = builder.Build();
+#endif
+        }
 
 #if (!CSLA_NETCORE && !SILVERLIGHT)
         System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
@@ -43,6 +59,7 @@ namespace BusinessLibrary.Security
                 return res;
             }
         }
+        private static IConfigurationRoot RootConfig; 
 #endif
 
         public static readonly PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
@@ -309,7 +326,7 @@ namespace BusinessLibrary.Security
                             }
                         }
                     }
-                    if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+                    if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                             && ArchieID != null && ArchieID != "")
                     {//all is well: check token with Archie (just in case) and go back
 
@@ -497,7 +514,6 @@ namespace BusinessLibrary.Security
                 }
             }
         }
-
         private ArchieIdentity(string code, string status, int ContactID)
         {//this is used to create the identity using values in TB_UNASSIGNED_ARCHIE_KEYS
             //it is called after checking ER4 username and PW so we'll trust the user without checking stuff
@@ -587,11 +603,11 @@ namespace BusinessLibrary.Security
                 }//at this point we can have three situations: Token is valid, all done
                 //token is expired, try refreshing
                 //no tokens need to re-authenticate
-                if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64)
+                if (Token != null && Token.Length >= 64 && RefreshToken != null && RefreshToken.Length >= 30)
                 {//all good!
                     return;
                 }
-                else if (RefreshToken != null && RefreshToken.Length == 64 && Error == "")
+                else if (RefreshToken != null && RefreshToken.Length >= 30 && Error == "")
                 {//need to refresh the token
                     //call the refresh API
                     //save new Token to DB
@@ -601,6 +617,8 @@ namespace BusinessLibrary.Security
 
             }
         }
+
+
         public bool RefreshExpiredToken()
         {
             if (_RefreshToken == null || _RefreshToken.Length < 64)
@@ -785,6 +803,7 @@ namespace BusinessLibrary.Security
         }
         private string _Token, _RefreshToken, _code, _status;
         private DateTime _ValidUntil;
+        [JsonIgnore]
         public string Token
         {
             get
@@ -796,6 +815,7 @@ namespace BusinessLibrary.Security
                 _Token = value;
             }
         }
+        [JsonIgnore]
         public string RefreshToken
         {
             get
@@ -807,12 +827,13 @@ namespace BusinessLibrary.Security
                 _RefreshToken = value;
             }
         }
+        [JsonIgnore]
         public DateTime ValidUntil
         {
             get { return _ValidUntil; }
             private set { _ValidUntil = value; }
         }
-
+        
         private string BaseAddress
         {
             get
@@ -837,6 +858,7 @@ namespace BusinessLibrary.Security
                 }
             }
         }
+
         private string AccountBaseAddress
         {
             get
@@ -888,7 +910,9 @@ namespace BusinessLibrary.Security
 #if (!CSLA_NETCORE)
                 return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
 #else
-                return "***REMOVED***";
+                if (RootConfig == null) BuildConfig();
+                var connectionString = RootConfig.GetValue<string>("AppSettings:CochraneOAuthSS");
+                return connectionString;
 #endif
             }
         }
@@ -1076,11 +1100,11 @@ namespace BusinessLibrary.Security
             catch (WebException we)
             {
                 //the web response is actually HTML
-                //WebResponse wr = we.Response;
-                //using (var reader = new StreamReader(wr.GetResponseStream()))
-                //{
-                //    json = reader.ReadToEnd();
-                //}
+                WebResponse wr = we.Response;
+                using (var reader = new StreamReader(wr.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
 
                 res = "Error: " + we.Message;
                 return res;

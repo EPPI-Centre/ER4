@@ -24,7 +24,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public abstract class ArchieCommand<T> : CommandBase<ArchieCommand<T>>
     {
-        private static PropertyInfo<Security.ArchieIdentity> IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
+        public static readonly PropertyInfo<Security.ArchieIdentity> IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
         public Security.ArchieIdentity Identity
         {
             get
@@ -38,13 +38,13 @@ namespace BusinessLibrary.BusinessClasses
             }
 #endif
         }
-        private static PropertyInfo<string> ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
+        public static readonly PropertyInfo<string> ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
         public string ArchieCode
         {
             get { return ReadProperty(ArchieCodeProperty); }
             set { LoadProperty(ArchieCodeProperty, value); }
         }
-        private static PropertyInfo<string> ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
+        public static readonly PropertyInfo<string> ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
         public string ArchieState
         {
             get { return ReadProperty(ArchieStateProperty); }
@@ -52,9 +52,9 @@ namespace BusinessLibrary.BusinessClasses
         }
         internal  static void registerProperties()
         {
-            if (IdentityProperty == null) IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
-            if (ArchieCodeProperty == null) ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
-            if (ArchieStateProperty == null) ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
+            //if (IdentityProperty == null) IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
+            //if (ArchieCodeProperty == null) ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
+            //if (ArchieStateProperty == null) ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
         }
     }
 }

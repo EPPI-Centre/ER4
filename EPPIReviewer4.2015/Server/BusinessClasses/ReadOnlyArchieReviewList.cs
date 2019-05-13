@@ -22,8 +22,8 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyArchieReviewList : ArchieReadOnlyListBase<ReadOnlyArchieReviewList, ReadOnlyArchieReview>
     {
-#if SILVERLIGHT
-    public ReadOnlyArchieReviewList() { }
+        public ReadOnlyArchieReviewList() { }
+#if SILVERLIGHT   
         //in the !SILVERLIGHT area, we have an Identity property with backing private member, but we can't use Loadproperty(...) for the root of a readonlylist.
         //hence, we get the Identity from the child object, if any
         public Security.ArchieIdentity Identity
@@ -49,8 +49,6 @@ namespace BusinessLibrary.BusinessClasses
                 return Identity.IsAuthenticated; 
             }
         }
-#else
-        private ReadOnlyArchieReviewList() { }
 #endif
         
         public static void GetReviewList(ReadOnlyArchieReviewListCriteria criteria, EventHandler<DataPortalResult<ReadOnlyArchieReviewList>> handler)
@@ -143,12 +141,12 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyArchieReviewListCriteria : Csla.CriteriaBase<ReadOnlyArchieReviewListCriteria>
     {
-        private static PropertyInfo<string> ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
+        public static readonly PropertyInfo<string> ArchieCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieCode", "ArchieCode"));
         public string ArchieCode
         {
             get { return ReadProperty(ArchieCodeProperty); }
         }
-        private static PropertyInfo<string> ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
+        public static readonly PropertyInfo<string> ArchieStateProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieState", "ArchieState"));
         public string ArchieState
         {
             get { return ReadProperty(ArchieStateProperty); }

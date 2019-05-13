@@ -155,26 +155,42 @@ export class ReviewerIdentityService implements OnDestroy {
 
     }
 
-    public LoginViaArchieReq(code: string, state: string) {
+    public LoginViaArchieReq(code: string, state: string): Promise<ReviewerIdentity | undefined> {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         let reqpar = new ArchieLoginCreds(code, state);
         return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LoginFromArchie',
-            reqpar).subscribe(res => {
+            reqpar).toPromise().then((res) => {
+                console.log("LoginViaArchieReq: ", res);
                 if (res.error !== "") {
                     //to be confirmed
+                    console.log("LoginViaArchieReq: ", 1);
+                    return this.reviewerIdentity;
+                }
+                else if (res.reviewerIdentity && res.reviewerIdentity.name == "{UnidentifiedArchieUser}") {
+
+                    console.log("LoginViaArchieReq: ", 2);
+                    return res.reviewerIdentity;
                 }
                 else if (res.reviewerIdentity && res.reviewerIdentity.userId > 0) {
                     //good, things worked
+
+                    console.log("LoginViaArchieReq: ", 3);
                     this.reviewerIdentity = res.reviewerIdentity;
                     this.router.navigate(['intropage']);
+                    return this.reviewerIdentity;
                 }
             }, error => {
                 ////check error is 401, if it is show modal and on modal close, go home
                 //if (error = 401) this.SendBackHome();
 
+                console.log("LoginViaArchieReq: ", 4);
                 this.LoginFailed.emit();
+                return this.reviewerIdentity;
             }
-            );
+        ).catch((err) => {
+            this.LoginFailed.emit();
+            return this.reviewerIdentity;
+        });
 
     }
 
@@ -389,6 +405,33 @@ export class ReviewerIdentityService implements OnDestroy {
         this.modalService.SendBackHome(msg);
         //this.openMsgAndSendHome(this.content);
     }
+
+    public GoToArchie() {
+        //
+        let url = "";
+        let redirectUri = this._baseUrl + "ArchieCallBack";
+        redirectUri = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";//temporary!!!!!!!
+        if (this._baseUrl.indexOf("://eppi.ioe.ac.uk") != -1) {
+            //this is the production environment, go there
+            url = "https://vno-account.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+        }
+        else {
+            //go to test env
+            url = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+        }
+        url += redirectUri + "&scope=document person&state=";
+        var state = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (var i = 0; i < 12; i++) {//generate a random string of 12 chars...
+            state += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        url += state + "&access_type=offline";
+        url = encodeURI(url);
+        console.log("Trying this URL:", url);
+        window.location.href = url;
+    }
+
     ngOnDestroy() {
         console.log("destroying RI ! ! ! ! ! !ngOnDestroy");
         if (this.timerObj) this.killTrigger.next();
@@ -449,6 +492,12 @@ export class ReviewerIdentity {
     public isAuthenticated: boolean = false;
     public daysLeftAccount: number = 0;
     public daysLeftReview: number = 0;
+}
+export interface ArchieIdentity {
+    archieID: string;
+    error: string;
+    errorReason: string;
+    isAuthenticated: boolean;
 }
 
 

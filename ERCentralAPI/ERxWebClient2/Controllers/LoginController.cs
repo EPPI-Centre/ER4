@@ -84,7 +84,8 @@ namespace ERxWebClient2.Controllers
                 canProceed = int.TryParse(userId, out cID);
                 if (canProceed)
                 {
-                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name);
+                    bool isArchie = User.IsInRole("CochraneUser");
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(cID, RevIDCrit.Value, User.Identity.Name, isArchie);
                     int Rid = ri.ReviewId;
                     if (ri.Ticket == "")
                     {
