@@ -126,3 +126,21 @@ CREATE TABLE [dbo].[Journals](
 	[CitationCount] [bigint] NULL,
 	[CreatedDate] [datetime] NULL
 ) ON [PRIMARY]
+DROP TABLE IF EXISTS [dbo].[AuthorsData]
+CREATE TABLE [dbo].[AuthorsData](
+	[AuthorID] [bigint] NULL,
+	[NormalizedName] [nvarchar](500) NULL,
+	[PaperID] [bigint] NULL,
+	[AuthorsAll] [nvarchar](4000) NULL
+) ON [PRIMARY]
+GO
+DROP TABLE IF EXISTS [dbo].[PaperAuthorAffiliations]
+CREATE TABLE [dbo].[PaperAuthorAffiliations](
+	[PaperId] [bigint] NULL,
+	[AuthorId] [bigint] NULL,
+	[AffiliationId] [bigint] NULL,
+	[AuthorSequenceNumber] [int] NULL,
+	[OriginalAuthor][nvarchar](MAX),
+	[OriginalAffiliation][nvarchar](MAX)
+) ON [PRIMARY]
+GO
