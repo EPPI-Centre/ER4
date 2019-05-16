@@ -391,7 +391,7 @@ namespace EppiReviewer4
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
-                || ri.UserId == 6258 || ri.UserId == 6545) //Alison, Ian, Dylan,  Hollie Melton from York CRD, and Joshua Pink from NICE
+                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Joshua Pink from NICE and Albert Harkema
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
