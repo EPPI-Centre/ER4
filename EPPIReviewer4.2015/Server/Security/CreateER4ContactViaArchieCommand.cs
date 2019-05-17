@@ -11,12 +11,16 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+#if CSLA_NETCORE
+using Microsoft.Extensions.Configuration;
+#endif
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using System.Text.RegularExpressions;
 using System.Net.Mail;
+using System.IO;
 #endif
 
 namespace BusinessLibrary.Security
@@ -28,11 +32,9 @@ namespace BusinessLibrary.Security
         //then creates an ER4 CONTACT record accordingly
         //Result will hold a message as to whether things worked
         //as this happens before logging on a review, if all is well, user will be properly logged on when they reach 
-#if SILVERLIGHT
+
     public CreateER4ContactViaArchieCommand(){}
-#else
-        protected CreateER4ContactViaArchieCommand() { }
-#endif
+
         string _code, _status, _username, _email, _fullname, _password;
         bool _sendNewsletter, _createExampleReview;
         string _result;
@@ -53,9 +55,7 @@ namespace BusinessLibrary.Security
             _sendNewsletter = sendNewsletter;
             _createExampleReview = createExampleReview;
         }
-
         
-
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
@@ -261,14 +261,14 @@ namespace BusinessLibrary.Security
         public string VerifyAccountEmail(string mailTo, string newUser, string userName, string LinkUI, string CID, string BaseUrl, string stAdditional)
         {
             string emailID = "7"; // this is based on the values in the database
-            string mailFrom = "EPPIsupport@ioe.ac.uk";
+            
             MailMessage msg = new MailMessage();
             msg.To.Add(mailTo);
             //if (mailTo != mailFrom)
             //{
             //    msg.Bcc.Add(mailFrom);
             //}
-            msg.From = new MailAddress(mailFrom);
+            
 
             msg.Subject = "EPPI-Reviewer 4: Account Activation";
             msg.IsBodyHtml = true;
@@ -303,17 +303,39 @@ namespace BusinessLibrary.Security
             }
 
             string SMTP = "***REMOVED***";
+            string SMTPUser = "wrongUname";
+            string mailFrom = "EPPIsupport@ioe.ac.uk";
+            string fromCred = "wrongPW";
+#if !CSLA_NETCORE
             System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
             if (rootWebConfig1.AppSettings.Settings.Count > 0)
             {
                 System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
                 if (customSetting != null)
                     SMTP =  customSetting.Value;
+                customSetting = rootWebConfig1.AppSettings.Settings["SMTPUser"];
+                    if (customSetting != null)
+                    SMTPUser =  customSetting.Value;
+                customSetting = rootWebConfig1.AppSettings.Settings["SMTPAuthentic"];
+                    if (customSetting != null)
+                        fromCred =  customSetting.Value;
+                customSetting = rootWebConfig1.AppSettings.Settings["mailFrom"];
+                if (customSetting != null)
+                    mailFrom = customSetting.Value;
             }
-            
+#else
+            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
+            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
+            var RootConfig = builder.Build();
+            SMTP = RootConfig.GetValue<string>("AppSettings:SMTP");
+            SMTPUser = RootConfig.GetValue<string>("AppSettings:SMTPUser");
+            fromCred = RootConfig.GetValue<string>("AppSettings:SMTPAuthentic");
+            mailFrom = RootConfig.GetValue<string>("AppSettings:mailFrom");
+#endif
+            msg.From = new MailAddress(mailFrom);
             SmtpClient smtp = new SmtpClient(SMTP);
 
-            System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential("EPPIsupport@ioe.ac.uk", "***REMOVED***");
+            System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(SMTPUser, fromCred);
             smtp.UseDefaultCredentials = false;
             smtp.Credentials = SMTPUserInfo;
             smtp.EnableSsl = true; smtp.Port = 587;
@@ -328,6 +350,6 @@ namespace BusinessLibrary.Security
             }
         }
 #endif
-    }
+        }
 }
 

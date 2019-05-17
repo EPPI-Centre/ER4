@@ -1,5 +1,5 @@
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
-<div class="border border-success coll" [style.height.px]="singleTableHeight * 2"
+<div class="border border-success coll" [style.max-height.px]="singleTableHeight * 2"
      style="overflow:auto;">
     <kendo-grid [data]="DataSource" 
                 [sortable]="{
@@ -44,9 +44,9 @@
         </kendo-grid-column>
     </kendo-grid>
 </div>
-<div *ngIf="IsCochraneUser" class="border border-top-0 border-success">
-    <div class="bg-white ml-1">Archie Reviews</div>
-    <div  [style.height.px]="singleTableHeight" 
+<div *ngIf="IsCochraneUser" class="border border-top-0 border-dark">
+    <div class="bg-white ml-1">Cochrane Reviews</div>
+    <div  [style.max-height.px]="singleTableHeight" 
          style="overflow:auto;">
         <kendo-grid [data]="ArchieReviewsData"
                     [sortable]="{

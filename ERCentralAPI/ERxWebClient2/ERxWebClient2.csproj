@@ -162,6 +162,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\FullTextSearch.cs" Link="Models\Data\FullTextSearch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\ImportItemsDataset.cs" Link="Models\Data\ImportItemsDataset.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ArchieIdentity.cs" Link="Models\Security\ArchieIdentity.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CreateER4ContactViaArchieCommand.cs" Link="Models\Security\CreateER4ContactViaArchieCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerIdentity.cs" Link="Models\Security\ReviewerIdentity.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerPrincipal.cs" Link="Models\Security\ReviewerPrincipal.cs" />
@@ -198,6 +199,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\Cluster.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\cochrane_logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\codes.gif">

@@ -920,6 +920,7 @@ namespace BusinessLibrary.Security
         {
             get
             {
+#if (!CSLA_NETCORE)
                 string host = Environment.MachineName.ToLower();
 
                 string redirect = "";
@@ -948,6 +949,11 @@ namespace BusinessLibrary.Security
                     redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
                 }
                 return redirect;
+#else
+                if (RootConfig == null) BuildConfig();
+                var CochraneOAuthRedirectUri = RootConfig.GetValue<string>("AppSettings:CochraneOAuthRedirectUri");
+                return CochraneOAuthRedirectUri;
+#endif
             }
         }
 
@@ -1114,5 +1120,5 @@ namespace BusinessLibrary.Security
         }
 #endif
 
-                    }
+            }
         }

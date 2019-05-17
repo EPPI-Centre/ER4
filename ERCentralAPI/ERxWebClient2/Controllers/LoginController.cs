@@ -50,14 +50,28 @@ namespace ERxWebClient2.Controllers
                 return Forbid();
             }
         }
+
         [HttpPost("[action]")]
         public IActionResult LoginFromArchie([FromBody] ArchieLoginCreds lc)
         {
 
             try
             {
-                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.code, lc.state, "Archie", 0);
-                if (ri.IsAuthenticated)
+                if (lc.code.Length < 20 || lc.state.Length < 10) return Forbid();
+                ReviewerIdentity ri = null;
+                if (lc.reviewerIdentity != null 
+                    && User.Identity.IsAuthenticated//this line ensures no tampering is possible, requires the encrypted token...
+                    && lc.reviewerIdentity.UserId == 0
+                    && User.IsInRole("CochraneUser")//ditto
+                    )
+                {//special case, get the RI via code and state, but looking into local DB.
+                    ri = ReviewerIdentity.GetIdentity(lc.code, lc.state, "Archie0", 0);
+                }
+                else
+                {
+                    ri = ReviewerIdentity.GetIdentity(lc.code, lc.state, "Archie", 0);
+                }
+                if (ri != null && ri.IsAuthenticated)
                 {
                     ri.Token = BuildToken(ri);
                     lc.reviewerIdentity = ri;
@@ -110,7 +124,7 @@ namespace ERxWebClient2.Controllers
         [Authorize]
         [HttpPost("[action]")]
         public IActionResult LoginToReviewSA([FromBody] LoginCredsSA lcsa)
-        {
+        {//login to any review as super user
             try
             {
                 if (!(User.Claims.First(c => c.Type == "isSiteAdmin").Value == "True")) return Forbid();
@@ -131,6 +145,53 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [Authorize(Roles = "CochraneUser")]
+        [HttpPost("[action]")]
+        public IActionResult LinkToExistingAccount([FromBody] ArchieLoginCreds lc)
+        {
+            try
+            {
+                if (lc.loginCreds == null || lc.loginCreds.Username == "" || lc.loginCreds.Password == ""
+                    || lc.state == "" || lc.code == ""
+                    )
+                {
+                    return Forbid();
+                }
+                ReviewerIdentity ri = ReviewerIdentity.GetIdentity(lc.loginCreds.Username, lc.loginCreds.Password, lc.code, lc.state);
+                if (ri.IsAuthenticated)
+                {
+                    ri.Token = BuildToken(ri);
+                    lc.reviewerIdentity = ri;
+                    return Ok(lc);
+                }
+                else { return Forbid(); }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Logging in exception!");
+                return Forbid();
+            }
+        }
+
+        [Authorize(Roles = "CochraneUser")]
+        [HttpPost("[action]")]
+        public IActionResult CreateER4ContactViaArchie([FromBody] CreateER4ContactViaArchieCommandJSON command)
+        {
+            try
+            {
+                CreateER4ContactViaArchieCommand cmd = command.CreateCSLAER4ContactViaArchieCommand();
+                DataPortal<CreateER4ContactViaArchieCommand> dp = new DataPortal<CreateER4ContactViaArchieCommand>();
+                cmd = dp.Execute(cmd);
+                command.result = cmd.Result;
+                return Ok(command);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateER4ContactViaArchie exception!");
+                throw;
+            }
+        }
 
         private string BuildToken(ReviewerIdentity ri)
         {
@@ -189,6 +250,7 @@ namespace ERxWebClient2.Controllers
         public string code { get; set; }
         public string state { get; set; }
         public string error { get; set; }
+        public LoginCreds loginCreds { get; set; }
         public ReviewerIdentity reviewerIdentity { get; set; }
     }
     public class LoginCredsSA
@@ -196,5 +258,23 @@ namespace ERxWebClient2.Controllers
         public string Username { get; set; }
         public string Password { get; set; }
         public int RevId { get; set; }
+    }
+    public class CreateER4ContactViaArchieCommandJSON
+    {
+        public CreateER4ContactViaArchieCommand CreateCSLAER4ContactViaArchieCommand()
+        {
+            CreateER4ContactViaArchieCommand res = new CreateER4ContactViaArchieCommand(this.code,
+                this.status, this.username, this.email, this.fullname, this.password, this.sendNewsletter, this.createExampleReview);
+            return res;
+        }
+        public string code { get; set; }
+        public string status { get; set; }
+        public string username { get; set; }
+        public string email { get; set; }
+        public string fullname { get; set; }
+        public string password { get; set; }
+        public bool sendNewsletter { get; set; }
+        public bool createExampleReview { get; set; }
+        public string result { get; set; }
     }
 }

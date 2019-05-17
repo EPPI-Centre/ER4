@@ -121,6 +121,7 @@ namespace BusinessLibrary.Security
         
         private bool IsInRole(string role)
         {
+            if (Roles == null) return false;
             return Roles.Contains(role);
         }
 
@@ -169,7 +170,7 @@ namespace BusinessLibrary.Security
         GetCslaIdentity<ReviewerIdentity>(completed, new CredentialsCriteria(username, password, ArchieCode, Status, LoginMode, reviewId));
     }
 #else
-
+        
         public static ReviewerIdentity GetIdentity(string username, string password, int reviewId, string LoginMode, string roles)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, reviewId, LoginMode));
@@ -187,6 +188,10 @@ namespace BusinessLibrary.Security
         public static ReviewerIdentity GetIdentity(System.Security.Claims.ClaimsPrincipal CP)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(CP));
+        }
+        public static ReviewerIdentity GetIdentity(string username, string password, string ArchieCode, string Status )
+        {//used to link existing account with temporarily stored ArchieCode and Status
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, ArchieCode, Status, "Archie", 0));
         }
         public static readonly PropertyInfo<string> TokenProperty = RegisterProperty<string>(typeof(ReviewerIdentity), new PropertyInfo<string>("Token", "Token", 0));
         public string Token

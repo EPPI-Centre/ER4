@@ -35,12 +35,12 @@ namespace WcfHostPortal
             }
             else
             {
-                if (state.Length == 12)//temporary!!!
-                {
-                    Response.Redirect("https://ssru38.ioe.ac.uk/ERx/ArchieCallBack?code=" + code + "&state=" + state);
-                }
-                else
-                {
+                //if (state.Length == 12)//temporary!!!
+                //{
+                //    Response.Redirect("https://ssru38.ioe.ac.uk/ERx/ArchieCallBack?code=" + code + "&state=" + state);
+                //}
+                //else
+                //{
                     //HiddenField1.Value = code;
                     //HiddenField2.Value = state;
                     HttpCookie ck = new HttpCookie("oAuthCochraneEPPI");
@@ -50,7 +50,7 @@ namespace WcfHostPortal
                     ck.Expires = System.DateTime.Now.AddMinutes(61);
                     //ck.Expires = System.DateTime.Now.AddMinutes(1);
                     this.Response.Cookies.Add(ck);
-                }
+                //}
             }
         }
     }
