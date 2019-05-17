@@ -84,13 +84,22 @@
         <div class="p-1">
             <img src="{{baseUrl}}/Images/cochrane_logo.png" width="30" height="30" class="mr-1" />
             <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
-            <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info.</button>
+            <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
         </div>
         <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
             <p class="mb-1">
-                Help for Cochrane users<br />
-                write something here...
+                The link above allows <b>Cochrane Authors</b> to log in EPPI-Reviewer with their Cochrane Account details.<br />
+                Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
             </p>
+            <ol class="small">
+                <li>Work on Cochrane reviews (access control is controlled by review authorship state as defined in Archie).</li>
+                <li>Work on private (not shared) reviews.</li>
+                <li>Work on "Prospective" Cochrane reviews (preliminary work, before registering a review in Archie). To gain access to this option please get in touch with EPPI-Support. </li>
+            </ol>
+            <p>
+                More details, including guidance, are <a href="https://community.cochrane.org/help/tools-and-software/eppi-reviewer" target="_blank">here</a>.
+            </p>
+
         </div>
     </div>
 
