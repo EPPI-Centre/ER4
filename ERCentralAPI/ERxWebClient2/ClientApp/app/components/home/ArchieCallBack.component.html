@@ -12,13 +12,13 @@
     <div *ngIf="Phase=='LinkOrCreateAccount'" class="h-100 rounded bg-light mx-1 p-1">
         <h2 class="text-primary ml-3">Welcome to EPPI-Reviewer</h2>
         <p>
-            <b>You have successfully authenticated through Archie.</b> However, your Archie Identity is not currenlty known to EPPI-Reviewer.
+            <b>You have successfully authenticated through Cochrane.</b> However, your Cochrane Identity is not currenlty known to EPPI-Reviewer.
             <br />
-            In order to work properly, EPPI-Reviewer needs to establish a link between an EPPI-Reviewer account and your Archie credentials. This can be
+            In order to work properly, EPPI-Reviewer needs to establish a link between an EPPI-Reviewer account and your Cochrane credentials. This can be
             done in two ways:
         </p>
         <p>
-            <b>1. Link an existing EPPI-Reviewer account to your Archie details.</b> Please choose this option if you already have an EPPI-Reviewer account.<br />
+            <b>1. Link an existing EPPI-Reviewer account to your Cochrane details.</b> Please choose this option if you already have an EPPI-Reviewer account.<br />
             You will be asked to log on again, using your EPPI-Reviewer username and password.
             In case you don't remember your EPPI-Reviewer details, you can retrieve your username and/or reset you password by clicking
             <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">here</a>.
@@ -67,8 +67,8 @@
             <br />
             Clicking "<em>Complete Authentication</em>" will allow EPPI-Reviewer to immediately verify your identity.
             <br />
-            Your Archie details will be linked with your EPPI-Reviewer account automatically.
-            From then on you will be able to log on normally (EPPI-Reviewer credentials) or through Archie, indifferently.
+            Your Cochrane details will be linked with your EPPI-Reviewer account automatically.
+            From then on you will be able to log on normally (using EPPI-Reviewer credentials) or through Cochrane.
         </p>
         <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
             <div class="form-group row m-1 p-0">
@@ -103,10 +103,10 @@
     <div *ngIf="Phase=='CreateNewAccount'" class="h-100 bg-light mx-1 p-1 rounded">
         <h3 class="text-primary">Create New Account</h3>
         <p>
-            <b>Please Fill all the fields below:</b>
+            <b>Please fill-in all the fields below.</b>
             <br />
-            This will create a new EPPI-Reviewer account and link the new account to your Archie Identity. After completing this procedure you will be able to
-            authenticate in EPPI-Reviewer using Archie (as you just did) or the credentials below. EPPI-Reviewer functionalities will remain unchanged either way.
+            This will create a new EPPI-Reviewer account and link the new account to your Cochrane Identity. After completing this procedure you will be able to
+            authenticate in EPPI-Reviewer via Cochrane (as you just did) or the credentials below. 
             <br />
             Please note that in order to be able to use your EPPI-Reviewer credentials you will need to
             <b>confirm your email address.</b> After registering here <b>you will receive an "Activation" email, with a unique link</b>.

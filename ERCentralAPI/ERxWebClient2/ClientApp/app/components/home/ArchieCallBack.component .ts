@@ -143,7 +143,7 @@ export class ArchieCallBackComponent implements OnInit {
             }
             else {
                 this.NotificationService.show({
-                    content: "Your EPPI-Reviewer and Archie Accounts have been Linked!",
+                    content: "Your EPPI-Reviewer and Cochrane Accounts have been Linked!",
                     animation: { type: 'slide', duration: 400 },
                     position: { horizontal: 'center', vertical: 'top' },
                     type: { style: "success", icon: true },
