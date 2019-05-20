@@ -161,7 +161,7 @@ export class ComparisonComp implements OnInit {
 				}
 		}
 		
-		//console.log('hello' + newComparison);
+		console.log('hello' + newComparison);
 		this.__comparisonsService.CreateComparison(newComparison);
 
 	}

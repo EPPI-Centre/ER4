@@ -1,4 +1,4 @@
-import { Component,  OnInit } from '@angular/core';
+import { Component,  OnInit, Output, EventEmitter } from '@angular/core';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
@@ -24,7 +24,7 @@ export class ComparisonReconciliationComp implements OnInit {
 		private _ItemDocsService: ItemDocsService
 
 	) { }
-
+	@Output() criteriaChange = new EventEmitter();
 	private localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
 		new Comparison(), ""
 	);
@@ -54,6 +54,16 @@ export class ComparisonReconciliationComp implements OnInit {
 			}
 		}
 	}
+	OpenItem(itemId: number) {
+
+		if (itemId > 0) {
+		
+			//if (this.Context == 'FullUI') this.router.navigate(['itemcoding', itemId]);
+			//else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', itemId]);
+			this.router.navigate(['itemcoding', itemId]);
+		}
+	}
+
 	recursiveItemList(i: number) {
 		let ItemSetlst: ItemSet[] = [];
 		this._reconciliationService.FetchItemSetList(this._ItemListService.ItemList.items[i].itemId)

@@ -310,12 +310,12 @@ export class Comparison {
 	public comparisonId: number = 0;
 	public isScreening: boolean = false;
 	public reviewId: number = 0;
-	public inGroupAttributeId: number = 0;
+	public inGroupAttributeId: number = -1;
 	public setId: number = 0;
 	public comparisonDate: string = "";
 	public contactId1: number = 0;
 	public contactId2: number = 0;
-	public contactId3: number = 0;
+	public contactId3: number = -1;
 	public contactName1: string = '';
 	public contactName2: string = '';
 	public contactName3: string = '';

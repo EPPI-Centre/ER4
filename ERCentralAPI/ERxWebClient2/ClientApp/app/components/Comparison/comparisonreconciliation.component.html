@@ -1,6 +1,5 @@
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 border border-primary m-2 p-2">
-	<button class="btn btn-dark pull-right col-md-2" 
-			(click)="BackToMain()">
+	<button class="page-link pt-0 pb-1 mb-1 pull-left" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
 		Close/back
 	</button>
 	<form class="row card m-3 p-3">
@@ -19,9 +18,13 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let recon of localList.Items; let i = index" (click)="ChangePanelItem(recon.Item.itemId)">
+					<tr *ngFor="let recon of localList.Items; let i = index" 
+						[ngClass]="(recon.IsCompleted)?'bg-light':'bg-warning'"
+						(click)="ChangePanelItem(recon.Item.itemId)">
 						<td > <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
-						<td >{{_ItemListService.ItemList.items[i].itemId}}</td>
+						<td class="btn btn-link mt-1"
+						(click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
+							>{{_ItemListService.ItemList.items[i].itemId}}</td>
 						<td >
 							{{recon.Item.shortTitle}}
 
