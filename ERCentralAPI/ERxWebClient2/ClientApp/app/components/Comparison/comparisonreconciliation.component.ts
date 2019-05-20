@@ -6,6 +6,7 @@ import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -21,9 +22,11 @@ export class ComparisonReconciliationComp implements OnInit {
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
-		private _ItemDocsService: ItemDocsService
+		private _ItemDocsService: ItemDocsService,
+		private _eventEmitterService: EventEmitterService
 
 	) { }
+
 	@Output() criteriaChange = new EventEmitter();
 	private localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
 		new Comparison(), ""
@@ -52,8 +55,10 @@ export class ComparisonReconciliationComp implements OnInit {
 				let i: number = 0;
 					this.recursiveItemList(i);
 			}
+			this._eventEmitterService.reconDataChanged.emit(this.localList.Items);
 		}
 	}
+	
 	OpenItem(itemId: number) {
 
 		if (itemId > 0) {
@@ -73,6 +78,7 @@ export class ComparisonReconciliationComp implements OnInit {
 
 					ItemSetlst = res;
 					this.localList.AddItem(this._ItemListService.ItemList.items[i], ItemSetlst);
+					
 					if (i < this._ItemListService.ItemList.items.length-1) {
 						i = i + 1;
 						this.recursiveItemList(i);
@@ -86,11 +92,16 @@ export class ComparisonReconciliationComp implements OnInit {
 
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
-		if (this.panelItem) {
-			this.getItemDocuments(this.panelItem.itemId);
+		if (this.panelItem && this.panelItem != undefined) {
+			let itemID: number = this.panelItem.itemId;
+			if (itemID) {
+				this.getItemDocuments(this.panelItem.itemId);
+				this._reconciliationService.FetchArmsForReconItems(
+					this._ItemListService.ItemList.items);
+			}
 		}
-		this._reconciliationService.FetchArmsForReconItems(this._ItemListService.ItemList.items);
 	}
+	
 	getItemDocuments(itemid: number) {
 		this._ItemDocsService.FetchDocList(itemid);
 	}

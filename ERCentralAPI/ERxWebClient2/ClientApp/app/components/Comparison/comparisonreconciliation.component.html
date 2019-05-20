@@ -1,3 +1,4 @@
+<HeaderComponent PageTitle="Reconciliation" Context="Reconciliation"></HeaderComponent>
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 border border-primary m-2 p-2">
 	<button class="page-link pt-0 pb-1 mb-1 pull-left" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
 		Close/back
@@ -9,27 +10,32 @@
 			<table class="card-body col-12 table table-bordered table-striped" *ngIf="localList.Items">
 				<thead>	
 					<tr>
-						<th>Completed</th>
-						<th> ITEM ID</th>
-						<th> Short Title</th>
-						<th>{{CurrentComparison.contactName1}}</th>
-						<th>{{CurrentComparison.contactName2}}</th>
-						<th *ngIf="CurrentComparison.contactName3 != ''">{{CurrentComparison.contactName3}}</th>
+						<th class="col-md-1 w">Completed</th>
+						<th class="col-md-2 w"> ITEM ID</th>
+						<th class="col-md-3 w">{{CurrentComparison.contactName1}}</th>
+						<th class="col-md-3 w">{{CurrentComparison.contactName2}}</th>
+						<th class="col-md-3 w" *ngIf="CurrentComparison.contactName3 != ''">
+						{{CurrentComparison.contactName3}}
+						</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr *ngFor="let recon of localList.Items; let i = index" 
-						[ngClass]="(recon.IsCompleted)?'bg-light':'bg-warning'"
+						[ngClass]="(recon.IsCompleted)?'bg-light':''"
 						(click)="ChangePanelItem(recon.Item.itemId)">
 						<td > <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
-						<td class="btn btn-link mt-1"
-						(click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
-							>{{_ItemListService.ItemList.items[i].itemId}}</td>
-						<td >
-							{{recon.Item.shortTitle}}
-
+						<td class="col-md-3 card-body">
+							<span (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)" 
+								  class="btn btn-link mt-1 col-md-1">
+								{{_ItemListService.ItemList.items[i].itemId}}
+							</span>
+						<br/>
+						<span class="col-md-1"> {{recon.Item.shortTitle}}
+						</span>
+						<br/>
 							<span *ngIf="recon.IsCompleted">
-								<button (click)="UnComplete(recon)" class="btn btn-danger pull-right">
+								<button (click)="UnComplete(recon)"
+										class="btn btn-danger">
 									Un-Complete
 								</button>
 							</span>
@@ -46,16 +52,18 @@
 								<span [hidden]="!hidemeOne[j+(100*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
 										{{item}}
-										<i class="fa fa-arrow-right"
+										<i class="fa fa-arrow-right pt-4"
 										   aria-hidden="true">
 										</i>
 									</span>
 									<br />
-									<span>
+									<span class="text-sm-center border border-success">
 										{{recon.CodesReviewer1[j-1].InfoBox}}
 									</span>
 								</span>
-								<button class="btn btn-outline-primary" *ngIf="recon.CodesReviewer1[j-1].ArmID == 0" (click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
+								<button class="btn btn-outline-info m-2 p-2  rounded-0" 
+										*ngIf="recon.CodesReviewer1[j-1].ArmID == 0" 
+										(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
 									{{recon.CodesReviewer1[j-1].Name
 										}}
 								</button>
@@ -75,7 +83,7 @@
 												</span>
 												<br />
 											</span>
-											<button class="btn btn-outline-primary" (click)="hidemearms[jj] = !hidemearms[jj]">
+											<button class="btn btn-outline-info" (click)="hidemearms[jj] = !hidemearms[jj]">
 												{{recon.CodesReviewer1[jj-1].Name}}
 											</button>
 											<br />
@@ -86,7 +94,8 @@
 						</td>
 						<td>
 							<span *ngIf="!recon.IsCompleted">
-								<button (click)="Complete(recon,CurrentComparison.contactId2)" class="btn btn-success  pull-right">
+								<button (click)="Complete(recon,CurrentComparison.contactId2)" 
+										class="btn btn-success  pull-right">
 									Complete
 								</button>
 							</span>
@@ -95,16 +104,18 @@
 								<span [hidden]="!hidemeTwo[k+(100*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath)">
 										{{item}}
-										<i class="fa fa-arrow-right"
+										<i class="fa fa-arrow-right pt-4"
 										   aria-hidden="true">
 										</i>
 									</span>
 									<br />
-									<span>
+									<span class="text-sm-center border border-success">
 										{{recon.CodesReviewer2[k-1].InfoBox}}
 									</span>
 								</span>
-								<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0" class="btn btn-outline-info"  (click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
+								<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0" 
+										class="btn btn-outline-info  m-2 p-2  rounded-0"  
+										(click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
 									{{recon.CodesReviewer2[k-1].Name}}
 								</button>
 							</span>
@@ -124,7 +135,7 @@
 												</span>
 												<br />
 											</span>
-											<button class="btn btn-outline-primary" (click)="hidemearms[kk] = !hidemearms[kk]">
+											<button class="btn btn-outline-info" (click)="hidemearms[kk] = !hidemearms[kk]">
 												{{recon.CodesReviewer2[kk-1].Name}}
 											</button>
 											<br />
@@ -144,16 +155,19 @@
 								<span [hidden]="!hidemeThree[l+(100*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
 										{{item}}
-										<i class="fa fa-arrow-right"
+										<i class="fa fa-arrow-right pt-4"
 										   aria-hidden="true">
 										</i>
 									</span>
 									<br />
-									<span>
+									<span 
+										  class="text-sm-center border border-success col-md-3">
 										{{recon.CodesReviewer3[l-1].InfoBox}}
 									</span>
 								</span>
-								<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0" class="btn btn-outline-dark" (click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
+								<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0" 
+										class="btn btn-outline-info  m-2 p-2 rounded-0" 
+										(click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
 									{{recon.CodesReviewer3[l-1].Name}}
 								</button>
 							</span>
@@ -173,7 +187,7 @@
 												</span>
 												<br />
 											</span>
-											<button class="btn btn-outline-primary" (click)="hidemearms[zz] = !hidemearms[zz]">
+											<button class="btn btn-outline-info" (click)="hidemearms[zz] = !hidemearms[zz]">
 												{{recon.CodesReviewer3[zz-1].Name}}
 											</button>
 											<br />
@@ -186,7 +200,9 @@
 				</tbody>
 			</table>
 		</div>
-		<div *ngIf="panelItem" class="col-12 row p-2 m-2">
+		<comparisonPaginator>
+		</comparisonPaginator>
+		<div *ngIf="panelItem" class="col-12 row p-2 m-2" style="max-height: 500px; overflow-y: scroll;">
 			<div class="col-5 row">
 				<div class="row col-12 border-top   ml-0 pl-0">
 					<div class="row w-100 p-0 m-0 border-bottom">

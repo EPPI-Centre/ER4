@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  Comparison } from './comparisons.service';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
-import { Item } from './ItemList.service';
+import { Item, Criteria } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
 import { ArmsService } from './arms.service';
 import { ModalService } from './modal.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
 
@@ -16,14 +17,19 @@ import { ModalService } from './modal.service';
 
 export class ReconciliationService extends BusyAwareService {
 
-    constructor(
-        private _httpC: HttpClient,
+	constructor(
+		private _httpC: HttpClient,
 		private _armsService: ArmsService,
 		private _modalService: ModalService,
-        @Inject('BASE_URL') private _baseUrl: string
-        ) {
-        super();
-    }
+		private EventEmitterService: EventEmitterService,
+		@Inject('BASE_URL') private _baseUrl: string
+	) {
+		super();
+	}
+
+	public localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
+		new Comparison(), ""
+	);
 
 	FetchItemSetList(ItemIDCrit: number): Promise<ItemSet[]> {
 
@@ -35,6 +41,7 @@ export class ReconciliationService extends BusyAwareService {
 			.toPromise().then(
 
 			(res: ItemSet[]) => {
+			
 				this.RemoveBusy('FetchItemSetList');
 				return res;
 			},
@@ -49,6 +56,7 @@ export class ReconciliationService extends BusyAwareService {
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
+			console.log(items[i]);
 			this._armsService.FetchPromiseArms(items[i]);
 		}
 		return items;
@@ -77,7 +85,7 @@ export class ReconciliationService extends BusyAwareService {
 	}
 
 	ngOnInit() {
-				
+			
 	}
 	
 }

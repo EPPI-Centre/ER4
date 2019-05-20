@@ -71,6 +71,7 @@ import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.compo
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
+import { ComparisonPaginatorComp } from './components/Comparison/comparisonPaginator.component';
 
 @NgModule({
     declarations: [
@@ -123,7 +124,8 @@ import { ComparisonReconciliationComp } from './components/Comparison/comparison
 		CreateNewCodeComp,
 		ComparisonComp,
 		ComparisonStatsComp,
-		ComparisonReconciliationComp
+		ComparisonReconciliationComp,
+		ComparisonPaginatorComp
 	],
     providers: [
         EventEmitterService,
