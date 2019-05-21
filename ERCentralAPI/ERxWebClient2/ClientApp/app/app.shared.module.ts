@@ -68,6 +68,7 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
+import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 
 @NgModule({
     declarations: [
@@ -87,7 +88,8 @@ import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.compo
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,        
+        HomeComponent,
+        ArchieCallBackComponent, 
         ItemListComp,
         ItemCodingComp,
         ItemCodingFullComp,
@@ -148,6 +150,7 @@ import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.compo
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
+            { path: 'ArchieCallBack', component: ArchieCallBackComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
