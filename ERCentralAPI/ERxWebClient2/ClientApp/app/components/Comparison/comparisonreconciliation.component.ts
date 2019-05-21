@@ -45,6 +45,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public hidemeTwo = [];
 	public hidemeThree = [];
 	public hidemearms = [];
+	public static readonly armsConst: number = 100;
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}

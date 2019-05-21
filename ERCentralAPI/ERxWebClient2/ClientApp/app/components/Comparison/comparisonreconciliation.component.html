@@ -52,7 +52,7 @@
 
 							<span class="row" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 								<br />
-								<span [hidden]="!hidemeOne[j+(100*i)]">
+								<span [hidden]="!hidemeOne[j+(armsConst*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
 										{{item}}
 										<i class="fa fa-arrow-right pt-4"
@@ -66,7 +66,7 @@
 								</span>
 								<button class="btn btn-outline-info m-2 p-2  rounded-0"
 										*ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
-										(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
+										(click)="hidemeOne[j+(armsConst*i)] = !hidemeOne[j+(armsConst*i)]">
 									{{recon.CodesReviewer1[j-1].Name}}
 								</button>
 							</span>
@@ -90,6 +90,9 @@
 												{{recon.CodesReviewer1[jj-1].Name}}
 											</button>
 											<br />
+											<span class="text-sm-center border border-success col-md-3">
+												{{recon.CodesReviewer1[jj-1].InfoBox}}
+											</span>
 										</span>
 									</span>
 								</span>
@@ -104,7 +107,7 @@
 							</span>
 							<span class="row" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 								<br />
-								<span [hidden]="!hidemeTwo[k+(100*i)]">
+								<span [hidden]="!hidemeTwo[k+(armsConst*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath)">
 										{{item}}
 										<i class="fa fa-arrow-right pt-4"
@@ -118,7 +121,7 @@
 								</span>
 								<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0"
 										class="btn btn-outline-info  m-2 p-2  rounded-0"
-										(click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
+										(click)="hidemeTwo[k+(armsConst*i)] = !hidemeTwo[k+(armsConst*i)]">
 									{{recon.CodesReviewer2[k-1].Name}}
 								</button>
 							</span>
@@ -142,6 +145,9 @@
 												{{recon.CodesReviewer2[kk-1].Name}}
 											</button>
 											<br />
+											<span class="text-sm-center border border-success col-md-3">
+												{{recon.CodesReviewer2[kk-1].InfoBox}}
+											</span>
 										</span>
 									</span>
 								</span>
@@ -155,7 +161,7 @@
 							</span>
 							<span *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 								<br />
-								<span [hidden]="!hidemeThree[l+(100*i)]">
+								<span [hidden]="!hidemeThree[l+(armsConst*i)]">
 									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
 										{{item}}
 										<i class="fa fa-arrow-right pt-4"
@@ -169,7 +175,7 @@
 								</span>
 								<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0"
 										class="btn btn-outline-info  m-2 p-2 rounded-0"
-										(click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
+										(click)="hidemeThree[l+(armsConst*i)] = !hidemeThree[l+(armsConst*i)]">
 									{{recon.CodesReviewer3[l-1].Name}}
 								</button>
 							</span>
@@ -193,6 +199,9 @@
 												{{recon.CodesReviewer3[zz-1].Name}}
 											</button>
 											<br />
+											<span class="text-sm-center border border-success col-md-3">
+												{{recon.CodesReviewer3[zz-1].InfoBox}}
+											</span>
 										</span>
 									</span>
 								</span>
@@ -208,7 +217,7 @@
 		<div *ngIf="panelItem" class="col-12 row p-2 m-2" style="max-height: 500px; overflow-y: scroll;">
 			<div class="col-5 row">
 				<div class="row col-12 border-top   ml-0 pl-0">
-					<div class="row w-100 p-0 m-0 border-bottom">
+					<div class="row w-armsConst p-0 m-0 border-bottom">
 						<div class="p-1 ml-1 mt-1 font-weight-bold">
 							Title
 						</div>
@@ -216,8 +225,7 @@
 							{{panelItem.title}}
 						</div>
 					</div>
-
-					<div class="row w-100 p-0 m-0 border-bottom">
+					<div class="row w-armsConst p-0 m-0 border-bottom">
 						<div class="p-1 ml-1 mt-1 font-weight-bold">
 							Author(s)
 						</div>
@@ -225,13 +233,13 @@
 							{{panelItem.authors}}
 						</div>
 					</div>
-					<div class="row w-100 p-0 m-0 border-bottom ">
+					<div class="row w-armsConst p-0 m-0 border-bottom ">
 						<div class="col-4 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
 							<div class="col p-1 m-1 bg-white">{{panelItem.itemId}}</div>
 						</div>
 					</div>
-					<div class="row w-100 p-0 m-0 border-bottom  ">
+					<div class="row w-armsConst p-0 m-0 border-bottom  ">
 						<div class="w-50 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
 							<div class="col p-1 m-1 bg-white">
@@ -239,7 +247,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="row w-100 p-0 m-0 border-bottom  ">
+					<div class="row w-armsConst p-0 m-0 border-bottom  ">
 						<div class="w-50 row p-0 m-0">
 							<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
 							<div class="col p-1 m-1 bg-white">
