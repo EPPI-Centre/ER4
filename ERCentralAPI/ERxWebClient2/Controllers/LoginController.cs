@@ -77,7 +77,13 @@ namespace ERxWebClient2.Controllers
                     lc.reviewerIdentity = ri;
                     return Ok(lc);
                 }
-                else { return Forbid(); }
+                else {
+                    if (ri != null && ri.Ticket != "")
+                    {
+                        _logger.LogError("Archie authentication didn't work, ri.ticket is: " + ri.Ticket);
+                    }
+                    return Forbid();
+                }
             }
             catch (Exception e)
             {

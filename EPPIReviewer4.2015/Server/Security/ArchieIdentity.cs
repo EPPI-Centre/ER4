@@ -890,15 +890,19 @@ namespace BusinessLibrary.Security
 #if (!CSLA_NETCORE)
                 return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
 #else
-                string host = Environment.MachineName.ToLower();
-                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                {//use live address: this is the real published ER4
-                    return "https://login.cochrane.org/";
-                }
-                else
-                {//not a live publish, use test archie 
-                    return "https://test-login.cochrane.org/";
-                }
+                if (RootConfig == null) BuildConfig();
+                var CochraneoAuthBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneoAuthBaseAddress");
+                if (CochraneoAuthBaseAddress == null || CochraneoAuthBaseAddress == "") throw new Exception("No CochraneoAuthBaseAddress!");
+                return CochraneoAuthBaseAddress;
+                //string host = Environment.MachineName.ToLower();
+                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                //{//use live address: this is the real published ER4
+                //    return "https://login.cochrane.org/";
+                //}
+                //else
+                //{//not a live publish, use test archie 
+                //    return "https://test-login.cochrane.org/";
+                //}
 
 #endif
             }
@@ -912,6 +916,7 @@ namespace BusinessLibrary.Security
 #else
                 if (RootConfig == null) BuildConfig();
                 var connectionString = RootConfig.GetValue<string>("AppSettings:CochraneOAuthSS");
+                if (connectionString == null || connectionString == "") throw new Exception("No client secret!");
                 return connectionString;
 #endif
             }
