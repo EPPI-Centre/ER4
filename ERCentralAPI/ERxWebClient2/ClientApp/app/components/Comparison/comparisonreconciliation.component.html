@@ -7,7 +7,7 @@
 		<div class="col-12 card-body bg-light "
 			  style="max-height:600px; overflow:scroll;"  >
 			<h3>Comparison Reconciliation</h3>
-			<table class="card-body col-12 table table-bordered table-striped" *ngIf="localList.Items">
+			<table class="card-body col-12 table table-bordered table-striped" *ngIf="pagerService.pagedItems">
 				<thead>	
 					<tr>
 						<th class="col-md-1 w">Completed</th>
@@ -20,10 +20,10 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let recon of localList.Items; let i = index" 
+					<tr *ngFor="let recon of pagerService.pagedItems; let i = index" 
 						[ngClass]="(recon.IsCompleted)?'bg-light':''"
 						(click)="ChangePanelItem(recon.Item.itemId)">
-						<td > <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
+						<td class="col-md-1"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
 						<td class="col-md-3 card-body">
 							<span (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)" 
 								  class="btn btn-link mt-1 col-md-1">
@@ -47,27 +47,28 @@
 									Complete
 								</button>
 							</span>
-							<span class="row" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
-								<br />
-								<span [hidden]="!hidemeOne[j+(100*i)]">
-									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
-										{{item}}
-										<i class="fa fa-arrow-right pt-4"
-										   aria-hidden="true">
-										</i>
-									</span>
+							
+								<span class="row" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 									<br />
-									<span class="text-sm-center border border-success">
-										{{recon.CodesReviewer1[j-1].InfoBox}}
+									<span [hidden]="!hidemeOne[j+(100*i)]">
+										<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
+											{{item}}
+											<i class="fa fa-arrow-right pt-4"
+											   aria-hidden="true">
+											</i>
+										</span>
+										<br />
+										<span class="text-sm-center border border-success">
+											{{recon.CodesReviewer1[j-1].InfoBox}}
+										</span>
 									</span>
+									<button class="btn btn-outline-info m-2 p-2  rounded-0"
+											*ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
+											(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
+										{{recon.CodesReviewer1[j-1].Name}}										
+									</button>
 								</span>
-								<button class="btn btn-outline-info m-2 p-2  rounded-0" 
-										*ngIf="recon.CodesReviewer1[j-1].ArmID == 0" 
-										(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
-									{{recon.CodesReviewer1[j-1].Name
-										}}
-								</button>
-							</span>
+						
 							<br />
 							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
 								<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
@@ -200,8 +201,10 @@
 				</tbody>
 			</table>
 		</div>
-		<comparisonPaginator>
+		<comparisonPaginator [allItems]="_eventEmitterService.reconcilingArr">
+
 		</comparisonPaginator>
+	
 		<div *ngIf="panelItem" class="col-12 row p-2 m-2" style="max-height: 500px; overflow-y: scroll;">
 			<div class="col-5 row">
 				<div class="row col-12 border-top   ml-0 pl-0">

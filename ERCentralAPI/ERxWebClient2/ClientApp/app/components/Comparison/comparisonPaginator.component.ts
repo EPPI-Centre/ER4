@@ -1,6 +1,4 @@
-import { Component,  OnInit, Input} from '@angular/core';
-import { Router } from '@angular/router';
-import { ReconciliationService } from '../services/reconciliation.service';
+import { Component,  OnInit, Input, Output} from '@angular/core';
 import { PagerService } from '../services/pagination.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
@@ -13,15 +11,14 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 })
 
 export class ComparisonPaginatorComp implements OnInit {
-	constructor(private router: Router,
-		private _reconciliationService: ReconciliationService,
+	constructor(
 		private _eventEmitterService: EventEmitterService,
 		private pagerService: PagerService) { }
 
-	@Input() localItems: any[] =[];
 
-	// array of all items to be paged
-	private allItems: any[] = [];
+	@Input() allItems: any[] = [];
+
+	//private allItems: any[] = [];
 
 	// pager object
 	pager: any = {};
@@ -29,30 +26,30 @@ export class ComparisonPaginatorComp implements OnInit {
 	// paged items
 	pagedItems!: any[];
 
-	ngOnInit() {
-
-		// get data
-		this._eventEmitterService.reconDataChanged.subscribe(
-
-			(res: any) => {
-				
-				this.allItems = res;
-				console.log('the data changed' + this.allItems);
-			}
-		);
-		
-		// initialize to page 1
-		this.setPage(1);
-		
-	}
-
 	setPage(page: number) {
-		// get pager object from service
-		this.pager = this.pagerService.getPager(this.allItems.length, page);
 
+		// get pager object from service
+		console.log('==========length is: ' + this.allItems.length);
+		this.pager = this.pagerService.getPager(this.allItems.length, page);
+		console.log('setting pager: ' + JSON.stringify(this.pager) + 'current page: ' + this.pager.currentPage);
 		// get current page of items
 		this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
+		this.pagerService.pagedItems = this.pagedItems;
+		//this.localList.Items = this.pagedItems;
+
 	}
+
+	ngOnInit() {
+
+		this._eventEmitterService.reconDataChanged.subscribe(
+			() => {
+
+				this.allItems = this._eventEmitterService.reconcilingArr;
+				this.setPage(1);
+			}
+		);
+	}
+
 }
 
 

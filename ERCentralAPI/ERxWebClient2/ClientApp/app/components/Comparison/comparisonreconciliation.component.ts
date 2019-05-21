@@ -7,6 +7,7 @@ import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { PagerService } from '../services/pagination.service';
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -23,6 +24,7 @@ export class ComparisonReconciliationComp implements OnInit {
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
 		private _ItemDocsService: ItemDocsService,
+		private pagerService: PagerService,
 		private _eventEmitterService: EventEmitterService
 
 	) { }
@@ -43,6 +45,7 @@ export class ComparisonReconciliationComp implements OnInit {
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
     }
+
 	getReconciliations() {
 
 		if (this.item != null && this.item != undefined) {
@@ -53,9 +56,9 @@ export class ComparisonReconciliationComp implements OnInit {
 				this.localList = new ReconcilingItemList(this.ReviewSet,
 					this.CurrentComparison, "");
 				let i: number = 0;
-					this.recursiveItemList(i);
+				this.recursiveItemList(i);
+
 			}
-			this._eventEmitterService.reconDataChanged.emit(this.localList.Items);
 		}
 	}
 	
@@ -83,6 +86,10 @@ export class ComparisonReconciliationComp implements OnInit {
 						i = i + 1;
 						this.recursiveItemList(i);
 					} else {
+
+						this._eventEmitterService.reconDataChanged.emit();
+						this._eventEmitterService.reconcilingArr = this.localList.Items;
+
 						return;
 					}
 				}
@@ -92,6 +99,7 @@ export class ComparisonReconciliationComp implements OnInit {
 
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
+		
 		if (this.panelItem && this.panelItem != undefined) {
 			let itemID: number = this.panelItem.itemId;
 			if (itemID) {
@@ -129,6 +137,7 @@ export class ComparisonReconciliationComp implements OnInit {
 				.then(
 					() => {
 						this.RefreshData();
+		
 					}
 				);
 		}
@@ -147,6 +156,13 @@ export class ComparisonReconciliationComp implements OnInit {
 		this.item = this._ItemListService.ItemList.items[0];
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.RefreshData();
+
+		this._eventEmitterService.reconDataChanged.subscribe(
+			() => {
+
+				this._eventEmitterService.reconcilingArr = this.localList.Items;
+			}
+		);
 	}
 	BackToMain() {
 		this.router.navigate(['Main']);
