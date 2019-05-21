@@ -8,6 +8,7 @@ import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../
 import { ItemDocsService } from '../services/itemdocs.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { PagerService } from '../services/pagination.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -15,7 +16,7 @@ import { PagerService } from '../services/pagination.service';
     providers: []
 })
 
-export class ComparisonReconciliationComp implements OnInit {
+export class ComparisonReconciliationComp extends BusyAwareService implements OnInit {
 
 	constructor(
 		private router: Router, 
@@ -27,7 +28,9 @@ export class ComparisonReconciliationComp implements OnInit {
 		private pagerService: PagerService,
 		private _eventEmitterService: EventEmitterService
 
-	) { }
+	) {
+		super();
+	}
 
 	@Output() criteriaChange = new EventEmitter();
 	private localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
@@ -44,7 +47,16 @@ export class ComparisonReconciliationComp implements OnInit {
 	public hidemearms = [];
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
-    }
+	}
+
+	public IsServiceBusy(): boolean {
+	
+		if (this._BusyMethods.length > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	getReconciliations() {
 
@@ -55,6 +67,7 @@ export class ComparisonReconciliationComp implements OnInit {
 					x => x.set_id == this.CurrentComparison.setId)[0];
 				this.localList = new ReconcilingItemList(this.ReviewSet,
 					this.CurrentComparison, "");
+				this._BusyMethods.push("recursiveItemList");
 				let i: number = 0;
 				this.recursiveItemList(i);
 
@@ -71,8 +84,8 @@ export class ComparisonReconciliationComp implements OnInit {
 			this.router.navigate(['itemcoding', itemId]);
 		}
 	}
-
 	recursiveItemList(i: number) {
+
 		let ItemSetlst: ItemSet[] = [];
 		this._reconciliationService.FetchItemSetList(this._ItemListService.ItemList.items[i].itemId)
 
@@ -87,6 +100,8 @@ export class ComparisonReconciliationComp implements OnInit {
 						this.recursiveItemList(i);
 					} else {
 
+						this.RemoveBusy("recursiveItemList");
+						console.log('this is how many busy methods: ' + JSON.stringify(this._BusyMethods));
 						this._eventEmitterService.reconDataChanged.emit();
 						this._eventEmitterService.reconcilingArr = this.localList.Items;
 
@@ -96,6 +111,7 @@ export class ComparisonReconciliationComp implements OnInit {
 			);
 	}
 	RefreshData() {
+
 
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();

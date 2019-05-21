@@ -214,6 +214,8 @@ export class ComparisonStatsComp implements OnInit {
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
+		crit.pageSize = 4001;
+		//alert('total items count: ' + this._ItemListService.ItemList.totalItemCount);
 		this._ItemListService.FetchWithItems(crit, listDescription).then(
 				() => {
 					this.GoToReconcile();
