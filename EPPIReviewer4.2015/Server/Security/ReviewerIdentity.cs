@@ -121,6 +121,7 @@ namespace BusinessLibrary.Security
         
         private bool IsInRole(string role)
         {
+            if (Roles == null) return false;
             return Roles.Contains(role);
         }
 
@@ -169,19 +170,28 @@ namespace BusinessLibrary.Security
         GetCslaIdentity<ReviewerIdentity>(completed, new CredentialsCriteria(username, password, ArchieCode, Status, LoginMode, reviewId));
     }
 #else
-
+        
         public static ReviewerIdentity GetIdentity(string username, string password, int reviewId, string LoginMode, string roles)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, reviewId, LoginMode));
         }
 #if (CSLA_NETCORE)
-        public static ReviewerIdentity GetIdentity(int contactId, int reviewId, string displayName)
+        public static ReviewerIdentity GetIdentity(string ArchieCode, string Status, string LoginMode, int reviewId)
         {
-            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(contactId, reviewId, displayName, "ERWeb"));
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(ArchieCode, Status, LoginMode, reviewId));
+        }
+
+        public static ReviewerIdentity GetIdentity(int contactId, int reviewId, string displayName, bool isArchie)
+        {
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(contactId, reviewId, displayName, isArchie? "ERWebArchie" : "ERWeb"));
         }
         public static ReviewerIdentity GetIdentity(System.Security.Claims.ClaimsPrincipal CP)
         {
             return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(CP));
+        }
+        public static ReviewerIdentity GetIdentity(string username, string password, string ArchieCode, string Status )
+        {//used to link existing account with temporarily stored ArchieCode and Status
+            return GetCslaIdentity<ReviewerIdentity>(new CredentialsCriteria(username, password, ArchieCode, Status, "Archie", 0));
         }
         public static readonly PropertyInfo<string> TokenProperty = RegisterProperty<string>(typeof(ReviewerIdentity), new PropertyInfo<string>("Token", "Token", 0));
         public string Token
@@ -542,17 +552,37 @@ namespace BusinessLibrary.Security
             }
 #if (CSLA_NETCORE)
             else if (criteria.ReviewId != 0 && criteria.ContactId != 0)
-            {
+            {//opening a review, user is already authenticated via the [Authorise] directive in the controller.
+             //what we need to check depends on whether we think the user is licensed via archie or not...
+             //we use criteria.LoginMode to figure this out.
+                
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
                     Roles = new MobileList<string>();
+                    
                     LoadProperty<int>(UserIdProperty, criteria.ContactId);
-                    LoginToReview(connection, criteria);
-
+                    if (criteria.LoginMode == "ERWebArchie")
+                    {//this is a known archie user, let's check.
+                        Roles.Add("CochraneUser");//this gets removed if check doesn't work
+                        bool isValidCochraneUser = false;
+                        //line below will also open the review and apply licensing rules, if user is indeed in Archie (access token is valid or refresh worked).
+                        isValidCochraneUser = CheckCochraneUser(connection, criteria, null);
+                        if (!isValidCochraneUser)
+                        {//this could happen if:
+                         //a. user is not Cochrane (no Archie IDs in ER4) - shouldn't happen in this particular case!
+                         //b. user has an Archie Id but tokens couldn't be refreshed
+                         //c. user was in Archie but isn't anymore.
+                            LoginToReview(connection, criteria);
+                        }
+                    }
+                    else
+                    {//not an Archie user!
+                        LoginToReview(connection, criteria);
+                    }
                     if (ReviewId != 0 && Roles.Count > 0)
                     {//it worked
-                        LoadProperty<int>(UserIdProperty, criteria.ContactId);
+                     //LoadProperty<int>(UserIdProperty, criteria.ContactId);
                         LoadProperty<string>(NameProperty, criteria.DisplayName);
                         LoadProperty<string>(LoginModeProperty, criteria.LoginMode);
                         IsAuthenticated = true;
@@ -564,6 +594,7 @@ namespace BusinessLibrary.Security
                         IsAuthenticated = false;
                     }
                 }
+                
             }
             else if (criteria.ClaimsP != null && criteria.ClaimsP.Claims != null && criteria.ClaimsP.Claims.Count() > 0)
             {//build the RI object quickly based on the data we got from the JWT, WITHOUT passing through the DB.
@@ -708,7 +739,7 @@ namespace BusinessLibrary.Security
             }
             
             using (SqlCommand command2 = new SqlCommand("st_ContactLoginReview", connection))
-            {
+            {//if accessing an Archie review, SQL will add user to it (users don't see the review if Archie don't believe they belong to it).
                 DateTime check;
                 command2.CommandType = System.Data.CommandType.StoredProcedure;
                 command2.Parameters.Add(new SqlParameter("@userId", UserId));

@@ -24,6 +24,10 @@ export class HomeComponent implements OnInit {
     public ShowLoginFailed: boolean = false;
     public ShowUsernameRequired: boolean = false;
     public ShowPasswordRequired: boolean = false;
+    public showCochraneHelp: boolean = false;
+    public get baseUrl(): string {
+        return this._baseUrl;
+    }
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
         localStorage.clear();
@@ -39,8 +43,13 @@ export class HomeComponent implements OnInit {
             return;
         }
         this.ReviewerIdentityServ.LoginReq(u, p);
-    };
-    
+    }
+    GoToArchie() {
+        this.ReviewerIdentityServ.GoToArchie();
+    }
+    FilckShowCochraneHelp() {
+        this.showCochraneHelp = !this.showCochraneHelp;
+    }
     LoginFailed() {
         this.ShowLoginFailed = true;
     }

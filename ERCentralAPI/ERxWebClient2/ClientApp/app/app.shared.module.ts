@@ -68,6 +68,7 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
+import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
@@ -91,7 +92,8 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,        
+        HomeComponent,
+        ArchieCallBackComponent, 
         ItemListComp,
         ItemCodingComp,
         ItemCodingFullComp,
@@ -156,6 +158,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
+            { path: 'ArchieCallBack', component: ArchieCallBackComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
