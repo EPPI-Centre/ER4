@@ -100,8 +100,77 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+        [HttpGet("[action]")]
+        public IActionResult ReadOnlyArchieReviews()//should receive a reviewID!
+        {
 
-	}
+            try
+            {
+                SetCSLAUser();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri.IsCochraneUser)
+                {
+                    DataPortal<ReadOnlyArchieReviewList> dp = new DataPortal<ReadOnlyArchieReviewList>();
+
+                    ReadOnlyArchieReviewList result = dp.Fetch();
+                    if (result.Count == 0 && result.archieIdentity.Error != "")
+                    {
+                        
+                        var rrr = new
+                        {
+                            error = result.archieIdentity.Error,
+                            reason = result.archieIdentity.ErrorReason
+                        };
+
+                        return Ok(rrr);
+                    }
+                    else return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ReadOnlyArchieReviews error");
+                throw;
+            }
+        }
+        [Authorize(Roles = "CochraneUser")]
+        [HttpPost("[action]")]
+        public IActionResult ArchieReviewPrepare([FromBody] SingleStringCriteria ArchieRevIDCrit)
+        {//this also checks review out if needed.
+            try
+            {
+                ArchieReviewPrepareCommand cmd = new ArchieReviewPrepareCommand();
+                cmd.ArchieReviewID = ArchieRevIDCrit.Value;
+                DataPortal<ArchieReviewPrepareCommand> dp = new DataPortal<ArchieReviewPrepareCommand>();
+                cmd = dp.Execute(cmd);
+                return Ok(cmd);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error occured when Preparing (/checkout) ArchieReview ");
+                throw;
+            }
+        }
+        [Authorize(Roles = "CochraneUser")]
+        [HttpPost("[action]")]
+        public IActionResult ArchieReviewUndoCheckout([FromBody] SingleStringCriteria ArchieRevIDCrit)
+        {//this also checks review out if needed.
+            try
+            {
+                ArchieReviewUndoCheckoutCommand cmd = new ArchieReviewUndoCheckoutCommand();
+                cmd.ArchieReviewID = ArchieRevIDCrit.Value;
+                DataPortal<ArchieReviewUndoCheckoutCommand> dp = new DataPortal<ArchieReviewUndoCheckoutCommand>();
+                cmd = dp.Execute(cmd);
+                return Ok(cmd);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error occured when undoing Archie review Checkout");
+                throw;
+            }
+        }
+    }
 
 	public class reviewJson
 	{

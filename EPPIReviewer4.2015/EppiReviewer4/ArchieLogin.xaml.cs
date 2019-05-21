@@ -66,7 +66,7 @@ namespace EppiReviewer4
                             txtArchieMsg.Text = "Invalid login. Please try again.";
                             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                             //txtArchieMsg.Text = ri.Ticket;
-                            if (ri.Ticket.IndexOf("Error: Access denied, not an Author") == 0 || ri.Ticket.IndexOf("Error: Access denied, can't verify") == 0)
+                            if (ri.Ticket != null && (ri.Ticket.IndexOf("Error: Access denied, not an Author") == 0 || ri.Ticket.IndexOf("Error: Access denied, can't verify") == 0))
                             {//specific error, stuff worked user did authenticate, but user isn't a Cochrane author, so we will explain why this is happening
                                 StackPanel sp = new StackPanel();
                                 sp.Orientation = Orientation.Vertical;
@@ -125,16 +125,19 @@ namespace EppiReviewer4
                 string dest = "";
                 if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
                 {//use live address: this is the real published ER4
-                    dest = "https://account.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=";
+                    //dest = "https://account.cochrane.org/oauth2/auth?client_id=";
                 }
                 else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
                 {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
                     //changes are to be made here depending on what test we're doing
-                    dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=";
+                    //dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
                 }
                 else
                 {//not a live publish, use test archie
-                    dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
+                    dest = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=";
+                    //dest = "https://test-account.cochrane.org/oauth2/auth?client_id=";
                 }
                 return dest;
             }

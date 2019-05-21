@@ -72,6 +72,7 @@ import { ComparisonComp } from './components/Comparison/createnewcomparison.comp
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
 import { ComparisonPaginatorComp } from './components/Comparison/comparisonPaginator.component';
+import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 
 @NgModule({
     declarations: [
@@ -91,7 +92,8 @@ import { ComparisonPaginatorComp } from './components/Comparison/comparisonPagin
 		codesetSelectorComponent,
         armsComp,
         FetchReadOnlyReviewsComponent,
-        HomeComponent,        
+        HomeComponent,
+        ArchieCallBackComponent, 
         ItemListComp,
         ItemCodingComp,
         ItemCodingFullComp,
@@ -156,6 +158,7 @@ import { ComparisonPaginatorComp } from './components/Comparison/comparisonPagin
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
+            { path: 'ArchieCallBack', component: ArchieCallBackComponent },
             { path: 'readonlyreviews', component: FetchReadOnlyReviewsComponent },
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
