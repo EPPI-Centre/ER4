@@ -35,18 +35,18 @@
 								{{recon.Item.shortTitle}}
 							</span>
 							<br />
-							<span *ngIf="recon.IsCompleted">
-								<button (click)="UnComplete(recon)"
-										class="btn btn-danger">
-									Un-Complete
-								</button>
-							</span>
 						</td>
 						<td>
 							<span *ngIf="!recon.IsCompleted">
 								<button (click)="Complete(recon, CurrentComparison.contactId1)"
 										class="btn btn-success  pull-right">
 									Complete
+								</button>
+							</span>
+							<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1">
+								<button (click)="UnComplete(recon)"
+										class="btn btn-danger">
+									Un-Complete
 								</button>
 							</span>
 
@@ -105,6 +105,12 @@
 									Complete
 								</button>
 							</span>
+							<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2">
+								<button (click)="UnComplete(recon)"
+										class="btn btn-danger">
+									Un-Complete
+								</button>
+							</span>
 							<span class="row" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 								<br />
 								<span [hidden]="!hidemeTwo[k+(100*i)]">
@@ -157,6 +163,12 @@
 							<span *ngIf="!recon.IsCompleted">
 								<button (click)="Complete(recon, CurrentComparison.contactId3)" class="btn btn-success pull-right">
 									Complete
+								</button>
+							</span>
+							<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3">
+								<button (click)="UnComplete(recon)"
+										class="btn btn-danger">
+									Un-Complete
 								</button>
 							</span>
 							<span *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
