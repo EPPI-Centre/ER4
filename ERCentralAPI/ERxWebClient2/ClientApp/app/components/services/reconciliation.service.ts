@@ -21,15 +21,15 @@ export class ReconciliationService extends BusyAwareService {
 		private _httpC: HttpClient,
 		private _armsService: ArmsService,
 		private _modalService: ModalService,
-		private EventEmitterService: EventEmitterService,
 		@Inject('BASE_URL') private _baseUrl: string
 	) {
 		super();
 	}
 
-	public localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
-		new Comparison(), ""
-	);
+	//public localList: ReconcilingItemList = new ReconcilingItemList(new ReviewSet(),
+	//	new Comparison(), ""
+	//);
+	public reconcilingArr: any[] = [];
 
 	FetchItemSetList(ItemIDCrit: number): Promise<ItemSet[]> {
 
@@ -56,7 +56,6 @@ export class ReconciliationService extends BusyAwareService {
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
-			//alert('this many items: ' + items.length);
 			this._armsService.FetchPromiseArms(items[i]);
 		}
 		return items;
@@ -83,11 +82,9 @@ export class ReconciliationService extends BusyAwareService {
 				}
 			);
 	}
-
 	ngOnInit() {
-			
+
 	}
-	
 }
 
 enum Visibility {

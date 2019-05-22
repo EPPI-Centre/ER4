@@ -1,6 +1,7 @@
 import { Component,  OnInit, Input, Output} from '@angular/core';
-import { PagerService } from '../services/pagination.service';
+import { PaginationService } from '../services/pagination.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReconciliationService } from '../services/reconciliation.service';
 
 
 @Component({
@@ -13,7 +14,8 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 export class ComparisonPaginatorComp implements OnInit {
 	constructor(
 		private _eventEmitterService: EventEmitterService,
-		private pagerService: PagerService) { }
+		private PaginationService: PaginationService,
+		private _reconciliationService: ReconciliationService) { }
 
 
 	@Input() allItems: any[] = [];
@@ -30,11 +32,11 @@ export class ComparisonPaginatorComp implements OnInit {
 
 		// get pager object from service
 		console.log('==========length is: ' + this.allItems.length);
-		this.pager = this.pagerService.getPager(this.allItems.length, page);
+		this.pager = this.PaginationService.getPager(this.allItems.length, page);
 		console.log('setting pager: ' + JSON.stringify(this.pager) + 'current page: ' + this.pager.currentPage);
 		// get current page of items
 		this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
-		this.pagerService.pagedItems = this.pagedItems;
+		this.PaginationService.pagedItems = this.pagedItems;
 		//this.localList.Items = this.pagedItems;
 
 	}
@@ -44,7 +46,7 @@ export class ComparisonPaginatorComp implements OnInit {
 		this._eventEmitterService.reconDataChanged.subscribe(
 			() => {
 
-				this.allItems = this._eventEmitterService.reconcilingArr;
+				this.allItems = this._reconciliationService.reconcilingArr;
 				this.setPage(1);
 			}
 		);

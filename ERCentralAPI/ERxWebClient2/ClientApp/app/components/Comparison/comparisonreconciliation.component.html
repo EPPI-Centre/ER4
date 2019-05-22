@@ -8,7 +8,7 @@
 			 style="max-height:600px; overflow:scroll;">
 			<h3>Comparison Reconciliation</h3>
 			<div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
-			<table class="card-body col-12 table table-bordered table-striped" *ngIf="pagerService.pagedItems ">
+			<table class="card-body col-12 table table-bordered table-striped" *ngIf="_paginationService.pagedItems ">
 				<thead>
 					<tr>
 						<th class="col-md-1 w">Completed</th>
@@ -21,12 +21,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr *ngFor="let recon of pagerService.pagedItems; let i = index"
+					<tr *ngFor="let recon of _paginationService.pagedItems; let i = index"
 						[ngClass]="(recon.IsCompleted)?'bg-light':''"
 						(click)="ChangePanelItem(recon.Item.itemId)">
 						<td class="col-md-1"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
 						<td class="col-md-3 card-body">
-							<span (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
+							<span *ngIf="_ItemListService.ItemList.items[i] != undefined" (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
 								  class="btn btn-link mt-1 col-md-1">
 								{{_ItemListService.ItemList.items[i].itemId}}
 							</span>
@@ -72,7 +72,7 @@
 							</span>
 
 							<br />
-							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+							<span *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
 								<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
 									<b>{{a.title}}</b>
 									<span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
@@ -132,7 +132,7 @@
 								</button>
 							</span>
 							<br />
-							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+							<span *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
 								<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
 									<b>{{b.title}}</b>
 
@@ -192,7 +192,7 @@
 								</button>
 							</span>
 							<br />
-							<span *ngIf="_ItemListService.ItemList.items[i].arms != 'undefined' && _ItemListService.ItemList.items[i].arms.length > 0 ">
+							<span *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
 								<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
 									<b>{{c.title}}</b>
 

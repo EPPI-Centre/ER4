@@ -7,7 +7,7 @@ import { Injectable} from '@angular/core';
 
 })
 
-export class PagerService {
+export class PaginationService {
 
 	public pagedItems: any[] = [];
 	getPager(totalItems: number, currentPage: number = 1, pageSize: number = 10) {

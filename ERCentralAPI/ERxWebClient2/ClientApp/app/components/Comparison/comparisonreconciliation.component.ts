@@ -7,8 +7,8 @@ import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { PagerService } from '../services/pagination.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { PaginationService } from '../services/pagination.service';
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -25,8 +25,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
 		private _ItemDocsService: ItemDocsService,
-		private pagerService: PagerService,
-		private _eventEmitterService: EventEmitterService
+		private _eventEmitterService: EventEmitterService,
+		private _paginationService: PaginationService
 
 	) {
 		super();
@@ -57,7 +57,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			return false;
 		}
 	}
-
 	getReconciliations() {
 
 		if (this.item != null && this.item != undefined) {
@@ -76,11 +75,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	
 	OpenItem(itemId: number) {
-
 		if (itemId > 0) {
-		
-			//if (this.Context == 'FullUI') this.router.navigate(['itemcoding', itemId]);
-			//else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', itemId]);
 			this.router.navigate(['itemcoding', itemId]);
 		}
 	}
@@ -101,10 +96,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 					} else {
 
 						this.RemoveBusy("recursiveItemList");
-						console.log('this is how many busy methods: ' + JSON.stringify(this._BusyMethods));
 						this._eventEmitterService.reconDataChanged.emit();
-						this._eventEmitterService.reconcilingArr = this.localList.Items;
-
+						this._reconciliationService.reconcilingArr = this.localList.Items;
 						return;
 					}
 				}
@@ -112,9 +105,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	RefreshDataItems(item: Item) {
 
-
 		this.panelItem = this._ItemListService.ItemList.items[0];
-
 		this.getReconciliations();
 		if (this.panelItem && this.panelItem != undefined) {
 			if (this.panelItem) {
@@ -132,7 +123,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		} else {
 			this.panelItem = item;
 		}
-
 		this.getReconciliations();
 		let tempItems: Item[] = [];
 		tempItems[0] = this.panelItem;
@@ -144,7 +134,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			}
 		}
 	}
-	
 	getItemDocuments(itemid: number) {
 		this._ItemDocsService.FetchDocList(itemid);
 	}
@@ -191,11 +180,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.item = this._ItemListService.ItemList.items[0];
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.RefreshDataItems(this.panelItem);
-
 		this._eventEmitterService.reconDataChanged.subscribe(
 			() => {
-
-				this._eventEmitterService.reconcilingArr = this.localList.Items;
+				this._reconciliationService.reconcilingArr = this.localList.Items;
 			}
 		);
 	}
@@ -203,7 +190,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.router.navigate(['Main']);
 	}
 	Clear() {
-
 		 this.CurrentComparison = new Comparison();
 		 this.panelItem  = new Item();
 		 this.hideme = [];

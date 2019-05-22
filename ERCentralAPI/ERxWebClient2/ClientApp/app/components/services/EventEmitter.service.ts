@@ -9,7 +9,7 @@ export class EventEmitterService {
 	public nodeSelected: singleNode | null | undefined;
 	public nodeName: string = '';
 	public UserInput: string = '';
-	public reconcilingArr: any[] = [];
+	//public reconcilingArr: any[] = [];
 
 
 	constructor() {

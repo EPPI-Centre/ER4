@@ -36,8 +36,6 @@ export class ComparisonStatsComp implements OnInit {
 	public tabSelected: string = 'AgreeStats';
 	public lstContacts: Array<Contact> = new Array();
 
-	//@Output() criteriaChange = new EventEmitter();
-	//@Output() ComparisonClicked = new EventEmitter();
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
 
