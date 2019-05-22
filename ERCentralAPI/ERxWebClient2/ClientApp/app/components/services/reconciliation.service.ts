@@ -56,7 +56,7 @@ export class ReconciliationService extends BusyAwareService {
 	FetchArmsForReconItems(items: Item[]): Item[] {
 
 		for (var i = 0; i < items.length; i++) {
-			//console.log(items[i]);
+			alert('this many items: ' + items.length);
 			this._armsService.FetchPromiseArms(items[i]);
 		}
 		return items;

@@ -110,18 +110,37 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				}
 			);
 	}
-	RefreshData() {
+	RefreshDataItems(item: Item) {
 
 
 		this.panelItem = this._ItemListService.ItemList.items[0];
+
 		this.getReconciliations();
-		
 		if (this.panelItem && this.panelItem != undefined) {
-			let itemID: number = this.panelItem.itemId;
-			if (itemID) {
+			if (this.panelItem) {
 				this.getItemDocuments(this.panelItem.itemId);
 				this._reconciliationService.FetchArmsForReconItems(
 					this._ItemListService.ItemList.items);
+
+			}
+		}
+	}
+	RefreshDataItem(item: Item) {
+
+		if (item == null) {
+			this.panelItem = this._ItemListService.ItemList.items[0];
+		} else {
+			this.panelItem = item;
+		}
+
+		this.getReconciliations();
+		let tempItems: Item[] = [];
+		tempItems[0] = this.panelItem;
+		if (this.panelItem && this.panelItem != undefined) {
+			if (item.itemId) {
+				this.getItemDocuments(this.panelItem.itemId);
+				this._reconciliationService.FetchArmsForReconItems(
+					tempItems);
 			}
 		}
 	}
@@ -139,10 +158,11 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public UnComplete(recon: ReconcilingItem) {
 
 		if (recon && this.CurrentComparison) {
+			alert(recon.Item.shortTitle);
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
 				.then(
-					() => {
-						this.RefreshData();
+				() => {
+					this.RefreshDataItem(recon.Item);
 					}
 				);
 		}
@@ -152,8 +172,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true)
 				.then(
 					() => {
-						this.RefreshData();
-		
+						this.RefreshDataItem(recon.Item);
 					}
 				);
 		}
@@ -171,7 +190,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	ngOnInit() {
 		this.item = this._ItemListService.ItemList.items[0];
 		this.panelItem = this._ItemListService.ItemList.items[0];
-		this.RefreshData();
+		this.RefreshDataItems(this.panelItem);
 
 		this._eventEmitterService.reconDataChanged.subscribe(
 			() => {
