@@ -2518,12 +2518,11 @@ namespace EppiReviewer4
                 ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
                 if (ppas != null && ppas.HasAngularSelections)
                 {//we can't (reliably) do this, show an alert and let the user deal with it.
-                    string Msg = "Unfortunately, this page contains at least" + Environment.NewLine
-                        + "one selection made in the web interface." + Environment.NewLine
-                        + "This sometimes makes it impossible to edit selections in here." + Environment.NewLine
-                        + "If you need to overcome this problem you can use the 'Reset' button, " + Environment.NewLine
-                        + "and re-do the selections you are seeing in this page." + Environment.NewLine
-                        + "With our apologies for the inconvenience." + Environment.NewLine;
+                    string Msg = "Unfortunately, this code has some selected text from the Web interface" + Environment.NewLine
+                                + "that EPPI-Reviewer 4 cannot interpret. This will make it impossible " + Environment.NewLine
+                                + "to select further text in EPPI-Reviewer 4 using this code. If you need" + Environment.NewLine
+                                + "to make further edits using this code in EPPI-Reviewer 4 you can use " + Environment.NewLine
+                                + "the 'Reset' button (page only) and redo the selections." + Environment.NewLine;
                     RadWindow.Alert(Msg);
                     return;
                 }
@@ -2647,12 +2646,11 @@ namespace EppiReviewer4
                 ItemAttributePDF ppas = codinglist.FindPerPage(i + 1);
                 if (ppas != null && ppas.HasAngularSelections)
                 {//we can't do this, show an alert and let the user deal with it.
-                    string Msg = "Unfortunately, this page contains at least" + Environment.NewLine
-                        + "one selection made in the web interface." + Environment.NewLine
-                        + "This sometimes makes it impossible to edit selections in here." + Environment.NewLine
-                        + "If you need to overcome this problem you can use the 'Reset' button, " + Environment.NewLine
-                        + "and re-do the selections you are seeing in this page." + Environment.NewLine
-                        + "With our apologies for the inconvenience." + Environment.NewLine;
+                    string Msg = "Unfortunately, this code has some selected text from the Web interface" + Environment.NewLine
+                                + "that EPPI-Reviewer 4 cannot interpret. This will make it impossible " + Environment.NewLine
+                                + "to un-select text in EPPI-Reviewer 4 using this code. If you need" + Environment.NewLine
+                                + "to make further edits using this code in EPPI-Reviewer 4 you can use " + Environment.NewLine
+                                + "the 'Reset' button (page only) and redo the selections." + Environment.NewLine;
                     RadWindow.Alert(Msg);
                     return;
                 }
