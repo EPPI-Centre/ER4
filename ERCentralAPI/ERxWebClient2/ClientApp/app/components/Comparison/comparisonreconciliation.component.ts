@@ -48,7 +48,23 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
-
+    ngOnInit() {
+        this.item = this._ItemListService.ItemList.items[0];
+        this.panelItem = this._ItemListService.ItemList.items[0];
+        this.RefreshDataItems(this.panelItem);
+        //this._eventEmitterService.reconDataChanged.subscribe(
+        //    () => {
+        //        this._reconciliationService.reconcilingArr = this.localList.Items;
+        //    }
+        //);
+        this._ItemListService.ListChanged.subscribe(
+            () => {
+                this.item = this._ItemListService.ItemList.items[0];
+                this.panelItem = this._ItemListService.ItemList.items[0];
+                this.RefreshDataItems(this.panelItem);
+            }
+        )
+    }
 	public IsServiceBusy(): boolean {
 	
 		if (this._BusyMethods.length > 0) {
@@ -176,16 +192,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
 	}
-	ngOnInit() {
-		this.item = this._ItemListService.ItemList.items[0];
-		this.panelItem = this._ItemListService.ItemList.items[0];
-		this.RefreshDataItems(this.panelItem);
-		this._eventEmitterService.reconDataChanged.subscribe(
-			() => {
-				this._reconciliationService.reconcilingArr = this.localList.Items;
-			}
-		);
-	}
+	
 	BackToMain() {
 		this.router.navigate(['Main']);
 	}

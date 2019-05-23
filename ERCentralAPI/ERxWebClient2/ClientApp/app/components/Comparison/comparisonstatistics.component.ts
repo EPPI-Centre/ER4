@@ -8,6 +8,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -38,7 +39,7 @@ export class ComparisonStatsComp implements OnInit {
 
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
-
+    private GoToReconcileSub: Subscription | null = null;
 	public ListSubType: string = "";
 	public selectedCompleteUser: Contact = new Contact();
 	private _Contacts: Contact[] = [];
@@ -214,11 +215,23 @@ export class ComparisonStatsComp implements OnInit {
 		crit.setId = comparison.setId;
 		crit.pageSize = 4001;
 		//alert('total items count: ' + this._ItemListService.ItemList.totalItemCount);
-		this._ItemListService.FetchWithItems(crit, listDescription).then(
-				() => {
-					this.GoToReconcile();
-				}
-			);
+		//this._ItemListService.FetchWithItems(crit, listDescription).then(
+		//		() => {
+		//			this.GoToReconcile();
+		//		}
+		//	);
+        if (this.GoToReconcileSub) {
+            this.GoToReconcileSub.unsubscribe();
+        }
+        this.GoToReconcileSub = this._ItemListService.ListChanged.subscribe(
+            () => {
+                console.log("to subscr worked :-)");
+                this.GoToReconcile();
+                if (this.GoToReconcileSub) this.GoToReconcileSub.unsubscribe();
+                this.GoToReconcileSub = null;
+            }
+        );
+        this._ItemListService.FetchWithCrit(crit, listDescription);
 	}
 	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
