@@ -71,7 +71,6 @@ import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.compo
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
-import { ComparisonPaginatorComp } from './components/Comparison/comparisonPaginator.component';
 import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 
 @NgModule({
@@ -126,8 +125,7 @@ import { ArchieCallBackComponent } from './components/home/ArchieCallBack.compon
 		CreateNewCodeComp,
 		ComparisonComp,
 		ComparisonStatsComp,
-		ComparisonReconciliationComp,
-		ComparisonPaginatorComp
+		ComparisonReconciliationComp
 	],
     providers: [
         EventEmitterService,

@@ -48,22 +48,23 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
-    ngOnInit() {
+	public allItems: any[] = [];
+
+	pager: any = {};
+	pagedItems!: any[];
+
+	setPage(page: number) {
+
+		this.pager = this._paginationService.getPager(this.allItems.length, page);
+		this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
+
+	}
+	ngOnInit() {
+
         this.item = this._ItemListService.ItemList.items[0];
         this.panelItem = this._ItemListService.ItemList.items[0];
         this.RefreshDataItems(this.panelItem);
-        //this._eventEmitterService.reconDataChanged.subscribe(
-        //    () => {
-        //        this._reconciliationService.reconcilingArr = this.localList.Items;
-        //    }
-        //);
-        this._ItemListService.ListChanged.subscribe(
-            () => {
-                this.item = this._ItemListService.ItemList.items[0];
-                this.panelItem = this._ItemListService.ItemList.items[0];
-                this.RefreshDataItems(this.panelItem);
-            }
-        )
+
     }
 	public IsServiceBusy(): boolean {
 	
@@ -112,8 +113,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 					} else {
 
 						this.RemoveBusy("recursiveItemList");
-						this._eventEmitterService.reconDataChanged.emit();
-						this._reconciliationService.reconcilingArr = this.localList.Items;
+						this.allItems  = this.localList.Items;
+						this.setPage(1);
+						alert('length of localist.items' + this.allItems.length);
 						return;
 					}
 				}
@@ -126,6 +128,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		if (this.panelItem && this.panelItem != undefined) {
 			if (this.panelItem) {
 				this.getItemDocuments(this.panelItem.itemId);
+				//alert('' + this._ItemListService.ItemList.items.length);
 				this._reconciliationService.FetchArmsForReconItems(
 					this._ItemListService.ItemList.items);
 
@@ -163,7 +166,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public UnComplete(recon: ReconcilingItem) {
 
 		if (recon && this.CurrentComparison) {
-			alert(recon.Item.shortTitle);
+			//alert(recon.Item.shortTitle);
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
 				.then(
 				() => {
@@ -194,6 +197,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	
 	BackToMain() {
+
 		this.router.navigate(['Main']);
 	}
 	Clear() {

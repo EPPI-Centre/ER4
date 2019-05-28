@@ -214,24 +214,22 @@ export class ComparisonStatsComp implements OnInit {
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
 		crit.pageSize = 4001;
-		//alert('total items count: ' + this._ItemListService.ItemList.totalItemCount);
-		//this._ItemListService.FetchWithItems(crit, listDescription).then(
-		//		() => {
-		//			this.GoToReconcile();
-		//		}
-		//	);
+
         if (this.GoToReconcileSub) {
             this.GoToReconcileSub.unsubscribe();
-        }
-        this.GoToReconcileSub = this._ItemListService.ListChanged.subscribe(
+		}
+		this._ItemListService.FetchWithCrit(crit, listDescription);
+
+		if (this.GoToReconcileSub) this.GoToReconcileSub.unsubscribe();
+		this.GoToReconcileSub = null;
+
+		this.GoToReconcileSub =
+			this._ItemListService.ListChanged.subscribe(
             () => {
                 console.log("to subscr worked :-)");
                 this.GoToReconcile();
-                if (this.GoToReconcileSub) this.GoToReconcileSub.unsubscribe();
-                this.GoToReconcileSub = null;
             }
         );
-        this._ItemListService.FetchWithCrit(crit, listDescription);
 	}
 	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
