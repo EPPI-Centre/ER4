@@ -24,8 +24,8 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ItemListService: ItemListService,
-		private reviewSetsService: ReviewSetsService,
-		private crosstabService: crosstabService,
+		public reviewSetsService: ReviewSetsService,
+		public crosstabService: crosstabService,
 		private _eventEmitter: EventEmitterService
 
     ) { }
