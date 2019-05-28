@@ -8,7 +8,6 @@ import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../
 import { ItemDocsService } from '../services/itemdocs.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { PaginationService } from '../services/pagination.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -25,9 +24,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
-		private _ItemDocsService: ItemDocsService,
-		private _eventEmitterService: EventEmitterService,
-		private _paginationService: PaginationService
+		private _ItemDocsService: ItemDocsService
 
 	) {
 		super();
@@ -54,12 +51,12 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	pager: any = {};
 	pagedItems!: any[];
 
-	setPage(page: number) {
+	//setPage(page: number) {
 
-		this.pager = this._paginationService.getPager(this.allItems.length, page);
-		this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
+	//	this.pager = this._paginationService.getPager(this.allItems.length, page);
+	//	this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
 
-	}
+	//}
 	private sub!: Subscription;
 
 	ngOnInit() {
