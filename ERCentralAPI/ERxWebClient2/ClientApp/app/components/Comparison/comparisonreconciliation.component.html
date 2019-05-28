@@ -8,7 +8,7 @@
              style="max-height:600px; overflow:scroll;">
             <h3>Comparison Reconciliation</h3>
             <div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
-            <table class="card-body col-12 table table-bordered table-striped" *ngIf="pagedItems">
+            <table class="card-body col-12 table table-bordered table-striped" *ngIf="allItems">
                 <thead>
                     <tr>
                         <th class="" width="30">Completed</th>
@@ -21,7 +21,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let recon of pagedItems; let i = index"
+                    <tr *ngFor="let recon of allItems; let i = index"
                         [ngClass]="(recon.IsCompleted)?'bg-light':''"
                         (click)="ChangePanelItem(recon.Item.itemId)">
                         <td class="" width="30"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>

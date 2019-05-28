@@ -9,6 +9,7 @@ import { ItemDocsService } from '../services/itemdocs.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { PaginationService } from '../services/pagination.service';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -59,12 +60,23 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
 
 	}
+	private sub!: Subscription;
+
 	ngOnInit() {
 
         this.item = this._ItemListService.ItemList.items[0];
         this.panelItem = this._ItemListService.ItemList.items[0];
-        this.RefreshDataItems(this.panelItem);
+		this.RefreshDataItems(this.panelItem);
 
+		this.sub = this._ItemListService.ListChanged.subscribe(
+
+			() => {
+				if (this.panelItem) {
+
+					this.RefreshDataItems(this.panelItem);
+				}
+			}
+		);
     }
 	public IsServiceBusy(): boolean {
 	
@@ -114,8 +126,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 						this.RemoveBusy("recursiveItemList");
 						this.allItems  = this.localList.Items;
-						this.setPage(1);
-						alert('length of localist.items' + this.allItems.length);
+						//this.setPage(1);
+						//alert('length of localist.items' + this.allItems.length);
 						return;
 					}
 				}
@@ -195,9 +207,14 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
 	}
-	
+	ngOnDestroy() {
+		if (this.sub) {
+			this.sub.unsubscribe();
+		}
+	}
 	BackToMain() {
 
+		this.ngOnDestroy;
 		this.router.navigate(['Main']);
 	}
 	Clear() {
