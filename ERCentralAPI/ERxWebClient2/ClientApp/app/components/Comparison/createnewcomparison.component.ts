@@ -33,7 +33,10 @@ export class ComparisonComp implements OnInit {
 	public selectedReviewer3: Contact = new Contact();
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	@Output() emitterCancel = new EventEmitter();
+	ngOnInit() {
+		this.RefreshData();
 
+	}
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;
 	}
@@ -203,10 +206,7 @@ export class ComparisonComp implements OnInit {
 		this.selectedCodeSet = this.CodeSets[0];
 		this.chosenFilter = null;
 	}
-	ngOnInit() {
-		this.RefreshData();
-		
-	}
+
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 		this.chosenFilter = new SetAttribute();

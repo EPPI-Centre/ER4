@@ -48,15 +48,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public allItems: any[] = [];
 
-	pager: any = {};
-	pagedItems!: any[];
+	//pager: any = {};
+	//pagedItems!: any[];
 
-	//setPage(page: number) {
-
-	//	this.pager = this._paginationService.getPager(this.allItems.length, page);
-	//	this.pagedItems = this.allItems.slice(this.pager.startIndex, this.pager.endIndex + 1);
-
-	//}
 	private sub!: Subscription;
 
 	ngOnInit() {
@@ -123,8 +117,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 						this.RemoveBusy("recursiveItemList");
 						this.allItems  = this.localList.Items;
-						//this.setPage(1);
-						//alert('length of localist.items' + this.allItems.length);
 						return;
 					}
 				}
@@ -137,7 +129,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		if (this.panelItem && this.panelItem != undefined) {
 			if (this.panelItem) {
 				this.getItemDocuments(this.panelItem.itemId);
-				//alert('' + this._ItemListService.ItemList.items.length);
 				this._reconciliationService.FetchArmsForReconItems(
 					this._ItemListService.ItemList.items);
 

@@ -18,10 +18,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
-		private _reviewSetsService: ReviewSetsService,
-		private reviewSetsService: ReviewSetsService,
+		public _reviewSetsService: ReviewSetsService,
 		private _buildModelService: BuildModelService,
-		private _eventEmitterService: EventEmitterService
+		public _eventEmitterService: EventEmitterService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -69,7 +68,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
-		this.reviewSetsService.GetReviewSets();
+		this._reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
 	
 

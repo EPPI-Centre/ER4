@@ -173,18 +173,18 @@
                             </span>
                             <span *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
                                 <br />
-                                <span [hidden]="!hidemeThree[l+(100*i)]">
-                                    <span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
-                                        {{item}}
-                                        <i class="fa fa-arrow-right pt-4"
-                                           aria-hidden="true">
-                                        </i>
-                                    </span>
-                                    <br />
-                                    <span class="text-sm-center border border-success col-md-3">
-                                        {{recon.CodesReviewer3[l-1].InfoBox}}
-                                    </span>
-                                </span>
+								<span [hidden]="!hidemeThree[l+(100*i)]">
+									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
+										{{item}}
+										<i class="fa fa-arrow-right"
+										   aria-hidden="true">
+										</i>
+									</span>
+									<br />
+									<span class="text-sm-center border border-success">
+										{{recon.CodesReviewer3[l-1].InfoBox}}
+									</span>
+								</span>
                                 <button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0"
                                         class="btn btn-outline-info  m-2 p-2 rounded-0"
                                         (click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">

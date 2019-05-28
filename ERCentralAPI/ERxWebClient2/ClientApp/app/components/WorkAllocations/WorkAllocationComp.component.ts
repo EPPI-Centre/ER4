@@ -25,12 +25,12 @@ import { ItemListComp } from '../ItemList/itemListComp.component';
 export class WorkAllocationComp implements OnInit {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-		private _workAllocationListService: WorkAllocationListService,
+		public _workAllocationListService: WorkAllocationListService,
 		private reviewInfoService: ReviewInfoService,
 		private confirmationDialogService: ConfirmationDialogService,
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
-		private _comparisonsService: ComparisonsService,
+		public _comparisonsService: ComparisonsService,
 		private _notificationService: NotificationService,
 		 @Inject('BASE_URL') private _baseUrl: string
     ) { }

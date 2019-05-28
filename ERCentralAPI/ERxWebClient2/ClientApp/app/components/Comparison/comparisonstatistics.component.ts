@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
 export class ComparisonStatsComp implements OnInit {
 	constructor(
 		private router: Router,
-		private _comparisonsService: ComparisonsService,
+		public _comparisonsService: ComparisonsService,
 		private _reviewInfoService: ReviewInfoService,
 		private _reviewerIdentityServ: ReviewerIdentityService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
@@ -54,6 +54,9 @@ export class ComparisonStatsComp implements OnInit {
 			this._Contacts = [];
 			return this._Contacts;
 		}
+	}
+	ngOnInit() {
+		this.RefreshData();
 	}
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
@@ -234,9 +237,7 @@ export class ComparisonStatsComp implements OnInit {
 	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
 	}
-	ngOnInit() {
-		this.RefreshData();
-	}
+
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 	}
