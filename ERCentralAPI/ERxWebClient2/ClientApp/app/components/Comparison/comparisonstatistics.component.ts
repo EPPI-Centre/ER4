@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
 import { ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -56,6 +56,7 @@ export class ComparisonStatsComp implements OnInit {
 		}
 	}
 	ngOnInit() {
+	
 		this.RefreshData();
 	}
 	public get HasWriteRights(): boolean {
@@ -198,7 +199,10 @@ export class ComparisonStatsComp implements OnInit {
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
+
 		this._ItemListService.FetchWithCrit(crit, listDescription);
+				
+		
 	}
 	LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
 
@@ -217,26 +221,13 @@ export class ComparisonStatsComp implements OnInit {
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
 		crit.pageSize = 4001;
-
-        if (this.GoToReconcileSub) {
-            this.GoToReconcileSub.unsubscribe();
-		}
-		this._ItemListService.FetchWithCrit(crit, listDescription);
-
-		if (this.GoToReconcileSub) this.GoToReconcileSub.unsubscribe();
-		this.GoToReconcileSub = null;
-
-		this.GoToReconcileSub =
-			this._ItemListService.ListChanged.subscribe(
-            () => {
-                console.log("to subscr worked :-)");
-                this.GoToReconcile();
-            }
-        );
+		this._ItemListService.FetchWithItems(crit, listDescription);
+		this.GoToReconcile();
 	}
 	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
 	}
+
 
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();

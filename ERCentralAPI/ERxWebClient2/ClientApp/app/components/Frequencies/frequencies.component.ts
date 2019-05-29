@@ -19,7 +19,6 @@ export class frequenciesComp implements OnInit {
 
 		public reviewSetsService: ReviewSetsService,
         private frequenciesService: frequenciesService,
-        private _eventEmitter: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
 
     ) { }

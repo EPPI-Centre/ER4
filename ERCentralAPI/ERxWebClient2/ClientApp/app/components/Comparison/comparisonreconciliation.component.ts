@@ -1,4 +1,4 @@
-import { Component,  OnInit, Output, EventEmitter } from '@angular/core';
+import { Component,  OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
@@ -48,26 +48,22 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public allItems: any[] = [];
 
-	//pager: any = {};
-	//pagedItems!: any[];
-
-	private sub!: Subscription;
 
 	ngOnInit() {
+		
+		//this._ItemListService.ListChanged.subscribe(
 
+		//	() => {
+		//		if (this.panelItem) {
+		//			this.RefreshDataItems(this.panelItem);
+		//		}
+		//	}
+		//);
         this.item = this._ItemListService.ItemList.items[0];
         this.panelItem = this._ItemListService.ItemList.items[0];
 		this.RefreshDataItems(this.panelItem);
 
-		this.sub = this._ItemListService.ListChanged.subscribe(
-
-			() => {
-				if (this.panelItem) {
-
-					this.RefreshDataItems(this.panelItem);
-				}
-			}
-		);
+				
     }
 	public IsServiceBusy(): boolean {
 	
@@ -195,14 +191,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
 	}
-	ngOnDestroy() {
-		if (this.sub) {
-			this.sub.unsubscribe();
-		}
-	}
+
 	BackToMain() {
 
-		this.ngOnDestroy;
 		this.router.navigate(['Main']);
 	}
 	Clear() {
