@@ -7,6 +7,7 @@ import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -47,30 +48,33 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public allItems: any[] = [];
 	public testBool: boolean = false;
-
-	tester() {
-		alert('hello');
-		///this.testBool = true;
-	}
+	private subscription!: Subscription;
 
 
 	ngOnInit() {
 
-		this._ItemListService.ListChanged.subscribe(
+		if (this.subscription) {
+			this.subscription.unsubscribe();
+		}
+		this.subscription = this._ItemListService.ListChanged.subscribe(
 
 			() => {
+				this.item = this._ItemListService.ItemList.items[0];
+				this.panelItem = this._ItemListService.ItemList.items[0];
 				if (this.panelItem) {
 					this.RefreshDataItems(this.panelItem);
 					this.testBool = true;
 				}
 			}
-			);
+		);
 
 		if (this.testBool) {
 			this.item = this._ItemListService.ItemList.items[0];
 			this.panelItem = this._ItemListService.ItemList.items[0];
-			this.RefreshDataItems(this.panelItem);
-			this.testBool = false;;
+			if (this.panelItem) {
+				this.RefreshDataItems(this.panelItem);
+				this.testBool = false;
+			}
 		}
 
 		
@@ -203,7 +207,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 
 	BackToMain() {
-
+		this.subscription.unsubscribe();
 		this.router.navigate(['Main']);
 	}
 	Clear() {
