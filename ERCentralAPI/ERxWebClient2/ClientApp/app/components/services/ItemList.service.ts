@@ -10,6 +10,7 @@ import { ArmsService } from './arms.service';
 import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,8 +21,7 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-		private _WorkAllocationService: WorkAllocationListService,
-        private _PriorityScreeningService: PriorityScreeningService,
+		private eventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
         super();
@@ -50,7 +50,8 @@ export class ItemListService extends BusyAwareService {
     }
     public ListDescription: string = "";
     @Output() ItemChanged = new EventEmitter();
-    @Output() ListChanged = new EventEmitter();
+	@Output() ListChanged = new EventEmitter();
+	@Output() ReconcileListChanged = new EventEmitter();
 	public get ItemList(): ItemList {
         return this._ItemList;
     }
@@ -92,9 +93,9 @@ export class ItemListService extends BusyAwareService {
                 , () => { this.RemoveBusy("FetchWithCrit"); }
             );
 	}
-	public FetchWithItems(crit: Criteria, listDescription: string) : Promise<Item[]> {
 
-		this._BusyMethods.push("FetchWithItems");
+	public FetchWithCritReconcile(crit: Criteria, listDescription: string) {
+		this._BusyMethods.push("FetchWithCritReconcile");
 		this._Criteria = crit;
 		if (this._ItemList && this._ItemList.pagesize > 0
 			&& this._ItemList.pagesize <= 4000
@@ -102,16 +103,21 @@ export class ItemListService extends BusyAwareService {
 		) {
 			crit.pageSize = this._ItemList.pagesize;
 		}
+
 		this.ListDescription = listDescription;
-		return this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-			.toPromise().then(
+		this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+			.subscribe(
 				list => {
 					this._Criteria.totalItems = this.ItemList.totalItemCount;
 					console.log();
 					this.SaveItems(list, this._Criteria);
-					this.RemoveBusy("FetchWithItems");
-					return list.items; 
+					this.ReconcileListChanged.emit();
+					this.eventEmitterService.tester();
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("FetchWithCritReconcile");
 				}
+			, () => { this.RemoveBusy("FetchWithCritReconcile"); }
 			);
 	}
     public Refresh() {

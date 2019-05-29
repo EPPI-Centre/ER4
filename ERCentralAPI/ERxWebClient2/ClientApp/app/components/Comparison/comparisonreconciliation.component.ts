@@ -2,13 +2,12 @@ import { Component,  OnInit, Output, EventEmitter, OnDestroy } from '@angular/co
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
-import { ItemListService, Item } from '../services/ItemList.service';
+import { ItemListService, Item, Criteria } from '../services/ItemList.service';
 import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Subscription } from 'rxjs';
+
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -47,24 +46,45 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
 	public allItems: any[] = [];
+	public testBool: boolean = false;
 
 
 	ngOnInit() {
-		
-		//this._ItemListService.ListChanged.subscribe(
 
-		//	() => {
-		//		if (this.panelItem) {
-		//			this.RefreshDataItems(this.panelItem);
-		//		}
-		//	}
-		//);
-        this.item = this._ItemListService.ItemList.items[0];
+		this._ItemListService.ListChanged.subscribe(
+
+			() => {
+				if (this.panelItem) {
+					this.RefreshDataItems(this.panelItem);
+				}
+			}
+		);
+
+		this.item = this._ItemListService.ItemList.items[0];
         this.panelItem = this._ItemListService.ItemList.items[0];
 		this.RefreshDataItems(this.panelItem);
+		
+	}
+	public GetLatestItemList() {
 
-				
-    }
+		let ListSubType: string = '';
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + this.CurrentComparison.contactName3 != '' ? ' and ' + this.CurrentComparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + this.CurrentComparison.contactName1 + ' and ' + this.CurrentComparison.contactName2 + middleDescr + ' using ' + this.CurrentComparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = this.CurrentComparison.comparisonId;
+		crit.setId = this.CurrentComparison.setId;
+		this._ItemListService.FetchWithCritReconcile(crit, crit.listType);
+
+	}
 	public IsServiceBusy(): boolean {
 	
 		if (this._BusyMethods.length > 0) {

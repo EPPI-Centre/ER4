@@ -16,7 +16,8 @@ export class paginatorComp implements OnInit {
 
     ) {
 
-    }
+	}
+
 
     onSubmit(f: string) {
 

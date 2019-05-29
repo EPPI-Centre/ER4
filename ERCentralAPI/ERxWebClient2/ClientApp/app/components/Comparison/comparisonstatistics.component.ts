@@ -110,7 +110,7 @@ export class ComparisonStatsComp implements OnInit {
 			if (item.comparisonId == comparisonId) {
 
 				this.ListSubType = subtype;
-				this.LoadComparisonsWithPromise(item, this.ListSubType);
+				this.LoadComparisonsWithReconcile(item, this.ListSubType);
 			}
 		}
 	}
@@ -204,24 +204,9 @@ export class ComparisonStatsComp implements OnInit {
 				
 		
 	}
-	LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
+	LoadComparisonsWithReconcile(comparison: Comparison, ListSubType: string) {
 
-		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
-		}
-		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
-		crit.description = listDescription;
-		crit.listType = ListSubType;
-		crit.comparisonId = comparison.comparisonId;
-		crit.setId = comparison.setId;
-		crit.pageSize = 4001;
-		this._ItemListService.FetchWithItems(crit, listDescription);
+		this.LoadComparisons(comparison, ListSubType);
 		this.GoToReconcile();
 	}
 	RefreshData() {
