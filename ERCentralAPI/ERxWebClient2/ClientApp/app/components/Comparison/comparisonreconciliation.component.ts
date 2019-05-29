@@ -48,6 +48,11 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public allItems: any[] = [];
 	public testBool: boolean = false;
 
+	tester() {
+		alert('hello');
+		///this.testBool = true;
+	}
+
 
 	ngOnInit() {
 
@@ -56,34 +61,19 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			() => {
 				if (this.panelItem) {
 					this.RefreshDataItems(this.panelItem);
+					this.testBool = true;
 				}
 			}
-		);
+			);
 
-		this.item = this._ItemListService.ItemList.items[0];
-        this.panelItem = this._ItemListService.ItemList.items[0];
-		this.RefreshDataItems(this.panelItem);
-		
-	}
-	public GetLatestItemList() {
-
-		let ListSubType: string = '';
-		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
+		if (this.testBool) {
+			this.item = this._ItemListService.ItemList.items[0];
+			this.panelItem = this._ItemListService.ItemList.items[0];
+			this.RefreshDataItems(this.panelItem);
+			this.testBool = false;;
 		}
-		let middleDescr: string = ' ' + this.CurrentComparison.contactName3 != '' ? ' and ' + this.CurrentComparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + this.CurrentComparison.contactName1 + ' and ' + this.CurrentComparison.contactName2 + middleDescr + ' using ' + this.CurrentComparison.setName;
-		crit.description = listDescription;
-		crit.listType = ListSubType;
-		crit.comparisonId = this.CurrentComparison.comparisonId;
-		crit.setId = this.CurrentComparison.setId;
-		this._ItemListService.FetchWithCritReconcile(crit, crit.listType);
 
+		
 	}
 	public IsServiceBusy(): boolean {
 	
