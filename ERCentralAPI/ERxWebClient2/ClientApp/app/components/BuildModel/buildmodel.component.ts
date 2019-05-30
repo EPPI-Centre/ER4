@@ -35,7 +35,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		};
     }
     public get selectedNode(): singleNode | null {
-        return this.reviewSetsService.selectedNode;
+        return this._reviewSetsService.selectedNode;
     }
     public get nodeSelected(): singleNode | null | undefined {
         return this._eventEmitterService.nodeSelected;//SG note: not sure this is a good idea, how is this better than this.reviewSetsService.selectedNode?

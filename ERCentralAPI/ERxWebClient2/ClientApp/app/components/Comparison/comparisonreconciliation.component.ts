@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
     providers: []
 })
 
-export class ComparisonReconciliationComp extends BusyAwareService implements OnInit {
+export class ComparisonReconciliationComp extends BusyAwareService implements OnInit, OnDestroy {
 
 	constructor(
 		private router: Router, 
@@ -48,7 +48,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public allItems: any[] = [];
 	public testBool: boolean = false;
-	private subscription!: Subscription;
+	private subscription: Subscription | null = null;
 
 
 	ngOnInit() {
@@ -92,7 +92,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		if (this.item != null && this.item != undefined) {
 			this.CurrentComparison = this._comparisonsService.currentComparison;
 			if (this.CurrentComparison) {
-				this.ReviewSet = this._reviewSetsService.GetReviewSets().filter(
+                this.ReviewSet = this._reviewSetsService.ReviewSets.filter(
 					x => x.set_id == this.CurrentComparison.setId)[0];
 				this.localList = new ReconcilingItemList(this.ReviewSet,
 					this.CurrentComparison, "");
@@ -207,13 +207,19 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 
 	BackToMain() {
-		this.subscription.unsubscribe();
 		this.router.navigate(['Main']);
 	}
 	Clear() {
 		 this.CurrentComparison = new Comparison();
 		 this.panelItem  = new Item();
 		 this.hideme = [];
-	}
+    }
+    ngOnDestroy() {
+        console.log("Destroy reconcile Page");
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
+        }
+    }
 }
 
