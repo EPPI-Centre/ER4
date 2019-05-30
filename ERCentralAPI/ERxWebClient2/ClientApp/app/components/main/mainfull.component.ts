@@ -8,7 +8,7 @@ import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocation
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand, ReviewSet } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -84,7 +84,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ReviewSetsEditingService.IsBusy ||
             this.SourcesService.IsBusy);
     }
-	
+    public get ReviewSets(): ReviewSet[] {
+        return this.reviewSetsService.ReviewSets;
+    }
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
 	tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;

@@ -4,7 +4,7 @@
 </button>
 
 <div class="container col-md-12 form p-0 ">
-	<p hidden>{{reviewSetsService.selectedNode?.name}}</p>
+	<p hidden>{{selectedNode?.name}}</p>
 	<div class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 			<div class="col-md-12 row form-group pt-1 mt-1 mt-md-0">
@@ -12,7 +12,7 @@
 				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Learn to apply this code:</div>
 				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
 					<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
-					<div (click)="SetAttrOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
+					<div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
@@ -21,7 +21,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Distinguish from this code:</div>
 				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
 					<button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
-					<div (click)="SetAttrNotOn(this._eventEmitterService.nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
+					<div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>

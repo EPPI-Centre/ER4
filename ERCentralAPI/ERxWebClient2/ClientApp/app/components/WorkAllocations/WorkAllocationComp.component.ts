@@ -87,7 +87,18 @@ export class WorkAllocationComp implements OnInit {
 	public get ReportHTML(): string {
 		return this._ReportHTML;
 	}
-
+    public get ContactWorkAllocations(): WorkAllocation[] {
+        return this._workAllocationListService.ContactWorkAllocations;
+    }
+    public get AllWorkAllocationsForReview(): WorkAllocation[] {
+        return this._workAllocationListService.AllWorkAllocationsForReview;
+    }
+    public get Comparisons(): Comparison[] {
+        return this._comparisonsService.Comparisons;
+    }
+    public get Contacts(): Contact[] {
+        return this.reviewInfoService.Contacts;
+    }
 	public get AllocateOptions(): kvSelectFrom[] {
 		
 		return this._allocateOptions;

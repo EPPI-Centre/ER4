@@ -104,6 +104,12 @@ export class SearchComp implements OnInit, OnDestroy {
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights;
     }
+    public get SearchList() : Search[] {
+        return this._searchService.SearchList;
+    }
+    public get isSearchServiceBusy(): boolean {
+        return this._searchService.IsBusy;
+    }
 	public setSelectableSettings(): void {
 
 		this.selectableSettings = {

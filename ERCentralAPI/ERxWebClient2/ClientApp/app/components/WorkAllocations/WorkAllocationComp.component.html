@@ -242,7 +242,7 @@
 		<div class="card  col-sm-12 col-md-3 px-1  p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
 			<div style="max-height:340px;overflow:auto;">
-				<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
+				<table class='card-body table table-striped bg-light' *ngIf="ContactWorkAllocations">
 					<thead>
 						<tr class="small">
 							<th>ID</th>
@@ -250,7 +250,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+						<tr class="small" *ngFor="let member of Contacts; let i = index">
 							<td>{{ member.contactId }}</td>
 							<td>{{ member.contactName }}</td>
 						</tr>
@@ -261,7 +261,7 @@
 		<div class="card col-sm-12 col-md-8 px-1  p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
 			<div style="max-height:340px;overflow:auto;">
-				<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+				<table class='small table table-striped bg-light' *ngIf="AllWorkAllocationsForReview">
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -293,7 +293,7 @@
 		<div class="card  col-sm-12 col-md-12 px-1 p-2 m-2">
 			<h5 class="m-1 p-1 font-weight-bold">Comparisons</h5>
 			<div style="max-height:340px;overflow:auto;">
-				<table class='card-body table table-striped bg-light' *ngIf="_comparisonsService.Comparisons">
+				<table class='card-body table table-striped bg-light' *ngIf="Comparisons">
 					<thead>
 						<tr class="small">
 							<th>Codes applied from this set</th>

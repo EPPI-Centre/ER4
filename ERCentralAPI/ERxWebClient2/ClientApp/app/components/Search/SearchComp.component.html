@@ -292,7 +292,7 @@
 </div>
 <div class="card col-12 bg-light">
 	
-    <kendo-grid *ngIf="_searchService && _searchService.SearchList  && this._searchService.SearchList.length > 0 && !this._searchService.IsBusy"
+    <kendo-grid *ngIf="SearchList && SearchList.length > 0 && !isSearchServiceBusy"
                 [data]="DataSourceSearches" [height]="410"
                 [rowClass]="rowCallback"
                 [sortable]="{
@@ -347,8 +347,8 @@
         </kendo-grid-column>
     </kendo-grid>
 </div>
-<div *ngIf="_searchService && _searchService.SearchList && _searchService.IsBusy">Loading items...</div>
-<div *ngIf="!_searchService || !_searchService.SearchList || this._searchService.SearchList.length <= 0 || this._searchService.IsBusy" style="min-height:300px;">
+<div *ngIf="SearchList && isSearchServiceBusy">Loading items...</div>
+<div *ngIf="!SearchList || SearchList.length <= 0 || isSearchServiceBusy" style="min-height:300px;">
     <div class="justify-content-center row m-0 ng-star-inserted">
         <div class="p-2 font-weight-bold text-info mt-3"> You've not run any searches yet. </div>
     </div>

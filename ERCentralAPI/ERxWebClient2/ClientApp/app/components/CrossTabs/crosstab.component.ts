@@ -61,7 +61,12 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 
 
 	public selectedNodeData: any | null = null;
-
+    public get selectedNode(): singleNode | null {
+        return this.reviewSetsService.selectedNode;
+    }
+    public get CrossTab() {
+        return this.crosstabService.CrossTab;
+    }
 	onSubmit(f: string) {
 
     }

@@ -57,7 +57,9 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     private subWorkAllocationsLoaded: Subscription | null = null;
     @Input() Context: string | undefined;
     public ListSubType: string = "GetItemWorkAllocationList";
-
+    public get ContactWorkAllocations(): WorkAllocation[] {
+        return this._workAllocationListService.ContactWorkAllocations;
+    }
     public get clickedIndex(): string {
         if (this.ItemListService && this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.workAllocationId != 0) {
 

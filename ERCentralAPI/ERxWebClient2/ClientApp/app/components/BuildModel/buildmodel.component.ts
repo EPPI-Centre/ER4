@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
@@ -34,7 +34,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
-	}
+    }
+    public get selectedNode(): singleNode | null {
+        return this.reviewSetsService.selectedNode;
+    }
+    public get nodeSelected(): singleNode | null | undefined {
+        return this._eventEmitterService.nodeSelected;//SG note: not sure this is a good idea, how is this better than this.reviewSetsService.selectedNode?
+    }
 	CanOnlySelectRoots() {
 
 		return true;
