@@ -11,6 +11,10 @@ export class EventEmitterService {
 	public UserInput: string = '';
 	//public reconcilingArr: any[] = [];
 
+	public tester() {
+
+		alert('event emitter getting called here!!');
+	}
 
 	constructor() {
 

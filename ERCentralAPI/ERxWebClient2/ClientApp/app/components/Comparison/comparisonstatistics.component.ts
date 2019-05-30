@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
 import { ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
 export class ComparisonStatsComp implements OnInit {
 	constructor(
 		private router: Router,
-		private _comparisonsService: ComparisonsService,
+		public _comparisonsService: ComparisonsService,
 		private _reviewInfoService: ReviewInfoService,
 		private _reviewerIdentityServ: ReviewerIdentityService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
@@ -54,6 +54,10 @@ export class ComparisonStatsComp implements OnInit {
 			this._Contacts = [];
 			return this._Contacts;
 		}
+	}
+	ngOnInit() {
+	
+		this.RefreshData();
 	}
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
@@ -106,7 +110,7 @@ export class ComparisonStatsComp implements OnInit {
 			if (item.comparisonId == comparisonId) {
 
 				this.ListSubType = subtype;
-				this.LoadComparisonsWithPromise(item, this.ListSubType);
+				this.LoadComparisonsWithReconcile(item, this.ListSubType);
 			}
 		}
 	}
@@ -195,50 +199,21 @@ export class ComparisonStatsComp implements OnInit {
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
 		crit.setId = comparison.setId;
-		this._ItemListService.FetchWithCrit(crit, listDescription);
-	}
-	LoadComparisonsWithPromise(comparison: Comparison, ListSubType: string) {
 
-		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
-		}
-		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
-		crit.description = listDescription;
-		crit.listType = ListSubType;
-		crit.comparisonId = comparison.comparisonId;
-		crit.setId = comparison.setId;
-		crit.pageSize = 4001;
-		//alert('total items count: ' + this._ItemListService.ItemList.totalItemCount);
-		//this._ItemListService.FetchWithItems(crit, listDescription).then(
-		//		() => {
-		//			this.GoToReconcile();
-		//		}
-		//	);
-        if (this.GoToReconcileSub) {
-            this.GoToReconcileSub.unsubscribe();
-        }
-        this.GoToReconcileSub = this._ItemListService.ListChanged.subscribe(
-            () => {
-                console.log("to subscr worked :-)");
-                this.GoToReconcile();
-                if (this.GoToReconcileSub) this.GoToReconcileSub.unsubscribe();
-                this.GoToReconcileSub = null;
-            }
-        );
-        this._ItemListService.FetchWithCrit(crit, listDescription);
+		this._ItemListService.FetchWithCrit(crit, listDescription);
+				
+		
+	}
+	LoadComparisonsWithReconcile(comparison: Comparison, ListSubType: string) {
+
+		this.LoadComparisons(comparison, ListSubType);
+		this.GoToReconcile();
 	}
 	RefreshData() {
 		this.selectedCodeSet = this.CodeSets[0];
 	}
-	ngOnInit() {
-		this.RefreshData();
-	}
+
+
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 	}

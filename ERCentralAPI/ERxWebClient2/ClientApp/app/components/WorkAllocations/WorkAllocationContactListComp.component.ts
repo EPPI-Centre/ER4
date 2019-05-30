@@ -17,7 +17,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-		private _workAllocationListService: WorkAllocationListService,
+		public _workAllocationListService: WorkAllocationListService,
         private reviewInfoService: ReviewInfoService,
         private ItemListService: ItemListService,
         private PriorityScreeningService: PriorityScreeningService

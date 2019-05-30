@@ -1,14 +1,14 @@
-import { Component,  OnInit, Output, EventEmitter } from '@angular/core';
+import { Component,  OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison } from '../services/comparisons.service';
 import { Router } from '@angular/router';
-import { ItemListService, Item } from '../services/ItemList.service';
+import { ItemListService, Item, Criteria } from '../services/ItemList.service';
 import { ItemSet } from '../services/ItemCoding.service';
 import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { PaginationService } from '../services/pagination.service';
+import { Subscription } from 'rxjs';
+
 
 @Component({
 	selector: 'ComparisonReconciliationComp',
@@ -24,9 +24,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
-		private _ItemDocsService: ItemDocsService,
-		private _eventEmitterService: EventEmitterService,
-		private _paginationService: PaginationService
+		private _ItemDocsService: ItemDocsService
 
 	) {
 		super();
@@ -48,23 +46,39 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
-    ngOnInit() {
-        this.item = this._ItemListService.ItemList.items[0];
-        this.panelItem = this._ItemListService.ItemList.items[0];
-        this.RefreshDataItems(this.panelItem);
-        //this._eventEmitterService.reconDataChanged.subscribe(
-        //    () => {
-        //        this._reconciliationService.reconcilingArr = this.localList.Items;
-        //    }
-        //);
-        this._ItemListService.ListChanged.subscribe(
-            () => {
-                this.item = this._ItemListService.ItemList.items[0];
-                this.panelItem = this._ItemListService.ItemList.items[0];
-                this.RefreshDataItems(this.panelItem);
-            }
-        )
-    }
+	public allItems: any[] = [];
+	public testBool: boolean = false;
+	private subscription!: Subscription;
+
+
+	ngOnInit() {
+
+		if (this.subscription) {
+			this.subscription.unsubscribe();
+		}
+		this.subscription = this._ItemListService.ListChanged.subscribe(
+
+			() => {
+				this.item = this._ItemListService.ItemList.items[0];
+				this.panelItem = this._ItemListService.ItemList.items[0];
+				if (this.panelItem) {
+					this.RefreshDataItems(this.panelItem);
+					this.testBool = true;
+				}
+			}
+		);
+
+		if (this.testBool) {
+			this.item = this._ItemListService.ItemList.items[0];
+			this.panelItem = this._ItemListService.ItemList.items[0];
+			if (this.panelItem) {
+				this.RefreshDataItems(this.panelItem);
+				this.testBool = false;
+			}
+		}
+
+		
+	}
 	public IsServiceBusy(): boolean {
 	
 		if (this._BusyMethods.length > 0) {
@@ -112,8 +126,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 					} else {
 
 						this.RemoveBusy("recursiveItemList");
-						this._eventEmitterService.reconDataChanged.emit();
-						this._reconciliationService.reconcilingArr = this.localList.Items;
+						this.allItems  = this.localList.Items;
 						return;
 					}
 				}
@@ -163,7 +176,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public UnComplete(recon: ReconcilingItem) {
 
 		if (recon && this.CurrentComparison) {
-			alert(recon.Item.shortTitle);
+			//alert(recon.Item.shortTitle);
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
 				.then(
 				() => {
@@ -192,8 +205,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.panelItem = tempItemList.find(x => x.itemId == itemid);
 		this.getItemDocuments(itemid);
 	}
-	
+
 	BackToMain() {
+		this.subscription.unsubscribe();
 		this.router.navigate(['Main']);
 	}
 	Clear() {

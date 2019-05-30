@@ -16,12 +16,9 @@ import { frequenciesService } from "../services/frequencies.service";
 export class frequenciesComp implements OnInit {
 
     constructor(
-        private ReviewerIdentityServ: ReviewerIdentityService,
-		private ItemListService: ItemListService,
-        private route: ActivatedRoute,
-		private reviewSetsService: ReviewSetsService,
+
+		public reviewSetsService: ReviewSetsService,
         private frequenciesService: frequenciesService,
-        private _eventEmitter: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
 
     ) { }
