@@ -50,9 +50,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public testBool: boolean = false;
 	private subscription: Subscription | null = null;
 
-
 	ngOnInit() {
-
 		if (this.subscription) {
 			this.subscription.unsubscribe();
 		}
@@ -67,7 +65,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				}
 			}
 		);
-
 		if (this.testBool) {
 			this.item = this._ItemListService.ItemList.items[0];
 			this.panelItem = this._ItemListService.ItemList.items[0];
@@ -76,8 +73,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				this.testBool = false;
 			}
 		}
-
-		
 	}
 	public IsServiceBusy(): boolean {
 	
@@ -133,7 +128,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			);
 	}
 	RefreshDataItems(item: Item) {
-
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
 		if (this.panelItem && this.panelItem != undefined) {
@@ -146,7 +140,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		}
 	}
 	RefreshDataItem(item: Item) {
-
+		
 		if (item == null) {
 			this.panelItem = this._ItemListService.ItemList.items[0];
 		} else {
@@ -199,11 +193,13 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 		return Array.from({ length: len }, (v, k) => k + 1);
 	}
+
 	public ChangePanelItem(itemid: number) {
 
-		let tempItemList = this._ItemListService.ItemList.items;
-		this.panelItem = tempItemList.find(x => x.itemId == itemid);
-		this.getItemDocuments(itemid);
+			let tempItemList = this._ItemListService.ItemList.items;
+			this.panelItem = tempItemList.find(x => x.itemId == itemid);
+			this.getItemDocuments(itemid);
+
 	}
 
 	BackToMain() {

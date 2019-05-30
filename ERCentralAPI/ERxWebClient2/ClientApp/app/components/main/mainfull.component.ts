@@ -404,9 +404,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
     }
     toggleWorkAllocationsPanel() {
-        this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
-	}
+		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
+		this.workAllocationListService.FetchAll();
+		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();
 
+	}
     toggleSourcesPanel() {
         if (!this.isSourcesPanelVisible) {
             this.SourcesService.FetchSources();
