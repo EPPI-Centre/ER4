@@ -171,7 +171,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 		if (recon && this.CurrentComparison) {
 			//alert(recon.Item.shortTitle);
-			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false)
+			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, 0, false, false)
 				.then(
 				() => {
 					this.RefreshDataItem(recon.Item);
@@ -181,7 +181,17 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public Complete(recon: ReconcilingItem, contactID: number) {
 		if (recon && this.CurrentComparison) {
-			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true)
+			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true, false)
+				.then(
+					() => {
+						this.RefreshDataItem(recon.Item);
+					}
+				);
+		}
+	}
+	public CompleteAndLock(recon: ReconcilingItem, contactID: number) {
+		if (recon && this.CurrentComparison) {
+			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true, true)
 				.then(
 					() => {
 						this.RefreshDataItem(recon.Item);
