@@ -266,8 +266,8 @@ export class ReviewSetsService extends BusyAwareService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet) {
                 let set_id: number = destSet.set_id;
-				destSet.itemSetIsLocked = itemset.isLocked;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
+                destSet.itemSetIsLocked = itemset.isLocked;
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
@@ -286,15 +286,13 @@ export class ReviewSetsService extends BusyAwareService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet && destSet.set_id) {
                 let set_id: number = destSet.set_id;
-				destSet.itemSetIsLocked = itemset.isLocked;
-
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
+                destSet.itemSetIsLocked = itemset.isLocked;
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
-
                         if (dest) {
                             UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
