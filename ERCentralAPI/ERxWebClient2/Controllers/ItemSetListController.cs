@@ -159,7 +159,7 @@ namespace ERxWebClient2.Controllers
         }
 
 		[HttpPost("[action]")]
-		public IActionResult CompleteComparison([FromBody] JObject data)
+		public IActionResult CompleteCoding([FromBody] JObject data)
 		{
 			try
 			{
@@ -169,6 +169,7 @@ namespace ERxWebClient2.Controllers
 					Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
 					int bt = Convert.ToInt16(data.GetValue("contactID").ToString());
 					bool CompleteOrNot = Convert.ToBoolean(data.GetValue("CompleteOrNot").ToString());
+					bool LockOrNot = Convert.ToBoolean(data.GetValue("LockOrNot").ToString());
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 					DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
 					long isi = -1; string completor = ""; ItemSetCompleteCommand command;
@@ -189,7 +190,7 @@ namespace ERxWebClient2.Controllers
 							isi = recon._ItemSetR3;
 							completor = comparison.ContactName3;
 						}
-						command = new ItemSetCompleteCommand(isi, true, false);
+						command = new ItemSetCompleteCommand(isi, true, LockOrNot);
 					}
 					else
 					{
@@ -210,7 +211,7 @@ namespace ERxWebClient2.Controllers
 						{
 							isi = recon._CompletedItemSetID;
 						}
-						command = new ItemSetCompleteCommand(isi, false, false);
+						command = new ItemSetCompleteCommand(isi, false, LockOrNot);
 					}
 
 					command = dp.Execute(command);

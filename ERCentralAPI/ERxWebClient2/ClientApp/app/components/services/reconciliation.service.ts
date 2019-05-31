@@ -63,12 +63,12 @@ export class ReconciliationService extends BusyAwareService {
 
 
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison,
-		contactID: number, completeOrNot: boolean): Promise<ItemSet> {
+		contactID: number, completeOrNot: boolean, LockOrNot: boolean): Promise<ItemSet> {
 
 		this._BusyMethods.push("ItemSetCompleteComparison");
-		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot });
+		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot, LockOrNot: LockOrNot });
 
-		return this._httpC.post<ItemSet>(this._baseUrl + 'api/ItemSetList/CompleteComparison', body
+		return this._httpC.post<ItemSet>(this._baseUrl + 'api/ItemSetList/CompleteCoding', body
 		)
 			.toPromise().then(
 				(res) => {
