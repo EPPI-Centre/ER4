@@ -321,7 +321,7 @@
 								<td><button class="btn btn-outline-danger " (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
 							</tr>
 							<tr>
-								<td colspan="8">
+								<td colspan="9">
 									<ComparisonStatsComp *ngIf="PanelName == 'getStats'" #ComparisonStatsCompList
 														 [rowSelected]="item.comparisonId"
 														 (criteriaChange)="LoadComparisonList()"

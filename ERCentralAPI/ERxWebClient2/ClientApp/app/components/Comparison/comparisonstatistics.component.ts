@@ -173,7 +173,8 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactName = currentComparison.contactName3;
 			this.lstContacts.push(contact);
 		}
-		this.tabSelected = 'confirm';
+        this.tabSelected = 'confirm';
+        this.selectedCompleteUser = new Contact();
 		this.CompleteSectionShow = true;
 
 	}
