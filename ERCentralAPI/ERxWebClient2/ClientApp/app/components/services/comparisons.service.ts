@@ -268,10 +268,8 @@ export class ComparisonsService extends BusyAwareService {
 			.toPromise().then(
 
 			(result: string) => {
-
 				this.RemoveBusy("CompleteComparison");
 				return result;
-
 			},
 			error => {
 				this.modalService.GenericError(error);
@@ -385,7 +383,7 @@ export interface iCompleteComparison {
 	comparisonId: number;
 	whichReviewers: string;
 	contactId: number;
-
+    lockCoding: string;
 }
 
 export class ComparisonAttribute {

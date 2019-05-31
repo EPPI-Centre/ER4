@@ -145,11 +145,12 @@ namespace ERxWebClient2.Controllers
 
 					if (comparisonComplete.whichReviewers.Contains("Sc"))
 					{
-						ComparisonScreeningCompleteCommand cmd = new ComparisonScreeningCompleteCommand(
-							comparisonComplete.comparisonid,
-							comparisonComplete.whichReviewers,
-							comparisonComplete.contactId
-						);
+                        ComparisonScreeningCompleteCommand cmd = new ComparisonScreeningCompleteCommand(
+                            comparisonComplete.comparisonid,
+                            comparisonComplete.whichReviewers,
+                            comparisonComplete.contactId,
+                            comparisonComplete.lockCoding
+                        );
 						DataPortal<ComparisonScreeningCompleteCommand> dp = new DataPortal<ComparisonScreeningCompleteCommand>();
 						cmd = dp.Execute(cmd);
 
@@ -160,8 +161,9 @@ namespace ERxWebClient2.Controllers
 						ComparisonCompleteCommand cmd = new ComparisonCompleteCommand(
 							comparisonComplete.comparisonid,
 							comparisonComplete.whichReviewers,
-							comparisonComplete.contactId
-						);
+							comparisonComplete.contactId,
+                            comparisonComplete.lockCoding
+                        );
 						DataPortal<ComparisonCompleteCommand> dp = new DataPortal<ComparisonCompleteCommand>();
 						cmd = dp.Execute(cmd);
 
@@ -214,7 +216,8 @@ namespace ERxWebClient2.Controllers
 		public int comparisonid {get; set;}
 		public string whichReviewers { get; set; }
 		public int contactId { get; set; }
-	}
+        public string lockCoding { get; set; }
+    }
 
 	public class ComparisonAttributeSelectionJSON
 	{

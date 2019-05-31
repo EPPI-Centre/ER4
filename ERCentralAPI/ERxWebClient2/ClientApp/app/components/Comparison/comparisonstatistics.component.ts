@@ -35,7 +35,8 @@ export class ComparisonStatsComp implements OnInit {
 
 	public CompleteSectionShow: boolean = false;
 	public tabSelected: string = 'AgreeStats';
-	public lstContacts: Array<Contact> = new Array();
+    public lstContacts: Array<Contact> = new Array();
+    public lockCoding: boolean = true;
 
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
@@ -122,7 +123,7 @@ export class ComparisonStatsComp implements OnInit {
 		completeComparison.comparisonId = currentComparison.comparisonId;
 		completeComparison.contactId = this.selectedCompleteUser.contactId;
 		completeComparison.whichReviewers = this.ListSubType;
-
+        if (this.lockCoding) completeComparison.lockCoding = 'true';
 		this._comparisonsService.CompleteComparison(completeComparison).then(
 			(res: any) => {
 
@@ -138,8 +139,8 @@ export class ComparisonStatsComp implements OnInit {
 			}
 			);
 	}
-	public SendToComplete(members: string, listSubType: string) {
-
+	public SendToComplete(members: string, listSubType: string, lockCoding: boolean) {
+        this.lockCoding = lockCoding;
 		this.ListSubType = listSubType;
 		let currentComparison: Comparison = this._comparisonsService.currentComparison;
 		if (members == '1And2') {
