@@ -23,6 +23,7 @@
                 <tbody>
                     <tr *ngFor="let recon of allItems; let i = index"
                         [ngClass]="(recon.IsCompleted)?'bg-light':''"
+						[ngStyle]="(recon.IsCompleted)?{'background-color':'red'} : {'background-color': 'yellow'}"
                         (click)="ChangePanelItem(recon.Item.itemId)">
                         <td class="" width="30"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
                         <td class="card-body" width="60">
