@@ -84,7 +84,13 @@ export class ReviewInfoService extends BusyAwareService{
 				return error;
 			});
 
-	}
+    }
+    public ContactNameById(ContactID: number): string {
+        if (ContactID <= 0) return "N/A";
+        let ind = this._ReviewContacts.findIndex(found => found.contactId == ContactID);
+        if (ind != -1) return this._ReviewContacts[ind].contactName;
+        else return "N/A [Id:" + ContactID.toString() +"]";
+    }
 }
 
 export class ReviewInfo {

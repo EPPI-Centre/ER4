@@ -158,7 +158,33 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-		[HttpPost("[action]")]
+        [HttpPost("[action]")]
+        public IActionResult ExcecuteItemSetCompleteCommand([FromBody] MVCItemSetCompleteCommand MVCcmd)
+        {//this is ALSO used to lock coding on a per itemSet basis.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemSetCompleteCommand cmd = new ItemSetCompleteCommand(
+                        MVCcmd.itemSetId, MVCcmd.complete, MVCcmd.isLocked
+                        );
+                    DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
+                    cmd = dp.Execute(cmd);
+                    MVCcmd.successful = cmd.Successful;
+                    return Ok(MVCcmd);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error in ExcecuteItemSetCompleteCommand: {0}", json);
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
 		public IActionResult CompleteCoding([FromBody] JObject data)
 		{
 			try
@@ -320,6 +346,12 @@ namespace ERxWebClient2.Controllers
 		public string _Fullpath { get; set; }
 		public string _InfoBox{ get; set; }
 	}
-
+    public class MVCItemSetCompleteCommand
+    {
+        public Int64 itemSetId;
+        public bool complete;
+        public bool successful;
+        public bool isLocked;
+    }
 }
 

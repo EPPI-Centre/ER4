@@ -567,6 +567,12 @@ export class ItemCodingService extends BusyAwareService {
         }
         return result;
     }
+    public FindItemSetByItemSetId(ItemSetId: number): ItemSet | null {
+        let result: ItemSet | null = null;
+        let ind = this._ItemCodingList.findIndex(found => found.itemSetId == ItemSetId);
+        if (ind != -1) return this._ItemCodingList[ind];
+        else return result;
+    }
 }
 
 export class ItemSet {

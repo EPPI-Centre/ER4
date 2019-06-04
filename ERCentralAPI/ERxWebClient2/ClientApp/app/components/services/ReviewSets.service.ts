@@ -268,6 +268,7 @@ export class ReviewSetsService extends BusyAwareService {
                 let set_id: number = destSet.set_id;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 destSet.itemSetIsLocked = itemset.isLocked;
+                destSet.ItemSetId = itemset.itemSetId;
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
@@ -288,6 +289,7 @@ export class ReviewSetsService extends BusyAwareService {
                 let set_id: number = destSet.set_id;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 destSet.itemSetIsLocked = itemset.isLocked;
+                destSet.ItemSetId = itemset.itemSetId;
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
@@ -362,6 +364,8 @@ export class ReviewSetsService extends BusyAwareService {
     public clearItemData() {
         this._BusyMethods.push("clearItemData");
         for (let set of this._ReviewSets) {
+            set.itemSetIsLocked = false;
+            set.ItemSetId = 0;
             set.isSelected = false;
             set.codingComplete = false;
             this.clearItemDataInChildren(set.attributes);
@@ -449,7 +453,46 @@ export class ReviewSetsService extends BusyAwareService {
             }
         );
     }
-
+    public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
+        //returns FALSE if something didn't work, error messages get triggered from within
+        //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
+        this._BusyMethods.push("ExecuteItemSetCompleteCommand");
+        return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd).toPromise()
+        .then(
+            data => {
+                this.RemoveBusy("ExecuteItemSetCompleteCommand");
+                if (data.successful != null && data.successful) {
+                    let rSet = this._ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
+                    if (rSet) {
+                        rSet.codingComplete = cmd.complete;
+                        rSet.itemSetIsLocked = cmd.isLocked;
+                    }
+                    else {
+                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here.\n"
+                            + "Please navigate to the next item and then back, to check if the expected changes did happen.\n" +
+                            "If the problem persists please contact EPPISupport.");
+                        return false;
+                    }
+                    return true;
+                }
+                else return false;
+            }, error => {
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+                //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+                //this._IsBusy = false;
+                console.log("Error in ExecuteItemSetCompleteCommand:", error);
+                this.RemoveBusy("ExecuteItemSetCompleteCommand");
+                return false;
+            }
+        ).catch(catched => {
+            this.modalService.GenericError("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+            //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+            //this._IsBusy = false;
+            console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
+            this.RemoveBusy("ExecuteItemSetCompleteCommand");
+            return false;
+            });
+    }
 }
 
 export interface singleNode {
@@ -503,10 +546,12 @@ export class ReviewSet implements singleNode {
 	};
     nodeType: string = "ReviewSet";
     order: number = 0;
-    codingIsFinal: boolean = true;
     allowEditingCodeset: boolean = false;
-    itemSetIsLocked: boolean = false;
 
+    ItemSetId: number = 0;
+    itemSetIsLocked: boolean = false;
+    codingIsFinal: boolean = true;
+    
 	attributeSetId: number = -1;
     isSelected: boolean = false;
     additionalText: string = "";
@@ -616,5 +661,11 @@ export class ItemAttributeBulkSaveCommand {
     public setId: number = 0;
     public itemIds: string = "";
     public searchIds: string = "";
+}
+export class ItemSetCompleteCommand {
+    public itemSetId: number = 0;
+    public complete: boolean = false;
+    public successful: boolean = false;
+    public isLocked: boolean = false;
 }
 
