@@ -71,7 +71,9 @@ export class WorkAllocationComp implements OnInit {
 	public FiltAttSet: SetAttribute = new SetAttribute();
 	public FiltRevSet: ReviewSet = new ReviewSet();
 	public dropdownBasicCodingTool: boolean = false;
-	public dropdownBasicPerson: boolean = false;
+    public dropdownBasicPerson: boolean = false;
+    public ShowAllocations: boolean = true;
+    public ShowComparisons: boolean = true;
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 	public PanelName: string = '';
@@ -98,6 +100,14 @@ export class WorkAllocationComp implements OnInit {
     }
     public get Contacts(): Contact[] {
         return this.reviewInfoService.Contacts;
+    }
+    public get ShowAllocationsText(): string {
+        if (this.ShowAllocations) return "Collapse";
+        else return "Expand";
+    }
+    public get ShowComparisonsText(): string {
+        if (this.ShowComparisons) return "Collapse";
+        else return "Expand";
     }
 	public get AllocateOptions(): kvSelectFrom[] {
 		
@@ -137,7 +147,8 @@ export class WorkAllocationComp implements OnInit {
         let ind = this._reviewSetsService.ReviewSets.findIndex(found => found.setType.allowRandomAllocation == true);
         if (ind > -1) return false;
         else return true;
-	}
+    }
+    
 	public NewComparisonSectionOpen() {
 
 		if (this.PanelName == 'NewComparisonSection') {
