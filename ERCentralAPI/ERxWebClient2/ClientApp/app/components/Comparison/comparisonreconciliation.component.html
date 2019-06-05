@@ -1,316 +1,319 @@
-<HeaderComponent PageTitle="Reconciliation" Context="Reconciliation"></HeaderComponent>
-<div class="card container-fluid mt-1 bg-light  m-1 p-1 border border-primary m-2 p-2">
+<HeaderComponent PageTitle="Reconciliation" Context="reconciliation"></HeaderComponent>
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 border border-primary m-2 p-2 form">
 	<button class="page-link pt-0 pb-1 mb-1 pull-left" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
 		Close/back
 	</button>
-    <form class="row card m-3 p-3 ">
-        <div class="col-12 card-body bg-light "
-             style="max-height:600px; overflow:scroll;">
-            <h3>Comparison Reconciliation</h3>
-            <div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
-            <table class="card-body col-12 table table-bordered " *ngIf="allItems">
-                <thead>
-                    <tr>
-                        <th class="" width="30">Completed</th>
-                        <th class="" width="60"> ITEM ID</th>
-                        <th class="" width="90">{{CurrentComparison.contactName1}}</th>
-                        <th class="" width="90">{{CurrentComparison.contactName2}}</th>
-                        <th class="" width="90" *ngIf="CurrentComparison.contactName3 != ''">
-                            {{CurrentComparison.contactName3}}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let recon of allItems; let i = index"
-						[ngStyle]="(recon.IsCompleted)? {'background-color':'#B0C4DE'} : {'background-color': '#D3D3D3'}"
-                        (click)="ChangePanelItem(recon.Item.itemId)">
-                        <td class="" width="30"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
-                        <td class="card-body" width="60">
-                            <span *ngIf="_ItemListService.ItemList.items[i] != undefined" (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
-                                  class="btn btn-link mt-1 col-md-1">
-                                {{_ItemListService.ItemList.items[i].itemId}}
-                            </span>
-                            <br />
-                            <span class="col-md-1">
-                                {{recon.Item.shortTitle}}
-                            </span>
-                            <br />
-                        </td>
-                        <td>
-							<span class="col-md-12" *ngIf="!recon.IsCompleted">
-								<button (click)="Complete(recon, CurrentComparison.contactId1)"
-										class="btn btn-success  pull-left">
-									Complete
-								</button>
-
-								<button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)"
-										class="btn btn-info pull-right">
-									Complete And Lock
-								</button>
-							</span>
-                            <span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1">
-                                <button (click)="UnComplete(recon)"
-                                        class="btn btn-danger">
-                                    Un-Complete
-                                </button>
-                            </span>
-							<br>
-							<span class="row col-md-12" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
+	<div class="row card m-3 p-3">
+		<div class="col-12 card-body bg-light "
+			 style="max-height:450px; overflow:scroll;">
+			<h5 class="m-1 p-1 font-weight-bold">
+			Comparison Reconciliation</h5>
+				<div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
+				<table class="card-body col-12 table table-bordered " *ngIf="allItems">
+					<thead>
+						<tr>
+							<th class="" width="30">Completed</th>
+							<th class="" width="60"> ITEM ID</th>
+							<th class="" width="90">{{CurrentComparison.contactName1}}</th>
+							<th class="" width="90">{{CurrentComparison.contactName2}}</th>
+							<th class="" width="90" *ngIf="CurrentComparison.contactName3 != ''">
+								{{CurrentComparison.contactName3}}
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let recon of allItems; let i = index" [ngClass]="i == selectedRow ? 'bg-light' : ''"
+							[ngStyle]="(recon.IsCompleted)? {'background-color':'#B0C4DE'} : {'background-color': '#D3D3D3'}"
+							(click)="ChangePanelItem(recon.Item.itemId, i); ">
+							<td class="" width="30"> <input type="checkbox" name="name1" [checked]="recon.IsCompleted" [disabled]="true" />&nbsp; </td>
+							<td class="card-body" width="60">
+								<span *ngIf="_ItemListService.ItemList.items[i] != undefined" (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
+									  class="btn btn-link mt-1 col-md-1">
+									{{_ItemListService.ItemList.items[i].itemId}}
+								</span>
 								<br />
-								<span [hidden]="!hidemeOne[j+(100*i)]">
-									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
-										{{item}}
-										<i class="fa fa-arrow-right pt-4"
-										   aria-hidden="true">
-										</i>
-									</span>
-									<br />
+								<span class="col-md-1">
+									{{recon.Item.shortTitle}}
 								</span>
-								<button class="btn btn-outline-info m-2 p-2 rounded-0"
-										*ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
-										(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
-									{{recon.CodesReviewer1[j-1].Name}}
-								</button>
-								<span [hidden]="!hidemeOne[j+(100*i)]"
-									  class="col-md-12">
-									{{recon.CodesReviewer1[j-1].InfoBox}}
-								</span>
-							</span>
-                            <br />
-                            <span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
-                                <span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
-                                    <b>{{a.title}}</b>
-                                    <span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
-                                        <span class="col-md-12 row" *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId">
-                                            <span [hidden]="!hidemearms[jj]">
-                                                <span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
-                                                    {{item}}
-                                                    <i class=" fa fa-arrow-right"
-                                                       aria-hidden="true">
-                                                    </i>
-                                                </span>
-                                                <br />
-                                            </span>
-                                            <button class="btn btn-outline-info m-2 p-2 rounded-0" 
-													(click)="hidemearms[jj] = !hidemearms[jj]">
-                                                {{recon.CodesReviewer1[jj-1].Name}}
-                                            </button>
-                                            <br />
-                                            <span [hidden]="!hidemearms[jj]"
-												  *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''" 
-												  class="col-md-12">
-												 {{recon.CodesReviewer1[jj-1].InfoBox}}
-                                            </span>
-                                        </span>
-                                    </span>
-                                </span>
-                            </span>
-                        </td>
-						<td>
-							<span class="col-md-12" *ngIf="!recon.IsCompleted">
-								<button (click)="Complete(recon,CurrentComparison.contactId2)"
-										class="btn btn-success  pull-left">
-									Complete
-								</button>
-								<button (click)="CompleteAndLock(recon, CurrentComparison.contactId2)"
-										class="btn btn-info  pull-right">
-									Complete And Lock
-								</button>
-							</span>
-							<br>
-							<span  *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2">
-								<button (click)="UnComplete(recon)"
-										class="btn btn-danger">
-									Un-Complete
-								</button>
-							</span>
-							<span class="row col-md-12" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 								<br />
-								<span [hidden]="!hidemeTwo[k+(100*i)]">
-									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath)">
-										{{item}}
-										<i class="fa fa-arrow-right pt-4"
-										   aria-hidden="true">
-										</i>
-									</span>
-									<br />
+							</td>
+							<td>
+								<span class="col-md-12" *ngIf="!recon.IsCompleted">
+									<button (click)="Complete(recon, CurrentComparison.contactId1)"
+											class="btn btn-success  pull-left">
+										Complete
+									</button>
 
+									<button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)"
+											class="btn btn-info pull-right">
+										Complete And Lock
+									</button>
 								</span>
-								<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0"
-										class="btn btn-outline-info m-2 p-2 rounded-0"
-										(click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
-									{{recon.CodesReviewer2[k-1].Name}}
-								</button>
-								<span [hidden]="!hidemeTwo[k+(100*i)]"
-									  class="col-md-12">
-									{{recon.CodesReviewer2[k-1].InfoBox}}
+								<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1">
+									<button (click)="UnComplete(recon)"
+											class="btn btn-danger">
+										Un-Complete
+									</button>
 								</span>
-							</span>
-							<br />
-							<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
-								<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
-									<b>{{b.title}}</b>
-									<span *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
-										<span class="row col-md-12" *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
-											<span [hidden]="!hidemearms[kk]">
-												<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
-													{{item}}
-													<i class="fa fa-arrow-right pt-4"
-													   aria-hidden="true">
-													</i>
+								<br>
+								<span class="row col-md-12" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
+									<br />
+									<span [hidden]="!hidemeOne[j+(100*i)]">
+										<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
+											{{item}}
+											<i class="fa fa-arrow-right pt-4"
+											   aria-hidden="true">
+											</i>
+										</span>
+										<br />
+									</span>
+									<button class="btn btn-outline-info m-2 p-2 rounded-0"
+											*ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
+											(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
+										{{recon.CodesReviewer1[j-1].Name}}
+									</button>
+									<span [hidden]="!hidemeOne[j+(100*i)]"
+										  class="col-md-12">
+										{{recon.CodesReviewer1[j-1].InfoBox}}
+									</span>
+								</span>
+								<br />
+								<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
+									<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
+										<b>{{a.title}}</b>
+										<span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
+											<span class="col-md-12 row" *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId">
+												<span [hidden]="!hidemearms[jj]">
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
+														{{item}}
+														<i class=" fa fa-arrow-right"
+														   aria-hidden="true">
+														</i>
+													</span>
+													<br />
 												</span>
+												<button class="btn btn-outline-info m-2 p-2 rounded-0"
+														(click)="hidemearms[jj] = !hidemearms[jj]">
+													{{recon.CodesReviewer1[jj-1].Name}}
+												</button>
 												<br />
-											</span>
-											<button class="btn btn-outline-info m-2 p-2 rounded-0" 
-													(click)="hidemearms[kk] = !hidemearms[kk]">
-												{{recon.CodesReviewer2[kk-1].Name}}
-											</button>
-											<br />
-											<span [hidden]="!hidemearms[kk]"
-												  *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
-												  class="col-md-12">
-												{{recon.CodesReviewer2[kk-1].InfoBox}}
+												<span [hidden]="!hidemearms[jj]"
+													  *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
+													  class="col-md-12">
+													{{recon.CodesReviewer1[jj-1].InfoBox}}
+												</span>
 											</span>
 										</span>
 									</span>
 								</span>
-							</span>
-						</td>
-						<td *ngIf="CurrentComparison.contactName3 != ''">
-							<span class="col-md-12" *ngIf="!recon.IsCompleted">
-								<button (click)="Complete(recon, CurrentComparison.contactId3)"
-										class="btn btn-success pull-left">
-									Complete
-								</button>
-								<button (click)="CompleteAndLock(recon, CurrentComparison.contactId3)"
-										class="btn btn-info  pull-right">
-									Complete And Lock
-								</button>
-							</span>
-							<br>
-							<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3">
-								<button (click)="UnComplete(recon)"
-										class="btn btn-danger">
-									Un-Complete
-								</button>
-							</span>
-							<span class="col-md-12" *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
-								<br />
-								<span [hidden]="!hidemeThree[l+(100*i)]">
-									<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
-										{{item}}
-										<i class="fa fa-arrow-right pt-4"
-										   aria-hidden="true">
-										</i>
-									</span>
+							</td>
+							<td>
+								<span class="col-md-12" *ngIf="!recon.IsCompleted">
+									<button (click)="Complete(recon,CurrentComparison.contactId2)"
+											class="btn btn-success  pull-left">
+										Complete
+									</button>
+									<button (click)="CompleteAndLock(recon, CurrentComparison.contactId2)"
+											class="btn btn-info  pull-right">
+										Complete And Lock
+									</button>
+								</span>
+								<br>
+								<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2">
+									<button (click)="UnComplete(recon)"
+											class="btn btn-danger">
+										Un-Complete
+									</button>
+								</span>
+								<span class="row col-md-12" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 									<br />
-									<span [hidden]="!hidemeThree[l+(100*i)]"
-										  class="">
-										{{recon.CodesReviewer3[l-1].InfoBox}}
+									<span [hidden]="!hidemeTwo[k+(100*i)]">
+										<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath)">
+											{{item}}
+											<i class="fa fa-arrow-right pt-4"
+											   aria-hidden="true">
+											</i>
+										</span>
+										<br />
+
+									</span>
+									<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0"
+											class="btn btn-outline-info m-2 p-2 rounded-0"
+											(click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
+										{{recon.CodesReviewer2[k-1].Name}}
+									</button>
+									<span [hidden]="!hidemeTwo[k+(100*i)]"
+										  class="col-md-12">
+										{{recon.CodesReviewer2[k-1].InfoBox}}
 									</span>
 								</span>
-								<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0"
-										class="btn btn-outline-info  m-2 p-2 rounded-0"
-										(click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
-									{{recon.CodesReviewer3[l-1].Name}}
-								</button>
-							</span>
-							<br />
-							<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
-								<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
-									<b>{{c.title}}</b>
-									<span *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
-										<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID != c.itemArmId">
-											<span [hidden]="!hidemearms[zz]">
-												<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath)">
-													{{item}}
-													<i class="fa fa-arrow-right  pt-4"
-													   aria-hidden="true">
-													</i>
+								<br />
+								<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
+									<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
+										<b>{{b.title}}</b>
+										<span *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
+											<span class="row col-md-12" *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
+												<span [hidden]="!hidemearms[kk]">
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
+														{{item}}
+														<i class="fa fa-arrow-right pt-4"
+														   aria-hidden="true">
+														</i>
+													</span>
+													<br />
 												</span>
+												<button class="btn btn-outline-info m-2 p-2 rounded-0"
+														(click)="hidemearms[kk] = !hidemearms[kk]">
+													{{recon.CodesReviewer2[kk-1].Name}}
+												</button>
 												<br />
-											</span>
-											<button class="btn btn-outline-info m-2 p-2 rounded-0" 
-													(click)="hidemearms[zz] = !hidemearms[zz]">
-												{{recon.CodesReviewer3[zz-1].Name}}
-											</button>
-											<br />
-											<span [hidden]="!hidemearms[zz]"
-												  *ngIf="recon.CodesReviewer3[zz-1].InfoBox != ''"
-												  class="col-md-12">
-												{{recon.CodesReviewer3[zz-1].InfoBox}}
+												<span [hidden]="!hidemearms[kk]"
+													  *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
+													  class="col-md-12">
+													{{recon.CodesReviewer2[kk-1].InfoBox}}
+												</span>
 											</span>
 										</span>
 									</span>
 								</span>
-							</span>
-						</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <paginatorComp ></paginatorComp>
-        <div *ngIf="panelItem" class="col-12 row p-2 m-2" style="max-height: 500px; overflow-y: scroll;">
-            <div class="col-5 row">
-                <div class="row col-12 border-top   ml-0 pl-0">
-                    <div class="row w-100 p-0 m-0 border-bottom">
-                        <div class="p-1 ml-1 mt-1 font-weight-bold">
-                            Title
-                        </div>
-                        <div class="col p-1 m-1 bg-white">
-                            {{panelItem.title}}
-                        </div>
-                    </div>
-                    <div class="row w-100 p-0 m-0 border-bottom">
-                        <div class="p-1 ml-1 mt-1 font-weight-bold">
-                            Author(s)
-                        </div>
-                        <div class="col p-1 m-1 bg-white">
-                            {{panelItem.authors}}
-                        </div>
-                    </div>
-                    <div class="row w-100 p-0 m-0 border-bottom ">
-                        <div class="col-4 row p-0 m-0">
-                            <div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
-                            <div class="col p-1 m-1 bg-white">{{panelItem.itemId}}</div>
-                        </div>
-                    </div>
-                    <div class="row w-100 p-0 m-0 border-bottom  ">
-                        <div class="w-50 row p-0 m-0">
-                            <div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
-                            <div class="col p-1 m-1 bg-white">
-                                {{panelItem.year}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row w-100 p-0 m-0 border-bottom  ">
-                        <div class="w-50 row p-0 m-0">
-                            <div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
-                            <div class="col p-1 m-1 bg-white">
-                                {{panelItem.shortTitle}}
-                            </div>
-                        </div>
-                        <div class="w-50 row p-0 m-0">
-                            <div class="p-1 ml-1 mt-1 font-weight-bold">Pages</div>
-                            <div class="col p-1 m-1 bg-white">
-                                {{panelItem.pages}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
-                     style="overflow-x:auto;">
-                    <ItemDocListComp class="" [itemID]="panelItem.itemId" [showUpload]="false">
-                    </ItemDocListComp>
-                </div>
-            </div>
-            <div class="col-5 row">
-                <div class="row col-12 border-top   ml-0 pl-0">
-                    <b>Abstract:&nbsp;</b>
-                    {{panelItem.abstract}}
-                </div>
-            </div>
-        </div>
-    </form>
+							</td>
+							<td *ngIf="CurrentComparison.contactName3 != ''">
+								<span class="col-md-12" *ngIf="!recon.IsCompleted">
+									<button (click)="Complete(recon, CurrentComparison.contactId3)"
+											class="btn btn-success pull-left">
+										Complete
+									</button>
+									<button (click)="CompleteAndLock(recon, CurrentComparison.contactId3)"
+											class="btn btn-info  pull-right">
+										Complete And Lock
+									</button>
+								</span>
+								<br>
+								<span *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3">
+									<button (click)="UnComplete(recon)"
+											class="btn btn-danger">
+										Un-Complete
+									</button>
+								</span>
+								<span class="col-md-12" *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
+									<br />
+									<span [hidden]="!hidemeThree[l+(100*i)]">
+										<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
+											{{item}}
+											<i class="fa fa-arrow-right pt-4"
+											   aria-hidden="true">
+											</i>
+										</span>
+										<br />
+										<span [hidden]="!hidemeThree[l+(100*i)]"
+											  class="">
+											{{recon.CodesReviewer3[l-1].InfoBox}}
+										</span>
+									</span>
+									<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0"
+											class="btn btn-outline-info  m-2 p-2 rounded-0"
+											(click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
+										{{recon.CodesReviewer3[l-1].Name}}
+									</button>
+								</span>
+								<br />
+								<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
+									<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
+										<b>{{c.title}}</b>
+										<span *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
+											<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID != c.itemArmId">
+												<span [hidden]="!hidemearms[zz]">
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath)">
+														{{item}}
+														<i class="fa fa-arrow-right  pt-4"
+														   aria-hidden="true">
+														</i>
+													</span>
+													<br />
+												</span>
+												<button class="btn btn-outline-info m-2 p-2 rounded-0"
+														(click)="hidemearms[zz] = !hidemearms[zz]">
+													{{recon.CodesReviewer3[zz-1].Name}}
+												</button>
+												<br />
+												<span [hidden]="!hidemearms[zz]"
+													  *ngIf="recon.CodesReviewer3[zz-1].InfoBox != ''"
+													  class="col-md-12">
+													{{recon.CodesReviewer3[zz-1].InfoBox}}
+												</span>
+											</span>
+										</span>
+									</span>
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+		</div>
+		<paginatorComp></paginatorComp>
+		<div *ngIf="panelItem" class="col-12 row p-2 m-2" 
+			 style="max-height: 300px; overflow-y: scroll;">
+			<div class="col-5 row">
+				<div class="row col-12 border-top   ml-0 pl-0">
+					<div class="row w-100 p-0 m-0 border-bottom">
+						<div class="p-1 ml-1 mt-1 font-weight-bold">
+							Title
+						</div>
+						<div class="col p-1 m-1 bg-white">
+							{{panelItem.title}}
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom">
+						<div class="p-1 ml-1 mt-1 font-weight-bold">
+							Author(s)
+						</div>
+						<div class="col p-1 m-1 bg-white">
+							{{panelItem.authors}}
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom ">
+						<div class="col-4 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
+							<div class="col p-1 m-1 bg-white">{{panelItem.itemId}}</div>
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom  ">
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
+							<div class="col p-1 m-1 bg-white">
+								{{panelItem.year}}
+							</div>
+						</div>
+					</div>
+					<div class="row w-100 p-0 m-0 border-bottom  ">
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
+							<div class="col p-1 m-1 bg-white">
+								{{panelItem.shortTitle}}
+							</div>
+						</div>
+						<div class="w-50 row p-0 m-0">
+							<div class="p-1 ml-1 mt-1 font-weight-bold">Pages</div>
+							<div class="col p-1 m-1 bg-white">
+								{{panelItem.pages}}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
+					 style="overflow-x:auto;">
+					<ItemDocListComp class="" [itemID]="panelItem.itemId" [showUpload]="false">
+					</ItemDocListComp>
+				</div>
+			</div>
+			<div class="col-5 row">
+				<div class="row col-12 border-top   ml-0 pl-0">
+					<b>Abstract:&nbsp;</b>
+					{{panelItem.abstract}}
+				</div>
+			</div>
+		</div>
+	</div>
+	<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
 </div>
  

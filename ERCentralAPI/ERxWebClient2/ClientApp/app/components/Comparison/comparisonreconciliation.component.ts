@@ -48,6 +48,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public allItems: any[] = [];
 	public testBool: boolean = false;
+	public selectedRow: number = 0;
 	private subscription: Subscription | null = null;
 
 	ngOnInit() {
@@ -203,15 +204,13 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 		return Array.from({ length: len }, (v, k) => k + 1);
 	}
+	public ChangePanelItem(itemid: number, index: number) {
 
-	public ChangePanelItem(itemid: number) {
-
-			let tempItemList = this._ItemListService.ItemList.items;
-			this.panelItem = tempItemList.find(x => x.itemId == itemid);
-			this.getItemDocuments(itemid);
-
+		this.selectedRow = index;
+		let tempItemList = this._ItemListService.ItemList.items;
+		this.panelItem = tempItemList.find(x => x.itemId == itemid);
+		this.getItemDocuments(itemid);
 	}
-
 	BackToMain() {
 		this.router.navigate(['Main']);
 	}
