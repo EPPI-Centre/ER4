@@ -90,7 +90,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		}
 	}
 	getReconciliations() {
-
 		if (this.item != null && this.item != undefined) {
 			this.CurrentComparison = this._comparisonsService.currentComparison;
 			if (this.CurrentComparison) {
@@ -101,7 +100,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				this._BusyMethods.push("recursiveItemList");
 				let i: number = 0;
 				this.recursiveItemList(i);
-
 			}
 		}
 	}
@@ -158,7 +156,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		tempItems[0] = this.panelItem;
 		if (this.panelItem && this.panelItem != undefined) {
 			if (item.itemId) {
-				this.getItemDocuments(this.panelItem.itemId);
+				//this.getItemDocuments(this.panelItem.itemId);
 				this._reconciliationService.FetchArmsForReconItems(
 					tempItems);
 			}
