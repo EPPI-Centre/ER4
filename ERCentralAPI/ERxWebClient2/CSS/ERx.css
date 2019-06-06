@@ -113,3 +113,8 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     pointer-events: none;
     opacity: 0.3;
 }
+
+.button-reset-stuff:hover {
+	background: red;
+	cursor:default;
+}

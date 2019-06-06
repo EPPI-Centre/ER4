@@ -13,6 +13,12 @@ import { Subscription } from 'rxjs';
 @Component({
 	selector: 'ComparisonReconciliationComp',
 	templateUrl: './comparisonReconciliation.component.html',
+	styles: [`
+               .button:hover {
+					  background-color: white;
+					  color: white;
+				}
+            `],
     providers: []
 })
 
