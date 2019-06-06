@@ -75,7 +75,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         let counter: number = 0;
         
         //console.log("viewerInstance ", this.viewerInstance);
-        while ((!this.viewerInstance ||!this.ItemDocsService.CurrentDoc) && counter < 3 * 120) {
+        while ((!this.viewerInstance ||!this.ItemDocsService.CurrentDoc) && counter < 1 * 120) {
             counter++;
             await Helpers.Sleep(200);
             console.log("waiting, cycle n: " + counter);

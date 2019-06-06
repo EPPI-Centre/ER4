@@ -36,7 +36,7 @@ export class WebViewerComponent implements AfterViewInit {
             documentType: 'pdf',
             //config: '../lib/CustomPDFtron.js',
             fullAPI: true,
-            l: atob(licenseKey)
+            l: "University College London(ucl.ac.uk):OEM:EPPI-Reviewer::B+:AMS(20200429):D6A5281D04B7480A3360B13AC9A2737860613F9D0644EDA8CD046541120C6EA02ACA31F5C7"
         }, this.viewer.nativeElement);
         //try {
         //    console.log("try PDFNet.initialize");
