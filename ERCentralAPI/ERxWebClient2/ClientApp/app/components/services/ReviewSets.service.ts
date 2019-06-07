@@ -498,6 +498,7 @@ export class ReviewSetsService extends BusyAwareService {
 export interface singleNode {
 
     id: string;
+    set_id: number;
     name: string;
     attributes: singleNode[];
     showCheckBox: boolean;

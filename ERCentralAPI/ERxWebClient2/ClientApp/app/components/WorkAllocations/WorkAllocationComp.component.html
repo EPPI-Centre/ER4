@@ -342,32 +342,32 @@
 														 (setListSubType)="setCompListType($event)">
 									</ComparisonStatsComp>
 
-									<div *ngIf="PanelName == 'runQuickReport' && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" class="card  col-sm-12 col-md-12 px-1 p-2 m-2">
-										<h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
-										<div class="col-12 card bg-light card-body rounded border-success">
-											<div class="col-12 row">
-												<span class="col-4">
-													Please select the 'parent' coding tool or child code from the
-													codes tree on the right hand side that you wish to run this
-													comparison against
-												</span>
-												<div class="col-4">
-													<div><span class="col-2">Selected Code/Set: &nbsp;</span></div>
-													<div class="border"><span class="border-dark">{{chosenFilter?.name}}&nbsp;</span></div>
-												</div>
-												<div class="col-4">
-													<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
-													<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
-												</div>
-											</div>
-												<div class="col-4">
-													<button (click)="RunHTMLComparisonReport()"
-															class="btn btn-outline-info">
-														Run
-													</button>
-												</div>
-											</div>
-									</div>
+                                    <div *ngIf="PanelName == 'runQuickReport' && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
+                                         class="card col-12">
+                                        <h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
+                                        <div class="col-12 row bg-light p-0 m-1 rounded border border-success mb-2">
+                                            <div class="col-12 col-lg-4 row p-0 m-0">
+                                                <div class="mx-1 mt-2">Selected Code/Set: </div>
+                                                <div class="border border-dark mt-2 px-1 ml-1" [ngClass]="{'alert-success font-weight-bold' : CanRunQuickReport}">{{chosenFilterName}}</div>
+                                                <div class="col-12 my-1">
+                                                    <button (click)="RunHTMLComparisonReport()"
+                                                            [disabled]="!CanRunQuickReport"
+                                                            class="btn btn-outline-success p-1 m-1">
+                                                        &nbsp;&nbsp;Run&nbsp;&nbsp;
+                                                    </button>
+                                                    <button (click)="getPanelRunQuickReport(item.comparisonId)"
+                                                            class="btn btn-outline-info p-1 m-1">
+                                                        &nbsp;&nbsp;Cancel&nbsp;&nbsp;
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-8 row p-1 m-0">
+                                                Please select either a code (with some child codes) or the root of the tool used for this comparison. 
+                                                The "Quick Report" will show a comparison of the codes applied by the reviewers in this comparison, 
+                                                listing only the (immediate) child codes of the code (or coding tool) selected.
+                                            </div>
+                                        </div>
+                                    </div>
 								</td>
 							</tr>
 							<!--<tr>

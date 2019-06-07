@@ -77,8 +77,17 @@ export class WorkAllocationComp implements OnInit {
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 	public PanelName: string = '';
-	public chosenFilter: SetAttribute | null = null;
-
+    public get chosenFilter(): singleNode | null {
+        return this._reviewSetsService.selectedNode;
+    }
+    public get chosenFilterName(): string{
+        if (this._reviewSetsService.selectedNode) {
+            return this._reviewSetsService.selectedNode.name;
+        }
+        else {
+            return "No code selected";
+        }
+    }
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
 		{ key: 3, value: 'All with any codes from this coding tool' },
@@ -157,13 +166,7 @@ export class WorkAllocationComp implements OnInit {
 			this.PanelName = 'NewComparisonSection';
 		}
 	}
-	SetFilter() {
-		if (this._reviewSetsService.selectedNode)
-			this.chosenFilter = this._reviewSetsService.selectedNode as SetAttribute;
-	}
-	clearChosenFilter() {
-		this.chosenFilter = null;
-	}
+	
 	ngOnInit() {
 		this.RefreshData();
 	}
@@ -229,7 +232,19 @@ export class WorkAllocationComp implements OnInit {
 			}
 		//}
 		
-	}
+    }
+    public get CanRunQuickReport(): boolean {
+        if (this.chosenFilter == null || this._comparisonsService.currentComparison == null) {
+            return false;
+        }
+        else if (this._comparisonsService.currentComparison.setId == this.chosenFilter.set_id
+            && this._comparisonsService.currentComparison.setId > 0
+            && this.chosenFilter.attributes.length > 0
+        ) {
+            return true;
+        }
+        else return false;
+    }
 	RunHTMLComparisonReport() {
 
 		if (this.chosenFilter == null) {
@@ -241,15 +256,16 @@ export class WorkAllocationComp implements OnInit {
 		let ParentAttributeId: number = 0;
 		let SetId: number = 0;
 
-		if (this.chosenFilter.nodeType == 'AttributeSet')
-		{
-			ParentAttributeId = this.chosenFilter.attribute_id;
-			SetId = this.chosenFilter.set_id;
+        if (this.chosenFilter.nodeType == 'SetAttribute')
+        {
+            let aSet = this.chosenFilter as SetAttribute;
+            ParentAttributeId = aSet.attribute_id;
+            SetId = aSet.set_id;
 		}else
 		{
 			if (this.chosenFilter.nodeType == 'ReviewSet')
 			{
-				SetId = this.chosenFilter.set_id;
+				SetId = (this.chosenFilter as ReviewSet).set_id;
 			}
 		}
 

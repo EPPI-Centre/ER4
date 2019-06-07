@@ -43,7 +43,7 @@ export class ComparisonsService extends BusyAwareService {
 		return this._Statistics;		
 	}
 
-	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenFilter: any)  : Promise<any>
+	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenParent: any)  : Promise<any>
 	{
 		
 		this._BusyMethods.push("FetchComparisonReport");
@@ -56,9 +56,9 @@ export class ComparisonsService extends BusyAwareService {
 		let chosenSetFilter: ReviewSet = new ReviewSet();
 		let chosenAttFilter: SetAttribute = new SetAttribute();
 		if (ParentAttributeId == 0) {
-			chosenSetFilter = chosenFilter as ReviewSet;
+            chosenSetFilter = chosenParent as ReviewSet;
 		} else {
-			chosenAttFilter = chosenFilter as SetAttribute;
+            chosenAttFilter = chosenParent as SetAttribute;
 		}
 		return this._httpC.post<any>(
 			this._baseUrl + 'api/Comparisons/ComparisonReport',
