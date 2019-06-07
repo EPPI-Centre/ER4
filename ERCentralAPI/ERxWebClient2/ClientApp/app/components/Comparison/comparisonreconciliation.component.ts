@@ -13,11 +13,22 @@ import { Subscription } from 'rxjs';
 @Component({
 	selector: 'ComparisonReconciliationComp',
 	templateUrl: './comparisonReconciliation.component.html',
-	styles: [`
-               .button:hover {
-					  background-color: white;
-					  color: white;
-				}
+    styles: [`
+               .bg-comp {    
+                    background-color: #C2F3C0;
+                }
+               .bg-comp-sel {    
+                    background-color: #95E292;
+                }
+               .bg-incomp {    
+                    background-color: #EEEEEE;
+                }
+               .bg-incomp-sel {    
+                    background-color: #DCDCDC;
+                }
+                .table-bordered th, .table-bordered td {
+                    border: 1px solid #888888;
+                } 
             `],
     providers: []
 })
