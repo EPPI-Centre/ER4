@@ -29,7 +29,7 @@
 								<input type="checkbox" name="name1" 
 									   [checked]="recon.IsCompleted" [disabled]="true" />&nbsp;
 							</td>
-							<td class="card-body" style="max-width:100px;">
+							<td class="card-body" style="max-width:150px;">
 								<span *ngIf="_ItemListService.ItemList.items[i] != undefined" (click)="OpenItem(_ItemListService.ItemList.items[i].itemId)"
 									  class="btn btn-link mt-1 col-md-1">
 									{{_ItemListService.ItemList.items[i].itemId}}
@@ -58,7 +58,6 @@
 										Un-Complete
 									</button>
 								</span>
-								<br>
 								<span class="row col-md-12" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 									<span class="row">
 										<span [hidden]="!hidemeOne[j+(100*i)]">
