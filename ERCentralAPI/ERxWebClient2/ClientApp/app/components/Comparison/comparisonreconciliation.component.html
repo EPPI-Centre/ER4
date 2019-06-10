@@ -89,7 +89,7 @@
 									</div>
 								</div>
 								<br />
-								<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
+								<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
 									<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
 										<b>{{a.title}}</b>
 										<span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
@@ -170,9 +170,9 @@
 										</div>
 									</div>
 									<br />
-									<div class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
+									<div class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
 										<div *ngFor="let b of _ItemListService.ItemList.items[i].arms">
-											<b>{{b.title}}</b>
+											<b class="ml-0">{{b.title}}</b>
 											<div *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
 												<div class="row col-md-12" *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
 													<span [hidden]="!hidemearms[kk +(100*i)]">
@@ -252,9 +252,9 @@
 									</span>
 								</span>
 								<br />
-								<span class="col-md-12" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
+								<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
 									<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
-										<b>{{c.title}}</b>
+										<b class="ml-0">{{c.title}}</b>
 										<span *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 											<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID == c.itemArmId">
 												<span [hidden]="!hidemearms[zz+(100*i)]" 

@@ -127,7 +127,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 		CreateNewCodeComp,
 		ComparisonComp,
 		ComparisonStatsComp,
-		ComparisonReconciliationComp
+		ComparisonReconciliationComp,
         PdfTronContainer,
         WebViewerComponent
 	],
