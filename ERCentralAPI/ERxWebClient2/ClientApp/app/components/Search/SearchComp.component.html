@@ -262,7 +262,7 @@
         <div *ngIf="CanCreateClassifierCodes()" class="row col-12 m-0 p-0">
             <div style="min-width: 150px; margin:auto;" class="col p-1" *ngIf="selectedNode"> Create codes below this Code / Coding Tool: <b>{{selectedNode.name}}</b></div>
             <div class="m-0 p-0">
-                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" [disabled]="!HasWriteRights" (click)="CreateCo()">Create</button>
+                <button style="min-width: 150px;" class="btn btn-warning p-2 m-2" [disabled]="!HasWriteRights" (click)="CreateCodesBelow()">Create</button>
             </div>
         </div>
     </div>
