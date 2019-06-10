@@ -388,7 +388,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     CreateNewCodeSet() {
         console.log("will create:", this._NewReviewSet);
-        if (!this._NewReviewSet.setType) {
+        if (!this._NewReviewSet.setType || this._NewReviewSet.setType.setTypeId == 0) {
+            console.log('looking for set type...');
             let found = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
             if (found) this._NewReviewSet.setType = found;
             else return;

@@ -7,7 +7,7 @@
 		<div class="col-12 bg-light ">
 			<h5 class="m-1 p-1 font-weight-bold">Items List</h5>
 				<div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
-                <div style="max-height:48vh; overflow:scroll;">
+                <div style="max-height:48vh; overflow:auto;">
                     <table *ngIf="allItems" class="p-1 col-12 table table-bordered table-responsive-sm">
                         <thead>
                             <tr>
@@ -292,7 +292,7 @@
 		</div>
 		<paginatorComp></paginatorComp>
 		<div *ngIf="panelItem" class="col-12 row p-0 m-0 border-top border-success">
-			<div class="col-6 row p-0 mx-0 " style="max-height: 30vh; overflow-y: scroll;">
+			<div class="col-6 row p-0 mx-0 " style="max-height: 30vh; overflow-y: auto;">
 				<div class="row col-12 border-top ml-0 pl-0">
 					<div class="row w-100 p-0 m-0 border-bottom">
 						<div class="p-1 ml-1 mt-1 font-weight-bold">
@@ -341,7 +341,7 @@
 				</div>
 				<div *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
 					 style="overflow-x:auto;">
-					<ItemDocListComp class="" [itemID]="panelItem.itemId" [showUpload]="false">
+					<ItemDocListComp class="" [itemID]="panelItem.itemId" [ShowViewButton]="false" [showUpload]="false">
 					</ItemDocListComp>
 				</div>
 			</div>
