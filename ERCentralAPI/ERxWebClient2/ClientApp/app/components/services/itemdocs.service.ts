@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -24,12 +24,23 @@ export class ItemDocsService extends BusyAwareService   {
     ) {
 		super();
     }
-
+    @Output() GotDocument = new EventEmitter();
     public _itemDocs: ItemDocument[] = []; 
     private currentItemId: number = 0;
-
+    private currentDocBin: Blob | null = null;
+    private currentDocBinId: number = 0;
+    public get CurrentDoc() {
+        return this.currentDocBin;
+    }
+    public get CurrentDocId(): number {
+        return this.currentDocBinId;
+    }
     public FetchDocList(itemID: number) {
-        this.currentItemId = itemID;
+        if (this.currentItemId != itemID) {
+            this.currentDocBin = null;
+            this.currentDocBinId = 0;
+            this.currentItemId = itemID;
+        }
         this.Refresh();
     }
     public Refresh() {
@@ -41,10 +52,10 @@ export class ItemDocsService extends BusyAwareService   {
         );
     }
 
-    public GetItemDocument(itemDocumentId: number) {
-
-
-		this._BusyMethods.push("GetItemDocument");
+    public GetItemDocument(itemDocumentId: number, ForView:boolean = false) {
+        this.currentDocBin = null;
+        this.currentDocBinId = 0;
+        this._BusyMethods.push("GetItemDocument");
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
         //console.log(this.ReviewerIdentityService.reviewerIdentity.token);
@@ -59,18 +70,24 @@ export class ItemDocsService extends BusyAwareService   {
                 
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
-						blob => {
-							if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-								window.navigator.msSaveOrOpenBlob(blob);
-							}
-							else {
-								URL.createObjectURL(blob);
-								let url = URL.createObjectURL(blob);
-								if (url) window.open(url);
-							}
-                            
-						});
-					this.RemoveBusy("GetItemDocument");
+                        blob => {
+                            if (ForView) {
+                                this.currentDocBin = blob;
+                                this.currentDocBinId = itemDocumentId;
+                                this.GotDocument.emit();
+                            }
+                            else {
+                                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                                    window.navigator.msSaveOrOpenBlob(blob);
+                                }
+                                else {
+                                    URL.createObjectURL(blob);
+                                    let url = URL.createObjectURL(blob);
+                                    if (url) window.open(url);
+                                }
+                            }
+                        });
+                    this.RemoveBusy("GetItemDocument");
                 }
 			});
 		this.RemoveBusy("GetItemDocument");

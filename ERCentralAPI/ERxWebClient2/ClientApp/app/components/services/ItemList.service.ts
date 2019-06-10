@@ -194,7 +194,8 @@ export class ItemListService extends BusyAwareService {
                     this.RemoveBusy("UpdateItem");
                 }
             , () => { this.RemoveBusy("UpdateItem"); }
-            );
+        );
+
     }
 
 

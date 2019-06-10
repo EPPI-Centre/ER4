@@ -9,6 +9,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;CSLA_NETCORE</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -83,6 +84,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkSaveCommand.cs" Link="Models\ItemAttributeBulkSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetails.cs" Link="Models\ItemAttributeFullTextDetails.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDF.cs" Link="Models\ItemAttributePDF.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDFList.cs" Link="Models\ItemAttributePDFList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeSaveCommand.cs" Link="Models\ItemAttributeSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
@@ -180,10 +183,10 @@
 
   <ItemGroup>
     <Content Include="ClientApp\app\components\assets\sales.json" />
+    <Content Include="ClientApp\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\app\components\NewFolder\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
@@ -239,6 +242,9 @@
     <Content Update="wwwroot\Images\ViewOptions.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\Images\webviewer-demo-annotated.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -277,5 +283,7 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

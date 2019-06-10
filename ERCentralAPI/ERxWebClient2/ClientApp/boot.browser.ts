@@ -75,6 +75,7 @@ if (module.hot) {
         //});
     });
 } else {
+
     enableProdMode();
     const modulePromise = platformBrowserDynamic().bootstrapModule(AppModule);
 }

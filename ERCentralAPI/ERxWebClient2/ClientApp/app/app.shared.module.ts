@@ -72,6 +72,8 @@ import { ComparisonComp } from './components/Comparison/createnewcomparison.comp
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
 import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
 import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
+import { WebViewerComponent } from './components/PDFTron/webviewer.component';
+import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 
 @NgModule({
     declarations: [
@@ -126,6 +128,8 @@ import { ArchieCallBackComponent } from './components/home/ArchieCallBack.compon
 		ComparisonComp,
 		ComparisonStatsComp,
 		ComparisonReconciliationComp
+        PdfTronContainer,
+        WebViewerComponent
 	],
     providers: [
         EventEmitterService,

@@ -30,6 +30,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     public ShowUpload: boolean = false;
 	@Input() itemID: number = 0;
 	@Input() showUpload: boolean = true;
+    @Input() ShowViewButton: boolean = true;
     public get HasWriteRights(): boolean {
         return this.itemID != 0 && this.ReviewerIdentityServ.HasWriteRights;
     }
@@ -67,9 +68,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
         }
     }
     
-    DownloadDoc(itemDocumentId: number) {
+    DownloadDoc(itemDocumentId: number, ForView: boolean) {
 
-        this.ItemDocsService.GetItemDocument(itemDocumentId);
+        this.ItemDocsService.GetItemDocument(itemDocumentId, ForView);
 
     }
     public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; // 

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, Attribute } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -11,8 +11,9 @@ import { ArmsService } from '../services/arms.service';
 import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
 import { TreeNode } from '@angular/router/src/utils/tree';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
+import { ItemCodingService, ItemAttPDFCodingCrit, ItemSet} from '../services/ItemCoding.service';
+import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
-import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
@@ -39,6 +40,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
        private ReviewSetsService: ReviewSetsService,
        private ItemCodingService: ItemCodingService,
        private modalService: NgbModal,
+       private ItemDocsService: ItemDocsService,
        private armsService: ArmsService,
        private ReviewInfoService: ReviewInfoService,
        private NotificationService: NotificationService
@@ -46,6 +48,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
     public showManualModal: boolean = false;
+    @Input() InitiateFetchPDFCoding = false;
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
@@ -292,7 +295,24 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 		//alert('in node: ' + node.name)
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        
+        const att = node as SetAttribute;
+        if (att && node.nodeType == "SetAttribute" ) {
+            this.ItemCodingService.SelectedSetAttribute = att;
+            if (this.InitiateFetchPDFCoding && node.isSelected && this.ItemDocsService.CurrentDocId !== 0) {
+                const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(att);
+                console.log("we might need to fetch PDF coding", ROatt);
+                if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
+                else {
+                    this.ItemCodingService.ClearItemAttPDFCoding();
+                }
+            }
+            else {
+                this.ItemCodingService.ClearItemAttPDFCoding();
+            }
+        } else {
+            this.ItemCodingService.ClearItemAttPDFCoding();
+            this.ItemCodingService.SelectedSetAttribute = null;//remove selection, PDF should not load highlights.
+        }
     }
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
