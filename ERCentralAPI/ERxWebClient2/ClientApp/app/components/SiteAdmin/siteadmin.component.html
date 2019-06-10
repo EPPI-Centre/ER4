@@ -37,6 +37,12 @@
             </kendo-grid-column>
             <kendo-grid-column field="contactName" headerClass="small" class="small" width="2" title="User">
             </kendo-grid-column>
+            <kendo-grid-column field="contactEmail" headerClass="small" class="small" width="2" title="Email">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
+                       style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
+                </ng-template>
+            </kendo-grid-column>
             <kendo-grid-column field="contactId" headerClass="small" width="2" title="Cont.ID">
             </kendo-grid-column>
             <kendo-grid-column field="reviewId" headerClass="small" width="2" title="Rev.ID">
