@@ -334,9 +334,8 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-    }
+
     
-        }
 
         [HttpPost("[action]")]
         public IActionResult ExcecuteItemSetCompleteCommand([FromBody] MVCItemSetCompleteCommand MVCcmd)
@@ -533,7 +532,7 @@ namespace ERxWebClient2.Controllers
         public bool successful;
         public bool isLocked;
     }
-}
+
 
     public class MVCiaPDFListSelCrit
     {
