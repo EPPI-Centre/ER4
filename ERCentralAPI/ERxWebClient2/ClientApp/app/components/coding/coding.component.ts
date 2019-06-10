@@ -421,29 +421,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             //update local version of the coding...
             
             if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
-                let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
-                newItemA.additionalText = cmdResult.additionalText;
-                newItemA.armId = cmdResult.itemArmId;
-                newItemA.armTitle = "";
-                newItemA.attributeId = cmdResult.attributeId;
-                newItemA.itemAttributeId = cmdResult.itemAttributeId;
-                if (itemSet) itemSet.itemAttributesList.push(newItemA);
-                else {//didn't have the itemSet, so need to create it...
-                    let newItemSet: ItemSet = new ItemSet();
-                    newItemSet.contactId = this.ReviewerIdentityServ.reviewerIdentity.userId;
-                    newItemSet.contactName = this.ReviewerIdentityServ.reviewerIdentity.name; 
-                    let setDest = this.ReviewSetsService.FindSetById(cmd.setId);
-                    if (setDest) {
-                        newItemSet.isCompleted = setDest.codingIsFinal;
-                        newItemSet.setName = setDest.set_name;
-                    }
-                    newItemSet.isLocked = false;
-                    newItemSet.itemId = cmdResult.itemId;
-                    newItemSet.itemSetId = cmdResult.itemSetId;
-                    newItemSet.setId = cmdResult.setId;
-                    newItemSet.itemAttributesList.push(newItemA);
-                    this.ItemCodingService.ItemCodingList.push(newItemSet);
-                }
+                this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
+                //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
             }
             else if (cmd.saveType == "Delete") {
                 

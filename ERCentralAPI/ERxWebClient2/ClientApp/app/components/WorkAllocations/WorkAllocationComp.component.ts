@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
 import { NgForm, FormsModule  } from '@angular/forms';
 import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
+import { ComparisonsService, Comparison } from '../services/comparisons.service';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -30,7 +31,8 @@ export class WorkAllocationComp implements OnInit {
 		public itemListService: ItemListService,
 		public confirmationDialogService: ConfirmationDialogService,
 		public _reviewSetsService: ReviewSetsService,
-		public _reviewSetsEditingService : ReviewSetsEditingService
+		public _reviewSetsEditingService: ReviewSetsEditingService,
+		public _comparisonsService: ComparisonsService
     ) { }
 
 	
@@ -41,6 +43,7 @@ export class WorkAllocationComp implements OnInit {
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
+
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
 	public AssignWorkSection: boolean = false;
@@ -86,7 +89,8 @@ export class WorkAllocationComp implements OnInit {
 		this._allocateOptions = value;
    
 	}
-    public get HasWriteRights(): boolean {
+	public get HasWriteRights(): boolean {
+
         return this.ReviewerIdentityServ.HasWriteRights;
     }
 	private _allocateInclOrExcl: string = 'true';
@@ -113,8 +117,15 @@ export class WorkAllocationComp implements OnInit {
         let ind = this._reviewSetsService.ReviewSets.findIndex(found => found.setType.allowRandomAllocation == true);
         if (ind > -1) return false;
         else return true;
-    }
+	}
+	public NewComparisonSectionOpen() {
 
+		if (this.PanelName == 'NewComparisonSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'NewComparisonSection';
+		}
+	}
 	ngOnInit() {
 		this.RefreshData();
 	}
@@ -167,10 +178,17 @@ export class WorkAllocationComp implements OnInit {
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
 		}
 	}
+	getStatistics(comparisonId: number) {
+
+		if (this._comparisonsService && comparisonId != null) {
+			this._comparisonsService.FetchStats(comparisonId);
+		}
+	}
     SetRelevantDropDownValues(selection: number) {
         console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
-        if (ind > -1) this.selectedAllocated = this.AllocateOptions[ind];
+		if (ind > -1) this.selectedAllocated = this.
+			AllocateOptions[ind];
         else this.selectedAllocated = this.AllocateOptions[0];
 	}
 	private _NewReviewSet: ReviewSet = new ReviewSet();
@@ -522,13 +540,40 @@ export class WorkAllocationComp implements OnInit {
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
+	public openConfirmationDialogDeleteComp(comparisonId: number) {
+
+		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a comparison', false, '')
+			.then(
+				(confirmed: any) => {
+
+					if (confirmed) {
+
+						this.DeleteComparison(comparisonId);
+
+					} else {
+						//alert('did not confirm');
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+
+
+	}
 	removeWarning(workAllocationId: number) {
 		this.openConfirmationDialogDeleteWA(workAllocationId);
+	}
+	removeComparisonWarning(comparisonId: number) {
+		alert('not implemented');
+//		this.openConfirmationDialogDeleteComp(comparisonId);
+	}
+	NotImplemented() {
+		alert('not implemented');
 	}
     public RefreshData() {
         this.getMembers();
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
+		this._comparisonsService.FetchAll();
 	}
 	public getCodeSets() {
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
@@ -628,6 +673,10 @@ export class WorkAllocationComp implements OnInit {
 	DeleteWorkAllocation(workAllocationId: number) {
 
 		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
+	}
+	DeleteComparison(comparisonId: number) {
+
+		this._comparisonsService.DeleteComparison(comparisonId);
 	}
 	LoadGivenList(workAllocationId: number, subtype: string) {
 				

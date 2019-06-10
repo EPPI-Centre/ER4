@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace ERxWebClient2
 {
@@ -74,8 +75,16 @@ namespace ERxWebClient2
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseAuthentication();
-            
-            app.UseStaticFiles();
+            var provider = new FileExtensionContentTypeProvider();
+            // Add new mappings required for the PDF viewer.
+            provider.Mappings[".res"] = "application/octet-stream";
+            provider.Mappings[".pexe"] = "application/x-pnacl";
+            provider.Mappings[".nmf"] = "application/octet-stream";
+            provider.Mappings[".mem"] = "application/octet-stream";
+            provider.Mappings[".wasm"] = "application/wasm";
+            app.UseStaticFiles(new StaticFileOptions{
+                ContentTypeProvider = provider
+            });
 
             app.UseMvc(routes =>
             {

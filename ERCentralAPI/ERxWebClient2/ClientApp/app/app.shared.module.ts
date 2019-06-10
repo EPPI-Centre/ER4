@@ -69,6 +69,10 @@ import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.c
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
 import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
+import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
+import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
+import { WebViewerComponent } from './components/PDFTron/webviewer.component';
+import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 
 @NgModule({
     declarations: [
@@ -119,7 +123,11 @@ import { ArchieCallBackComponent } from './components/home/ArchieCallBack.compon
         WorkAllocationContactListComp,
         SiteAdminComponent,
 		SiteAdminEntryComponent,
-		CreateNewCodeComp
+		CreateNewCodeComp,
+		ComparisonComp,
+		ComparisonStatsComp,
+        PdfTronContainer,
+        WebViewerComponent
 	],
     providers: [
         EventEmitterService,

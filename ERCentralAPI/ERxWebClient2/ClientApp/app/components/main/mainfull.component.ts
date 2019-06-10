@@ -24,6 +24,7 @@ import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.compon
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
+import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 
 
 
@@ -75,6 +76,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
+	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -475,6 +477,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.SearchComp) {
 			this.SearchComp.Clear();
+		}
+		if (this.ComparisonComp) {
+			this.ComparisonComp.Clear();
 		}
 
         //this.dtTrigger.unsubscribe();

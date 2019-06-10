@@ -21,10 +21,11 @@ console.log('boot.browser');
 
 // Note: @ng-tools/webpack looks for the following expression when performing production
 // builds. Don't change how this line looks, otherwise you may break tree-shaking.
-const modulePromise = platformBrowserDynamic().bootstrapModule(AppModule);
+
 //const modulePromise1 = () => modulePromise;
 
 if (module.hot) {
+    const modulePromise = platformBrowserDynamic().bootstrapModule(AppModule);
     let ngModule: NgModuleRef<any>;
     module.hot.accept();
     modulePromise.then(mod => {
@@ -75,7 +76,9 @@ if (module.hot) {
         //});
     });
 } else {
+
     enableProdMode();
+    const modulePromise = platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
 
