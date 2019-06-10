@@ -100,25 +100,26 @@
 															*ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
 														<b>{{item}}</b>
 													</button>
-														<i class=" fa fa-arrow-right"
-														   aria-hidden="true">
-														</i>
-												
+													<i class=" fa fa-arrow-right"
+													   aria-hidden="true">
+													</i>
+
 													<br />
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
-                                                style="text-decoration: none; border-width:1px; cursor:pointer"
+														style="text-decoration: none; border-width:1px; cursor:pointer"
 														(click)="hidemearms[jj] = !hidemearms[jj]">
 													{{recon.CodesReviewer1[jj-1].Name}}
 												</button>
 												<br />
 												<frame [hidden]="!hidemearms[jj]"
-													  *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
-													 class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+													   *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
+													   class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 													<b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
 												</frame>
 											</span>
 										</span>
+										<br />
 									</span>
 								</span>
 							</td>
@@ -178,8 +179,8 @@
 														<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
 															<button *ngIf="item != ''"
 																	class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-																style="text-decoration: none; border-width:1px;">
-															{{item}}
+																	style="text-decoration: none; border-width:1px;">
+																{{item}}
 															</button>
 															<i class="fa fa-arrow-right pt-1 mt-2"
 															   aria-hidden="true">
@@ -188,22 +189,22 @@
 														<br />
 													</span>
 													<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
-														style="text-decoration: none; border-width:1px; cursor:pointer"
+															style="text-decoration: none; border-width:1px; cursor:pointer"
 															(click)="hidemearms[kk+(100*i)] = !hidemearms[kk+(100*i)]">
 														{{recon.CodesReviewer2[kk-1].Name}}
 													</button>
 													<br />
-													<div 
-														   [hidden]="!hidemearms[kk+(100*i)]"
-														  *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
-														  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+													<div [hidden]="!hidemearms[kk+(100*i)]"
+														 *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
+														 class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 														<b>[Info Box]</b>{{recon.CodesReviewer2[kk-1].InfoBox}}
 													</div>
 												</div>
 											</div>
+											<br />
 										</div>
 									</div>
-</td>
+							</td>
 							<td  class="p-1" style="max-width:475px;" *ngIf="CurrentComparison.contactName3 != ''">
 								<span class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted">
 									<button (click)="Complete(recon, CurrentComparison.contactId3)"
@@ -255,21 +256,21 @@
 									<span *ngFor="let c of _ItemListService.ItemList.items[i].arms">
 										<b>{{c.title}}</b>
 										<span *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
-											<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID != c.itemArmId">
-												<span [hidden]="!hidemearms[zz+(100*i)]" *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath)">
-													<button  *ngIf="item != ''"
+											<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID == c.itemArmId">
+												<span [hidden]="!hidemearms[zz+(100*i)]" 
+													  *ngFor="let Armitem of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath)">
+													<button *ngIf="Armitem != ''"
 															class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-															style="text-decoration: none; border-width:1px;"
-															>
-														{{item}}
+															style="text-decoration: none; border-width:1px;">
+														{{Armitem}}
 													</button>
 													<i class="fa fa-arrow-right pt-3"
-														aria-hidden="true">
+													   aria-hidden="true">
 													</i>
 													<br />
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
-                                                style="text-decoration: none; border-width:1px; cursor:pointer"
+														style="text-decoration: none; border-width:1px; cursor:pointer"
 														(click)="hidemearms[zz+(100*i)] = !hidemearms[zz+(100*i)]">
 													{{recon.CodesReviewer3[zz-1].Name}}
 												</button>
@@ -281,6 +282,7 @@
 												</span>
 											</span>
 										</span>
+										<br />
 									</span>
 								</span>
 							</td>
