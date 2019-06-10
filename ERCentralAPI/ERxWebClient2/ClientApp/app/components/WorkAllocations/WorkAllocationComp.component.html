@@ -3,7 +3,6 @@
 		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create new code'" (click)="NewCodeSectionOpen()" [disabled]="!HasWriteRights  || !CanCreateNewCode()"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Create comparison'" (click)="NewComparisonSectionOpen()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->

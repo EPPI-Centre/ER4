@@ -15,7 +15,11 @@ import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { SelectEvent } from '@progress/kendo-angular-layout';
+import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
+import { WebViewerComponent } from '../PDFTron/webviewer.component';
+import { Helpers } from '../helpers/HelperMethods';
+import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
+
 
 @Component({
    
@@ -47,11 +51,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     @ViewChild('ArmsCmp')
     private ArmsCompRef!: any;
     @ViewChild('ItemDetailsCmp')
-    private ItemDetailsCompRef!: any;
+    private ItemDetailsCompRef!: any; 
+
+    @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
+    @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
 
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
+    private subGotPDFforViewing: Subscription | null = null;
     private ItemArmsDataChanged: Subscription | null = null;
     
     public get itemID(): number {
@@ -80,6 +88,28 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
+    public get HasDocForView(): boolean{
+        //console.log("hasDocForView", this.ItemDocsService.CurrentDoc);
+        if (this.ItemDocsService.CurrentDoc) return true;
+        else return false;
+    }
+
+    public get ShouldFetchPDFCoding(): boolean {//tells the tree component whether we should go fetch the PDF coding details...
+        if (this.HelpAndFeebackContext == "itemdetails\\pdf") return true;
+        else if (this.ItemDocsService._itemDocs.filter(found => found.itemDocumentId == this.ItemDocsService.CurrentDocId).length > 0) return true;
+        else return false;
+    }
+    public IsServiceBusy4PDF(): boolean {
+        if (this.ItemCodingService.IsBusy
+            || this.ReviewSetsService.IsBusy
+            //|| this.armservice.IsBusy
+            //|| this.ItemDocsService.IsBusy
+        ) return true;
+        else return false;
+    }
+
+
+
 
     ngOnInit() {
         //console.log('init!');
@@ -107,11 +137,25 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 }
             );
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab())
+
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 
 
+    }
+    async CheckAndMoveToPDFTab() {
+        //console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
+        if (this.HasDocForView) {
+            //console.log("CheckAndMoveToPDFTab2");
+            if (this.pdftroncontainer) this.pdftroncontainer.loadDoc();
+            if (this.tabstrip) {
+                //console.log("CheckAndMoveToPDFTab3");
+                await Helpers.Sleep(50);//we need to give the UI thread the time to catch up and "un-disable" the tab.
+                this.tabstrip.selectTab(2);
+            }
+        }
     }
     public EditItem() {
         this.router.navigate(['EditItem', this.itemID.toString() + "?return=itemcoding/" + this.itemID.toString()]);
@@ -132,8 +176,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.IsScreening = false;
             this.GetItemCoding();
             //this.ItemListService.eventChange(this.itemID);
-            console.log('fill in arms here teseroo1');
-
+            //console.log('fill in arms here teseroo1');
 		}
 		//console.log('this is item: ' + this.item);
     }
@@ -162,6 +205,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.item = this.PriorityScreeningService.CurrentItem;
         //this.itemID = this.item.itemId;
         this.GetItemCoding();
+        if (this.tabstrip) this.tabstrip.selectTab(0);
     }
     private GetItemCoding() {
         //console.log('sdjghklsdjghfjklh ' + this.itemID);
@@ -254,6 +298,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
         }
+        this.ItemCodingService.Clear();
     }
     goToItem(item: Item) {
         this.WipeHighlights();
@@ -349,43 +394,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //update local version of the coding...
             
             if (cmd.saveType == "Insert" || cmd.saveType == "Update") {
-                let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
-                newItemA.additionalText = cmdResult.additionalText;
-                newItemA.armId = cmdResult.itemArmId;
-                newItemA.armTitle = "";
-                newItemA.attributeId = cmdResult.attributeId;
-                newItemA.itemAttributeId = cmdResult.itemAttributeId;
-                if (itemSet) itemSet.itemAttributesList.push(newItemA);
-                else {//didn't have the itemSet, so need to create it...
-                    let newItemSet: ItemSet = new ItemSet();
-                    newItemSet.contactId = this.ReviewerIdentityServ.reviewerIdentity.userId;
-                    newItemSet.contactName = this.ReviewerIdentityServ.reviewerIdentity.name; 
-                    let setDest = this.ReviewSetsService.FindSetById(cmd.setId);
-                    if (setDest) {
-                        newItemSet.isCompleted = setDest.codingIsFinal;
-                        newItemSet.setName = setDest.set_name;
-                    }
-                    newItemSet.isLocked = false;
-                    newItemSet.itemId = cmdResult.itemId;
-                    newItemSet.itemSetId = cmdResult.itemSetId;
-                    newItemSet.setId = cmdResult.setId;
-                    newItemSet.itemAttributesList.push(newItemA);
-                    this.ItemCodingService.ItemCodingList.push(newItemSet);
-                }
+                this.ItemCodingService.ApplyInsertOrUpdateItemAttribute(cmdResult, itemSet);
+                //if (cmd.saveType == "Insert") this.ItemCodingService.FetchItemAttPDFCoding;
             }
             else if (cmd.saveType == "Delete") {
-                
+                this.ItemCodingService.ApplyDeleteItemAttribute(itemSet, itemAtt);
                 //if (itemSet) console.log(itemSet.itemAttributesList.length);
                 //if (itemAtt) console.log(itemAtt.attributeId);
-                if (itemSet && itemAtt) {
-                    //remove the itemAttribute from itemSet
-                    itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
-                    if (itemSet.itemAttributesList.length == 0) {
-                        //if itemset does not have item attributes, remove the itemset
-                        this.ItemCodingService.ItemCodingList = this.ItemCodingService.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
-                    }
-                    //if (itemSet) console.log(itemSet.itemAttributesList.length);
-                }
             }
             
             this.SetCoding();
@@ -414,6 +429,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
     ItemChanged() {
+        if (this.tabstrip) this.tabstrip.selectTab(0);
         this.WipeHighlights();
         this.SetHighlights();
     }
@@ -434,6 +450,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else if (e.title == 'Study Arms') {
             this.HelpAndFeebackContext = "itemdetails\\arms";
         }
+        else if (e.title == 'PDF') {
+            if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
+                this.pdftroncontainer.loadDoc();//only load it if it's not there already
+            }
+            this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
+        }
         else {
             this.HelpAndFeebackContext = "itemdetails";
         }
@@ -444,6 +466,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
+        if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
     }
 }
 
