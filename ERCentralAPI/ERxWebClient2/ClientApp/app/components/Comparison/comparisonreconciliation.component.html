@@ -90,19 +90,20 @@
 								<br />
 								<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
 									<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
-										<b>{{a.title}}</b>
+										<b class="ml-0">{{a.title}}</b>
 										<span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
 											<span class="col-md-12 row" *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId">
 												<span [hidden]="!hidemearms[jj]">
-													<button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-															style="text-decoration: none; border-width:1px;"
-															*ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
-														<b>{{item}}</b>
-													</button>
-													<i class=" fa fa-arrow-right"
-													   aria-hidden="true">
-													</i>
-
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
+														<button *ngIf="item != ''"
+																class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+																style="text-decoration: none; border-width:1px;">
+															<b>{{item}}</b>
+														</button>
+														<i class="fa fa-arrow-right pt-1 mt-2"
+														   aria-hidden="true">
+														</i>
+													</span>
 													<br />
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
