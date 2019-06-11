@@ -307,7 +307,9 @@ export class ItemCodingService extends BusyAwareService {
             );
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
-    public ApplyInsertOrUpdateItemAttribute(cmdResult :ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
+    public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
+        console.log("CmdResult", cmdResult);
+        console.log("itemSet", itemSet);
         let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
         newItemA.additionalText = cmdResult.additionalText;
         newItemA.armId = cmdResult.itemArmId;
@@ -870,28 +872,41 @@ export class ItemCodingService extends BusyAwareService {
     public FindItemSetBySetId(DestSetId: number): ItemSet | null {
         //this is where somewhat complicated logic needs to happen. We need to replicate here the logic that decides if a new itemset is needed or not...
         let result: ItemSet | null = null;
-        for (let itemSet of this._ItemCodingList) {
-            if (itemSet.setId == DestSetId) {
-                //we have an itemSet in the desired set: if complete, we'll use it. Otherwise, check that it belongs to current user.
-                //if itemset to be used is locked, we should not even have tried, so tricky case...
-                if (itemSet.isCompleted) {
-                    if (itemSet.isLocked) {
-                        //alert('Coding is locked! We shouldn\'t be doing this...');
-                        //throw new Error('Coding is locked! We shouldn\'t be doing this...');
-                    }
-                    result = itemSet;
-                    break;
-                }
-                else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
-                    if (itemSet.isLocked) {
-                        //alert('Coding is locked! We shouldn\'t be doing this...');
-                        //throw new Error('Coding is locked! We shouldn\'t be doing this...');
-                    }
-                    result = itemSet;
-                    break;
-                }
-            }
+        let CompletedSet = this._ItemCodingList.find(found => found.setId == DestSetId && found.isCompleted);
+        if (CompletedSet != undefined) {
+            //good we found a completed set, we should use it
+            return CompletedSet;
         }
+        let IncompleteSet = this._ItemCodingList.find(found => found.setId == DestSetId
+                                                            && !found.isCompleted
+                                                            && found.contactId == this.ReviewerIdentityService.reviewerIdentity.userId
+                                                        );
+        if (IncompleteSet != undefined) {
+            return IncompleteSet;
+        }
+        //old bugged code, could work only if the completed version was encountered first...
+        //for (let itemSet of this._ItemCodingList) {
+        //    if (itemSet.setId == DestSetId) {
+        //        //we have an itemSet in the desired set: if complete, we'll use it. Otherwise, check that it belongs to current user.
+        //        //if itemset to be used is locked, we should not even have tried, so tricky case...
+        //        if (itemSet.isCompleted) {
+        //            if (itemSet.isLocked) {
+        //                //alert('Coding is locked! We shouldn\'t be doing this...');
+        //                //throw new Error('Coding is locked! We shouldn\'t be doing this...');
+        //            }
+        //            result = itemSet;
+        //            break;
+        //        }
+        //        else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
+        //            if (itemSet.isLocked) {
+        //                //alert('Coding is locked! We shouldn\'t be doing this...');
+        //                //throw new Error('Coding is locked! We shouldn\'t be doing this...');
+        //            }
+        //            result = itemSet;
+        //            break;
+        //        }
+        //    }
+        //}
         return result;
     }
     public FindROItemAttributeByAttribute(Att: SetAttribute): ReadOnlyItemAttribute | null {
