@@ -1,12 +1,13 @@
 <HeaderComponent PageTitle="Reconciliation" Context="reconciliation"></HeaderComponent>
 <div class="card container-fluid bg-light m-0 px-1 py-0 mb-1 rounded" style="max-width:1650px;">
-	<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+	<button class="page-link rounded pt-1 pb-1 mb-1 float-right" 
+			style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
 		Close/back
 	</button>
 	<div class="row m-0 p-0">
 		<div class="col-12 bg-light ">
 			<h5 class="m-1 p-1 font-weight-bold">Items List</h5>
-				<div class="k-loading-image" *ngIf="IsServiceBusy()"></div>
+				<span class="k-loading-image" *ngIf="IsServiceBusy()"></span>
                 <div style="max-height:48vh; overflow:auto;">
                     <table *ngIf="allItems" class="p-1 col-12 table table-bordered table-responsive-sm">
                         <thead>
@@ -36,7 +37,7 @@
                                         {{_ItemListService.ItemList.items[i].itemId}}
                                     </span>
                                     <br />
-                                    <span class="col-md-1">
+                                    <span class="col-md-12">
                                         {{recon.Item.shortTitle}}
                                     </span>
                                     <br />
@@ -59,9 +60,9 @@
 										Un-Complete
 									</button>
 								</span>
-								<div class="row col-md-12" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
-									<div class="row m-0">
-										<div [hidden]="!hidemeOne[j+(100*i)]">
+								<span class="row col-md-12" *ngFor="let j of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
+									<span class="row m-0">
+										<span [hidden]="!hidemeOne[j+(100*i)]">
 											<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath)">
 												<button *ngIf="item != ''"
 														class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
@@ -73,38 +74,38 @@
 												</i>
 											</span>
 											<br />
-										</div>
+										</span>
 										<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
                                                 style="text-decoration: none; border-width:1px; cursor:pointer"
 												*ngIf="recon.CodesReviewer1[j-1].ArmID == 0"
 												(click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
 											{{recon.CodesReviewer1[j-1].Name}}
 										</button>
-									</div>
-									<div *ngIf="recon.CodesReviewer1[j-1].InfoBox != ''" 
+									</span>
+									<span *ngIf="recon.CodesReviewer1[j-1].InfoBox != ''" 
 										   [hidden]="!hidemeOne[j+(100*i)]"
 										  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 										<b>[Info Box]</b> {{recon.CodesReviewer1[j-1].InfoBox}}
-									</div>
-								</div>
+									</span>
+								</span>
 								<br />
 								<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0 ">
 									<span *ngFor="let a of _ItemListService.ItemList.items[i].arms">
-										<b class="ml-0">{{a.title}}</b>
+										<b class="row col-md-12">{{a.title}}</b>
 										<span *ngFor="let jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length)">
-											<span class="col-md-12 row" *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId">
-												<span [hidden]="!hidemearms[jj]">
-													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
-														<button *ngIf="item != ''"
-																class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-																style="text-decoration: none; border-width:1px;">
-															<b>{{item}}</b>
-														</button>
-														<i class="fa fa-arrow-right pt-1 mt-2"
-														   aria-hidden="true">
-														</i>
+											<span *ngIf="recon.CodesReviewer1[jj-1].ArmID == a.itemArmId">
+												<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath)">
+													<span [hidden]="!hidemearms[jj]">
+														<span *ngIf="item != ''">
+															<button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+																	style="text-decoration: none; border-width:1px;">
+																{{item}}
+															</button>
+															<i class="fa fa-arrow-right pt-1 mt-2"
+															   aria-hidden="true">
+															</i>
+														</span>
 													</span>
-													<br />
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
 														style="text-decoration: none; border-width:1px; cursor:pointer"
@@ -112,14 +113,14 @@
 													{{recon.CodesReviewer1[jj-1].Name}}
 												</button>
 												<br />
-												<frame [hidden]="!hidemearms[jj]"
-													   *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
-													   class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+												<span [hidden]="!hidemearms[jj]"
+													  *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
+													  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 													<b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
-												</frame>
+													<br />
+												</span>
 											</span>
 										</span>
-										<br />
 									</span>
 								</span>
 							</td>
@@ -141,9 +142,9 @@
 										Un-Complete
 									</button>
 								</span>
-								<div class="row col-md-12" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
-									<div class="row m-0">
-										<div [hidden]="!hidemeTwo[k+(100*i)]">
+								<span class="row col-md-12" *ngFor="let k of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
+									<span class="row m-0">
+										<span [hidden]="!hidemeTwo[k+(100*i)]">
 											<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath)">
 												<button *ngIf="item != ''"
 														class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
@@ -155,55 +156,56 @@
 												</i>
 											</span>
 											<br />
-										</div>
+										</span>
 										<button *ngIf="recon.CodesReviewer2[k-1].ArmID == 0"
 												class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
                                                 style="text-decoration: none; border-width:1px; cursor:pointer"
 												(click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
 											{{recon.CodesReviewer2[k-1].Name}}
 										</button>
-										</div>
-										<div *ngIf="recon.CodesReviewer2[k-1].InfoBox != ''"
+										</span>
+										<span *ngIf="recon.CodesReviewer2[k-1].InfoBox != ''"
 											 [hidden]="!hidemeTwo[k+(100*i)]"
 											class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 											<b>[Info Box]</b>{{recon.CodesReviewer2[k-1].InfoBox}}
-										</div>
-									</div>
+										</span>
+									</span>
 									<br />
-									<div class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
-										<div *ngFor="let b of _ItemListService.ItemList.items[i].arms">
-											<b class="ml-0">{{b.title}}</b>
-											<div *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
-												<div class="row col-md-12" *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
-													<span [hidden]="!hidemearms[kk +(100*i)]">
-														<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
-															<button *ngIf="item != ''"
-																	class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-																	style="text-decoration: none; border-width:1px;">
-																{{item}}
-															</button>
-															<i class="fa fa-arrow-right pt-1 mt-2"
-															   aria-hidden="true">
-															</i>
+									<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
+										<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
+											<b class="row col-md-12">{{b.title}}</b>
+											<span *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
+												<span *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
+														<span [hidden]="!hidemearmsTwo[kk +(100*i)]">
+															<span *ngIf="item != ''">
+																<button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+																		style="text-decoration: none; border-width:1px;">
+																	{{item}}
+																</button>
+																<i class="fa fa-arrow-right pt-1 mt-2"
+																   aria-hidden="true">
+																</i>
+															</span>
 														</span>
-														<br />
 													</span>
 													<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
 															style="text-decoration: none; border-width:1px; cursor:pointer"
-															(click)="hidemearms[kk+(100*i)] = !hidemearms[kk+(100*i)]">
+															(click)="hidemearmsTwo[kk+(100*i)] = !hidemearmsTwo[kk+(100*i)]">
 														{{recon.CodesReviewer2[kk-1].Name}}
 													</button>
 													<br />
-													<div [hidden]="!hidemearms[kk+(100*i)]"
-														 *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
-														 class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+													<span [hidden]="!hidemearmsTwo[kk+(100*i)]"
+														  *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
+														  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 														<b>[Info Box]</b>{{recon.CodesReviewer2[kk-1].InfoBox}}
-													</div>
-												</div>
-											</div>
-											<br />
-										</div>
-									</div>
+														<br />
+													</span>
+												</span>
+											</span>
+										</span>
+										<br />
+									</span>
 							</td>
 							<td  class="p-1" style="max-width:475px;" *ngIf="CurrentComparison.contactName3 != ''">
 								<span class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted">
@@ -225,7 +227,7 @@
 								</span>
 								<span class="row col-md-12" *ngFor="let l of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 									<span class="row m-0">
-											<span [hidden]="!hidemeThree[l+(100*i)]">
+										<span [hidden]="!hidemeThree[l+(100*i)]">
 											<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath)">
 												<button *ngIf="item != ''"
 														class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
@@ -236,8 +238,8 @@
 												   aria-hidden="true">
 												</i>
 											</span>
-											</span>
 											<br />
+										</span>
 											<button *ngIf="recon.CodesReviewer3[l-1].ArmID == 0"
 													class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
 													style="text-decoration: none; border-width:1px; cursor:pointer"
@@ -257,7 +259,7 @@
 										<b class="ml-0">{{c.title}}</b>
 										<span *ngFor="let zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length)">
 											<span class="row col-md-12" *ngIf="recon.CodesReviewer3[zz-1].ArmID == c.itemArmId">
-												<span [hidden]="!hidemearms[zz+(100*i)]" 
+												<span [hidden]="!hidemearmsThree[zz+(100*i)]" 
 													  *ngFor="let Armitem of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath)">
 													<button *ngIf="Armitem != ''"
 															class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
@@ -271,11 +273,11 @@
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
 														style="text-decoration: none; border-width:1px; cursor:pointer"
-														(click)="hidemearms[zz+(100*i)] = !hidemearms[zz+(100*i)]">
+														(click)="hidemearmsThree[zz+(100*i)] = !hidemearmsThree[zz+(100*i)]">
 													{{recon.CodesReviewer3[zz-1].Name}}
 												</button>
 												<br />
-												<span [hidden]="!hidemearms[zz+(100*i)]"
+												<span [hidden]="!hidemearmsThree[zz+(100*i)]"
 													  *ngIf="recon.CodesReviewer3[zz-1].InfoBox != ''"
 													  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 													<b>[Info box]</b>{{recon.CodesReviewer3[zz-1].InfoBox}}
@@ -291,68 +293,68 @@
 				</table>
 		</div>
 		<paginatorComp></paginatorComp>
-		<div *ngIf="panelItem" class="col-12 row p-0 m-0 border-top border-success">
-			<div class="col-6 row p-0 mx-0 " style="max-height: 30vh; overflow-y: auto;">
-				<div class="row col-12 border-top ml-0 pl-0">
-					<div class="row w-100 p-0 m-0 border-bottom">
-						<div class="p-1 ml-1 mt-1 font-weight-bold">
+		<span *ngIf="panelItem" class="col-12 row p-0 m-0 border-top border-success">
+			<span class="col-6 row p-0 mx-0 " style="max-height: 30vh; overflow-y: auto;">
+				<span class="row col-12 border-top ml-0 pl-0">
+					<span class="row w-100 p-0 m-0 border-bottom">
+						<span class="p-1 ml-1 mt-1 font-weight-bold">
 							Title
-						</div>
-						<div class="col p-1 m-1 bg-white">
+						</span>
+						<span class="col p-1 m-1 bg-white">
 							{{panelItem.title}}
-						</div>
-					</div>
-					<div class="row w-100 p-0 m-0 border-bottom">
-						<div class="p-1 ml-1 mt-1 font-weight-bold">
+						</span>
+					</span>
+					<span class="row w-100 p-0 m-0 border-bottom">
+						<span class="p-1 ml-1 mt-1 font-weight-bold">
 							Author(s)
-						</div>
-						<div class="col p-1 m-1 bg-white">
+						</span>
+						<span class="col p-1 m-1 bg-white">
 							{{panelItem.authors}}
-						</div>
-					</div>
-					<div class="row w-100 p-0 m-0 border-bottom ">
-						<div class="col-4 row p-0 m-0">
-							<div class="p-1 ml-1 mt-1 font-weight-bold">ID</div>
-							<div class="col p-1 m-1 bg-white">{{panelItem.itemId}}</div>
-						</div>
-					</div>
-					<div class="row w-100 p-0 m-0 border-bottom  ">
-						<div class="w-50 row p-0 m-0">
-							<div class="p-1 ml-1 mt-1 font-weight-bold">Year</div>
-							<div class="col p-1 m-1 bg-white">
+						</span>
+					</span>
+					<span class="row w-100 p-0 m-0 border-bottom ">
+						<span class="col-4 row p-0 m-0">
+							<span class="p-1 ml-1 mt-1 font-weight-bold">ID</span>
+							<span class="col p-1 m-1 bg-white">{{panelItem.itemId}}</span>
+						</span>
+					</span>
+					<span class="row w-100 p-0 m-0 border-bottom  ">
+						<span class="w-50 row p-0 m-0">
+							<span class="p-1 ml-1 mt-1 font-weight-bold">Year</span>
+							<span class="col p-1 m-1 bg-white">
 								{{panelItem.year}}
-							</div>
-						</div>
-					</div>
-					<div class="row w-100 p-0 m-0 border-bottom  ">
-						<div class="w-50 row p-0 m-0">
-							<div class="p-1 ml-1 mt-1 font-weight-bold">Short Title</div>
-							<div class="col p-1 m-1 bg-white">
+							</span>
+						</span>
+					</span>
+					<span class="row w-100 p-0 m-0 border-bottom  ">
+						<span class="w-50 row p-0 m-0">
+							<span class="p-1 ml-1 mt-1 font-weight-bold">Short Title</span>
+							<span class="col p-1 m-1 bg-white">
 								{{panelItem.shortTitle}}
-							</div>
-						</div>
-						<div class="w-50 row p-0 m-0">
-							<div class="p-1 ml-1 mt-1 font-weight-bold">Pages</div>
-							<div class="col p-1 m-1 bg-white">
+							</span>
+						</span>
+						<span class="w-50 row p-0 m-0">
+							<span class="p-1 ml-1 mt-1 font-weight-bold">Pages</span>
+							<span class="col p-1 m-1 bg-white">
 								{{panelItem.pages}}
-							</div>
-						</div>
-					</div>
-				</div>
-				<div *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
+							</span>
+						</span>
+					</span>
+				</span>
+				<span *ngIf="panelItem" class="row col-12 card card-body bg-light p-2 m-2"
 					 style="overflow-x:auto;">
 					<ItemDocListComp class="" [itemID]="panelItem.itemId" [ShowViewButton]="false" [showUpload]="false">
 					</ItemDocListComp>
-				</div>
-			</div>
-			<div class="col-6 row p-0 m-0" style="max-height: 30vh; overflow-y: scroll;">
-                <div class="font-weight-bold">Abstract:&nbsp;</div>
-				<div class="row col-12 border-top m-0 p-0" style="overflow:auto;">
+				</span>
+			</span>
+			<span class="col-6 row p-0 m-0" style="max-height: 30vh; overflow-y: scroll;">
+                <span class="font-weight-bold">Abstract:&nbsp;</span>
+				<span class="row col-12 border-top m-0 p-0" style="overflow:auto;">
 					{{panelItem.abstract}}
-				</div>
-			</div>
-		</div>
+				</span>
+			</span>
+		</span>
 	</div>
 </div>
-<statusbar class="mt-1" ></statusbar>
- 
+	<statusbar class="mt-1" ></statusbar>
+</div>

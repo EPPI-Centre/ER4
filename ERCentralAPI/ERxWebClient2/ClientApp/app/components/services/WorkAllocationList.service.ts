@@ -71,13 +71,15 @@ export class WorkAllocationListService extends BusyAwareService {
 
 	}
 
-	public AssignWorkAllocation(wa: WorkAllocation) {
+	public AssignWorkAllocation(wa: WorkAllocation): Promise<any> {
 
 		this._BusyMethods.push("AssignWorkAllocation");
 		
-		this._httpC.post<WorkAllocation>(this._baseUrl +
+		return this._httpC.post<WorkAllocation>(this._baseUrl +
 			'api/WorkAllocationContactList/AssignWorkAllocation', wa)
-			.subscribe(() => {
+			.toPromise().then(
+
+				() => {
 
 					this.FetchAll();
 					this.RemoveBusy("AssignWorkAllocation");
@@ -85,9 +87,6 @@ export class WorkAllocationListService extends BusyAwareService {
 			},
 				error => {
 					this.modalService.GenericError(error);
-					this.RemoveBusy("AssignWorkAllocation");
-				}
-				, () => {
 					this.RemoveBusy("AssignWorkAllocation");
 				}
 			);

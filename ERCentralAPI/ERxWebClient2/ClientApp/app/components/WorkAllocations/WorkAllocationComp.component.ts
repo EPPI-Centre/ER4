@@ -221,16 +221,15 @@ export class WorkAllocationComp implements OnInit {
 	}
 	getStatistics(comparisonId: number) {
 
-	
-		//if (this.PanelName == 'getStats') {
-		//	this.PanelName = '';
-		//} else {
-			this.PanelName = 'getStats'
+		if (this.PanelName == 'getStats' + comparisonId.toString()) {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'getStats' + comparisonId.toString();
 			if (this._comparisonsService && comparisonId != null) {
 				
 				this._comparisonsService.FetchStats(comparisonId);
 			}
-		//}
+		}
 		
     }
     public get CanRunQuickReport(): boolean {
@@ -277,10 +276,10 @@ export class WorkAllocationComp implements OnInit {
 	getPanelRunQuickReport(comparisonId: number) {
 		
 		this._comparisonsService.currentComparison = this._comparisonsService.Comparisons.filter(x => x.comparisonId == comparisonId)[0];
-		if (this.PanelName == 'runQuickReport') {
+		if (this.PanelName == 'runQuickReport' + comparisonId.toString()) {
 			this.PanelName = '';
 		} else {
-			this.PanelName = 'runQuickReport'
+			this.PanelName = 'runQuickReport' + comparisonId.toString();
 		}
 	}
     SetRelevantDropDownValues(selection: number) {
@@ -742,10 +741,16 @@ export class WorkAllocationComp implements OnInit {
 		this.workAllocation.setId = this.DropDownBasicCodingTool.set_id;
 		let contact: Contact = this.selectedMemberDropDown;
 		this.workAllocation.contactId = contact.contactId.toString();
-		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
-		this.showAssignmentNotification("Success");
-		this.AssignWorkSection = false;
-		this.PanelName = '';
+		this._workAllocationListService.AssignWorkAllocation(this.workAllocation)
+			.then(
+
+			() => {
+
+					this.showAssignmentNotification("Success");
+					this.AssignWorkSection = false;
+					this.PanelName = '';
+
+				});
 	}
 	CanNewWorkAllocationCreate(): boolean {
 
