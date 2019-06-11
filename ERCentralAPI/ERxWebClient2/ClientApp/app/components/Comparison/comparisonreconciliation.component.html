@@ -105,7 +105,6 @@
 															   aria-hidden="true">
 															</i>
 														</span>
-														<br />
 													</span>
 												</span>
 												<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
@@ -118,6 +117,7 @@
 													  *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
 													  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 													<b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
+													<br />
 												</span>
 											</span>
 										</span>
@@ -173,21 +173,21 @@
 									<br />
 									<span class="col-md-12 pl-0" *ngIf="_ItemListService.ItemList.items[i] != undefined && _ItemListService.ItemList.items[i].arms != undefined && _ItemListService.ItemList.items[i].arms.length > 0  ">
 										<span *ngFor="let b of _ItemListService.ItemList.items[i].arms">
-											<b class="ml-0">{{b.title}}</b>
+											<b class="row col-md-12">{{b.title}}</b>
 											<span *ngFor="let kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length)">
-												<span class="row col-md-12" *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
-													<span [hidden]="!hidemearmsTwo[kk +(100*i)]">
-														<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
-															<button *ngIf="item != ''"
-																	class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-																	style="text-decoration: none; border-width:1px;">
-																{{item}}
-															</button>
-															<i class="fa fa-arrow-right pt-1 mt-2"
-															   aria-hidden="true">
-															</i>
+												<span *ngIf="recon.CodesReviewer2[kk-1].ArmID == b.itemArmId">
+													<span *ngFor="let item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath)">
+														<span [hidden]="!hidemearmsTwo[kk +(100*i)]">
+															<span *ngIf="item != ''">
+																<button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+																		style="text-decoration: none; border-width:1px;">
+																	{{item}}
+																</button>
+																<i class="fa fa-arrow-right pt-1 mt-2"
+																   aria-hidden="true">
+																</i>
+															</span>
 														</span>
-														<br />
 													</span>
 													<button class="btn-sm border-dark bg-white rounded-0 mt-2 px-1  py-0"
 															style="text-decoration: none; border-width:1px; cursor:pointer"
@@ -196,9 +196,10 @@
 													</button>
 													<br />
 													<span [hidden]="!hidemearmsTwo[kk+(100*i)]"
-														 *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
-														 class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+														  *ngIf="recon.CodesReviewer2[kk-1].InfoBox != ''"
+														  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
 														<b>[Info Box]</b>{{recon.CodesReviewer2[kk-1].InfoBox}}
+														<br />
 													</span>
 												</span>
 											</span>
