@@ -742,10 +742,16 @@ export class WorkAllocationComp implements OnInit {
 		this.workAllocation.setId = this.DropDownBasicCodingTool.set_id;
 		let contact: Contact = this.selectedMemberDropDown;
 		this.workAllocation.contactId = contact.contactId.toString();
-		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
-		this.showAssignmentNotification("Success");
-		this.AssignWorkSection = false;
-		this.PanelName = '';
+		this._workAllocationListService.AssignWorkAllocation(this.workAllocation)
+			.then(
+
+			() => {
+
+					this.showAssignmentNotification("Success");
+					this.AssignWorkSection = false;
+					this.PanelName = '';
+
+				});
 	}
 	CanNewWorkAllocationCreate(): boolean {
 
