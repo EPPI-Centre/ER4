@@ -221,16 +221,15 @@ export class WorkAllocationComp implements OnInit {
 	}
 	getStatistics(comparisonId: number) {
 
-	
-		//if (this.PanelName == 'getStats') {
-		//	this.PanelName = '';
-		//} else {
-			this.PanelName = 'getStats'
+		if (this.PanelName == 'getStats' + comparisonId.toString()) {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'getStats' + comparisonId.toString();
 			if (this._comparisonsService && comparisonId != null) {
 				
 				this._comparisonsService.FetchStats(comparisonId);
 			}
-		//}
+		}
 		
     }
     public get CanRunQuickReport(): boolean {
@@ -277,10 +276,10 @@ export class WorkAllocationComp implements OnInit {
 	getPanelRunQuickReport(comparisonId: number) {
 		
 		this._comparisonsService.currentComparison = this._comparisonsService.Comparisons.filter(x => x.comparisonId == comparisonId)[0];
-		if (this.PanelName == 'runQuickReport') {
+		if (this.PanelName == 'runQuickReport' + comparisonId.toString()) {
 			this.PanelName = '';
 		} else {
-			this.PanelName = 'runQuickReport'
+			this.PanelName = 'runQuickReport' + comparisonId.toString();
 		}
 	}
     SetRelevantDropDownValues(selection: number) {

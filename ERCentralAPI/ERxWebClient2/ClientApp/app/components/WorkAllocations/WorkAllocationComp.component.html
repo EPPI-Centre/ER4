@@ -336,13 +336,13 @@
 							</tr>
 							<tr>
 								<td colspan="9" class="p-0 py-1">
-									<ComparisonStatsComp *ngIf="PanelName == 'getStats'" #ComparisonStatsCompList
+									<ComparisonStatsComp *ngIf="PanelName == 'getStats'+ item.comparisonId" #ComparisonStatsCompList
 														 [rowSelected]="item.comparisonId"
 														 (criteriaChange)="LoadComparisonList()"
 														 (setListSubType)="setCompListType($event)">
 									</ComparisonStatsComp>
 
-                                    <div *ngIf="PanelName == 'runQuickReport' && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
+                                    <div *ngIf="PanelName == 'runQuickReport'+ item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
                                          class="card col-12">
                                         <h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
                                         <div class="col-12 row bg-light p-0 m-1 rounded border border-success mb-2">
