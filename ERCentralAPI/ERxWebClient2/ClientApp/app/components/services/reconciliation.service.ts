@@ -108,6 +108,7 @@ export class ReconciliationService extends BusyAwareService {
 			cmd.isLocked = LockOrNot;
 			cmd.complete = false;
 		}
+		alert('testing...' + cmd.itemSetId);
 
 		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd
 		)

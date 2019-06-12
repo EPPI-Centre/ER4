@@ -221,6 +221,7 @@ export class WorkAllocationComp implements OnInit {
 	}
 	getStatistics(comparisonId: number) {
 
+
 		if (this.PanelName == 'getStats' + comparisonId.toString()) {
 			this.PanelName = '';
 		} else {

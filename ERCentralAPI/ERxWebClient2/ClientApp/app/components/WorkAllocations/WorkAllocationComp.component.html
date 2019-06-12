@@ -336,7 +336,8 @@
 							</tr>
 							<tr>
 								<td colspan="9" class="p-0 py-1">
-									<ComparisonStatsComp *ngIf="PanelName == 'getStats'+ item.comparisonId" #ComparisonStatsCompList
+									<ComparisonStatsComp  #ComparisonStatsCompList 
+														 *ngIf="PanelName == 'getStats' + item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
 														 [rowSelected]="item.comparisonId"
 														 (criteriaChange)="LoadComparisonList()"
 														 (setListSubType)="setCompListType($event)">
