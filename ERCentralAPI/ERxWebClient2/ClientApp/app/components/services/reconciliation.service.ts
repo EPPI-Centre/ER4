@@ -54,12 +54,12 @@ export class ReconciliationService extends BusyAwareService {
 		);
 	}
 
-	FetchArmsForReconItems(items: Item[]): Item[] {
+	async FetchArmsForReconItems(items: Item[]) {
 
 		for (var i = 0; i < items.length; i++) {
-			this._armsService.FetchPromiseArms(items[i]);
+			await this._armsService.FetchPromiseArms(items[i]);
 		}
-		return items;
+		//return items;
 	}
 
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison,

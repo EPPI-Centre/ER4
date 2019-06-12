@@ -96,7 +96,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public IsServiceBusy(): boolean {
 	
-		if (this._BusyMethods.length > 0) {
+		if (this._BusyMethods.length > 0 || this._ItemListService.IsBusy) {
 			return true;
 		} else {
 			return false;
