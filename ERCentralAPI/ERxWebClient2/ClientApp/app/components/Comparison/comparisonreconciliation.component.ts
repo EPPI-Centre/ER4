@@ -199,6 +199,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public Complete(recon: ReconcilingItem, contactID: number) {
 		if (recon && this.CurrentComparison) {
+			alert(contactID);
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true, false)
 				.then(
 					() => {

@@ -108,12 +108,13 @@ export class ReconciliationService extends BusyAwareService {
 			cmd.isLocked = LockOrNot;
 			cmd.complete = false;
 		}
-		alert('testing...' + cmd.itemSetId);
+		//alert('testing...' + cmd.itemSetId);
 
 		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd
 		)
 			.toPromise().then(
 			(res) => {
+				//console.log('sadfgdfg' + res);
 				let rSet = this._ReviewSetsService.ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
 					this.RemoveBusy('ItemSetCompleteComparison');
 					if (res.successful != null && res.successful) {
