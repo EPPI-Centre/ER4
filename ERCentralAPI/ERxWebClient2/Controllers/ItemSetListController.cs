@@ -363,75 +363,77 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        [HttpPost("[action]")]
-		public IActionResult CompleteCoding([FromBody] JObject data)
-		{
-			try
-			{
-				if (SetCSLAUser4Writing())
-				{
-					ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
-					Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
-					int bt = Convert.ToInt16(data.GetValue("contactID").ToString());
-					bool CompleteOrNot = Convert.ToBoolean(data.GetValue("CompleteOrNot").ToString());
-					bool LockOrNot = Convert.ToBoolean(data.GetValue("LockOrNot").ToString());
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-					DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
-					long isi = -1; string completor = ""; ItemSetCompleteCommand command;
-					if (CompleteOrNot)
-					{
-						if (comparison.ContactId1 == bt)
-						{
-							isi = recon._ItemSetR1;
-							completor = comparison.ContactName1;
-						}
-						else if (comparison.ContactId2 == bt)
-						{
-							isi = recon._ItemSetR2;
-							completor = comparison.ContactName2;
-						}
-						else if (comparison.ContactId3 == bt)
-						{
-							isi = recon._ItemSetR3;
-							completor = comparison.ContactName3;
-						}
-						command = new ItemSetCompleteCommand(isi, true, LockOrNot);
-					}
-					else
-					{
-						int completedByID = recon._CompletedByID;
-						if (comparison.ContactId1 == completedByID)
-						{
-							isi = recon._ItemSetR1;
-						}
-						else if (comparison.ContactId2 == completedByID)
-						{
-							isi = recon._ItemSetR2;
-						}
-						else if (comparison.ContactId3 == completedByID)
-						{
-							isi = recon._ItemSetR3;
-						}
-						else
-						{
-							isi = recon._CompletedItemSetID;
-						}
-						command = new ItemSetCompleteCommand(isi, false, LockOrNot);
-					}
+		//      [HttpPost("[action]")]
+		//public IActionResult CompleteCoding([FromBody] JObject data)
+		//{
+		//	try
+		//	{
+		//		if (SetCSLAUser4Writing())
+		//		{
+		//			ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
+		//			Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
+		//			int bt = Convert.ToInt16(data.GetValue("contactID").ToString());
+		//			bool CompleteOrNot = Convert.ToBoolean(data.GetValue("CompleteOrNot").ToString());
+		//			bool LockOrNot = Convert.ToBoolean(data.GetValue("LockOrNot").ToString());
+		//			ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+		//			DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
+		//			long isi = -1; string completor = ""; ItemSetCompleteCommand command;
+		//			if (CompleteOrNot)
+		//			{
+		//				if (comparison.ContactId1 == bt)
+		//				{
+		//					isi = recon._ItemSetR1;
+		//					completor = comparison.ContactName1;
+		//				}
+		//				else if (comparison.ContactId2 == bt)
+		//				{
+		//					isi = recon._ItemSetR2;
+		//					completor = comparison.ContactName2;
+		//				}
+		//				else if (comparison.ContactId3 == bt)
+		//				{
+		//					isi = recon._ItemSetR3;
+		//					completor = comparison.ContactName3;
+		//				}
+		//				command = new ItemSetCompleteCommand(isi, true, LockOrNot);
+		//			}
+		//			else
+		//			{
+		//				int completedByID = recon._CompletedByID;
+		//				if (comparison.ContactId1 == completedByID)
+		//				{
+		//					isi = recon._ItemSetR1;
+		//				}
+		//				else if (comparison.ContactId2 == completedByID)
+		//				{
+		//					isi = recon._ItemSetR2;
+		//				}
+		//				else if (comparison.ContactId3 == completedByID)
+		//				{
+		//					isi = recon._ItemSetR3;
+		//				}
+		//				else
+		//				{
+		//					isi = recon._CompletedItemSetID;
+		//				}
+		//				command = new ItemSetCompleteCommand(isi, false, LockOrNot);
+		//			}
 
-					command = dp.Execute(command);
+		//			command = dp.Execute(command);
 
-					return Ok();
-				}
-				else return Forbid();
+		//			return Ok();
+		//		}
+		//		else return Forbid();
 
-			}
-			catch (Exception e)
-			{
-				_logger.LogException(e, "Comparison complete or uncomplete data portal error");
-				throw;
-			}
-		}
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		_logger.LogException(e, "Comparison complete or uncomplete data portal error");
+		//		throw;
+		//	}
+		//}
+
+
 	}
 
     public class MVCItemAttributeSaveCommand

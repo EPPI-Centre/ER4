@@ -2,7 +2,7 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  Comparison } from './comparisons.service';
-import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, ItemSetCompleteCommand, ReviewSetsService } from './ReviewSets.service';
 import { Item, Criteria } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
 import { ArmsService } from './arms.service';
@@ -21,6 +21,7 @@ export class ReconciliationService extends BusyAwareService {
 		private _httpC: HttpClient,
 		private _armsService: ArmsService,
 		private _modalService: ModalService,
+		private _ReviewSetsService: ReviewSetsService,
 		@Inject('BASE_URL') private _baseUrl: string
 	) {
 		super();
@@ -61,19 +62,69 @@ export class ReconciliationService extends BusyAwareService {
 		return items;
 	}
 
-
 	ItemSetCompleteComparison(recon: ReconcilingItem, comp: Comparison,
-		contactID: number, completeOrNot: boolean, LockOrNot: boolean): Promise<ItemSet> {
+		contactID: number, completeOrNot: boolean, LockOrNot: boolean): Promise<ReviewSet> {
 
 		this._BusyMethods.push("ItemSetCompleteComparison");
-		let body = JSON.stringify({ ReconcilingItem: recon, Comparison: comp, contactID: contactID, CompleteOrNot: completeOrNot, LockOrNot: LockOrNot });
 
-		return this._httpC.post<ItemSet>(this._baseUrl + 'api/ItemSetList/CompleteCoding', body
+		let bt: number = contactID;
+		let isi: number = -1;
+		let completor: string = "";
+		let cmd: ItemSetCompleteCommand = new ItemSetCompleteCommand();
+
+		if (completeOrNot) {
+			if (comp.contactId1 == bt) {
+				isi = recon.ItemSetR1;
+				completor = comp.contactName1;
+			}
+			else if (comp.contactId2 == bt) {
+				isi = recon.ItemSetR2;
+				completor = comp.contactName2;
+			}
+			else if (comp.contactId3 == bt) {
+				isi = recon.ItemSetR3;
+				completor = comp.contactName3;
+			}
+			cmd.itemSetId = isi;
+			cmd.isLocked = LockOrNot;
+			cmd.complete = true;
+		}
+		else {
+
+			let completedByID: number = recon.CompletedByID;
+			if (comp.contactId1 == completedByID) {
+				isi = recon.ItemSetR1;
+			}
+			else if (comp.contactId2 == completedByID) {
+				isi = recon.ItemSetR2;
+			}
+			else if (comp.contactId3 == completedByID) {
+				isi = recon.ItemSetR3;
+			}
+			else {
+				isi = recon.CompletedItemSetID;
+			}
+			cmd.itemSetId = isi;
+			cmd.isLocked = LockOrNot;
+			cmd.complete = false;
+		}
+
+		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd
 		)
 			.toPromise().then(
-				(res) => {
+			(res) => {
+				let rSet = this._ReviewSetsService.ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
 					this.RemoveBusy('ItemSetCompleteComparison');
-					return res;
+					if (res.successful != null && res.successful) {
+						
+						if (rSet) {
+							rSet.codingComplete = cmd.complete;
+							rSet.itemSetIsLocked = cmd.isLocked;
+						} else {
+							return Error;
+						}
+					}
+					return rSet;
 				},
 				(error) => {
 					this.RemoveBusy("ItemSetCompleteComparison");
@@ -82,6 +133,7 @@ export class ReconciliationService extends BusyAwareService {
 				}
 			);
 	}
+
 	ngOnInit() {
 
 	}
