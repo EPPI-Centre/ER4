@@ -43,17 +43,16 @@
                                     <br />
                                 </td>
                                 <td class="p-1" style="max-width:475px;">
-                                    <div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted">
+                                    <div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted && recon.CodesReviewer1.length > 0">
                                         <button (click)="Complete(recon, CurrentComparison.contactId1)"
                                                 class="btn btn-sm btn-success pull-left">
                                             Complete
                                         </button>
-
-									    <button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)"
-											    class="btn btn-sm btn-info pull-right">
-										    Complete & Lock
-									    </button>
-								    </div>
+                                        <button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)"
+                                                class="btn btn-sm btn-info pull-right">
+                                            Complete & Lock
+                                        </button>
+                                    </div>
 								    <div *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1">
 									    <button (click)="UnComplete(recon)"
 											    class="btn btn-sm btn-danger">
@@ -124,7 +123,7 @@
 								</div>
 							</td>
                                 <td class="p-1" style="max-width:475px;">
-                                    <div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted">
+                                    <div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted &&  recon.CodesReviewer2.length > 0">
                                         <button (click)="Complete(recon,CurrentComparison.contactId2)"
                                                 class="btn btn-sm btn-success pull-left">
                                             Complete
@@ -200,7 +199,7 @@
                                     </div>
                                 </td>
 							<td class="p-1" style="max-width:475px;" *ngIf="CurrentComparison.contactName3 != ''">
-								<div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted">
+								<div class="col-md-12 m-1 ml-0 pl-0" *ngIf="!recon.IsCompleted  && recon.CodesReviewer3.length > 0">
 									<button (click)="Complete(recon, CurrentComparison.contactId3)"
 											class="btn btn-sm btn-success pull-left">
 										Complete

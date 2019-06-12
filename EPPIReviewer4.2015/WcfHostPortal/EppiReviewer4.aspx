@@ -59,15 +59,74 @@
 			<param name="minRuntimeVersion" value="5.0.61118.0" />
             <param name="autoUpgrade" value="true" />
             <a href="http://www.microsoft.com/getsilverlight/" style="text-decoration:none; text-align:center">
- 			  &nbsp;<img src="http://go.microsoft.com/fwlink/?LinkId=161376" align="middle" alt="Get Microsoft Silverlight" style="border-style:none"/> &nbsp;
+ 			  &nbsp;<img src="http://go.microsoft.com/fwlink/?LinkId=161376" align="middle" width="300" alt="Get Microsoft Silverlight" style="border-style:none"/> &nbsp;
               
 		  </a>
           <table  cellpadding="2" cellspacing="8" style="width:99%; border-width:0px; margin:5px;">
-                <tr><th colspan="2" style="text-align:center;margin-left:5%;font-family: verdana; font-size:15px;" >
-                    If you have problems installing Silverlight…
+                <tr>
+                    <th colspan="2" style="background-color:#dd8634; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;" >
+                        If you have problems installing Silverlight…
                     </th>
                </tr>
-               <tr>
+              <tr>
+                    <td colspan="2" style="text-align:justify;margin-left:5%;font-family: verdana; font-size:15px;" >
+                        Silverlight is reaching the end of its life-cycle, meaning that the number of Browsers supporting it is now very limited:<br />
+                        <ul>
+                            <li>
+                                On <b>Windows Machines</b>: Internet Explorer is present and fully supports Silverlight.
+                            </li>
+                            <li>
+                                On <b>Mac Computers</b>: an <em>old version</em> of FireFox can be used to access EPPI-Reviewer 4.
+                            </li>
+                        </ul>
+                    </td>
+               </tr>
+              <tr>
+                    <th colspan="2" style="background-color:#44A6dd; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;" >
+                        How To:
+                    </th>
+               </tr>
+              <tr>
+                    <td colspan="2" style="text-align:justify;margin-left:5%;font-family: verdana; font-size:15px;" >
+                        Please see our detailed guides in the <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2933" target="_blank">Manuals</a> page.<br />
+                        In there you'll find instructions for:<br />
+                        <ul>
+                            <li>
+                                <a href="https://eppi.ioe.ac.uk/CMS/Portals/35/PCs%20and%20ER4_1.pdf" target="_blank"><b>Windows Machines</b></a> (for Internet Explorer and Firefox ESR version 52.9.0).
+                            </li>
+                            <li>
+                                <a href="https://eppi.ioe.ac.uk/CMS/Portals/35/Macs%20and%20ER4_1.pdf" target="_blank"><b>Mac Computers</b></a> (for Firefox ESR version 52.9.0, including how to have two versions of FireFox working side-by-side).
+                            </li>
+                        </ul>
+
+                    </td>
+               </tr>
+              <tr>
+                    <th colspan="2" style="background-color:#dd8634; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;" >
+                        Beyond Silverlight:
+                    </th>
+               </tr>
+              <tr>
+                    <td colspan="2" style="text-align:justify;margin-left:5%;font-family: verdana; font-size:15px;" >
+                        The <b>Next Version</b> of EPPI-Reviewer is available <b><a href="https://eppi.ioe.ac.uk/eppireviewer-web/">HERE</a></b>.<br />
+                        Please note that:<br />
+                        <ol>
+                            <li>
+                                Currently <b>under development</b>, not all features of EPPI-Reviewer 4 are yet present. 
+                            </li>
+                            <li>
+                                More and more features are being added to it, usually on a monthly basis. (See <a href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2932&forumid=22&scope=threads" target="_blank">here</a> for the release history).
+                            </li>
+                            <li>
+                                Works on <b>all Modern Browsers</b> (Chrome, Safari, FireFox, Opera and many more), including mobile phones (iOS and Android) and tablets.
+                            </li>
+                            <li>
+                                It accesses the <b>Same Data</b>, users can freely move from one version to the other, as and when needed.
+                            </li>
+                        </ol>
+                    </td>
+               </tr>
+               <%--<tr>
 			   <td style="background-color:#dd8634; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
                 FireFox Support:
                 </td>
@@ -94,6 +153,7 @@
                 4. To keep it on your taskbar click "Pin to taskbar."<br />
                 If the above doesn't work, you may need to enable the "Internet Explorer" feature, this is done via <i>"Control panel\Programs\Programs and Features"</i> and "Turn Windows features on or off".
                </div></td>
+               </tr>
                <tr>
                <td style="background-color:#44A6dd; color:White; font-weight:bold; font-family: verdana; font-size:15px; text-align:center;">
                Windows users
@@ -140,7 +200,7 @@
                 </ol>
                 </div>
                </td>
-               </tr>
+               </tr>--%>
          
         </table>
 		</object>

@@ -144,7 +144,25 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 					}
 				}
 			);
-	}
+    }
+    UpdateItem(item: Item) {
+        let ItemSetlst: ItemSet[] = [];
+        this._reconciliationService.FetchItemSetList(item.itemId)
+            .then(
+                (res: ItemSet[]) => {
+                    ItemSetlst = res;
+                    let tmp = this.localList.GenerateItem(item, ItemSetlst);
+                    if (tmp) {
+                        //we want to substitute the new reconciling item in the current list
+                        let index = this.localList.Items.findIndex(found => found.Item.itemId == item.itemId);
+                        if (index > -1) {
+                            this.localList.Items[index] = tmp;
+                        }
+                    }
+                    
+                }
+            );
+    }
 	RefreshDataItems(item: Item) {
 		this.panelItem = this._ItemListService.ItemList.items[0];
 		this.getReconciliations();
@@ -164,7 +182,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		} else {
 			this.panelItem = item;
 		}
-		this.getReconciliations();
+		//this.getReconciliations();
+        this.UpdateItem(item);
 		let tempItems: Item[] = [];
 		tempItems[0] = this.panelItem;
 		if (this.panelItem && this.panelItem != undefined) {
@@ -175,8 +194,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			}
 		}
 	}
-	getItemDocuments(itemid: number) {
-		this._ItemDocsService.FetchDocList(itemid);
+    getItemDocuments(itemid: number) {
+        if (this._ItemDocsService.CurrentItemId != itemid) this._ItemDocsService.FetchDocList(itemid);
 	}
 	public getReconSplitArray(fullPath: string): string[] {
 		if (fullPath != '') {
@@ -199,7 +218,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	}
 	public Complete(recon: ReconcilingItem, contactID: number) {
 		if (recon && this.CurrentComparison) {
-			alert(contactID);
+			//alert(contactID);
 			this._reconciliationService.ItemSetCompleteComparison(recon, this.CurrentComparison, contactID, true, false)
 				.then(
 					() => {
@@ -226,8 +245,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 
 		this.selectedRow = index;
 		let tempItemList = this._ItemListService.ItemList.items;
-		this.panelItem = tempItemList.find(x => x.itemId == itemid);
-		this.getItemDocuments(itemid);
+        this.panelItem = tempItemList.find(x => x.itemId == itemid);
+        this.getItemDocuments(itemid);
 	}
 	BackToMain() {
 		this.router.navigate(['Main']);

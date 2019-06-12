@@ -199,10 +199,13 @@ export class ReconcilingItemList {
 			this.buildToPasteFlatUnsortedList(CaSet, path + "," + aSet.attribute_name);
 		}
 	}
+    public AddItem(item: Item, itemSetList: ItemSet[]) {
+        let tmp = this.GenerateItem(item, itemSetList);
+        if (tmp) this._Items.push(tmp);
+    }
+	public GenerateItem(item: Item, itemSetList: ItemSet[]) : ReconcilingItem | null{
 
-	public AddItem(item: Item, itemSetList: ItemSet[]): any {
-
-		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return;
+		if (this._Comparison == null || itemSetList == null || itemSetList.length == 0) return null;
 
 		let isCompleted: boolean = false;
 		let CompletedBy: string = "";
@@ -272,8 +275,8 @@ export class ReconcilingItemList {
 
 			}
 		}
-		this._Items.push(new ReconcilingItem(item, isCompleted, r1, r2, r3,
-			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3));
+		return new ReconcilingItem(item, isCompleted, r1, r2, r3,
+			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3);
 	}
 
 }

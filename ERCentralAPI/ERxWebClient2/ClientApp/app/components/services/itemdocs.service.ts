@@ -35,6 +35,9 @@ export class ItemDocsService extends BusyAwareService   {
     public get CurrentDocId(): number {
         return this.currentDocBinId;
     }
+    public get CurrentItemId(): number {
+        return this.currentItemId;
+    }
     public FetchDocList(itemID: number) {
         if (this.currentItemId != itemID) {
             this.currentDocBin = null;
