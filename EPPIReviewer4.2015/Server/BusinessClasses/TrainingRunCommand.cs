@@ -638,8 +638,11 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("simulations");
             CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
+#if (!CSLA_NETCORE)
             blockBlob.DeleteIfExists();
-
+#else
+            await blockBlob.DeleteIfExistsAsync();
+#endif
             // Simple: upload data if needed
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
@@ -903,6 +906,6 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #endif
-                }
+        }
 
-}
+    }
