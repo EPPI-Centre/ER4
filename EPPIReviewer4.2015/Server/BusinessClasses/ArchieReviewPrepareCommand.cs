@@ -26,35 +26,31 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ArchieReviewPrepareCommand : ArchieCommand<ArchieReviewPrepareCommand>
     {
+        public ArchieReviewPrepareCommand() 
+        {
+            registerProperties();
+        }
 #if SILVERLIGHT
         public ArchieReviewPrepareCommand(string archieReviewID) 
         {
             registerProperties();
             LoadProperty(ArchieReviewIDProperty, archieReviewID);
         }
-        public ArchieReviewPrepareCommand() 
-        {
-            registerProperties();
-        }
-#else
-        protected ArchieReviewPrepareCommand() 
-        {
-            registerProperties();
-        }
+
 #endif
-        private static PropertyInfo<string> ArchieReviewIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewID", "ArchieReviewID"));
+        public static readonly PropertyInfo<string> ArchieReviewIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewID", "ArchieReviewID"));
         public string ArchieReviewID
         {
             get { return ReadProperty(ArchieReviewIDProperty); }
             set { LoadProperty(ArchieReviewIDProperty, value); }
         }
-        private static PropertyInfo<string> ResultProperty = RegisterProperty<string>(new PropertyInfo<string>("Result", "Result"));
+        public static readonly PropertyInfo<string> ResultProperty = RegisterProperty<string>(new PropertyInfo<string>("Result", "Result"));
         public string Result
         {
             get { return ReadProperty(ResultProperty); }
             set { LoadProperty(ResultProperty, value); }
         }
-        private static PropertyInfo<int> ReviewIDProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewID", "ReviewID"));
+        public static readonly PropertyInfo<int> ReviewIDProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewID", "ReviewID"));
         public int ReviewID
         {
             get { return ReadProperty(ReviewIDProperty); }

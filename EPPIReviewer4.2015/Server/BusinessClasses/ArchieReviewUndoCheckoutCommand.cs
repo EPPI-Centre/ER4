@@ -26,34 +26,31 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ArchieReviewUndoCheckoutCommand : ArchieCommand<ArchieReviewUndoCheckoutCommand>
     {
+        public ArchieReviewUndoCheckoutCommand() 
+        {
+            registerProperties();
+        }
 #if SILVERLIGHT
         public ArchieReviewUndoCheckoutCommand(string archieReviewID) 
         {
             registerProperties();
             LoadProperty(ArchieReviewIDProperty, archieReviewID);
         }
-        public ArchieReviewUndoCheckoutCommand() 
-        {
-            registerProperties();
-        }
-#else
-        protected ArchieReviewUndoCheckoutCommand() {
-            registerProperties();
-        }
+
 #endif
-        private static PropertyInfo<string> ArchieReviewIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewID", "ArchieReviewID"));
+        public static readonly PropertyInfo<string> ArchieReviewIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewID", "ArchieReviewID"));
         public string ArchieReviewID
         {
             get { return ReadProperty(ArchieReviewIDProperty); }
             set { LoadProperty(ArchieReviewIDProperty, value); }
         }
-        private static PropertyInfo<string> ResultProperty = RegisterProperty<string>(new PropertyInfo<string>("Result", "Result"));
+        public static readonly PropertyInfo<string> ResultProperty = RegisterProperty<string>(new PropertyInfo<string>("Result", "Result"));
         public string Result
         {
             get { return ReadProperty(ResultProperty); }
             set { LoadProperty(ResultProperty, value); }
         }
-        private static PropertyInfo<int> ReviewIDProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewID", "ReviewID"));
+        public static readonly PropertyInfo<int> ReviewIDProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewID", "ReviewID"));
         public int ReviewID
         {
             get { return ReadProperty(ReviewIDProperty); }

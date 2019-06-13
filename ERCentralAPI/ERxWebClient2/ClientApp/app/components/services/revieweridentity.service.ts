@@ -15,6 +15,7 @@ import { ReviewerTermsService } from './ReviewerTerms.service';
 import { ModalService } from './modal.service';
 import { take } from 'lodash';
 import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
+import { stack } from '@progress/kendo-drawing';
 
 
 @Injectable({
@@ -153,7 +154,167 @@ export class ReviewerIdentityService implements OnDestroy {
             );
 
     }
-    
+
+    public LoginViaArchieReq(code: string, state: string): Promise<ReviewerIdentity | undefined > {
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        let reqpar = new ArchieLoginCreds(code, state);
+        if (this.reviewerIdentity.userId == 0 && this.reviewerIdentity.isAuthenticated
+            && this.reviewerIdentity.ticket == ""
+            && this.reviewerIdentity.roles.indexOf('CochraneUser') != -1
+            && this.reviewerIdentity.token && this.reviewerIdentity.token.length > 20
+        ) {
+            //very special case! 
+            //User logged on via Archie and created the ER Account on the fly,
+            //so we'll send also the RI, this will tell the controller that
+            //it needs to use the special (one-off) authentication route (get RI via code & state, but from local DB!)
+            reqpar.reviewerIdentity = this.reviewerIdentity;
+        }
+            //this.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1
+        return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LoginFromArchie',
+            reqpar).toPromise().then((res) => {
+                console.log("LoginViaArchieReq: ", res);
+                if (res.error !== "") {
+                    //to be confirmed
+                    console.log("LoginViaArchieReq: ", 1);
+                    let fakeResult = new ReviewerIdentity();
+                    fakeResult.userId = -1;
+                    fakeResult.reviewId = -1;
+                    fakeResult.name = '{ERROR: In Result}';
+                    fakeResult.ticket = res.error;
+                    return fakeResult;
+                }
+                else if (res.reviewerIdentity && res.reviewerIdentity.name == "{UnidentifiedArchieUser}") {
+                    this.reviewerIdentity = res.reviewerIdentity;//in this way current token is used and user will have access to needed API endpoints, which require "CochraneUser" role.
+                    console.log("LoginViaArchieReq: ", 2);
+                    return res.reviewerIdentity;
+                }
+                else if (res.reviewerIdentity && res.reviewerIdentity.userId > 0) {
+                    //good, things worked, we know who this is, let's let them in.
+                    console.log("LoginViaArchieReq: ", 3);
+                    this.reviewerIdentity = res.reviewerIdentity;
+                    this.router.navigate(['intropage']);
+                    return this.reviewerIdentity;
+                }
+            }, error => {
+                console.log("LoginViaArchieReq: ", 4, error);
+                let fakeResult = new ReviewerIdentity();
+                fakeResult.userId = -1;
+                fakeResult.reviewId = -1;
+                fakeResult.name = '{ERROR: In API Call}';
+                if (error && error.status) {
+                    if (error.status && error.status == 403) {
+                        fakeResult.ticket = "Login Failed";
+                    }
+                    else {
+                        fakeResult.ticket = "Unexpected error" + (error.status ? " (" + error.status + ")" : "")
+                            + (error.statusText ? ", full details are: '" + error.statusText + "." : ".");
+                    }
+                }
+                else {
+                    fakeResult.ticket = "Unexpected error (no error details).";
+                }
+                return fakeResult;
+            }
+        ).catch((err) => {
+            console.log("LoginViaArchieReq: ", 5, err);
+            let fakeResult = new ReviewerIdentity();
+            fakeResult.userId = -1;
+            fakeResult.reviewId = -1;
+            fakeResult.name = '{ERROR: In Catch}';
+            fakeResult.ticket = "Unexpected error (catch on Angular side).";
+            return this.reviewerIdentity;
+        });
+
+    }
+    public LinkToArchieAccount(code: string, state: string, un: string, pw: string): Promise<ArchieLoginCreds> {
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        let reqpar = new ArchieLoginCreds(code, state);
+        reqpar.loginCreds = new LoginCreds(un, pw);
+        return this._httpC.post<ArchieLoginCreds>(this._baseUrl + 'api/Login/LinkToExistingAccount',
+            reqpar).toPromise().then((res) => {
+                if (res) {
+                    if (res.error != "") {
+                        console.log("LinkToArchieAccount: ", 1);
+                        return res;
+                    }
+                    else {
+                        console.log("LinkToArchieAccount: ", 2);
+                        if (res.reviewerIdentity) this.reviewerIdentity = res.reviewerIdentity;
+                        return res;
+                    }
+                }
+                else {
+                    console.log("LinkToArchieAccount: ", 3);
+                    if (reqpar.reviewerIdentity) reqpar.reviewerIdentity = null;
+                    reqpar.error = "No response from 'Link to Archie' API call.";
+                    return reqpar;
+                }
+            }, (error: Response) => {
+                console.log("LinkToArchieAccount error: ", 4, error);
+                if (error && error.status) {
+                    if (error.status && error.status == 403) {
+                        reqpar.error = "Login Failed";
+                    }
+                    else {
+                        reqpar.error = "Unexpected error" + (error.status ? " ("+ error.status +")" : "")
+                            + (error.statusText ? ", full details are: '" + error.statusText + "." : ".");
+                    }
+                }
+                else {
+                    reqpar.error = "Unexpected error (no error details).";
+                }
+                return reqpar;
+            }
+        ).catch(caught => {
+            console.log("LinkToArchieAccount catch: ", 3, caught);
+            reqpar.error = "Unexpected error (catch on Angular side).";
+            return reqpar;
+        });
+
+    }
+
+    public CreateERAccountFromArchie(reqpar: iCreateER4ContactViaArchieCommandJSON): Promise<iCreateER4ContactViaArchieCommandJSON> {
+        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        return this._httpC.post<iCreateER4ContactViaArchieCommandJSON>(this._baseUrl + 'api/Login/CreateER4ContactViaArchie',
+            reqpar).toPromise().then((res) => {
+                if (res) {
+                    console.log("CreateERAccountFromArchie: ", 1, res);
+                    return res;
+                }
+                else {
+                    console.log("CreateERAccountFromArchie: ", 2);
+                    reqpar.result = "No response from 'CreateERAccountFromArchie' API call.";
+                    return reqpar;
+                }
+            }, (error: Response) => {
+                console.log("CreateERAccountFromArchie error: ", 3, error);
+                if (error && error.status) {
+                    if (error.status && error.status == 403) {
+                        reqpar.result = "Login Failed";
+                    }
+                    else if (error.status && error.status == 401) {
+                        reqpar.result = "Not Authorised";
+                    }
+                    else {
+                        reqpar.result = "Unexpected error" + (error.status ? " (" + error.status + ")" : "")
+                            + (error.statusText ? ", full details are: '" + error.statusText + "." : ".");
+                    }
+                }
+                else {
+                    reqpar.result = "Unexpected error (no error details)."
+                }
+                return reqpar;
+            }
+        ).catch(caught => {
+            console.log("CreateERAccountFromArchie catch: ", 3, caught);
+            reqpar.result = "Unexpected error (catch on Angular side)."
+            return reqpar;
+        });
+
+    }
+
+
+
     public LoginToReview(RevId: number) {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
@@ -364,6 +525,34 @@ export class ReviewerIdentityService implements OnDestroy {
         this.modalService.SendBackHome(msg);
         //this.openMsgAndSendHome(this.content);
     }
+
+    public GoToArchie() {
+        //
+        let url = "";
+        let redirectUri = this._baseUrl.toLowerCase() + "ArchieCallBack";
+        //redirectUri = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";//temporary!!!!!!!
+        if (this._baseUrl.indexOf("://eppi.ioe.ac.uk") != -1) {
+            //this is the production environment, go there
+            url = "https://login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+            //redirectUri = redirectUri.toLowerCase();//necessary because we don't know the case of _baseUrl when actual users are accessing it, but Cochrane system is likely to be case sensitive.
+        }
+        else {
+            //go to test env
+            url = "https://test-login.cochrane.org/auth/realms/cochrane/protocol/openid-connect/auth?client_id=eppi&response_type=code&redirect_uri=";
+        }
+        url += redirectUri + "&scope=document person&state=";
+        var state = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (var i = 0; i < 12; i++) {//generate a random string of 12 chars...
+            state += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        url += state + "&access_type=offline";
+        url = encodeURI(url);
+        console.log("Trying this URL:", url);
+        window.location.href = url;
+    }
+
     ngOnDestroy() {
         console.log("destroying RI ! ! ! ! ! !ngOnDestroy");
         if (this.timerObj) this.killTrigger.next();
@@ -389,6 +578,17 @@ class LoginCredsSA {
     public Password: string = "";
     public RevId: number;
 }
+class ArchieLoginCreds {
+    constructor(Code: string, State: string) {
+        this.code = Code;
+        this.state = State;
+    }
+    public code: string = "";
+    public state: string = "";
+    public error: string = "";
+    public loginCreds: LoginCreds | null = null;
+    public reviewerIdentity: ReviewerIdentity | null = null;
+    }
 class LogonTicketCheck {
     constructor(u: string, g: string) {
         this.userId = u;
@@ -414,6 +614,23 @@ export class ReviewerIdentity {
     public isAuthenticated: boolean = false;
     public daysLeftAccount: number = 0;
     public daysLeftReview: number = 0;
+}
+export interface ArchieIdentity {
+    archieID: string;
+    error: string;
+    errorReason: string;
+    isAuthenticated: boolean;
+}
+export interface iCreateER4ContactViaArchieCommandJSON {
+    code: string;
+    status: string;
+    username: string;
+    email: string;
+    fullname: string;
+    password: string;
+    sendNewsletter: boolean;
+    createExampleReview: boolean;
+    result: string;
 }
 
 

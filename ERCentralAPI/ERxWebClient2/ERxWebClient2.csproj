@@ -9,6 +9,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;CSLA_NETCORE</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -47,6 +48,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieCommand.cs" Link="Models\ArchieAbstractClasses\ArchieCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyBase.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" Link="Models\ArchieAbstractClasses\ArchieReadOnlyListBase.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieReviewPrepareCommand.cs" Link="Models\ArchieReviewPrepareCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ArchieReviewUndoCheckoutCommand.cs" Link="Models\ArchieReviewUndoCheckoutCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeMoveCommand.cs" Link="Models\AttributeMoveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSet.cs" Link="Models\AttributeSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeSetDeleteCommand.cs" Link="Models\AttributeSetDeleteCommand.cs" />
@@ -78,6 +84,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeBulkSaveCommand.cs" Link="Models\ItemAttributeBulkSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetails.cs" Link="Models\ItemAttributeFullTextDetails.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDF.cs" Link="Models\ItemAttributePDF.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDFList.cs" Link="Models\ItemAttributePDFList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeSaveCommand.cs" Link="Models\ItemAttributeSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
@@ -102,6 +110,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReview.cs" Link="Models\ReadOnlyArchieReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReviewList.cs" Link="Models\ReadOnlyArchieReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRuleList.cs" Link="Models\ReadOnlyImportFilterRuleList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyItemAttribute.cs" Link="Models\ReadOnlyItemAttribute.cs" />
@@ -162,6 +172,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\FullTextSearch.cs" Link="Models\Data\FullTextSearch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Data\ImportItemsDataset.cs" Link="Models\Data\ImportItemsDataset.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ArchieIdentity.cs" Link="Models\Security\ArchieIdentity.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CreateER4ContactViaArchieCommand.cs" Link="Models\Security\CreateER4ContactViaArchieCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerIdentity.cs" Link="Models\Security\ReviewerIdentity.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\ReviewerPrincipal.cs" Link="Models\Security\ReviewerPrincipal.cs" />
@@ -171,10 +182,10 @@
 
   <ItemGroup>
     <Content Include="ClientApp\app\components\assets\sales.json" />
+    <Content Include="ClientApp\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\app\components\NewFolder\" />
     <Folder Include="ClientApp\app\components\Sources\" />
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
@@ -198,6 +209,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\Cluster.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\cochrane_logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\codes.gif">
@@ -225,6 +239,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\ViewOptions.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\webviewer-demo-annotated.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -265,5 +282,7 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

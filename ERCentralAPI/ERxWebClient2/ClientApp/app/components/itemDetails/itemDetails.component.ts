@@ -33,6 +33,7 @@ export class itemDetailsComp implements OnInit {
     @Input() ShowHighlights: boolean = false;
     @Input() CanEdit: boolean = false;
     @Input() IsScreening: boolean = false;
+    @Input() ShowDocViewButton: boolean = true;
     public HAbstract: string = "";
     public HTitle: string = "";
     public showOptionalFields = false;
