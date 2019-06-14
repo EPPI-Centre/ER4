@@ -209,6 +209,36 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult ItemAttributesFullTextData([FromBody] long itemid)
+		{
+			try
+			{
+
+				if (SetCSLAUser4Writing())
+				{
+
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					DataPortal<ItemAttributesAllFullTextDetailsList> dp = 
+						new DataPortal<ItemAttributesAllFullTextDetailsList>();
+					SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64> criteria =
+						new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>(itemid);
+
+					//new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>(itemid)
+					var result = dp.Fetch(criteria);
+
+					return Ok();
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison create data portal error");
+				throw;
+			}
+		}
+
 	}
 
 	public class ComparisonCompleteJSON

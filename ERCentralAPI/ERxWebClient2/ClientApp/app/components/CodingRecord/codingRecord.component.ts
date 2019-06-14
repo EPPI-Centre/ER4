@@ -261,7 +261,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			for (var i = 0; i < attributeSet.attributes.length; i++) {
 
 				let child: SetAttribute = attributeSet.attributes[i];
-
 				report += this.writeComparisonReportAttributes(comparison1, comparison2, comparison3, child);
 			}
 			report += "</ul>";
@@ -272,7 +271,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 	RunComparison() {
 
 		let count: number = this.itemsSelected.length;
-
 		if (count < 2 || count > 3) {
 			alert('The number of selected coding records is incorrect');
 			return;
@@ -289,30 +287,38 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 		//isla.AddFullTextData(e2.Object as ItemAttributesAllFullTextDetailsList);
 
-		this.SetComparisons();
+		this._comparisonService.FetchFullTextData(this.item.itemId).then(
 
-		if (this.comparison1 == null || this.comparison2 == null) {
-			alert('exiting');
-			return;
-		}
+			(fullText: any) => {
 
-		let firstItemSelected: ItemSet = this._ItemCodingService.ItemCodingList.filter((x) => x.setId == this.itemsSelected[0].setId)[0];
-		let reviewSet: ReviewSet = this._ReviewSetsService.GetReviewSets().filter((x) => x.set_id == firstItemSelected.setId)[0];
-		let report: string = '';
-		if (reviewSet != null) {
+				console.log('blah blah: ' + fullText);
 
-			report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
+				this.SetComparisons();
 
-			for (var i = 0; i < reviewSet.attributes.length; i++) {
+				if (this.comparison1 == null || this.comparison2 == null) {
+					alert('exiting');
+					return;
+				}
 
-				let attributeSet: SetAttribute = reviewSet.attributes[i];
-				
-				report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
-			}
-			report += "</ul></p>";
-		}
-		// need to open a new window with this html like previously
-		this._comparisonService.OpenInNewWindow(report);
+				let firstItemSelected: ItemSet = this._ItemCodingService.ItemCodingList.filter((x) => x.setId == this.itemsSelected[0].setId)[0];
+				let reviewSet: ReviewSet = this._ReviewSetsService.GetReviewSets().filter((x) => x.set_id == firstItemSelected.setId)[0];
+				let report: string = '';
+				if (reviewSet != null) {
+
+					report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
+
+					for (var i = 0; i < reviewSet.attributes.length; i++) {
+
+						let attributeSet: SetAttribute = reviewSet.attributes[i];
+
+						report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
+					}
+					report += "</ul></p>";
+				}
+				// need to open a new window with this html like previously
+				this._comparisonService.OpenInNewWindow(report);
+
+			});
 	}
 	LiveComparison() {
 
