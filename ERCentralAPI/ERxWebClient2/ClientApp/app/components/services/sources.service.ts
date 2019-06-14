@@ -10,9 +10,8 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 
 export class SourcesService extends BusyAwareService {
 
-    constructor(
-        private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
-        private _httpC: HttpClient,
+	constructor(
+		private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -66,7 +65,7 @@ export class SourcesService extends BusyAwareService {
     
     public FetchSources() {
         this._BusyMethods.push("FetchSources");
-        return this._http.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
+        return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
             this._ReviewSources = result.sources;
             this.RemoveBusy("FetchSources");
         }, error => {
@@ -78,7 +77,7 @@ export class SourcesService extends BusyAwareService {
     public FetchSource(SourceId: number) {
         this._BusyMethods.push("FetchSource");
         let body = JSON.stringify({ Value: SourceId });
-        this._http.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
+        this._httpC.post<Source>(this._baseUrl + 'api/Sources/GetSource', body).subscribe(result => {
             this._Source = result;
             this.gotSource.emit();
         }, error => {
@@ -94,7 +93,7 @@ export class SourcesService extends BusyAwareService {
         if (SearchString.trim().length < 2) return;
         this._BusyMethods.push("FetchNewPubMedSearch");
         let body = JSON.stringify({ Value: SearchString.trim() });
-        this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
+        this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             //this.gotSource.emit();
         }, error => {
@@ -112,7 +111,7 @@ export class SourcesService extends BusyAwareService {
         //same logic as ER4 to figure if we're doing the import or just getting some results to show.
         let IsGettingAPreview: boolean = (PmSearch.showEnd != 0 && PmSearch.showStart < PmSearch.showEnd && PmSearch.saveEnd == 0 && PmSearch.saveStart == 0);
         let body = JSON.stringify(PmSearch);
-        this._http.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
+        this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;
             this._LastUploadOrUpdateStatus = "Success";
             this.RemoveBusy("ActOnPubMedSearch");
@@ -138,7 +137,7 @@ export class SourcesService extends BusyAwareService {
         this._LastDeleteForeverStatus = "";
         this._BusyMethods.push("DeleteSourceForever");
         let body = JSON.stringify({ Value: SourceId });
-        this._http.post<number>(this._baseUrl + 'api/Sources/DeleteSourceForever', body).subscribe(result => {
+        this._httpC.post<number>(this._baseUrl + 'api/Sources/DeleteSourceForever', body).subscribe(result => {
             if (result == SourceId && this._Source && SourceId == this._Source.source_ID) this._Source = null;//we wipe it here only if user has not changed source in the mean time!!
             this._LastDeleteForeverStatus = "Success";
         },
@@ -156,7 +155,7 @@ export class SourcesService extends BusyAwareService {
     }
     public FetchImportFilters() {
         this._BusyMethods.push("FetchImportFilters");
-        this._http.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
+        this._httpC.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
             this._ImportFilters = result;
         }, error => {
             this.modalService.GenericErrorMessage(error);

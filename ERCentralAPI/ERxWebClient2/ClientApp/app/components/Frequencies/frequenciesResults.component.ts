@@ -20,10 +20,10 @@ export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit 
 
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService,
-        public PriorityScreeningService: PriorityScreeningService,
+		private ItemListService: ItemListService,
+		private PriorityScreeningService: PriorityScreeningService,
         private ReviewSetsService: ReviewSetsService,
-		public frequenciesService: frequenciesService,
+		private frequenciesService: frequenciesService,
 		private _eventEmitter: EventEmitterService,
     ) {}
 

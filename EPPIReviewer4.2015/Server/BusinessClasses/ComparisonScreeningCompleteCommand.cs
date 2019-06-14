@@ -26,13 +26,14 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ComparisonScreeningCompleteCommand() { }
 #else
-        protected ComparisonScreeningCompleteCommand() { }
+		public ComparisonScreeningCompleteCommand() { }
 #endif
 
         private int _comparisonId;
         private string _whichReviewers;
         private int _numAffected;
         private int _contactId;
+        private string _lockCoding = null;
 
         public ComparisonScreeningCompleteCommand(int comparisonId, string WhichReviewers, int contactId)
         {
@@ -40,7 +41,13 @@ namespace BusinessLibrary.BusinessClasses
             _whichReviewers = WhichReviewers;
             _contactId = contactId;
         }
-
+        public ComparisonScreeningCompleteCommand(int comparisonId, string WhichReviewers, int contactId, string lockCoding)
+        {
+            _comparisonId = comparisonId;
+            _whichReviewers = WhichReviewers;
+            _contactId = contactId;
+            _lockCoding = lockCoding;
+        }
         public int NumberAffected
         {
             get { return _numAffected; }
@@ -77,6 +84,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@COMPARISON_ID", _comparisonId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", _contactId));
                     command.Parameters.Add(new SqlParameter("@WHICH_REVIEWERS", _whichReviewers));
+                    if (_lockCoding != null && _lockCoding.ToLower() == "true")
+                    {
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", 1));
+                    }
+                    else if (_lockCoding != null && _lockCoding.ToLower() == "false")
+                    {
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", 0));
+                    }
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())

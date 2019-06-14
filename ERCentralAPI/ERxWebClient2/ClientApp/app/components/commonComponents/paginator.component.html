@@ -3,14 +3,14 @@
         <div class="m-0">
             <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
                     [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
-                    class="page-link" (click)="firstPage()">
+                    class="page-link" (click)="firstPage()" >
                 First
             </button>
         </div>
         <div class="">
             <button [ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
                     [disabled]="ItemListService.ItemList.pageindex + 1 === 1"
-                    class="page-link" (click)="prevPage()">
+                    class="page-link" (click)="prevPage()" >
                 Previous
             </button>
         </div>

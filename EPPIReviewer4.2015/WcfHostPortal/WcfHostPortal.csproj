@@ -222,6 +222,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\FileSystem.pubxml" />
+    <None Include="Properties\PublishProfiles\IIS -Stable.pubxml" />
     <None Include="Properties\PublishProfiles\Local FS.pubxml" />
     <None Include="Properties\PublishProfiles\RealPublish.pubxml" />
     <None Include="Properties\Settings.settings">

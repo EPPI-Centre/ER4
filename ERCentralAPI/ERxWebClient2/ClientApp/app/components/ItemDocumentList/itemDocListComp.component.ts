@@ -28,7 +28,9 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     public me: string = "I don't know";
     public sub: Subscription | null = null;
     public ShowUpload: boolean = false;
-    @Input() itemID: number = 0;
+	@Input() itemID: number = 0;
+	@Input() showUpload: boolean = true;
+    @Input() ShowViewButton: boolean = true;
     public get HasWriteRights(): boolean {
         return this.itemID != 0 && this.ReviewerIdentityServ.HasWriteRights;
     }
@@ -58,16 +60,17 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
 
-                this.router.navigate(['home']);
+			this.router.navigate(['home']);
+
         }
         else {
             
         }
     }
     
-    DownloadDoc(itemDocumentId: number) {
+    DownloadDoc(itemDocumentId: number, ForView: boolean) {
 
-        this.ItemDocsService.GetItemDocument(itemDocumentId);
+        this.ItemDocsService.GetItemDocument(itemDocumentId, ForView);
 
     }
     public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; // 

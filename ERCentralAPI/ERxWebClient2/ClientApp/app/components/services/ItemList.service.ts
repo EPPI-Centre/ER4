@@ -10,6 +10,7 @@ import { ArmsService } from './arms.service';
 import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,8 +21,7 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-		private _WorkAllocationService: WorkAllocationListService,
-        private _PriorityScreeningService: PriorityScreeningService,
+		private eventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
         super();
@@ -50,6 +50,8 @@ export class ItemListService extends BusyAwareService {
     }
     public ListDescription: string = "";
     @Output() ItemChanged = new EventEmitter();
+	@Output() ListChanged = new EventEmitter();
+	@Output() ReconcileListChanged = new EventEmitter();
 	public get ItemList(): ItemList {
         return this._ItemList;
     }
@@ -74,20 +76,50 @@ export class ItemListService extends BusyAwareService {
         ) {
             crit.pageSize = this._ItemList.pagesize;
         }
-        console.log("FetchWithCrit", this._Criteria.listType);
+       // console.log("FetchWithCrit", this._Criteria.listType);
         this.ListDescription = listDescription;
         this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
             .subscribe(
                 list => {
-                    this._Criteria.totalItems = this.ItemList.totalItemCount;
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					console.log();
                     this.SaveItems(list, this._Criteria);
+                    this.ListChanged.emit();
+					//console.log(JSON.stringify(this.ItemList.items[0]));
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
                 }
                 , () => { this.RemoveBusy("FetchWithCrit"); }
             );
-    }
+	}
+
+	public FetchWithCritReconcile(crit: Criteria, listDescription: string) {
+		this._BusyMethods.push("FetchWithCritReconcile");
+		this._Criteria = crit;
+		if (this._ItemList && this._ItemList.pagesize > 0
+			&& this._ItemList.pagesize <= 4000
+			&& this._ItemList.pagesize != crit.pageSize
+		) {
+			crit.pageSize = this._ItemList.pagesize;
+		}
+
+		this.ListDescription = listDescription;
+		this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
+			.subscribe(
+				list => {
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					console.log();
+					this.SaveItems(list, this._Criteria);
+					this.ReconcileListChanged.emit();
+					this.eventEmitterService.tester();
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("FetchWithCritReconcile");
+				}
+			, () => { this.RemoveBusy("FetchWithCritReconcile"); }
+			);
+	}
     public Refresh() {
         if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
             //we have something to do
@@ -155,13 +187,15 @@ export class ItemListService extends BusyAwareService {
                         else {
                             console.log("updated item not replaced: could not find it...");
                         }
-                    }
+					}
+					this.RemoveBusy("UpdateItem");
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("UpdateItem");
                 }
             , () => { this.RemoveBusy("UpdateItem"); }
-            );
+        );
+
     }
 
 
@@ -408,7 +442,7 @@ export class ItemListService extends BusyAwareService {
         for (let Itm of this.SelectedItems) {
             res += ItemListService.ExportItemToRIS(Itm);
         }
-        console.log("SelectedItemsToRIStext", res);
+        //console.log("SelectedItemsToRIStext", res);
         return res;
     }
 
