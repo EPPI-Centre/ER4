@@ -113,7 +113,7 @@
                                 {{_comparisonsService.Statistics.RawStats.disagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
                             </button>
                             <div class="col-3 px-1 mb-1">
-                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3')"
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3')"
                                         class="btn btn-outline-info  h-100 w-100"
                                         [disabled]="_comparisonsService.Statistics.RawStats.disagreements1vs3 == 0">
                                     Reconcile
