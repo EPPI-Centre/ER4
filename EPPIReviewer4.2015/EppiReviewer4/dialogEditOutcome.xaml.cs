@@ -249,67 +249,67 @@ namespace EppiReviewer4
             switch (thisOutcome.NRows)
             {
                 case 0:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 35;
                     break;
 
                 case 1:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
 
                     break;
 
                 case 2:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[6].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[7].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[8].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
-                    break;
-
-                case 3:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
                     break;
 
-                case 4:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                case 3:
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
                     break;
 
-                case 5:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                case 4:
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
                     break;
 
-                case 6:
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                case 5:
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                    break;
+
+                case 6:
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[6].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[7].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 35;
                     break;
             }
             SetClusteringVisibility();
@@ -374,11 +374,11 @@ namespace EppiReviewer4
         {
             if (cbUnitOfAnalysis.IsChecked == true)
             {
-                LayoutRoot.RowDefinitions[11].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 35;
             }
             else
             {
-                LayoutRoot.RowDefinitions[11].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 0;
                 Outcome o = this.DataContext as Outcome;
                 if (o != null)
                 {
@@ -393,12 +393,12 @@ namespace EppiReviewer4
             Outcome o = this.DataContext as Outcome;
             if (o.Data9 == 0)
             {
-                LayoutRoot.RowDefinitions[11].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 0;
                 cbUnitOfAnalysis.IsChecked = false;
             }
             else
             {
-                LayoutRoot.RowDefinitions[11].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 35;
                 cbUnitOfAnalysis.IsChecked = true;
             }
         }
