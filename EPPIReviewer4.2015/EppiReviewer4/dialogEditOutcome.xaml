@@ -49,6 +49,7 @@
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition MaxHeight="35"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
         </Grid.RowDefinitions>
@@ -126,11 +127,15 @@
             </telerikGridView:RadGridView.Columns>
         </telerik:RadGridView>
         -->
-        <telerik:RadTreeView Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" x:Name="TreeViewClassifications"  
+        <TextBlock TextWrapping="Wrap" Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="4" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            You can further characterise this outcome by associating it with any code in the current codeset: 
+        </TextBlock>
+        <telerik:RadTreeView x:Name="TreeViewClassifications" Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="4" ScrollViewer.VerticalScrollBarVisibility="Visible"
                              IsOptionElementsEnabled="True" IsTriStateMode="False" BorderBrush="Aquamarine" BorderThickness="1"
                              Margin="5,5,5,5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         </telerik:RadTreeView>
-        
+
+
         <ComboBox Grid.Column="1" Grid.Row="1" Margin="3,3,3,3" HorizontalAlignment="Stretch" SelectedIndex="{Binding OutcomeTypeId, Mode=TwoWay}" SelectionChanged="ComboBox_SelectionChanged">
             <ComboBoxItem Content="Manual entry"/>
             <ComboBoxItem Content="Continuous: Ns, means and SD"/>
@@ -141,8 +146,8 @@
             <ComboBoxItem Content="Diagnostic test: 2 x 2 table"/>
             <ComboBoxItem Content="Correlation coefficient r"/>
         </ComboBox>
-        <Button x:Name="cmdSaveOutcome" Content="Save outcome" Click="cmdSaveOutcome_Click" Grid.Column="0" Grid.Row="14" Margin="2,2,2,2"/>
-        <Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="14" Click="cmdCancel_Click" Margin="2,2,2,2"/>
+        <Button x:Name="cmdSaveOutcome" Content="Save outcome" Click="cmdSaveOutcome_Click" Grid.Column="0" Grid.Row="15" Margin="2,2,2,2"/>
+        <Button x:Name="cmdCancel" Content="Cancel" Grid.Column="2" Grid.Row="15" Click="cmdCancel_Click" Margin="2,2,2,2"/>
 
 
         
