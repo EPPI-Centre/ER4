@@ -69,7 +69,7 @@ GO
 declare @ctx nvarchar(100) = 'main\collaborate'
 declare @Content nvarchar(max) = '
 <p class="font-weight-bold">Collaborate</p>
-<p>The collaborate tab allows to, create, manage and use <b>Coding Assignments</b> and <b>Comparisons</b>. The process of creating Coding Assignments starts with creating or identifying the code(s) which will contain the group of items used for an assignment. Users can then create coding assignments using this code(s) as the <em>Reference group to assign</em>.<br />
+<p>The collaborate tab allows to create, manage and use <b>Coding Assignments</b> and <b>Comparisons</b>. The process of creating Coding Assignments starts with creating or identifying the code(s) which will contain the group of items used for an assignment. Users can then create coding assignments using this code(s) as the <em>Reference group to assign</em>.<br />
 Comparisons are used to identify and reconcile disagreements resulting from double and multiple coding exercises (where more than one reviewer will code/screen the same items independently).
 </p>
 <div class="container">

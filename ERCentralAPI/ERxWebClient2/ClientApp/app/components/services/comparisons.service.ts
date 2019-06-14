@@ -266,13 +266,14 @@ export class ComparisonsService extends BusyAwareService {
 		return this._httpC.post<string>(this._baseUrl +
 			'api/Comparisons/CompleteComparison', completeComparison)
 			.toPromise().then(
-
 			(result: string) => {
-				this.RemoveBusy("CompleteComparison");
+                this.RemoveBusy("CompleteComparison");
+                this.FetchStats(completeComparison.comparisonId);
 				return result;
 			},
 			error => {
-				this.modalService.GenericError(error);
+                this.modalService.GenericError(error);
+                this.FetchStats(completeComparison.comparisonId);
 				this.RemoveBusy("CompleteComparison");
 			}
 		);
