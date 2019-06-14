@@ -68,6 +68,7 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
+import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
 
 @NgModule({
     declarations: [
@@ -117,7 +118,8 @@ import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.compo
         WorkAllocationContactListComp,
         SiteAdminComponent,
 		SiteAdminEntryComponent,
-		CreateNewCodeComp
+		CreateNewCodeComp,
+		codingRecordComp
 	],
     providers: [
         EventEmitterService,

@@ -45,6 +45,13 @@
 							</div>
 						</ng-template>
 					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'Coding Record'">
+						<ng-template kendoTabContent>
+							<div *ngIf="item">
+								<codingRecordComp [item]="item"></codingRecordComp>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
 				</kendo-tabstrip>
 			</div>
 			
