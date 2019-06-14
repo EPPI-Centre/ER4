@@ -1051,7 +1051,10 @@ export interface ItemAttributeFullTextDetails {
     docTitle: string;
     text: string;
     textTo: number;
-    textFrom: number;
+	textFrom: number;
+	itemSetId: number;
+	itemAttributeId: number;
+	itemAttributeTextId: number;
 }
 
 export class QuickQuestionReportOptions {

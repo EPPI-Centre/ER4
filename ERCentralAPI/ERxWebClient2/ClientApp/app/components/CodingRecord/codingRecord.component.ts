@@ -232,7 +232,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 				{
 					report += "<li>" + attributeSet.attribute_name + "</li>";
 					report += "<ul>";
-					console.log('children are: ' + JSON.stringify(attributeSet.attributes));
+					
 					for (var i = 0; i < attributeSet.attributes.length; i++) {
 
 						let child: SetAttribute = attributeSet.attributes[i];
@@ -268,6 +268,31 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		return report;
 	}
 
+	AddFullTextData(FTDL: ItemAttributeFullTextDetails[]) {
+		//adds a list of full text details into the right itemSet and ItemAttribute if possible;
+
+		for (var i = 0; i < FTDL.length; i++) {
+
+			let ftd: ItemAttributeFullTextDetails = FTDL[i];
+						
+			let set: ItemSet = this.itemsSelected.filter((x) => x.itemSetId = ftd.itemSetId)[0];
+			
+			if (set == null) continue;
+			let roia: ReadOnlyItemAttribute = set.itemAttributesList.filter( (x) => x.itemAttributeId ==ftd.itemAttributeId)[0];
+			if (roia == null) continue;
+			let oldElement: ItemAttributeFullTextDetails = roia.itemAttributeFullTextDetails.filter( (x) => x.isFromPDF == ftd.isFromPDF && x.itemAttributeTextId== ftd.itemAttributeTextId)[0];
+			if (oldElement != null) {// to make sure we don't add the same "line" if it's already there
+				let index = roia.itemAttributeFullTextDetails.findIndex((x) => x == oldElement);
+				if (index > 0) {
+					roia.itemAttributeFullTextDetails.splice(index, 1);
+				}
+			}
+			roia.itemAttributeFullTextDetails.push(ftd);
+			console.log('hello' + ftd);
+		}
+
+	}
+
 	RunComparison() {
 
 		let count: number = this.itemsSelected.length;
@@ -283,16 +308,19 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			}
 		}
 
-		let isla: ItemSet[] = this.itemsSelected;
-
-		//isla.AddFullTextData(e2.Object as ItemAttributesAllFullTextDetailsList);
-
 		this._comparisonService.FetchFullTextData(this.item.itemId).then(
 
 			(fullText: any) => {
 
-				console.log('blah blah: ' + fullText);
+				console.log('blah blah: ' + JSON.stringify(fullText));
 
+
+				let isla: ItemSet[] = this.itemsSelected;
+				for (var i = 0; i < isla.length; i++) {
+
+					this.AddFullTextData(fullText);
+				}
+		
 				this.SetComparisons();
 
 				if (this.comparison1 == null || this.comparison2 == null) {
@@ -344,6 +372,23 @@ export class CodingRecord {
 	completed: boolean = false;
 	locked: boolean = false;
 	isSelected: boolean = false;
+}
+
+export class ItemAttributesAllFullTextDetails {
+
+	ItemDocumentId: number = 0;
+	ItemAttributeId: number = 0;
+	ItemSetId: number = 0;
+	ItemAttributeTextId: number = 0;
+	TextFrom: number = 0;
+	TextTo: number = 0;
+	Text: string = '';
+	IsFromPDF: boolean = false;
+	DocTitle: string = '';
+	ItemArm: string = '';
+
+
+
 }
 
 

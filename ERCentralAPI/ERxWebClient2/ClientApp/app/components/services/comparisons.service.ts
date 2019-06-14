@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { ItemAttributeFullTextDetails } from './ItemCoding.service';
 
 
 @Injectable({
@@ -43,16 +44,23 @@ export class ComparisonsService extends BusyAwareService {
 		return this._Statistics;		
 	}
 
-	public FetchFullTextData(itemid: number): Promise<string> {
+	public FetchFullTextData(itemid: number): Promise<object[]> {
 
 		return this._httpC.post<any>(
 			this._baseUrl + 'api/Comparisons/ItemAttributesFullTextData',
 			itemid
 		).toPromise().then(
 
-				(res) => {
+			(res: object[]) => {
 
-					return res;
+					let fullText: object[] = [];
+					if (res != null) {
+
+						for (var i = 0; i < res.length; i++) {
+							fullText.push(res[i]);
+						}
+					}
+					return fullText;
 
 				}
 

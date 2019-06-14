@@ -227,7 +227,7 @@ namespace ERxWebClient2.Controllers
 					//new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>(itemid)
 					var result = dp.Fetch(criteria);
 
-					return Ok();
+					return Ok(result);
 				}
 				else return Forbid();
 
