@@ -131,7 +131,6 @@ import { codingRecordComp } from './components/CodingRecord/codingRecord.compone
 		ComparisonReconciliationComp,
         PdfTronContainer,
         WebViewerComponent,
-
 		codingRecordComp
 	],
     providers: [

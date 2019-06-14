@@ -130,7 +130,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    //console.log('ItemCodingService data changed event caught');
+                    console.log('ItemCodingService data changed event caught');
                     if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
                         this.SetCoding();
                     }

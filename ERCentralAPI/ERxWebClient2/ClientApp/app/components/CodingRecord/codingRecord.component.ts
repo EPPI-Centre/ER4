@@ -1,43 +1,29 @@
 import { Component, OnInit, OnDestroy, Input} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService,  Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute, ItemAttributeFullTextDetails } from '../services/ItemCoding.service';
 import { ReviewSetsService, ReviewSet, SetAttribute} from '../services/ReviewSets.service';
-import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ArmsService } from '../services/arms.service';
-import { NotificationService } from '@progress/kendo-angular-notification';
+import { Subscription } from 'rxjs';
+import { ComparisonsService } from '../services/comparisons.service';
 
 @Component({
    
 	selector: 'codingRecordComp',
-	templateUrl: './codingRecord.component.html',
-    providers: [],
-    styles: [`
-                button.disabled {
-                    color:black; 
-                    }
-            `]
+	templateUrl: './codingRecord.component.html'  
 
 })
 
 export class codingRecordComp implements OnInit, OnDestroy {
 
-    constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService
-		, private route: ActivatedRoute,
+    constructor(private router: Router, 
+        public ItemListService: ItemListService,
+		private _comparisonService: ComparisonsService,
 		private _ItemCodingService: ItemCodingService,
         private _ReviewSetsService: ReviewSetsService,
-        private reviewInfoService: ReviewInfoService,
-        public PriorityScreeningService: PriorityScreeningService
-        , private ReviewerTermsService: ReviewerTermsService,
-        public ItemDocsService: ItemDocsService,
-        private armservice: ArmsService,
-        private notificationService: NotificationService
+        public PriorityScreeningService: PriorityScreeningService, 
+        public ItemDocsService: ItemDocsService
     ) { }
   
 	@Input() item: Item = new Item();
@@ -47,19 +33,26 @@ export class codingRecordComp implements OnInit, OnDestroy {
 	private comparison1: ItemSet | null = null;
 	private comparison2: ItemSet | null = null;
 	private comparison3: ItemSet | null = null;
+	private ItemCodingServiceDataChanged: Subscription | null = null;
 
     ngOnInit() {
 
-		this._ItemCodingService.ItemCodingList.forEach(
+		this.ItemCodingServiceDataChanged = this._ItemCodingService.DataChanged.subscribe(
 
-			(x) => {
+			() => {
+				this.CodingRecords = [];
+				this._ItemCodingService.ItemCodingList.forEach(
 
-				let tmp = new ItemSet();
-				tmp = x;
-				this.CodingRecords.push(tmp);
+					(x) => {
 
-			});
-		//console.log(JSON.stringify(this.CodingRecords));
+						let tmp = new ItemSet();
+						tmp = x;
+						this.CodingRecords.push(tmp);
+
+					});
+			}
+		);
+		
 
 	}
 	checkboxChange(index: number, item: CodingRecord) {
@@ -68,20 +61,16 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		let count: number = this.itemsSelected.length;
 
 		if (count < 2 || count > 3) {
-			//alert('The number of selected coding records is incorrect');
 			return;
 		}
 
 		this.checkboxValue = item.isSelected;
-		//alert('index: ' + index + 'checkboxValue: ' + this.checkboxValue);
-
-
 	}
 	SetComparisons(): boolean {
 
-		//let comparison1: CodingRecord = new CodingRecord();
-		//let comparison2: CodingRecord = new CodingRecord();
-		//let comparison3: CodingRecord = new CodingRecord();
+		this.comparison1 = null;
+		this.comparison2 = null;
+		this.comparison3 = null;
 
 		let isla: ItemSet[] = this.itemsSelected;
 		let itemSet: ItemSet = new ItemSet();
@@ -91,7 +80,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			for (var i = 0; i < isla.length; i++) {
 
 				itemSet = isla[i];	
-				console.log('debug setcomparisons: ' + JSON.stringify(itemSet));
 				if (itemSet.isSelected == true) {
 					if (this.comparison1 == null)
 						this.comparison1 = itemSet;
@@ -145,11 +133,10 @@ export class codingRecordComp implements OnInit, OnDestroy {
 	}
 	private CodingReportCheckChildSelected(itemSet: ItemSet,  attributeSet: SetAttribute): boolean {
 
-		//console.log('Called this report again....');
 		if (itemSet != null) {
-
-			//console.log('list the item attributes: ' + JSON.stringify(itemSet.itemAttributesList));
-			if (itemSet.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id) != null) {
+			var listAttributes = itemSet.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id);
+			
+			if (listAttributes && listAttributes.length > 0) {
 				return true;
 			}
 
@@ -164,15 +151,17 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		return false;
 	}
 	private writeComparisonReportAttributes(comparison1: ItemSet, comparison2: ItemSet, comparison3: ItemSet | null, attributeSet: SetAttribute): string {
+
 		let report: string = "";
 
 		if (attributeSet.attribute_type_id > 1) {
 
 			let oneReviewerHasSelected: boolean = false;
-			
-			let roias: ReadOnlyItemAttribute[]  = comparison1.itemAttributesList.filter( (x) => x.attributeId== attributeSet.attribute_id).sort(o => o.armId);
-
-			for (var i = 0; i < roias.length; i++) {
+			let roias: ReadOnlyItemAttribute[];
+			var listAttributes = comparison1.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id).sort(o => o.armId);
+			if (listAttributes && listAttributes.length > 0) {
+				roias = listAttributes;
+				for (var i = 0; i < roias.length; i++) {
 
 				let roia: ReadOnlyItemAttribute = roias[i];
 
@@ -195,8 +184,9 @@ export class codingRecordComp implements OnInit, OnDestroy {
 				}
 			}
 
+			}
 			roias = comparison2.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id).sort(o => o.armId);
-
+			
 			for (var i = 0; i < roias.length; i++) {
 
 				let roia: ReadOnlyItemAttribute = roias[i];
@@ -214,7 +204,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			}
 
 			if (comparison3 != null) {
-				alert('comparison 3??');
 				roias = comparison3.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id).sort(o => o.armId);
 
 				for (var i = 0; i < roias.length; i++) {
@@ -239,7 +228,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 				if ((this.CodingReportCheckChildSelected(comparison1, attributeSet) == true) ||
 					(this.CodingReportCheckChildSelected(comparison2, attributeSet) == true) ||
-					(this.CodingReportCheckChildSelected(comparison3 != null? comparison3: new ItemSet(), attributeSet) == true)) // ie an attribute below this is selected, even though this one isn't
+				(this.CodingReportCheckChildSelected(comparison3 != null? comparison3: new ItemSet(), attributeSet) == true)) // ie an attribute below this is selected, even though this one isn't
 				{
 					report += "<li>" + attributeSet.attribute_name + "</li>";
 					report += "<ul>";
@@ -253,6 +242,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 				}
 			}
 			else {
+
 				report += "<ul>";
 			
 				for (var i = 0; i < attributeSet.attributes.length; i++) {
@@ -260,7 +250,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 					let child: SetAttribute = attributeSet.attributes[i];
 					report += this.writeComparisonReportAttributes(comparison1, comparison2, comparison3, child);
 				}
-				alert('here?1');
 				report += "</ul>";
 			}
 		}
@@ -275,7 +264,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 				report += this.writeComparisonReportAttributes(comparison1, comparison2, comparison3, child);
 			}
-			alert('here?2');
 			report += "</ul>";
 		}
 		return report;
@@ -289,7 +277,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			alert('The number of selected coding records is incorrect');
 			return;
 		}
-		//also need to check codesets are all the same
 		for (var i = 1; i < count; i++) {
 			let tmpSetName = this.itemsSelected[i].setId;
 			if (tmpSetName != this.itemsSelected[i - 1].setId) {
@@ -299,8 +286,6 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		}
 
 		let isla: ItemSet[] = this.itemsSelected;
-
-		//console.log('checking correct items were selected: ' + JSON.stringify(isla));
 
 		//isla.AddFullTextData(e2.Object as ItemAttributesAllFullTextDetailsList);
 
@@ -326,9 +311,8 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			}
 			report += "</ul></p>";
 		}
-
-		console.log('Here is the report: ' + report);
-
+		// need to open a new window with this html like previously
+		this._comparisonService.OpenInNewWindow(report);
 	}
 	LiveComparison() {
 
@@ -337,7 +321,12 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
         this.router.navigate(['Main']);
     }
-    ngOnDestroy() {
+	ngOnDestroy() {
+
+		if (this.ItemCodingServiceDataChanged) {
+
+			this.ItemCodingServiceDataChanged.unsubscribe();
+		}
 
 	}
 }
