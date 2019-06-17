@@ -269,16 +269,19 @@ export class ReviewSetsService extends BusyAwareService {
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 destSet.itemSetIsLocked = itemset.isLocked;
                 destSet.ItemSetId = itemset.itemSetId;
+                destSet.codingComplete = true;
+                UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         if (dest) {
-                            UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
+                            
                             dest.isSelected = true;
-                            console.log("I'm doing it..................................");
+                            //console.log("I'm doing it..................................");
                             dest.additionalText = itemAttribute.additionalText;
-                            destSet.codingComplete = true;
+                            dest.armId = itemAttribute.armId;
+                            
                              }
                     }
                 }
@@ -299,6 +302,7 @@ export class ReviewSetsService extends BusyAwareService {
                         if (dest) {
                             UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
+                            dest.armId = itemAttribute.armId;
                             dest.additionalText = itemAttribute.additionalText;
                              }
                     }
@@ -377,7 +381,10 @@ export class ReviewSetsService extends BusyAwareService {
         
         for (let att of children) {
             att.additionalText = "";
-            if (att.isSelected) att.isSelected = false;
+            if (att.isSelected) {
+                att.armId = 0;
+                att.isSelected = false;
+            }
             if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
         }
     }

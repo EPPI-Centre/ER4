@@ -295,10 +295,13 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 		//alert('in node: ' + node.name)
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
-        const att = node as SetAttribute;
-        if (att && node.nodeType == "SetAttribute" ) {
+        this.FetchPDFHighlights();
+    }
+    FetchPDFHighlights() {
+        const att = this.SelectedNodeData as SetAttribute;
+        if (att && att.nodeType == "SetAttribute") {
             this.ItemCodingService.SelectedSetAttribute = att;
-            if (this.InitiateFetchPDFCoding && node.isSelected && this.ItemDocsService.CurrentDocId !== 0) {
+            if (this.InitiateFetchPDFCoding && att.isSelected && this.ItemDocsService.CurrentDocId !== 0) {
                 const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(att);
                 console.log("we might need to fetch PDF coding", ROatt);
                 if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
