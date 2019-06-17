@@ -337,9 +337,12 @@ export class ItemCodingService extends BusyAwareService {
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyDeleteItemAttribute(itemSet: ItemSet | null, itemAtt: ReadOnlyItemAttribute | null) {
+        console.log("ApplyDeleteItemAttribute", itemSet, itemAtt);
         if (itemSet && itemAtt) {
             //remove the itemAttribute from itemSet
-            itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj !== itemAtt);
+            //console.log("Before filter", itemSet.itemAttributesList.length);
+            itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj.itemAttributeId !== itemAtt.itemAttributeId);
+            //console.log("After filter", itemSet.itemAttributesList.length);
             if (itemSet.itemAttributesList.length == 0) {
                 //if itemset does not have item attributes, remove the itemset
                 this.ItemCodingList = this.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
