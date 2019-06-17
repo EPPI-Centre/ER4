@@ -556,7 +556,7 @@ export class ItemCodingService extends BusyAwareService {
         return report;
     }
     public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
-        //console.log("addFullTextToComparisonReport", list);
+        console.log("addFullTextToComparisonReport", list);
         let result: string = "";
         for (let ftd of list) {
             result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
@@ -928,6 +928,44 @@ export class ItemCodingService extends BusyAwareService {
         let ind = this._ItemCodingList.findIndex(found => found.itemSetId == ItemSetId);
         if (ind != -1) return this._ItemCodingList[ind];
         else return result;
+    }
+    public FetchAllFullTextData(itemid: number): Promise<boolean> {
+        this._BusyMethods.push("FetchAllFullTextData");
+        return this._httpC.post<ItemAttributeFullTextDetails[]>(
+            this._baseUrl + 'api/Comparisons/ItemAttributesFullTextData',
+            itemid
+        ).toPromise().then(
+            (res: ItemAttributeFullTextDetails[]) => {
+                //let fullText: object[] = [];
+                if (res != null) {
+                    console.log("got ItemAttributeFullTextDetails", res);
+                    for (let iaFT of res) {
+                        let ItSet = this.ItemCodingList.find(found => found.itemSetId == iaFT.itemSetId);
+                        if (ItSet != undefined) {
+                            console.log("got ItSet", ItSet);
+                            let ItmAtt = ItSet.itemAttributesList.find(found => found.itemAttributeId == iaFT.itemAttributeId);
+                            if (ItmAtt != undefined) {
+                                console.log("got ItmAtt", ItmAtt);
+                                let iaFTdetails = ItmAtt.itemAttributeFullTextDetails.find(found => found.itemAttributeTextId == iaFT.itemAttributeTextId);
+                                if (iaFTdetails == undefined) ItmAtt.itemAttributeFullTextDetails.push(iaFT);
+                            }
+                        }
+                    }
+                }
+                this.RemoveBusy("FetchAllFullTextData");
+                return true;
+            }, (error) => {
+                this.RemoveBusy("FetchAllFullTextData");
+                console.log("Error in FetchAllFullTextData", error);
+                this.modalService.GenericErrorMessage("Sorry could not fetch the full-text data for the selected coding. Report is aborting.");
+                return false;
+            }
+        ).catch((caught) => {
+            this.RemoveBusy("FetchAllFullTextData");
+            this.modalService.GenericErrorMessage("Sorry could not fetch the full-text data for the selected coding. Report is aborting.");
+            console.log("Catch in FetchAllFullTextData", caught);
+            return false;
+        });
     }
 }
 

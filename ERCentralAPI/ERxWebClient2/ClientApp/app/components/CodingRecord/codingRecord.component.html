@@ -1,10 +1,10 @@
 <div class="container col-12 p-0">
-	<h2><b>Coding Record</b></h2>
-    <div class="h-100 mh-100 pr-0 ">
+	<!--<h2><b>Coding Record</b></h2>-->
+    <div class="p-0 " style="max-height:600px;overflow:auto;">
         <table class="table table-striped col-md-12">
 			<thead>
 				<tr>
-					<th>*</th>
+					<th>&nbsp;</th>
 					<th>Code set</th>
 					<th>Reviewer</th>
 					<th>Completed?</th>
@@ -37,15 +37,11 @@
 		</table>
 	</div>
 	<div class="row">
-		<div class="col-md-1">
+		<div class="row col-12">
 
-		</div>
-		<div class="row col-md-11">
+			<button (click)="RunComparison()" class="btn btn-outline-primary mx-1">Run Comparison</button>
 
-			<button (click)="RunComparison()" class="btn btn-outline-primary ">Run Comparison</button>
-
-			<button disabled="disabled" (click)="LiveComparison()" class="btn btn btn-outline-secondary ">Live Comparison</button>
+			<button disabled="disabled" (click)="LiveComparison()" class="btn btn btn-outline-secondary mx-1">Live Comparison</button>
 		</div>
 	</div>
-     <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
 </div>

@@ -7,6 +7,8 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ItemDocsService } from '../services/itemdocs.service';
 import { Subscription } from 'rxjs';
 import { ComparisonsService } from '../services/comparisons.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { error } from '@angular/compiler/src/util';
 
 @Component({
    
@@ -22,8 +24,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		private _comparisonService: ComparisonsService,
 		private _ItemCodingService: ItemCodingService,
         private _ReviewSetsService: ReviewSetsService,
-        public PriorityScreeningService: PriorityScreeningService, 
-        public ItemDocsService: ItemDocsService
+        private notificationService: NotificationService
     ) { }
   
 	@Input() item: Item = new Item();
@@ -80,57 +81,53 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			for (var i = 0; i < isla.length; i++) {
 
 				itemSet = isla[i];	
-				if (itemSet.isSelected == true) {
-					if (this.comparison1 == null)
-						this.comparison1 = itemSet;
-					else
-						if (this.comparison2 == null)
-							this.comparison2 = itemSet;
-						else
-							if (this.comparison3 == null)
-								this.comparison3 = itemSet;
-							else {
-								alert("A maximum of three comparisons can be run at once.");
-								return false;
-							}
-				}
+                if (itemSet.isSelected == true) {
+                    if (this.comparison1 == null) {
+                        this.comparison1 = itemSet;
+                    }
+                    else {
+                        if (this.comparison2 == null)
+                            this.comparison2 = itemSet;
+                        else {
+                            if (this.comparison3 == null)
+                                this.comparison3 = itemSet;
+                            else {
+                                this.ShowErrorMsg("Comparisons can handle no more than three codings.");
+                                return false;
+                            }
+                        }
+                    }
+                }
 			}
 			if (this.comparison1 == null) {
-				alert("Nothing selected to compare");
+                this.ShowErrorMsg("Nothing selected to compare");
 				return false;
 			}
 			if (this.comparison2 == null) {
-				alert("You need to select at least two lines to compare");
+                this.ShowErrorMsg("You need to select at least two elements to compare");
 				return false;
 			}
 			if (this.comparison2.setId != this.comparison1.setId) {
-				alert("Selected items must be the same code set");
+                this.ShowErrorMsg("Selected items must refer to the same Coding Tool");
 				return false;
 			}
 			if ((this.comparison3 != null) && (this.comparison3.setId != this.comparison2.setId)) {
-				alert("Selected items must be the same code set");
+                this.ShowErrorMsg("Selected items must be the same Coding Tool");
 				return false;
 			}
 		}
 		return true;
-	}
-	addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
-		let result: string = "";
-
-		for (var i = 0; i < list.length; i++) {
-
-			let ftd: ItemAttributeFullTextDetails = list[i];
-			result += "<br>" + ftd.docTitle + ": ";
-			if (ftd.isFromPDF) {
-				result += "<span style='font-size:15px;'>" + ftd.text.replace("[¬s]", "").replace("[¬e]", "") + "</span>";
-			}
-			else {
-				result += "<span style='font-family:Courier New; font-size:12px;'>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
-					+ ")</span>";
-			}
-		}
-		return result;
-	}
+    }
+    private ShowErrorMsg(message: string) {
+        this.notificationService.show({
+            content: message,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: 'error', icon: true },
+            closable: true
+        });
+    }
+	
 	private CodingReportCheckChildSelected(itemSet: ItemSet,  attributeSet: SetAttribute): boolean {
 
 		if (itemSet != null) {
@@ -163,8 +160,8 @@ export class codingRecordComp implements OnInit, OnDestroy {
 				roias = listAttributes;
 				for (var i = 0; i < roias.length; i++) {
 
-				let roia: ReadOnlyItemAttribute = roias[i];
-
+                    let roia: ReadOnlyItemAttribute = roias[i];
+                    
 				report += "<li><FONT COLOR='BLUE'>[" + comparison1.contactName + "] " +
 					attributeSet.attribute_name +
 
@@ -172,17 +169,11 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 					"<br /><i>" + roia.additionalText + "</i></font></li>";
 
-				oneReviewerHasSelected = true;
-
-				if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
-
-					let ll: ItemAttributeFullTextDetails[] = roia.itemAttributeFullTextDetails;
-
-					ll.sort();
-
-					report += "<FONT COLOR='BLUE'>" + this.addFullTextToComparisonReport(ll) + "</FONT>";
-				}
-			}
+                    oneReviewerHasSelected = true;
+                    if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+                        report += "<FONT COLOR='BLUE'>" + this._ItemCodingService.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails) + "</FONT>";
+                    }
+                }
 
 			}
 			roias = comparison2.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id).sort(o => o.armId);
@@ -197,9 +188,8 @@ export class codingRecordComp implements OnInit, OnDestroy {
 					"<br /><i>" + roia.additionalText + "</i></font></li>";
 				oneReviewerHasSelected = true;
 				if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
-					let ll: ItemAttributeFullTextDetails[] = roia.itemAttributeFullTextDetails;
-					ll.sort();
-					report += "<FONT COLOR='RED'>" + this.addFullTextToComparisonReport(ll) + "</FONT>";
+					
+                    report += "<FONT COLOR='RED'>" + this._ItemCodingService.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails) + "</FONT>";
 				}
 			}
 
@@ -216,9 +206,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 						"<br /><i>" + roia.additionalText + "</i></font></li>";
 					oneReviewerHasSelected = true;
 					if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
-						let ll: ItemAttributeFullTextDetails[] = roia.itemAttributeFullTextDetails;
-						ll.sort();
-						report += "<FONT COLOR='GREEN'>" + this.addFullTextToComparisonReport(ll) + "</FONT>";
+                        report += "<FONT COLOR='GREEN'>" + this._ItemCodingService.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails) + "</FONT>";
 					}
 				}
 
@@ -296,55 +284,68 @@ export class codingRecordComp implements OnInit, OnDestroy {
 	RunComparison() {
 
 		let count: number = this.itemsSelected.length;
-		if (count < 2 || count > 3) {
-			alert('The number of selected coding records is incorrect');
-			return;
-		}
-		for (var i = 1; i < count; i++) {
-			let tmpSetName = this.itemsSelected[i].setId;
-			if (tmpSetName != this.itemsSelected[i - 1].setId) {
-				alert('Codesets being compared should all be the same');
-				return;
-			}
-		}
+        if (!this.SetComparisons()) {
+            return;
+        }
 
-		this._comparisonService.FetchFullTextData(this.item.itemId).then(
+        this._ItemCodingService.FetchAllFullTextData(this.item.itemId).then(
 
-			(fullText: any) => {
+            (GetFTWorked: boolean) => {
+                if (!GetFTWorked) {
+                    return;
+                }
+                else {
+                    let firstItemSetSelected = this._ItemCodingService.ItemCodingList.find((x) => x.setId == this.itemsSelected[0].setId);
+                    if (firstItemSetSelected != undefined && this.comparison1 && this.comparison2) {
+                        let reviewSet = this._ReviewSetsService.ReviewSets.find((x) => firstItemSetSelected != undefined && x.set_id == firstItemSetSelected.setId);
+                        if (reviewSet == undefined) return;
+                        else {
+                            let report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
 
-				console.log('blah blah: ' + JSON.stringify(fullText));
+                            for (var i = 0; i < reviewSet.attributes.length; i++) {
+
+                                let attributeSet: SetAttribute = reviewSet.attributes[i];
+
+                                report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
+                            }
+                            report += "</ul></p>";
+                            this._comparisonService.OpenInNewWindow(report);
+                        }
+                    }
+                    
+                }
+				//console.log('blah blah: ' + JSON.stringify(fullText));
 
 
-				let isla: ItemSet[] = this.itemsSelected;
-				for (var i = 0; i < isla.length; i++) {
+				//let isla: ItemSet[] = this.itemsSelected;
+				//for (var i = 0; i < isla.length; i++) {
 
-					this.AddFullTextData(fullText);
-				}
+				//	this.AddFullTextData(fullText);
+				//}
 		
-				this.SetComparisons();
+				//this.SetComparisons();
 
-				if (this.comparison1 == null || this.comparison2 == null) {
-					alert('exiting');
-					return;
-				}
+				//if (this.comparison1 == null || this.comparison2 == null) {
+				//	alert('exiting');
+				//	return;
+				//}
 
-				let firstItemSelected: ItemSet = this._ItemCodingService.ItemCodingList.filter((x) => x.setId == this.itemsSelected[0].setId)[0];
-				let reviewSet: ReviewSet = this._ReviewSetsService.GetReviewSets().filter((x) => x.set_id == firstItemSelected.setId)[0];
-				let report: string = '';
-				if (reviewSet != null) {
+				
+				//let report: string = '';
+				//if (reviewSet != null) {
 
-					report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
+				//	report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
 
-					for (var i = 0; i < reviewSet.attributes.length; i++) {
+				//	for (var i = 0; i < reviewSet.attributes.length; i++) {
 
-						let attributeSet: SetAttribute = reviewSet.attributes[i];
+				//		let attributeSet: SetAttribute = reviewSet.attributes[i];
 
-						report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
-					}
-					report += "</ul></p>";
-				}
-				// need to open a new window with this html like previously
-				this._comparisonService.OpenInNewWindow(report);
+				//		report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
+				//	}
+				//	report += "</ul></p>";
+				//}
+				//// need to open a new window with this html like previously
+				//this._comparisonService.OpenInNewWindow(report);
 
 			});
 	}
@@ -374,22 +375,7 @@ export class CodingRecord {
 	isSelected: boolean = false;
 }
 
-export class ItemAttributesAllFullTextDetails {
 
-	ItemDocumentId: number = 0;
-	ItemAttributeId: number = 0;
-	ItemSetId: number = 0;
-	ItemAttributeTextId: number = 0;
-	TextFrom: number = 0;
-	TextTo: number = 0;
-	Text: string = '';
-	IsFromPDF: boolean = false;
-	DocTitle: string = '';
-	ItemArm: string = '';
-
-
-
-}
 
 
 

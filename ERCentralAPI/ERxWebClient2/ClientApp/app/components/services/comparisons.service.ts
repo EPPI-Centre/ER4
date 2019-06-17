@@ -44,28 +44,7 @@ export class ComparisonsService extends BusyAwareService {
 		return this._Statistics;		
 	}
 
-	public FetchFullTextData(itemid: number): Promise<object[]> {
-
-		return this._httpC.post<any>(
-			this._baseUrl + 'api/Comparisons/ItemAttributesFullTextData',
-			itemid
-		).toPromise().then(
-
-			(res: object[]) => {
-
-					let fullText: object[] = [];
-					if (res != null) {
-
-						for (var i = 0; i < res.length; i++) {
-							fullText.push(res[i]);
-						}
-					}
-					return fullText;
-
-				}
-
-			);
-	}
+	
 
 	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenParent: any)  : Promise<any>
 	{

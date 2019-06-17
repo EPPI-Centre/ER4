@@ -276,8 +276,9 @@ export class ReviewSetsService extends BusyAwareService {
                         if (dest) {
                             UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                             dest.isSelected = true;
-                            console.log("I'm doing it..................................");
+                            //console.log("I'm doing it..................................");
                             dest.additionalText = itemAttribute.additionalText;
+                            dest.armId = itemAttribute.armId;
                             destSet.codingComplete = true;
                              }
                     }
@@ -299,6 +300,7 @@ export class ReviewSetsService extends BusyAwareService {
                         if (dest) {
                             UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
+                            dest.armId = itemAttribute.armId;
                             dest.additionalText = itemAttribute.additionalText;
                              }
                     }
@@ -377,7 +379,10 @@ export class ReviewSetsService extends BusyAwareService {
         
         for (let att of children) {
             att.additionalText = "";
-            if (att.isSelected) att.isSelected = false;
+            if (att.isSelected) {
+                att.armId = 0;
+                att.isSelected = false;
+            }
             if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
         }
     }
