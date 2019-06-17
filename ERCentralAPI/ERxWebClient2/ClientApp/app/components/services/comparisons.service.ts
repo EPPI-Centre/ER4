@@ -164,9 +164,9 @@ export class ComparisonsService extends BusyAwareService {
 					else {
 						if (item.isCompleted == true) {
 							if (Agreed == "")
-								Agreed = "<b>" + item.attributeNameWithArm4HTML + "</b> (" + item.comparisonAttributeId + ")";
+								Agreed = "<b>" + item.attributeNameWithArm4HTML + "</b>";
 							else
-                                Agreed += "<br><br><b>" + item.attributeNameWithArm4HTML + "</b>(" + item.comparisonAttributeId + ")";
+                                Agreed += "<br><br><b>" + item.attributeNameWithArm4HTML + "</b>";
 							if (item.additionalText != "")
 								Agreed += "<br><i> " + item.additionalText + "</i>";
 						}
