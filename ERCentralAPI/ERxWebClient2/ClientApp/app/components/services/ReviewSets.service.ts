@@ -474,10 +474,11 @@ export class ReviewSetsService extends BusyAwareService {
                     if (rSet) {
                         rSet.codingComplete = cmd.complete;
                         rSet.itemSetIsLocked = cmd.isLocked;
+
                     }
                     else {
-                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here.\n"
-                            + "Please navigate to the next item and then back, to check if the expected changes did happen.\n" +
+                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+                            + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
                             "If the problem persists please contact EPPISupport.");
                         return false;
                     }

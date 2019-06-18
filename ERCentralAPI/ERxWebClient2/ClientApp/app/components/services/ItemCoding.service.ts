@@ -308,8 +308,8 @@ export class ItemCodingService extends BusyAwareService {
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
-        console.log("CmdResult", cmdResult);
-        console.log("itemSet", itemSet);
+        //console.log("CmdResult", cmdResult);
+        //console.log("itemSet", itemSet);
         let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
         newItemA.additionalText = cmdResult.additionalText;
         newItemA.armId = cmdResult.itemArmId;
@@ -742,7 +742,7 @@ export class ItemCodingService extends BusyAwareService {
         }
 
         retVal += "<td>";
-        for(let OIA of o.outcomeCodes)
+        for(let OIA of o.outcomeCodes.outcomeItemAttributesList)
         {
             retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
         }
@@ -963,7 +963,7 @@ export class Outcome {
     itemSetId: number = 0;
     outcomeTypeName: string = "";
     outcomeTypeId: number = 0;
-    outcomeCodes: OutcomeItemAttribute[] = [];
+    outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
     itemAttributeIdIntervention: number = 0;
     itemAttributeIdControl: number = 0;
     itemAttributeIdOutcome: number = 0;
@@ -1038,6 +1038,9 @@ export class Outcome {
     data12Desc: string = "";
     data13Desc: string = "";
     data14Desc: string = "";
+}
+export class  OutcomeItemAttributesList {
+    outcomeItemAttributesList: OutcomeItemAttribute[] = [];
 }
 export interface OutcomeItemAttribute {
     outcomeItemAttributeId: number;

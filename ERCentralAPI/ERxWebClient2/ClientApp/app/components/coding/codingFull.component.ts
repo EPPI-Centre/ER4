@@ -221,7 +221,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         //console.log('set coding');
         this.SetHighlights();
         //this.ReviewSetsService.clearItemData();
-        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
+        if (this.ItemCodingService.ItemCodingList.length == 0) {
+            this.ReviewSetsService.clearItemData();
+            return;//no need to add codes that don't exist.
+        }
         if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
         else this.SetArmCoding(0);
     }

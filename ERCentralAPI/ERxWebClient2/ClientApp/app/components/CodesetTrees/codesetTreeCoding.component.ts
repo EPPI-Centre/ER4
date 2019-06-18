@@ -235,6 +235,14 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
                     if (iSet) {
                         iSet.isLocked = this.ItemSetProxy.IsLocked;
                         iSet.isCompleted = this.ItemSetProxy.IsCompleted;
+                        if (!iSet.isCompleted && iSet.contactId != this.ReviewerIdentityServ.reviewerIdentity.userId) {
+                            //user un-completed somebody else's version, so we might need to show a coding (the one that belongs to the user!)...
+                            this.ReviewSetsService.clearItemData();
+                            if (this.armsService.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armsService.SelectedArm.itemArmId);
+                            else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
+                            this.FetchPDFHighlights();//after setting the coding data, we might need to re-fetch the PDF highlights, checks on whether that's likely to be need happen in there.
+                            
+                        }
                         this.NotificationService.show(
                             {
                                 content: "Changes saved for coding on \"" + this.ItemSetProxy.set_name + "\".",
