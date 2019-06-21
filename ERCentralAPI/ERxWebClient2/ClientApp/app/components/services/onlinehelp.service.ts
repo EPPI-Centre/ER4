@@ -103,6 +103,7 @@ export class FeedbackAndClientError4Create {
 export class FeedbackAndClientError extends FeedbackAndClientError4Create {
     public messageId: number = -1;
     public contactName: string = "";
+    public contactEmail: string = "";
     public dateCreated: string = "";
     public reviewId: number = 0;
 }

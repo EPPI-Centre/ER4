@@ -33,12 +33,20 @@ namespace BusinessLibrary.BusinessClasses
         private string _whichReviewers;
         private int _numAffected;
         private int _contactId;
+        private string _lockCoding = null;
 
         public ComparisonCompleteCommand(int comparisonId, string WhichReviewers, int contactId)
         {
             _comparisonId = comparisonId;
             _whichReviewers = WhichReviewers;
             _contactId = contactId;
+        }
+        public ComparisonCompleteCommand(int comparisonId, string WhichReviewers, int contactId, string lockCoding)
+        {
+            _comparisonId = comparisonId;
+            _whichReviewers = WhichReviewers;
+            _contactId = contactId;
+            _lockCoding = lockCoding;
         }
 
         public int NumberAffected
@@ -53,6 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_whichReviewers", _whichReviewers);
             info.AddValue("_numAffected", _numAffected);
             info.AddValue("_contactId", _contactId);
+            info.AddValue("_lockCoding", _lockCoding);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -60,6 +69,7 @@ namespace BusinessLibrary.BusinessClasses
             _whichReviewers = info.GetValue<string>("_whichReviewers");
             _numAffected = info.GetValue<int>("_numAffected");
             _contactId = info.GetValue<int>("_contactId");
+            _lockCoding = info.GetValue<string>("_lockCoding");
         }
 
 
@@ -77,6 +87,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@COMPARISON_ID", _comparisonId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", _contactId));
                     command.Parameters.Add(new SqlParameter("@WHICH_REVIEWERS", _whichReviewers));
+                    if (_lockCoding != null && _lockCoding.ToLower() == "true")
+                    {
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", 1));
+                    }
+                    else if (_lockCoding != null && _lockCoding.ToLower() == "false")
+                    {
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", 0));
+                    }
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())

@@ -3,6 +3,7 @@
 		<kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create new code'" (click)="NewCodeSectionOpen()" [disabled]="!HasWriteRights  || !CanCreateNewCode()"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Create coding assignment'" (click)="NewWorkAllocation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Create comparison'" (click)="NewComparisonSectionOpen()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
 <!--<kendo-splitter-pane>-->
@@ -67,7 +68,7 @@
 					</div>
 				</div>
 			</div>
-
+										
 			<div class="row mt-2 justify-content-center justify-content-md-start">
 				<div class="col-12 col-md-4 row ">
 					<div class="mr-2 text-right" style="">
@@ -236,12 +237,14 @@
 	<CreateNewComparisonComp (emitterCancel)="CancelActivity()"></CreateNewComparisonComp>
 </div>
 
-<div class="col-12 p-0 mb-1 bg-light" style="min-height:300px;">
-	<div class="col-12 row p-0 m-0">
-		<div class="card  col-sm-12 col-md-3 px-1">
-			<h5 class="m-1 p-1 font-weight-bold">Reviewers</h5>
+<div class="col-12 p-0 mb-1 bg-light " style="min-height:250px;">
+	<div class="col-12 row p-1 m-0">
+		<div class="card  col-sm-12 col-md-3">
+            <h5 class="m-1 p-1 font-weight-bold">
+                Reviewers
+            </h5>
 			<div style="max-height:340px;overflow:auto;">
-				<table class='card-body table table-striped bg-light' *ngIf="_workAllocationListService.ContactWorkAllocations">
+				<table class='card-body table table-striped bg-light' *ngIf="ShowAllocations && ContactWorkAllocations">
 					<thead>
 						<tr class="small">
 							<th>ID</th>
@@ -249,7 +252,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="small" *ngFor="let member of reviewInfoService.Contacts; let i = index">
+						<tr class="small" *ngFor="let member of Contacts; let i = index">
 							<td>{{ member.contactId }}</td>
 							<td>{{ member.contactName }}</td>
 						</tr>
@@ -257,10 +260,17 @@
 				</table>
 			</div>
 		</div>
-		<div class="card col-sm-12 col-md-9 px-1 ">
-			<h5 class="m-1 p-1 font-weight-bold"> Coding Assignments</h5>
-			<div style="max-height:340px;overflow:auto;">
-				<table class='small table table-striped bg-light' *ngIf="_workAllocationListService.AllWorkAllocationsForReview">
+		<div class="card col-sm-12 col-md-9">
+            <h5 class="m-1 p-1 font-weight-bold">
+                Coding Assignments
+
+                <button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+                        (click)="ShowAllocations = !ShowAllocations">
+                    {{ShowAllocationsText}}
+                </button>
+            </h5>
+			<div style="max-height:360px;overflow:auto;">
+				<table class='small table table-striped bg-light' *ngIf="ShowAllocations && AllWorkAllocationsForReview">
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -284,6 +294,87 @@
 							<td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
 							<td class="p-0"><button class="btn btn-outline-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
 						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<div class="card  col-sm-12 col-md-12 mt-2">
+			<div class="m-1 p-1 h5 font-weight-bold">
+                Comparisons 
+                <button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right" 
+                    (click)="ShowComparisons = !ShowComparisons">{{ShowComparisonsText}}
+                </button>
+            </div>
+			<div style="max-height:480px;overflow:auto;">
+				<table class='card-body table table-striped bg-light' *ngIf="ShowComparisons && Comparisons">
+					<thead>
+						<tr class="small">
+							<th class="pl-1">Codes applied from this set</th>
+							<th class="pl-1">Reviewer 1</th>
+							<th class="pl-1">Reviewer 2</th>
+							<th class="pl-1">(Reviewer 3)</th>
+							<th class="pl-1">(Only with this code)</th>
+							<th class="pl-1">Date</th>
+							<th class="pl-1">Quick Rep.</th>
+							<th class="pl-1">Details</th>
+							<th class="pl-1">Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container class="small" *ngFor="let item of _comparisonsService.Comparisons; let i = index">
+							<tr>
+								<td class="p-1">{{ item.setName }}</td>
+								<td class="p-1">{{ item.contactName1 }}</td>
+								<td class="p-1">{{ item.contactName2 }}</td>
+								<td class="p-1">{{ item.contactName3 }}</td>
+								<td class="p-1">{{ item.attributeName}}</td>
+								<td class="p-1">{{ item.comparisonDate }}</td>
+								<td class="p-1"><button class="btn btn-outline-success w-100 py-0" (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>
+								<td class="p-1"><button class="btn btn-outline-info w-100 py-0" (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
+								<td class="p-1"><button class="btn btn-outline-danger w-100 py-0" (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
+							</tr>
+							<tr>
+								<td colspan="9" class="p-0 py-1">
+									<ComparisonStatsComp  #ComparisonStatsCompList 
+														 *ngIf="PanelName == 'getStats' + item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
+														 [rowSelected]="item.comparisonId"
+														 (criteriaChange)="LoadComparisonList()"
+														 (setListSubType)="setCompListType($event)">
+									</ComparisonStatsComp>
+
+                                    <div *ngIf="PanelName == 'runQuickReport'+ item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId" 
+                                         class="card col-12">
+                                        <h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
+                                        <div class="col-12 row bg-light p-0 m-1 rounded border border-success mb-2">
+                                            <div class="col-12 col-lg-4 row p-0 m-0">
+                                                <div class="mx-1 mt-2">Selected Code/Set: </div>
+                                                <div class="border border-dark mt-2 px-1 ml-1" [ngClass]="{'alert-success font-weight-bold' : CanRunQuickReport}">{{chosenFilterName}}</div>
+                                                <div class="col-12 my-1">
+                                                    <button (click)="RunHTMLComparisonReport()"
+                                                            [disabled]="!CanRunQuickReport"
+                                                            class="btn btn-outline-success p-1 m-1">
+                                                        &nbsp;&nbsp;Run&nbsp;&nbsp;
+                                                    </button>
+                                                    <button (click)="getPanelRunQuickReport(item.comparisonId)"
+                                                            class="btn btn-outline-info p-1 m-1">
+                                                        &nbsp;&nbsp;Cancel&nbsp;&nbsp;
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-8 row p-1 m-0">
+                                                Please select the coding tool (used for this comparison), or a parent code in the same coding tool, for the comparison report.
+                                            </div>
+                                        </div>
+                                    </div>
+								</td>
+							</tr>
+							<!--<tr>
+								<td colspan="12">
+								
+								</td>
+							</tr>-->
+						</ng-container>
 					</tbody>
 				</table>
 			</div>

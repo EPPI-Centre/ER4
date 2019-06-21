@@ -3,19 +3,20 @@ import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ReviewerTermsService {
+export class ReviewerTermsService extends BusyAwareService {
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        
+		super();
     }
 
 
@@ -41,11 +42,16 @@ export class ReviewerTermsService {
 
     public Fetch() {
 
+		this._BusyMethods.push("Fetch");
         return this._httpC.get<ReviewerTerm[]>(this._baseUrl + 'api/ReviewerTermList/Fetch').subscribe(result => {
-            this._TermsList = result;
+			this._TermsList = result;
+			this.RemoveBusy("Fetch");
             //this.Save();
         },
-            error => { this.modalService.GenericError(error); }
+			error => {
+				this.modalService.GenericError(error);
+				this.RemoveBusy("Fetch");
+			}
         );
     }
 

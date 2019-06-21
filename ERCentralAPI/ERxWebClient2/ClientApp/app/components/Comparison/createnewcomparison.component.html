@@ -1,11 +1,12 @@
-<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
+<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary ">
 	<form class="row" >
 		<div class="col-12">
 			<div class="form-group">
 				<label for="rev1">Reviewer 1</label>
 				<select class="col-md-6 form-control" name="rev1"
 						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1" >
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
+					<option> </option>
+					<option *ngFor="let member of Contacts" 
 							 [ngValue]="member" [selected]="member == selectedReviewer1">
 						{{member.contactName}}
 					</option>
@@ -16,9 +17,10 @@
 			<div class="form-group">
 				<label for="rev2">Reviewer 2</label>
 				<select class="col-md-6 form-control" name="rev2"
-						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2" >
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
-							 [ngValue]="member" [selected]="member == selectedReviewer2">
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2">
+					<option> </option>
+					<option *ngFor="let member of Contacts"
+							[ngValue]="member" [selected]="member == selectedReviewer2">
 						{{member.contactName}}
 					</option>
 				</select>
@@ -28,9 +30,10 @@
 			<div class="form-group">
 				<label for="rev3">Reviewer 3 (optional)</label>
 				<select class="col-md-6 form-control" name="rev3"
-						[disabled]="!HasWriteRights"  [(ngModel)]="selectedReviewer3">
-					<option *ngFor="let member of _reviewInfoService.Contacts" 
-						name="rev3"	  [ngValue]="member" [selected]="member == selectedReviewer3">
+						[disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer3">
+					<option> </option>
+					<option *ngFor="let member of Contacts"
+							name="rev3" [ngValue]="member" [selected]="member == selectedReviewer3">
 						{{member.contactName}}
 					</option>
 				</select>
@@ -50,18 +53,23 @@
 		</div>
 		<div class="col-12">
 			<div class="form-group col-12 row">
-				<button type="submit" class="btn btn-outline-info ml-2 mr-2"
-						[disabled]="!HasWriteRights" (click)="setsFilter()">
-					Set filter (optional)
-				</button>
-				<div *ngIf="CurrentNode && CurrentNode.nodeType == 'SetAttribute'" class="col-4">
-					Current code Name: <strong>{{CurrentNode.name}}</strong><br />
+				<div style="min-width: 100px;">
+				<span >Selected Filter: &nbsp;</span>
 				</div>
+				<div class="col-10" *ngIf="chosenFilter && chosenFilter.nodeType == 'SetAttribute'">
+					<span>
+						<b>{{chosenFilter.name}}</b>
+					</span>
+				</div>
+			</div>
+			<div class="col-12 m-2">
+				<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+				<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
 			</div>
 		</div>
 		<div class="col-12">
 			<button type="submit" (click)="CreateNewComparison()" class="btn btn-success ml-2 mr-2"
-					[disabled]="!HasWriteRights && CanCreateComparison()">
+					[disabled]="!HasWriteRights || CanCreateComparison()" style="width:200px;">
 				Create Comparison
 			</button>
 			<button class="btn btn-outline-secondary ml-1"

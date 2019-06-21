@@ -15,7 +15,6 @@ export class BuildModelService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
-		private reviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();

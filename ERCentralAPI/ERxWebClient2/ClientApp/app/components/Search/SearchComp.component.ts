@@ -36,15 +36,15 @@ export class SearchComp implements OnInit, OnDestroy {
 	   
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		public ItemListService: ItemListService,
+		private ItemListService: ItemListService,
 		public _searchService: searchService,
-		public _reviewSetsEditingServ: ReviewSetsEditingService,
+		private _reviewSetsEditingServ: ReviewSetsEditingService,
 		private _eventEmitter: EventEmitterService,
         private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
-		public _sourcesService: SourcesService,
+		private _sourcesService: SourcesService,
 		private confirmationDialogService: ConfirmationDialogService
 	) {
 		
@@ -103,6 +103,12 @@ export class SearchComp implements OnInit, OnDestroy {
 	};
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights;
+    }
+    public get SearchList() : Search[] {
+        return this._searchService.SearchList;
+    }
+    public get isSearchServiceBusy(): boolean {
+        return this._searchService.IsBusy;
     }
 	public setSelectableSettings(): void {
 

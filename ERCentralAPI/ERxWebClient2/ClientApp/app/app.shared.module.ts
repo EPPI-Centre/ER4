@@ -68,9 +68,10 @@ import { WorkAllocationContactListComp } from './components/WorkAllocations/Work
 import { SiteAdminEntryComponent } from './components/SiteAdmin/siteadminEntry.component';
 import { editItemDetailsComp } from './components/itemDetails/editItemDetails.component';
 import { CreateNewCodeComp } from './components/CodesetTrees/createnewcode.component';
-import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 import { ComparisonComp } from './components/Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from './components/Comparison/comparisonstatistics.component';
+import { ComparisonReconciliationComp } from './components/Comparison/comparisonreconciliation.component';
+import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 
@@ -126,6 +127,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 		CreateNewCodeComp,
 		ComparisonComp,
 		ComparisonStatsComp,
+		ComparisonReconciliationComp,
         PdfTronContainer,
         WebViewerComponent
 	],
@@ -168,7 +170,8 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },
             { path: 'EditItem', component: editItemDetailsComp },
-            { path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+			{ path: 'EditCodeSets', component: ReviewSetsEditorComponent },
+			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent }, 
             { path: 'SiteAdmin', component: SiteAdminComponent },

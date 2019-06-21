@@ -17,6 +17,7 @@ using Telerik.Windows.Controls;
 using System.ComponentModel;
 using Csla;
 using Csla.Xaml;
+using System.Diagnostics;
 
 namespace EppiReviewer4
 {
@@ -669,6 +670,10 @@ namespace EppiReviewer4
                                 r.ArmID = roia.ArmId;
                                 r.ArmName = roia.ArmTitle;
                                 r1.Add(r);
+								//if (roia.ArmTitle != "")
+								//{
+								//	Debug.WriteLine("We have these arms: " + iSet.ItemSetId + "" + roia.ArmTitle);
+								//}
                             }
                         }
                     }
@@ -685,7 +690,11 @@ namespace EppiReviewer4
                                 r.ArmID = roia.ArmId;
                                 r.ArmName = roia.ArmTitle;
                                 r2.Add(r);
-                            }
+								//if (roia.ArmTitle != "")
+								//{
+								//	Debug.WriteLine("We have these arms: " + iSet.ItemSetId + "" + roia.ArmTitle);
+								//}
+							}
                         }
                     }
                     else if (iSet.ContactId == _Comparison.ContactId3)
@@ -701,7 +710,11 @@ namespace EppiReviewer4
                                 r.ArmID = roia.ArmId;
                                 r.ArmName = roia.ArmTitle;
                                 r3.Add(r);
-                            }
+								//if (roia.ArmTitle != "")
+								//{
+								//	Debug.WriteLine("We have these arms: " + iSet.ItemSetId + "" + roia.ArmTitle);
+								//}
+							}
                         }
                     }
                 }

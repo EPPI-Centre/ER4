@@ -15,40 +15,76 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    public class ComparisonsController : CSLAController
-    {
-        private readonly ILogger _logger;
+	[Authorize]
+	[Route("api/[controller]")]
+	public class ComparisonsController : CSLAController
+	{
+		private readonly ILogger _logger;
 
-        public ComparisonsController(ILogger<ComparisonsController> logger)
-        {
-            _logger = logger;
-        }
+		public ComparisonsController(ILogger<ComparisonsController> logger)
+		{
+			_logger = logger;
+		}
 
-        [HttpGet("[action]")]
-        public IActionResult ComparisonList()//should receive a reviewID!
-        {
-            try
-            {
-                SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                DataPortal<ComparisonList> dp = new DataPortal<ComparisonList>();
+		[HttpGet("[action]")]
+		public IActionResult ComparisonList()//should receive a reviewID!
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<ComparisonList> dp = new DataPortal<ComparisonList>();
 				ComparisonList result = dp.Fetch();
-				
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Comparison List data portal error");
-                throw;
-            }
 
-        }
-		
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison List data portal error");
+				throw;
+			}
+
+		}
+
+		//ComparisonReport
+		[HttpPost("[action]")]
+		public IActionResult ComparisonReport([FromBody] ComparisonAttributeSelectionJSON comparisonAttributesCriteria)
+		{
+			Comparison comparison = new Comparison();
+
+			comparison = comparisonAttributesCriteria.comparison;
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					ComparisonAttributeSelectionCriteria crit = new ComparisonAttributeSelectionCriteria(
+						typeof(ComparisonAttributeList),
+						comparisonAttributesCriteria.comparisonid,
+						comparisonAttributesCriteria.parentAttributeId,
+						comparisonAttributesCriteria.setId
+						);
+
+					DataPortal<ComparisonAttributeList> dp = new DataPortal<ComparisonAttributeList>();
+					ComparisonAttributeList reportList = dp.Fetch(crit);
+
+
+					return Ok(reportList);
+
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison Report data portal error");
+				throw;
+			}
+		}
+
 		[HttpPost("[action]")]
 		public IActionResult DeleteComparison([FromBody] SingleIntCriteria comparisonId)
 		{
@@ -85,7 +121,7 @@ namespace ERxWebClient2.Controllers
 				{
 
 					ComparisonStatsCommand cmd = new ComparisonStatsCommand(comparisonId.Value);
-					DataPortal <ComparisonStatsCommand> dp = new DataPortal<ComparisonStatsCommand>();
+					DataPortal<ComparisonStatsCommand> dp = new DataPortal<ComparisonStatsCommand>();
 					cmd = dp.Execute(cmd);
 
 					return Ok(cmd);
@@ -98,7 +134,52 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-		
+
+		[HttpPost("[action]")]
+		public IActionResult CompleteComparison([FromBody] ComparisonCompleteJSON comparisonComplete)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+
+					if (comparisonComplete.whichReviewers.Contains("Sc"))
+					{
+                        ComparisonScreeningCompleteCommand cmd = new ComparisonScreeningCompleteCommand(
+                            comparisonComplete.comparisonid,
+                            comparisonComplete.whichReviewers,
+                            comparisonComplete.contactId,
+                            comparisonComplete.lockCoding
+                        );
+						DataPortal<ComparisonScreeningCompleteCommand> dp = new DataPortal<ComparisonScreeningCompleteCommand>();
+						cmd = dp.Execute(cmd);
+
+						return Ok(cmd);
+					}
+					else
+					{
+						ComparisonCompleteCommand cmd = new ComparisonCompleteCommand(
+							comparisonComplete.comparisonid,
+							comparisonComplete.whichReviewers,
+							comparisonComplete.contactId,
+                            comparisonComplete.lockCoding
+                        );
+						DataPortal<ComparisonCompleteCommand> dp = new DataPortal<ComparisonCompleteCommand>();
+						cmd = dp.Execute(cmd);
+
+						return Ok(cmd);
+					}
+
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Comparison Complete data portal error");
+				throw;
+			}
+		}
+
 		[HttpPost("[action]")]
 		public IActionResult CreateComparison([FromBody] JObject comparison)
 		{
@@ -119,7 +200,7 @@ namespace ERxWebClient2.Controllers
 					return Ok();
 				}
 				else return Forbid();
-				
+
 			}
 			catch (Exception e)
 			{
@@ -127,5 +208,24 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
+
 	}
+
+	public class ComparisonCompleteJSON
+	{
+		public int comparisonid {get; set;}
+		public string whichReviewers { get; set; }
+		public int contactId { get; set; }
+        public string lockCoding { get; set; }
+    }
+
+	public class ComparisonAttributeSelectionJSON
+	{
+		public int comparisonid { get; set; }
+		public Int64 parentAttributeId { get; set; }
+		public int setId { get; set; }
+		public Comparison comparison { get; set; }
+	}
+
+
 }

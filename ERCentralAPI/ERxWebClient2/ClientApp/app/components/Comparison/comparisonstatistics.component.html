@@ -1,72 +1,303 @@
-<div *ngIf="rowSelected == _comparisonsService.currentComparison.comparisonId">
+<div *ngIf="rowSelected == _comparisonsService.currentComparison.comparisonId ">
 
-<p>The statistics are based on the status of the database at the time the comparison was created</p>
+    <p class="mb-1">The statistics are based on the status of the database at the time the comparison was created.</p>
+    <kendo-tabstrip *ngIf="!CompleteSectionShow">
 
-		<p>
-			Number of documents coded by {{_comparisonsService.currentComparison.contactName1}}: {{_comparisonsService.Statistics.nCoded1}}
-		</p>
-		<p>
-			Number of documents coded by {{_comparisonsService.currentComparison.contactName2}}: {{_comparisonsService.Statistics.nCoded2}}
-		</p>
-		<p *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-			Number of documents coded by {{_comparisonsService.currentComparison.contactName3}}: {{_comparisonsService.Statistics.nCoded3}}
-		</p>
-		<p>
-			Number of documents coded by both {{_comparisonsService.currentComparison.contactName1}} and {{_comparisonsService.currentComparison.contactName2}}
-			: {{_comparisonsService.Statistics.n1vs2 }}
-		</p>
-		<p *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-			Number of documents coded by both {{_comparisonsService.currentComparison.contactName2}} and {{_comparisonsService.currentComparison.contactName3}}
-			: {{_comparisonsService.Statistics.n2vs3 }}
-		</p>
-		<p *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-			Number of documents coded by both {{_comparisonsService.currentComparison.contactName1}} and {{_comparisonsService.currentComparison.contactName3}}
-			: {{_comparisonsService.Statistics.n1vs3 }}
-		</p>
+        <kendo-tabstrip-tab *ngIf="tabSelected == 'AgreeStats'" [selected]="true" [title]="'Full'" class="px-1">
+            <ng-template kendoTabContent>
+                <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 rounded border-success">
 
-		<div class="col-12 row card bg-light card-body rounded border-success">
-			<div class="col-12 row">
-				<span class="col-3">
-					{{_comparisonsService.currentComparison.contactName1}} versus
-					{{_comparisonsService.currentComparison.contactName2}}
-				</span>
-				<div class="col-9 row">
-					<button class="btn btn-outline-info col-3" > Stuff 1</button>
-					<button class="btn btn-outline-info col-3" > Complete</button>
+                    <div class="col-12 row p-0 m-0">
+                        <span class="col-3 mx-0 px-1">
+                            &nbsp;
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <div class="col text-center font-weight-bold"> Agreements</div>
+                            <div class="col text-center font-weight-bold">Disagreements</div>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0">
+                        <div class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName1}} Vs.
+                            {{_comparisonsService.currentComparison.contactName2}}
+                        </div>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <button class="btn btn-outline-success mb-1 col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2')"
+                                    [disabled]="_comparisonsService.Statistics.Agreements1 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.Agreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 py-0 mr-1 px-1 small"
+                                        style="margin-bottom: 1px; overflow-x:hidden" 
+                                        (click)="SendToComplete('1And2','Complete1vs2', true)" 
+                                        [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.Agreements1 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 py-0 mr-1 mb-1 small" (click)="SendToComplete('1And2','Complete1vs2', false)" 
+                                        [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.Agreements1 == 0"> Complete</button>
+                            </div>
+                            <button class="btn btn-outline-success mb-1  col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.disagreements1vs2 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.disagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2')"
+                                        class="btn btn-outline-info  h-100 w-100"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.disagreements1vs2 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
 
-					<button class="btn btn-outline-info col-3" > Stuff 1</button>
-					<button class="btn btn-outline-info col-3" > Reconcile</button>
-				</div>
-			</div>
-			<div class="col-12 row"
-					*ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-				<span class="col-3">
-					{{_comparisonsService.currentComparison.contactName2}} versus
-					{{_comparisonsService.currentComparison.contactName3}}
-				</span>
-				<div class="col-9 row">
-					<button class="btn btn-outline-info col-3"> Stuff 2</button>
-					<button class="btn btn-outline-info col-3"> Complete</button>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0"
+                         *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                        <span class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName2}} Vs.
+                            {{_comparisonsService.currentComparison.contactName3}}
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <button class="btn btn-outline-success mb-1 col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree2vs3')"
+                                    [disabled]="_comparisonsService.Statistics.Agreements3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.Agreements3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 py-0 mr-1 px-1 small"
+                                        style="margin-bottom: 1px; overflow-x:hidden" 
+                                        (click)="SendToComplete('2And3','Complete2vs3', true)" 
+                                        [disabled]="!checkCanComplete2() || _comparisonsService.Statistics.Agreements3 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 py-0 mr-1 mb-1 small" (click)="SendToComplete('2And3','Complete2vs3', false)"
+                                        [disabled]="!checkCanComplete2() || _comparisonsService.Statistics.Agreements3 == 0"> Complete</button>
+                            </div>
 
-					<button class="btn btn-outline-info col-3"> Stuff 2</button>
-					<button class="btn btn-outline-info col-3"> Reconcile</button>
-				</div>
-			</div>
-			<div class="col-12 row"
-					*ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-					<span class=" col-3">
-						{{_comparisonsService.currentComparison.contactName1}} versus
-						{{_comparisonsService.currentComparison.contactName3}}
-					</span>
-					<div class="col-9 row" 
-						 *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
-						<button class="btn btn-outline-info col-3"> Stuff 3</button>
-						<button class="btn btn-outline-info col-3"> Complete</button>
+                            <button class="btn btn-outline-success mb-1 col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.disagreements2vs3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.disagreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3')"
+                                        class="btn btn-outline-info  h-100 w-100"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.disagreements2vs3 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
 
-						<button class="btn btn-outline-info col-3"> Stuff 3</button>
-						<button class="btn btn-outline-info col-3"> Reconcile</button>
-					</div>
-			</div>
-		</div>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0"
+                         *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                        <span class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName1}} Vs.
+                            {{_comparisonsService.currentComparison.contactName3}}
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0"
+                             *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                            <button class="btn btn-outline-success mb-1 col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3')"
+                                    [disabled]="_comparisonsService.Statistics.Agreements2 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.Agreements2 }} / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 mr-1 py-0 px-1 small" 
+                                        style="margin-bottom: 1px; overflow-x:hidden" 
+                                        (click)="SendToComplete('1And3','Complete1vs3', true)" 
+                                        [disabled]="!checkCanComplete3() || _comparisonsService.Statistics.Agreements2 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3', false)" 
+                                        [disabled]="!checkCanComplete3() || _comparisonsService.Statistics.Agreements2 == 0"> Complete</button>
+                            </div>
+                            <button class="btn btn-outline-success mb-1 col-3" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.disagreements1vs3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.disagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3')"
+                                        class="btn btn-outline-info  h-100 w-100"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.disagreements1vs3 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+
+
+        <kendo-tabstrip-tab *ngIf="_comparisonsService.Statistics.RawStats.isScreening" [title]="'Include/Exclude Only'">
+            <ng-template kendoTabContent>
+                <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 rounded border-success">
+                    <div class="col-12 row p-0 m-0">
+                        <span class="col-3 mx-0 px-1">
+                            &nbsp;
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <div class="col text-center font-weight-bold"> Agreements</div>
+                            <div class="col text-center font-weight-bold">Disagreements</div>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0">
+                        <span class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName1}} Vs.
+                            {{_comparisonsService.currentComparison.contactName2}}
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs2Sc')"
+                                    [disabled]="_comparisonsService.Statistics.SCAgreements1 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.SCAgreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', true)"
+                                        style="margin-bottom: 1px; overflow-x:hidden"  
+                                        [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.SCAgreements1 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', false)" 
+                                        [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.SCAgreements1 == 0"> Complete</button>
+                            </div>
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2Sc')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements1vs2 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements1vs2 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button class="btn btn-outline-info  h-100 w-100"
+                                        (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2Sc')"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements1vs2 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0"
+                         *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                        <span class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName2}} Vs.
+                            {{_comparisonsService.currentComparison.contactName3}}
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0">
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree2vs3Sc')"
+                                    [disabled]="_comparisonsService.Statistics.SCAgreements2 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.SCAgreements2 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('2And3','Complete2vs3Sc', true)"
+                                        style="margin-bottom: 1px; overflow-x:hidden"  
+                                        [disabled]="!checkCanComplete2() || _comparisonsService.Statistics.SCAgreements1 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('2And3','Complete2vs3Sc', false)" 
+                                        [disabled]="!checkCanComplete2() || _comparisonsService.Statistics.SCAgreements1 == 0"> Complete</button>
+                            </div>
+
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3Sc')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements2vs3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements2vs3 }}  / {{_comparisonsService.Statistics.RawStats.n2vs3 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree2vs3Sc')"
+                                        class="btn btn-outline-info  h-100 w-100"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements2vs3 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row p-0 m-0"
+                         *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                        <span class="col-3 mx-0 px-1">
+                            {{_comparisonsService.currentComparison.contactName1}} Vs.
+                            {{_comparisonsService.currentComparison.contactName3}}
+                        </span>
+                        <div class="col-9 row ml-0 pl-0 mr-0 pr-0"
+                             *ngIf="_comparisonsService.currentComparison.contactName3 != ''">
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonAgree1vs3Sc')"
+                                    [disabled]="_comparisonsService.Statistics.SCAgreements3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.SCAgreements3 }} / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
+                            </button>
+                            <div class="col-3 m-0 p-0 px-1">
+                                <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', true)"
+                                        style="margin-bottom: 1px; overflow-x:hidden"  
+                                        [disabled]="!checkCanComplete3() || _comparisonsService.Statistics.SCAgreements3 == 0">Complete & Lock</button>
+                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', false)" 
+                                        [disabled]="!checkCanComplete3() || _comparisonsService.Statistics.SCAgreements3 == 0"> Complete</button>
+                            </div>
+                            <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3Sc')"
+                                    [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements1vs3 == 0"
+                                    style="overflow-x:hidden">
+                                {{_comparisonsService.Statistics.RawStats.scDisagreements1vs3 }}  / {{_comparisonsService.Statistics.RawStats.n1vs3 }} (list)
+                            </button>
+                            <div class="col-3 px-1 mb-1">
+                                <button (click)="LoadReconciliation(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs3Sc')"
+                                        class="btn btn-outline-info h-100 w-100"
+                                        [disabled]="_comparisonsService.Statistics.RawStats.scDisagreements1vs3 == 0">
+                                    Reconcile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+
+    </kendo-tabstrip>
+    <kendo-tabstrip *ngIf="CompleteSectionShow">
+        <kendo-tabstrip-tab [selected]="tabSelected == 'confirm'" [title]="lockCoding ? 'Complete & Lock Agreed Coding' : 'Complete Agreed Coding'">
+            <ng-template kendoTabContent>
+                <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 card-body rounded border-success">
+                    <div class="col-12 row">
+                        <span class="mr-1">
+                            Do you want to use the data entered by&nbsp;<b>{{lstContacts[0].contactName}}</b>&nbsp;or&nbsp;<b>{{lstContacts[1].contactName}}</b>?&#32;
+                        </span>
+                        <span>(The codes will be identical, but they may differ in terms of additional text entered.)</span>
+                        <!--<div *ngFor="let item of lstContacts">
+                            &nbsp; {{item.contactName}}&nbsp;
+                        </div>
+                        ?-->
+                        <select class="col-md-6 form-control" name="rev3"
+                                [disabled]="!HasWriteRights" [(ngModel)]="selectedCompleteUser">
+                            <option *ngFor="let member of lstContacts"
+                                    [ngValue]="member" [selected]="member == selectedCompleteUser">
+                                {{member.contactName}}
+                            </option>
+                        </select>
+                        <div class="col-12 row">
+                            <button class="btn btn-outline-success" (click)="Complete(_comparisonsService.currentComparison)"
+                                    [disabled]="!lstContacts.includes(selectedCompleteUser)">
+                                &nbsp; Confirm&nbsp;
+                            </button>
+                            <button (click)="CloseConfirm()" class="btn btn-outline-dark">&nbsp; Cancel&nbsp; </button>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+    </kendo-tabstrip>
+    <ul>
+        <li class="mb-1">
+            Number of documents coded by <em>{{_comparisonsService.currentComparison.contactName1}}</em>: <b>{{_comparisonsService.Statistics.RawStats.nCoded1}}</b>
+        </li>
+        <li class="mb-1">
+            Number of documents coded by <em>{{_comparisonsService.currentComparison.contactName2}}</em>: <b>{{_comparisonsService.Statistics.RawStats.nCoded2}}</b>
+        </li>
+        <li *ngIf="_comparisonsService.currentComparison.contactName3 != ''" class="mb-1">
+            Number of documents coded by <em>{{_comparisonsService.currentComparison.contactName3}}</em>: <b>{{_comparisonsService.Statistics.RawStats.nCoded3}}</b>
+        </li>
+        <li class="mb-1">
+            Number of documents coded by both <em>{{_comparisonsService.currentComparison.contactName1}}</em> and <em>{{_comparisonsService.currentComparison.contactName2}}</em>:
+            <b>{{_comparisonsService.Statistics.RawStats.n1vs2 }}</b>
+        </li>
+        <li *ngIf="_comparisonsService.currentComparison.contactName3 != ''" class="mb-1">
+            Number of documents coded by both <em>{{_comparisonsService.currentComparison.contactName2}}</em> and <em>{{_comparisonsService.currentComparison.contactName3}}</em>:
+            <b>{{_comparisonsService.Statistics.RawStats.n2vs3 }}</b>
+        </li>
+        <li *ngIf="_comparisonsService.currentComparison.contactName3 != ''" class="mb-1">
+            Number of documents coded by both <em>{{_comparisonsService.currentComparison.contactName1}}</em> and <em>{{_comparisonsService.currentComparison.contactName3}}</em>:
+            <b>{{_comparisonsService.Statistics.RawStats.n1vs3 }}</b>
+        </li>
+    </ul>
 </div>
 
