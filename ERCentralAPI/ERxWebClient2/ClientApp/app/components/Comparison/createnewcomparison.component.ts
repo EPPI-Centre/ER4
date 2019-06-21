@@ -165,8 +165,8 @@ export class ComparisonComp implements OnInit {
 		}
 		
 		console.log('hello' + newComparison);
-		this.__comparisonsService.CreateComparison(newComparison);
-
+        this.__comparisonsService.CreateComparison(newComparison);
+        this.emitterCancel.emit();
 	}
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {

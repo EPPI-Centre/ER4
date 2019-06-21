@@ -97,7 +97,7 @@ export class ComparisonsService extends BusyAwareService {
 			report += " and <i>" + comparison.contactName3 + "</i>";
 		}
 		report += "</h3>";
-		report += "<P>This report is based on the status of the database at the time the comparison was created. Any coding ‘completed’ after the comparison was created will be displayed also in the Agreed column.</P>";
+		report += "<P>This report is based on the status of the database at the time the comparison was created. Any coding <b>completed</b> after the comparison was created will be displayed also in the Agreed column.</P>";
 		if (chosenFilter.attribute_id != -1) {
 			report += "<h4>" + chosenFilter.name + "</h4>";
 		}
@@ -109,7 +109,7 @@ export class ComparisonsService extends BusyAwareService {
 			report += "<td>" + comparison.contactName3 + "</td>";
 			thirdReviewerIncluded = true;
 		}
-		report += "<td>Agreed version</td></tr>";
+		report += "<td><b>Agreed version</b></td></tr>";
 		let list: ComparisonAttribute[] = comparisonAttributeList;
 		let CurrentItemId: number = -1;
 		let CurrentItem: string = "";
@@ -167,9 +167,9 @@ export class ComparisonsService extends BusyAwareService {
 					else {
 						if (item.isCompleted == true) {
 							if (Agreed == "")
-								Agreed = item.attributeNameWithArm4HTML;
+								Agreed = "<b>" + item.attributeNameWithArm4HTML + "</b>";
 							else
-								Agreed += "<br><br>" + item.attributeNameWithArm4HTML;
+                                Agreed += "<br><br><b>" + item.attributeNameWithArm4HTML + "</b>";
 							if (item.additionalText != "")
 								Agreed += "<br><i> " + item.additionalText + "</i>";
 						}
@@ -269,13 +269,14 @@ export class ComparisonsService extends BusyAwareService {
 		return this._httpC.post<string>(this._baseUrl +
 			'api/Comparisons/CompleteComparison', completeComparison)
 			.toPromise().then(
-
 			(result: string) => {
-				this.RemoveBusy("CompleteComparison");
+                this.RemoveBusy("CompleteComparison");
+                this.FetchStats(completeComparison.comparisonId);
 				return result;
 			},
 			error => {
-				this.modalService.GenericError(error);
+                this.modalService.GenericError(error);
+                this.FetchStats(completeComparison.comparisonId);
 				this.RemoveBusy("CompleteComparison");
 			}
 		);

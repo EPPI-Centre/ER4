@@ -25,7 +25,7 @@ import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
-import { Comparison } from '../services/comparisons.service';
+import { Comparison, ComparisonsService } from '../services/comparisons.service';
 
 @Component({
     selector: 'mainComp',
@@ -62,7 +62,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
-		, private workAllocationListService: WorkAllocationListService
+        , private workAllocationListService: WorkAllocationListService
+        , private ComparisonsService: ComparisonsService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -82,7 +83,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
-            this.SourcesService.IsBusy);
+            this.SourcesService.IsBusy ||
+            this.ComparisonsService.IsBusy);
     }
     public get ReviewSets(): ReviewSet[] {
         return this.reviewSetsService.ReviewSets;
@@ -406,7 +408,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     toggleWorkAllocationsPanel() {
 		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
 		//this.workAllocationListService.FetchAll();
-		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();
+        if (this.workAllocationsContactComp && this.isWorkAllocationsPanelCollapsed) this.workAllocationsContactComp.getWorkAllocationContactList();
 
 	}
     toggleSourcesPanel() {

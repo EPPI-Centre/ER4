@@ -269,17 +269,19 @@ export class ReviewSetsService extends BusyAwareService {
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
                 destSet.itemSetIsLocked = itemset.isLocked;
                 destSet.ItemSetId = itemset.itemSetId;
+                destSet.codingComplete = true;
+                UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         if (dest) {
-                            UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
+                            
                             dest.isSelected = true;
                             //console.log("I'm doing it..................................");
                             dest.additionalText = itemAttribute.additionalText;
                             dest.armId = itemAttribute.armId;
-                            destSet.codingComplete = true;
+                            
                              }
                     }
                 }
@@ -474,8 +476,8 @@ export class ReviewSetsService extends BusyAwareService {
                         rSet.itemSetIsLocked = cmd.isLocked;
                     }
                     else {
-                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here.\n"
-                            + "Please navigate to the next item and then back, to check if the expected changes did happen.\n" +
+                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+                            + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
                             "If the problem persists please contact EPPISupport.");
                         return false;
                     }

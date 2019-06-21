@@ -221,7 +221,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         //console.log('set coding');
         this.SetHighlights();
         //this.ReviewSetsService.clearItemData();
-        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
+        if (this.ItemCodingService.ItemCodingList.length == 0) {
+            this.ReviewSetsService.clearItemData();
+            return;//no need to add codes that don't exist.
+        }
         if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
         else this.SetArmCoding(0);
     }
@@ -356,7 +359,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId) {
                     itemAtt = Candidate;
                     break;
                 }
@@ -373,7 +377,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             cmd.saveType = "Delete"; 
             
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId
+                ) {
                     itemAtt = Candidate;
                     break;
                 }
