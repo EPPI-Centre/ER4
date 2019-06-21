@@ -67,6 +67,7 @@ export class StatusBarComponent implements OnInit {
         else return false;
     }
     public get CurrentStatus(): string {
+        //console.log("Getting status...", this.ReviewerIdentityServ.currentStatus);
         if (this.ReviewerIdentityServ.currentStatus.length < 1) return "No message yet.";
         else {
             let msgSt: string = this.ReviewerIdentityServ.currentStatus;
@@ -76,7 +77,14 @@ export class StatusBarComponent implements OnInit {
                 msgSt = msg.substr(1).trim();
             }
             let truncateIndex: number = msgSt.indexOf("<br />");
-            if (msgSt.length > 40 || truncateIndex != -1) {
+            if (msgSt.length <= 40 && truncateIndex == -1) {
+                //no new lines, short message: just show it!
+                this.isMoreButtonVisible = false;
+                return msgSt;
+            }
+            else if (msgSt.length > 40 || truncateIndex != -1) {
+                //long message, or a message with new lines, we want to shorten it, stopping at the 8th word or a new line, whichever comes first.
+                //Thus, this is the case when we will truncate the message
                 let st: string[] = msgSt.replace("<br />", " ").replace("  ", " ").split(" ");
                 if (st.length > 8) {
                     if (st[0].length + 1
@@ -86,8 +94,11 @@ export class StatusBarComponent implements OnInit {
                         + st[4].length + 1
                         + st[5].length + 1
                         + st[6].length + 1
-                        + st[7].length + 1 < truncateIndex) {
-                        //first new line happens after the first 8 words.
+                        + st[7].length + 1 < truncateIndex
+                        || truncateIndex == -1
+                    ) {
+                        //first new line happens after the first 8 words. OR there is no new line.
+                        //we truncate at the 8th word.
                         truncateIndex = st[0].length + 1
                             + st[1].length + 1
                             + st[2].length + 1
@@ -102,8 +113,11 @@ export class StatusBarComponent implements OnInit {
                 //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, 80);
                 //this.ReviewerIdentityServ.currentStatus = msgSt.substr(0, truncateIndex);
                 this.isMoreButtonVisible = true;
+                //console.log("will return:", msgSt, truncateIndex);
                 return msgSt.substr(0, truncateIndex);
             } else {
+                //I don't trust my boolean logic, but I don't think this case can happen
+                this.isMoreButtonVisible = false;
                 return msgSt;
                 //this.ReviewerIdentityServ.currentStatus = msgSt;
             }
@@ -154,8 +168,11 @@ export class StatusBarComponent implements OnInit {
     }
 
     pressedMore() {
-
-        this.modalMsg = this.ReviewerIdentityServ.currentStatus;
+        if (this.ReviewerIdentityServ.currentStatus.indexOf('!') == 0) {
+            this.modalMsg = this.ReviewerIdentityServ.currentStatus.substr(1);
+        } else {
+            this.modalMsg = this.ReviewerIdentityServ.currentStatus;
+        }
         this.openMsg(this.content);
 
     }

@@ -23,10 +23,9 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-        public ItemListService: ItemListService,
-        private route: ActivatedRoute,
-        public reviewSetsService: ReviewSetsService,
-        public crosstabService: crosstabService,
+		private ItemListService: ItemListService,
+		public reviewSetsService: ReviewSetsService,
+		public crosstabService: crosstabService,
 		private _eventEmitter: EventEmitterService
 
     ) { }
@@ -62,7 +61,12 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 
 
 	public selectedNodeData: any | null = null;
-
+    public get selectedNode(): singleNode | null {
+        return this.reviewSetsService.selectedNode;
+    }
+    public get CrossTab() {
+        return this.crosstabService.CrossTab;
+    }
 	onSubmit(f: string) {
 
     }

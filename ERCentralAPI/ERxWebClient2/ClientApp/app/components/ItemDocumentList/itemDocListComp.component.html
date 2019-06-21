@@ -1,7 +1,7 @@
-<div *ngIf="!ShowUpload && HasWriteRights">
+<div *ngIf="!ShowUpload && HasWriteRights && showUpload">
     <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button>
 </div>
-<div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
+<div *ngIf="ShowUpload && showUpload" class="row ml-2 bg-white mr-1 p-0">
     <kendo-upload class="" [autoUpload]="true"
                   [saveUrl]="uploadSaveUrl"
                   [restrictions]="uploadRestrictions"

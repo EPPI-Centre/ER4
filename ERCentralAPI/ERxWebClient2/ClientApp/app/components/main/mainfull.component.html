@@ -40,7 +40,8 @@
                                         </div>
                                         <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                                          style="max-height: 520px;"></readonlyreviews>
-                                        <WorkAllocationContactListComp #WorkAllocationContactList (criteriaChange)='LoadContactWorkAllocList($event)'
+                                        <WorkAllocationContactListComp #WorkAllocationContactList 
+																	   (criteriaChange)='LoadContactWorkAllocList($event)'
                                                                        (AllocationClicked)="GoToItemList()"
                                                                        [ngbCollapse]="!isWorkAllocationsPanelCollapsed"
                                                                        resizable r-directions="['right']" r-flex="true"
@@ -94,7 +95,7 @@
                             <quickcodingreport *ngIf="ShowQuickQuestionReport" Aim="QuickQuestionReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>
                             <div class="card card-body bg-light p-1" style="min-height:300px;">
-                                <ItemListComp #ItemList Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
+                                <ItemListComp #ItemList  Context="FullUI" [ShowItemsTable]="ShowItemsTable" resizable r-directions="['right']" r-flex="true"></ItemListComp>
                             </div>
                         </ng-template>
                     </kendo-tabstrip-tab>
@@ -115,8 +116,10 @@
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'Collaborate'">
                         <ng-template kendoTabContent>
-                            <WorkAllocationComp #WorkAllocationCollaborateList (AllocationClicked)="GoToItemList()"
-                                                (criteriaChange)='LoadWorkAllocList($event)' class="bg-light"></WorkAllocationComp>
+                            <WorkAllocationComp #WorkAllocationCollaborateList 
+												(AllocationClicked)="GoToItemList()"
+                                                (criteriaChange)='LoadWorkAllocList($event)' 
+												class="bg-light"></WorkAllocationComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
                 </kendo-tabstrip>
@@ -137,15 +140,15 @@
                 </kendo-splitter-pane>
             </kendo-splitter-pane>
             <kendo-splitter-pane [collapsed]="CodesAreCollapsed" size="30%" class="bg-light">
-                <button *ngIf="this.reviewSetsService.ReviewSets && this.reviewSetsService.ReviewSets.length > 0 && ReviewerIdentityServ.HasWriteRights"
+                <button *ngIf="ReviewSets && ReviewSets.length > 0 && HasWriteRights"
                         class="btn btn-outline-success btn-sm ml-1 p-0 pr-1 pl-1 " (click)="EditCodeSets()">Edit Coding Tool(s)</button>
                 <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
-                <div *ngIf="(!this.reviewSetsService.ReviewSets || this.reviewSetsService.ReviewSets.length == 0) && !IsServiceBusy && ReviewerIdentityServ.HasWriteRights" >
+                <div *ngIf="(!ReviewSets || ReviewSets.length == 0) && !IsServiceBusy && HasWriteRights" >
                     <button class="btn btn-success btn-sm p-0 mb-1" (click)="ImportCodesetClick()"><span class="ml-1 mr-1">Click Here</span></button> to Import Coding Tools from templates.
                 </div>
             </kendo-splitter-pane>
         </kendo-splitter>
-        <statusbar class="col-sm-12 card-body pb-0" resizable></statusbar>
+        <statusbar class="" resizable></statusbar>
     </div>
 </div>
 

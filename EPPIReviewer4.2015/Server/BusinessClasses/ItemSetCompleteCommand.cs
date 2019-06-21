@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public ItemSetCompleteCommand() { }
 #else
-        protected ItemSetCompleteCommand() { }
+		public ItemSetCompleteCommand() { }
 #endif
 
         private Int64 _ItemSetId;

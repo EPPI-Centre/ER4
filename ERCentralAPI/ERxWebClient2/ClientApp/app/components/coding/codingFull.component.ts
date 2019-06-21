@@ -8,7 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
+import { CheckBoxClickedEventData, CodesetTreeCodingComponent } from '../CodesetTrees/codesetTreeCoding.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
@@ -55,7 +55,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
     @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
     @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
-
+    @ViewChild('codesetTreeCoding') public codesetTreeCoding!: CodesetTreeCodingComponent;
     private subItemIDinPath: Subscription | null = null;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
@@ -220,15 +220,21 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     SetCoding() {
         //console.log('set coding');
         this.SetHighlights();
-        this.ReviewSetsService.clearItemData();
-        if (this.ItemCodingService.ItemCodingList.length == 0) return;//no need to add codes that don't exist.
-        if (this.armservice.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armservice.SelectedArm.itemArmId);
-        else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
+        //this.ReviewSetsService.clearItemData();
+        if (this.ItemCodingService.ItemCodingList.length == 0) {
+            this.ReviewSetsService.clearItemData();
+            return;//no need to add codes that don't exist.
+        }
+        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+        else this.SetArmCoding(0);
     }
     SetArmCoding(armId: number) {
         //console.log('change Arm');
         this.ReviewSetsService.clearItemData();
         this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, armId);
+        if (this.ItemDocsService.CurrentDoc && this.item && this.ItemDocsService.CurrentItemId == this.item.itemId && this.item.itemId > 0) {
+            if (this.codesetTreeCoding) this.codesetTreeCoding.FetchPDFHighlights();//if there is a doc and it's for this item, we might need to fetch the highlights...
+        }
     }
     
     
@@ -353,7 +359,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId) {
                     itemAtt = Candidate;
                     break;
                 }
@@ -370,7 +377,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             cmd.saveType = "Delete"; 
             
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId
+                ) {
                     itemAtt = Candidate;
                     break;
                 }

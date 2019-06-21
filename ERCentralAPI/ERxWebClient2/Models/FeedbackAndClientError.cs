@@ -59,6 +59,14 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ContactNameProperty);
             }
         }
+        public static readonly PropertyInfo<string> ContactEmailProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactEmail", "ContactEmail"));
+        public string ContactEmail
+        {
+            get
+            {
+                return GetProperty(ContactEmailProperty);
+            }
+        }
         public static readonly PropertyInfo<string> ContextProperty = RegisterProperty<string>(new PropertyInfo<string>("Context", "Context"));
         public string Context
         {
@@ -131,6 +139,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
             returnValue.LoadProperty<string>(ContextProperty, reader.GetString("CONTEXT"));
             returnValue.LoadProperty<string>(MessageProperty, reader.GetString("MESSAGE"));
+            returnValue.LoadProperty<string>(ContactEmailProperty, reader.GetString("EMAIL"));//ContactEmail
             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
             returnValue.LoadProperty<bool>(IsErrorProperty, reader.GetBoolean("IS_ERROR"));
             returnValue.LoadProperty<SmartDate>(DateCreatedProperty, reader.GetSmartDate("DATE"));

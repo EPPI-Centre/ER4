@@ -12,14 +12,17 @@
                 <button class="page-link ml-2 pt-1 float-right mr-1" (click)="Logout()">
                     Logout
                 </button>
-                <div class="float-right pt-1 mr-1">
-                    {{ReviewerIdentityServ.reviewerIdentity.name}}
+                <div class="float-right pt-1 mx-1 row">
+                    {{NameOfUser}}
+                    <div *ngIf="IsReadOnly" class="small"  title="Level of access is 'Read-Only'.">
+                        <div class="font-weight-bold small border border-dark rounded alert-danger ml-1 mt-1 py-0 px-1 ">RO</div>
+                    </div>
                 </div>
                 <div *ngIf="Context" class="float-right row m-0 mt-1 p-0" >
-                    <button class="btn btn-outline-info btn-sm ml-1 p-0 pr-1 pl-1" (click)="ShowHideFeedback()"  style="zoom:0.8;">
+                    <button class="btn btn-outline-info btn-sm mt-1 ml-1 p-0 pr-1 pl-1" (click)="ShowHideFeedback()"  style="zoom:0.8;">
                         Feedback
                     </button>
-                    <button class="btn btn-outline-primary btn-sm ml-1 p-0 pr-1 pl-1 mr-1" (click)="ShowHideHelp()" style="zoom:0.8;">
+                    <button class="btn btn-outline-primary btn-sm mt-1 ml-1 p-0 pr-1 pl-1 mr-1" (click)="ShowHideHelp()" style="zoom:0.8;">
                         Help
                     </button>
                 </div>

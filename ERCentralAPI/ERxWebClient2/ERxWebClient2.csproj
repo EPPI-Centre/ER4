@@ -100,6 +100,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnlyList.cs" Link="Models\ItemDuplicatesReadOnlyList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemList.cs" Link="Models\ItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetCompleteCommand.cs" Link="Models\ItemSetCompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetList.cs" Link="Models\ItemSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVLFactory.cs" Link="Models\ItemTypeNVLFactory.cs" />
@@ -221,6 +222,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\CodingSummary.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateCreateCodingAssignments.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateCreateComparison.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateCreateRNDcodes.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateExpandCollapse.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateToolbar.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\CollaborateUsingComparisons.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\EPPI-Reviewer logo v1.png">

@@ -112,8 +112,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     public ShowHighlights: boolean = false;
     public HAbstract: string = "";
     public HTitle: string = "";
-    @ViewChild('ItemDetailsCmp')
-    private ItemDetailsCompRef!: any;
+    @ViewChild('ItemDetailsCmp') private ItemDetailsCompRef!: any;
+    @ViewChild('codesetTreeCoding') public codesetTreeCoding!: CodesetTreeCodingComponent;
+    
 
     public innerWidth: any = 900;
     @HostListener('window:resize', ['$event'])
@@ -380,7 +381,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             //console.log('cmd.saveType = "Update"');
             cmd.saveType = "Update";
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId) {
                     itemAtt = Candidate;
                     break;
                 }
@@ -397,7 +399,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             cmd.saveType = "Delete"; 
             
             for (let Candidate of itemSet.itemAttributesList) {
-                if (Candidate.attributeId == cmd.attributeId) {
+                if (Candidate.attributeId == cmd.attributeId
+                    && Candidate.armId == cmd.itemArmId) {
                     itemAtt = Candidate;
                     break;
                 }

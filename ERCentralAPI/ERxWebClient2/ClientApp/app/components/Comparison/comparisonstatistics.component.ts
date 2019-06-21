@@ -1,12 +1,14 @@
-import { Component, Inject, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { Router } from '@angular/router';
-import { ReviewSetsService, ReviewSet, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
+import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
+import { ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ComparisonsService } from '../services/comparisons.service';
+import { ComparisonsService, ComparisonStatistics, Comparison, iCompleteComparison } from '../services/comparisons.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { ItemListService, Criteria } from '../services/ItemList.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -16,156 +18,205 @@ import { ComparisonsService } from '../services/comparisons.service';
 })
 
 export class ComparisonStatsComp implements OnInit {
-    constructor(private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string,
-		private _reviewSetsService: ReviewSetsService,
+	constructor(
+		private router: Router,
 		public _comparisonsService: ComparisonsService,
-		public _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService,
-		public _reviewInfoService: ReviewInfoService,
-		public _reviewerIdentityServ: ReviewerIdentityService,
-		public _reviewSetsEditingService: ReviewSetsEditingService
+		private _reviewInfoService: ReviewInfoService,
+		private _reviewerIdentityServ: ReviewerIdentityService,
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		private _eventEmitter: EventEmitterService,
+		private _ItemListService: ItemListService,
+		private _notificationService: NotificationService
 	) { }
-		
-	public PanelName: string = '';
-	public CodeSets: ReviewSet[] = [];
-	public selectedReviewer1: Contact = new Contact();
-	public selectedReviewer2: Contact = new Contact();
-	public selectedReviewer3: Contact = new Contact();
+
+	private PanelName: string = '';
+	private CodeSets: ReviewSet[] = [];
 	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public selectedFilter!: singleNode;
-	@Output() emitterCancel = new EventEmitter();
+
+	public CompleteSectionShow: boolean = false;
+	public tabSelected: string = 'AgreeStats';
+    public lstContacts: Array<Contact> = new Array();
+    public lockCoding: boolean = true;
+
 	@Input('rowSelected') rowSelected!: number;
+	@Output() setListSubType = new EventEmitter();
+    private GoToReconcileSub: Subscription | null = null;
+	public ListSubType: string = "";
+	public selectedCompleteUser: Contact = new Contact();
+	private _Contacts: Contact[] = [];
+	public get Contacts(): Contact[] {
 
-	//getMembers() {
-
-	//	if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
-	//		this._reviewInfoService.Fetch();
-	//	}
-	//	this._reviewInfoService.FetchReviewMembers();
-
-	//}
-	//public getCodeSets() {
-	//	this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-	//	.map(
-	//		(y: ReviewSet) => {
-
-	//			return y;
-	//		}
-	//	);
-	//}
-	//getComparisons() {
-
-	//	if (!this.__comparisonsService.Comparisons || this.__comparisonsService.Comparisons.length <= 0) {
-	//		this.__comparisonsService.FetchAll();
-	//	}
-
-	//}
+		this._Contacts = this._reviewInfoService.Contacts;
+		
+		if (this._Contacts) {
+			return this._Contacts;
+		}
+		else {
+			this._Contacts = [];
+			return this._Contacts;
+		}
+	}
+	ngOnInit() {
+	
+		this.RefreshData();
+	}
 	public get HasWriteRights(): boolean {
 		return this._reviewerIdentityServ.HasWriteRights;
 	}
-
 	IsServiceBusy(): boolean {
 		if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this._reviewInfoService.IsBusy) return true;
 		else return false;
 	}
 	CanWrite(): boolean {
-		//console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
 		if (this._reviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
-			//console.log('CanWrite', true);
 			return true;
 		}
 		else {
-			//console.log('CanWrite', false);
 			return false;
 		}
 	}
-	//public get CurrentCodeCanHaveChildren(): boolean {
-	//	//safety first, if anything didn't work as expexcted return false;
-	//	if (!this.CanWrite()) return false;
-	//	else {
-	//		return this._reviewSetsService.CurrentCodeCanHaveChildren;
-	//		//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
-	//	}
-	//}
-	//CanCreateComparison(): boolean {
-
-	//	if (this.selectedReviewer1.contactName != '' &&
-	//		this.selectedReviewer2.contactName != '' &&
-	//		this.selectedCodeSet != null &&
-	//		this.selectedCodeSet.set_name != ''
-	//		&& this.CanWrite())
-	//	{
-	//		return true;
-	//	} else {
-	//		return false;
-	//	}
-
-	//}
-	//setOptionalMember(member: Contact) {
-
-	//	this.selectedReviewer3.contactId = member.contactId;
-	//	this.selectedReviewer3.contactName = member.contactName;
-	
-	//}
-	//setsFilter() {
-
-	//	if (this._reviewSetsService.selectedNode && this._reviewSetsService.selectedNode.nodeType == "SetAttribute") {
-	//		this.selectedFilter = this._reviewSetsService.selectedNode as SetAttribute;
-	//	} 
-
-	//}
-	//public get CurrentNode(): singleNode | null {
-	//	if (!this._reviewSetsService.selectedNode) return null;
-	//	else return this._reviewSetsService.selectedNode;
-	//}
-	
-	//CancelActivity(refreshTree?: boolean) {
-	//	if (refreshTree) {
-	//		if (this._reviewSetsService.selectedNode) {
-	//			let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
-	//			let Id: number = -1;
-	//			if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
-	//			else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
-	//			let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
-	//				console.log("trying to reselect: ", Id);
-	//				if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
-	//				else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
-	//				if (sub) sub.unsubscribe();
-	//			}
-	//				, () => { if (sub) sub.unsubscribe(); }
-	//			);
-	//			this._reviewSetsService.selectedNode = null;
-	//			this._reviewSetsService.GetReviewSets();
-	//		}
-	//	}
-	//	this.PanelName = '';
-	//	this.emitterCancel.emit();
-
-	//}
-
-	public NewComparisonStatsSectionOpen() {
-
+	NewComparisonStatsSectionOpen() {
 		if (this.PanelName == 'NewComparisonStatsSection') {
 			this.PanelName = '';
 		} else {
 			this.PanelName = 'NewComparisonStatsSection';
 		}
 	}
-	public RefreshData() {
-
-		//this.getMembers();
-		//this.getCodeSets();
-		//this.getComparisons();
-		//this.getStatistics();
-		this.selectedCodeSet = this.CodeSets[0];
+	public checkCanComplete1(): boolean {
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
+		return stats.RawStats.canComplete1vs2;
 	}
-	ngOnInit() {
-		this.RefreshData();
+	public checkCanComplete2(): boolean {
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
+		return stats.RawStats.canComplete2vs3;
+	}
+	public checkCanComplete3(): boolean {
+		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
+		return stats.RawStats.canComplete1vs3;
+	}	
+	public LoadComparisonList(comparisonId: number, subtype: string) {
+		for (let item of this._comparisonsService.Comparisons) {
+			if (item.comparisonId == comparisonId) {
+				this.ListSubType = subtype;
+				this.setListSubType.emit(this.ListSubType);
+				this.LoadComparisons(item, this.ListSubType);
+				this._eventEmitter.PleaseSelectItemsListTab.emit();
+				return;
+			}
+		}
+
+	}
+	public LoadReconciliation(comparisonId: number, subtype: string) {
+		for (let item of this._comparisonsService.Comparisons) {
+			if (item.comparisonId == comparisonId) {
+
+				this.ListSubType = subtype;
+				this.LoadComparisonsWithReconcile(item, this.ListSubType);
+			}
+		}
+	}
+	GoToReconcile() {
+		this.router.navigate(['Reconciliation']);
+	}
+	public Complete(currentComparison: Comparison) {
+		var completeComparison = <iCompleteComparison>{};
+		completeComparison.comparisonId = currentComparison.comparisonId;
+		completeComparison.contactId = this.selectedCompleteUser.contactId;
+		completeComparison.whichReviewers = this.ListSubType;
+        if (this.lockCoding) completeComparison.lockCoding = 'true';
+		this._comparisonsService.CompleteComparison(completeComparison).then(
+			(res: any) => {
+
+				this._notificationService.show({
+					content: 'Number of records affected is: ' + res.numberAffected,
+					animation: { type: 'slide', duration: 400 },
+					position: { horizontal: 'center', vertical: 'top' },
+					type: { style: "warning", icon: true },
+					closable: true,
+					hideAfter: 3000
+				});
+				this.CloseConfirm();
+			}
+			);
+	}
+	public SendToComplete(members: string, listSubType: string, lockCoding: boolean) {
+        this.lockCoding = lockCoding;
+		this.ListSubType = listSubType;
+		let currentComparison: Comparison = this._comparisonsService.currentComparison;
+		if (members == '1And2') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId1;
+			contact.contactName = currentComparison.contactName1;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId2;
+			contact.contactName = currentComparison.contactName2;
+			this.lstContacts.push(contact);
+
+		}else if (members == '2And3') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId2;
+			contact.contactName = currentComparison.contactName2;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId3;
+			contact.contactName = currentComparison.contactName3;
+			this.lstContacts.push(contact);
+
+		}else if (members == '1And3') {
+			let contact = new Contact();
+			contact.contactId = currentComparison.contactId1;
+			contact.contactName = currentComparison.contactName1;
+			this.lstContacts.push(contact);
+			contact = new Contact();
+			contact.contactId = currentComparison.contactId3;
+			contact.contactName = currentComparison.contactName3;
+			this.lstContacts.push(contact);
+		}
+        this.tabSelected = 'confirm';
+        this.selectedCompleteUser = new Contact();
+		this.CompleteSectionShow = true;
+
+	}
+	public CloseConfirm() {
+
+		this.tabSelected = 'AgreeStats';
+		this.CompleteSectionShow = false;
+		this.lstContacts = [];
+		this.ListSubType = '';
+	}
+	LoadComparisons(comparison: Comparison, ListSubType: string) {
+
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		crit.setId = comparison.setId;
+
+		this._ItemListService.FetchWithCrit(crit, listDescription);
+				
 		
 	}
+	LoadComparisonsWithReconcile(comparison: Comparison, ListSubType: string) {
+
+		this.LoadComparisons(comparison, ListSubType);
+		this.GoToReconcile();
+	}
+	RefreshData() {
+		this.selectedCodeSet = this.CodeSets[0];
+	}
+
+
 	Clear() {
 		this.selectedCodeSet = new ReviewSet();
 	}
-	 
 }
