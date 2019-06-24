@@ -300,6 +300,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 
 	NodeSelected(node: singleNode) {
 		//alert('in node: ' + node.name)
+        this.ReviewSetsService.selectedNode = node;
         this.SelectedNodeData = node;
         this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
         this.FetchPDFHighlights();

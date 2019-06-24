@@ -75,6 +75,7 @@ import { ArchieCallBackComponent } from './components/home/ArchieCallBack.compon
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
+import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
 
 @NgModule({
     declarations: [
@@ -105,6 +106,7 @@ import { codingRecordComp } from './components/CodingRecord/codingRecord.compone
 		StatusBarComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
+        LiveComparisonComp,
 		SourcesComponent,
 		BuildModelComponent,
         ImportReferencesFileComponent,

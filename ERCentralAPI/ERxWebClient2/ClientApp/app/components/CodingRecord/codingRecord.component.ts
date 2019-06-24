@@ -1,14 +1,16 @@
-import { Component, OnInit, OnDestroy, Input} from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject} from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemListService,  Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute, ItemAttributeFullTextDetails } from '../services/ItemCoding.service';
 import { ReviewSetsService, ReviewSet, SetAttribute} from '../services/ReviewSets.service';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
-import { ItemDocsService } from '../services/itemdocs.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Subscription } from 'rxjs';
 import { ComparisonsService } from '../services/comparisons.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { error } from '@angular/compiler/src/util';
+import { Helpers } from '../helpers/HelperMethods';
+import { GridDataResult } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 @Component({
    
@@ -20,52 +22,66 @@ import { error } from '@angular/compiler/src/util';
 export class codingRecordComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, 
+        @Inject('BASE_URL') private _baseUrl: string,
         public ItemListService: ItemListService,
 		private _comparisonService: ComparisonsService,
 		private _ItemCodingService: ItemCodingService,
         private _ReviewSetsService: ReviewSetsService,
         private notificationService: NotificationService
     ) { }
+    ngOnInit() {
+        this.ItemCodingServiceDataChanged = this._ItemCodingService.DataChanged.subscribe(
+            () => {
+                //this.CodingRecords = [];
+                //this._ItemCodingService.ItemCodingList.forEach(
+
+                //	(x) => {
+
+                //		let tmp = new ItemSet();
+                //		tmp = x;
+                //		this.CodingRecords.push(tmp);
+                console.log("this.ItemCodingServiceDataChanged...");
+                this.ComparisonReportHTML = "";
+                //});
+            }
+        );
+    }
   
 	@Input() item: Item = new Item();
-	public CodingRecords: ItemSet[] = [];
-	public checkboxValue: boolean = false;
+    public get CodingRecords(): ItemSet[] {
+        return this._ItemCodingService.ItemCodingList;
+    }
+    allowUnsort: boolean = true;
 	public itemsSelected: ItemSet[] = [];
 	private comparison1: ItemSet | null = null;
 	private comparison2: ItemSet | null = null;
 	private comparison3: ItemSet | null = null;
 	private ItemCodingServiceDataChanged: Subscription | null = null;
+    public ComparisonReportHTML: string = "";
+    public get DataSourceModel(): GridDataResult {
+        return {
+            data: orderBy(this._ItemCodingService.ItemCodingList, this.sort),
+            total: this._ItemCodingService.ItemCodingList.length,
+        };
+    }
+    public sort: SortDescriptor[] = [{
+        field: 'setName'
+        , dir: 'asc'
+    }];
+    public sortChangeModel(sort: SortDescriptor[]): void {
+        this.sort = sort;
+        console.log('sorting?', this.sort);
+    }
 
-    ngOnInit() {
-
-		this.ItemCodingServiceDataChanged = this._ItemCodingService.DataChanged.subscribe(
-
-			() => {
-				this.CodingRecords = [];
-				this._ItemCodingService.ItemCodingList.forEach(
-
-					(x) => {
-
-						let tmp = new ItemSet();
-						tmp = x;
-						this.CodingRecords.push(tmp);
-
-					});
-			}
-		);
-		
-
-	}
-	checkboxChange(index: number, item: CodingRecord) {
-
+    
+	checkboxChange(item: CodingRecord) {
+        console.log("checkboxChange", item);
 		this.itemsSelected = this.CodingRecords.filter((x) => x.isSelected == true);
 		let count: number = this.itemsSelected.length;
 
 		if (count < 2 || count > 3) {
 			return;
 		}
-
-		this.checkboxValue = item.isSelected;
 	}
 	SetComparisons(): boolean {
 
@@ -128,25 +144,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
         });
     }
 	
-	private CodingReportCheckChildSelected(itemSet: ItemSet,  attributeSet: SetAttribute): boolean {
-
-		if (itemSet != null) {
-			var listAttributes = itemSet.itemAttributesList.filter((x) => x.attributeId == attributeSet.attribute_id);
-			
-			if (listAttributes && listAttributes.length > 0) {
-				return true;
-			}
-
-			for (var i = 0; i < attributeSet.attributes.length; i++) {
-
-				let child: SetAttribute = attributeSet.attributes[i];
-				if (this.CodingReportCheckChildSelected(itemSet, child) == true) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	
 	private writeComparisonReportAttributes(comparison1: ItemSet, comparison2: ItemSet, comparison3: ItemSet | null, attributeSet: SetAttribute): string {
 
 		let report: string = "";
@@ -214,9 +212,9 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 			if (oneReviewerHasSelected == false) {
 
-				if ((this.CodingReportCheckChildSelected(comparison1, attributeSet) == true) ||
-					(this.CodingReportCheckChildSelected(comparison2, attributeSet) == true) ||
-				(this.CodingReportCheckChildSelected(comparison3 != null? comparison3: new ItemSet(), attributeSet) == true)) // ie an attribute below this is selected, even though this one isn't
+				if ((this._ItemCodingService.CodingReportCheckChildSelected(comparison1, attributeSet) == true) ||
+                    (this._ItemCodingService.CodingReportCheckChildSelected(comparison2, attributeSet) == true) ||
+                    (this._ItemCodingService.CodingReportCheckChildSelected(comparison3 != null? comparison3: new ItemSet(), attributeSet) == true)) // ie an attribute below this is selected, even though this one isn't
 				{
 					report += "<li>" + attributeSet.attribute_name + "</li>";
 					report += "<ul>";
@@ -256,40 +254,36 @@ export class codingRecordComp implements OnInit, OnDestroy {
 		return report;
 	}
 
-	AddFullTextData(FTDL: ItemAttributeFullTextDetails[]) {
-		//adds a list of full text details into the right itemSet and ItemAttribute if possible;
+    public ViewSingleCodingReport(itemset: ItemSet, show: boolean) {
+        this._ItemCodingService.FetchAllFullTextData(this.item.itemId).then(
+            (GetFTWorked: boolean) => {
+                if (!GetFTWorked) {
+                    return;
+                }
+                else {
+                    let result = this._ItemCodingService.FetchSingleCodingReport(itemset, this.item);
+                    if (show) Helpers.OpenInNewWindow(result, this._baseUrl);
+                    else this.SaveReportAsHtml(result);
+                }
+            });
 
-		for (var i = 0; i < FTDL.length; i++) {
-
-			let ftd: ItemAttributeFullTextDetails = FTDL[i];
-						
-			let set: ItemSet = this.itemsSelected.filter((x) => x.itemSetId = ftd.itemSetId)[0];
-			
-			if (set == null) continue;
-			let roia: ReadOnlyItemAttribute = set.itemAttributesList.filter( (x) => x.itemAttributeId ==ftd.itemAttributeId)[0];
-			if (roia == null) continue;
-			let oldElement: ItemAttributeFullTextDetails = roia.itemAttributeFullTextDetails.filter( (x) => x.isFromPDF == ftd.isFromPDF && x.itemAttributeTextId== ftd.itemAttributeTextId)[0];
-			if (oldElement != null) {// to make sure we don't add the same "line" if it's already there
-				let index = roia.itemAttributeFullTextDetails.findIndex((x) => x == oldElement);
-				if (index > 0) {
-					roia.itemAttributeFullTextDetails.splice(index, 1);
-				}
-			}
-			roia.itemAttributeFullTextDetails.push(ftd);
-			console.log('hello' + ftd);
-		}
-
-	}
+    }
+    SaveReportAsHtml(repHTML:string) {
+        if (repHTML.length < 1) return;// && !this.CanStartReport) return;
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(repHTML, this._baseUrl));
+        console.log("Savign report:", dataURI)
+        saveAs(dataURI, "Report.html");
+    }
+	
 
 	RunComparison() {
-
+        this.ComparisonReportHTML = "";
 		let count: number = this.itemsSelected.length;
         if (!this.SetComparisons()) {
             return;
         }
 
         this._ItemCodingService.FetchAllFullTextData(this.item.itemId).then(
-
             (GetFTWorked: boolean) => {
                 if (!GetFTWorked) {
                     return;
@@ -300,16 +294,16 @@ export class codingRecordComp implements OnInit, OnDestroy {
                         let reviewSet = this._ReviewSetsService.ReviewSets.find((x) => firstItemSetSelected != undefined && x.set_id == firstItemSetSelected.setId);
                         if (reviewSet == undefined) return;
                         else {
-                            let report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
+                            this.ComparisonReportHTML = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
 
                             for (var i = 0; i < reviewSet.attributes.length; i++) {
 
                                 let attributeSet: SetAttribute = reviewSet.attributes[i];
 
-                                report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
+                                this.ComparisonReportHTML += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
                             }
-                            report += "</ul></p>";
-                            this._comparisonService.OpenInNewWindow(report);
+                            this.ComparisonReportHTML += "</ul></p>";
+                            Helpers.OpenInNewWindow(this.ComparisonReportHTML, this._baseUrl);
                         }
                     }
                     
@@ -350,7 +344,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			});
 	}
 	LiveComparison() {
-
+        this._ItemCodingService.ToggleLiveComparison.emit();
 	}
     BackToMain() {
 

@@ -4,6 +4,7 @@ import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { CodesetTree4QuickQuestionReportComponent } from '../CodesetTrees/codesetTree4QuickQuestionReport.component';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'quickcodingreport',
@@ -64,7 +65,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
             if (pwa) {
                 pwa.document.open();
 
-                pwa.document.write(this.AddHTMLFrame(this.ReportHTML));
+                pwa.document.write(Helpers.AddHTMLFrame(this.ReportHTML, this._baseUrl));
                 pwa.document.close();
             }
         }
@@ -92,17 +93,11 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     public SaveAsHtml() {
         if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
-        const dataURI = "data:text/plain;base64," + encodeBase64(this.AddHTMLFrame(this.ReportHTML));
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.ReportHTML, this._baseUrl));
         //console.log("Savign report:", dataURI)
         saveAs(dataURI, "Report.html");
     }
-    private AddHTMLFrame(report: string): string {
-        let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + this._baseUrl+ "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
-        //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
-        //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
-        res += "</BODY></HTML>";
-        return res;
-    }
+    
     private AddSaveMe(): string {
         //see: https://stackoverflow.com/questions/29702758/html-button-to-save-div-content-using-javascript#answer-29702870
         let rep = "<script>function download(){";

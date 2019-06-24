@@ -34,6 +34,7 @@ export class ItemCodingService extends BusyAwareService {
 
     @Output() DataChanged = new EventEmitter();
     @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
+    @Output() ToggleLiveComparison = new EventEmitter();
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
     private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
@@ -446,6 +447,23 @@ export class ItemCodingService extends BusyAwareService {
         this.InterimGetItemCodingForReport();
         this.RemoveBusy("FetchCodingReport");
     }
+    public FetchSingleCodingReport(itemSet: ItemSet, item:Item): string {
+        let result: string = "";
+        let reviewSet = this.ReviewSetsService.FindSetById(itemSet.setId);
+        if (!reviewSet) return result;
+        result += "<h4>" + item.shortTitle + " [ID: " + item.itemId + "]</h4>";
+        result += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>";
+        result += "<p><h4>" + reviewSet.set_name + (itemSet.isCompleted ? " (completed)" : " (incomplete)") + "</h4></p><p><ul>";
+        for (let attributeSet of reviewSet.attributes) {
+            //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+            result += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+        }
+        result += "</ul></p>";
+        //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+        result += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+        return result;
+    }
+
     private InterimGetItemCodingForReport() {
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
@@ -749,7 +767,7 @@ export class ItemCodingService extends BusyAwareService {
         return retVal + "</td></tr>";
     }
 
-    private CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
+    public CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
         if (itemSet) {
             for (let roia of itemSet.itemAttributesList) {
                 if (roia.attributeId == attributeSet.attribute_id) return true;

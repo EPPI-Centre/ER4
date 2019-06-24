@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { ItemAttributeFullTextDetails } from './ItemCoding.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Injectable({
@@ -73,7 +74,7 @@ export class ComparisonsService extends BusyAwareService {
 					//console.log(JSON.stringify(res));
 					let reportHTML: string = this.GenerateReportHTMLHere(res,
 						chosenAttFilter, chosenSetFilter, comparison);
-					this.OpenInNewWindow(reportHTML);
+					Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
 					this.RemoveBusy("FetchComparisonReport");
 			},
 
@@ -196,18 +197,7 @@ export class ComparisonsService extends BusyAwareService {
 		res += "</BODY></HTML>";
 		return res;
 	}
-	public OpenInNewWindow(ReportHTML: any) {
-		if (ReportHTML.length < 1) return;
-
-		let Pagelink = "about:blank";
-		let pwa = window.open(Pagelink, "_new");
-		//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
-		if (pwa) {
-			pwa.document.open();
-			pwa.document.write(this.AddHTMLFrame(ReportHTML));
-			pwa.document.close();
-		}
-	}
+	
 
     public FetchAll() {
         this._BusyMethods.push("FetchAll");

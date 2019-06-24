@@ -1,47 +1,58 @@
 <div class="container col-12 p-0">
-	<!--<h2><b>Coding Record</b></h2>-->
-    <div class="p-0 " style="max-height:600px;overflow:auto;">
-        <table class="table table-striped col-md-12">
-			<thead>
-				<tr>
-					<th>&nbsp;</th>
-					<th>Code set</th>
-					<th>Reviewer</th>
-					<th>Completed?</th>
-					<th>Locked?</th>
-					<th>View</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr *ngFor="let item of CodingRecords; let i = index;">
-					<td>
-						<input type="checkbox" [(ngModel)]="item.isSelected" (change)="checkboxChange(i, item)" />
-					</td>
-					<td>
-						{{item.setName}}
-					</td>
-					<td>
-						{{item.contactName}}
-					</td>
-					<td>
-						{{item.isCompleted}}
-					</td>
-					<td>
-						{{item.isLocked}}
-					</td>
-					<td>
-						<button class="btn btn-sm btn-info">View</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-	<div class="row">
-		<div class="row col-12">
-
-			<button (click)="RunComparison()" class="btn btn-outline-primary mx-1">Run Comparison</button>
-
-			<button disabled="disabled" (click)="LiveComparison()" class="btn btn btn-outline-secondary mx-1">Live Comparison</button>
-		</div>
-	</div>
+    <!--<h2><b>Coding Record</b></h2>-->
+    <div class="row">
+        <div class="row col-12 mb-1">
+            <button (click)="RunComparison()" class="btn btn-outline-primary ml-1">Run Comparison</button>
+            <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
+                    title="Save as Html (Supports opening in Word)"
+                    type="button" class="btn btn-sm btn-outline-primary mr-1">
+                <i class="fa fa-floppy-o" aria-hidden="true"></i>
+            </button>
+            <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mx-1">Live Comparison</button>
+        </div>
+    </div>
+    <div class="p-0 row ">
+        <kendo-grid [data]="DataSourceModel"
+                    [style.height.vh]="70"
+                    [style.max-height.vh]="70"
+                    [sort]="sort"
+                    [sortable]="{
+                    allowUnsort: allowUnsort,
+                    mode: 'single'
+                    }"
+                    (sortChange)="sortChangeModel($event)">
+            <kendo-grid-column title=" " width="20" class="p-1"  headerClass="p-1 small">
+                <ng-template kendoGridCellTemplate let-item>
+                    <input type="checkbox" [(ngModel)]="item.isSelected" (change)="checkboxChange(item)" />
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="setName" title="Coding Tool" width="250" class="p-1" headerClass="p-1 small font-weight-bold">
+            </kendo-grid-column>
+            <kendo-grid-column field="contactName" title="Reviewer" width="200" class="p-1" headerClass="p-1 small font-weight-bold">
+            </kendo-grid-column>
+            <kendo-grid-column field="isCompleted" title="Completed" width="82" class="p-1" headerClass="p-1 small font-weight-bold">
+                <ng-template kendoGridCellTemplate let-item>
+                    <img *ngIf="item.isCompleted" title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png" class="mr-1" />
+                    <img *ngIf="!item.isCompleted" title="Coding not complete: these codes will not appear in reports or be found in searches" src="../assets/CodingNotComplete.png" class="mr-1" /><br />
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="isLocked" title="Locked?" width="62" class="p-1" headerClass="p-1 small font-weight-bold">
+                <ng-template kendoGridCellTemplate let-item>
+                    <img *ngIf="item.isLocked" title="Coding locked: you can't change the codes already entered"
+                         (click)="CompleteUncompleteShowPanel($event, node.data)" src="../assets/CodingLocked.png" class="mr-1" />
+                    <div *ngIf="!item.isLocked">No</div>
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column title="" width="92" class="p-1" headerClass="p-1 small">
+                <ng-template kendoGridCellTemplate let-item>
+                    <button class="btn btn-sm btn-info" (click)="ViewSingleCodingReport(item, true)">View</button>
+                    <button (click)="ViewSingleCodingReport(item, false)"
+                            title="Save as Html (Supports opening in Word)"
+                            type="button" class="btn btn-sm btn-outline-info ml-1">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    </button>
+                </ng-template>
+            </kendo-grid-column>
+        </kendo-grid>
+    </div>
 </div>
