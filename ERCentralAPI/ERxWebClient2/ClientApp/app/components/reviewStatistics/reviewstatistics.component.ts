@@ -7,7 +7,7 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import {  Subject, Subscription } from 'rxjs';
 import { ReviewSetsService } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -24,7 +24,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
 		private _httpC: HttpClient,
 		private ItemListService: ItemListService,
-		public codesetStatsServ: CodesetStatisticsService
+		private codesetStatsServ: CodesetStatisticsService
 	) {
 
 	}
@@ -34,7 +34,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 	public stats: ReviewStatisticsCountsCommand | null = null;
 	public countDown: any | undefined;
-	public count: number = 60;
+    public count: number = 60;
+    public DetailsForSetId: number = 0;
 	public isReviewPanelCollapsed = false;
 	public isWorkAllocationsPanelCollapsed = false;
 	private statsSub: Subscription = new Subscription();
@@ -45,7 +46,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     public get IsServiceBusy(): boolean {
         return this.codesetStatsServ.IsBusy;
     }
-
+    public get ScreeningSets(): StatsCompletion[] {
+        return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Screening');
+    }
+    public get StandardSets(): StatsCompletion[] {
+        return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Standard');
+    }
+    public get AdminSets(): StatsCompletion[] {
+        return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Administration');
+    }
+    
 	ngOnInit() {
 
 		console.log('inititating stats');
@@ -63,36 +73,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		//) this.Reload();
 	}
 
-	//public get ReviewPanelTogglingSymbol(): string {
-	//	if (this.isReviewPanelCollapsed) return '&uarr;';
-	//	else return '&darr;';
-	//}
-	//public get WorkAllocationsPanelTogglingSymbol(): string {
-	//	if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
-	//	else return '&darr;';
-	//}
-
+    ShowDetailsForSetId(SetId: number) {
+        if (this.DetailsForSetId == SetId) this.DetailsForSetId = 0;
+        else this.DetailsForSetId = SetId;
+    }
 	
-	//toggleReviewPanel() {
-	//	this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
-	//}
-	//toggleWorkAllocationsPanel() {
-	//	this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
-	//}
-	//getDaysLeftAccount() {
-
-	//	return this.ReviewerIdentityServ.reviewerIdentity.daysLeftAccount;
-	//}
-	//getDaysLeftReview() {
-
-	//	return this.ReviewerIdentityServ.reviewerIdentity.daysLeftReview;
-	//}
-	//onLogin(u: string, p: string) {
-
-	//	this.ReviewerIdentityServ.LoginReq(u, p);
-
-	//};
-	//subOpeningReview: Subscription | null = null;
     RefreshStats() {
         this.reviewSetsService.GetReviewStatsEmit.emit();
         //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
@@ -135,6 +120,24 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         this.ItemListService.GetDeletedItems();
         this.tabSelectEvent.emit();
         //this.tabset.select('ItemListTab');
+    }
+    CompletedBySetAndContact(statsByContact: StatsByReviewer, setName: string) {
+        let cri: Criteria = new Criteria();
+        cri.contactId = statsByContact.ContactId;
+        cri.setId = statsByContact.SetId;
+        cri.pageSize = this.ItemListService.ListCriteria.pageSize;
+        cri.listType = "ReviewerCodingCompleted";
+        this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with completed coding using '" + setName + "'");
+        this.tabSelectEvent.emit();
+    }
+    IncompleteBySetAndContact(statsByContact: StatsByReviewer, setName: string) {
+        let cri: Criteria = new Criteria();
+        cri.contactId = statsByContact.ContactId;
+        cri.setId = statsByContact.SetId;
+        cri.pageSize = this.ItemListService.ListCriteria.pageSize;
+        cri.listType = "ReviewerCodingIncomplete";
+        this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with incomplete (but started) coding using '" + setName + "'");
+        this.tabSelectEvent.emit();
     }
 	//GoToItemList() {
 	//	console.log('selecting tab 3...');

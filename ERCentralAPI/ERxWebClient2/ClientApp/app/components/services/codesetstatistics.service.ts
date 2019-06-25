@@ -146,6 +146,7 @@ export class CodesetStatisticsService extends BusyAwareService {
             result => {
 
                 this.CompletedCodesets = result;
+                console.log('complete sets: ', result);
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 //this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);
@@ -206,15 +207,18 @@ export class CodesetStatisticsService extends BusyAwareService {
             tmpSet.order = this.reviewSetsService.ReviewSets[i].order;
             tmpSet.subTypeName = this.reviewSetsService.ReviewSets[i].subTypeName;
             tmpSet.setName = tempSetName;
+            tmpSet.setId = tempSetId;
             if (index1 != -1 && index2 != -1) {
 
                 ind += 1;
                 let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setId == tempSetId);
                 if (tmp) {
+                    console.log("found this:", tmp, tmp.reviewerStatistics);
                     tmpSet.countCompleted = tmp.numItems;
+                    tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
                     let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setId == tempSetId);
                     if (tmpI) {
-                
+                        tmpSet.IncompleteByReviewer = tmpSet.IncompleteByReviewer.concat(tmpI.reviewerStatistics);
                             tmpSet.countIncomplete = tmpI.numItems;
                             this.tmpCodesets.push(tmpSet);
                             continue;
@@ -228,6 +232,7 @@ export class CodesetStatisticsService extends BusyAwareService {
                 let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setName == tempSetName);
                 
                 if (tmp) {
+                    tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
                     tmpSet.countCompleted = tmp.numItems;
                     tmpSet.countIncomplete = 0;
                     this.tmpCodesets.push(tmpSet);
@@ -242,6 +247,7 @@ export class CodesetStatisticsService extends BusyAwareService {
                 let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setName == tempSetName);
 
                 if (tmpI) {
+                    tmpSet.IncompleteByReviewer = tmpSet.IncompleteByReviewer.concat(tmpI.reviewerStatistics);
                     tmpSet.countCompleted = 0;
                     tmpSet.countIncomplete = tmpI.numItems;
                     this.tmpCodesets.push(tmpSet);
@@ -309,7 +315,7 @@ export class ReviewStatisticsCodeSet {
     public setId: number = 0;
     public numItems: number = 0;
     public completed: boolean = false;
-    public ReviewStatisticsReviewer: ReviewStatisticsReviewer[] = [];
+    public reviewerStatistics: ReviewStatisticsReviewer[] = [];
 }
 
 
@@ -327,9 +333,57 @@ export interface ReviewStatisticsReviewer {
 export class StatsCompletion {
 
     setName: string = '';
+    setId: number = 0;
     countCompleted: number = 0;
     countIncomplete: number = 0;
     public order: number = 0;
     public subTypeName: string = '';//admin, standard or screening
     codingIsFinal: boolean = true;//normal or comparison mode
+    public CompletedByReviewer: ReviewStatisticsReviewer[] = [];
+    public IncompleteByReviewer: ReviewStatisticsReviewer[] = [];
+    private _StatsByReviewer: StatsByReviewer[] | null = null;
+    public get ReviewerStats(): StatsByReviewer[] {
+        console.log("getting ReviewerStats", this.CompletedByReviewer, this.IncompleteByReviewer);
+        if (this._StatsByReviewer == null) {
+            //we parse the raw data once, to get the digested view used by the reviewstats component...
+            //once data is in it's in :-)
+            let result: StatsByReviewer[] = [];
+            let ContactIds: number[] = [];
+            for (let singleStat of this.CompletedByReviewer) {
+                if (ContactIds.indexOf(singleStat.contactId) == -1) {
+                    ContactIds.push(singleStat.contactId);
+                }
+            }
+            for (let singleStat of this.IncompleteByReviewer) {
+                if (ContactIds.indexOf(singleStat.contactId) == -1) {
+                    ContactIds.push(singleStat.contactId);
+                }
+            }
+            for (let CID of ContactIds) {
+                let perCID: StatsByReviewer = new StatsByReviewer();
+                perCID.ContactId = CID;
+                perCID.SetId = this.setId;
+                let tmp = this.CompletedByReviewer.find(found => found.contactId == CID);
+                if (tmp) {
+                    perCID.CompletedCount = tmp.numItems;
+                    if (perCID.ContactName == "") perCID.ContactName = tmp.contactName;
+                }
+                tmp = this.IncompleteByReviewer.find(found => found.contactId == CID);
+                if (tmp) {
+                    perCID.IncompleteCount = tmp.numItems;
+                    if (perCID.ContactName == "") perCID.ContactName = tmp.contactName;
+                }
+                result.push(perCID);
+            }
+            this._StatsByReviewer = result;
+        }
+        return this._StatsByReviewer;
+    }
+}
+export class StatsByReviewer {
+    ContactId: number = 0;
+    ContactName: string = "";
+    SetId: number = 0;
+    CompletedCount: number = 0;
+    IncompleteCount: number = 0;
 }

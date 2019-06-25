@@ -33,7 +33,85 @@
             <i class="fa fa-spinner fa-spin text-success " style=""></i>
         </div>
     </div>-->
-    <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around" *ngFor="let item of codesetStatsServ.tmpCodesets">
+    <div class="ScreeningSet">Screening:</div>
+    <div *ngFor="let item of ScreeningSets">
+        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+            <div class="bg-white col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+                <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                <span class="font-weight-bold ScreeningSet">
+                    {{ item.setName }}
+                </span>
+            </div>
+            <div class="bg-white col-2 mr-1 rounded">
+                <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                &nbsp;{{ item.countCompleted}}
+            </div>
+            <div class="bg-white col-2 mr-1 rounded">
+                <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                &nbsp; {{ item.countIncomplete}}
+            </div>
+        </div>
+        <div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
+            <div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
+                <div class="bg-white col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+                    {{singleContact.ContactName}}
+                </div>
+                <div class="bg-white col-2 mr-1 rounded">
+                    <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+                </div>
+                <div class="bg-white col-2 mr-1 rounded">
+                    <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="">Standard:</div>
+    <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around"
+         *ngFor="let item of StandardSets">
+        <div class="bg-white col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+            <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+            <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+            <span class="font-weight-bold">
+                {{ item.setName }}
+            </span>
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+            &nbsp;{{ item.countCompleted}}
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+            &nbsp; {{ item.countIncomplete}}
+        </div>
+        <div *ngIf="DetailsForSetId == item.setId" class="col-12"> Details for {{item.setId}}</div>
+    </div>
+    <div class="AdminSet">Administration:</div>
+    <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around"
+         *ngFor="let item of AdminSets">
+        <div class="bg-white col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+            <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+            <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+            <span class="font-weight-bold AdminSet">
+                {{ item.setName }}
+            </span>
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingComplete.png" onclick="alert('Do something')" />
+            &nbsp;{{ item.countCompleted}}
+        </div>
+        <div class="bg-white col-2 mr-1 rounded">
+            <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
+            &nbsp; {{ item.countIncomplete}}
+        </div>
+        <div *ngIf="DetailsForSetId == item.setId"> Details for {{item.setId}}</div>
+    </div>
+
+    <!--<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around"
+         *ngFor="let item of codesetStatsServ.tmpCodesets">
         <div class="bg-white col-6 mr-1 rounded">
             <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
             <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
@@ -51,6 +129,6 @@
             <img class="thumbnail" src="../assets/CodingNotComplete.png" onclick="alert('Do something else')" />
             &nbsp; {{ item.countIncomplete}}
         </div>
-    </div>
+    </div>-->
 </div>
 

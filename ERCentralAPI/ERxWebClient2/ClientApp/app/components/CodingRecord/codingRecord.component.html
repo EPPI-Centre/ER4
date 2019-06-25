@@ -2,13 +2,19 @@
     <!--<h2><b>Coding Record</b></h2>-->
     <div class="row">
         <div class="row col-12 mb-1">
-            <button (click)="RunComparison()" class="btn btn-outline-primary ml-1">Run Comparison</button>
+            <button (click)="RunComparison()" class="btn btn-outline-primary mt-0 mb-1 ml-1">Run Comparison</button>
             <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
                     title="Save as Html (Supports opening in Word)"
-                    type="button" class="btn btn-sm btn-outline-primary mr-1">
+                    type="button" class="btn btn-sm btn-outline-primary mt-0 mb-1 mr-1">
                 <i class="fa fa-floppy-o" aria-hidden="true"></i>
             </button>
-            <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mx-1">Live Comparison</button>
+            <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mt-0 mb-1 mx-1">Live Comparison</button>
+            <button *ngIf="!IsServiceBusy" title="Refresh Coding Record" class="btn btn-sm btn-outline-success mt-0 mb-1 mx-1 p-0 px-2" (click)="RefreshCodingRecord()">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
+            <div class="ml-2 mt-2 mb-1 pl-1">
+                <i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
+            </div>
         </div>
     </div>
     <div class="p-0 row ">

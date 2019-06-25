@@ -72,7 +72,9 @@ export class codingRecordComp implements OnInit, OnDestroy {
         this.sort = sort;
         console.log('sorting?', this.sort);
     }
-
+    public get IsServiceBusy(): boolean {
+        return this._ItemCodingService.IsBusy;
+    }
     
 	checkboxChange(item: CodingRecord) {
         console.log("checkboxChange", item);
@@ -271,10 +273,12 @@ export class codingRecordComp implements OnInit, OnDestroy {
     SaveReportAsHtml(repHTML:string) {
         if (repHTML.length < 1) return;// && !this.CanStartReport) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(repHTML, this._baseUrl));
-        console.log("Savign report:", dataURI)
+        //console.log("Savign report:", dataURI)
         saveAs(dataURI, "Report.html");
     }
-	
+    public RefreshCodingRecord() {
+        this._ItemCodingService.Fetch(this.item.itemId);
+    }
 
 	RunComparison() {
         this.ComparisonReportHTML = "";
