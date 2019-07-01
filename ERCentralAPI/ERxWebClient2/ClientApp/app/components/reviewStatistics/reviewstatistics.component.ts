@@ -138,7 +138,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         cri.listType = "ReviewerCodingIncomplete";
         this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with incomplete (but started) coding using '" + setName + "'");
         this.tabSelectEvent.emit();
-    }
+	}
+	CompleteCoding(setId: number, contactId: number,  completeOrNot: string) {
+
+		//console.log('Got in here' + setId + 'asdf: ' + contactId + 'asdf: ' + completeOrNot);
+		this.codesetStatsServ.SendToItemBulkCompleteCommand(
+			setId,
+			contactId,
+			completeOrNot);
+
+		this.RefreshStats();
+		// can call the notification service here
+
+	}
+
 	//GoToItemList() {
 	//	console.log('selecting tab 3...');
 	//	this.tabset.select('ItemListTab');

@@ -1,10 +1,11 @@
 import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
 import { Subject } from 'rxjs';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ItemArmDeleteWarningCommandJSON } from './arms.service';
 
 @Injectable({
     providedIn: 'root',
@@ -263,8 +264,33 @@ export class CodesetStatisticsService extends BusyAwareService {
         this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
         //this.SaveFormattedSets();
 
-    }
-    
+	}
+
+	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) {
+			   
+		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+
+		this._BusyMethods.push("SendToItemBulkCompleteCommand");
+		let MVCcmd: ItemSetBulkCompleteCommand = new ItemSetBulkCompleteCommand();
+		MVCcmd.setID = setID;
+		MVCcmd.contactID = contactID;
+		MVCcmd.completeOrNot = completeOrNot;
+		this._http.post<ItemSetBulkCompleteCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteItemSetBulkCompleteCommand',
+			MVCcmd, { headers: headers }).subscribe(result => {
+
+				this.GetReviewStatisticsCountsCommand();
+				//this.GetReviewSetsCodingCounts(true, new Subject());
+				this.RemoveBusy("SendToItemBulkCompleteCommand");
+	
+				}, error => {
+					this.RemoveBusy("SendToItemBulkCompleteCommand");
+					this.modalService.SendBackHomeWithError(error);
+				}, () => {
+					this.RemoveBusy("SendToItemBulkCompleteCommand");
+				}
+			);
+	}
+
     //private Save() {
     //    if (this.ReviewStats != undefined && this.ReviewStats != null )
     //        localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
@@ -300,6 +326,15 @@ export class CodesetStatisticsService extends BusyAwareService {
         //localStorage.removeItem('ReviewStats');
     }   
 }
+export class ItemSetBulkCompleteCommand {
+
+
+	public contactID: number = 0;
+	public setID: number = 0;
+	public completeOrNot: string = '';
+
+}
+
 export interface ReviewStatisticsCountsCommand {
     itemsIncluded: number;
     itemsExcluded: number;
