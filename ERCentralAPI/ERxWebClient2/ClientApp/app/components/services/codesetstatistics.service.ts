@@ -263,7 +263,6 @@ export class CodesetStatisticsService extends BusyAwareService {
         }
         this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
         //this.SaveFormattedSets();
-
 	}
 
 	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) {
@@ -285,6 +284,34 @@ export class CodesetStatisticsService extends BusyAwareService {
 				}, () => {
 					this.RemoveBusy("SendToItemBulkCompleteCommand");
 				}
+			);
+	}
+	
+	SendItemsToBulkCompleteOrNotCommand(attributeId: string, isCompleting: string,
+		setId: number, reviewerId: number, isPreview: string) {
+
+		this._BusyMethods.push("ItemsToBulkCompleteOrNotCommand");
+		let MVCcmd: BulkCompleteUncompleteCommand = new BulkCompleteUncompleteCommand();
+		MVCcmd.attributeId = Number(attributeId);
+		MVCcmd.isCompleting = isCompleting;
+		MVCcmd.setId = setId;
+		MVCcmd.reviewerId = reviewerId;
+		MVCcmd.isPreview = isPreview;
+
+		this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
+			MVCcmd).subscribe((result) => {
+
+				alert('hold');
+				console.log('==========================: ' + result);
+				this.GetReviewStatisticsCountsCommand();
+				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+
+			}, error => {
+				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+				this.modalService.SendBackHomeWithError(error);
+			}, () => {
+				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+			}
 			);
 	}
 
@@ -328,6 +355,15 @@ export class ItemSetBulkCompleteCommand {
 	public contactID: number = 0;
 	public setID: number = 0;
 	public completeOrNot: string = '';
+
+}
+export class BulkCompleteUncompleteCommand {
+
+	public attributeId: number= 0;
+	public isCompleting: string = '';
+	public setId: number =0;
+	public reviewerId: number=0;
+	public isPreview: string = '';
 
 }
 export interface ReviewStatisticsCountsCommand {

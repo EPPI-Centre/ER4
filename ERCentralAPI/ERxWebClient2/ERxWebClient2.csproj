@@ -61,6 +61,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeUpdateCommand.cs" Link="Models\AttributeUpdateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\BulkCompleteUncompleteCommand.cs" Link="Models\BulkCompleteUncompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CheckTicketExpirationCommand.cs" Link="Models\CheckTicketExpirationCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCommand.cs" Link="Models\ClassifierCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCreateCodesCommand.cs" Link="Models\ClassifierCreateCodesCommand.cs" />

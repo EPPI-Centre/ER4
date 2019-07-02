@@ -27,7 +27,7 @@
 			</div>
 	</div>
 <div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
-    <div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
+	<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
 		<div class="m-1">
 			Coding Progress
 			<button kendoButton class="border border-dark" (click)="EditCodeSets()">
@@ -39,125 +39,196 @@
 				Import Coding Tools
 			</button>
 		</div>
-        <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success m-1 p-0 px-2" (click)="RefreshStats()">
-            <i class="fa fa-refresh" aria-hidden="true"></i>
-        </button>
-        <div class="ml-2 mt-1 pl-1">
-            <i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
-        </div>
-    </div>
-    <!--<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
-        <div class="m-1">Coding Progress</div>
-        <div>
-            <i class="fa fa-spinner fa-spin text-success " style=""></i>
-        </div>
-    </div>-->
-    <div *ngIf="ScreeningSets.length > 0" class="text-success">Screening Tools:</div>
-    <div *ngFor="let item of ScreeningSets">
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-            <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 justify-content-start rounded" (click)="ShowDetailsForSetId(item.setId)">
-                <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <span class="font-weight-bold text-success">
-                    {{ item.setName }}
-                </span>
-            </div>
-            <div class="bg-white col-2 mr-1 rounded btn-block" title="Items with completed coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingComplete.png"/>
-                &nbsp;{{ item.countCompleted}}
-            </div>
-            <div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingNotComplete.png"/>
-                &nbsp; {{ item.countIncomplete}}
-            </div>
-        </div>
-        <div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
-            <div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
-                <div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-                    {{singleContact.ContactName}}
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail btn" o src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.ContactId,  'false')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail btn" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.ContactId,  'true')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div *ngIf="StandardSets.length > 0" class="">Standard Tools:</div>
-    <div *ngFor="let item of StandardSets">
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-            <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-                <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <span class="font-weight-bold text-dark">
-                    {{ item.setName }}
-                </span>
-            </div>
-            <div class="bg-white col-2 mr-1 rounded" title="Items with completed coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingComplete.png"  />
-                &nbsp;{{ item.countCompleted}}
-            </div>
-            <div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingNotComplete.png"  />
-                &nbsp; {{ item.countIncomplete}}
-            </div>
-        </div>
-        <div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
-            <div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
-                <div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-                    {{singleContact.ContactName}}
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div *ngIf="AdminSets.length > 0" class="text-primary">Administration Tools:</div>
-    <div *ngFor="let item of AdminSets">
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-            <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-                <img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                <img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <span class="font-weight-bold text-primary">
-                    {{ item.setName }}
-                </span>
-            </div>
-            <div class="bg-white col-2 mr-1 rounded" title="Items with completed coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingComplete.png" />
-                &nbsp;{{ item.countCompleted}}
-            </div>
-            <div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
-                <img class="thumbnail" src="../assets/CodingNotComplete.png" />
-                &nbsp; {{ item.countIncomplete}}
-            </div>
-        </div>
-        <div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
-            <div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
-                <div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-                    {{singleContact.ContactName}}
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
-                </div>
-                <div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-                    <img class="thumbnail" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
-                    <span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
+		<button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success m-1 p-0 px-2" (click)="RefreshStats()">
+			<i class="fa fa-refresh" aria-hidden="true"></i>
+		</button>
+		<div class="ml-2 mt-1 pl-1">
+			<i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
+		</div>
+	</div>
+	<!--<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
+		<div class="m-1">Coding Progress</div>
+		<div>
+			<i class="fa fa-spinner fa-spin text-success " style=""></i>
+		</div>
+	</div>-->
+	<div id="BulkCompleteSection" *ngIf="PanelName == 'BulkCompleteSection'" class="col-12 p-0 mb-1">
+		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+			<div class="col-12 col-md-12">
+				This window allows you to <b>{{complete}}</b> the coding of specified items in bulk. Please be aware that this operation can significantly disrupt the intended workflow so please use with care.
+				If in doubt, please contact us at EPPISupport@ucl.ac.uk.
+				<div>
+					<div class="form-group">
+						<label for="codeSET">{{complete}} the coding in this code set: </label>
+						<select class="col-md-6 form-control"
+								name="codeSET" [(ngModel)]="selectedCodeSet">
+							<option *ngFor="let item of CodeSets" name="codeSET"
+									[ngValue]="item" [selected]="item == selectedCodeSet">
+								{{item.name}}
+							</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Using items with this code: </label>
+						<div ngbDropdown class="col-12 col-md-6 m-0 p-0" style="min-width:150px;">
+							<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
+									(click)="isCollapsedCodeStudies = !isCollapsedCodeStudies;"
+									[attr.aria-expanded]="!isCollapsedCodeStudies"
+									aria-controls="collapseCodeTreeCodeStudies" style="min-width: 50px;">
+								{{DropdownSelectedCodeStudies?.name}}
+							</button>
+							<div ngbDropdownMenu class="dropdown-menu"
+								 id="collapseCodeTreeCodeStudies"
+								 [ngbCollapse]="!isCollapsedCodeStudies">
+								<codesetSelector [IsMultiSelect]="false"
+												 [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #CodeStudiesTreeOne
+												 (selectedNodeInTree)="CloseCodeDropDownStudies()"
+												 [rootsOnly]="false">
+								</codesetSelector>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div>
+					<button [disabled]="CanPreview()"
+							class="pt-1 m-1 border border-dark rounded k-widget
+								k-numerictextbox btn btn-success"
+							style="min-width:150px;"
+							(click)="Preview( 
+							'true',
+								item.setId,singleContact.ContactId)">
+						Preview
+					</button>
+				</div>
+				<div>
+					<p>Please make your selections from the dropdown menus.</p>
+				</div>
+				<div class="col-md-8 row">
+					<div class="col-md-4"></div>
+					<div class="form-group col-md-12 row">
+						<button [disabled]="CanCompleteOrNot()"
+								class="pt-1 m-1 border border-dark rounded k-widget
+								k-numerictextbox btn btn-success"
+								style="min-width:150px;">
+							{{complete}}
+						</button>
+						<button class="pt-1 m-1 border border-dark rounded
+								k-widget k-numerictextbox btn btn-outline-dark"
+								style="min-width:150px;" (click)="changePanel('')">
+							Cancel
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="ScreeningSets.length > 0" class="text-success">Screening Tools:</div>
+	<div *ngFor="let item of ScreeningSets">
+		<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+			<div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 justify-content-start rounded" (click)="ShowDetailsForSetId(item.setId)">
+				<img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+				<img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+				<span class="font-weight-bold text-success">
+					{{ item.setName }}
+				</span>
+			</div>
+			<div class="bg-white col-2 mr-1 rounded btn-block" title="Items with completed coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingComplete.png" (click)="changePanel('false')" />
+				&nbsp;{{ item.countCompleted}}
+			</div>
+			<div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingNotComplete.png" (click)="changePanel('true')" />
+				&nbsp; {{ item.countIncomplete}}
+			</div>
+		</div>
+
+		<div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
+			<div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
+				<div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+					{{singleContact.ContactName}}
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail btn" o src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail btn" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="StandardSets.length > 0" class="">Standard Tools:</div>
+	<div *ngFor="let item of StandardSets">
+		<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+			<div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+				<img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+				<img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+				<span class="font-weight-bold text-dark">
+					{{ item.setName }}
+				</span>
+			</div>
+			<div class="bg-white col-2 mr-1 rounded" title="Items with completed coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingComplete.png" />
+				&nbsp;{{ item.countCompleted}}
+			</div>
+			<div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingNotComplete.png" />
+				&nbsp; {{ item.countIncomplete}}
+			</div>
+		</div>
+		<div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
+			<div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
+				<div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+					{{singleContact.ContactName}}
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="AdminSets.length > 0" class="text-primary">Administration Tools:</div>
+	<div *ngFor="let item of AdminSets">
+		<div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+			<div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+				<img *ngIf="item.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+				<img *ngIf="!item.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+				<span class="font-weight-bold text-primary">
+					{{ item.setName }}
+				</span>
+			</div>
+			<div class="bg-white col-2 mr-1 rounded" title="Items with completed coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingComplete.png" />
+				&nbsp;{{ item.countCompleted}}
+			</div>
+			<div class="bg-white col-2 mr-1 rounded" title="Items with incomplete coding for '{{item.setName}}'">
+				<img class="thumbnail" src="../assets/CodingNotComplete.png" />
+				&nbsp; {{ item.countIncomplete}}
+			</div>
+		</div>
+		<div *ngIf="DetailsForSetId == item.setId" class="container pr-0 mb-1">
+			<div *ngFor="let singleContact of item.ReviewerStats" class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
+				<div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+					{{singleContact.ContactName}}
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+				</div>
+				<div class="bg-white col-2 mr-1 rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
+					<img class="thumbnail" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 pt-0 pb-0 pl-1 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 

@@ -6,10 +6,11 @@ import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import {  Subject, Subscription } from 'rxjs';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
 
 @Component({
@@ -27,11 +28,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
 		private confirmationDialogService: ConfirmationDialogService,
+		private _reviewSetsService: ReviewSetsService
 	) {
 
 	}
     
-	
+	@ViewChild('CodeStudiesTreeOne') CodeStudiesTreeOne!: codesetSelectorComponent;
 	@Output() tabSelectEvent = new EventEmitter();
 
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -188,6 +190,76 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 					}
 				)
 				.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+		}
+	}
+	CloseCodeDropDownStudies() {
+
+		if (this.CodeStudiesTreeOne) {
+
+			this.DropdownSelectedCodeStudies = this.CodeStudiesTreeOne.SelectedNodeData;
+			let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
+			
+
+		}
+		this.isCollapsedCodeStudies = false;
+	}
+	public get CodeSets(): ReviewSet[] {
+		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
+	}
+	public CanPreview() {
+
+		return false;
+	}
+	public Preview(isCompleting: string,
+		setId: number, contactId: number) {
+
+		let completing: string = '';
+		if (isCompleting == 'Complete') {
+			completing = 'true';
+		} else {
+			completing = 'false';
+		}
+		let node: singleNode = this.DropdownSelectedCodeStudies as singleNode;
+		let attId: string = node.id;
+		if (attId != null) {
+
+			this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
+				attId,
+				completing,
+				setId,
+				contactId,
+				'true'
+				);
+		}
+	}
+	public CanCompleteOrNot() {
+
+		if (this.DropdownSelectedCodeStudies != null && this.DropdownSelectedCodeStudies.name != ''
+			&& this.selectedCodeSet != null) {
+
+			return false;
+
+		} else {
+
+			return true;
+		}
+	}
+	public DropdownSelectedCodeStudies: singleNode | null = null;
+	public isCollapsedCodeStudies: boolean = false;
+	public selectedCodeSet: ReviewSet = new ReviewSet();
+	public PanelName: string = '';
+	public complete: string ='';
+	changePanel(completeOrNot: string) {
+		if (completeOrNot == 'true') {
+			this.complete = 'Complete';
+		} else {
+			this.complete = 'Uncomplete';
+		}
+		if (this.PanelName == '') {
+			this.PanelName = 'BulkCompleteSection';
+
+		} else {
+			this.PanelName =  '';
 		}
 	}
 

@@ -101,6 +101,42 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+
+		[HttpPost("[action]")]
+		public IActionResult PreviewCompleteUncompleteCommand([FromBody]  MVCBulkCompleteUncompleteCommand MVCcmd)
+		{
+			try
+			{
+				SetCSLAUser();
+
+				BulkCompleteUncompleteCommand cmd = new BulkCompleteUncompleteCommand(
+					MVCcmd.attributeId, MVCcmd.isCompleting, MVCcmd.setId, MVCcmd.reviewerId, MVCcmd.isPreview);
+
+				DataPortal<BulkCompleteUncompleteCommand> dp = new DataPortal<BulkCompleteUncompleteCommand>();
+				cmd = dp.Execute(cmd);
+
+				return Ok(cmd);
+
+			}
+			catch (Exception e)
+			{
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				_logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
+				throw;
+			}
+		}
+
+		public class MVCBulkCompleteUncompleteCommand
+		{
+
+			public Int64 attributeId { get; set; }
+			public bool isCompleting { get; set; }
+			public int setId { get; set; }
+			public int reviewerId { get; set; }
+			public bool isPreview { get; set; }
+
+		}
+
 		public class MVCItemSetBulkCompleteCommand
 		{
 
