@@ -620,9 +620,7 @@ namespace BusinessLibrary.BusinessClasses
 
 			using (TextReader tr = new StreamReader(ms))
 			{
-				var csv = new CsvReader(tr);
-				csv.Read();
-			
+				var csv = new CsvReader(tr);			
 				while (csv.Read())
 				{
 
@@ -656,7 +654,7 @@ namespace BusinessLibrary.BusinessClasses
 			}
 #endif
 
-			return dt;
+                return dt;
 		}
 
 		private void LoadResultsIntoDatabase(DataTable dt, SqlConnection connection, ReviewerIdentity ri)
