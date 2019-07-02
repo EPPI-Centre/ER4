@@ -268,18 +268,15 @@ export class CodesetStatisticsService extends BusyAwareService {
 
 	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) {
 			   
-		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
-
 		this._BusyMethods.push("SendToItemBulkCompleteCommand");
 		let MVCcmd: ItemSetBulkCompleteCommand = new ItemSetBulkCompleteCommand();
 		MVCcmd.setID = setID;
 		MVCcmd.contactID = contactID;
 		MVCcmd.completeOrNot = completeOrNot;
 		this._http.post<ItemSetBulkCompleteCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteItemSetBulkCompleteCommand',
-			MVCcmd, { headers: headers }).subscribe(result => {
+			MVCcmd).subscribe(() => {
 
 				this.GetReviewStatisticsCountsCommand();
-				//this.GetReviewSetsCodingCounts(true, new Subject());
 				this.RemoveBusy("SendToItemBulkCompleteCommand");
 	
 				}, error => {
@@ -328,21 +325,17 @@ export class CodesetStatisticsService extends BusyAwareService {
 }
 export class ItemSetBulkCompleteCommand {
 
-
 	public contactID: number = 0;
 	public setID: number = 0;
 	public completeOrNot: string = '';
 
 }
-
 export interface ReviewStatisticsCountsCommand {
     itemsIncluded: number;
     itemsExcluded: number;
     itemsDeleted: number;
     duplicateItems: number;
-
 }
-
 export class ReviewStatisticsCodeSet {
 
     public setName: string = '';
@@ -352,8 +345,6 @@ export class ReviewStatisticsCodeSet {
     public completed: boolean = false;
     public reviewerStatistics: ReviewStatisticsReviewer[] = [];
 }
-
-
 export interface ReviewStatisticsReviewer {
 
     contactId: number;
@@ -364,7 +355,6 @@ export interface ReviewStatisticsReviewer {
     title: string;
 
 }
-
 export class StatsCompletion {
 
     setName: string = '';
