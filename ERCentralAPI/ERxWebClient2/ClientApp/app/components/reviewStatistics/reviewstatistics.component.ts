@@ -155,14 +155,21 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	NewReference() {
 		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
 	}
-	CompleteCoding(setId: number, contactId: number,  completeOrNot: string) {
+	CompleteCoding(contactName: string, setName: string, setId: number, contactId: number,  completeOrNot: string) {
 
 		if (setId != null && contactId != null && completeOrNot != null) {
 
-			this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to set these codings by the selected reviewer to being uncompleted?' +
-				'<br /><b>Note:</b> If these are double coded items and are reconciled disagreements you will be loosing the reconcile information.' +
+			let tmpComplete: string = '';
+			if (completeOrNot == 'true') {
+				tmpComplete = 'Completed';
+			} else {
+				tmpComplete = 'Uncompleted';
+			}
+
+			this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to change the codings by ' + contactName + ' for the ' + setName + ' coding tool to <b>' + tmpComplete + '</b> ?' +
+				'<br /><b>Note:</b> ' +
 				'<br />Please check in the manual if you are unsure about the implications.' +
-				'<br />Uncompleted items will no longer be visible in searches and reports', false, '')
+				'<br /><b>' + tmpComplete + '</b> items will no longer be visible in searches and reports', false, '')
 				.then(
 					(confirmed: any) => {
 						console.log('User confirmed:');
