@@ -41,6 +41,7 @@ import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { UploadModule } from '@progress/kendo-angular-upload';
+import { ButtonsModule } from '@progress/kendo-angular-buttons';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
@@ -157,7 +158,8 @@ import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.com
         DialogsModule,
         ToolBarModule,
         InputsModule,
-        UploadModule,
+		UploadModule,
+		ButtonsModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,

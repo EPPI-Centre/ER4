@@ -122,12 +122,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowHideQuickQuestionReport();
         }
     }];
-    public ImportOrNewDDData: Array<any> = [{
-        text: 'New Reference',
-        click: () => {
-            this.NewReference();
-        }
-    }];
+    //public ImportOrNewDDData: Array<any> = [{
+    //    text: 'New Reference',
+    //    click: () => {
+    //        this.NewReference();
+    //    }
+    //}];
     
     
 
@@ -465,9 +465,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowItemsTable = false;
         }
     }
-    NewReference() {
-        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
-    }
+    //NewReference() {
+    //    this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
+    //}
 
     Reload() {
         this.Clear();
@@ -539,15 +539,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         return revPart;
     }
-    EditCodeSets() {
-        this.router.navigate(['EditCodeSets']);
-    }
+    //EditCodeSets() {
+    //    this.router.navigate(['EditCodeSets']);
+    //}
     GoToSources() {
         this.router.navigate(['sources']);
     }
-    ImportCodesetClick() {
-        this.router.navigate(['ImportCodesets']);
-    }
+    //ImportCodesetClick() {
+    //    this.router.navigate(['ImportCodesets']);
+    //}
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());

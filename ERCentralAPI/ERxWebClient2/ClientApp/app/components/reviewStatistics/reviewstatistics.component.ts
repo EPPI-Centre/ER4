@@ -107,7 +107,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		//	() => this.GetStats()
 		//);
 	}
-
+	EditCodeSets() {
+		this.router.navigate(['EditCodeSets']);
+	}
+	ImportCodesetClick() {
+		this.router.navigate(['ImportCodesets']);
+	}
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();
@@ -140,6 +145,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         cri.listType = "ReviewerCodingIncomplete";
         this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with incomplete (but started) coding using '" + setName + "'");
         this.tabSelectEvent.emit();
+	}
+	public ImportOrNewDDData: Array<any> = [{
+		text: 'New Reference',
+		click: () => {
+			this.NewReference();
+		}
+	}];
+	NewReference() {
+		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
 	}
 	CompleteCoding(setId: number, contactId: number,  completeOrNot: string) {
 

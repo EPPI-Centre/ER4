@@ -1,25 +1,44 @@
 <p *ngIf="!codesetStatsServ.ReviewStats"><em>Loading...</em></p>
 <div class="card bg-light mt-2 col-md-12">
-	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info">Review Items</div>
-	<div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
-		<div class="col-3 mb-2">
-			<b>
-				Included:
-				<span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="IncludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsIncluded}}</span>
-			</b>
-		</div>
-		<div class="col-3">
-			<b>
-				Excluded: <span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="ExcludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsExcluded}}</span>
-			</b>
-		</div>
-		<div class="col-3">Deleted: {{ codesetStatsServ.ReviewStats.itemsDeleted}}</div>
-		<div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
+	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info">Review Items
+		<kendo-splitbutton class="border border-dark" (buttonClick)="GoToSources()"
+						   [data]="ImportOrNewDDData"
+						   style="border-color: #04070b;background-color: #e1e4eb;">
+			Import Items
+		</kendo-splitbutton>
 	</div>
-</div>
+	<!--<div class="containsAtoolbar">
+		
+	</div>-->
+			<div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
+				<div class="col-3 mb-2">
+					<b>
+						Included:
+						<span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="IncludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsIncluded}}</span>
+					</b>
+				</div>
+				<div class="col-3">
+					<b>
+						Excluded: <span class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold" (click)="ExcludedItemsList()">{{ codesetStatsServ.ReviewStats.itemsExcluded}}</span>
+					</b>
+				</div>
+				<div class="col-3">Deleted: {{ codesetStatsServ.ReviewStats.itemsDeleted}}</div>
+				<div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
+			</div>
+	</div>
 <div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
     <div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
-        <div class="m-1">Coding Progress</div>
+		<div class="m-1">
+			Coding Progress
+			<button kendoButton class="border border-dark" (click)="EditCodeSets()">
+				Coding Tools
+			</button>
+			<button kendoButton class="border border-dark"
+					*ngIf="ReviewerIdentityServ.HasWriteRights"
+					(click)="ImportCodesetClick()">
+				Import Coding Tools
+			</button>
+		</div>
         <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success m-1 p-0 px-2" (click)="RefreshStats()">
             <i class="fa fa-refresh" aria-hidden="true"></i>
         </button>
