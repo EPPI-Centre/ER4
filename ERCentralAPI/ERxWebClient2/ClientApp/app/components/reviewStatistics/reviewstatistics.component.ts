@@ -9,6 +9,7 @@ import {  Subject, Subscription } from 'rxjs';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -24,7 +25,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
 		private _httpC: HttpClient,
 		private ItemListService: ItemListService,
-		private codesetStatsServ: CodesetStatisticsService
+		private codesetStatsServ: CodesetStatisticsService,
+		private confirmationDialogService: ConfirmationDialogService,
 	) {
 
 	}
@@ -141,15 +143,31 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 	CompleteCoding(setId: number, contactId: number,  completeOrNot: string) {
 
-		//console.log('Got in here' + setId + 'asdf: ' + contactId + 'asdf: ' + completeOrNot);
-		this.codesetStatsServ.SendToItemBulkCompleteCommand(
-			setId,
-			contactId,
-			completeOrNot);
+		if (setId != null && contactId != null && completeOrNot != null) {
 
-		this.RefreshStats();
-		// can call the notification service here
+			this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to set these codings by the selected reviewer to being uncompleted?' +
+				'<br /><b>Note:</b> If these are double coded items and are reconciled disagreements you will be loosing the reconcile information.' +
+				'<br />Please check in the manual if you are unsure about the implications.' +
+				'<br />Uncompleted items will no longer be visible in searches and reports', false, '')
+				.then(
+					(confirmed: any) => {
+						console.log('User confirmed:');
+						if (confirmed) {
 
+							this.codesetStatsServ.SendToItemBulkCompleteCommand(
+								setId,
+								contactId,
+								completeOrNot);
+
+							this.RefreshStats();
+
+						} else {
+							//alert('did not confirm');
+						}
+					}
+				)
+				.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+		}
 	}
 
 	//GoToItemList() {
