@@ -9,18 +9,12 @@
                                 (tabSelect)="onTabSelect($event)">
                     <kendo-tabstrip-tab [selected]="true" [title]="'Review home'">
                         <ng-template kendoTabContent>
-                            <div class="containsAtoolbar">
-                                <kendo-toolbar class="customk-toolbar">
-                                    
-                                   
-                                </kendo-toolbar>
-                            </div>
-                            <div class="row m-1">
-                                <div class="col-md-7 p-0 pr-1">
+                            <div class="row m-0">
+                                <div class="col-md-7 col-sm-12 p-0 pr-1">
                                     <reviewStatisticsComp (tabSelectEvent)="GoToItemList()"></reviewStatisticsComp>
                                 </div>
-                                <div class="col-md-5 p-0">
-                                    <div class="card card-body ReviewsBg  mt-2 ">
+                                <div class="col-md-5 col-sm-12 p-0">
+                                    <div class="card card-body ReviewsBg  mt-md-0 mt-sm-2 ">
                                         <div class="row p-0">
                                             <button type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewPanel()"
                                                     [attr.aria-expanded]="!isReviewPanelCollapsed">

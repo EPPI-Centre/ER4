@@ -1,7 +1,7 @@
 <p *ngIf="!codesetStatsServ.ReviewStats"><em>Loading...</em></p>
-<div class="card bg-light mt-2 col-md-12">
-	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info">Review Items
-		<kendo-splitbutton class="border border-dark" (buttonClick)="GoToSources()"
+<div class="card bg-light mt-0 col-md-12">
+	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info containsAtoolbar">Review Items
+		<kendo-splitbutton class="ml-1" (buttonClick)="GoToSources()"
 						   [data]="ImportOrNewDDData"
 						   style="border-color: #04070b;background-color: #e1e4eb;">
 			Import Items
@@ -27,13 +27,13 @@
 			</div>
 	</div>
 <div class="card bg-light mt-2 mb-1 col-md-12" style="max-height:500px; overflow-y: auto;">
-	<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
+    <div class="font-weight-bold containsAtoolbar text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
 		<div class="m-1">
 			Coding Progress
-			<button kendoButton class="border border-dark" (click)="EditCodeSets()">
+			<button kendoButton class="ml-1" (click)="EditCodeSets()">
 				Coding Tools
 			</button>
-			<button kendoButton class="border border-dark"
+			<button kendoButton class="ml-1"
 					*ngIf="ReviewerIdentityServ.HasWriteRights"
 					(click)="ImportCodesetClick()">
 				Import Coding Tools
