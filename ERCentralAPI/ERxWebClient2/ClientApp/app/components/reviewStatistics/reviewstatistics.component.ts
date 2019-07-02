@@ -7,7 +7,7 @@ import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import {  Subject, Subscription } from 'rxjs';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer } from '../services/codesetstatistics.service';
+import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand } from '../services/codesetstatistics.service';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -167,11 +167,16 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			} else {
 				tmpComplete = 'Uncompleted';
 			}
-
+			let tmpStrItemVisible: string = '';
+			if (tmpComplete == 'Complete') {
+				tmpStrItemVisible = ' items will no longer be visible in searches and reports';
+			} else {
+				tmpStrItemVisible = ' items will be visible in searches and reports';
+			}
 			this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to change the codings by ' + contactName + ' for the ' + setName + ' coding tool to <b>' + tmpComplete + '</b> ?' +
 				'<br /><b>Note:</b> ' +
 				'<br />Please check in the manual if you are unsure about the implications.' +
-				'<br /><b>' + tmpComplete + '</b> items will no longer be visible in searches and reports', false, '')
+				'<br /><b>' + tmpComplete + '</b> ' + tmpStrItemVisible , false, '')
 				.then(
 					(confirmed: any) => {
 						console.log('User confirmed:');
@@ -202,48 +207,98 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 		}
 		this.isCollapsedCodeStudies = false;
+		this.msg = '';
 	}
 	public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
+	public canBulkComplete: boolean = false;
 	public CanPreview() {
 
 		return false;
 	}
-	public Preview(isCompleting: string,
-		setId: number, contactId: number) {
+	public msg: string = '';
+	public Preview(isCompleting: string) {
 
 		let completing: string = '';
 		if (isCompleting == 'Complete') {
+
 			completing = 'true';
 		} else {
+
 			completing = 'false';
 		}
-		let node: singleNode = this.DropdownSelectedCodeStudies as singleNode;
-		let attId: string = node.id;
+
+		if (this.DropdownSelectedCodeStudies == null || this.DropdownSelectedCodeStudies.name == ''
+			|| this.selectedCodeSet == null) {
+			return;
+		}
+
+		let setId: number = this.selectedCodeSet.set_id;
+		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
+		let attId: number = node.attribute_id;
+		let reviewerId: number = this.ReviewerIdentityServ.reviewerIdentity.userId; 
+		let apiResult: Promise<BulkCompleteUncompleteCommand> | any;
+
+
+
 		if (attId != null) {
 
-			this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
+			apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
 				attId,
 				completing,
 				setId,
-				contactId,
+				reviewerId,
 				'true'
-				);
-		}
+
+			).then(
+
+				(result: BulkCompleteUncompleteCommand) => {
+
+					this.msg = "Your selected code (" + node.attribute_name + ") is associated with ";
+					this.msg += "<b>" + result.potentiallyAffectedItems + " Items. </b>";
+
+					if (result.potentiallyAffectedItems > 0) {
+
+						this.msg += "<br\> Of these, "
+							+ (result.isCompleting ? "un-completed" : "completed")
+							+ " codings in the chosen Codeset (\"" + this.selectedCodeSet.set_name + "\") will be "
+							+ (result.isCompleting ? "completed, if they belong to contacts name should go here...." : "un-completed");
+						+ "." + "<br\>";
+
+						this.msg += "<br\> As a result, <b> the coding of ";
+						this.msg += result.affectedItems + " Items ";
+						this.msg += "will be " + (result.isCompleting ? "completed" : "un-completed") + "</b>.";
+
+						if (result.affectedItems > 0) {
+							this.msg +=  "<br\>" + "If this looks ok, you may now press the "
+								+ (result.isCompleting ? "\"Complete!\"" : "\"Un-Complete!\"") + " button.";
+							this.msg +=  "<br\>" + "<b>Warning: this action does not have a direct \"Undo\" function so please use with care!</b>";
+
+							this.canBulkComplete = true;
+
+						} else {
+
+							this.msg +=  "<br\>" + "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
+						}
+
+
+					} else {
+
+						this.msg +=  "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
+					}
+					console.log(this.msg);
+					this.showMessage = true;
+				});
+			}
 	}
+	public showMessage: boolean = false;
 	public CanCompleteOrNot() {
 
-		if (this.DropdownSelectedCodeStudies != null && this.DropdownSelectedCodeStudies.name != ''
-			&& this.selectedCodeSet != null) {
-
-			return false;
-
-		} else {
-
-			return true;
-		}
+		return this.canBulkComplete;
+		
 	}
+
 	public DropdownSelectedCodeStudies: singleNode | null = null;
 	public isCollapsedCodeStudies: boolean = false;
 	public selectedCodeSet: ReviewSet = new ReviewSet();
@@ -262,32 +317,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			this.PanelName =  '';
 		}
 	}
-
-	//GoToItemList() {
-	//	console.log('selecting tab 3...');
-	//	this.tabset.select('ItemListTab');
-	//}
-	//LoadWorkAllocList(workAlloc: WorkAllocation) {
-	//	console.log('try to load a (default?) work alloc');
-	//	if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationsComp.ListSubType);
-	//	else console.log('attempt failed');
-	//}
-
-	//MyInfoMessage(): string {
-	//	let msg: string = "Your account expires on: ";
-	//	let revPart: string = "";
-	//	let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
-	//	if (this.ReviewerIdentityServ.getDaysLeftReview() == -999999) {//review is private
-	//		revPart = " | Current review is private (does not expire).";
-	//	}
-	//	else {
-	//		let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-	//		revPart = " | Current(shared) review expires on " + RevExp + ".";
-	//	}
-	//	msg += AccExp + revPart;
-	//	return msg;
-
-	//}
 
 	ngOnDestroy() {
 		//if (this.subOpeningReview) {

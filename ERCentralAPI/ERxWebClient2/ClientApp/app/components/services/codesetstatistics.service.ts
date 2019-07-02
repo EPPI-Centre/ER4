@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ItemArmDeleteWarningCommandJSON } from './arms.service';
 
@@ -287,32 +287,36 @@ export class CodesetStatisticsService extends BusyAwareService {
 			);
 	}
 	
-	SendItemsToBulkCompleteOrNotCommand(attributeId: string, isCompleting: string,
-		setId: number, reviewerId: number, isPreview: string) {
+	SendItemsToBulkCompleteOrNotCommand(attributeId: number, isCompleting: string,
+		setId: number, reviewerId: number, isPreview: string): Promise<BulkCompleteUncompleteCommand>  {
 
 		this._BusyMethods.push("ItemsToBulkCompleteOrNotCommand");
 		let MVCcmd: BulkCompleteUncompleteCommand = new BulkCompleteUncompleteCommand();
-		MVCcmd.attributeId = Number(attributeId);
+		MVCcmd.attributeId = attributeId;
 		MVCcmd.isCompleting = isCompleting;
 		MVCcmd.setId = setId;
 		MVCcmd.reviewerId = reviewerId;
 		MVCcmd.isPreview = isPreview;
+		console.log(MVCcmd);
+		return this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
+			MVCcmd).toPromise().then(
 
-		this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
-			MVCcmd).subscribe((result) => {
+			(result) => {
 
-				alert('hold');
-				console.log('==========================: ' + result);
-				this.GetReviewStatisticsCountsCommand();
+				
+				console.log('==========================: ' + JSON.stringify(result));
 				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+				return result;
+				//this.GetReviewStatisticsCountsCommand();
+				
 
 			}, error => {
 				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
 				this.modalService.SendBackHomeWithError(error);
-			}, () => {
-				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+				return error;
+
 			}
-			);
+		);
 	}
 
     //private Save() {
@@ -364,6 +368,8 @@ export class BulkCompleteUncompleteCommand {
 	public setId: number =0;
 	public reviewerId: number=0;
 	public isPreview: string = '';
+	public potentiallyAffectedItems : number = 0;
+	public affectedItems: number =0;
 
 }
 export interface ReviewStatisticsCountsCommand {
