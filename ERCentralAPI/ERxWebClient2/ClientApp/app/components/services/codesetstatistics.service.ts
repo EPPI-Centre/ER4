@@ -288,33 +288,27 @@ export class CodesetStatisticsService extends BusyAwareService {
 	}
 	
 	SendItemsToBulkCompleteOrNotCommand(attributeId: number, isCompleting: string,
-		setId: number, reviewerId: number, isPreview: string): Promise<BulkCompleteUncompleteCommand>  {
+		setId: number, isPreview: string, reviewerId?: number): Promise<BulkCompleteUncompleteCommand>  {
 
 		this._BusyMethods.push("ItemsToBulkCompleteOrNotCommand");
 		let MVCcmd: BulkCompleteUncompleteCommand = new BulkCompleteUncompleteCommand();
 		MVCcmd.attributeId = attributeId;
 		MVCcmd.isCompleting = isCompleting;
 		MVCcmd.setId = setId;
-		MVCcmd.reviewerId = reviewerId;
+		MVCcmd.reviewerId = reviewerId == null? 0 : reviewerId;
 		MVCcmd.isPreview = isPreview;
-		console.log(MVCcmd);
 		return this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
 			MVCcmd).toPromise().then(
 
 			(result) => {
 
-				
-				console.log('==========================: ' + JSON.stringify(result));
 				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
 				return result;
-				//this.GetReviewStatisticsCountsCommand();
 				
-
 			}, error => {
 				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
 				this.modalService.SendBackHomeWithError(error);
 				return error;
-
 			}
 		);
 	}
@@ -366,7 +360,7 @@ export class BulkCompleteUncompleteCommand {
 	public attributeId: number= 0;
 	public isCompleting: string = '';
 	public setId: number =0;
-	public reviewerId: number=0;
+	public reviewerId?: number=0;
 	public isPreview: string = '';
 	public potentiallyAffectedItems : number = 0;
 	public affectedItems: number =0;

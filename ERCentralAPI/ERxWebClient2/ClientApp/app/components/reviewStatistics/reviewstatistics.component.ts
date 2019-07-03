@@ -4,13 +4,12 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
-import { ItemListComp } from '../ItemList/itemListComp.component';
-import {  Subject, Subscription } from 'rxjs';
+import {  Subject } from 'rxjs';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand } from '../services/codesetstatistics.service';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 
 
 @Component({
@@ -28,7 +27,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
 		private confirmationDialogService: ConfirmationDialogService,
-		private _reviewSetsService: ReviewSetsService
+		private _reviewSetsService: ReviewSetsService,
+		private _reviewInfoService: ReviewInfoService
 	) {
 
 	}
@@ -42,11 +42,29 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     public DetailsForSetId: number = 0;
 	public isReviewPanelCollapsed = false;
 	public isWorkAllocationsPanelCollapsed = false;
-	private statsSub: Subscription = new Subscription();
+	//private statsSub: Subscription = new Subscription();
+	public msg: string = '';
+	public canBulkComplete: boolean = false;
+	public isBulkCompleting: boolean = false;
+	public showMessage: boolean = false;
+	public DropdownSelectedCodeStudies: singleNode | null = null;
+	public isCollapsedCodeStudies: boolean = false;
+	public selectedCodeSet: ReviewSet = new ReviewSet();
+	public PanelName: string = '';
+	public complete: string = '';
+
+	public selectedReviewer1: Contact = new Contact();
 
 	dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
 
+	public get Contacts(): Contact[] {
+
+		return this._reviewInfoService.Contacts;
+	}
+	public get CodeSets(): ReviewSet[] {
+		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
+	}
     public get IsServiceBusy(): boolean {
         return this.codesetStatsServ.IsBusy;
     }
@@ -81,7 +99,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         if (this.DetailsForSetId == SetId) this.DetailsForSetId = 0;
         else this.DetailsForSetId = SetId;
     }
-	
     RefreshStats() {
         this.reviewSetsService.GetReviewStatsEmit.emit();
         //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
@@ -92,13 +109,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		//if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
 		//else console.log("work allocs comp is undef :-(");
 	}
-
 	GetStats() {
 		//console.log('getting stats...');
 		//this.codesetStatsServ.GetReviewStatisticsCountsCommand();
 		//this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
 	}
-
 	Clear() {
 		this.ItemListService.SaveItems(new ItemList(), new Criteria());
 
@@ -203,21 +218,97 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 			this.DropdownSelectedCodeStudies = this.CodeStudiesTreeOne.SelectedNodeData;
 			let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
-			
-
 		}
 		this.isCollapsedCodeStudies = false;
 		this.msg = '';
 	}
-	public get CodeSets(): ReviewSet[] {
-		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
-	}
-	public canBulkComplete: boolean = false;
 	public CanPreview() {
 
-		return false;
+		if (this.complete == 'Complete') {
+			this.isBulkCompleting = true;
+		} else {
+			this.isBulkCompleting = false;
+		}
+		let msg: string = '';
+		let compORuncomp: string = this.isBulkCompleting ? "completed" : "un-completed";
+		msg = "Please click \"Preview\" to continue.";
+
+		if (this.isBulkCompleting && this.selectedReviewer1.contactName == ''
+			|| this.selectedReviewer1.contactName == ' ') {
+			msg = "Please select whose codings should be " + compORuncomp + ".";
+			//console.log(msg);
+			//console.log('asdfasd:' + this.selectedReviewer1.contactName + 'asdf');
+			return false;
+		}
+		if (this.selectedCodeSet.name == '') {
+			msg = "Please select the codeset to be " + compORuncomp + ".";
+			console.log(msg);
+			return false;
+		}
+		else if (this.DropdownSelectedCodeStudies == null) {
+			msg = "Please select the code used to specify what items are to be " + compORuncomp + ".";
+			console.log(msg);
+			return false;
+		}
+		//check if the filter Attribute is in the set that will be affected
+		
+		let setId: number = this.selectedCodeSet.set_id;
+		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
+		
+		if (node.attributeSetId == setId) {
+				msg = "This can't be done: the selected code belongs to the Codeset you wish to act on. </br> Please select a different Code/Codeset combination.";
+			console.log(msg);
+			return false;
+		}
+		return true;
 	}
-	public msg: string = '';
+	public CompleteOrUncomplete() {
+
+		if (this.DropdownSelectedCodeStudies == null || this.DropdownSelectedCodeStudies.name == ''
+			|| this.selectedCodeSet == null) {
+			return;
+		}
+
+		let setId: number = this.selectedCodeSet.set_id;
+		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
+		let attId: number = node.attribute_id;
+		let reviewerId: number = this.selectedReviewer1.contactId; 
+		let apiResult: Promise<BulkCompleteUncompleteCommand> | any;
+		
+		if (this.isBulkCompleting) {
+
+			apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
+				attId,
+				this.isBulkCompleting.toString(),
+				setId,
+				'false',
+				reviewerId
+			).then(
+				() => {
+					this.RefreshStats();
+					alert('finished the bulk uncomplete');
+				}
+			);
+		}
+		else {
+
+			apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
+				attId,
+				this.isBulkCompleting.toString(),
+				setId,
+				'false'
+
+			).then(
+				() => {
+					this.RefreshStats();
+					alert('finished the bulk complete ');
+				}
+			);
+		}
+		this.changePanel('');
+
+	}
+
 	public Preview(isCompleting: string) {
 
 		let completing: string = '';
@@ -237,20 +328,18 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		let attId: number = node.attribute_id;
-		let reviewerId: number = this.ReviewerIdentityServ.reviewerIdentity.userId; 
+		let reviewerId: number = this.selectedReviewer1.contactId; 
 		let apiResult: Promise<BulkCompleteUncompleteCommand> | any;
-
-
 
 		if (attId != null) {
 
 			apiResult = this.codesetStatsServ.SendItemsToBulkCompleteOrNotCommand(
 				attId,
-				completing,
+				this.isBulkCompleting.toString(),
 				setId,
-				reviewerId,
-				'true'
-
+				'true',
+				reviewerId
+				
 			).then(
 
 				(result: BulkCompleteUncompleteCommand) => {
@@ -263,7 +352,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 						this.msg += "<br\> Of these, "
 							+ (result.isCompleting ? "un-completed" : "completed")
 							+ " codings in the chosen Codeset (\"" + this.selectedCodeSet.set_name + "\") will be "
-							+ (result.isCompleting ? "completed, if they belong to contacts name should go here...." : "un-completed");
+							+ (result.isCompleting ? "completed, if they belong to " + this.selectedReviewer1.contactName  : "un-completed");
 						+ "." + "<br\>";
 
 						this.msg += "<br\> As a result, <b> the coding of ";
@@ -279,7 +368,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 						} else {
 
-							this.msg +=  "<br\>" + "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
+							this.msg +=  "<br\>" + "<b>Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "</b>!";
 						}
 
 
@@ -287,24 +376,22 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 						this.msg +=  "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
 					}
-					console.log(this.msg);
+					//console.log(this.msg);
+					this.RefreshStats();
 					this.showMessage = true;
 				});
 			}
 	}
-	public showMessage: boolean = false;
+
 	public CanCompleteOrNot() {
 
 		return this.canBulkComplete;
 		
 	}
 
-	public DropdownSelectedCodeStudies: singleNode | null = null;
-	public isCollapsedCodeStudies: boolean = false;
-	public selectedCodeSet: ReviewSet = new ReviewSet();
-	public PanelName: string = '';
-	public complete: string ='';
 	changePanel(completeOrNot: string) {
+
+		this.isBulkCompleting = true;
 		if (completeOrNot == 'true') {
 			this.complete = 'Complete';
 		} else {
