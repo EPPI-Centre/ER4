@@ -58,15 +58,20 @@ export class PriorityScreeningService extends BusyAwareService {
     }
 
     private subtrainingList: Subscription | null = null;
-    public Fetch() {
+	public Fetch() {
+		this._BusyMethods.push("Fetch");
         if (this.subtrainingList) {
             this.subtrainingList.unsubscribe();
             this.subtrainingList = null;
         }
         this.subtrainingList = this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList').subscribe(tL => {
-            this._TrainingList = tL;
+			this._TrainingList = tL;
+			this.RemoveBusy("Fetch");
             //this.Save();
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+		}, error => {
+			this.RemoveBusy("Fetch");
+			this.modalService.SendBackHomeWithError(error);
+		}
         );
         return this.subtrainingList;
     }
@@ -195,12 +200,17 @@ export class PriorityScreeningService extends BusyAwareService {
         }
         //let totalscreened = this._TrainingList
     }
-    private RunNewTrainingCommand() {
+	private RunNewTrainingCommand() {
+		this._BusyMethods.push("RunNewTrainingCommand");
         return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
             //this.DelayedFetch(1 * 6);//seconds to wait...
             this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
             //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
-        }, error => { this.modalService.SendBackHomeWithError(error); }
+			this.RemoveBusy("RunNewTrainingCommand");
+		}, error => {
+			this.RemoveBusy("RunNewTrainingCommand");
+			this.modalService.SendBackHomeWithError(error);
+		}
         );
     }
     //private _PreviousItem: Item = new Item();

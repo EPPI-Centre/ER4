@@ -1,7 +1,7 @@
-<div *ngIf="!ShowUpload && HasWriteRights">
+<div *ngIf="!ShowUpload && HasWriteRights && showUpload">
     <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button>
 </div>
-<div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
+<div *ngIf="ShowUpload && showUpload" class="row ml-2 bg-white mr-1 p-0">
     <kendo-upload class="" [autoUpload]="true"
                   [saveUrl]="uploadSaveUrl"
                   [restrictions]="uploadRestrictions"
@@ -31,8 +31,17 @@
                     <td class="">{{ ItemDocument.shortTitle }}</td>
                     <td class="">{{ ItemDocument.title }}</td>
                     <td class="p-0 m-0 align-middle">
-                        <button class="btn btn-outline-danger btn-sm" (click)="DeleteDoc(ItemDocument.itemDocumentId)">Delete</button>
-                        <button class="btn btn-outline-primary btn-sm" (click)="DownloadDoc(ItemDocument.itemDocumentId)">Download</button>
+                        <button *ngIf="ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf'" 
+                                class="btn btn-outline-success btn-sm mr-1" title="View" 
+                                (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-info btn-sm p-1" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
+                            Download
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm ml-1" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
                     </td>
                 </tr>
             </tbody>

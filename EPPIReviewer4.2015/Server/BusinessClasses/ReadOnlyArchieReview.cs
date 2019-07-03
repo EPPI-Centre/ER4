@@ -23,14 +23,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReadOnlyArchieReview : ArchieReadOnlyBase<ReadOnlyArchieReview>
     {
+        public ReadOnlyArchieReview() { }
 
-#if SILVERLIGHT
-    public ReadOnlyArchieReview() { }
-#else
-        private ReadOnlyArchieReview() { }
-#endif
         
-        private static PropertyInfo<Security.ArchieIdentity> IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
+        public static readonly PropertyInfo<Security.ArchieIdentity> IdentityProperty = RegisterProperty<Security.ArchieIdentity>(new PropertyInfo<Security.ArchieIdentity>("Identity", "Identity"));
         public Security.ArchieIdentity Identity
         {
             get
@@ -45,7 +41,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
         }
 
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "Review Id", 0));
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "Review Id", 0));
         public int ReviewId
         {
             get
@@ -53,7 +49,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewIdProperty);
             }
         }
-        private static PropertyInfo<string> ArchieReviewIdProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewId", "ArchieReviewId"));
+        public static readonly PropertyInfo<string> ArchieReviewIdProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewId", "ArchieReviewId"));
         public string ArchieReviewId
         {
             get
@@ -61,7 +57,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ArchieReviewIdProperty);
             }
         }
-        private static PropertyInfo<string> ArchieReviewCDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewCD", "ArchieReviewCD", ""));
+        public static readonly PropertyInfo<string> ArchieReviewCDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieReviewCD", "ArchieReviewCD", ""));
         public string ArchieReviewCD
         {
             get
@@ -69,7 +65,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ArchieReviewCDProperty);
             }
         }
-        private static PropertyInfo<string> StageProperty = RegisterProperty<string>(new PropertyInfo<string>("Stage", "Stage"));
+        public static readonly PropertyInfo<string> StageProperty = RegisterProperty<string>(new PropertyInfo<string>("Stage", "Stage"));
         public string Stage
         {
             get
@@ -77,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(StageProperty);
             }
         }
-        private static PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status"));
+        public static readonly PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status"));
         public string Status
         {
             get
@@ -85,7 +81,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(StatusProperty);
             }
         }
-        private static PropertyInfo<bool> checkedOutInArchieProperty = RegisterProperty<bool>(new PropertyInfo<bool>("checkedOutInArchie", "checkedOutInArchie"));
+        public static readonly PropertyInfo<bool> checkedOutInArchieProperty = RegisterProperty<bool>(new PropertyInfo<bool>("checkedOutInArchie", "checkedOutInArchie"));
         public bool checkedOutInArchie
         {
             get
@@ -93,7 +89,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(checkedOutInArchieProperty);
             }
         }
-        private static PropertyInfo<bool> isCheckedOutHereProperty = RegisterProperty<bool>(new PropertyInfo<bool>("isCheckedOutHere", "isCheckedOutHere"));
+        public static readonly PropertyInfo<bool> isCheckedOutHereProperty = RegisterProperty<bool>(new PropertyInfo<bool>("isCheckedOutHere", "isCheckedOutHere"));
         public bool isCheckedOutHere
         {
             get
@@ -101,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(isCheckedOutHereProperty);
             }
         }
-        private static PropertyInfo<bool> isLocalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("isLocal", "isLocal"));
+        public static readonly PropertyInfo<bool> isLocalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("isLocal", "isLocal"));
         public bool isLocal
         {
             get
@@ -109,7 +105,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(isLocalProperty);
             }
         }
-        private static PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "Review Name", string.Empty));
+        public static readonly PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "Review Name", string.Empty));
         public string ReviewName
         {
             get
@@ -117,7 +113,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewNameProperty);
             }
         }
-        private static PropertyInfo<string> ContactReviewRolesProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactReviewRoles", "ContactReviewRoles", string.Empty));
+        public static readonly PropertyInfo<string> ContactReviewRolesProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactReviewRoles", "ContactReviewRoles", string.Empty));
         public string ContactReviewRoles
         {
             get
@@ -125,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ContactReviewRolesProperty);
             }
         }
-        private static PropertyInfo<string> ReviewOwnerProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewOwner", "ReviewOwner", string.Empty));
+        public static readonly PropertyInfo<string> ReviewOwnerProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewOwner", "ReviewOwner", string.Empty));
         public string ReviewOwner
         {
             get
@@ -133,7 +129,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewOwnerProperty);
             }
         }
-        private static PropertyInfo<DateTime> LastAccessProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LastAccess", "LastAccess"));
+        public static readonly PropertyInfo<DateTime> LastAccessProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("LastAccess", "LastAccess"));
         public DateTime LastAccess
         {
             get
@@ -141,7 +137,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(LastAccessProperty);
             }
         }
-        private static readonly PropertyInfo<bool> UserIsInReviewProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserIsInReview", "UserIsInReview"));
+        public static readonly PropertyInfo<bool> UserIsInReviewProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserIsInReview", "UserIsInReview"));
         public bool UserIsInReview
         {
             get

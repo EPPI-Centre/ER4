@@ -35,7 +35,8 @@ module.exports = (env) => {
 
     // Configuration for client-side bundle suitable for running in browsers
     const clientBundleOutputDir = './wwwroot/dist';
-    const clientBundleConfig = merge(sharedConfig, {
+    const clientBundleConfig = merge(sharedConfig,
+        {
         entry: { 'main-client': './ClientApp/boot.browser.ts' },
         output: { path: path.join(__dirname, clientBundleOutputDir) },
         plugins: [
@@ -58,7 +59,8 @@ module.exports = (env) => {
                 exclude: ['./**/*.server.ts']
             })
         ])
-    });
+        }
+    );
 
     // Configuration for server-side (prerendering) bundle suitable for running in Node
     //const serverBundleConfig = merge(sharedConfig, {

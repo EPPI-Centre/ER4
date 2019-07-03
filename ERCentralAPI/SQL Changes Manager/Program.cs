@@ -103,7 +103,8 @@ namespace SQL_Changes_Manager
             LogMessageLine("Processing File: \"" + vNumber.ToString() + ".sql\"");
             string fullfilename = ScriptsFolder + "\\" + vNumber.ToString() + ".sql";
             string SQLScript = "BEGIN TRANSACTION" + Environment.NewLine 
-                +  File.ReadAllText(fullfilename) + Environment.NewLine
+                +  File.ReadAllText(fullfilename) + Environment.NewLine 
+                + "GO" + Environment.NewLine
                 + "COMMIT" + Environment.NewLine + "GO";
             try
             {

@@ -1,12 +1,10 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
-import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 
@@ -20,9 +18,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
-		private _reviewSetsService: ReviewSetsService,
-		public reviewSetsService: ReviewSetsService,
-		public _buildModelService: BuildModelService,
+		public _reviewSetsService: ReviewSetsService,
+		private _buildModelService: BuildModelService,
 		public _eventEmitterService: EventEmitterService
 	) { }
 
@@ -36,7 +33,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
 			total: this._buildModelService.ClassifierModelList.length,
 		};
-	}
+    }
+    public get selectedNode(): singleNode | null {
+        return this._reviewSetsService.selectedNode;
+    }
+    public get nodeSelected(): singleNode | null | undefined {
+        return this._eventEmitterService.nodeSelected;//SG note: not sure this is a good idea, how is this better than this.reviewSetsService.selectedNode?
+    }
 	CanOnlySelectRoots() {
 
 		return true;
@@ -71,7 +74,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
-		this.reviewSetsService.GetReviewSets();
+		this._reviewSetsService.GetReviewSets();
 		this._buildModelService.Fetch();
 	
 

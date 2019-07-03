@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+﻿import { Injectable, NgZone } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, from, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -14,7 +14,9 @@ import { Router } from '@angular/router';
 })
 export class ModalService {
 
-    constructor(private ngbModal: NgbModal, private router: Router) { }
+    constructor(private ngbModal: NgbModal,
+        private ngZone: NgZone,
+        private router: Router) { }
 
     private confirm(
         prompt = 'Really?!', title = 'Error'
@@ -32,22 +34,24 @@ export class ModalService {
             })
         );
     }
+    //see: https://github.com/angular/angular/issues/25837#issuecomment-434049467
+    //the ngZone thing makes sure Angular is happy, even when the error started outside ngZone (that is: PDFTron, in some cases...)
     public SendBackHome(message: string) {
         this.confirm(
             message
         ).subscribe(result => {
-            this.router.navigate(['home']);
+            this.ngZone.run(() => this.router.navigate(['home']).then());
         }, error => {
-            this.router.navigate(['home']);
+            this.ngZone.run(() => this.router.navigate(['home']).then());
         });
     }
     public SendBackHomeWithError(error: any) {
         this.confirm(
             'Sorry, could not complete the operation. Error code is: ' + error.status + ". Error message is: " + error.statusText
         ).subscribe(result => {
-            this.router.navigate(['home']);
+            this.ngZone.run(() => this.router.navigate(['home']).then());
         }, error => {
-            this.router.navigate(['home']);
+            this.ngZone.run(() => this.router.navigate(['home']).then());
         });
     }
     public GenericError(error: any) {

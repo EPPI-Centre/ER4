@@ -35,15 +35,22 @@ namespace WcfHostPortal
             }
             else
             {
-                //HiddenField1.Value = code;
-                //HiddenField2.Value = state;
-                HttpCookie ck = new HttpCookie("oAuthCochraneEPPI");
-                ck.Values["code"] = code;
-                ck.Values["state"] = state;
-                ck.Path = "/";
-                ck.Expires = System.DateTime.Now.AddMinutes(61);
-                //ck.Expires = System.DateTime.Now.AddMinutes(1);
-                this.Response.Cookies.Add(ck);
+                //if (state.Length == 12)//temporary!!!
+                //{
+                //    Response.Redirect("https://ssru38.ioe.ac.uk/ERx/ArchieCallBack?code=" + code + "&state=" + state);
+                //}
+                //else
+                //{
+                    //HiddenField1.Value = code;
+                    //HiddenField2.Value = state;
+                    HttpCookie ck = new HttpCookie("oAuthCochraneEPPI");
+                    ck.Values["code"] = code;
+                    ck.Values["state"] = state;
+                    ck.Path = "/";
+                    ck.Expires = System.DateTime.Now.AddMinutes(61);
+                    //ck.Expires = System.DateTime.Now.AddMinutes(1);
+                    this.Response.Cookies.Add(ck);
+                //}
             }
         }
     }

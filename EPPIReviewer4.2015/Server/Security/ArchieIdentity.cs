@@ -10,7 +10,9 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
 
-#if!SILVERLIGHT
+
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -20,17 +22,31 @@ using System.IO;
 using System.Xml.Linq;
 #endif
 #if CSLA_NETCORE
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 #endif
+
+using Newtonsoft.Json;
+
 
 namespace BusinessLibrary.Security
 {
 
     [Serializable]
+    
     public class ArchieIdentity : BusinessBase<ArchieIdentity>
     {
         public ArchieIdentity()
         { }
+
+        private static void BuildConfig()
+        {
+#if CSLA_NETCORE
+            Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
+            builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
+
+            RootConfig = builder.Build();
+#endif
+        }
 
 #if (!CSLA_NETCORE && !SILVERLIGHT)
         System.Web.Script.Serialization.JavaScriptSerializer ser = new System.Web.Script.Serialization.JavaScriptSerializer();//(in System.Web.Extensions.dll)
@@ -43,6 +59,7 @@ namespace BusinessLibrary.Security
                 return res;
             }
         }
+        private static IConfigurationRoot RootConfig; 
 #endif
 
         public static readonly PropertyInfo<string> ArchieIDProperty = RegisterProperty<string>(new PropertyInfo<string>("ArchieID", "ArchieID"));
@@ -115,7 +132,8 @@ namespace BusinessLibrary.Security
         }
 
 #if !SILVERLIGHT
-        string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
+        //string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + "k45m19g80")).Trim();
+        string authInfo = Convert.ToBase64String(Encoding.Default.GetBytes("eppi" + ":" + CochraneOAuthSS)).Trim();
         internal static ArchieIdentity GetArchieIdentity(string code, string status)
         {
             ArchieIdentity res = new ArchieIdentity(code, status, false);
@@ -147,13 +165,14 @@ namespace BusinessLibrary.Security
          //or by validating them against the ER4 DB, this is used when accessing a review (archie will not validate the code+status anymore)
          //also used when the tokens failed and the user Re-authenticated in Archie via the popup (fromLocal == false)
 #if (CSLA_NETCORE)
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 #else
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
 #endif
             _code = code;
             _status = status;
-            string dest = AccountBaseAddress + "oauth2/token";
+            //string dest = AccountBaseAddress + "oauth2/token";
+            string dest = oAuthBaseAddress + "auth/realms/cochrane/protocol/openid-connect/token";
             string json = "";
             Dictionary<string, object> dict;
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
@@ -307,7 +326,7 @@ namespace BusinessLibrary.Security
                             }
                         }
                     }
-                    if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+                    if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                             && ArchieID != null && ArchieID != "")
                     {//all is well: check token with Archie (just in case) and go back
 
@@ -425,8 +444,14 @@ namespace BusinessLibrary.Security
                     string result = "";
                     if (dict.ContainsKey("groupRoles"))
                     {
+#if (CSLA_NETCORE)
+                        Newtonsoft.Json.Linq.JArray meR = dict["groupRoles"] as Newtonsoft.Json.Linq.JArray;
+                        object[] roles = dict["groupRoles"] as object[];
+                        foreach(Newtonsoft.Json.Linq.JToken role in meR)
+#else
                         object[] roles = dict["groupRoles"] as object[];
                         foreach (Dictionary<string, object> role in roles)
+#endif
                         {
                             if (role["name"].ToString().ToLower() != "possible contributor"
                                 && role["name"].ToString().ToLower() != "mailing list"
@@ -434,7 +459,18 @@ namespace BusinessLibrary.Security
                             {
                                 if (dict.ContainsKey("user"))
                                 {
-                                    Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
+#if (CSLA_NETCORE)
+                                    var userD = dict["user"]  as Newtonsoft.Json.Linq.JToken; 
+                                    if (userD != null && userD["userId"] != null)
+                                    {
+                                        ArchieID = userD["userId"].ToString();
+                                        result = "OK";
+                                        break;
+                                    }
+                                    else result = "no userId for this person!";
+#else
+                                     Dictionary<string, object> userD = dict["user"] as Dictionary<string, object>;
+
                                     if (userD.ContainsKey("userId"))
                                     {
                                         ArchieID = userD["userId"].ToString();
@@ -447,6 +483,7 @@ namespace BusinessLibrary.Security
                                     //    "userName": "rasmus.moustgaard@gmail.com",
                                     //    "link": "https://test-archie.cochrane.org/rest/users/z1607150942450721585638601392868"
                                     //  },
+#endif
                                 }
                                 else
                                 {
@@ -477,7 +514,6 @@ namespace BusinessLibrary.Security
                 }
             }
         }
-
         private ArchieIdentity(string code, string status, int ContactID)
         {//this is used to create the identity using values in TB_UNASSIGNED_ARCHIE_KEYS
             //it is called after checking ER4 username and PW so we'll trust the user without checking stuff
@@ -567,11 +603,11 @@ namespace BusinessLibrary.Security
                 }//at this point we can have three situations: Token is valid, all done
                 //token is expired, try refreshing
                 //no tokens need to re-authenticate
-                if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64)
+                if (Token != null && Token.Length >= 64 && RefreshToken != null && RefreshToken.Length >= 30)
                 {//all good!
                     return;
                 }
-                else if (RefreshToken != null && RefreshToken.Length == 64 && Error == "")
+                else if (RefreshToken != null && RefreshToken.Length >= 30 && Error == "")
                 {//need to refresh the token
                     //call the refresh API
                     //save new Token to DB
@@ -581,6 +617,8 @@ namespace BusinessLibrary.Security
 
             }
         }
+
+
         public bool RefreshExpiredToken()
         {
             if (_RefreshToken == null || _RefreshToken.Length < 64)
@@ -595,7 +633,8 @@ namespace BusinessLibrary.Security
 
             //call the refresh API
             //if success, return true and save new Token to DB
-            string dest = AccountBaseAddress + "oauth2/token";
+            //string dest = AccountBaseAddress + "oauth2/token";
+            string dest = oAuthBaseAddress + "auth/realms/cochrane/protocol/openid-connect/token";
 
             System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
             WebClient webc = new WebClient();
@@ -690,9 +729,11 @@ namespace BusinessLibrary.Security
         }
         private bool SaveTokens()
         {
-            if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+            //if (Token != null && Token.Length == 64 && RefreshToken != null && RefreshToken.Length == 64
+            //    && ArchieID != null && ArchieID != "")
+            if (Token != null && Token.Length >= 30 && RefreshToken != null && RefreshToken.Length >= 30
                 && ArchieID != null && ArchieID != "")
-            {//we can do something
+                {//we can do something
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -762,6 +803,7 @@ namespace BusinessLibrary.Security
         }
         private string _Token, _RefreshToken, _code, _status;
         private DateTime _ValidUntil;
+        [JsonIgnore]
         public string Token
         {
             get
@@ -773,6 +815,7 @@ namespace BusinessLibrary.Security
                 _Token = value;
             }
         }
+        [JsonIgnore]
         public string RefreshToken
         {
             get
@@ -784,12 +827,13 @@ namespace BusinessLibrary.Security
                 _RefreshToken = value;
             }
         }
+        [JsonIgnore]
         public DateTime ValidUntil
         {
             get { return _ValidUntil; }
             private set { _ValidUntil = value; }
         }
-
+        
         private string BaseAddress
         {
             get
@@ -814,35 +858,74 @@ namespace BusinessLibrary.Security
                 }
             }
         }
-        private string AccountBaseAddress
+
+        //private string AccountBaseAddress
+        //{
+        //    get
+        //    {
+        //        string host = Environment.MachineName.ToLower();
+        //        if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+        //        {//use live address: this is the real published ER4
+        //            return "https://account.cochrane.org/";
+        //        }
+        //        if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
+        //        {//use live address: this is the real published ER4
+        //            return "https://account.cochrane.org/";
+        //        }
+        //        else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
+        //        {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
+        //            //changes are to be made here depending on what test we're doing
+        //            return "https://test-account.cochrane.org/";
+        //        }
+        //        else
+        //        {//not a live publish, use test archie
+        //            return "https://test-account.cochrane.org/";
+        //        }
+        //    }
+        //}
+        private static string oAuthBaseAddress
         {
             get
             {
-                string host = Environment.MachineName.ToLower();
-                if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
-                {//use live address: this is the real published ER4
-                    return "https://account.cochrane.org/";
-                }
-                if (host == "epi3.westeurope.cloudapp.azure.com" | host == "epi3")
-                {//use live address: this is the real published ER4
-                    return "https://account.cochrane.org/";
-                }
-                else if (host == "bk-epi" | host == "bk-epi.ioead" | host == "bk-epi.inst.ioe.ac.uk")
-                {//this is our testing environment, the first tests should be against the test archie, otherwise the real one
-                    //changes are to be made here depending on what test we're doing
-                    return "https://test-account.cochrane.org/";
-                }
-                else
-                {//not a live publish, use test archie
-                    return "https://test-account.cochrane.org/";
-                }
+#if (!CSLA_NETCORE)
+                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthBaseUrl"];
+#else
+                if (RootConfig == null) BuildConfig();
+                var CochraneoAuthBaseAddress = RootConfig.GetValue<string>("AppSettings:CochraneoAuthBaseAddress");
+                if (CochraneoAuthBaseAddress == null || CochraneoAuthBaseAddress == "") throw new Exception("No CochraneoAuthBaseAddress!");
+                return CochraneoAuthBaseAddress;
+                //string host = Environment.MachineName.ToLower();
+                //if (host == "eppi.ioe.ac.uk" | host == "epi2" | host == "epi2.ioe.ac.uk")
+                //{//use live address: this is the real published ER4
+                //    return "https://login.cochrane.org/";
+                //}
+                //else
+                //{//not a live publish, use test archie 
+                //    return "https://test-login.cochrane.org/";
+                //}
+
+#endif
             }
         }
-
+        private static string CochraneOAuthSS
+        {
+            get
+            {
+#if (!CSLA_NETCORE)
+                return System.Configuration.ConfigurationManager.AppSettings["CochraneOAuthSS"];
+#else
+                if (RootConfig == null) BuildConfig();
+                var connectionString = RootConfig.GetValue<string>("AppSettings:CochraneOAuthSS");
+                if (connectionString == null || connectionString == "") throw new Exception("No client secret!");
+                return connectionString;
+#endif
+            }
+        }
         private string Redirect
         {
             get
             {
+#if (!CSLA_NETCORE)
                 string host = Environment.MachineName.ToLower();
 
                 string redirect = "";
@@ -871,6 +954,11 @@ namespace BusinessLibrary.Security
                     redirect = "https://ssru38.ioe.ac.uk/WcfHostPortal/ArchieCallBack.aspx";
                 }
                 return redirect;
+#else
+                if (RootConfig == null) BuildConfig();
+                var CochraneOAuthRedirectUri = RootConfig.GetValue<string>("AppSettings:CochraneOAuthRedirectUri");
+                return CochraneOAuthRedirectUri;
+#endif
             }
         }
 
@@ -1023,11 +1111,11 @@ namespace BusinessLibrary.Security
             catch (WebException we)
             {
                 //the web response is actually HTML
-                //WebResponse wr = we.Response;
-                //using (var reader = new StreamReader(wr.GetResponseStream()))
-                //{
-                //    json = reader.ReadToEnd();
-                //}
+                WebResponse wr = we.Response;
+                using (var reader = new StreamReader(wr.GetResponseStream()))
+                {
+                    json = reader.ReadToEnd();
+                }
 
                 res = "Error: " + we.Message;
                 return res;
@@ -1037,5 +1125,5 @@ namespace BusinessLibrary.Security
         }
 #endif
 
+            }
         }
-}

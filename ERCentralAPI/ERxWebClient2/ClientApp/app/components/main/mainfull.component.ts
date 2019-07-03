@@ -8,7 +8,7 @@ import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocation
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { timer, Subject, Subscription } from 'rxjs'; 
-import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, SetAttribute, ItemAttributeBulkSaveCommand, ReviewSet } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand } from '../services/codesetstatistics.service';
 import { frequenciesService } from '../services/frequencies.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -24,8 +24,8 @@ import { WorkAllocationComp } from '../WorkAllocations/WorkAllocationComp.compon
 import { frequenciesComp } from '../Frequencies/frequencies.component';
 import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
-
-
+import { ComparisonComp } from '../Comparison/createnewcomparison.component';
+import { Comparison, ComparisonsService } from '../services/comparisons.service';
 
 @Component({
     selector: 'mainComp',
@@ -51,10 +51,7 @@ import { SearchComp } from '../Search/SearchComp.component';
 export class MainFullReviewComponent implements OnInit, OnDestroy {
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
-        //private ReviewInfoService: ReviewInfoService,
         public reviewSetsService: ReviewSetsService,
-        @Inject('BASE_URL') private _baseUrl: string,
-        private _httpC: HttpClient,
         private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
         private _eventEmitter: EventEmitterService,
@@ -65,7 +62,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
-		, private workAllocationListService: WorkAllocationListService
+        , private workAllocationListService: WorkAllocationListService
+        , private ComparisonsService: ComparisonsService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -75,6 +73,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
+	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -84,9 +83,15 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.frequenciesService.IsBusy ||
             this.crosstabService.IsBusy ||
             this.ReviewSetsEditingService.IsBusy ||
-            this.SourcesService.IsBusy);
+            this.SourcesService.IsBusy ||
+            this.ComparisonsService.IsBusy);
     }
-	
+    public get ReviewSets(): ReviewSet[] {
+        return this.reviewSetsService.ReviewSets;
+    }
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
 	tabsInitialized: boolean = false;
 
     public stats: ReviewStatisticsCountsCommand | null = null;
@@ -184,14 +189,22 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 
 	dtTrigger: Subject<any> = new Subject();
-
+	private ListSubType: string = '';
     ngOnInit() {
         console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
             }
-        )
+		)
+
+		this._eventEmitter.criteriaComparisonChange.subscribe(
+			(item: Comparison) => {
+				this.LoadComparisonList(item, this.ListSubType);
+			}
+		)
+
+
 
 
         //this.reviewSetsService.GetReviewSets();
@@ -204,7 +217,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
         //this.searchService.Fetch();
-    }
+	}
+	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
+
+		let crit = new Criteria();
+		crit.listType = ListSubType;
+		let typeMsg: string = '';
+		if (ListSubType.indexOf('Disagree') != -1) {
+			typeMsg = 'disagreements between';
+		} else {
+			typeMsg = 'agreements between';
+		}
+		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+		crit.description = listDescription;
+		crit.listType = ListSubType;
+		crit.comparisonId = comparison.comparisonId;
+		console.log('checking: ' + JSON.stringify(crit) + '\n' + ListSubType);
+		this.ItemListService.FetchWithCrit(crit, listDescription);
+
+	}
     ShowHideCodes() {
         this.CodesAreCollapsed = !this.CodesAreCollapsed;
     }
@@ -362,6 +394,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
 	}
+
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {
 		//	console.log('tabs experiment');
@@ -373,9 +406,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
     }
     toggleWorkAllocationsPanel() {
-        this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
-	}
+		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
+		//this.workAllocationListService.FetchAll();
+        if (this.workAllocationsContactComp && this.isWorkAllocationsPanelCollapsed) this.workAllocationsContactComp.getWorkAllocationContactList();
 
+	}
     toggleSourcesPanel() {
         if (!this.isSourcesPanelVisible) {
             this.SourcesService.FetchSources();
@@ -475,6 +510,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.SearchComp) {
 			this.SearchComp.Clear();
+		}
+		if (this.ComparisonComp) {
+			this.ComparisonComp.Clear();
 		}
 
         //this.dtTrigger.unsubscribe();

@@ -13,6 +13,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Net;
+//using Telerik.Windows.Documents.Fixed.FormatProviders.Pdf;
+//using Telerik.Windows.Documents.Fixed.FormatProviders.Text;
+//using Telerik.Windows.Documents.Fixed.Model;
 
 namespace ERxWebClient2.Controllers
 {
@@ -200,6 +203,16 @@ namespace ERxWebClient2.Controllers
                             {
                                 FileDownloadName = name
                             };
+                        }
+                        //provisional test: can we get the extracted text?
+                        if (type.ToLower() == ".pdf")
+                        {
+                            
+                            //var bin = dr["DOCUMENT_BINARY"];
+                            //PdfFormatProvider provider = new PdfFormatProvider();
+                            //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
+                            //TextFormatProvider textFormatProvider = new TextFormatProvider();
+                            //string text = textFormatProvider.Export(document);
                         }
                         return result;
                     }

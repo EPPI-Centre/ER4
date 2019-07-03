@@ -1,19 +1,19 @@
-import { Component, Inject, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
-import { ItemListService } from '../services/ItemList.service'
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { singleNode, ReviewSetsService, ReviewSet, SetAttribute, kvAllowedAttributeType } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewSetsEditingService, PerformRandomAllocateCommand } from '../services/ReviewSetsEditing.service';
-import { Jsonp } from '@angular/http';
-import { Review } from '../services/review.service';
 import { Subscription } from 'rxjs';
-import { CodesetTreeEditComponent } from '../CodesetTrees/codesetTreeEdit.component';
-import { NgForm, FormsModule  } from '@angular/forms';
-import { CodesetTreeMainComponent } from '../CodesetTrees/codesetTreeMain.component';
+import { ComparisonsService, Comparison } from '../services/comparisons.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { ComparisonComp } from '../Comparison/createnewcomparison.component';
+import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
+import { ItemListComp } from '../ItemList/itemListComp.component';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -26,11 +26,13 @@ export class WorkAllocationComp implements OnInit {
     constructor(
     private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
 		public _workAllocationListService: WorkAllocationListService,
-		public reviewInfoService: ReviewInfoService,
-		public itemListService: ItemListService,
-		public confirmationDialogService: ConfirmationDialogService,
-		public _reviewSetsService: ReviewSetsService,
-		public _reviewSetsEditingService : ReviewSetsEditingService
+		private reviewInfoService: ReviewInfoService,
+		private confirmationDialogService: ConfirmationDialogService,
+		private _reviewSetsService: ReviewSetsService,
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		public _comparisonsService: ComparisonsService,
+		private _notificationService: NotificationService,
+		 @Inject('BASE_URL') private _baseUrl: string
     ) { }
 
 	
@@ -39,8 +41,13 @@ export class WorkAllocationComp implements OnInit {
     @ViewChild('CodeStudiesTree') CodeStudiesTree!: codesetSelectorComponent;
 	@ViewChild('AllocateOptionsDropDown') AllocateOptionsDropDown: any;
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
+	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
+	@ViewChild('ComparisonStatsCompList') ComparisonStatsComp!: ComparisonStatsComp;
 	@Output() criteriaChange = new EventEmitter();
 	@Output() AllocationClicked = new EventEmitter();
+	@Input() tabstrip!: TabStripComponent;
+	@Input() ItemList!: ItemListComp;
+
 	public ListSubType: string = "GetItemWorkAllocationList";
 	public RandomlyAssignSection: boolean = false;
 	public AssignWorkSection: boolean = false;
@@ -63,19 +70,54 @@ export class WorkAllocationComp implements OnInit {
 	public DestRevSet: ReviewSet = new ReviewSet();
 	public FiltAttSet: SetAttribute = new SetAttribute();
 	public FiltRevSet: ReviewSet = new ReviewSet();
-	//public index: number = 0;
 	public dropdownBasicCodingTool: boolean = false;
-	public dropdownBasicPerson: boolean = false;
+    public dropdownBasicPerson: boolean = false;
+    public ShowAllocations: boolean = true;
+    public ShowComparisons: boolean = true;
 	public workAllocation: WorkAllocation = new WorkAllocation();
     public selectedAllocated: kvSelectFrom = { key: 1, value: 'No code / coding tool filter' };
 	public PanelName: string = '';
-
+    public get chosenFilter(): singleNode | null {
+        return this._reviewSetsService.selectedNode;
+    }
+    public get chosenFilterName(): string{
+        if (this._reviewSetsService.selectedNode) {
+            return this._reviewSetsService.selectedNode.name;
+        }
+        else {
+            return "No code selected";
+        }
+    }
 	private _allocateOptions: kvSelectFrom[] = [{ key: 1, value: 'No code / coding tool filter'},
 		{ key: 2, value: 'All without any codes from this coding tool'},
 		{ key: 3, value: 'All with any codes from this coding tool' },
 		{ key: 4, value: 'All with this code' },
 		{ key: 5, value: 'All without this code' }];
 
+	private _ReportHTML: string = "";
+	public get ReportHTML(): string {
+		return this._ReportHTML;
+	}
+    public get ContactWorkAllocations(): WorkAllocation[] {
+        return this._workAllocationListService.ContactWorkAllocations;
+    }
+    public get AllWorkAllocationsForReview(): WorkAllocation[] {
+        return this._workAllocationListService.AllWorkAllocationsForReview;
+    }
+    public get Comparisons(): Comparison[] {
+        return this._comparisonsService.Comparisons;
+    }
+    public get Contacts(): Contact[] {
+        return this.reviewInfoService.Contacts;
+    }
+    public get ShowAllocationsText(): string {
+        if (this.ShowAllocations) return "Collapse";
+        else return "Expand";
+    }
+    public get ShowComparisonsText(): string {
+        if (this.ShowComparisons) return "Collapse";
+        else return "Expand";
+    }
 	public get AllocateOptions(): kvSelectFrom[] {
 		
 		return this._allocateOptions;
@@ -86,7 +128,8 @@ export class WorkAllocationComp implements OnInit {
 		this._allocateOptions = value;
    
 	}
-    public get HasWriteRights(): boolean {
+	public get HasWriteRights(): boolean {
+
         return this.ReviewerIdentityServ.HasWriteRights;
     }
 	private _allocateInclOrExcl: string = 'true';
@@ -114,7 +157,16 @@ export class WorkAllocationComp implements OnInit {
         if (ind > -1) return false;
         else return true;
     }
+    
+	public NewComparisonSectionOpen() {
 
+		if (this.PanelName == 'NewComparisonSection') {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'NewComparisonSection';
+		}
+	}
+	
 	ngOnInit() {
 		this.RefreshData();
 	}
@@ -167,10 +219,75 @@ export class WorkAllocationComp implements OnInit {
 			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
 		}
 	}
+	getStatistics(comparisonId: number) {
+
+
+		if (this.PanelName == 'getStats' + comparisonId.toString()) {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'getStats' + comparisonId.toString();
+			if (this._comparisonsService && comparisonId != null) {
+				
+				this._comparisonsService.FetchStats(comparisonId);
+			}
+		}
+		
+    }
+    public get CanRunQuickReport(): boolean {
+        if (this.chosenFilter == null || this._comparisonsService.currentComparison == null) {
+            return false;
+        }
+        else if (this._comparisonsService.currentComparison.setId == this.chosenFilter.set_id
+            && this._comparisonsService.currentComparison.setId > 0
+            && this.chosenFilter.attributes.length > 0
+        ) {
+            return true;
+        }
+        else return false;
+    }
+	RunHTMLComparisonReport() {
+
+		if (this.chosenFilter == null) {
+			return;
+		}
+		if (this._comparisonsService.currentComparison == null) {
+			return;
+		}
+		let ParentAttributeId: number = 0;
+		let SetId: number = 0;
+
+        if (this.chosenFilter.nodeType == 'SetAttribute')
+        {
+            let aSet = this.chosenFilter as SetAttribute;
+            ParentAttributeId = aSet.attribute_id;
+            SetId = aSet.set_id;
+		}else
+		{
+			if (this.chosenFilter.nodeType == 'ReviewSet')
+			{
+				SetId = (this.chosenFilter as ReviewSet).set_id;
+			}
+		}
+
+		this._comparisonsService.FetchComparisonReport(
+			this._comparisonsService.currentComparison.comparisonId,
+			ParentAttributeId, SetId, this.chosenFilter);
+	}
+	
+	getPanelRunQuickReport(comparisonId: number) {
+		
+		this._comparisonsService.currentComparison = this._comparisonsService.Comparisons.filter(x => x.comparisonId == comparisonId)[0];
+		if (this.PanelName == 'runQuickReport' + comparisonId.toString()) {
+			this.PanelName = '';
+		} else {
+			this.PanelName = 'runQuickReport' + comparisonId.toString();
+		}
+	}
     SetRelevantDropDownValues(selection: number) {
         console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
-        if (ind > -1) this.selectedAllocated = this.AllocateOptions[ind];
+		if (ind > -1) this.selectedAllocated = this.
+			AllocateOptions[ind];
         else this.selectedAllocated = this.AllocateOptions[0];
 	}
 	private _NewReviewSet: ReviewSet = new ReviewSet();
@@ -184,6 +301,11 @@ export class WorkAllocationComp implements OnInit {
 	}
 	public get NewCode(): SetAttribute {
 		return this._NewCode;
+	}
+	canSetFilter(): boolean {
+		if (this._reviewSetsService.selectedNode
+			) return true;
+		return false;
 	}
 	CreateNewCode() {
 	
@@ -522,13 +644,40 @@ export class WorkAllocationComp implements OnInit {
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
+	public openConfirmationDialogDeleteComp(comparisonId: number) {
+
+		this.confirmationDialogService.confirm('Please confirm', 'You are deleting a comparison', false, '')
+			.then(
+				(confirmed: any) => {
+
+					if (confirmed) {
+
+						this.DeleteComparison(comparisonId);
+
+					} else {
+						//alert('did not confirm');
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+
+
+	}
 	removeWarning(workAllocationId: number) {
 		this.openConfirmationDialogDeleteWA(workAllocationId);
+	}
+	removeComparisonWarning(comparisonId: number) {
+		
+		this.openConfirmationDialogDeleteComp(comparisonId);
+	}
+	NotImplemented() {
+		alert('not implemented');
 	}
     public RefreshData() {
         this.getMembers();
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
+		this._comparisonsService.FetchAll();
 	}
 	public getCodeSets() {
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
@@ -561,15 +710,48 @@ export class WorkAllocationComp implements OnInit {
 		this.selectedMemberDropDown = member;
 		this.workAllocation.contactId = member.contactId
 	}
+	private showAssignmentNotification(status: string): void {
+
+		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
+		let contentSt: string = "";
+		if (status == "Success") {
+			typeElement = "success";
+			contentSt = 'Assignment updated succesfully.';
+		}//type: { style: 'error', icon: true }
+		else {
+			typeElement = "error";
+			contentSt = 'The Assignment creation failed, if the problem persists, please contact EPPISupport.';
+		}
+		this._notificationService.show({
+			content: contentSt,
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: typeElement, icon: true },
+			closable: true
+		});
+	}
+	//calculateStats() {
+	//	alert('calling');
+	//	this._comparisonsService.calculateStats();
+	//}
 	WorkAssignment() {
-			
+
+
 		let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		this.workAllocation.attributeId = setAtt.attribute_id;
 		this.workAllocation.setId = this.DropDownBasicCodingTool.set_id;
 		let contact: Contact = this.selectedMemberDropDown;
 		this.workAllocation.contactId = contact.contactId.toString();
-		this._workAllocationListService.AssignWorkAllocation(this.workAllocation);
-		this.AssignWorkSection = false;
+		this._workAllocationListService.AssignWorkAllocation(this.workAllocation)
+			.then(
+
+			() => {
+
+					this.showAssignmentNotification("Success");
+					this.AssignWorkSection = false;
+					this.PanelName = '';
+
+				});
 	}
 	CanNewWorkAllocationCreate(): boolean {
 
@@ -629,6 +811,10 @@ export class WorkAllocationComp implements OnInit {
 
 		this._workAllocationListService.DeleteWorkAllocation(workAllocationId);
 	}
+	DeleteComparison(comparisonId: number) {
+
+		this._comparisonsService.DeleteComparison(comparisonId);
+	}
 	LoadGivenList(workAllocationId: number, subtype: string) {
 				
 		for (let workAll of this._workAllocationListService.AllWorkAllocationsForReview) {
@@ -640,6 +826,16 @@ export class WorkAllocationComp implements OnInit {
 				return;
 			}
 		}
+	}
+
+	//LoadComparisonList(comparison: Comparison) {
+
+	//	this..LoadComparisonList(comparison, this.ListSubType);
+	//}
+
+	setCompListType($event: any) {
+		this.ComparisonStatsComp.ListSubType = $event;
+
 	}
 }
 

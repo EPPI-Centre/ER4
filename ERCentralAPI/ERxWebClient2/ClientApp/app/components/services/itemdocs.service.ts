@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -9,26 +9,41 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ItemDocsService {
+export class ItemDocsService extends BusyAwareService   {
 
     constructor(
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-       
+		super();
     }
-
+    @Output() GotDocument = new EventEmitter();
     public _itemDocs: ItemDocument[] = []; 
     private currentItemId: number = 0;
-
+    private currentDocBin: Blob | null = null;
+    private currentDocBinId: number = 0;
+    public get CurrentDoc() {
+        return this.currentDocBin;
+    }
+    public get CurrentDocId(): number {
+        return this.currentDocBinId;
+    }
+    public get CurrentItemId(): number {
+        return this.currentItemId;
+    }
     public FetchDocList(itemID: number) {
-        this.currentItemId = itemID;
+        if (this.currentItemId != itemID) {
+            this.currentDocBin = null;
+            this.currentDocBinId = 0;
+            this.currentItemId = itemID;
+        }
         this.Refresh();
     }
     public Refresh() {
@@ -40,8 +55,10 @@ export class ItemDocsService {
         );
     }
 
-    public GetItemDocument(itemDocumentId: number) {
-        
+    public GetItemDocument(itemDocumentId: number, ForView:boolean = false) {
+        this.currentDocBin = null;
+        this.currentDocBinId = 0;
+        this._BusyMethods.push("GetItemDocument");
         let params = new HttpParams();
         params = params.append('itemDocumentId', itemDocumentId.toString());
         //console.log(this.ReviewerIdentityService.reviewerIdentity.token);
@@ -56,41 +73,53 @@ export class ItemDocsService {
                 
                 if (response.status >= 200 && response.status < 300) {
                     response.blob().then(
-						blob => {
-							if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-								window.navigator.msSaveOrOpenBlob(blob);
-							}
-							else {
-								URL.createObjectURL(blob);
-								let url = URL.createObjectURL(blob);
-								if (url) window.open(url);
-							}
-                            
+                        blob => {
+                            if (ForView) {
+                                this.currentDocBin = blob;
+                                this.currentDocBinId = itemDocumentId;
+                                this.GotDocument.emit();
+                            }
+                            else {
+                                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                                    window.navigator.msSaveOrOpenBlob(blob);
+                                }
+                                else {
+                                    URL.createObjectURL(blob);
+                                    let url = URL.createObjectURL(blob);
+                                    if (url) window.open(url);
+                                }
+                            }
                         });
+                    this.RemoveBusy("GetItemDocument");
                 }
-            });
+			});
+		this.RemoveBusy("GetItemDocument");
     }
 
     public DeleteDocWarning(DocId: number) {
 
+		this._BusyMethods.push("DeleteDocWarning");
         let ErrMsg = "Something went wrong when checking if it's safe to delete this document. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: DocId });
 
         return this._httpC.post<number>(this._baseUrl + 'api/ItemDocumentList/DeleteDocWarning', body).toPromise()
             .then(
-                (result) => {
+			(result) => {
+				this.RemoveBusy("DeleteDocWarning");
                     return result;
                 }
                 , (error) => {
                     console.log('error in DeleteDocWarning() rejected', error);
-                    this.modalService.GenericErrorMessage(ErrMsg);
+					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteDocWarning");
                     return -1;
                 }
             )
             .catch(
                 (error) => {
                     console.log('error in DeleteDocWarning() catch', error);
-                    this.modalService.GenericErrorMessage(ErrMsg);
+					this.modalService.GenericErrorMessage(ErrMsg);
+					this.RemoveBusy("DeleteDocWarning");
                     return -1;
                 }
             );
@@ -99,17 +128,20 @@ export class ItemDocsService {
 
     DeleteItemDoc(ID: number) {
 
+		this._BusyMethods.push("DeleteItemDoc");
         let ErrMsg = "Something went wrong when deleting the document. \r\n If the problem persists, please contact EPPISupport.";
         let body = JSON.stringify({ Value: ID });
         this._httpC.post(this._baseUrl + 'api/ItemDocumentList/DeleteDoc', body).subscribe(
                 (result) => {
-                    console.log(result);
-                    this.Refresh();
+					console.log(result);
+					this.Refresh();
+					this.RemoveBusy("DeleteItemDoc");
                 }
                 , (error) => {
                     this.modalService.GenericErrorMessage(ErrMsg);
                     console.log(error);
-                    this.Refresh();
+					this.Refresh();
+					this.RemoveBusy("DeleteItemDoc");
                 }
             );
 

@@ -266,17 +266,22 @@ export class ReviewSetsService extends BusyAwareService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet) {
                 let set_id: number = destSet.set_id;
-				destSet.itemSetIsLocked = itemset.isLocked;
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
+                destSet.itemSetIsLocked = itemset.isLocked;
+                destSet.ItemSetId = itemset.itemSetId;
+                destSet.codingComplete = true;
+                UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
                         if (dest) {
-                            UsedSets.push(destSet.set_id);//record coding we've already added (for this set_id)
+                            
                             dest.isSelected = true;
+                            //console.log("I'm doing it..................................");
                             dest.additionalText = itemAttribute.additionalText;
-                            destSet.codingComplete = true;
+                            dest.armId = itemAttribute.armId;
+                            
                              }
                     }
                 }
@@ -286,18 +291,18 @@ export class ReviewSetsService extends BusyAwareService {
             let destSet = this._ReviewSets.find(d => d.set_id == itemset.setId);
             if (destSet && destSet.set_id) {
                 let set_id: number = destSet.set_id;
-				destSet.itemSetIsLocked = itemset.isLocked;
-
                 if (UsedSets.find(num => num == set_id)) { continue; }//LOGIC: we've already set the coding for this set.
+                destSet.itemSetIsLocked = itemset.isLocked;
+                destSet.ItemSetId = itemset.itemSetId;
                 for (let itemAttribute of itemset.itemAttributesList) {
                     if (itemAttribute.armId != itemArmID) continue;
                     //console.log('.' + destSet.set_name);
                     if (destSet.attributes) {
                         let dest = this.internalFindAttributeById(destSet.attributes, itemAttribute.attributeId);
-
                         if (dest) {
                             UsedSets.push(destSet.set_id);
                             dest.isSelected = true;
+                            dest.armId = itemAttribute.armId;
                             dest.additionalText = itemAttribute.additionalText;
                              }
                     }
@@ -364,6 +369,8 @@ export class ReviewSetsService extends BusyAwareService {
     public clearItemData() {
         this._BusyMethods.push("clearItemData");
         for (let set of this._ReviewSets) {
+            set.itemSetIsLocked = false;
+            set.ItemSetId = 0;
             set.isSelected = false;
             set.codingComplete = false;
             this.clearItemDataInChildren(set.attributes);
@@ -374,7 +381,10 @@ export class ReviewSetsService extends BusyAwareService {
         
         for (let att of children) {
             att.additionalText = "";
-            if (att.isSelected) att.isSelected = false;
+            if (att.isSelected) {
+                att.armId = 0;
+                att.isSelected = false;
+            }
             if (att.attributes && att.attributes.length > 0) this.clearItemDataInChildren(att.attributes);
         }
     }
@@ -451,12 +461,53 @@ export class ReviewSetsService extends BusyAwareService {
             }
         );
     }
+    public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
+        //returns FALSE if something didn't work, error messages get triggered from within
+        //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
+        this._BusyMethods.push("ExecuteItemSetCompleteCommand");
+        return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd).toPromise()
+        .then(
+            data => {
+                this.RemoveBusy("ExecuteItemSetCompleteCommand");
+                if (data.successful != null && data.successful) {
+                    let rSet = this._ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
+                    if (rSet) {
+                        rSet.codingComplete = cmd.complete;
+                        rSet.itemSetIsLocked = cmd.isLocked;
 
+                    }
+                    else {
+                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+                            + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
+                            "If the problem persists please contact EPPISupport.");
+                        return false;
+                    }
+                    return true;
+                }
+                else return false;
+            }, error => {
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+                //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+                //this._IsBusy = false;
+                console.log("Error in ExecuteItemSetCompleteCommand:", error);
+                this.RemoveBusy("ExecuteItemSetCompleteCommand");
+                return false;
+            }
+        ).catch(catched => {
+            this.modalService.GenericError("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+            //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+            //this._IsBusy = false;
+            console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
+            this.RemoveBusy("ExecuteItemSetCompleteCommand");
+            return false;
+            });
+    }
 }
 
 export interface singleNode {
 
     id: string;
+    set_id: number;
     name: string;
     attributes: singleNode[];
     showCheckBox: boolean;
@@ -505,10 +556,12 @@ export class ReviewSet implements singleNode {
 	};
     nodeType: string = "ReviewSet";
     order: number = 0;
-    codingIsFinal: boolean = true;
     allowEditingCodeset: boolean = false;
-    itemSetIsLocked: boolean = false;
 
+    ItemSetId: number = 0;
+    itemSetIsLocked: boolean = false;
+    codingIsFinal: boolean = true;
+    
 	attributeSetId: number = -1;
     isSelected: boolean = false;
     additionalText: string = "";
@@ -618,5 +671,11 @@ export class ItemAttributeBulkSaveCommand {
     public setId: number = 0;
     public itemIds: string = "";
     public searchIds: string = "";
+}
+export class ItemSetCompleteCommand {
+    public itemSetId: number = 0;
+    public complete: boolean = false;
+    public successful: boolean = false;
+    public isLocked: boolean = false;
 }
 

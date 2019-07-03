@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, Injectable, Output, EventEmitter, NgZone } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of, Subscription } from 'rxjs';
@@ -10,26 +10,33 @@ import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService } from './ItemList.service';
-import { ReviewSet, SetAttribute, ReviewSetsService, singleNode } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand } from './ReviewSets.service';
 import { Review } from './review.service';
+import { ArmsService } from './arms.service';
+import { ItemDocsService } from './itemdocs.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
 export class ItemCodingService extends BusyAwareService {
-    @Output() DataChanged = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
-        private ReviewerIdentityService: ReviewerIdentityService
+        private ArmsService: ArmsService,
+        private ReviewSetsService: ReviewSetsService,
+        private ReviewerIdentityService: ReviewerIdentityService,
+        private ngZone: NgZone,
+        private ItemDocsService: ItemDocsService
     ) { super(); }
 
 
+    @Output() DataChanged = new EventEmitter();
+    @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
-
+    private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
 
     public get ItemCodingList(): ItemSet[] {
         //if (this._ItemCodingList.length == 0) {
@@ -49,7 +56,11 @@ export class ItemCodingService extends BusyAwareService {
         this._ItemCodingList = icl;
         this.Save();
     }
-        
+    public get CurrentItemAttPDFCoding(): ItemAttPDFCoding {
+        return this._CurrentItemAttPDFCoding;
+    }
+    public SelectedSetAttribute: SetAttribute | null = null;//used to fetch PDF coding...
+
     public Fetch(ItemId: number) {
         this._BusyMethods.push("Fetch");
         //this.itemID.next(ItemId); 
@@ -72,7 +83,325 @@ export class ItemCodingService extends BusyAwareService {
             , () => { this.RemoveBusy("Fetch");}
             );
     }
-    
+
+    public FetchItemAttPDFCoding(criteria: ItemAttPDFCodingCrit) {
+        this._BusyMethods.push("FetchItemAttPDFCoding");
+        //this.itemID.next(ItemId); 
+        //console.log('FetchCoding');
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+            criteria).subscribe(result => {
+                console.log("FetchItemAttPDFCoding", result);
+                this._CurrentItemAttPDFCoding.Criteria = criteria;
+                this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("FetchItemAttPDFCoding");
+                this.modalService.SendBackHomeWithError(error);
+                this.ngZone.run(() => this.IsBusy);
+            }
+            , () => {
+                this.RemoveBusy("FetchItemAttPDFCoding");
+                this.ngZone.run(() => this.IsBusy);
+            }
+            );
+    }
+    public SaveItemAttPDFCoding(perPageXML: string, itemAttributeId: number, cmd: ItemAttributeSaveCommand | null = null) {
+        this._BusyMethods.push("SaveItemAttPDFCoding");
+        //this is big an complex because we use the XML representation of highlights to re-match with exsiting InPageSelections so to keep the ER4 side happy, when possible...
+
+        this.ngZone.run(() => this.IsBusy);//make sure that Angular visual thread notices (necessary because this )
+        let parser = new DOMParser();
+        let xmlDoc = parser.parseFromString(perPageXML, "text/xml");
+        let parsererror = xmlDoc.getElementsByTagName("parsererror")
+        if (parsererror && parsererror.length > 0) {
+            //ugh, some bad chars in here...
+            //perPageXML = perPageXML.replace(/<contents>/g, '<contents><![CDATA[').replace(/<\/contents>/g, ']]><\/contents>').replace('encoding="UTF-8"', 'encoding="UTF-16"')
+            //console.log("sanitised: ", perPageXML);
+            let done = false;
+            let contIndex = 0;
+            while (!done) {
+                contIndex = perPageXML.indexOf("<contents>", contIndex);
+                if (contIndex == -1) {
+                    done = true;
+                }
+                else {
+                    let endIndex = perPageXML.indexOf("</contents>", contIndex);
+                    let toclean = perPageXML.substr(contIndex + 10, endIndex - contIndex - 10);
+                    console.log("toclean: ", toclean, contIndex, endIndex);
+                    let cleaned = encodeURI(toclean);//replaces chars that are not UTF8 and would prevent parser.parseFromString(perPageXML, "text/xml");
+                    perPageXML = perPageXML.substr(0, contIndex + 10) + cleaned + perPageXML.substr(endIndex);
+                    contIndex = endIndex;
+                }
+            }
+            console.log("sanitised: ", perPageXML);
+            xmlDoc = parser.parseFromString(perPageXML, "text/xml");
+            
+        }
+        let xAnnots = xmlDoc.getElementsByTagName("highlight");
+        let defmtx = xmlDoc.getElementsByTagName("defmtx");
+        if (!xAnnots || xAnnots.length == 0 || !defmtx || defmtx.length == 0) {
+            console.log("Can't do, missing data:", xAnnots, defmtx, xmlDoc);
+            this.RemoveBusy("SaveItemAttPDFCoding");
+            return;
+        }
+        let matrix = defmtx[0].getAttribute("matrix");
+        let pageSize = 810;//we need to invert coordinates we're getting. PDFTron is giving us the wrong kind...
+        //810 is a random value I've seen on an A4 PDF...
+        if (matrix) {
+            let mmm = matrix.split(",");
+            if (mmm.length > 0) {
+                pageSize = (+mmm[mmm.length - 1]) / 0.75;
+            }
+        }
+        let iaPDF: MVCiaPDFCodingPage = new MVCiaPDFCodingPage();
+        let pageNst = xAnnots[0].getAttribute("page");
+        let pageN = -1;
+        if (pageNst) pageN = +pageNst;
+        if (pageN !== null && pageN > -1) {
+            pageN++;
+        }
+        else pageN = -1;
+        iaPDF.Page = pageN;
+        let existing: ItemAttributePDF | undefined = undefined;
+        iaPDF.PdfTronXml = perPageXML;
+        iaPDF.ItemDocumentId = this.CurrentItemAttPDFCoding.Criteria.itemDocumentId;
+        if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+            //good, we have this and should check if we need to change the object for a given page...
+            existing = this.CurrentItemAttPDFCoding.ItemAttPDFCoding.find(found => found.page == pageN);
+            //if (exsting) {
+            //    //iaPDF.itemAttributeId = exsting.itemAttributeId;
+            //    iaPDF.ItemAttributePDFId = exsting.itemAttributePDFId;
+            //    iaPDF.ItemDocumentId = exsting.itemDocumentId;
+            //    //iaPDF.Page = exsting.page;
+            //    //rootdone = true;
+            //}
+        }
+        iaPDF.ItemAttributeId = itemAttributeId;
+        iaPDF.ItemDocumentId = this.CurrentItemAttPDFCoding.Criteria.itemDocumentId;
+        iaPDF.ShapeTxt = "F1";
+        let WorkingInPageSel: InPageSelection[] = [];//we use this to handle exsisting inpage sels, without touching the original array.
+        if (existing) {
+            WorkingInPageSel = existing.inPageSelections.slice(0);
+            iaPDF.ItemAttributePDFId = existing.itemAttributePDFId;
+        }
+        let color: string | null = "";
+        if (xAnnots.length > 0) {
+            color = xAnnots[0].getAttribute("color");
+        }
+        console.log("color, existing: ", color, existing);
+        if (color == "#FF7C06") {
+            //this is the special case where we can't match the shapes with the text, we'll add the XML for speed, but leave the rest untouched.
+            if (existing !== undefined) {
+                //we have the data to save...
+                for (let inPSel of existing.inPageSelections) {
+                    let newinPSel = {
+                        Start: inPSel.start,
+                        End: inPSel.end,
+                        SelTxt: inPSel.selTxt
+                    }
+                    iaPDF.InPageSelections.push(newinPSel);
+                }
+                console.log("special case add XML only: ", iaPDF);
+                iaPDF.ShapeTxt = existing.shapeTxt;
+            }
+        }
+        else {
+            for (let i = 0; i < xAnnots.length; i++) {
+                //build shapes and inpageselections, trying to keep those we can retain (to keep char offsets as in ER4)
+                let xAnn = xAnnots[i];
+                let tronShapeSt = xAnn.getAttribute("coords");
+                if (!tronShapeSt) tronShapeSt = "";
+                let coords = tronShapeSt.split(',');
+
+
+                while (coords.length != 0) {
+                    let removed = coords.splice(0, 8);
+                    //order of these is all mixed up because the XML uses the "wrong" kind of coordinates
+                    iaPDF.ShapeTxt += "M" + (+removed[0] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[5] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[2] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[7] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[6] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[1] / 0.75)).toFixed(3) + "L";
+                    iaPDF.ShapeTxt += (+removed[4] / 0.75).toFixed(3) + ",";
+                    iaPDF.ShapeTxt += (pageSize - (+removed[3] / 0.75)).toFixed(3) + "z";
+                }
+
+                let content = xAnn.getElementsByTagName("contents");
+                if (content && content.length > 0
+                    && content[0].childNodes
+                    && content[0].childNodes.length > 0
+                    && content[0].childNodes[0].nodeValue
+                ) {
+                    let selt = content[0].childNodes[0].nodeValue;
+                    if (existing !== undefined && selt) {
+                        //we'll try to find selections, keep them if they exist.
+                        let exsInPageSels = WorkingInPageSel.filter(found => found.selTxt == selt);
+                        if (exsInPageSels.length == 0 && WorkingInPageSel.length > 0 && selt.length > 15) {
+                            //we'll try again, removing spaces
+                            exsInPageSels = existing.inPageSelections.filter(found => selt && found.selTxt.replace(/\s/g, '') == selt.replace(/\s/g, ''));
+                        }
+                        if (exsInPageSels.length >= 1) {
+                            //we have 1 or more selections with the same text (go figure), we need to remove one from WorkingInPageSel so not to match it again
+                            let newSel: CSLAInPageSelection = { End: exsInPageSels[0].end, Start: exsInPageSels[0].start, SelTxt: exsInPageSels[0].selTxt };
+                            iaPDF.InPageSelections.push(newSel);
+                            WorkingInPageSel.splice(WorkingInPageSel.indexOf(exsInPageSels[0]), 1);
+                        }
+                        else { //exsInPageSels.length == 0
+                            let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
+                            iaPDF.InPageSelections.push(newSel);
+                        }
+                    }
+                    else if (selt) {
+                        //this is fresh coding for current page, we can't try to recycle anything.
+                        let newSel: CSLAInPageSelection = { End: 0, Start: 0, SelTxt: selt };
+                        iaPDF.InPageSelections.push(newSel);
+                    }
+                    else {//uh? can't do much...
+                        console.log("One annotation didn't contain any text!", content[0].childNodes[0]);
+                    }
+
+                }
+            }
+        }
+        if (cmd && cmd.attributeId != 0 && cmd.saveType == "Insert") {
+            iaPDF.CreateInfo = cmd;
+            iaPDF.ItemDocumentId = this.ItemDocsService.CurrentDocId;
+        }
+        let endpoint = iaPDF.ItemAttributePDFId === 0 ? "api/ItemSetList/CreatePDFCodingPage" : "api/ItemSetList/UpdatePDFCodingPage";
+        this._httpC.post<iCreatePDFCodingPageResult>(this._baseUrl + endpoint,
+            iaPDF).subscribe(result => {
+                console.log("SaveItemAttPDFCoding // " + endpoint, result);
+                if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null ) {
+                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
+                }
+                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) =>  result.iaPDFpage.itemAttributePDFId == found.itemAttributePDFId)
+                if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result.iaPDFpage);//add new page
+                else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result.iaPDFpage);//replace existing - maybe we don't need to...
+                if (iaPDF.CreateInfo && result.createInfo) {
+                    console.log("Create new ItemAtt, maybe Item set:", result.createInfo);
+                    //we also needed to create ItemAttribute and maybe ItemSet... Lots to do...
+                    let ItemSet = this.FindItemSetBySetId(result.createInfo.setId);
+                    this.ApplyInsertOrUpdateItemAttribute(result.createInfo, ItemSet);//most happens here.
+                    //see: https://github.com/angular/angular/issues/25837#issuecomment-434049467
+                    //the ngZone thing makes sure Angular updates the visual structure.
+                    this.ngZone.run(
+                        () => {
+                            this.ReviewSetsService.AddItemData(this.ItemCodingList, this.ArmsService.SelectedArm == null ? 0 : this.ArmsService.SelectedArm.itemArmId);
+                        }
+                    );
+                    
+
+                    this.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(iaPDF.ItemDocumentId, result.createInfo.itemAttributeId));
+                }
+            }, error => {
+                this.RemoveBusy("SaveItemAttPDFCoding");
+
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => {
+                this.RemoveBusy("SaveItemAttPDFCoding");
+                this.ngZone.run(() => this.IsBusy);
+            }
+            );
+    }
+    //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
+    public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
+        //console.log("CmdResult", cmdResult);
+        //console.log("itemSet", itemSet);
+        let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
+        newItemA.additionalText = cmdResult.additionalText;
+        newItemA.armId = cmdResult.itemArmId;
+        newItemA.armTitle = "";
+        newItemA.attributeId = cmdResult.attributeId;
+        newItemA.itemAttributeId = cmdResult.itemAttributeId;
+        if (itemSet) itemSet.itemAttributesList.push(newItemA);
+        else {//didn't have the itemSet, so need to create it...
+            let newItemSet: ItemSet = new ItemSet();
+            newItemSet.contactId = this.ReviewerIdentityService.reviewerIdentity.userId;
+            newItemSet.contactName = this.ReviewerIdentityService.reviewerIdentity.name;
+            let setDest = this.ReviewSetsService.FindSetById(cmdResult.setId);
+            if (setDest) {
+                newItemSet.isCompleted = setDest.codingIsFinal;
+                newItemSet.setName = setDest.set_name;
+            }
+            newItemSet.isLocked = false;
+            newItemSet.itemId = cmdResult.itemId;
+            newItemSet.itemSetId = cmdResult.itemSetId;
+            newItemSet.setId = cmdResult.setId;
+            newItemSet.itemAttributesList.push(newItemA);
+            this.ItemCodingList.push(newItemSet);
+        }
+        this.SetNewEmptyItemAttPDFCoding(cmdResult.itemAttributeId);
+    }
+    //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
+    public ApplyDeleteItemAttribute(itemSet: ItemSet | null, itemAtt: ReadOnlyItemAttribute | null) {
+        console.log("ApplyDeleteItemAttribute", itemSet, itemAtt);
+        if (itemSet && itemAtt) {
+            //remove the itemAttribute from itemSet
+            //console.log("Before filter", itemSet.itemAttributesList.length);
+            itemSet.itemAttributesList = itemSet.itemAttributesList.filter(obj => obj.itemAttributeId !== itemAtt.itemAttributeId);
+            //console.log("After filter", itemSet.itemAttributesList.length);
+            if (itemSet.itemAttributesList.length == 0) {
+                //if itemset does not have item attributes, remove the itemset
+                this.ItemCodingList = this.ItemCodingList.filter(obj => itemSet && obj.itemSetId !== itemSet.itemSetId);
+            }
+            //if (itemSet) console.log(itemSet.itemAttributesList.length);
+            this.ClearItemAttPDFCoding();
+        }
+    }
+    public DeleteItemAttPDFCodingPage(page: number, itemAttributeId: number) {
+        this._BusyMethods.push("DeleteItemAttPDFCodingPage");
+        console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId);
+        let existing: ItemAttributePDF | undefined = undefined;
+        
+        if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
+            //good, we have this and should check if we need to change the object for a given page...
+            existing = this.CurrentItemAttPDFCoding.ItemAttPDFCoding.find(found => found.page == page);
+        }
+        if (existing == undefined) {
+            //not good. We don't know what to delete...
+            this.RemoveBusy("DeleteItemAttPDFCodingPage");
+            this.modalService.GenericErrorMessage("Sorry, we can't find the PDF-coding to delete. \nNo Data was changed!\nIf the problem persists, please contact EPPISupport.")
+            return;
+        }
+        let body = JSON.stringify({ Value: existing.itemAttributePDFId });
+        this._httpC.post<ItemAttributePDF>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
+            body).subscribe(result => {
+                console.log("DeleteItemAttPDFCodingPage" , result);
+                if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
+                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
+                }
+                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result.itemAttributePDFId == found.itemAttributePDFId)
+                if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
+                else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
+                //this._CurrentItemAttPDFCoding.Criteria = criteria;
+                //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                //this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("DeleteItemAttPDFCodingPage");
+                this.modalService.SendBackHomeWithError(error);
+            }
+            , () => { this.RemoveBusy("DeleteItemAttPDFCodingPage"); }
+            );
+
+    }
+    public ClearItemAttPDFCoding() {
+        console.log("ClearItemAttPDFCoding");
+        
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        this.ItemAttPDFCodingChanged.emit();
+    }
+    public SetNewEmptyItemAttPDFCoding(ItemAttId: number) {
+        if (ItemAttId == 0 || this.ItemDocsService.CurrentDocId == 0) this.ClearItemAttPDFCoding();
+        else {
+            this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+            this._CurrentItemAttPDFCoding.Criteria.itemAttributeId = ItemAttId;
+            this._CurrentItemAttPDFCoding.Criteria.itemDocumentId = this.ItemDocsService.CurrentDocId;
+            this.ItemAttPDFCodingChanged.emit();
+        }
+    }
     private SelfSubscription4QuickCodingReport: Subscription | null = null;
     private _CodingReport: string = "";
     public get CodingReport(): string {
@@ -86,6 +415,9 @@ export class ItemCodingService extends BusyAwareService {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
             this.SelfSubscription4QuickCodingReport = null;
         }
+        this._BusyMethods == [];
+        this.SelectedSetAttribute = null;
+        this.ClearItemAttPDFCoding();
     }
     private _ItemsToReport: Item[] = [];
     private _ReviewSetsToReportOn: ReviewSet[] = [];
@@ -410,7 +742,7 @@ export class ItemCodingService extends BusyAwareService {
         }
 
         retVal += "<td>";
-        for(let OIA of o.outcomeCodes)
+        for(let OIA of o.outcomeCodes.outcomeItemAttributesList)
         {
             retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
         }
@@ -543,29 +875,62 @@ export class ItemCodingService extends BusyAwareService {
     public FindItemSetBySetId(DestSetId: number): ItemSet | null {
         //this is where somewhat complicated logic needs to happen. We need to replicate here the logic that decides if a new itemset is needed or not...
         let result: ItemSet | null = null;
-        for (let itemSet of this._ItemCodingList) {
-            if (itemSet.setId == DestSetId) {
-                //we have an itemSet in the desired set: if complete, we'll use it. Otherwise, check that it belongs to current user.
-                //if itemset to be used is locked, we should not even have tried, so tricky case...
-                if (itemSet.isCompleted) {
-                    if (itemSet.isLocked) {
-                        alert('Coding is locked! We shouldn\'t be doing this...');
-                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
-                    }
-                    result = itemSet;
-                    break;
-                }
-                else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
-                    if (itemSet.isLocked) {
-                        alert('Coding is locked! We shouldn\'t be doing this...');
-                        throw new Error('Coding is locked! We shouldn\'t be doing this...');
-                    }
-                    result = itemSet;
-                    break;
-                }
-            }
+        let CompletedSet = this._ItemCodingList.find(found => found.setId == DestSetId && found.isCompleted);
+        if (CompletedSet != undefined) {
+            //good we found a completed set, we should use it
+            return CompletedSet;
         }
+        let IncompleteSet = this._ItemCodingList.find(found => found.setId == DestSetId
+                                                            && !found.isCompleted
+                                                            && found.contactId == this.ReviewerIdentityService.reviewerIdentity.userId
+                                                        );
+        if (IncompleteSet != undefined) {
+            return IncompleteSet;
+        }
+        //old bugged code, could work only if the completed version was encountered first...
+        //for (let itemSet of this._ItemCodingList) {
+        //    if (itemSet.setId == DestSetId) {
+        //        //we have an itemSet in the desired set: if complete, we'll use it. Otherwise, check that it belongs to current user.
+        //        //if itemset to be used is locked, we should not even have tried, so tricky case...
+        //        if (itemSet.isCompleted) {
+        //            if (itemSet.isLocked) {
+        //                //alert('Coding is locked! We shouldn\'t be doing this...');
+        //                //throw new Error('Coding is locked! We shouldn\'t be doing this...');
+        //            }
+        //            result = itemSet;
+        //            break;
+        //        }
+        //        else if (itemSet.contactId == this.ReviewerIdentityService.reviewerIdentity.userId) {
+        //            if (itemSet.isLocked) {
+        //                //alert('Coding is locked! We shouldn\'t be doing this...');
+        //                //throw new Error('Coding is locked! We shouldn\'t be doing this...');
+        //            }
+        //            result = itemSet;
+        //            break;
+        //        }
+        //    }
+        //}
         return result;
+    }
+    public FindROItemAttributeByAttribute(Att: SetAttribute): ReadOnlyItemAttribute | null {
+        let set = this.FindItemSetBySetId(Att.set_id);
+        if (!set) return null;
+        for (let ROatt of set.itemAttributesList) {
+            if (ROatt.attributeId == Att.attribute_id && ROatt.armId == Att.armId) return ROatt;
+        }
+        return null;
+    }
+    public markBusyBuildingHighlights(): void {
+        this._BusyMethods.push("BuildingHighlights");
+    }
+    public removeBusyBuildingHighlights(): void {
+        this.RemoveBusy("BuildingHighlights");
+    }
+    public FindItemSetByItemSetId(ItemSetId: number): ItemSet | null {
+        let result: ItemSet | null = null;
+        let ind = this._ItemCodingList.findIndex(found => found.itemSetId == ItemSetId);
+        if (ind != -1) return this._ItemCodingList[ind];
+        else return result;
     }
 }
 
@@ -598,7 +963,7 @@ export class Outcome {
     itemSetId: number = 0;
     outcomeTypeName: string = "";
     outcomeTypeId: number = 0;
-    outcomeCodes: OutcomeItemAttribute[] = [];
+    outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
     itemAttributeIdIntervention: number = 0;
     itemAttributeIdControl: number = 0;
     itemAttributeIdOutcome: number = 0;
@@ -674,6 +1039,9 @@ export class Outcome {
     data13Desc: string = "";
     data14Desc: string = "";
 }
+export class  OutcomeItemAttributesList {
+    outcomeItemAttributesList: OutcomeItemAttribute[] = [];
+}
 export interface OutcomeItemAttribute {
     outcomeItemAttributeId: number;
     outcomeId: number;
@@ -697,4 +1065,54 @@ export class QuickQuestionReportOptions {
     ShowInfobox: boolean = true;
     ShowCodedText: boolean = true;
     ShowCodeIds: boolean = false;
+}
+
+export class ItemAttPDFCodingCrit {
+    constructor(itemDocId: number, itemAttId: number) {
+        this.itemDocumentId = itemDocId;
+        this.itemAttributeId = itemAttId;
+    }
+    public itemDocumentId: number = 0;
+    public itemAttributeId: number = 0;
+}
+export class ItemAttPDFCoding {
+    public Criteria: ItemAttPDFCodingCrit = new ItemAttPDFCodingCrit(0,0);
+    public ItemAttPDFCoding: ItemAttributePDF[] | null = null;
+}
+
+
+export class ItemAttributePDF {
+    inPageSelections: InPageSelection[] = [];
+    itemAttributeId: number = 0;
+    itemAttributePDFId: number= 0;
+    itemDocumentId: number = 0;
+    page: number = 0;
+    shapeTxt: string = "";
+    pdfTronXml: string = "";
+}
+
+export class InPageSelection {
+    start: number = 0;
+    end: number = 0;
+    selTxt: string = "";
+}
+export class CSLAInPageSelection {
+    Start: number = 0;
+    End: number = 0;
+    SelTxt: string = "";
+}
+
+export class MVCiaPDFCodingPage {
+    public ItemAttributePDFId: number = 0;
+    public ItemDocumentId: number = 0;
+    public ItemAttributeId: number = 0;
+    public ShapeTxt: string = "";
+    public InPageSelections: CSLAInPageSelection[] = [];
+    public Page: number = 0;
+    public PdfTronXml: string = "";
+    public CreateInfo: ItemAttributeSaveCommand | null = null;
+}
+export interface iCreatePDFCodingPageResult {
+    createInfo: ItemAttributeSaveCommand;
+    iaPDFpage: ItemAttributePDF;
 }

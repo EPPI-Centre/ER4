@@ -62,4 +62,12 @@ GO
 --END of CREATE a NEW TABLEs Example (2)
 
 
-
+--EXPAND One or more column(s) example. This only works when we are adding to the lenght, obviously.
+IF COL_LENGTH('dbo.AAA', 'Char1') <= 50
+BEGIN 
+	select 'I will do it'
+	ALTER TABLE AAA ALTER COLUMN Char1 VARCHAR (51) NULL;
+	ALTER TABLE AAA ALTER COLUMN Char2 VARCHAR (51) NULL;
+END
+select COL_LENGTH('dbo.AAA', 'Char1')
+--END of EXPAND One or more column(s) example

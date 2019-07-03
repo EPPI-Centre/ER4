@@ -1,0 +1,157 @@
+<div class="w-100 h-100 pt-1">
+    <img class="float-right mx-2 mt-1" src="../assets/EPPI-Reviewer logo v1.png" />
+    <div *ngIf="Phase=='Start'" class="h-100  mx-1">
+        Authenticating... please wait.
+        <br /><button class="btn btn-outline-info" (click)="BackHome();">Back</button>
+    </div>
+    <div *ngIf="Phase=='Error'" class="h-100 mx-1">
+        Our apologies, an error occurred:<br />
+        Error = {{Error}}
+        <br /><button class="btn btn-outline-info" (click)="BackHome();">Back</button>
+    </div>
+    <div *ngIf="Phase=='LinkOrCreateAccount'" class="h-100 rounded bg-light mx-1 p-1">
+        <h2 class="text-primary ml-3">Welcome to EPPI-Reviewer</h2>
+        <p>
+            <b>You have successfully authenticated through Cochrane.</b> However, your Cochrane Identity is not currenlty known to EPPI-Reviewer.
+            <br />
+            In order to work properly, EPPI-Reviewer needs to establish a link between an EPPI-Reviewer account and your Cochrane credentials. This can be
+            done in two ways:
+        </p>
+        <p>
+            <b>1. Link an existing EPPI-Reviewer account to your Cochrane details.</b> Please choose this option if you already have an EPPI-Reviewer account.<br />
+            You will be asked to log on again, using your EPPI-Reviewer username and password.
+            In case you don't remember your EPPI-Reviewer details, you can retrieve your username and/or reset you password by clicking
+            <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">here</a>.
+        </p>
+        <p>
+            <b>2. Create a new EPPI-Reviewer account.</b> Please choose this option only if you don't already have an EPPI-Reviewer account.<br />
+            If you have an <em>Expired Account</em>, please do not choose this option: an expired account will work best with option 1.
+        </p>
+        <p>
+            <b>Whichever your choice</b>, you will need to succesfully complete this process <b>only once</b>.
+        </p>
+        <table class="justify-content-center container ">
+            <tr>
+                <th colspan="2" class="justify-content-center">
+                    <div class="row justify-content-center ">
+                        <h2>Please pick your route below:</h2>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <td class=" justify-content-end pr-1" width="50%">
+                    <div style="text-align:end">1. Link to an existing account:</div>
+                </td>
+                <td class=" justify-content-start " width="50%">
+                    <button class="btn btn-outline-success" (click)="GoToLinkAccount()">Authenticate</button> <b>&nbsp;(Preferred)</b>
+                </td>
+            </tr>
+            <tr>
+                <td class="justify-content-end pr-1" width="50%">
+                    <div style="text-align:end">2. Create an EPPI-Reviewer account:</div>
+                </td>
+                <td class="justify-content-start mx-0" width="50%">
+                    <button class="btn btn-outline-info" (click)="GoToCreateNewAccount()">Create new</button>
+                </td>
+            </tr>
+        </table>
+        <div colspan="2" class=" row justify-content-end m-1">
+            <button class="btn btn-sm btn-outline-dark" (click)="BackHome()">Cancel & Logout</button>
+        </div>
+    </div>
+    <div *ngIf="Phase=='LinkAccount'" class="h-100 bg-light mx-1 p-1 rounded">
+        <h3 class="text-primary">Please provide your EPPI-Reviewer username and password</h3>
+        <p>
+            <b>In case you don't remember your EPPI-Reviewer details</b>, you can retrieve your username and/or reset you password by clicking
+            <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935" target="_blank">here</a>.
+            <br />
+            Clicking "<em>Complete Authentication</em>" will allow EPPI-Reviewer to immediately verify your identity.
+            <br />
+            Your Cochrane details will be linked with your EPPI-Reviewer account automatically.
+            From then on you will be able to log on normally (using EPPI-Reviewer credentials) or through Cochrane.
+        </p>
+        <form #f="ngForm" (ngSubmit)="onLogin(c_name.value, c_password.value)">
+            <div class="form-group row m-1 p-0">
+                <label class="col-3 control-label mt-1 text-right" for="tbTFullNameReg">EPPI-Reviewer Username:</label>
+                <div class="col-6">
+                    <input #c_name name="username" required class="form-control" ngModel>
+                </div>
+                <div *ngIf="ShowUsernameRequired" class=" m-1">
+                    <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
+                </div>
+            </div>
+            <div class="form-group row m-1 p-0">
+                <label class="col-3 control-label mt-1 text-right" for="tbTFullNameReg">EPPI-Reviewer Password:</label>
+                <div class="col-6">
+                    <input #c_password type="password" required class="form-control" name="password" ngModel>
+                </div>
+                <div *ngIf="ShowPasswordRequired" class=" m-1">
+                    <div class="badge badge-warning ml-1 pt-1 te"><span class="ml-1 mt-1 mr-1">Password Required (or too short)!</span></div>
+                </div>
+            </div>
+            <div class="form-group row m-1 p-0">
+                <div class="row offset-md-1 col-sm-7 align-content-center ">
+                    <input type="submit" value="Complete Authentication" class="btn btn-primary my-1" />
+                    <button class="btn btn-outline-info m-1" (click)="BackToMainChoice()">Back</button>
+                    <button class="btn btn-outline-dark my-1" (click)="BackHome()">Cancel & Logout</button>
+                    <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
+                </div>
+            </div>
+        </form>
+        
+    </div>
+    <div *ngIf="Phase=='CreateNewAccount'" class="h-100 bg-light mx-1 p-1 rounded">
+        <h3 class="text-primary">Create New Account</h3>
+        <p>
+            <b>Please fill-in all the fields below.</b>
+            <br />
+            This will create a new EPPI-Reviewer account and link the new account to your Cochrane Identity. After completing this procedure you will be able to
+            authenticate in EPPI-Reviewer via Cochrane (as you just did) or the credentials below. 
+            <br />
+            Please note that in order to be able to use your EPPI-Reviewer credentials you will need to
+            <b>confirm your email address.</b> After registering here <b>you will receive an "Activation" email, with a unique link</b>.
+        </p>
+        <p>
+            Clicking the link will complete the activation by confirming that your Email address is valid.
+        </p>
+        <div class="w-100 border border-success rounded p-1">
+            <table class="w-100 ">
+                <tr>
+                    <td class="text-right p-1" width="15%">Full Name</td>
+                    <td width="30%"><input class="form-control " [(ngModel)]="CreateAccountCommand.fullname" [ngClass]="{'alert-danger' : FieldNeedsRevision('.1')}"></td>
+                    <td class="text-right p-1" width="25%">Username</td>
+                    <td width="30%">
+                        <input class="form-control" maxlength="50"
+                               [(ngModel)]="CreateAccountCommand.username" [ngClass]="{'alert-danger' : FieldNeedsRevision('.3')}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right p-1">Email</td>
+                    <td><input class="form-control"
+                                [(ngModel)]="CreateAccountCommand.email" [ngClass]="{'alert-danger' : FieldNeedsRevision('.4')}"></td>
+                    <td class="text-right p-1">Confirm Email</td>
+                    <td><input class="form-control"
+                                [(ngModel)]="ConfirmEmail" [ngClass]="{'alert-danger' : FieldNeedsRevision('.4')}"></td>
+                </tr>
+                <tr>
+                    <td class="text-right p-1">Password</td>
+                    <td><input class="form-control" type="password" 
+                                [(ngModel)]="CreateAccountCommand.password" [ngClass]="{'alert-danger' : FieldNeedsRevision('.5')}"></td>
+                    <td class="text-right p-1">Confirm Password</td>
+                    <td><input class="form-control" type="password"
+                                [(ngModel)]="ConfirmPw" [ngClass]="{'alert-danger' : FieldNeedsRevision('.5')}"></td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            - <b>Usernames</b> must be at least 4 characters long and unique. Maximum length is 50 characters.<br />
+            - <b>Passwords</b> must be at least <b>8 characters</b> and contain and at least
+            <b>one one lower case</b> letter, one <b>upper case</b> letter,
+            <b>one digit</b> and no spaces.
+        </p>
+
+        <button class="btn btn-primary" (click)="CheckAndCreateNewAccount()">Create Account</button>
+        <button class="btn btn-outline-info m-1" (click)="BackToMainChoice()">Back</button>
+        <button class="btn btn-outline-dark" (click)="BackHome()">Cancel & Logout</button>
+    </div>
+</div>

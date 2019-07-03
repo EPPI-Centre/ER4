@@ -9,8 +9,9 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -20,12 +21,14 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class OutcomeItemAttribute : BusinessBase<OutcomeItemAttribute>
     {
 
     public OutcomeItemAttribute() { }
 
         public static readonly PropertyInfo<int> OutcomeItemAttributeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeItemAttributeId", "OutcomeItemAttributeId"));
+        [JsonProperty]
         public int OutcomeItemAttributeId
         {
             get
@@ -35,6 +38,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> OutcomeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeId", "OutcomeId"));
+        [JsonProperty]
         public int OutcomeId
         {
             get
@@ -48,6 +52,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        [JsonProperty]
         public Int64 AttributeId
         {
             get
@@ -61,6 +66,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> AdditionalTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AdditionalText", "AdditionalText", string.Empty));
+        [JsonProperty]
         public string AdditionalText
         {
             get
@@ -73,6 +79,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("Classifications", "Classifications"));
+        [JsonProperty]
         public string AttributeName
         {
             get

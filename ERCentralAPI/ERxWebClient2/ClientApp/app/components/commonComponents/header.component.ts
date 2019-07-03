@@ -108,7 +108,20 @@ export class HeaderComponent implements OnInit {
         return this._ActivePanel;
     }
     public UserFeedback: string = "";
-    
+
+    public get NameOfUser(): string {
+        return this.ReviewerIdentityServ.reviewerIdentity.name;
+    }
+    public get IsReadOnly(): boolean {
+        if (this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated && this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0
+            && this.ReviewerIdentityServ.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1) {
+            //special case: user is authenticated, but not in a review and does not have the ReadOnlyUser role
+            return false;
+        }
+        else {
+            return !this.ReviewerIdentityServ.HasWriteRights;
+        }
+    }
     public get IsServiceBusy() : boolean {
         if (this.OnlineHelpService.IsBusy) return true;
         else return false;
