@@ -296,10 +296,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 				}
 			);
 		}
+		this.ClearBulkFields();
 		this.changePanel('');
 
 	}
+	ClearBulkFields() {
 
+		this.selectedReviewer1 = new Contact();
+		this.DropdownSelectedCodeStudies = null;
+		this.selectedCodeSet = new ReviewSet();
+		this.canBulkComplete = false;
+		this.CanPreview();
+		this.showMessage = false;
+
+	}
 	public Preview(isCompleting: string) {
 
 		let completing: string = '';
@@ -394,6 +404,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		} else {
 			this.PanelName =  '';
 		}
+		this.ClearBulkFields();
 	}
 
 	ngOnDestroy() {
