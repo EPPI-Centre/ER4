@@ -540,9 +540,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         return revPart;
     }
-    //EditCodeSets() {
-    //    this.router.navigate(['EditCodeSets']);
-    //}
+    EditCodeSets() {
+        this.router.navigate(['EditCodeSets']);
+    }
     GoToSources() {
         this.router.navigate(['sources']);
     }

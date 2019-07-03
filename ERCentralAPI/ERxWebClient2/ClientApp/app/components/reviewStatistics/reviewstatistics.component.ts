@@ -52,8 +52,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	public selectedCodeSet: ReviewSet = new ReviewSet();
 	public PanelName: string = '';
 	public complete: string = '';
-
 	public selectedReviewer1: Contact = new Contact();
+	public ImportOrNewDDData: Array<any> = [{
+		text: 'New Reference',
+		click: () => {
+			this.NewReference();
+		}
+	}];
 
 	dtOptions: DataTables.Settings = {};
 	dtTrigger: Subject<any> = new Subject();
@@ -101,13 +106,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
     RefreshStats() {
         this.reviewSetsService.GetReviewStatsEmit.emit();
-        //this.codesetStatsServ.GetReviewStatisticsCountsCommand();
     }
 	Reload() {
 		this.Clear();
-		//this.reviewSetsService.GetReviewSets();
-		//if (this.workAllocationsComp) this.workAllocationsComp.getWorkAllocationContactList();
-		//else console.log("work allocs comp is undef :-(");
 	}
 	GetStats() {
 		//console.log('getting stats...');
@@ -116,13 +117,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 	Clear() {
 		this.ItemListService.SaveItems(new ItemList(), new Criteria());
-
 		this.reviewSetsService.Clear();
 
-		//if (this.statsSub) this.statsSub.unsubscribe();
-		//this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-		//	() => this.GetStats()
-		//);
 	}
 	EditCodeSets() {
 		this.router.navigate(['EditCodeSets']);
@@ -163,12 +159,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         this.ItemListService.FetchWithCrit(cri, statsByContact.ContactName + ": documents with incomplete (but started) coding using '" + setName + "'");
         this.tabSelectEvent.emit();
 	}
-	public ImportOrNewDDData: Array<any> = [{
-		text: 'New Reference',
-		click: () => {
-			this.NewReference();
-		}
-	}];
+
 	NewReference() {
 		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
 	}
@@ -305,10 +296,20 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 				}
 			);
 		}
+		this.ClearBulkFields();
 		this.changePanel('');
 
 	}
+	ClearBulkFields() {
 
+		this.selectedReviewer1 = new Contact();
+		this.DropdownSelectedCodeStudies = null;
+		this.selectedCodeSet = new ReviewSet();
+		this.canBulkComplete = false;
+		this.CanPreview();
+		this.showMessage = false;
+
+	}
 	public Preview(isCompleting: string) {
 
 		let completing: string = '';
@@ -403,6 +404,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		} else {
 			this.PanelName =  '';
 		}
+		this.ClearBulkFields();
 	}
 
 	ngOnDestroy() {
