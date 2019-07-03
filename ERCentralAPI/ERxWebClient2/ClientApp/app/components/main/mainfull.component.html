@@ -63,14 +63,6 @@
                                                                [data]="ImportOrNewDDData"
                                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                                     <!--<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>-->
-                                    <kendo-toolbar-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
-                                                               [disabled]="!CanGetItemsWithThisCode"
-                                                               [data]="ItemsWithThisCodeDDData"
-                                                               style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
-                                    <kendo-toolbar-splitbutton [text]="'Assign Code'" (buttonClick)="BulkAssignRemoveCodes(true)"
-                                                               [disabled]="!CanBulkAssignRemoveCodes"
-                                                               [data]="AddRemoveItemsDDData"
-                                                               style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                                     <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'"
                                                           (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
                                     <kendo-toolbar-splitbutton [text]="'Coding Report'" (buttonClick)="ShowHideQuickReport()"
@@ -131,10 +123,25 @@
                 </kendo-splitter-pane>
             </kendo-splitter-pane>
             <kendo-splitter-pane [collapsed]="CodesAreCollapsed" size="30%" class="bg-light">
-                <button *ngIf="ReviewSets && ReviewSets.length > 0 && HasWriteRights"
-                        class="btn btn-outline-success btn-sm ml-1 p-0 pr-1 pl-1 " (click)="EditCodeSets()">Edit Coding Tool(s)</button>
+                <!--<button *ngIf="ReviewSets && ReviewSets.length > 0 && HasWriteRights"
+                        class="btn btn-outline-success btn-sm ml-1 p-0 pr-1 pl-1 " (click)="EditCodeSets()">
+                    Edit Coding Tool(s)
+                </button>-->
+                <div class="k-block containsAtoolbar p-0" look="outline">
+                    <button kendoButton class="my-1 ml-1 mr-0" (click)="EditCodeSets()">Edit Tools</button>
+                    <kendo-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
+                                       [disabled]="!CanGetItemsWithThisCode"
+                                       [data]="ItemsWithThisCodeDDData"
+                                       class="my-1 ml-1 mr-0"
+                                       style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+                    <kendo-splitbutton *ngIf="ShowItemsTable" [text]="'Assign Code'" (buttonClick)="BulkAssignRemoveCodes(true)"
+                                       [disabled]="!CanBulkAssignRemoveCodes"
+                                       [data]="AddRemoveItemsDDData"
+                                       class="my-1 ml-1 mr-0"
+                                       style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+                </div>
                 <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
-                <div *ngIf="(!ReviewSets || ReviewSets.length == 0) && !IsServiceBusy && HasWriteRights" >
+                <div *ngIf="(!ReviewSets || ReviewSets.length == 0) && !IsServiceBusy && HasWriteRights">
                     <button class="btn btn-success btn-sm p-0 mb-1" (click)="ImportCodesetClick()"><span class="ml-1 mr-1">Click Here</span></button> to Import Coding Tools from templates.
                 </div>
             </kendo-splitter-pane>

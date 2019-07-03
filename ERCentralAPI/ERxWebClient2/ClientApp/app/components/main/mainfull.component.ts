@@ -289,6 +289,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.listType = "StandardItemList";
         cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
         this.ItemListService.FetchWithCrit(cr, ListDescription);
+        this.tabstrip.selectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
     BulkAssignRemoveCodes(IsBulkAssign: boolean) {
