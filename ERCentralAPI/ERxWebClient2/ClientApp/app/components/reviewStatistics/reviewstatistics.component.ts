@@ -44,9 +44,11 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	public isReviewPanelCollapsed = false;
 	public isWorkAllocationsPanelCollapsed = false;
 	public msg: string = '';
+	public PreviewMsg: string = '';
 	public canBulkComplete: boolean = false;
 	public isBulkCompleting: boolean = false;
 	public showMessage: boolean = false;
+	public showPreviewMessage: boolean = true;
 	public DropdownSelectedCodeStudies: singleNode | null = null;
 	public isCollapsedCodeStudies: boolean = false;
 	public selectedCodeSet: ReviewSet = new ReviewSet();
@@ -68,6 +70,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		return this._reviewInfoService.Contacts;
 	}
 	public get CodeSets(): ReviewSet[] {
+
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
     public get IsServiceBusy(): boolean {
@@ -211,6 +214,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		}
 		this.isCollapsedCodeStudies = false;
 		this.msg = '';
+		//this.CanPreview();
 	}
 	public CanPreview() {
 
@@ -219,33 +223,33 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		} else {
 			this.isBulkCompleting = false;
 		}
-		let msg: string = '';
 		let compORuncomp: string = this.isBulkCompleting ? "completed" : "un-completed";
-		msg = "Please click \"Preview\" to continue.";
+		this.PreviewMsg = "Please click \"Preview\" to continue.";
 
 		if (this.isBulkCompleting && this.selectedReviewer1.contactName == ''
 			|| this.selectedReviewer1.contactName == ' ') {
-			msg = "Please select whose codings should be " + compORuncomp + ".";
+			this.PreviewMsg = "Please select whose codings should be " + compORuncomp + ".";
 			return false;
 		}
 		if (this.selectedCodeSet.name == '') {
-			msg = "Please select the codeset to be " + compORuncomp + ".";
-			console.log(msg);
+			this.PreviewMsg = "Please select the codeset to be " + compORuncomp + ".";
+			//console.log(msg);
 			return false;
 		}
 		else if (this.DropdownSelectedCodeStudies == null) {
-			msg = "Please select the code used to specify what items are to be " + compORuncomp + ".";
-			console.log(msg);
+			this.PreviewMsg = "Please select the code used to specify what items are to be " + compORuncomp + ".";
+			//console.log(msg);
 			return false;
 		}
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		
 		if (node.attributeSetId == setId) {
-				msg = "This can't be done: the selected code belongs to the Codeset you wish to act on. </br> Please select a different Code/Codeset combination.";
-			console.log(msg);
+			this.PreviewMsg = "This can't be done: the selected code belongs to the Codeset you wish to act on. </br> Please select a different Code/Codeset combination.";
+			//console.log(msg);
 			return false;
 		}
+		this.showPreviewMessage = false;
 		return true;
 	}
 	public CompleteOrUncomplete() {
@@ -313,6 +317,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.canBulkComplete = false;
 		this.CanPreview();
 		this.showMessage = false;
+		this.showPreviewMessage = true;
 
 	}
 	public Preview(isCompleting: string) {
