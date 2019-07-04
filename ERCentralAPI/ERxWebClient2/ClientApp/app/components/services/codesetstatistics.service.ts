@@ -15,7 +15,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 
     constructor(
         private _http: HttpClient,
-        private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         private reviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
@@ -257,7 +256,7 @@ export class CodesetStatisticsService extends BusyAwareService {
         this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
         //this.SaveFormattedSets();
 	}
-	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) {
+	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) : void {
 			   
 		this._BusyMethods.push("SendToItemBulkCompleteCommand");
 		let MVCcmd: ItemSetBulkCompleteCommand = new ItemSetBulkCompleteCommand();

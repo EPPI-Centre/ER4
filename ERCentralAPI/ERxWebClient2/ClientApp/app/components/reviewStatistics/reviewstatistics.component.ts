@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Criteria, ItemList } from '../services/ItemList.service';
 import { ItemListService } from '../services/ItemList.service'
-import {  Subject } from 'rxjs';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletion, StatsByReviewer, BulkCompleteUncompleteCommand } from '../services/codesetstatistics.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -44,7 +43,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     public DetailsForSetId: number = 0;
 	public isReviewPanelCollapsed = false;
 	public isWorkAllocationsPanelCollapsed = false;
-	//private statsSub: Subscription = new Subscription();
 	public msg: string = '';
 	public canBulkComplete: boolean = false;
 	public isBulkCompleting: boolean = false;
@@ -55,15 +53,15 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	public PanelName: string = '';
 	public complete: string = '';
 	public selectedReviewer1: Contact = new Contact();
-	public ImportOrNewDDData: Array<any> = [{
-		text: 'New Reference',
-		click: () => {
-			this.NewReference();
-		}
-	}];
+	//public ImportOrNewDDData: Array<any> = [{
+	//	text: 'New Reference',
+	//	click: () => {
+	//		this.NewReference();
+	//	}
+	//}];
 
-	dtOptions: DataTables.Settings = {};
-	dtTrigger: Subject<any> = new Subject();
+	//dtOptions: DataTables.Settings = {};
+	//dtTrigger: Subject<any> = new Subject();
 
 	public get Contacts(): Contact[] {
 
@@ -210,7 +208,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		if (this.CodeStudiesTreeOne) {
 
 			this.DropdownSelectedCodeStudies = this.CodeStudiesTreeOne.SelectedNodeData;
-			let setAtt: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		}
 		this.isCollapsedCodeStudies = false;
 		this.msg = '';
@@ -229,8 +226,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		if (this.isBulkCompleting && this.selectedReviewer1.contactName == ''
 			|| this.selectedReviewer1.contactName == ' ') {
 			msg = "Please select whose codings should be " + compORuncomp + ".";
-			//console.log(msg);
-			//console.log('asdfasd:' + this.selectedReviewer1.contactName + 'asdf');
 			return false;
 		}
 		if (this.selectedCodeSet.name == '') {
@@ -243,8 +238,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			console.log(msg);
 			return false;
 		}
-		//check if the filter Attribute is in the set that will be affected
-		
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		
@@ -261,7 +254,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			|| this.selectedCodeSet == null) {
 			return;
 		}
-
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		let attId: number = node.attribute_id;
@@ -296,7 +288,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 				this.isBulkCompleting.toString(),
 				setId,
 				'false'
-
 			).then(
 				() => {
 					this.RefreshStats();
@@ -391,7 +382,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 						this.msg +=  "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
 					}
-					//console.log(this.msg);
 					this.RefreshStats();
 					this.showMessage = true;
 				});
@@ -399,9 +389,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 
 	public CanCompleteOrNot() {
-
 		return this.canBulkComplete;
-		
 	}
 
 	changePanel(completeOrNot: string) {
