@@ -214,7 +214,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		}
 		this.isCollapsedCodeStudies = false;
 		this.msg = '';
-		//this.CanPreview();
+		this.CanPreview();
 	}
 	public CanPreview() {
 
@@ -226,21 +226,22 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		let compORuncomp: string = this.isBulkCompleting ? "completed" : "un-completed";
 		this.PreviewMsg = "Please click \"Preview\" to continue.";
 
-		if (this.isBulkCompleting && this.selectedReviewer1.contactName == ''
-			|| this.selectedReviewer1.contactName == ' ') {
-			this.PreviewMsg = "Please select whose codings should be " + compORuncomp + ".";
-			return false;
-		}
 		if (this.selectedCodeSet.name == '') {
 			this.PreviewMsg = "Please select the codeset to be " + compORuncomp + ".";
 			//console.log(msg);
 			return false;
 		}
-		else if (this.DropdownSelectedCodeStudies == null) {
+		if (this.isBulkCompleting && this.selectedReviewer1.contactName == ''
+			|| this.selectedReviewer1.contactName == ' ') {
+			this.PreviewMsg = "Please select whose codings should be " + compORuncomp + ".";
+			return false;
+		}
+		if (this.DropdownSelectedCodeStudies == null) {
 			this.PreviewMsg = "Please select the code used to specify what items are to be " + compORuncomp + ".";
 			//console.log(msg);
 			return false;
 		}
+
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		
