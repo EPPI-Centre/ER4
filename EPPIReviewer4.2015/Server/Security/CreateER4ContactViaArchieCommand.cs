@@ -307,22 +307,26 @@ namespace BusinessLibrary.Security
             string mailFrom = "EPPIsupport@ioe.ac.uk";
             string fromCred = "wrongPW";
 #if !CSLA_NETCORE
-            System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
-            if (rootWebConfig1.AppSettings.Settings.Count > 0)
-            {
-                System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
-                if (customSetting != null)
-                    SMTP =  customSetting.Value;
-                customSetting = rootWebConfig1.AppSettings.Settings["SMTPUser"];
-                    if (customSetting != null)
-                    SMTPUser =  customSetting.Value;
-                customSetting = rootWebConfig1.AppSettings.Settings["SMTPAuthentic"];
-                    if (customSetting != null)
-                        fromCred =  customSetting.Value;
-                customSetting = rootWebConfig1.AppSettings.Settings["mailFrom"];
-                if (customSetting != null)
-                    mailFrom = customSetting.Value;
-            }
+            //System.Configuration.Configuration rootWebConfig1 = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("/WcfHostPortal");
+            //if (rootWebConfig1.AppSettings.Settings.Count > 0)
+            //{
+            //    System.Configuration.KeyValueConfigurationElement customSetting = rootWebConfig1.AppSettings.Settings["SMTP"];
+            //    if (customSetting != null)
+            //        SMTP =  customSetting.Value;
+            //    customSetting = rootWebConfig1.AppSettings.Settings["SMTPUser"];
+            //        if (customSetting != null)
+            //        SMTPUser =  customSetting.Value;
+            //    customSetting = rootWebConfig1.AppSettings.Settings["SMTPAuthentic"];
+            //        if (customSetting != null)
+            //            fromCred =  customSetting.Value;
+            //    customSetting = rootWebConfig1.AppSettings.Settings["mailFrom"];
+            //    if (customSetting != null)
+            //        mailFrom = customSetting.Value;
+            //}
+            SMTP = System.Configuration.ConfigurationManager.AppSettings["SMTP"];
+            SMTPUser = System.Configuration.ConfigurationManager.AppSettings["SMTPUser"];
+            fromCred = System.Configuration.ConfigurationManager.AppSettings["SMTPAuthentic"];
+            mailFrom = System.Configuration.ConfigurationManager.AppSettings["mailFrom"];
 #else
             Microsoft.Extensions.Configuration.IConfigurationBuilder builder = new Microsoft.Extensions.Configuration.ConfigurationBuilder();
             builder.AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"));
