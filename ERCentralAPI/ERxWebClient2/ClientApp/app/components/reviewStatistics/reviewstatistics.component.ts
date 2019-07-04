@@ -10,6 +10,7 @@ import { CodesetStatisticsService, ReviewStatisticsCountsCommand, StatsCompletio
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private codesetStatsServ: CodesetStatisticsService,
 		private confirmationDialogService: ConfirmationDialogService,
 		private _reviewSetsService: ReviewSetsService,
-		private _reviewInfoService: ReviewInfoService
+		private _reviewInfoService: ReviewInfoService,
+		private _notificationService: NotificationService
 	) {
 
 	}
@@ -277,7 +279,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			).then(
 				() => {
 					this.RefreshStats();
-					alert('finished the bulk uncomplete');
+					this._notificationService.show({
+						content: 'finished the bulk complete',
+						animation: { type: 'slide', duration: 400 },
+						position: { horizontal: 'center', vertical: 'top' },
+						type: { style: "info", icon: true },
+						closable: true
+					});
 				}
 			);
 		}
@@ -292,7 +300,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 			).then(
 				() => {
 					this.RefreshStats();
-					alert('finished the bulk complete ');
+					this._notificationService.show({
+						content: 'finished the bulk uncomplete',
+						animation: { type: 'slide', duration: 400 },
+						position: { horizontal: 'center', vertical: 'top' },
+						type: { style: "info", icon: true },
+						closable: true
+					});
 				}
 			);
 		}

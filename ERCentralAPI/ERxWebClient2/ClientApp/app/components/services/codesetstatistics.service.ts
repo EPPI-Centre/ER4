@@ -27,7 +27,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 	private _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
 	private _tmpCodesets: StatsCompletion[] = [];
 
-
     @Output() GetCompletedSetsEmit: EventEmitter<any> = new EventEmitter<any>();
     @Output() GetIncompleteSetsEmit: EventEmitter<any> = new EventEmitter<any>();
 
@@ -80,7 +79,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 	public set tmpCodesets(tmpCodesets: StatsCompletion[]) {
 		this._tmpCodesets = tmpCodesets;
 	}
-
 	public get tmpCodesets(): StatsCompletion[] {
 
   //      if (this._tmpCodesets != null) {
@@ -100,7 +98,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 		//console.log('blah ' + this._tmpCodesets);
 		return this._tmpCodesets;
     }
-
 	public get IncompleteCodesets(): ReviewStatisticsCodeSet[] {
 		//if (this._IncompleteCodesets != null) {
 		//	return this._IncompleteCodesets;
@@ -118,7 +115,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 		//}
 		return this._IncompleteCodesets;
 	}
-
     public GetReviewStatisticsCountsCommand() {
         this._BusyMethods.push("GetReviewStatisticsCountsCommand");
         this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
@@ -137,7 +133,6 @@ export class CodesetStatisticsService extends BusyAwareService {
             }
         );
     }
-
     public GetReviewSetsCodingCounts(completed: boolean, trigger: Subject<any>) {
         this._BusyMethods.push("GetReviewSetsCodingCounts");
         let body = JSON.stringify({ Value: completed });
@@ -164,7 +159,6 @@ export class CodesetStatisticsService extends BusyAwareService {
         );
 
     }
-
     public GetReviewSetsIncompleteCodingCounts(completed: boolean, trigger: Subject<any>) {
         this._BusyMethods.push("GetReviewSetsIncompleteCodingCounts");
         let body = JSON.stringify({ Value: completed });
@@ -190,7 +184,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 
         
     }
-
     formateSets(): any {
         this.tmpCodesets = [];
         let ind: number = 0;
@@ -264,7 +257,6 @@ export class CodesetStatisticsService extends BusyAwareService {
         this.tmpCodesets.sort(function (a, b) { return a.order - b.order });
         //this.SaveFormattedSets();
 	}
-
 	SendToItemBulkCompleteCommand(setID: number, contactID: number, completeOrNot: string) {
 			   
 		this._BusyMethods.push("SendToItemBulkCompleteCommand");
@@ -286,7 +278,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 				}
 			);
 	}
-	
 	SendItemsToBulkCompleteOrNotCommand(attributeId: number, isCompleting: string,
 		setId: number, isPreview: string, reviewerId?: number): Promise<BulkCompleteUncompleteCommand>  {
 
@@ -312,7 +303,6 @@ export class CodesetStatisticsService extends BusyAwareService {
 			}
 		);
 	}
-
     //private Save() {
     //    if (this.ReviewStats != undefined && this.ReviewStats != null )
     //        localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
@@ -404,7 +394,7 @@ export class StatsCompletion {
     public IncompleteByReviewer: ReviewStatisticsReviewer[] = [];
     private _StatsByReviewer: StatsByReviewer[] | null = null;
     public get ReviewerStats(): StatsByReviewer[] {
-        console.log("getting ReviewerStats", this.CompletedByReviewer, this.IncompleteByReviewer);
+       // console.log("getting ReviewerStats", this.CompletedByReviewer, this.IncompleteByReviewer);
         if (this._StatsByReviewer == null) {
             //we parse the raw data once, to get the digested view used by the reviewstats component...
             //once data is in it's in :-)
