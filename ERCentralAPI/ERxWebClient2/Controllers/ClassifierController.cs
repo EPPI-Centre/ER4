@@ -137,9 +137,11 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				if (SetCSLAUser4Writing())
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				if (SetCSLAUser4Writing() && ri.IsSiteAdmin)
 				{
-					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					
 
 					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
 					ClassifierCommand command = new ClassifierCommand(
