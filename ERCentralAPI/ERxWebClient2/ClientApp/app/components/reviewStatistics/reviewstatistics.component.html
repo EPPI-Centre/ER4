@@ -167,12 +167,16 @@
 					{{singleContact.ContactName}}
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" o src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.ContactId,  'false')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" o src="../assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" title="List items with completed coding by '{{singleContact.ContactName}}'"
+                          (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.ContactId,  'true')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" title="List items with incomplete coding by '{{singleContact.ContactName}}'"
+                          (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
 				</div>
 			</div>
 		</div>
@@ -203,12 +207,16 @@
 					{{singleContact.ContactName}}
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold"  title="List items with completed coding by '{{singleContact.ContactName}}'"
+                          (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" title="List items with incomplete coding by '{{singleContact.ContactName}}'"
+                          (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
 				</div>
 			</div>
 		</div>
@@ -239,12 +247,16 @@
 					{{singleContact.ContactName}}
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'false')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" title="List items with completed coding by '{{singleContact.ContactName}}'"
+                          (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.CompletedCount}}</span>
 				</div>
 				<div class="bg-white row col-2 mr-1 px-1 align-content-start justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.ContactName}}'">
-					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
-					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
+					<img class="thumbnail btn px-0 py-1 mx-0 my-1" src="../assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
+                         (click)="CompleteCoding(singleContact.ContactName, item.setName,item.setId,singleContact.ContactId,  'true')" />
+					<span class="btn btn-link border-0 px-0 py-1 mx-1 my-0 font-weight-bold" title="List items with incomplete coding by '{{singleContact.ContactName}}'"
+                          (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.IncompleteCount}}</span>
 				</div>
 			</div>
 		</div>

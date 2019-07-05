@@ -176,21 +176,18 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		if (setId != null && contactId != null && completeOrNot != null) {
 
 			let tmpComplete: string = '';
+			let tmpStrItemVisible: string = '';
 			if (completeOrNot == 'true') {
 				tmpComplete = 'Completed';
+				tmpStrItemVisible = ' items will be visible in searches and reports.';
 			} else {
-				tmpComplete = 'Uncompleted';
+                tmpComplete = 'Uncompleted';
+                tmpStrItemVisible = ' items will no longer be visible in searches and reports.';
 			}
-			let tmpStrItemVisible: string = '';
-			if (tmpComplete == 'Complete') {
-				tmpStrItemVisible = ' items will no longer be visible in searches and reports';
-			} else {
-				tmpStrItemVisible = ' items will be visible in searches and reports';
-			}
-			this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to change the codings by ' + contactName + ' for the ' + setName + ' coding tool to <b>' + tmpComplete + '</b> ?' +
-				'<br /><b>Note:</b> ' +
-				'<br />Please check in the manual if you are unsure about the implications.' +
-				'<br /><b>' + tmpComplete + '</b> ' + tmpStrItemVisible , false, '')
+            this.confirmationDialogService.confirm(completeOrNot == 'true' ? 'Complete this coding?' : 'Un-complete this coding?', 'Are you sure you want to change the codings by <em>' + contactName + '</em> for the "<em>' + setName + '</em>" coding tool to <b>' + tmpComplete + '</b>?' +
+				'<br />' +
+				'<br />Please check the (full) manual if you are unsure about the implications.' +
+                '<br /><b>' + tmpComplete + '</b> ' + tmpStrItemVisible, false, '', undefined, undefined,'lg')
 				.then(
 					(confirmed: any) => {
 						console.log('User confirmed:');
