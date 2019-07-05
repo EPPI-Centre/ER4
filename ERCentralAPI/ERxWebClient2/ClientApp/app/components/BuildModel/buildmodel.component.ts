@@ -6,6 +6,7 @@ import { BuildModelService } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -20,7 +21,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _classifierService: ClassifierService,
 		public _reviewSetsService: ReviewSetsService,
 		private _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService
+		public _eventEmitterService: EventEmitterService,
+		private _confirmationDialogService: ConfirmationDialogService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -61,7 +63,50 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		field: 'modelId',
 		dir: 'desc'
 	}];
+	public openConfirmationDialogDeleteModels() {
+		this._confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected model(s)?', false, '')
+			.then(
+				(confirmed: any) => {
+					console.log('User confirmed:', confirmed);
+					if (confirmed) {
+						this.DeleteModelSelected();
+					} else {
+					}
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+	DeleteModelSelected() {
 
+		let lstStrModelIds = '';
+		let modelID: number = 0;
+		console.log(this.DataSource);
+
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+
+			if (this.DataSource.data[i].add == true) {
+				lstStrModelIds += this.DataSource.data[i].modelId;
+				modelID = this.DataSource.data[i].modelId;
+			}
+		}
+		
+		console.log(lstStrModelIds);
+		this._buildModelService.Delete(modelID);
+	}
+	public checkBoxSelected: boolean = false;
+	public checkboxClicked(dataItem: any) {
+
+		dataItem.add = !dataItem.add;
+		console.log(dataItem);
+		if (dataItem.add == true) {
+			this._buildModelService.modelToBeDeleted = dataItem.modelId;
+
+		}
+		if (dataItem.add == true) {
+			this.checkBoxSelected = true;
+		}
+		//
+	};
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;
 		console.log('sorting?' + this.sort[0].field + " ");
@@ -136,8 +181,6 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		}
 		
 	}
-
-
     ngAfterViewInit() {
 
 	}

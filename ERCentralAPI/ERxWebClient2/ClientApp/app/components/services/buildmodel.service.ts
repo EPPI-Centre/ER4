@@ -15,6 +15,7 @@ export class BuildModelService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
+		private _reviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();
@@ -23,7 +24,7 @@ export class BuildModelService extends BusyAwareService {
 	private _ClassifierModelList: ClassifierModel[] = [];
 	//@Output() searchesChanged = new EventEmitter();
 	//public crit: CriteriaSearch = new CriteriaSearch();
-	public searchToBeDeleted: string = '';//WHY string?
+	public modelToBeDeleted: number = 0;
 
 	public get ClassifierModelList(): ClassifierModel[] {
 
@@ -58,6 +59,36 @@ export class BuildModelService extends BusyAwareService {
 
 	}
 
+	Delete(modelId: number) {
+
+		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+		MVCcmd._title = '';
+		MVCcmd._attributeIdOn = -1;
+		MVCcmd._attributeIdNotOn = -1;
+		MVCcmd._attributeIdClassifyTo = -1;
+		MVCcmd._modelId = modelId;
+		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+
+		this._BusyMethods.push("DeleteModel");
+
+		this._httpC.post<string>(this._baseUrl + 'api/Classifier/DeleteModel',
+			MVCcmd)
+			.subscribe(result => {
+
+				this.RemoveBusy("DeleteModel");
+				let tmpIndex: any = this.ClassifierModelList.findIndex(x => x.modelId == this.modelToBeDeleted);
+				this.ClassifierModelList.splice(tmpIndex, 1);
+				this.Fetch();
+
+			}, error => {
+				this.RemoveBusy("DeleteModel");
+				this.modalService.GenericError(error);
+			}
+			);
+	}
+
+
 	ngOnInit() {
 
 		
@@ -90,4 +121,17 @@ export class BuildModelCommand {
 	public _sourceId: number = 0;
 	public revInfo: ReviewInfo = new ReviewInfo();
 
+}
+
+export class MVCClassifierCommand {
+
+		public _title: string = '';
+		public _attributeIdOn: number = 0;
+		public _attributeIdNotOn: number = 0;
+		public _attributeIdClassifyTo: number = 0;
+		public _sourceId: number = 0;
+		public _modelId: number = 0;
+		public _attributeId: number = 0;
+		public _classifierId: number = 0;
+		public revInfo: ReviewInfo = new ReviewInfo();
 }
