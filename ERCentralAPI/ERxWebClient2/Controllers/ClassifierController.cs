@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
 using Microsoft.Extensions.Logging;
 using Csla;
-
+using System.Collections.Generic;
 
 namespace ERxWebClient2.Controllers
 {
@@ -19,8 +19,7 @@ namespace ERxWebClient2.Controllers
 		private readonly ILogger _logger;
 		private int _classifierId = -1;
 		private string _returnMessage = "Success";
-
-
+		
 		public ClassifierController(ILogger<ClassifierController> logger)
 		{
 			_logger = logger;
@@ -132,7 +131,41 @@ namespace ERxWebClient2.Controllers
 			}
 
 		}
-		
+
+		[HttpPost("[action]")]
+		public IActionResult DeleteModel([FromBody] MVCClassifierCommand _model)
+		{
+			try
+			{
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+				if (SetCSLAUser4Writing() && ri.IsSiteAdmin)
+				{
+					
+
+					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+					ClassifierCommand command = new ClassifierCommand(
+						"DeleteThisModel~~",
+						-1,
+						-1,
+						-1,
+						Convert.ToInt32(_model._modelId),
+						-1);
+					command.RevInfo = _model.revInfo.ToCSLAReviewInfo(); 
+					command = dp.Execute(command);
+
+					return Ok();
+				}
+				else return Forbid();
+
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Deletion of searches has failed");
+				throw;
+			}
+		}
+
 		public class MVCClassifierCommand
 		{
 			public string _title { get; set; }
@@ -198,6 +231,8 @@ namespace ERxWebClient2.Controllers
 			public int SearchNo { get; set; }
 			public string Search_Title { get; set; }
 		}
+
+
 
 		public class ClassifierModel
 		{

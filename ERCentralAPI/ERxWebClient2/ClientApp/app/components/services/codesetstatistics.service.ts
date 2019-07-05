@@ -206,7 +206,7 @@ export class CodesetStatisticsService extends BusyAwareService {
                 ind += 1;
                 let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setId == tempSetId);
                 if (tmp) {
-                    console.log("found this:", tmp, tmp.reviewerStatistics);
+                    //console.log("found this:", tmp, tmp.reviewerStatistics);
                     tmpSet.countCompleted = tmp.numItems;
                     tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
                     let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setId == tempSetId);

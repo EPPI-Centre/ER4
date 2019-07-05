@@ -403,16 +403,38 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	changePanel(completeOrNot: string) {
 
 		this.isBulkCompleting = true;
-		if (completeOrNot == 'true') {
-			this.complete = 'Complete';
-		} else {
-			this.complete = 'Uncomplete';
-		}
+		
 		if (this.PanelName == '') {
+
 			this.PanelName = 'BulkCompleteSection';
 
-		} else {
+		} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Complete') {
+
+			this.PanelName = '';
+
+		} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'true' && this.complete == 'Uncomplete') {
+
+			this.PanelName = 'BulkCompleteSection';
+
+		} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Complete') {
+
+			this.PanelName = 'BulkCompleteSection';
+
+		} else if (this.PanelName == 'BulkCompleteSection' && completeOrNot == 'false' && this.complete == 'Uncomplete') {
+
+			this.PanelName = '';
+		}
+		else {
+
 			this.PanelName =  '';
+		}
+		if (completeOrNot == 'true') {
+
+			this.complete = 'Complete';
+
+		} else {
+
+			this.complete = 'Uncomplete';
 		}
 		this.ClearBulkFields();
 	}
