@@ -85,7 +85,12 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     public get AdminSets(): StatsCompletion[] {
         return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Administration');
     }
-    
+    public get HasWriteRights(): boolean {
+        return this.ReviewerIdentityServ.HasWriteRights;
+    }
+    public get HasAdminRights(): boolean {
+        return this.ReviewerIdentityServ.HasAdminRights;
+    }
 	ngOnInit() {
 
 		console.log('inititating stats');
