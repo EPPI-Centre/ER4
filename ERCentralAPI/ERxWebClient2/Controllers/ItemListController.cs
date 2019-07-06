@@ -222,6 +222,36 @@ namespace ERxWebClient2.Controllers
             CSLAItem.Abstract = item.@abstract;
             CSLAItem.ApplyEdit();
         }
+
+
+		[HttpPost("[action]")]
+		public IActionResult DeleteSelectedItems([FromBody] Item[] ItemIds)
+		{
+			try
+			{
+
+				string[] strItemIds = ItemIds.Select(x => x.ItemId.ToString()).ToArray();
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<ItemDeleteUndeleteCommand> dp = new DataPortal<ItemDeleteUndeleteCommand>();
+					ItemDeleteUndeleteCommand command = new ItemDeleteUndeleteCommand(
+					true,
+					string.Join(",", strItemIds));
+					command = dp.Execute(command);
+					return Ok(command);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when deleting items: {0}", ItemIds);
+				return StatusCode(500, e.Message);
+			}
+		}
+
         //[HttpPost("[action]")]
         //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
         //{

@@ -187,7 +187,35 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
         else return false;
     }
+	public DeleteRelevantItems() {
+		this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+	}
+	public AllocateChoice: string = '';
+	public AllIncOrExcShow: boolean = false;
+	public AssignDocs: boolean = false;
+	public AllocateRelevantItems() {
 
+		//need to show a panel here
+		if (!this.AllIncOrExcShow) {
+
+			this.AllIncOrExcShow = true;
+		} else {
+
+			this.AllIncOrExcShow = false;
+		}
+		
+	}
+	public RunAssignment() {
+
+		console.log("==========================\n");
+		console.log(this.AllocateChoice);
+		console.log("==========================\n");
+		console.log(this.AssignDocs);
+	}
+	public CloseSection() {
+
+		this.AllIncOrExcShow = false;
+	}
 	dtTrigger: Subject<any> = new Subject();
 	private ListSubType: string = '';
     ngOnInit() {
