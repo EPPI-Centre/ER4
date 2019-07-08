@@ -257,7 +257,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				bool inc = assignMvc.Include == "Included" ? true: false;
+				bool inc = assignMvc.Include == "true" ? true: false;
 				if (assignMvc.attributeid > 0)
 				{
 					assignMvc.itemids = "";

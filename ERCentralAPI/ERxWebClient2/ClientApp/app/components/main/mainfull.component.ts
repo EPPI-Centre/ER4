@@ -125,15 +125,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowHideQuickQuestionReport();
         }
     }];
-    //public ImportOrNewDDData: Array<any> = [{
-    //    text: 'New Reference',
-    //    click: () => {
-    //        this.NewReference();
-    //    }
-    //}];
-    
-    
-
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -155,7 +146,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
     }
-	//public selectedAttributeSetF: any | 'none';
     public get selectedNode(): singleNode | null {
         return this.reviewSetsService.selectedNode;
     }
@@ -191,14 +181,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else return false;
     }
 	public DeleteRelevantItems() {
-		this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+		this.ConfirmationDialogService.confirm("Delete the selected items?",
+			"Are you sure you want to delete these items?", false, '')
+			.then((confirm: any) => {
+				if (confirm) {
+					this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+				}
+			});
 	}
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
-	public AssignDocs: boolean = false;
+	public AssignDocs: string = 'true';
 	public AllocateRelevantItems() {
 
-		//need to show a panel here
 		if (!this.AllIncOrExcShow) {
 
 			this.AllIncOrExcShow = true;
@@ -206,7 +201,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			this.AllIncOrExcShow = false;
 		}
-		
 	}
 	public isCollapsedCodeAllocate: boolean = false;
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
@@ -216,9 +210,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
 			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
-
-			//this.workAllocation.attributeId = setAtt.attribute_id;
-
+			
 		}
 		this.isCollapsedCodeAllocate = false;
 
@@ -228,24 +220,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		var itemids = this.ItemListService.SelectedItems.map(
 			x => x.itemId
 		);
-		//if (this.AllocateChoice == ' Selected documents') {
-
-		//} else {
-
-		//}
 		this.ItemListService.AssignDocumentsToIncOrExc(
 
 			this.AssignDocs, 
 			itemids.toString(),
 			this.DropDownAllocateAtt.attribute_id,
-			this.DropDownAllocateAtt.set_id
+			this.DropDownAllocateAtt.set_id,
+			itemids.length
 
 		).then(
 
-			() => { this.AllIncOrExcShow = false;}
-			
+			() => {
+				
+				if (this.AssignDocs == 'true') {
+					this.ItemListService.GetIncludedItems();
+				} else {
+					this.ItemListService.GetExcludedItems();
+				}
+				this.AllIncOrExcShow = false;
+			}
 		);
-
 	}
 	public CloseSection() {
 

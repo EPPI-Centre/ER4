@@ -72,14 +72,14 @@
 
 									<kendo-toolbar-button [text]="'Export to RIS'"
 														  [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
-
+									<kendo-toolbar-button [text]="'Delete'"  [disabled]="!HasSelectedItems" 
+														  (click)="DeleteRelevantItems()" >
+									</kendo-toolbar-button>
+									<kendo-toolbar-button [text]="'Allocate'" [disabled]="!HasSelectedItems" 
+														  (click)="AllocateRelevantItems()" >
+									</kendo-toolbar-button>
 								</kendo-toolbar>
-								<button class="btn border border-dark" [disabled]="!HasSelectedItems" (click)="DeleteRelevantItems()">
-									<i class=" fa fa-trash" aria-hidden="true"></i>
-								</button>
-								<button class="btn border border-dark" [disabled]="!HasSelectedItems" (click)="AllocateRelevantItems()">
-									<i class=" fa fa-hand-paper-o" aria-hidden="true"></i>
-								</button>
+							
 							</div>
 							<div class="rounded 
 								 alert alert-info col-md-6 d-flex container 

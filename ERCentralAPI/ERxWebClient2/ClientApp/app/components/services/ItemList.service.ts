@@ -12,6 +12,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
 
 @Injectable({
     providedIn: 'root',
@@ -198,31 +199,26 @@ export class ItemListService extends BusyAwareService {
         );
 
     }
-	public AssignDocumentsToIncOrExc(include: boolean, itemids: string,
-		attributeid: number, setid: number) : Promise<Item[]> {
+	public AssignDocumentsToIncOrExc(include: string, itemids: string,
+		attributeid: number, setid: number, count: number) : Promise<Item> {
 
 		let body = JSON.stringify({
 			include: include, itemids: itemids,
 			attributeid: attributeid, setid: setid
 		})
+		let inc: boolean = false;
+		if (include =='true') {
+			inc = true;
+		} else {
+			inc = false;
+		}
 		this._BusyMethods.push("AssignDocumentsToIncOrExc");
-		return this._httpC.post<Item[]>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
+		return this._httpC.post<Item>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
 			.toPromise().then(
 				(result) => {
-
-					
-					if (include == true) {
-						this.GetIncludedItems();
-					} else {
-						this.GetExcludedItems();
-					}
-					for (var i = 0; i < result.length; i++) {
-						result[i].isIncluded = include;
-						result[i].isItemDeleted = false;
-					}
-					this._Criteria.totalItems = this.ItemList.totalItemCount;
-					this.SaveItems(this.ItemList, this._Criteria);
-					this.ListChanged.emit();
+						
+					result.isIncluded = inc;
+					result.isItemDeleted = false;
 					this.RemoveBusy("AssignDocumentsToIncOrExc");
 					return result;
 
@@ -630,16 +626,13 @@ export class ItemListService extends BusyAwareService {
 			.subscribe(
 			list => {
 
-				var ItemIdStr = list.toString().split(",");
+					var ItemIdStr = list.toString().split(",");
 					var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
-					//alert('deleted');
 					for (var i = 0; i < ItemIdStr.length; i++) {
-
 						var id = Number(ItemIdStr[i]);
 						var ind = wholListItemIdStr.indexOf(id);
 						this.ItemList.items.slice(ind, 1);
 					}
-
 					this._Criteria.totalItems = this.ItemList.totalItemCount;
 					this.SaveItems(this.ItemList, this._Criteria);
 					this.ListChanged.emit();
