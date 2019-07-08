@@ -80,7 +80,7 @@ GO
 
 declare @Content nvarchar(max) = '
 <p class="font-weight-bold">Review home</p>
-<p>The Review home page gives you a summary of what is happening in your review and gives you access to many of the program's functions.</p>
+<p>The Review home page gives you a summary of what is happening in your review and gives you access to many of the program''s functions.</p>
 <div class="container">
   <div class="row">
 	<div class="col-sm">
@@ -114,8 +114,8 @@ declare @Content nvarchar(max) = '
       <div class="col-sm">
 		<b>Coding progress Details</b><br>
 		<img class="img"  src="Images/ReviewStats.gif" /><br>
-		You can click on each coding tool to see the breakdown of completed and incomplete coding on a per Reviewer basis.<br>
-		For each reviewer column, you can:<br />
+		You can click on each coding tool to see the breakdown of completed and incomplete coding on a per Reviewer basis.
+		For each reviewer row, you can:<br />
 		<b>List Items</b> - click on the per-person number link to produce the corresponding list.<br>
 		<b>Change Completions:</b> - click on the "completed" and "incomplete" icons to change the "completion" status of the corresponding references.<br>
 	  </div>
@@ -127,7 +127,7 @@ declare @Content nvarchar(max) = '
 		<b>Import Items</b> - is where you import your references into EPPI-Reviewer.<br>
 		<b>Coding Tools</b> - allows you to set up your coding tools.<br>
 		<b>Import Coding Tools</b> - allows you to access coding tools from your other reviews including publicly available coding tools.
-		<br>Further help is available on those pages. 
+		<br><br>Further help is available on those pages. 
 	  </div>
    </div>
 </div>
