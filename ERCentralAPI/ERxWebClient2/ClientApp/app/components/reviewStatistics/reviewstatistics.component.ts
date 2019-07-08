@@ -107,7 +107,18 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		//	|| (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
 		//) this.Reload();
 	}
-
+    public ImportOrNewDDData: Array<any> = [{
+        text: 'New Reference',
+        click: () => {
+            this.NewReference();
+        }
+    }];
+    public CodingToolsDDData: Array<any> = [{
+        text: 'Import Coding Tools',
+        click: () => {
+            this.ImportCodesetClick();
+        }
+    }];
     ShowDetailsForSetId(SetId: number) {
         if (this.DetailsForSetId == SetId) this.DetailsForSetId = 0;
         else this.DetailsForSetId = SetId;
