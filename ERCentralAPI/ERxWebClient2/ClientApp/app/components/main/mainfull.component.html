@@ -57,23 +57,54 @@
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'References'">
                         <ng-template kendoTabContent>
-                            <div class="containsAtoolbar">
-                                <kendo-toolbar class="small" style="background-color: #f5f6fa;">
-                                    <kendo-toolbar-splitbutton [text]="'Import Items'" (buttonClick)="GoToSources()"
-                                                               [data]="ImportOrNewDDData"
-                                                               style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
-                                    <!--<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>-->
-                                    <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'"
-                                                          (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
-                                    <kendo-toolbar-splitbutton [text]="'Coding Report'" (buttonClick)="ShowHideQuickReport()"
-                                                               [disabled]="!HasSelectedItems"
-                                                               [data]="QuickReportsDDData"
-                                                               style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+							<div class="containsAtoolbar">
+								<kendo-toolbar class="small" style="background-color: #f5f6fa;">
+									<kendo-toolbar-splitbutton [text]="'Import Items'" (buttonClick)="GoToSources()"
+															   [data]="ImportOrNewDDData"
+															   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+									<!--<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>-->
+									<kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'"
+														  (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
+									<kendo-toolbar-splitbutton [text]="'Coding Report'" (buttonClick)="ShowHideQuickReport()"
+															   [disabled]="!HasSelectedItems"
+															   [data]="QuickReportsDDData"
+															   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
 
-                                    <kendo-toolbar-button [text]="'Export to RIS'"
-                                                          [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
-                                </kendo-toolbar>
-                            </div>
+									<kendo-toolbar-button [text]="'Export to RIS'"
+														  [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
+
+								</kendo-toolbar>
+								<button class="btn border border-dark" [disabled]="!HasSelectedItems" (click)="DeleteRelevantItems()">
+									<i class=" fa fa-trash" aria-hidden="true"></i>
+								</button>
+								<button class="btn border border-dark" [disabled]="!HasSelectedItems" (click)="AllocateRelevantItems()">
+									<i class=" fa fa-hand-paper-o" aria-hidden="true"></i>
+								</button>
+							</div>
+							<div class="rounded 
+								 alert alert-info col-md-6 d-flex container 
+								 " *ngIf="AllIncOrExcShow"> 
+								 
+								<div>
+									<label >Assign documents</label>
+									<select class="col-md-12 form-control"
+											[disabled]="!HasWriteRights" [(ngModel)]="AllocateChoice">
+										<option> Selected documents</option>
+										<option> Documents with this code</option>
+									</select>
+									<div class="col-md-12 m-1 p-1">
+										<input type="radio" value="Included" name="AllocateChoiceRadio"
+											   [(ngModel)]="AssignDocs">Included
+										<input type="radio" value="Excluded" name="AllocateChoiceRadio"
+											   [(ngModel)]="AssignDocs">Excluded
+									</div>
+									<div class="col-md-12 m-1 p-1">
+										<button class="btn btn-success m-1 p-1" (click)="RunAssignment()">Assign</button>
+										<button class="btn btn-dark  m-1 p-1" 
+												(click)="CloseSection()">Cancel</button>
+									</div>
+								</div>
+							</div>
                             <quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <quickcodingreport *ngIf="ShowQuickQuestionReport" Aim="QuickQuestionReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
                             <RunLingo3G *ngIf="ShowClusterCommand" (PleaseCloseMe)="CloseClusterCommand()" (PleaseOpenTheCodes)="OpenCodesPanel()"></RunLingo3G>

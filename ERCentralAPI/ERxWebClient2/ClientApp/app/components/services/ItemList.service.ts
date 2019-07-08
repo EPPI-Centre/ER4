@@ -586,7 +586,37 @@ export class ItemListService extends BusyAwareService {
         res = res.replace("   ", " ");
         return res;
     }
-    
+
+	DeleteSelectedItems(ItemIds: Item[]) {
+
+		this._BusyMethods.push("DeleteSelectedItems");
+		this._httpC.post<string>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
+			ItemIds)
+			.subscribe(
+			list => {
+
+				var ItemIdStr = list.toString().split(",");
+					var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
+					//alert('deleted');
+					for (var i = 0; i < ItemIdStr.length; i++) {
+
+						var id = Number(ItemIdStr[i]);
+						var ind = wholListItemIdStr.indexOf(id);
+						this.ItemList.items.slice(ind, 1);
+					}
+
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					this.SaveItems(this.ItemList, this._Criteria);
+					this.ListChanged.emit();
+					this.FetchWithCrit(this._Criteria, "StandardItemList");
+
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("DeleteSelectedItems");
+				}
+				, () => { this.RemoveBusy("DeleteSelectedItems"); }
+			);
+	}
 
 
     //public Save() {
@@ -610,7 +640,6 @@ export class ItemListService extends BusyAwareService {
     //}
 
 }
-
 
 export class ItemList {
     pagesize: number = 0;
@@ -662,7 +691,6 @@ export class Item {
     itemStatusTooltip: string = "";
     arms: iArm[] = [];
 }
-
 export class Criteria {
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
@@ -694,7 +722,6 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-
 export interface iArm {
 	[key: number]: any;  // Add index signature
 	itemArmId: number;
@@ -702,7 +729,6 @@ export interface iArm {
     ordering: number;
     title: string;
 }
-
 export class Arm {
     
     itemArmId: number = 0;
@@ -711,13 +737,10 @@ export class Arm {
     title: string = '';
 
 }
-
 export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];
 }
-
-
 export class ItemDocument {
 
     public itemDocumentId: number = 0;

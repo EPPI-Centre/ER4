@@ -138,8 +138,7 @@ namespace ERxWebClient2.Controllers
 			try
 			{
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-				if (SetCSLAUser4Writing() && ri.IsSiteAdmin)
+				if (SetCSLAUser4Writing() && ri.Roles.Contains("AdminUser"))
 				{
 					
 
