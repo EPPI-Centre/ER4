@@ -172,7 +172,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
 	}
 	CompleteCoding(contactName: string, setName: string, setId: number, contactId: number,  completeOrNot: string) {
-
+        if (!this.HasWriteRights) return;
 		if (setId != null && contactId != null && completeOrNot != null) {
 
 			let tmpComplete: string = '';
