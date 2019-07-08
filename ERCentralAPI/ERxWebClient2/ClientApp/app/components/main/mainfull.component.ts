@@ -26,6 +26,7 @@ import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
+import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
 @Component({
     selector: 'mainComp',
@@ -74,6 +75,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
+	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -94,6 +96,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	tabsInitialized: boolean = false;
 
+	public DropdownSelectedCodeAllocate: singleNode | null = null;
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
@@ -205,12 +208,44 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		
 	}
+	public isCollapsedCodeAllocate: boolean = false;
+	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+	public CloseCodeDropDownAllocate() {
+
+		if (this.CodeTreeAllocate) {
+
+			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
+			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
+
+			//this.workAllocation.attributeId = setAtt.attribute_id;
+
+		}
+		this.isCollapsedCodeAllocate = false;
+
+	}
 	public RunAssignment() {
 
-		console.log("==========================\n");
-		console.log(this.AllocateChoice);
-		console.log("==========================\n");
-		console.log(this.AssignDocs);
+		var itemids = this.ItemListService.SelectedItems.map(
+			x => x.itemId
+		);
+		//if (this.AllocateChoice == ' Selected documents') {
+
+		//} else {
+
+		//}
+		this.ItemListService.AssignDocumentsToIncOrExc(
+
+			this.AssignDocs, 
+			itemids.toString(),
+			this.DropDownAllocateAtt.attribute_id,
+			this.DropDownAllocateAtt.set_id
+
+		).then(
+
+			() => { this.AllIncOrExcShow = false;}
+			
+		);
+
 	}
 	public CloseSection() {
 
@@ -218,7 +253,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	dtTrigger: Subject<any> = new Subject();
 	private ListSubType: string = '';
-    ngOnInit() {
+	ngOnInit() {
+
         console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {

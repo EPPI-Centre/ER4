@@ -252,32 +252,66 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-        //[HttpPost("[action]")]
-        //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
-        //{
-        //    try
-        //    {
-        //        SetCSLAUser();
-        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+		[HttpPost("[action]")]
+		public IActionResult AssignDocumentsToIncOrExc([FromBody] MVCAssignItems assignMvc)
+		{
+			try
+			{
+				bool inc = assignMvc.Include == "Included" ? true: false;
+				if (assignMvc.attributeid > 0)
+				{
+					assignMvc.itemids = "";
+				}
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<ItemIncludeExcludeCommand> dp = new DataPortal<ItemIncludeExcludeCommand>();
+					ItemIncludeExcludeCommand command = new ItemIncludeExcludeCommand(
+					inc,
+					assignMvc.itemids,
+					assignMvc.attributeid,
+					assignMvc.setid
+					);
+					command = dp.Execute(command);
+					return Ok(command);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when Assigning items: {0}", assignMvc);
+				return StatusCode(500, e.Message);
+			}
+		}
 
-        //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
-        //        SelectionCriteria crit = new SelectionCriteria();
-        //        crit.WorkAllocationId = AllocationId;
-        //        crit.ListType = ListType;
-        //        crit.PageSize = pageSize;
-        //        crit.PageNumber = pageNumber;
-        //        ItemList result = dp.Fetch(crit);
-        //        //return Json(result);
+		//[HttpPost("[action]")]
+		//public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+		//{
+		//    try
+		//    {
+		//        SetCSLAUser();
+		//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-        //        return Ok(new ItemList4Json(result));
-        //    }
-        //    catch (Exception)
-        //    {
+		//        DataPortal<ItemList> dp = new DataPortal<ItemList>();
+		//        SelectionCriteria crit = new SelectionCriteria();
+		//        crit.WorkAllocationId = AllocationId;
+		//        crit.ListType = ListType;
+		//        crit.PageSize = pageSize;
+		//        crit.PageNumber = pageNumber;
+		//        ItemList result = dp.Fetch(crit);
+		//        //return Json(result);
 
-        //        throw;
-        //    }
-        //}
-    }
+		//        return Ok(new ItemList4Json(result));
+		//    }
+		//    catch (Exception)
+		//    {
+
+		//        throw;
+		//    }
+		//}
+	}
     public class SelCritMVC
     {
         public bool onlyIncluded { get; set; }
@@ -379,4 +413,14 @@ namespace ERxWebClient2.Controllers
         public ReadOnlySource source;
         public ItemDuplicatesReadOnlyList duplicates;
     }
+
+	public class MVCAssignItems
+	{
+		public string Include {get; set;}
+		public string itemids { get; set; }
+		public int attributeid { get; set; }
+		public int setid { get; set; }
+
+	}
+
 }

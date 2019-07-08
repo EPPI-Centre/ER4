@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Injectable({
     providedIn: 'root',
@@ -197,7 +198,41 @@ export class ItemListService extends BusyAwareService {
         );
 
     }
+	public AssignDocumentsToIncOrExc(include: boolean, itemids: string,
+		attributeid: number, setid: number) : Promise<Item[]> {
 
+		let body = JSON.stringify({
+			include: include, itemids: itemids,
+			attributeid: attributeid, setid: setid
+		})
+		this._BusyMethods.push("AssignDocumentsToIncOrExc");
+		return this._httpC.post<Item[]>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
+			.toPromise().then(
+				(result) => {
+
+					
+					if (include == true) {
+						this.GetIncludedItems();
+					} else {
+						this.GetExcludedItems();
+					}
+					for (var i = 0; i < result.length; i++) {
+						result[i].isIncluded = include;
+						result[i].isItemDeleted = false;
+					}
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					this.SaveItems(this.ItemList, this._Criteria);
+					this.ListChanged.emit();
+					this.RemoveBusy("AssignDocumentsToIncOrExc");
+					return result;
+
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("AssignDocumentsToIncOrExc");
+					return error;
+				}
+			);
+	}
 
     public GetIncludedItems() {
         let cr: Criteria = new Criteria();
