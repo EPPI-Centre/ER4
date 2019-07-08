@@ -26,34 +26,38 @@
 				<div class="col-3">Duplicates: {{ codesetStatsServ.ReviewStats.duplicateItems}}</div>
 			</div>
 	</div>
-<div class="card bg-light mt-2 mb-1 col-md-12">
-    <div class="font-weight-bold containsAtoolbar 
-		 text-xl-left m-2 p-2 rounded alert alert-info row col-12 fixed">
-		<div class="m-1">
-			Coding Progress
-			<button kendoButton class="ml-1" (click)="EditCodeSets()">
-				Coding Tools
-			</button>
-			<button kendoButton class="ml-1"
-					*ngIf="ReviewerIdentityServ.HasWriteRights"
-					(click)="ImportCodesetClick()">
-				Import Coding Tools
-			</button>
-		</div>
-		<button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success m-1 p-0 px-2" (click)="RefreshStats()">
-			<i class="fa fa-refresh" aria-hidden="true"></i>
-		</button>
-		<div class="ml-2 mt-1 pl-1 col-md-2">
-			<i *ngIf="IsServiceBusy" class="fa fa-spinner fa-spin text-success " style=""></i>
-		</div>
-		<button *ngIf="HasAdminRights"  class="btn m-1 bg-success rounded border"  (click)="changePanel('false')">
-			<i aria-hidden="true" class="fa fa-check-circle bg-success"></i>
-		</button>
-		<div class="col-md-2"></div>
-		<button *ngIf="HasAdminRights"  class="btn m-1 bg-danger rounded border" (click)="changePanel('true')">
-			<i aria-hidden="true" class="fa fa-minus-circle "></i>
-		</button>
-	</div>
+<div class="card bg-light mt-2 mb-1 col-12">
+    <div class="font-weight-bold containsAtoolbar text-left my-2 mx-0 py-2 px-0 rounded alert alert-info row col-12">
+        <div class="col-10 m-0 p-0">
+            <div class="m-1">
+                Coding Progress
+                <kendo-splitbutton class="ml-1" (buttonClick)="EditCodeSets()"
+                                   [data]="CodingToolsDDData"
+                                   style="border-color: #04070b;background-color: #e1e4eb;">
+                    Coding Tools
+                </kendo-splitbutton>
+                <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 my-0 py-1 px-2 ng-star-inserted" (click)="RefreshStats()">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                </button>
+                <div *ngIf="IsServiceBusy" class="ml-2 mt-1 pl-1 " style="display:inline-block;position:absolute; top:0.30em;">
+                    <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="HasAdminRights" class="col float-right ml-0 mr-1 my-0 p-0">
+            <div class="p-0 "
+                 style="border:1px solid white; border-radius: 3px; float:right; cursor:pointer; position:relative; top:15%; margin-left:2px;"
+                 title="Advanced: bulk-complete" (click)="changePanel('true')">
+                <img class="mb-1" src="../assets/CodingComplete.png" width="14" />
+            </div>
+            <div class="p-0"
+                 style="border:1px solid white; border-radius: 3px; float:right; cursor:pointer; position:relative; top:15%;"
+                 title="Advanced: bulk-uncomplete" (click)="changePanel('false')">
+                <img class="mb-1" src="../assets/CodingNotComplete.png" width="14" />
+            </div>
+        </div>
+    </div>
+    
 	<!--<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
 		<div class="m-1">Coding Progress</div>
 		<div>
