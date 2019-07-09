@@ -153,7 +153,7 @@ namespace ERxWebClient2.Controllers
 					command.RevInfo = _model.revInfo.ToCSLAReviewInfo(); 
 					command = dp.Execute(command);
 
-					return Ok();
+					return Ok(command);
 				}
 				else return Forbid();
 

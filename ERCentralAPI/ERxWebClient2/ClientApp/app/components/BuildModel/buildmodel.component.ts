@@ -7,6 +7,7 @@ import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Component({
@@ -22,7 +23,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		public _reviewSetsService: ReviewSetsService,
 		private _buildModelService: BuildModelService,
 		public _eventEmitterService: EventEmitterService,
-		private _confirmationDialogService: ConfirmationDialogService
+		private _confirmationDialogService: ConfirmationDialogService,
+		private _ReviewerIdentityServ: ReviewerIdentityService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -47,6 +49,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		return true;
 
 	}
+	public get HasWriteRights(): boolean {
+		return this._ReviewerIdentityServ.HasWriteRights;
+	}
 	CanBuildModel() {
 
 		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != ''
@@ -54,6 +59,15 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			return true;
 		}
 		return false;
+	}
+	private canDelete: boolean = false;
+	public CanDeleteModel(): boolean {
+
+		if (this.canDelete && this._ReviewerIdentityServ.HasWriteRights ==  true) {
+			return true;
+		} else {
+			return false;
+		}
 	}
     removeHandler(event: any) {
 
@@ -64,14 +78,23 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		dir: 'desc'
 	}];
 	public openConfirmationDialogDeleteModels() {
-		this._confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected model(s)?', false, '')
+
+		let counter: number = 0;
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+			if (this.DataSource.data[i].add == true) {
+				counter += 1;
+			}
+		}
+		this._confirmationDialogService.confirm('Please confirm', 'Are you sure you want to ' +
+		 'delete the ' + counter + ' selected model(s) ? ', false, '')
 			.then(
 				(confirmed: any) => {
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteModelSelected();
-					} else {
-					}
+						this.Clear();
+						this.IamVerySorryRefresh();
+					} 
 				}
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
@@ -83,15 +106,23 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		console.log(this.DataSource);
 
 		for (var i = 0; i < this.DataSource.data.length; i++) {
-
 			if (this.DataSource.data[i].add == true) {
+				this.canDelete = true;
 				lstStrModelIds += this.DataSource.data[i].modelId;
 				modelID = this.DataSource.data[i].modelId;
+				this._buildModelService.Delete(modelID).then(
+					(res) => {
+						alert(res._returnMessage);
+						if (res._returnMessage != 'Success') {
+							alert('error');
+						} else {
+							alert('success');
+						}
+					}
+				);
 			}
 		}
-		
-		console.log(lstStrModelIds);
-		this._buildModelService.Delete(modelID);
+		//console.log(lstStrModelIds);
 	}
 	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {
@@ -104,9 +135,20 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		}
 		if (dataItem.add == true) {
 			this.checkBoxSelected = true;
+			this.canDelete = true;
+		} else {
+			this.canDelete = false;
 		}
 		//
 	};
+	public allModelsSelected: boolean = false;
+	public selectAllModelsChange() {
+
+		this.allModelsSelected == true;
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+			this.DataSource.data[i].add = true;
+		}
+	}
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;
 		console.log('sorting?' + this.sort[0].field + " ");
@@ -184,7 +226,15 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     ngAfterViewInit() {
 
 	}
+	Clear() {
+		
+		this.selectedModelDropDown1 = '';
+		this.selectedModelDropDown2 = '';
+		this.modelNameText = '';
+		this.DD1= '0';
+		this.DD2 = '0';
 
+	}
 
 	 
 }
