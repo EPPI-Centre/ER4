@@ -229,7 +229,6 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-
 				string[] strItemIds = ItemIds.Select(x => x.ItemId.ToString()).ToArray();
 				if (SetCSLAUser4Writing())
 				{
@@ -257,22 +256,23 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				bool inc = assignMvc.Include == "true" ? true: false;
-				if (assignMvc.attributeid > 0)
-				{
-					assignMvc.itemids = "";
-				}
 				if (SetCSLAUser4Writing())
 				{
-					DataPortal<ItemIncludeExcludeCommand> dp = new DataPortal<ItemIncludeExcludeCommand>();
-					ItemIncludeExcludeCommand command = new ItemIncludeExcludeCommand(
-					inc,
-					assignMvc.itemids,
-					assignMvc.attributeid,
-					assignMvc.setid
-					);
-					command = dp.Execute(command);
-					return Ok(command);
+					bool inc = assignMvc.Include == "true" ? true: false;
+					if (assignMvc.attributeid > 0)
+					{
+						assignMvc.itemids = "";
+					}
+				
+						DataPortal<ItemIncludeExcludeCommand> dp = new DataPortal<ItemIncludeExcludeCommand>();
+						ItemIncludeExcludeCommand command = new ItemIncludeExcludeCommand(
+						inc,
+						assignMvc.itemids,
+						assignMvc.attributeid,
+						assignMvc.setid
+						);
+						command = dp.Execute(command);
+						return Ok(command);
 				}
 				else
 				{
