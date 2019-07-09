@@ -243,12 +243,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			() => {
 				
-				if (this.AssignDocs == 'true') {
-					this.ItemListService.GetIncludedItems();
-				} else {
-					this.ItemListService.GetExcludedItems();
-				}
+				this.ItemListService.Refresh();
 				this.AllIncOrExcShow = false;
+				this.DropdownSelectedCodeAllocate = null;
+				this.AssignDocs = '';
+				this.AllocateChoice = '';
 			}
 		);
 	}
