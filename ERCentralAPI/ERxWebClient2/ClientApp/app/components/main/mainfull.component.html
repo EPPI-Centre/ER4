@@ -127,7 +127,7 @@
 									</div>
 									<div class="col-12">
 										<button type="submit" (click)="RunAssignment()" class="btn btn-success ml-2 mr-2"
-												[disabled]="!HasWriteRights" style="width:200px;">
+												[disabled]="!HasWriteRights || !CanAssignDocs()" style="width:200px;">
 											Assign
 										</button>
 										<button class="btn btn-outline-secondary ml-1"

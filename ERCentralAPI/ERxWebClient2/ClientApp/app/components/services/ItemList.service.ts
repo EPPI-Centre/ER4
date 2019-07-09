@@ -15,7 +15,9 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
 
 @Injectable({
-    providedIn: 'root',
+
+	providedIn: 'root',
+
     }
 )
 

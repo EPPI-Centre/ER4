@@ -179,10 +179,21 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
             && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
         else return false;
-    }
+	}
+	public CanAssignDocs(): boolean {
+		if (this.AssignDocs != null && this.DropdownSelectedCodeAllocate != null
+				&& this.AllocateChoice == 'Documents with this code') {
+			return true;
+		}
+		if (this.AssignDocs != null && this.ItemListService.SelectedItems.length > 0
+				&& this.AllocateChoice == 'Selected documents') {
+			return true;
+		}
+		return false;
+	}
 	public DeleteRelevantItems() {
 		this.ConfirmationDialogService.confirm("Delete the selected items?",
-			"Are you sure you want to delete these items?", false, '')
+			"Are you sure you want to delete these " + this.ItemListService.SelectedItems.length  + " item/s?", false, '')
 			.then((confirm: any) => {
 				if (confirm) {
 					this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
@@ -232,12 +243,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			() => {
 				
-				if (this.AssignDocs == 'true') {
-					this.ItemListService.GetIncludedItems();
-				} else {
-					this.ItemListService.GetExcludedItems();
-				}
+				this.ItemListService.Refresh();
 				this.AllIncOrExcShow = false;
+				this.DropdownSelectedCodeAllocate = null;
+				this.AssignDocs = '';
+				this.AllocateChoice = '';
 			}
 		);
 	}
