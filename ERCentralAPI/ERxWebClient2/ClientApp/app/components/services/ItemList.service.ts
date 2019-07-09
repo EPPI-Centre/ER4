@@ -638,7 +638,8 @@ export class ItemListService extends BusyAwareService {
 					this._Criteria.totalItems = this.ItemList.totalItemCount;
 					this.SaveItems(this.ItemList, this._Criteria);
 					this.ListChanged.emit();
-					this.FetchWithCrit(this._Criteria, "StandardItemList");
+					this.Refresh();
+					//this.FetchWithCrit(this._Criteria, "StandardItemList");
 				
 
 				}, error => {

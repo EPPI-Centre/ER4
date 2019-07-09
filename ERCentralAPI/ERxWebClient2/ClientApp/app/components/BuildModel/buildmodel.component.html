@@ -50,7 +50,7 @@
 				</div>
 			<div class="row col-md-12">
 				<div class="col-md-3">
-					<button class="btn btn-outline-danger" 
+					<button class="btn btn-outline-danger" [disabled]="!CanDeleteModel()"
 							(click)="openConfirmationDialogDeleteModels()" 
 							>
 						Delete Model
@@ -81,8 +81,8 @@
 						<input style="zoom: 1.2;"
 							   type="checkbox"
 							   name="selectAll"
-							   (change)="selectAllSearchesChange($event)"
-							   [checked]="allSearchesSelected" />
+							   (change)="selectAllModelsChange()"
+							   [checked]="allModelsSelected" />
 					</ng-template>
 					<ng-template kendoGridCellTemplate let-dataItem>
 						<input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"

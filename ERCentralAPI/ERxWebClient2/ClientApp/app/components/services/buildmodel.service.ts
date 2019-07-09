@@ -59,7 +59,7 @@ export class BuildModelService extends BusyAwareService {
 
 	}
 
-	Delete(modelId: number) {
+	public Delete(modelId: number): Promise<MVCClassifierCommand>{
 
 		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
@@ -72,19 +72,24 @@ export class BuildModelService extends BusyAwareService {
 
 		this._BusyMethods.push("DeleteModel");
 
-		this._httpC.post<string>(this._baseUrl + 'api/Classifier/DeleteModel',
+		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
 			MVCcmd)
-			.subscribe(result => {
+			.toPromise().then(
 
-				this.RemoveBusy("DeleteModel");
-				let tmpIndex: any = this.ClassifierModelList.findIndex(x => x.modelId == this.modelToBeDeleted);
-				this.ClassifierModelList.splice(tmpIndex, 1);
-				this.Fetch();
+				result => {
 
-			}, error => {
-				this.RemoveBusy("DeleteModel");
-				this.modalService.GenericError(error);
-			}
+					alert(result);
+					this.RemoveBusy("DeleteModel");
+					let tmpIndex: any = this.ClassifierModelList.findIndex(x => x.modelId == this.modelToBeDeleted);
+					this.ClassifierModelList.splice(tmpIndex, 1);
+					this.Fetch();
+					return result;
+
+				}, error => {
+					this.RemoveBusy("DeleteModel");
+					this.modalService.GenericError(error);
+					return error;
+				}
 			);
 	}
 
@@ -133,5 +138,6 @@ export class MVCClassifierCommand {
 		public _modelId: number = 0;
 		public _attributeId: number = 0;
 		public _classifierId: number = 0;
+		public _returnMessage: string = '';
 		public revInfo: ReviewInfo = new ReviewInfo();
 }
