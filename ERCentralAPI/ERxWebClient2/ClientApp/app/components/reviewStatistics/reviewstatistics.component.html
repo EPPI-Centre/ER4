@@ -58,21 +58,16 @@
         </div>
     </div>
     
-	<!--<div class="font-weight-bold text-xl-left mt-1 mr-1 mb-1 ml-0 rounded p-1 alert alert-info row col-12">
-		<div class="m-1">Coding Progress</div>
-		<div>
-			<i class="fa fa-spinner fa-spin text-success " style=""></i>
-		</div>
-	</div>-->
 	<div id="BulkCompleteSection" *ngIf="PanelName == 'BulkCompleteSection'" class="col-12 p-0 mb-0">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="col-12 col-md-12">
-				This window allows you to <b>{{complete}}</b> the coding of specified items in bulk. Please be aware that this operation can significantly disrupt the intended workflow so please use with care.
+		<div class="card container-fluid mt-1 bg-light border border-danger rounded m-1 p-1">
+			<div class="col-12">
+                <h3>Advanced Bulk {{complete}}</h3>
+				This dialog allows you to <b>{{complete}}</b> the coding of specified items in bulk. Please be aware that this operation can significantly disrupt the intended workflow so please use with care.
 				If in doubt, please contact us at EPPISupport@ucl.ac.uk.
 				<div>
-					<div class="form-group">
-						<label for="codeSET">{{complete}} the coding in this code set: </label>
-						<select class="col-md-6 form-control" (change)="CanPreview($event)"
+					<div class="form-group row mt-2 border-bottom">
+						<label class="col-12 col-sm-5" for="codeSET">{{complete}} the coding in this code set: </label>
+						<select class="col-12 col-sm-7 form-control mb-1" (change)="CanPreview($event)"
 								name="codeSET" [(ngModel)]="selectedCodeSet" >
 							<option *ngFor="let item of CodeSets" name="codeSET"
 									[ngValue]="item" [selected]="item == selectedCodeSet">
@@ -80,11 +75,10 @@
 							</option>
 						</select>
 					</div>
-					<div *ngIf="complete == 'Complete'" class="form-group">
-						<label for="rev1">Reviewer: </label>
-						<select class="col-md-6 form-control" name="rev1" (change)="CanPreview($event)"
+					<div *ngIf="complete == 'Complete'" class="form-group row border-bottom">
+						<label class="col-12 col-sm-5" for="rev1">Reviewer: </label>
+						<select class="col-12 col-sm-7 form-control mb-1" name="rev1" (change)="CanPreview($event)"
 								[(ngModel)]="selectedReviewer1">
-							<option> </option>
 							<option *ngFor="let member of Contacts"
 									[ngValue]="member" [selected]="member == selectedReviewer1">
 								{{member.contactName}}
@@ -111,12 +105,11 @@
 						</div>
 					</div>
 				</div>
-				<div class="bg-warning border border-dark m-1" *ngIf="showPreviewMessage" innerHTML="{{PreviewMsg}}">
+				<div class="bg-warning border border-dark m-1 p-1 rounded col-12" *ngIf="showPreviewMessage" innerHTML="{{PreviewMsg}}">
 				</div>
 				<div>
 					<button [disabled]="!CanPreview()"
-							class="pt-1 m-1 border border-dark rounded k-widget
-								k-numerictextbox btn btn-success"
+							class="pt-1 m-1 btn btn-outline-success"
 							style="min-width:150px;"
 							(click)="Preview(
 							'true' )">
@@ -124,23 +117,18 @@
 					</button>
 				</div>
 
-				<div class="bg-success border border-dark m-1" *ngIf="showMessage" innerHTML="{{msg}}">
+				<div class="alert-success border border-dark m-1 p-1 rounded" *ngIf="showMessage" innerHTML="{{msg}}">
 				</div>
-				<div class="col-md-8 row">
-					<div class="col-md-4"></div>
-					<div class="form-group col-md-12 row">
-						<button [disabled]="!CanCompleteOrNot()"
-								class="pt-1 m-1 border border-dark rounded k-widget
-								k-numerictextbox btn btn-success"
-								style="min-width:150px;" (click)="CompleteOrUncomplete()">
-							{{complete}}
-						</button>
-						<button class="pt-1 m-1 border border-dark rounded
-								k-widget k-numerictextbox btn btn-outline-dark"
-								style="min-width:150px;" (click)="changePanel('')">
-							Cancel
-						</button>
-					</div>
+				<div class="col-12 row">
+					<button [disabled]="!CanCompleteOrNot()"
+							class="pt-1 m-1 rounded btn btn-outline-danger"
+							style="min-width:110px;" (click)="CompleteOrUncomplete()">
+						{{complete}}
+					</button>
+					<button class="pt-1 m-1 btn btn-outline-info"
+							style="min-width:150px;" (click)="changePanel('')">
+						Cancel
+					</button>
 				</div>
 			</div>
 		</div>
