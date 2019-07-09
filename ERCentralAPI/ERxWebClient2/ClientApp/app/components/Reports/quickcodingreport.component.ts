@@ -5,6 +5,7 @@ import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
 import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { CodesetTree4QuickQuestionReportComponent } from '../CodesetTrees/codesetTree4QuickQuestionReport.component';
 import { Helpers } from '../helpers/HelperMethods';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'quickcodingreport',
@@ -18,7 +19,8 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         private ItemCodingService: ItemCodingService,
         private ItemListService: ItemListService,
         @Inject('BASE_URL') private _baseUrl: string,
-        private ReviewSetsService: ReviewSetsService
+		private ReviewSetsService: ReviewSetsService,
+		private _notificationService: NotificationService
     ) { }
 
 	ngOnInit() {
@@ -52,7 +54,19 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         else if (this.Aim == 'QuickQuestionReport' && this.QuestionSelector) {
            this.ItemCodingService.FetchQuickQuestionReport(this.ItemListService.SelectedItems, this.QuestionSelector.SelectedNodes, this.QuickQuestionReportOptions);
         }
-    }
+	}
+
+	public CancelQuickReport() {
+
+		this.ItemCodingService.stopQuickReport = true;
+		this._notificationService.show({
+			content: "Quick Report Cancelled!",
+			position: { horizontal: 'left', vertical: 'bottom' },
+			animation: { type: 'fade', duration: 500 },
+			type: { style: 'none', icon: false },
+			hideAfter: 3000
+		});
+	}
     public OpenInNewWindow() {
         if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
         else if (this.ReportHTML.length < 1 && this.CanStartReport) {

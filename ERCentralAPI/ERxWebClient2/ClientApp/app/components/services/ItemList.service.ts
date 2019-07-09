@@ -639,6 +639,7 @@ export class ItemListService extends BusyAwareService {
 					this.SaveItems(this.ItemList, this._Criteria);
 					this.ListChanged.emit();
 					this.FetchWithCrit(this._Criteria, "StandardItemList");
+				
 
 				}, error => {
 					this.ModalService.GenericError(error);

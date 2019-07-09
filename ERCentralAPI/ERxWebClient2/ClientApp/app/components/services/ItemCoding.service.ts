@@ -38,7 +38,7 @@ export class ItemCodingService extends BusyAwareService {
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
     private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
-
+	public stopQuickReport: boolean = false;
     public get ItemCodingList(): ItemSet[] {
         //if (this._ItemCodingList.length == 0) {
         //    const ItemSetsJson = localStorage.getItem('ItemCodingList');
@@ -801,7 +801,20 @@ export class ItemCodingService extends BusyAwareService {
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-                () => {
+				() => {
+
+					if (this.stopQuickReport == true) {
+						//this.DataChanged.unsubscribe();
+						//if (this.SelfSubscription4QuickCodingReport) {
+						//	this.SelfSubscription4QuickCodingReport.unsubscribe()
+						//	this.SelfSubscription4QuickCodingReport = null;
+						//}
+						this._CurrentItemIndex4QuickCodingReport = 0;
+						this._CodingReport = "";
+						this._CodingReport += "</table>";
+						this.stopQuickReport = false;
+						return;
+					}
                     this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
                     this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);

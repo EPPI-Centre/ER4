@@ -47,6 +47,15 @@
                             </button>
                         </td>
                     </tr>
+					<tr>
+						<td></td>
+						<td>
+							<button (click)="CancelQuickReport()" [disabled]="!CanStartReport"
+									type="button" class="btn btn-danger float-right col-12">
+								Cancel Report
+							</button>
+						</td>
+					</tr>
                     <tr>
                         <td></td>
                         <td>
@@ -83,9 +92,11 @@
     </div>-->
         </div>
     </div>
-    <div *ngIf="GettingReport" class="col-12 bg-white">
+    <div *ngIf="GettingReport && ItemCodingService.stopQuickReport == false" class="col-12 bg-white">
         {{ReportProgress}}
     </div>
-    <div *ngIf="!GettingReport && ReportHTML.length > 0" class="col-12 mt-2 pt-2 border-top border-success" style="max-height:440px;overflow:auto" [innerHTML]="ReportHTML">
+    <div *ngIf="!GettingReport && ReportHTML.length > 0 && ItemCodingService.stopQuickReport == false" 
+		 class="col-12 mt-2 pt-2 border-top border-success" 
+		 style="max-height:440px;overflow:auto" [innerHTML]="ReportHTML">
     </div>
 </div>
