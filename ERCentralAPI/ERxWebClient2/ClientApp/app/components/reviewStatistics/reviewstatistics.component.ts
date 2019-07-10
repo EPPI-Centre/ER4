@@ -225,12 +225,17 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 			this.DropdownSelectedCodeStudies = this.CodeStudiesTreeOne.SelectedNodeData;
 		}
-		this.isCollapsedCodeStudies = false;
-		this.msg = '';
-		this.CanPreview();
-	}
+        this.isCollapsedCodeStudies = false;
+        this.DropdownChange();
+    }
+    public DropdownChange() {
+        this.canBulkComplete = false;
+        this.showMessage = false;
+        this.msg = '';
+        this.CanPreview();
+    }
 	public CanPreview() {
-
+        this.showPreviewMessage = true;
 		if (this.complete == 'Complete') {
 			this.isBulkCompleting = true;
 		} else {
@@ -258,7 +263,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		let setId: number = this.selectedCodeSet.set_id;
 		let node: SetAttribute = this.DropdownSelectedCodeStudies as SetAttribute;
 		
-		if (node.attributeSetId == setId) {
+		if (node.set_id == setId) {
 			this.PreviewMsg = "This can't be done: the selected code belongs to the Codeset you wish to act on. </br> Please select a different Code/Codeset combination.";
 			//console.log(msg);
 			return false;
@@ -386,7 +391,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 						if (result.affectedItems > 0) {
 							this.msg +=  "<br\>" + "If this looks ok, you may now press the "
-								+ (result.isCompleting ? "\"Complete!\"" : "\"Un-Complete!\"") + " button.";
+								+ (result.isCompleting ? "\"Complete!\"" : "\"Uncomplete!\"") + " button.";
 							this.msg +=  "<br\>" + "<b>Warning: this action does not have a direct \"Undo\" function so please use with care!</b>";
 
 							this.canBulkComplete = true;
