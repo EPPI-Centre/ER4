@@ -70,27 +70,29 @@ export class BuildModelService extends BusyAwareService {
 		MVCcmd._modelId = modelId;
 		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
-		this._BusyMethods.push("DeleteModel");
+		//this._BusyMethods.push("DeleteModel");
 
 		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
 			MVCcmd)
-			.toPromise().then(
+			.toPromise();
 
-				result => {
+			//.then(
 
-					alert(result);
-					this.RemoveBusy("DeleteModel");
-					let tmpIndex: any = this.ClassifierModelList.findIndex(x => x.modelId == this.modelToBeDeleted);
-					this.ClassifierModelList.splice(tmpIndex, 1);
-					this.Fetch();
-					return result;
+			//	result => {
 
-				}, error => {
-					this.RemoveBusy("DeleteModel");
-					this.modalService.GenericError(error);
-					return error;
-				}
-			);
+			//		//alert(result);
+			//		this.RemoveBusy("DeleteModel");
+			//		let tmpIndex: any = this.ClassifierModelList.findIndex(x => x.modelId == this.modelToBeDeleted);
+			//		this.ClassifierModelList.splice(tmpIndex, 1);
+			//		this.Fetch();
+			//		return result;
+
+			//	}, error => {
+			//		this.RemoveBusy("DeleteModel");
+			//		this.modalService.GenericError(error);
+			//		return error;
+			//	}
+			//);
 	}
 
 
@@ -138,6 +140,6 @@ export class MVCClassifierCommand {
 		public _modelId: number = 0;
 		public _attributeId: number = 0;
 		public _classifierId: number = 0;
-		public _returnMessage: string = '';
+		public returnMessage: string = '';
 		public revInfo: ReviewInfo = new ReviewInfo();
 }

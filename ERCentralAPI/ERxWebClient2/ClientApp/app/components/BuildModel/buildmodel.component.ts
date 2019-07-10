@@ -8,6 +8,8 @@ import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { InfoBoxModalContent } from '../CodesetTrees/codesetTreeCoding.component';
 
 
 @Component({
@@ -24,7 +26,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _buildModelService: BuildModelService,
 		public _eventEmitterService: EventEmitterService,
 		private _confirmationDialogService: ConfirmationDialogService,
-		private _ReviewerIdentityServ: ReviewerIdentityService
+		private _ReviewerIdentityServ: ReviewerIdentityService,
+		private _notificationService: NotificationService
 	) { }
 
 	public selectedModelDropDown1: string = '';
@@ -77,7 +80,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		field: 'modelId',
 		dir: 'desc'
 	}];
-	public openConfirmationDialogDeleteModels() {
+	public async openConfirmationDialogDeleteModels() {
 
 		let counter: number = 0;
 		for (var i = 0; i < this.DataSource.data.length; i++) {
@@ -91,48 +94,71 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 				(confirmed: any) => {
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
-						this.DeleteModelSelected();
-						this.Clear();
-						this.IamVerySorryRefresh();
+						this.DeleteModelSelected().then(
+							() => {
+
+								this._notificationService.show({
+									content: this.modelsToBeDeleted.length  + " models have been deleted",
+									animation: { type: 'slide', duration: 400 },
+									position: { horizontal: 'center', vertical: 'top' },
+									type: { style: "info", icon: true },
+									closable: true
+								});
+								this._buildModelService.Fetch();
+								this.Clear();
+							}
+						);
 					} 
 				}
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
-	DeleteModelSelected() {
+	public modelsToBeDeleted: number[] = [];
+	async DeleteModelSelected() {
 
 		let lstStrModelIds = '';
 		let modelID: number = 0;
 		console.log(this.DataSource);
-
+		//alert('number in the list is: ' + this.DataSource.data.length)
+		
 		for (var i = 0; i < this.DataSource.data.length; i++) {
-			if (this.DataSource.data[i].add == true) {
-				this.canDelete = true;
-				lstStrModelIds += this.DataSource.data[i].modelId;
-				modelID = this.DataSource.data[i].modelId;
-				this._buildModelService.Delete(modelID).then(
-					(res) => {
-						alert(res._returnMessage);
-						if (res._returnMessage != 'Success') {
-							alert('error');
-						} else {
-							alert('success');
-						}
-					}
-				);
+
+			if (this.DataSource.data[i].add != undefined && this.DataSource.data[i].add == true) {
+
+				this.modelsToBeDeleted.push(this.DataSource.data[i].modelId);
 			}
 		}
-		//console.log(lstStrModelIds);
+		for (var j = 0; j < this.modelsToBeDeleted.length; j++) {
+
+				this.canDelete = true;
+				//lstStrModelIds += this.DataSource.data[j].modelId;
+				modelID = this.modelsToBeDeleted[j];
+				//console.log('trying to delete this model: ' + modelID);
+				var res = await this._buildModelService.Delete(modelID);
+				
+				if (res.returnMessage != 'Success') {
+					//alert('waited for result...!');
+					//alert('msg is not Success: ' + JSON.stringify(res));
+				} else {
+					let tmpIndex: any = this._buildModelService.ClassifierModelList.findIndex(x => x.modelId == modelID);
+					this._buildModelService.ClassifierModelList.splice(tmpIndex, 1);
+					//alert('success');
+				}
+				//console.log('Exiting this loop...');
+		}
 	}
 	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {
 
-		dataItem.add = !dataItem.add;
-		console.log(dataItem);
-		if (dataItem.add == true) {
-			this._buildModelService.modelToBeDeleted = dataItem.modelId;
-
+		if (dataItem.add == undefined || dataItem.add == null) {
+			dataItem.add = true;
+		} else {
+			dataItem.add = !dataItem.add;
 		}
+		//console.log('trying to delete=' + dataItem.add + ' this data item(model): ' + dataItem.modelId);
+		//if (dataItem.add == true) {
+		//	this._buildModelService.modelToBeDeleted = dataItem.modelId;
+		//}
 		if (dataItem.add == true) {
 			this.checkBoxSelected = true;
 			this.canDelete = true;
