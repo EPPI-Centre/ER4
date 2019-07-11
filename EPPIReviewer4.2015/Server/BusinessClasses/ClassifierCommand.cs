@@ -716,10 +716,10 @@ namespace BusinessLibrary.BusinessClasses
 				blockBlobModel.Delete();
 				blockBlobStats.Delete();
 #else
-				await blockBlobModel.DeleteAsync();
-				await blockBlobStats.DeleteAsync();
+				if (await blockBlobModel.ExistsAsync()) await blockBlobModel.DeleteAsync();
+				if (await blockBlobStats.ExistsAsync()) await blockBlobStats.DeleteAsync();
 
-#endif
+#endif// goes in cricles.
 
 			}
 			catch
