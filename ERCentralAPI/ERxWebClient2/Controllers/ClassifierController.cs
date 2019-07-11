@@ -137,24 +137,26 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				if (SetCSLAUser4Writing() && ri.Roles.Contains("AdminUser"))
+				if (SetCSLAUser4Writing()) 
 				{
-					
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri.Roles.Contains("AdminUser"))
+                    {
+                        DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+                        ClassifierCommand command = new ClassifierCommand(
+                            "DeleteThisModel~~",
+                            -1,
+                            -1,
+                            -1,
+                            Convert.ToInt32(_model._modelId),
+                            -1);
+                        command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
+                        command = dp.Execute(command);
 
-					DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-					ClassifierCommand command = new ClassifierCommand(
-						"DeleteThisModel~~",
-						-1,
-						-1,
-						-1,
-						Convert.ToInt32(_model._modelId),
-						-1);
-					command.RevInfo = _model.revInfo.ToCSLAReviewInfo(); 
-					command = dp.Execute(command);
-
-					return Ok(command);
-				}
+                        return Ok(command);
+                    }
+                    else return Forbid();
+                }
 				else return Forbid();
 
 			}

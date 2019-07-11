@@ -716,8 +716,21 @@ namespace BusinessLibrary.BusinessClasses
 				blockBlobModel.Delete();
 				blockBlobStats.Delete();
 #else
-				if (await blockBlobModel.ExistsAsync()) await blockBlobModel.DeleteAsync();
-				if (await blockBlobStats.ExistsAsync()) await blockBlobStats.DeleteAsync();
+
+                Task<bool> task1 = blockBlobModel.ExistsAsync();
+                while (!task1.IsCompleted) Thread.Sleep(50);
+                if (task1.Result)
+                {
+                    Task task2 = blockBlobModel.DeleteAsync();
+                    while (!task2.IsCompleted) Thread.Sleep(50);
+                }
+                task1 = blockBlobStats.ExistsAsync();
+                while (!task1.IsCompleted) Thread.Sleep(50);
+                if (task1.Result)
+                {
+                    Task task2 = blockBlobStats.DeleteAsync();
+                    while (!task2.IsCompleted) Thread.Sleep(50);
+                }
 
 #endif// goes in cricles.
 
