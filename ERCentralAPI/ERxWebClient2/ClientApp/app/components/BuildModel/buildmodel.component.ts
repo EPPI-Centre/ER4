@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
+import { BuildModelService, MVCClassifierCommand } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -66,11 +66,12 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	private canDelete: boolean = false;
 	public CanDeleteModel(): boolean {
 
-		if (this.canDelete && this._ReviewerIdentityServ.HasWriteRights ==  true) {
-			return true;
-		} else {
-			return false;
+		for (var i = 0; i < this.DataSource.data.length; i++) {
+			if (this.DataSource.data[i].add == true) {
+				return true;
+			}
 		}
+		return false;
 	}
     removeHandler(event: any) {
 
@@ -95,8 +96,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteModelSelected().then(
-							() => {
+							(res) => {
 
+								
 								this._notificationService.show({
 									content: this.modelsToBeDeleted.length  + " models have been deleted",
 									animation: { type: 'slide', duration: 400 },
@@ -104,6 +106,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 									type: { style: "info", icon: true },
 									closable: true
 								});
+									this.modelsToBeDeleted = [];
+
 								this._buildModelService.Fetch();
 								this.Clear();
 							}
@@ -114,9 +118,10 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 	public modelsToBeDeleted: number[] = [];
-	async DeleteModelSelected() {
+	async DeleteModelSelected(): Promise<string> {
 
 		let lstStrModelIds = '';
+		let res: MVCClassifierCommand = new MVCClassifierCommand();
 		let modelID: number = 0;
 		console.log(this.DataSource);
 		//alert('number in the list is: ' + this.DataSource.data.length)
@@ -134,18 +139,27 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 				//lstStrModelIds += this.DataSource.data[j].modelId;
 				modelID = this.modelsToBeDeleted[j];
 				//console.log('trying to delete this model: ' + modelID);
-				var res = await this._buildModelService.Delete(modelID);
+				res = await this._buildModelService.Delete(modelID);
 				
-				if (res.returnMessage != 'Success') {
-					//alert('waited for result...!');
-					//alert('msg is not Success: ' + JSON.stringify(res));
+			if (res.returnMessage != 'Success') {
+
+					this._notificationService.show({
+						content: "Error during deleting model: " + res.returnMessage,
+						animation: { type: 'slide', duration: 40 },
+						position: { horizontal: 'center', vertical: 'top' },
+						type: { style: "error", icon: true },
+						closable: true
+				});
+				
 				} else {
+
+
 					let tmpIndex: any = this._buildModelService.ClassifierModelList.findIndex(x => x.modelId == modelID);
 					this._buildModelService.ClassifierModelList.splice(tmpIndex, 1);
-					//alert('success');
+					
 				}
-				//console.log('Exiting this loop...');
 		}
+		return res.returnMessage;
 	}
 	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {
@@ -161,9 +175,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		//}
 		if (dataItem.add == true) {
 			this.checkBoxSelected = true;
-			this.canDelete = true;
+			//this.canDelete = true;
 		} else {
-			this.canDelete = false;
+			//this.canDelete = false;
 		}
 		//
 	};
