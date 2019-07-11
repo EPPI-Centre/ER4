@@ -18,7 +18,7 @@ namespace ERxWebClient2.Controllers
 	{
 		private readonly ILogger _logger;
 		private int _classifierId = -1;
-		private string _returnMessage = "Success";
+		private string _returnMessage = "";
 		
 		public ClassifierController(ILogger<ClassifierController> logger)
 		{
@@ -135,25 +135,29 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult DeleteModel([FromBody] MVCClassifierCommand _model)
 		{
+			ClassifierCommand command;
+			command = new ClassifierCommand(
+					   "DeleteThisModel~~",
+					   -1,
+					   -1,
+					   -1,
+					   Convert.ToInt32(_model._modelId),
+					   -1);
 			try
 			{
+				
+
 				if (SetCSLAUser4Writing()) 
 				{
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     if (ri.Roles.Contains("AdminUser"))
                     {
                         DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-                        ClassifierCommand command = new ClassifierCommand(
-                            "DeleteThisModel~~",
-                            -1,
-                            -1,
-                            -1,
-                            Convert.ToInt32(_model._modelId),
-                            -1);
+                       
                         command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
                         command = dp.Execute(command);
 
-                        return Ok(command);
+						return Ok(command);
                     }
                     else return Forbid();
                 }
@@ -162,7 +166,8 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Deletion of searches has failed");
+
+				_logger.LogException(e, "Deletion of searches has failed;" + command.ReturnMessage);
 				throw;
 			}
 		}
