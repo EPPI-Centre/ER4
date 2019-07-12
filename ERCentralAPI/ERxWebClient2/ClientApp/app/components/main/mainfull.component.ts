@@ -125,6 +125,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowHideQuickQuestionReport();
         }
     }];
+    public ImportOrNewDDData: Array<any> = [{
+        text: 'New Reference',
+        click: () => {
+            this.NewReference();
+        }
+    }];
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -336,7 +342,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
-	}
+    }
+    NewReference() {
+        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
+    }
     ListItemsWithThisCode(Included: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
