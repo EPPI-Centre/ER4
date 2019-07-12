@@ -438,6 +438,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -465,6 +466,12 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private InterimGetItemCodingForReport() {
+        if (this.stopQuickReport == true) {
+            //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
+            this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
+            this._CodingReport = "";
+            this.stopQuickReport = false;
+        }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
@@ -789,6 +796,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -798,23 +806,16 @@ export class ItemCodingService extends BusyAwareService {
         //this.RemoveBusy("FetchQuickQuestionReport");
     }
     private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
+        if (this.stopQuickReport == true) {
+            //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
+            this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
+            this._CodingReport = "";
+            this.stopQuickReport = false;
+        }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
 				() => {
-
-					if (this.stopQuickReport == true) {
-						//this.DataChanged.unsubscribe();
-						//if (this.SelfSubscription4QuickCodingReport) {
-						//	this.SelfSubscription4QuickCodingReport.unsubscribe()
-						//	this.SelfSubscription4QuickCodingReport = null;
-						//}
-						this._CurrentItemIndex4QuickCodingReport = 0;
-						this._CodingReport = "";
-						this._CodingReport += "</table>";
-						this.stopQuickReport = false;
-						return;
-					}
                     this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
                     this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
@@ -825,7 +826,7 @@ export class ItemCodingService extends BusyAwareService {
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
-                this._CodingReport += "</table>";
+                if (this._CodingReport.length != 0) this._CodingReport += "</table>";
             }
             return;
         }

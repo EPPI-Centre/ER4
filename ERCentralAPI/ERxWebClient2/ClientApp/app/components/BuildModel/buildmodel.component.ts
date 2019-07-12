@@ -96,32 +96,44 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 					console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteModelSelected().then(
-							(res) => {
-
-								
-								this._notificationService.show({
-									content: this.modelsToBeDeleted.length  + " models have been deleted",
-									animation: { type: 'slide', duration: 400 },
-									position: { horizontal: 'center', vertical: 'top' },
-									type: { style: "info", icon: true },
-									closable: true
-								});
-									this.modelsToBeDeleted = [];
-
-								this._buildModelService.Fetch();
-								this.Clear();
-							}
-						);
+                            (res) => {
+                                if (res == true) {
+                                    this._notificationService.show({
+                                        content: this.modelsToBeDeleted.length + " models have been deleted",
+                                        animation: { type: 'slide', duration: 400 },
+                                        position: { horizontal: 'center', vertical: 'top' },
+                                        type: { style: "info", icon: true },
+                                        closable: true
+                                    });
+                                }
+                                this.modelsToBeDeleted = [];
+                                this._buildModelService.Fetch();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
+                                this.Clear();
+							},
+                            (error) => {
+                                this.modelsToBeDeleted = [];
+                                this._buildModelService.Fetch();
+                                console.log("Error deleting models (controller side)", error);
+                                this.Clear();
+                            }
+                        ).catch(
+                            (caught) => {
+                                this.modelsToBeDeleted = [];
+                                this._buildModelService.Fetch();
+                                console.log("Error deleting models (controller side, catch)", caught);
+                                this.Clear();
+                            }
+                        );
 					} 
 				}
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 	public modelsToBeDeleted: number[] = [];
-	async DeleteModelSelected(): Promise<string> {
+	async DeleteModelSelected(): Promise<boolean> {
 
 		let lstStrModelIds = '';
-		let res: MVCClassifierCommand = new MVCClassifierCommand();
+        let res: boolean = false;
 		let modelID: number = 0;
 		console.log(this.DataSource);
 		//alert('number in the list is: ' + this.DataSource.data.length)
@@ -134,32 +146,22 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			}
 		}
 		for (var j = 0; j < this.modelsToBeDeleted.length; j++) {
-
-				this.canDelete = true;
-				//lstStrModelIds += this.DataSource.data[j].modelId;
-				modelID = this.modelsToBeDeleted[j];
-				//console.log('trying to delete this model: ' + modelID);
-				res = await this._buildModelService.Delete(modelID);
-				
-			if (res.returnMessage != 'Success') {
-
-					this._notificationService.show({
-						content: "Error during deleting model: " + res.returnMessage,
-						animation: { type: 'slide', duration: 40 },
-						position: { horizontal: 'center', vertical: 'top' },
-						type: { style: "error", icon: true },
-						closable: true
-				});
-				
-				} else {
-
-
-					let tmpIndex: any = this._buildModelService.ClassifierModelList.findIndex(x => x.modelId == modelID);
-					this._buildModelService.ClassifierModelList.splice(tmpIndex, 1);
-					
-				}
+            //this.canDelete = true;
+            //lstStrModelIds += this.DataSource.data[j].modelId;
+            modelID = this.modelsToBeDeleted[j];
+            //console.log('trying to delete this model: ' + modelID);
+            res = await this._buildModelService.Delete(modelID);
+            if (res == null || res == undefined || res == false) {
+                //an error happened. Let's stop here.
+                res = false;
+                break;
+            }
+            //else {
+            //    let tmpIndex: any = this._buildModelService.ClassifierModelList.findIndex(x => x.modelId == modelID);
+            //    this._buildModelService.ClassifierModelList.splice(tmpIndex, 1);
+            //}
 		}
-		return res.returnMessage;
+		return res;
 	}
 	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {

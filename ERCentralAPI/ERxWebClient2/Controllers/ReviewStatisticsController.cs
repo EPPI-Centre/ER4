@@ -107,21 +107,24 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
-
-				BulkCompleteUncompleteCommand cmd = new BulkCompleteUncompleteCommand(
-					MVCcmd.attributeId, MVCcmd.isCompleting, MVCcmd.setId, MVCcmd.reviewerId, MVCcmd.isPreview);
-
-				DataPortal<BulkCompleteUncompleteCommand> dp = new DataPortal<BulkCompleteUncompleteCommand>();
-				cmd = dp.Execute(cmd);
-
-				return Ok(cmd);
-
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    if (ri.Roles.Contains("AdminUser"))
+                    {
+                        BulkCompleteUncompleteCommand cmd = new BulkCompleteUncompleteCommand(
+                            MVCcmd.attributeId, MVCcmd.isCompleting, MVCcmd.setId, MVCcmd.reviewerId, MVCcmd.isPreview);
+                        DataPortal<BulkCompleteUncompleteCommand> dp = new DataPortal<BulkCompleteUncompleteCommand>();
+                        cmd = dp.Execute(cmd);
+                        return Ok(cmd);
+                    }
+                    else return Forbid();
+                }
+                else return Forbid();
 			}
 			catch (Exception e)
 			{
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				_logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
+				_logger.LogError(e, "Dataportal Error for PreviewCompleteUncompleteCommand.");
 				throw;
 			}
 		}

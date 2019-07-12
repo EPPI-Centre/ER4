@@ -135,39 +135,29 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult DeleteModel([FromBody] MVCClassifierCommand _model)
 		{
-			ClassifierCommand command;
-			command = new ClassifierCommand(
-					   "DeleteThisModel~~",
-					   -1,
-					   -1,
-					   -1,
-					   Convert.ToInt32(_model._modelId),
-					   -1);
+			ClassifierCommand command = new ClassifierCommand();
 			try
 			{
-				
-
+			    command = new ClassifierCommand(
+					       "DeleteThisModel~~",
+					       -1,
+					       -1,
+					       -1,
+					      _model._modelId,
+					       -1);
 				if (SetCSLAUser4Writing()) 
 				{
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    if (ri.Roles.Contains("AdminUser"))
-                    {
-                        DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
-                       
-                        command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
-                        command = dp.Execute(command);
-
-						return Ok(command);
-                    }
-                    else return Forbid();
+                    DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+                    command.RevInfo = _model.revInfo.ToCSLAReviewInfo();
+                    command = dp.Execute(command);
+                    return Ok(command);
                 }
 				else return Forbid();
 
 			}
 			catch (Exception e)
 			{
-
-				_logger.LogException(e, "Deletion of searches has failed;" + command.ReturnMessage);
+				_logger.LogException(e, "DeleteModel has failed. Modelid: " + _model._modelId + " command res: " + command.ReturnMessage);
 				throw;
 			}
 		}
