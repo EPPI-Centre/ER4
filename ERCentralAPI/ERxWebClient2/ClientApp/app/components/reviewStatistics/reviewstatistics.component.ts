@@ -144,7 +144,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 	ImportCodesetClick() {
 		this.router.navigate(['ImportCodesets']);
-	}
+    }
+    GoToSources() {
+        this.router.navigate(['sources']);
+    }
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();
