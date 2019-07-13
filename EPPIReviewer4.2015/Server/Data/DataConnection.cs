@@ -49,6 +49,18 @@ namespace BusinessLibrary.Data
                     return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.ADMConnectionString1"].ConnectionString;
             }
         }
+
+        public static string AcademicControllerConnectionString // need to add deployment options + other development machines as needed
+        {
+            get
+            {
+                string name = Environment.MachineName;
+                if (name.ToLower() == "epi2")// | name.ToLower() == "ssru38")
+                    return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.ADMConnectionString"].ConnectionString;
+                else
+                    return "Data Source = localhost; Initial Catalog = AcademicController; Integrated Security = True";
+            }
+        }
     }
 }
 

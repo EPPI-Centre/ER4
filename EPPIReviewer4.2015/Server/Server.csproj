@@ -243,6 +243,8 @@
     <Compile Include="BusinessClasses\ItemDuplicateUnDUPCommand.cs" />
     <Compile Include="BusinessClasses\ItemLink.cs" />
     <Compile Include="BusinessClasses\ItemLinkList.cs" />
+    <Compile Include="BusinessClasses\MagPaper.cs" />
+    <Compile Include="BusinessClasses\MagPaperList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />
