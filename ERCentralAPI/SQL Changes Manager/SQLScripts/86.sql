@@ -96,3 +96,93 @@ BEGIN
 	END CATCH
 END
 GO
+
+Use ReviewerAdmin
+GO
+
+declare @Content nvarchar(max) = '
+<div class="container">
+	<div class="row">
+		<div class="col-sm">		
+		<b class="text-primary">Reference list</b><br>
+		<img class="img"  src="Images/ReferenceList.gif" /><br>
+		You can select individual or all items from your reference list. Clicking at the top of a column will order the list by that column. By default, the list is paged by 100 items. To list items based on the Include, Exclude and Delete flags click on the <b>I</b>, <b>E</b>, and <b>D</b> buttons. All imported items start with the <b>I</b> flag.<br><br>
+		</div>
+		<div class="col-sm">		
+		<b class="text-primary">View options</b><br>
+		<img class="img"  src="Images/ViewOptions.gif" /><br>
+		Clicking on <b>View options</b> will allow to change what fields are shown in the reference list and edit the number of items displayed in each page.<br><br>
+		</div>	
+	</div>
+
+	<div class="row">
+		<div class="col-sm">
+		<b class="text-primary">List items by coding</b><br>
+		<img class="img"  src="Images/ListItemsByCoding.gif" /><br>
+		To list items based on coding, select a code in a coding tool and click on <b>With this code</b>. The <b>With this code (Excluded)</b> option lists the coded items with the <b>E</b> flag.<br><br> 
+		</div>
+		<div class="col-sm">
+		<b class="text-primary">Assign/remove codes</b><br>
+		<img class="img"  src="Images/AssignCodeToItems.gif" /><br>
+		To assign a code to multiple items, select the items and the code and then click <b>Assign code</b> to apply the code to the items. If you select <b>Remove code from selection</b> the code will be removed from the selected items.<br><br>
+		</div>
+	</div> 
+
+	<div class="row">
+		<div class="col-sm">
+		<b class="text-primary">Coding report</b><br>
+		<img class="img"  src="Images/CodingReport.gif" /><br>
+		To generate a coding report select the items to include in the report and click <b>Coding report</b>. Next, select the coding tool(s) that will make up the report and click <b>Get report</b> to generate the report. You can <b>Save</b> the report as well as display it in a new tab for printing.<br><br>
+		</div>
+		<div class="col-sm">
+		<b class="text-primary">Cluster</b><br>
+		<img class="img"  src="Images/Cluster.png" /><br>
+		Cluster uses the Lingo3G clustering engine to automatically generate a coded map of your references based on their abstracts. You can select what items should be included in the map and the complexity of the coding can be adjusted using the available parameters.<br><br>
+		</div>
+	</div>
+
+	  <div class="row">	
+		<div class="col-sm">
+		<b class="text-primary">Quick Question Report</b><br>
+		<img class="img"  src="Images/QuickQuestionReport.gif" /><br>
+		To generate a question report select the items to include in the report and select <b>Quick Question Report</b>
+		from the <b>Coding Report</b> dropdown menu.<br><br>
+		</div>	
+		<div class="col-sm">
+		<br>
+		You can select any code that has a child code, from any codeset, and it will become a new column in the report.<br>
+		There are options to display the title, Info box text and pdf coded text in your report.<br>
+		You can <b>Save</b> the report as well as display it in a new tab for printing.<br><br>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+		<b class="text-primary">Mark Items as Include/Excluded or Deleted</b><br>
+		<img class="img"  src="Images/IncludeExcludeDelete.gif" /><br>
+		By default, Items are imported as "<em>Included</em>" ("I" status flag). You can use this screen to change the status flag to sideline items in bulk, by flagging them as "Excluded" or "Deleted".<br>
+		</div>
+		<div class="col-md-12 col-lg-5">
+		<br />
+		The "In/Exclude" button allows to <b>mark items as included or excluded</b>. You can pick the items to be modified either by selecting them or by picking the "Documents with this code" option. <br />
+		The "Trash" icon button allows to <b>mark as deleted</b> the items selected in the current list.<br />
+		To "undelete" some deleted items, you can use the "In/Exclude" button to re-include the items in question or flag them as Excluded.<br />
+		<b>Note:</b> excluded items can participate in frequency reports, if explicitly required; deleted items are ignored by most reporting features.<br />
+		 Deleted items are usually understood as items that should not have been created/imported. Excluded items (optionally) represent items that have been screened and excluded.
+		</div>
+	</div>
+	<br />
+	<div class="row mt-2">
+		<div class="col-sm">
+		<b class="text-primary">Other options</b><br>
+		Other options on this screen include:<br>
+		<b>Import items</b> - takes you to the import items page. More help is available on that page.<br>
+		<b>To RIS</b> - allows you to export your selected items as an RIS formatted text file.<br>	
+		<br><br> 
+		</div>
+	</div>
+</div>
+'
+UPDATE TB_ONLINE_HELP
+SET [HELP_HTML] = @Content
+	WHERE [CONTEXT] = 'main\references'
+GO

@@ -235,17 +235,20 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	public RunAssignment() {
 
-		var itemids = this.ItemListService.SelectedItems.map(
-			x => x.itemId
-		);
+        let itemIdsStr: string = "";
+        if (this.AllocateChoice !== 'Documents with this code') {
+            var itemids = this.ItemListService.SelectedItems.map(
+                x => x.itemId
+            );
+            itemIdsStr = itemids.toString();
+            console.log("itemIdsStr", itemIdsStr);
+        }
+		
 		this.ItemListService.AssignDocumentsToIncOrExc(
-
 			this.AssignDocs, 
-			itemids.toString(),
-			this.DropDownAllocateAtt.attribute_id,
-			this.DropDownAllocateAtt.set_id,
-			itemids.length
-
+            itemIdsStr,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.attribute_id : 0,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.set_id : 0
 		).then(
 
 			() => {

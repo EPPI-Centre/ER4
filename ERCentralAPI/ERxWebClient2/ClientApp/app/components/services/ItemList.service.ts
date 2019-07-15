@@ -202,7 +202,7 @@ export class ItemListService extends BusyAwareService {
 
     }
 	public AssignDocumentsToIncOrExc(include: string, itemids: string,
-		attributeid: number, setid: number, count: number) : Promise<Item> {
+		attributeid: number, setid: number) : Promise<Item> {
 
 		let body = JSON.stringify({
 			include: include, itemids: itemids,
