@@ -186,10 +186,19 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	public allModelsSelected: boolean = false;
 	public selectAllModelsChange() {
 
-		this.allModelsSelected == true;
-		for (var i = 0; i < this.DataSource.data.length; i++) {
-			this.DataSource.data[i].add = true;
+		if (this.allModelsSelected == true) {
+			for (var i = 0; i < this.DataSource.data.length; i++) {
+				this.DataSource.data[i].add = false;
+			}
+			this.allModelsSelected = false;
+			return;
+		} else {
+			for (var i = 0; i < this.DataSource.data.length; i++) {
+				this.DataSource.data[i].add = true;
+			}
 		}
+		this.allModelsSelected = true;
+
 	}
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;
