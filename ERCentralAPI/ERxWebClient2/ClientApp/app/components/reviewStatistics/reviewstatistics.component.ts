@@ -91,6 +91,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     public get HasAdminRights(): boolean {
         return this.ReviewerIdentityServ.HasAdminRights;
     }
+    public get HasReviewStats(): boolean {
+        return this.codesetStatsServ.ReviewStats.itemsIncluded != -1;
+    }
 	ngOnInit() {
 
 		console.log('inititating stats');

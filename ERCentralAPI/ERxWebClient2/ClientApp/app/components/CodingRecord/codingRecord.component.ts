@@ -166,8 +166,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 					attributeSet.attribute_name +
 
 					(roia.armTitle == "" ? "" : " (" + roia.armTitle + ")") +
-
-					"<br /><i>" + roia.additionalText + "</i></font></li>";
+                    "<br />" + (roia.additionalText != '' ? "[Info] <i>" + roia.additionalText + "</i>" : "") +"</font></li>";
 
                     oneReviewerHasSelected = true;
                     if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
@@ -184,8 +183,8 @@ export class codingRecordComp implements OnInit, OnDestroy {
 			
 				report += "<li><FONT COLOR='RED'>[" + comparison2.contactName + "] " +
 					attributeSet.attribute_name +
-					(roia.armTitle == "" ? "" : " (" + roia.armTitle + ")") +
-					"<br /><i>" + roia.additionalText + "</i></font></li>";
+                    (roia.armTitle == "" ? "" : " (" + roia.armTitle + ")") +
+                    "<br />" + (roia.additionalText != '' ? "[Info] <i>" + roia.additionalText + "</i>" : "") + "</font></li>";
 				oneReviewerHasSelected = true;
 				if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
 					
@@ -202,8 +201,8 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 					report += "<li><FONT COLOR='GREEN'>[" + comparison3.contactName + "] " +
 						attributeSet.attribute_name +
-						(roia.armTitle == "" ? "" : " (" + roia.armTitle + ")") +
-						"<br /><i>" + roia.additionalText + "</i></font></li>";
+                        (roia.armTitle == "" ? "" : " (" + roia.armTitle + ")") +
+                        "<br />" + (roia.additionalText != '' ? "[Info] <i>" + roia.additionalText + "</i>" : "") + "</font></li>";
 					oneReviewerHasSelected = true;
 					if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
                         report += "<FONT COLOR='GREEN'>" + this._ItemCodingService.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails) + "</FONT>";

@@ -1,6 +1,6 @@
 <div class="container row p-0 m-0  bg-white border border-info rounded">
     <div class="col-12 row p-0 m-0">
-        <div class="float-left col border-bottom font-weight-bold">Live Comparison:</div>
+        <div class="float-left col border-bottom font-weight-bold">Live Comparison</div>
         <div class="col float-right border-bottom p-0 m-0">
             <div class="btn btn-sm btn-outline-success float-right m-0 py-0 px-1" (click)="ToggleHideShow()">Hide</div>
         </div>
@@ -11,7 +11,7 @@
         <img *ngIf="!coding.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="../assets/CodingNotComplete.png" class="mr-1" /><br />
         <div *ngFor="let ROIA of coding.ROIAs" class="row">
             <div class=" col">- {{AttNameFromId(ROIA.attributeId)}} <span *ngIf="ROIA.armTitle != ''" class="info small"> [{{ROIA.armTitle}}]</span></div>
-            <div *ngIf="ROIA.additionalText != ''" class="small col-12"><span class="font-weight-bold">[Info:]</span> {{ROIA.additionalText}}</div>
+            <div *ngIf="ROIA.additionalText != ''" class="small col-12"><span class="font-weight-bold">[Info]</span> {{ROIA.additionalText}}</div>
         </div>
     </div>
     <div *ngIf="!CodesByReviewers || CodesByReviewers.length == 0" class="col-12">No coding to compare/show. 

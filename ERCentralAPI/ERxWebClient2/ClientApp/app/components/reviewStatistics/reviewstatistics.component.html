@@ -1,4 +1,4 @@
-<p *ngIf="!codesetStatsServ.ReviewStats"><em>Loading...</em></p>
+<p *ngIf="!HasReviewStats"><em>Loading...</em></p>
 <div class="card bg-light mt-0 col-md-12">
 	<div class="font-weight-bold text-xl-left m-1 rounded p-1 pl-2 alert alert-info containsAtoolbar">Review Items
 		<kendo-splitbutton class="ml-1" (buttonClick)="GoToSources()"
@@ -10,7 +10,7 @@
 	<!--<div class="containsAtoolbar">
 		
 	</div>-->
-			<div class="row m-0 p-0" *ngIf="codesetStatsServ.ReviewStats">
+			<div class="row m-0 p-0" *ngIf="HasReviewStats">
 				<div class="col-3 mb-2">
 					<b>
 						Included:
@@ -85,6 +85,7 @@
 							</option>
 						</select>
 					</div>
+                    <div class="bg-warning border border-dark m-1 p-1 rounded col-12" *ngIf="showPreviewMessage" innerHTML="{{PreviewMsg}}"></div>
 					<div class="form-group">
 						<div ngbDropdown class="col--md-12 m-0 p-0" style="min-width:150px;">
 							<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree3"
@@ -104,8 +105,6 @@
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="bg-warning border border-dark m-1 p-1 rounded col-12" *ngIf="showPreviewMessage" innerHTML="{{PreviewMsg}}">
 				</div>
 				<div>
 					<button [disabled]="!CanPreview()"
