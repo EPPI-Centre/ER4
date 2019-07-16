@@ -222,32 +222,96 @@ namespace ERxWebClient2.Controllers
             CSLAItem.Abstract = item.@abstract;
             CSLAItem.ApplyEdit();
         }
-        //[HttpPost("[action]")]
-        //public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
-        //{
-        //    try
-        //    {
-        //        SetCSLAUser();
-        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-        //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
-        //        SelectionCriteria crit = new SelectionCriteria();
-        //        crit.WorkAllocationId = AllocationId;
-        //        crit.ListType = ListType;
-        //        crit.PageSize = pageSize;
-        //        crit.PageNumber = pageNumber;
-        //        ItemList result = dp.Fetch(crit);
-        //        //return Json(result);
 
-        //        return Ok(new ItemList4Json(result));
-        //    }
-        //    catch (Exception)
-        //    {
+		[HttpPost("[action]")]
+		public IActionResult DeleteSelectedItems([FromBody] Item[] ItemIds)
+		{
+			try
+			{
+				string[] strItemIds = ItemIds.Select(x => x.ItemId.ToString()).ToArray();
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<ItemDeleteUndeleteCommand> dp = new DataPortal<ItemDeleteUndeleteCommand>();
+					ItemDeleteUndeleteCommand command = new ItemDeleteUndeleteCommand(
+					true,
+					string.Join(",", strItemIds));
+					command = dp.Execute(command);
+					return Ok(command);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when deleting items: {0}", ItemIds);
+				return StatusCode(500, e.Message);
+			}
+		}
 
-        //        throw;
-        //    }
-        //}
-    }
+		[HttpPost("[action]")]
+		public IActionResult AssignDocumentsToIncOrExc([FromBody] MVCAssignItems assignMvc)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					bool inc = assignMvc.Include == "true" ? true: false;
+					if (assignMvc.attributeid > 0)
+					{
+						assignMvc.itemids = "";
+					}
+				
+						DataPortal<ItemIncludeExcludeCommand> dp = new DataPortal<ItemIncludeExcludeCommand>();
+						ItemIncludeExcludeCommand command = new ItemIncludeExcludeCommand(
+						inc,
+						assignMvc.itemids,
+						assignMvc.attributeid,
+						assignMvc.setid
+						);
+						command = dp.Execute(command);
+						return Ok(command);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when Assigning items: {0}", assignMvc);
+				return StatusCode(500, e.Message);
+			}
+		}
+
+		//[HttpPost("[action]")]
+		//public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
+		//{
+		//    try
+		//    {
+		//        SetCSLAUser();
+		//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+		//        DataPortal<ItemList> dp = new DataPortal<ItemList>();
+		//        SelectionCriteria crit = new SelectionCriteria();
+		//        crit.WorkAllocationId = AllocationId;
+		//        crit.ListType = ListType;
+		//        crit.PageSize = pageSize;
+		//        crit.PageNumber = pageNumber;
+		//        ItemList result = dp.Fetch(crit);
+		//        //return Json(result);
+
+		//        return Ok(new ItemList4Json(result));
+		//    }
+		//    catch (Exception)
+		//    {
+
+		//        throw;
+		//    }
+		//}
+	}
     public class SelCritMVC
     {
         public bool onlyIncluded { get; set; }
@@ -349,4 +413,14 @@ namespace ERxWebClient2.Controllers
         public ReadOnlySource source;
         public ItemDuplicatesReadOnlyList duplicates;
     }
+
+	public class MVCAssignItems
+	{
+		public string Include {get; set;}
+		public string itemids { get; set; }
+		public int attributeid { get; set; }
+		public int setid { get; set; }
+
+	}
+
 }

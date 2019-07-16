@@ -15,6 +15,7 @@ export class BuildModelService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
+		private _reviewInfoService: ReviewInfoService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
         super();
@@ -23,7 +24,7 @@ export class BuildModelService extends BusyAwareService {
 	private _ClassifierModelList: ClassifierModel[] = [];
 	//@Output() searchesChanged = new EventEmitter();
 	//public crit: CriteriaSearch = new CriteriaSearch();
-	public searchToBeDeleted: string = '';//WHY string?
+	public modelToBeDeleted: number = 0;
 
 	public get ClassifierModelList(): ClassifierModel[] {
 
@@ -58,6 +59,53 @@ export class BuildModelService extends BusyAwareService {
 
 	}
 
+	public Delete(modelId: number): Promise<boolean>{
+
+		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+		MVCcmd._title = '';
+		MVCcmd._attributeIdOn = -1;
+		MVCcmd._attributeIdNotOn = -1;
+		MVCcmd._attributeIdClassifyTo = -1;
+		MVCcmd._modelId = modelId;
+		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+
+		this._BusyMethods.push("DeleteModel");
+
+		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
+			MVCcmd)
+			.toPromise().then(
+            (result: MVCClassifierCommand) => {
+                this.RemoveBusy("DeleteModel");
+                if (result != null && result.returnMessage == 'Success') {
+                    //all is well!
+                    //we'll let the component decide when to refresh data...
+                    //this.Fetch(); 
+                    return true;
+                }
+                else {
+                    this.modalService.GenericErrorMessage("Deletion of model failed. Model id:" + MVCcmd._modelId + ". Failure message: " + result.returnMessage
+                        + ". If the problem persists, please contact EPPISupport");
+                    return false;
+                }
+            }, error => {
+                this.RemoveBusy("DeleteModel");
+                console.log("Delete model Error: " + error);
+                this.modalService.GenericError(error);
+                return false;
+				}
+        ).catch(
+            (caught) => {
+                this.RemoveBusy("DeleteModel");
+                this.modalService.GenericErrorMessage("Deletion of model failed. Model id:" + MVCcmd._modelId
+                    + ". If the problem persists, please contact EPPISupport");
+                console.log("Catch in DeleteModel", caught);
+                return false;
+            }
+        );
+	}
+
+
 	ngOnInit() {
 
 		
@@ -90,4 +138,18 @@ export class BuildModelCommand {
 	public _sourceId: number = 0;
 	public revInfo: ReviewInfo = new ReviewInfo();
 
+}
+
+export class MVCClassifierCommand {
+
+		public _title: string = '';
+		public _attributeIdOn: number = 0;
+		public _attributeIdNotOn: number = 0;
+		public _attributeIdClassifyTo: number = 0;
+		public _sourceId: number = 0;
+		public _modelId: number = 0;
+		public _attributeId: number = 0;
+		public _classifierId: number = 0;
+		public returnMessage: string = '';
+		public revInfo: ReviewInfo = new ReviewInfo();
 }

@@ -61,6 +61,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeTypes.cs" Link="Models\AttributeTypes.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AttributeUpdateCommand.cs" Link="Models\AttributeUpdateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AuthorsHandling.cs" Link="Models\AuthorsHandling.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\BulkCompleteUncompleteCommand.cs" Link="Models\BulkCompleteUncompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\CheckTicketExpirationCommand.cs" Link="Models\CheckTicketExpirationCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCommand.cs" Link="Models\ClassifierCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ClassifierCreateCodesCommand.cs" Link="Models\ClassifierCreateCodesCommand.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeSaveCommand.cs" Link="Models\ItemAttributeSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeTextList.cs" Link="Models\ItemAttributeTextList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDeleteUndeleteCommand.cs" Link="Models\ItemDeleteUndeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocument.cs" Link="Models\ItemDocument.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentDeleteCommand.cs" Link="Models\ItemDocumentDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentDeleteWarningCommand.cs" Link="Models\ItemDocumentDeleteWarningCommand.cs" />
@@ -98,8 +100,10 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveCommand.cs" Link="Models\ItemDocumentSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnly.cs" Link="Models\ItemDuplicatesReadOnly.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnlyList.cs" Link="Models\ItemDuplicatesReadOnlyList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemIncludeExcludeCommand.cs" Link="Models\ItemIncludeExcludeCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemList.cs" Link="Models\ItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetBulkCompleteCommand.cs" Link="Models\ItemSetBulkCompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetCompleteCommand.cs" Link="Models\ItemSetCompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetList.cs" Link="Models\ItemSetList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
@@ -245,10 +249,25 @@
     <Content Update="wwwroot\Images\EPPI-Reviewer logo v1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\Images\Frequencies.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\IncludeExcludeDelete.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Images\ListItemsByCoding.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\Images\OtherFunctionsMain.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\QuickQuestionReport.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Images\ReferenceList.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\ReviewStats.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\RevWrkSources.gif">

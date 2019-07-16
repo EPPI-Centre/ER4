@@ -943,7 +943,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	public sortChangeModel(sort: SortDescriptor[]): void {
 		this.sortCustomModel = sort;
-		console.log('sorting?' + this.sortCustomModel[0].field + " ");
+		//console.log('sorting?' + this.sortCustomModel[0].field + " ");
 	}
 	public sortChangeSearches(sort: SortDescriptor[]): void {
 		this.sortSearches = sort;

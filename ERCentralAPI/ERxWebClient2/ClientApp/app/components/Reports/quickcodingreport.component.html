@@ -83,9 +83,17 @@
     </div>-->
         </div>
     </div>
-    <div *ngIf="GettingReport" class="col-12 bg-white">
-        {{ReportProgress}}
+    <div *ngIf="GettingReport" class="col-12 bg-white row">
+        <div class="col">
+            {{ReportProgress}}
+            <button (click)="CancelQuickReport()" [disabled]="!CanStartReport"
+                    type="button" class="btn btn-outline-danger btn-sm py-0">
+                Cancel
+            </button>
+        </div>
     </div>
-    <div *ngIf="!GettingReport && ReportHTML.length > 0" class="col-12 mt-2 pt-2 border-top border-success" style="max-height:440px;overflow:auto" [innerHTML]="ReportHTML">
+    <div *ngIf="!GettingReport && ReportHTML.length > 0" 
+		 class="col-12 mt-2 pt-2 border-top border-success" 
+		 style="max-height:440px;overflow:auto" [innerHTML]="ReportHTML">
     </div>
 </div>
