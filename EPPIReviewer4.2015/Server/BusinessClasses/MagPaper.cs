@@ -233,6 +233,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> URLsProperty = RegisterProperty<string>(new PropertyInfo<string>("URLs", "URLs", string.Empty));
+        public string URLs
+        {
+            get
+            {
+                return GetProperty(URLsProperty);
+            }
+        }
+
+        /*
         public static readonly PropertyInfo<MagPaperList> CitationsProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("Citations", "Citations"));
         public MagPaperList Citations
         {
@@ -284,8 +294,33 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RecommendedByProperty, value);
             }
         }
-
-
+        
+        public void GetRelatedPaperList(string listType)
+        {
+            DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
+            dp.FetchCompleted += (o, e2) =>
+            {
+                if (e2.Object != null)
+                {
+                    if (e2.Error == null)
+                    {
+                        this.Citations = e2.Object;
+                        //this.MarkClean(); // don't want the object marked as 'dirty' just because it's loaded a new list
+                    }
+                }
+                if (e2.Error != null)
+                {
+#if SILVERLIGHT
+                    System.Windows.MessageBox.Show(e2.Error.Message);
+#endif
+                }
+            };
+            MagPaperListSelectionCriteria sc = new BusinessClasses.MagPaperListSelectionCriteria();
+            sc.MagPaperId = this.PaperId;
+            sc.ListType = listType;
+            dp.BeginFetch(sc);
+        }
+        */
 
 
 
@@ -378,6 +413,48 @@ namespace BusinessLibrary.BusinessClasses
             */
         }
 
+        protected void DataPortal_Fetch(SingleCriteria<MagPaper, Int64> criteria) // used to return a specific Paper
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_Paper", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperId", criteria.Value));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            LoadProperty<Int64>(PaperIdProperty, reader.GetInt64("PaperId"));
+                            LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
+                            LoadProperty<string>(DocTypeProperty, reader.GetString("DocType"));
+                            LoadProperty<string>(PaperTitleProperty, reader.GetString("PaperTitle"));
+                            LoadProperty<string>(OriginalTitleProperty, reader.GetString("OriginalTitle"));
+                            LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
+                            LoadProperty<Int32>(YearProperty, reader.GetInt32("Year"));
+                            LoadProperty<SmartDate>(DateProperty, reader.GetSmartDate("Date"));
+                            LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
+                            LoadProperty<Int32>(JournalIdProperty, reader.GetInt32("JournalId"));
+                            LoadProperty<string>(JournalProperty, reader.GetString("NormalizedName"));
+                            LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
+                            LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
+                            LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
+                            LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
+                            LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));
+                            LoadProperty<Int32>(ReferenceCountProperty, reader.GetInt32("ReferenceCount"));
+                            LoadProperty<Int32>(CitationCountProperty, reader.GetInt32("CitationCount"));
+                            LoadProperty<Int32>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
+                            LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
+                            LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+
         internal static MagPaper GetMagPaper(SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();
@@ -391,7 +468,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<SmartDate>(DateProperty, reader.GetSmartDate("Date"));
             returnValue.LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
             returnValue.LoadProperty<Int32>(JournalIdProperty, reader.GetInt32("JournalId"));
-            returnValue.LoadProperty<string>(JournalProperty, reader.GetString("Journal"));
+            returnValue.LoadProperty<string>(JournalProperty, reader.GetString("NormalizedName"));
             returnValue.LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
             returnValue.LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
             returnValue.LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
@@ -408,6 +485,5 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-
     }
 }
