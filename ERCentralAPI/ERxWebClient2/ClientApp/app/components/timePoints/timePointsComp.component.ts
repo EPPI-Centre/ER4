@@ -7,6 +7,7 @@ import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemtimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
+import { currencyDisplay } from '@telerik/kendo-intl';
 
 
 @Component({
@@ -37,12 +38,11 @@ export class timePointsComp implements OnInit {
 
 	ngOnInit() {
 
-		//this.confirmationDialogService.
-		//	.subscribe((user) => {
-		//		this.user = user
-		//	})
-	
+		if (this.item) {
+			this._timePointsService.Fetchtimepoints(this.item);
+		}
 	}
+
 	public Units: any = [{
 		id: '8f8c6e98',
 		name: 'seconds'
@@ -82,6 +82,7 @@ export class timePointsComp implements OnInit {
 	public currentKey: number = 0;
 	public editTitle: boolean = false;
 	public titleModel: string = '';
+	public timepointFreq: string = '';
 
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
@@ -191,12 +192,25 @@ export class timePointsComp implements OnInit {
 		}
 	}
 
-	add(title: string) {
+	TimePointChanged(timepointMetric: string) {
+		console.log("timepointId changed: ..." + timepointMetric);
+		let currentTimePoint: TimePoint = new TimePoint();
+		currentTimePoint.itemId = this.item != null? this.item.itemId: 0;
+		currentTimePoint.timepointMetric = timepointMetric;
+		currentTimePoint.timepointValue = this.timepointFreq;
+		this._timePointsService.SetSelectedtimepoint(currentTimePoint);
 
-		if (title != '') {
+	}
+
+	add(timepointFreq: string) {
+
+		if (timepointFreq != '') {
 			if (this.item != undefined) {
+
 				let newtimepoint: TimePoint = new TimePoint();
 				newtimepoint.itemId = this.item.itemId;
+				newtimepoint.timepointValue = timepointFreq;
+				newtimepoint.timepointMetric = this.unit;
 				this._timePointsService.Createtimepoint(newtimepoint).then(
 					(res: TimePoint) => {
 
@@ -222,7 +236,7 @@ export interface numCodings {
 export interface iTimePoint {
 
 	itemId: number ;
-	timepointValue: number ;
+	timepointValue: string ;
 	timepointMetric: string ;
     itemTimepointId: number ;
 

@@ -783,7 +783,7 @@ export interface iTimePoint {
 export class TimePoint {
 
 	itemId: number = 0;
-	timepointValue: number = 0;
+	timepointValue: string = '';
 	timepointMetric: string = '';
 	itemTimepointId: number = 0;
 

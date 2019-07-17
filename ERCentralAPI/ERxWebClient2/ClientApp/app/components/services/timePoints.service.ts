@@ -2,7 +2,7 @@ import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core'
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Item } from './ItemList.service';
+import { Item, TimePoint } from './ItemList.service';
 import { iTimePoint } from '../timePoints/timePointsComp.component';
 
 @Injectable({
@@ -41,25 +41,19 @@ export class timePointsService extends BusyAwareService implements OnInit  {
     }
 	private _selectedtimepoint: iTimePoint | null = null;
 
-    public SetSelectedtimepoint(timepointID: number) {
-		let Oldid = this._selectedtimepoint ? this._selectedtimepoint.itemTimepointId : 0;
-        for (let timepoint of this.timepoints) {
-            if (timepoint.itemTimepointId == timepointID) {
-                this._selectedtimepoint = timepoint;
-                if (Oldid !== timepointID) this.timepointChangedEE.emit();
-                return;
-            }
-        }
-        this._selectedtimepoint = null;
-        if (Oldid !== timepointID) this.timepointChangedEE.emit();
-    }
+	public SetSelectedtimepoint(timepoint: TimePoint) {
+
+		this._selectedtimepoint = timepoint;
+        this.timepointChangedEE.emit();
+	}
+
     public Fetchtimepoints(currentItem: Item) {
 
 		this._BusyMethods.push("Fetchtimepoints");
 		this._currentItem = currentItem;
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/Gettimepoints',
+		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/GetTimePoints',
 
 			   body).subscribe(result => {
 				   this.timepoints = result;
@@ -106,7 +100,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("Createtimepoint");
 		let ErrMsg = "Something went wrong when creating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<iTimePoint>(this._baseUrl + 'api/ItemtimepointList/Createtimepoint',
+		return this._http.post<iTimePoint>(this._baseUrl + 'api/ItemTimepointList/CreateTimePoint',
 
 			currenttimepoint).toPromise()
 						.then(
@@ -129,7 +123,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 								this.modalService.GenericErrorMessage(ErrMsg);
 								this.RemoveBusy("Createtimepoint");
 								return error;
-							}
+						}
 		);
 
 	}
@@ -140,7 +134,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("Updatetimepoint");
 		let ErrMsg = "Something went wrong when updating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/Updatetimepoint',
+		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemTimepointList/UpdateTimePoint',
 
 			currenttimepoint).subscribe(
 
@@ -165,7 +159,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		cmd.timepointId = timepoint.itemTimepointId;
 		cmd.itemId = timepoint.itemId;
 
-		return this._http.post<ItemtimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ItemtimepointList/DeleteWarningtimepoint',
+		return this._http.post<ItemtimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ItemTimepointList/DeleteWarningTimePoint',
 
 			cmd).toPromise()
 			.then(
@@ -201,7 +195,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("Deletetimepoint");
 			let ErrMsg = "Something went wrong when deleting an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 			
-		this._http.post<iTimePoint>(this._baseUrl + 'api/ItemtimepointList/Deletetimepoint',
+		this._http.post<iTimePoint>(this._baseUrl + 'api/ItemTimepointList/DeleteTimePoint',
 
 			timepoint).subscribe(
 				(result) => {
