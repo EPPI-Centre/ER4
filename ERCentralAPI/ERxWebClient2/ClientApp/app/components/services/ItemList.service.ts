@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
+import { iTimePoint } from '../timePoints/timePointsComp.component';
 
 @Injectable({
     providedIn: 'root',
@@ -660,7 +661,8 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: iArm[] = [];
+	arms: iArm[] = [];
+	timepoints: iTimePoint[] = [];
 }
 
 export class Criteria {
@@ -709,6 +711,23 @@ export class Arm {
     itemId: number = 0;
     ordering: number = 0;
     title: string = '';
+
+}
+
+export interface iTimePoint {
+	[key: number]: any;  // Add index signature
+	itemId: number ;
+	timepointValue: number ;
+	timepointMetric: string ;
+	itemTimepointId: number ;
+}
+
+export class TimePoint {
+
+	itemId: number = 0;
+	timepointValue: number = 0;
+	timepointMetric: string = '';
+	itemTimepointId: number = 0;
 
 }
 

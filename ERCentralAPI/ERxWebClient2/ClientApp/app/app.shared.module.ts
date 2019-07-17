@@ -74,6 +74,7 @@ import { ComparisonReconciliationComp } from './components/Comparison/comparison
 import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
+import { timePointsComp } from './components/timePoints/timePointsComp.component';
 
 @NgModule({
     declarations: [
@@ -128,6 +129,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 		ComparisonComp,
 		ComparisonStatsComp,
 		ComparisonReconciliationComp,
+		timePointsComp,
         PdfTronContainer,
         WebViewerComponent
 	],

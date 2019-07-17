@@ -102,6 +102,9 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetCompleteCommand.cs" Link="Models\ItemSetCompleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetList.cs" Link="Models\ItemSetList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepoint.cs" Link="Models\ItemTimepoint.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepointDeleteWarningCommand.cs" Link="Models\ItemTimepointDeleteWarningCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepointList.cs" Link="Models\ItemTimepointList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVLFactory.cs" Link="Models\ItemTypeNVLFactory.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />

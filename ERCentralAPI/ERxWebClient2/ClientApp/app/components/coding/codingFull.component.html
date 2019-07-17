@@ -32,28 +32,35 @@
 						</div>
 					</div>
 				</div>
-                <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
-                    <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-                        <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Study Arms'">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item">
-                                <armDetailsComp [item]="item"></armDetailsComp>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab  [title]="'PDF'" [disabled]="!HasDocForView">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item"  style="min-height:600px;">
-                                <!--<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>-->
-                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                </kendo-tabstrip>
+				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
+					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+						<ng-template kendoTabContent>
+							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'Study Arms'">
+						<ng-template kendoTabContent>
+							<div *ngIf="item">
+								<armDetailsComp [item]="item"></armDetailsComp>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+						<ng-template kendoTabContent>
+							<div *ngIf="item" style="min-height:600px;">
+								<!--<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>-->
+								<pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'Study timepoints'" >
+						<ng-template kendoTabContent>
+							<div *ngIf="item" style="min-height:600px;">
+								<timePointsComp #timepointscontainer [item]="item"></timePointsComp>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+				</kendo-tabstrip>
 			</div>
 			
 </div>
