@@ -11,10 +11,14 @@ import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
+import { forEach } from '@angular/router/src/utils/collection';
+import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
 import { iTimePoint } from '../timePoints/timePointsComp.component';
 
 @Injectable({
-    providedIn: 'root',
+
+	providedIn: 'root',
+
     }
 )
 
@@ -198,7 +202,36 @@ export class ItemListService extends BusyAwareService {
         );
 
     }
+	public AssignDocumentsToIncOrExc(include: string, itemids: string,
+		attributeid: number, setid: number) : Promise<Item> {
 
+		let body = JSON.stringify({
+			include: include, itemids: itemids,
+			attributeid: attributeid, setid: setid
+		})
+		let inc: boolean = false;
+		if (include =='true') {
+			inc = true;
+		} else {
+			inc = false;
+		}
+		this._BusyMethods.push("AssignDocumentsToIncOrExc");
+		return this._httpC.post<Item>(this._baseUrl + 'api/ItemList/AssignDocumentsToIncOrExc', body)
+			.toPromise().then(
+				(result) => {
+						
+					result.isIncluded = inc;
+					result.isItemDeleted = false;
+					this.RemoveBusy("AssignDocumentsToIncOrExc");
+					return result;
+
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("AssignDocumentsToIncOrExc");
+					return error;
+				}
+			);
+	}
 
     public GetIncludedItems() {
         let cr: Criteria = new Criteria();
@@ -587,7 +620,36 @@ export class ItemListService extends BusyAwareService {
         res = res.replace("   ", " ");
         return res;
     }
-    
+
+	DeleteSelectedItems(ItemIds: Item[]) {
+
+		this._BusyMethods.push("DeleteSelectedItems");
+		this._httpC.post<string>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
+			ItemIds)
+			.subscribe(
+			list => {
+
+					var ItemIdStr = list.toString().split(",");
+					var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
+					for (var i = 0; i < ItemIdStr.length; i++) {
+						var id = Number(ItemIdStr[i]);
+						var ind = wholListItemIdStr.indexOf(id);
+						this.ItemList.items.slice(ind, 1);
+					}
+					this._Criteria.totalItems = this.ItemList.totalItemCount;
+					this.SaveItems(this.ItemList, this._Criteria);
+					this.ListChanged.emit();
+					this.Refresh();
+					//this.FetchWithCrit(this._Criteria, "StandardItemList");
+				
+
+				}, error => {
+					this.ModalService.GenericError(error);
+					this.RemoveBusy("DeleteSelectedItems");
+				}
+				, () => { this.RemoveBusy("DeleteSelectedItems"); }
+			);
+	}
 
 
     //public Save() {
@@ -611,7 +673,6 @@ export class ItemListService extends BusyAwareService {
     //}
 
 }
-
 
 export class ItemList {
     pagesize: number = 0;
@@ -664,7 +725,6 @@ export class Item {
 	arms: iArm[] = [];
 	timepoints: iTimePoint[] = [];
 }
-
 export class Criteria {
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
@@ -696,7 +756,6 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-
 export interface iArm {
 	[key: number]: any;  // Add index signature
 	itemArmId: number;
@@ -704,7 +763,6 @@ export interface iArm {
     ordering: number;
     title: string;
 }
-
 export class Arm {
     
     itemArmId: number = 0;
@@ -735,8 +793,6 @@ export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];
 }
-
-
 export class ItemDocument {
 
     public itemDocumentId: number = 0;

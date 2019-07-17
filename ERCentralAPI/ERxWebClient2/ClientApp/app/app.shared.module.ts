@@ -41,6 +41,7 @@ import { ChartModule } from '@progress/kendo-angular-charts';
 import { ToolBarModule } from '@progress/kendo-angular-toolbar';
 import { DialogsModule } from '@progress/kendo-angular-dialog';
 import { UploadModule } from '@progress/kendo-angular-upload';
+import { ButtonsModule } from '@progress/kendo-angular-buttons';
 import { frequenciesComp } from './components/Frequencies/frequencies.component';
 import { CustomRouteReuseStrategy } from './components/helpers/CustomRouteReuseStrategy';
 import { ImportReferencesFileComponent } from './components/Sources/importreferencesfile.component';
@@ -74,6 +75,8 @@ import { ComparisonReconciliationComp } from './components/Comparison/comparison
 import { ArchieCallBackComponent } from './components/home/ArchieCallBack.component ';
 import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
+import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
+import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
 import { timePointsComp } from './components/timePoints/timePointsComp.component';
 
 @NgModule({
@@ -105,6 +108,7 @@ import { timePointsComp } from './components/timePoints/timePointsComp.component
 		StatusBarComponent,
 		InfoBoxModalContent,
         ItemDocListComp,
+        LiveComparisonComp,
 		SourcesComponent,
 		BuildModelComponent,
         ImportReferencesFileComponent,
@@ -131,7 +135,8 @@ import { timePointsComp } from './components/timePoints/timePointsComp.component
 		ComparisonReconciliationComp,
 		timePointsComp,
         PdfTronContainer,
-        WebViewerComponent
+        WebViewerComponent,
+		codingRecordComp
 	],
     providers: [
         EventEmitterService,
@@ -155,7 +160,8 @@ import { timePointsComp } from './components/timePoints/timePointsComp.component
         DialogsModule,
         ToolBarModule,
         InputsModule,
-        UploadModule,
+		UploadModule,
+		ButtonsModule,
         NotificationModule,
         DatePickerModule,
         LayoutModule,

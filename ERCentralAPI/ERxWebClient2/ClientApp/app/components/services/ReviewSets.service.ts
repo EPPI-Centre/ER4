@@ -474,7 +474,6 @@ export class ReviewSetsService extends BusyAwareService {
                     if (rSet) {
                         rSet.codingComplete = cmd.complete;
                         rSet.itemSetIsLocked = cmd.isLocked;
-
                     }
                     else {
                         this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "

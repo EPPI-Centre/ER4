@@ -26,6 +26,7 @@ import { CrossTabsComp } from '../CrossTabs/crosstab.component';
 import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
+import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
 @Component({
     selector: 'mainComp',
@@ -74,6 +75,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
+	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -94,6 +96,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	tabsInitialized: boolean = false;
 
+	public DropdownSelectedCodeAllocate: singleNode | null = null;
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
     public count: number = 60;
@@ -128,9 +131,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.NewReference();
         }
     }];
-    
-    
-
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
@@ -152,7 +152,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public get HasSelectedItems(): boolean {
         return this.ItemListService.HasSelectedItems;
     }
-	//public selectedAttributeSetF: any | 'none';
     public get selectedNode(): singleNode | null {
         return this.reviewSetsService.selectedNode;
     }
@@ -186,28 +185,102 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
             && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
         else return false;
-    }
+	}
+	public CanAssignDocs(): boolean {
+		if (this.AssignDocs != null && this.DropdownSelectedCodeAllocate != null
+				&& this.AllocateChoice == 'Documents with this code') {
+			return true;
+		}
+		if (this.AssignDocs != null && this.ItemListService.SelectedItems.length > 0
+				&& this.AllocateChoice == 'Selected documents') {
+			return true;
+		}
+		return false;
+	}
+	public DeleteRelevantItems() {
+		this.AllIncOrExcShow = false;
+		this.ConfirmationDialogService.confirm("Delete the selected items?",
+			"Are you sure you want to delete these " + this.ItemListService.SelectedItems.length  + " item/s?", false, '')
+			.then((confirm: any) => {
+				if (confirm) {
+					this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+				}
+			});
+	}
+	public AllocateChoice: string = '';
+	public AllIncOrExcShow: boolean = false;
+	public AssignDocs: string = 'true';
+	public AllocateRelevantItems() {
 
+		if (!this.AllIncOrExcShow) {
+
+			this.AllIncOrExcShow = true;
+		} else {
+
+			this.AllIncOrExcShow = false;
+		}
+	}
+	public isCollapsedCodeAllocate: boolean = false;
+	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+	public CloseCodeDropDownAllocate() {
+
+		if (this.CodeTreeAllocate) {
+
+			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
+			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
+			
+		}
+		this.isCollapsedCodeAllocate = false;
+
+	}
+	public RunAssignment() {
+
+        let itemIdsStr: string = "";
+        if (this.AllocateChoice !== 'Documents with this code') {
+            var itemids = this.ItemListService.SelectedItems.map(
+                x => x.itemId
+            );
+            itemIdsStr = itemids.toString();
+            console.log("itemIdsStr", itemIdsStr);
+        }
+		
+		this.ItemListService.AssignDocumentsToIncOrExc(
+			this.AssignDocs, 
+            itemIdsStr,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.attribute_id : 0,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.set_id : 0
+		).then(
+
+			() => {
+				
+				this.ItemListService.Refresh();
+				this.AllIncOrExcShow = false;
+				this.DropdownSelectedCodeAllocate = null;
+				this.AssignDocs = 'true';
+				this.AllocateChoice = 'Selected documents';
+			}
+		);
+	}
+	public CloseSection() {
+
+		this.AllIncOrExcShow = false;
+	}
 	dtTrigger: Subject<any> = new Subject();
 	private ListSubType: string = '';
-    ngOnInit() {
+	ngOnInit() {
+
         console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
             }
 		)
-
 		this._eventEmitter.criteriaComparisonChange.subscribe(
 			(item: Comparison) => {
 				this.LoadComparisonList(item, this.ListSubType);
 			}
 		)
-
-
-
-
-        //this.reviewSetsService.GetReviewSets();
+		//this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
@@ -272,7 +345,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	BuildModel() {
 		this.router.navigate(['BuildModel']);
-	}
+    }
+    NewReference() {
+        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
+    }
     ListItemsWithThisCode(Included: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
@@ -289,6 +365,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.listType = "StandardItemList";
         cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
         this.ItemListService.FetchWithCrit(cr, ListDescription);
+        this.tabstrip.selectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
     }
     BulkAssignRemoveCodes(IsBulkAssign: boolean) {
@@ -465,9 +542,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.ShowItemsTable = false;
         }
     }
-    NewReference() {
-        this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
-    }
+    //NewReference() {
+    //    this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } } );
+    //}
 
     Reload() {
         this.Clear();
@@ -545,9 +622,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     GoToSources() {
         this.router.navigate(['sources']);
     }
-    ImportCodesetClick() {
-        this.router.navigate(['ImportCodesets']);
-    }
+    //ImportCodesetClick() {
+    //    this.router.navigate(['ImportCodesets']);
+    //}
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());

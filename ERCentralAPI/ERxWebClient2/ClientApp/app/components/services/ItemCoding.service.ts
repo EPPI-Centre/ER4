@@ -34,10 +34,11 @@ export class ItemCodingService extends BusyAwareService {
 
     @Output() DataChanged = new EventEmitter();
     @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
+    @Output() ToggleLiveComparison = new EventEmitter();
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
     private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
-
+	public stopQuickReport: boolean = false;
     public get ItemCodingList(): ItemSet[] {
         //if (this._ItemCodingList.length == 0) {
         //    const ItemSetsJson = localStorage.getItem('ItemCodingList');
@@ -437,6 +438,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -446,7 +448,30 @@ export class ItemCodingService extends BusyAwareService {
         this.InterimGetItemCodingForReport();
         this.RemoveBusy("FetchCodingReport");
     }
+    public FetchSingleCodingReport(itemSet: ItemSet, item:Item): string {
+        let result: string = "";
+        let reviewSet = this.ReviewSetsService.FindSetById(itemSet.setId);
+        if (!reviewSet) return result;
+        result += "<h4>" + item.shortTitle + " [ID: " + item.itemId + "]</h4>";
+        result += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>";
+        result += "<p><h4>" + reviewSet.set_name + (itemSet.isCompleted ? " (completed)" : " (incomplete)") + "</h4></p><p><ul>";
+        for (let attributeSet of reviewSet.attributes) {
+            //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+            result += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+        }
+        result += "</ul></p>";
+        //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+        result += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+        return result;
+    }
+
     private InterimGetItemCodingForReport() {
+        if (this.stopQuickReport == true) {
+            //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
+            this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
+            this._CodingReport = "";
+            this.stopQuickReport = false;
+        }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
@@ -559,7 +584,7 @@ export class ItemCodingService extends BusyAwareService {
         return report;
     }
     public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
-        //console.log("addFullTextToComparisonReport", list);
+        console.log("addFullTextToComparisonReport", list);
         let result: string = "";
         for (let ftd of list) {
             result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
@@ -749,7 +774,7 @@ export class ItemCodingService extends BusyAwareService {
         return retVal + "</td></tr>";
     }
 
-    private CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
+    public CodingReportCheckChildSelected(itemSet: ItemSet, attributeSet: SetAttribute): boolean {
         if (itemSet) {
             for (let roia of itemSet.itemAttributesList) {
                 if (roia.attributeId == attributeSet.attribute_id) return true;
@@ -771,6 +796,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -780,10 +806,16 @@ export class ItemCodingService extends BusyAwareService {
         //this.RemoveBusy("FetchQuickQuestionReport");
     }
     private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
+        if (this.stopQuickReport == true) {
+            //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
+            this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
+            this._CodingReport = "";
+            this.stopQuickReport = false;
+        }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-                () => {
+				() => {
                     this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
                     this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
@@ -794,7 +826,7 @@ export class ItemCodingService extends BusyAwareService {
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
-                this._CodingReport += "</table>";
+                if (this._CodingReport.length != 0) this._CodingReport += "</table>";
             }
             return;
         }
@@ -932,6 +964,44 @@ export class ItemCodingService extends BusyAwareService {
         if (ind != -1) return this._ItemCodingList[ind];
         else return result;
     }
+    public FetchAllFullTextData(itemid: number): Promise<boolean> {
+        this._BusyMethods.push("FetchAllFullTextData");
+        return this._httpC.post<ItemAttributeFullTextDetails[]>(
+            this._baseUrl + 'api/Comparisons/ItemAttributesFullTextData',
+            itemid
+        ).toPromise().then(
+            (res: ItemAttributeFullTextDetails[]) => {
+                //let fullText: object[] = [];
+                if (res != null) {
+                    console.log("got ItemAttributeFullTextDetails", res);
+                    for (let iaFT of res) {
+                        let ItSet = this.ItemCodingList.find(found => found.itemSetId == iaFT.itemSetId);
+                        if (ItSet != undefined) {
+                            console.log("got ItSet", ItSet);
+                            let ItmAtt = ItSet.itemAttributesList.find(found => found.itemAttributeId == iaFT.itemAttributeId);
+                            if (ItmAtt != undefined) {
+                                console.log("got ItmAtt", ItmAtt);
+                                let iaFTdetails = ItmAtt.itemAttributeFullTextDetails.find(found => found.itemAttributeTextId == iaFT.itemAttributeTextId);
+                                if (iaFTdetails == undefined) ItmAtt.itemAttributeFullTextDetails.push(iaFT);
+                            }
+                        }
+                    }
+                }
+                this.RemoveBusy("FetchAllFullTextData");
+                return true;
+            }, (error) => {
+                this.RemoveBusy("FetchAllFullTextData");
+                console.log("Error in FetchAllFullTextData", error);
+                this.modalService.GenericErrorMessage("Sorry could not fetch the full-text data for the selected coding. Report is aborting.");
+                return false;
+            }
+        ).catch((caught) => {
+            this.RemoveBusy("FetchAllFullTextData");
+            this.modalService.GenericErrorMessage("Sorry could not fetch the full-text data for the selected coding. Report is aborting.");
+            console.log("Catch in FetchAllFullTextData", caught);
+            return false;
+        });
+    }
 }
 
 export class ItemSet {
@@ -1057,7 +1127,10 @@ export interface ItemAttributeFullTextDetails {
     docTitle: string;
     text: string;
     textTo: number;
-    textFrom: number;
+	textFrom: number;
+	itemSetId: number;
+	itemAttributeId: number;
+	itemAttributeTextId: number;
 }
 
 export class QuickQuestionReportOptions {

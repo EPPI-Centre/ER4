@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public BulkCompleteUncompleteCommand(){}
 #else
-        protected BulkCompleteUncompleteCommand() { }
+        public BulkCompleteUncompleteCommand() { }
 #endif
 
         private Int64 _AttributeId;
