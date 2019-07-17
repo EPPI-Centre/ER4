@@ -61,6 +61,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@DocID", _DocumentId));
+                    command.Parameters.Add(new SqlParameter("@RevID", ri.ReviewId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

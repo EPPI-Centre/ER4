@@ -84,8 +84,11 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemDocumentIdProperty, value);
             }
         }
-
+        
         public static readonly PropertyInfo<Int64> ItemAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeId", "ItemAttributeId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemAttributeId
         {
             get
@@ -98,6 +101,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemSetId
         {
             get
@@ -110,6 +116,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<Int64> ItemAttributeTextIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemAttributeTextId", "ItemAttributeTextId"));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public Int64 ItemAttributeTextId
         {
             get

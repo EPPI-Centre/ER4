@@ -127,4 +127,24 @@ export class Helpers {
         }
     }
 
+    public static AddHTMLFrame(report: string, baseUrl: string): string {
+        //used to save reports
+        let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+        //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
+        //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
+        res += "</BODY></HTML>";
+        return res;
+    }
+    public static OpenInNewWindow(ReportHTML: any, baseUrl: string) {
+        if (ReportHTML.length < 1) return;
+
+        let Pagelink = "about:blank";
+        let pwa = window.open(Pagelink, "_new");
+        //let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
+        if (pwa) {
+            pwa.document.open();
+            pwa.document.write(this.AddHTMLFrame(ReportHTML, baseUrl));
+            pwa.document.close();
+        }
+    }
 }
