@@ -83,6 +83,10 @@ export class ReviewerIdentityService implements OnDestroy {
         }
         else return false;
     }
+    public get HasAdminRights(): boolean {
+        if (!this.reviewerIdentity || !this.reviewerIdentity.reviewId || this.reviewerIdentity.reviewId == 0 || !this.reviewerIdentity.roles) return false;
+        return this.reviewerIdentity.roles.indexOf('AdminUser') != -1;
+    }
     public set reviewerIdentity(ri: ReviewerIdentity) {
         this._reviewerIdentity = ri;
         this.Save();

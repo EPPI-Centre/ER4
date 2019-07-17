@@ -60,6 +60,7 @@ namespace BusinessLibrary.BusinessClasses
                     int revID = ri.ReviewId;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@srcID", _SourceId));
+                    command.Parameters.Add(new SqlParameter("@revID", revID));
                     command.CommandTimeout = 60;
                     command.ExecuteNonQuery();
                 }

@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ItemDeleteUndeleteCommand(){}
 #else
-        protected ItemDeleteUndeleteCommand() { }
+		public ItemDeleteUndeleteCommand() { }
 #endif
 
         private bool _delete;

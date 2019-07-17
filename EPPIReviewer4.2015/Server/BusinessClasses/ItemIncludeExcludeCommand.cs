@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ItemIncludeExcludeCommand(){}
 #else
-        protected ItemIncludeExcludeCommand() { }
+        public ItemIncludeExcludeCommand() { }
 #endif
 
         private bool _include;

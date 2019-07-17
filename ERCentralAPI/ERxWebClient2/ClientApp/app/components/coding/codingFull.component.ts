@@ -57,6 +57,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
     @ViewChild('codesetTreeCoding') public codesetTreeCoding!: CodesetTreeCodingComponent;
     private subItemIDinPath: Subscription | null = null;
+    public ShowLiveComparison: boolean = false;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private subGotPDFforViewing: Subscription | null = null;
@@ -122,6 +123,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);
             });
+            this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
+                this.ShowLiveComparison = !this.ShowLiveComparison;
+            })
             this.subItemIDinPath = this.route.params.subscribe(params => {
                 this.itemString = params['itemId'];
 				this.GetItem();
@@ -130,7 +134,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
 
                 () => {
-                    //console.log('ItemCodingService data changed event caught');
+                    console.log('ItemCodingService data changed event caught');
                     if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
                         this.SetCoding();
                     }
@@ -458,6 +462,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
         else if (e.title == 'Study Arms') {
             this.HelpAndFeebackContext = "itemdetails\\arms";
+        }
+        else if (e.title == 'Coding Record') {
+            this.HelpAndFeebackContext = "itemdetails\\codingrecord";
         }
         else if (e.title == 'PDF') {
             if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
