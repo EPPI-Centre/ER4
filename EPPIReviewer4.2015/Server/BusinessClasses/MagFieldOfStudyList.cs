@@ -21,11 +21,11 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MagFieldOfStudyList : DynamicBindingListBase<MagFieldOfStudy>
     {
-        public static void GetMagFieldOfStudyList(string Ids, EventHandler<DataPortalResult<MagFieldOfStudyList>> handler)
+        public static void GetMagFieldOfStudyList(MagFieldOfStudyListSelectionCriteria selectionCriteria, EventHandler<DataPortalResult<MagFieldOfStudyList>> handler)
         {
             DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
             dp.FetchCompleted += handler;
-            dp.BeginFetch(new SingleCriteria<MagFieldOfStudy, string>(Ids));
+            dp.BeginFetch(selectionCriteria);
         }
 
 
@@ -39,16 +39,15 @@ namespace BusinessLibrary.BusinessClasses
        
 #else
 
-        protected void DataPortal_Fetch(SingleCriteria<MagFieldOfStudy, string> criteria)
+        protected void DataPortal_Fetch(MagFieldOfStudyListSelectionCriteria selectionCriteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_AggregateFoSPaperList", connection))
+                using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
                 {
-                    command.Parameters.Add(new SqlParameter("@PaperIdList", criteria.Value));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -63,14 +62,78 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = true;
         }
 
-        
+        private SqlCommand SpecifyListCommand(SqlConnection connection, MagFieldOfStudyListSelectionCriteria criteria, ReviewerIdentity ri)
+        {
+            SqlCommand command = null;
+            switch (criteria.ListType)
+            {
+                case "PaperFieldOfStudyList":
+                    command = new SqlCommand("st_AggregateFoSPaperList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperIdList", criteria.PaperIdList));
+                    break;
+                case "FieldOfStudyParentsList":
+                    command = new SqlCommand("st_FieldsOfStudyParentsList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+                    break;
+                case "FieldOfStudyChildrenList":
+                    command = new SqlCommand("st_FieldsOfStudyChildrenList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+                    break;
+                case "FieldOfStudyRelatedFoSList":
+                    command = new SqlCommand("st_FieldsOfStudyRelatedFoSList", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+                    break;
+            }
+            return command;
+        }
+
+
 
 
 #endif
 
+                // used to define the parameters for the query.
+        [Serializable]
+        public class MagFieldOfStudyListSelectionCriteria : BusinessBase //Csla.CriteriaBase
+        {
+            public MagFieldOfStudyListSelectionCriteria() { }
+            public static readonly PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
+            public Int64 FieldOfStudyId
+            {
+                get { return ReadProperty(FieldOfStudyIdProperty); }
+                set
+                {
+                    SetProperty(FieldOfStudyIdProperty, value);
+                }
+            }
+
+            public static readonly PropertyInfo<string> ListTypeProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("ListType", "ListType", ""));
+            public string ListType
+            {
+                get { return ReadProperty(ListTypeProperty); }
+                set
+                {
+                    SetProperty(ListTypeProperty, value);
+                }
+            }
+
+            public static readonly PropertyInfo<string> PaperIdListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("PaperIdList", "PaperIdList", ""));
+            public string PaperIdList
+            {
+                get { return ReadProperty(PaperIdListProperty); }
+                set
+                {
+                    SetProperty(PaperIdListProperty, value);
+                }
+            }
+        }
 
 
-    }
+        }
 
     
 }

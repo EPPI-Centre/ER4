@@ -129,6 +129,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> ExternalMagLinkProperty = RegisterProperty<string>(new PropertyInfo<string>("ExternalMagLink", "ExternalMagLink", string.Empty));
+        public string ExternalMagLink
+        {
+            get
+            {
+                return "https://academic.microsoft.com/topic/" + FieldOfStudyId.ToString();
+            }
+        }
+
         /*
         public static readonly PropertyInfo<MagFieldOfStudyList> CitationsProperty = RegisterProperty<MagFieldOfStudyList>(new PropertyInfo<MagFieldOfStudyList>("Citations", "Citations"));
         public MagFieldOfStudyList Citations
