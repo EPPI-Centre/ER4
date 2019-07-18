@@ -2,19 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
-using Csla.Data;
-using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 
 namespace ERxWebClient2.Controllers
 {
@@ -83,7 +77,7 @@ namespace ERxWebClient2.Controllers
             }
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when Creating an TimePoint : {0}", data.itemTimepointId);
+				_logger.LogError(e, "Error when Creating a TimePoint : {0}", data.itemTimepointId);
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -118,7 +112,7 @@ namespace ERxWebClient2.Controllers
             }
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when updating an TimePoint: {0}", data.itemTimepointId);
+				_logger.LogError(e, "Error when updating a TimePoint: {0}", data.itemTimepointId);
 				return StatusCode(500, e.Message);
 			}
 		}
