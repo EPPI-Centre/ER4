@@ -219,10 +219,9 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 
 export class ItemtimepointDeleteWarningCommandJSON {
 
-	numCodings: number = 0;
+	numOutcomes: number = 0;
     itemId: number = 0;
 	timepointId: number = 0;
-	numOutcomes: number = 0;
 }
 
 

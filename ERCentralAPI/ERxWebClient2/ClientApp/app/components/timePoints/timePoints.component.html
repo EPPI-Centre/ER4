@@ -1,44 +1,62 @@
 <!-- Editable table -->
 <div class="card">
-	<h5 class="card-header text-center font-weight-bold py-4">Study timepoints</h5>
+	<h5 class="card-header text-center font-weight-bold py-4">Timepoints</h5>
 	<div class="card-body">
 		<div id="table" class="table-editable">
-			<div class="table-add float-left mb-3 mr-2 col-md-6 row">
-				Enter a frequency and unit of a timepoint:
-				<div class="row col-md-12">
-					<input #titleModel="ngModel"
-						   required
-						   pattern="^(?!\s*$).+" class="form-control"
-						   type="text" [(ngModel)]="timepointFreq" />
+			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
+				<div xlass="col-md-6">
+					Enter a frequency and unit of a timepoint
+					<div class="row col-md-12">
+						<input #titleModel="ngModel"
+							   required
+							   pattern="^[0-9]+$" class="form-control"
+							   type="text" [(ngModel)]="timepointFreq"/>
+					</div>
+					<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
+						 class="alert small alert-danger p-1">
 
-				</div>
-				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
-					 class="alert small alert-danger p-1">
-
-					<div *ngIf="titleModel.errors.required">
-						time point unit is required.
+						<div *ngIf="titleModel.errors.required">
+							time point unit is required.
+						</div>
+						<div *ngIf="titleModel.errors.pattern">
+							Frequency of a time point has to be a number
+						</div>
 					</div>
 				</div>
+				<div class="col-md-2">
+
 				</div>
-				<div class="form-group">
-					<label>Time Unit </label>
-					<select #unit class="form-control col-md-6" (change)="TimePointChanged($event.target.value)">
+				<div class="form-group col-md-4">
+					<label class="m-0 p-0">Time Unit </label>
+					<select #unitM="ngModel" [(ngModel)]="unitModel" class="form-control col-md-12" 
+							(change)="TimePointChanged(unitModel)">
+						<option value="" selected="selected">Choose time point metric</option>
 						<option [ngValue]="unit" *ngFor="let unit of Units">
 							{{unit.name}}
 						</option>
 					</select>
 				</div>
-				<div>
-					<button *ngIf="!titleModel.invalid" [disabled]="!HasWriteRights"
+				<div class="col-md-12 row">
+					<button *ngIf=" !titleModel.invalid && unitModel !='' && edit == false"
+							[disabled]="!HasWriteRights"
 							class="btn btn-success mt-1 p-1 m-1" (click)="add(timepointFreq)">
 						Add New Time Point
 					</button>
-					<button *ngIf="!titleModel.invalid"
+					<button *ngIf=" !titleModel.invalid &&
+							edit == true
+							&& unitModel !=''
+							"
+							[disabled]="!HasWriteRights"
+							class="btn btn-warning mt-1 p-1 m-1" (click)="UpdateList()">
+						Update Time Point
+					</button>
+					<button *ngIf="!titleModel.invalid && unitModel !=''"
 							class="btn btn-danger mt-1 p-1 m-1"
 							(click)="ClearAndCancelAdd()">
 						Cancel
 					</button>
 				</div>
+			</div>
 			<!---->
 			<table class="table table-bordered table-responsive-md table-striped text-sm-center">
 				<tr>
@@ -50,7 +68,7 @@
 					<td style="width: 150px;">{{timepoint.timepointValue}}  {{timepoint.timepointMetric}}</td>
 					<td style="width: 15px; white-space:nowrap;">
 						<span class="table-remove">
-							<button (click)="editTitle=true; setTimePoint(timepoint, key)"
+							<button (click)="edit=true; setTimePoint(timepoint, key)"
 									[disabled]="!HasWriteRights"
 									type="button" rounded="true" size="sm" class="btn btn-info">
 								Edit
@@ -67,11 +85,6 @@
 					</td>
 				</tr>
 			</table>
-			<div *ngIf="editTitle">
-				<input class="form-control" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
-				<button class="btn btn-primary mt-1 p-1 m-1" (click)="updateList(currentTimePoint)">Confirm Change</button>
-				<button class="btn btn-danger mt-1 p-1 m-1" (click)="ClearAndCancelEdit()">Cancel Change</button>
-			</div>
 		</div>
 	</div>
 </div>

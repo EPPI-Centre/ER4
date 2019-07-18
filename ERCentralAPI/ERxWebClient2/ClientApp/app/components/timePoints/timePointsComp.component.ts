@@ -43,7 +43,7 @@ export class timePointsComp implements OnInit {
 		}
 	}
 
-	public Units: any = [{
+	public Units: any[] = [{
 		id: '8f8c6e98',
 		name: 'seconds'
 	},
@@ -77,12 +77,14 @@ export class timePointsComp implements OnInit {
 	
 	public unit: string = '';
 	swap: boolean = false;
-	public currentTimePoint!: iTimePoint;
+	public currentTimePoint: TimePoint = new TimePoint();
 	public currentTitle!: string;
 	public currentKey: number = 0;
-	public editTitle: boolean = false;
+	public edit: boolean = false;
 	public titleModel: string = '';
+	public unitModel: string = '';
 	public timepointFreq: string = '';
+	public selected: string = '';
 
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
@@ -91,30 +93,48 @@ export class timePointsComp implements OnInit {
 
 		this.currentKey = key;
 		this.currentTimePoint = timepoint;
+		console.log(JSON.stringify(this.currentTimePoint));
+		this.edit = true;
+		this.unit = this.currentTimePoint.timepointMetric;
+		this.unitModel = this.Units.filter(x => x.name == this.currentTimePoint.timepointMetric)[0];
+		this.titleModel = this.currentTimePoint.timepointMetric;
+		this.timepointFreq = this.currentTimePoint.timepointValue;
+		this.selected = 'selected';
 	}
 
 	editField!: string;
 
-	updateList(timepoint: iTimePoint) {
+	UpdateList() {
 
-		this.editTitle = false;
-		this.item!.timepoints[this.currentKey] = timepoint;
+		this.currentTimePoint.timepointMetric = this.titleModel;
+		this.currentTimePoint.timepointValue = this.timepointFreq;
+		this.edit = false;
+		this.item!.timepoints[this.currentKey] = this.currentTimePoint;
+		console.log(JSON.stringify(this.currentTimePoint));
 		this._timePointsService.Updatetimepoint(this.item!.timepoints[this.currentKey]);
 		this.ClearAndCancelEdit();
 	}
-
-
+	
 	ClearAndCancelEdit() {
 
-		this.editTitle = false;
-		this.currentTitle = '';
+		this.title = '';
+		this.unit = '';
+		this.timepointFreq = '';
+		this.currentTimePoint = new TimePoint();
+		this._timePointsService.SetSelectedtimepoint(new TimePoint());
+		this.edit = false;
 
 	}
 
 	ClearAndCancelAdd() {
 
 		this.title = '';
-
+		this.unit = '';
+		this.timepointFreq = '';
+		this.currentTimePoint = new TimePoint();
+		this._timePointsService.SetSelectedtimepoint(new TimePoint());
+		this.unitModel = '';
+		this.edit = false;
 	}
 
 	public openConfirmationDialogDeletetimepoints(key: number) {
@@ -138,7 +158,7 @@ export class timePointsComp implements OnInit {
 	public openConfirmationDialogDeletetimepointsWithText(key: number, numCodings: number) {
 
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an timepoint is a permanent operation and will delete all coding associated with the timepoint.' +
-			'<br /><b>This timepoint is associated with ' + numCodings + ' codes.</b>' +
+			'<br /><b>This timepoint is associated with ' + numCodings + ' outcomes(s).</b>' +
 			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, 'who knows here')
 			.then(
 				(confirm: any) => {
@@ -159,58 +179,75 @@ export class timePointsComp implements OnInit {
 
 	removeWarning(key: number) {
 
-
+	
 		// first call the dialog then call this part
 		this._timePointsService.DeleteWarningtimepoint(this.timePointsList[key]).then(
 
+			
 			(res: ItemtimepointDeleteWarningCommandJSON) => {
 
-				if (res.numCodings == 0) {
+				alert(JSON.stringify(res));
+				console.log(JSON.stringify(res))
+				if (res == undefined || res.numOutcomes == 0  ) {
 
 					this.openConfirmationDialogDeletetimepoints(key);
 
 
-				} else if (res.numCodings == -1) {
+				} else if (res.numOutcomes == -1) {
 					return;
 				}
 				else {
 
-					this.openConfirmationDialogDeletetimepointsWithText(key, res.numCodings);
+					this.openConfirmationDialogDeletetimepointsWithText(key, res.numOutcomes);
 				}
 
 			}
 		);
 	}
 
+
 	ActuallyRemove(key: number) {
+	
 		let ToRemove = this.timePointsList[key];
 		if (ToRemove) {
 			let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
 			this._timePointsService.Deletetimepoint(ToRemove);
 			this.timePointsList.splice(key, 1);
-			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(0);
+			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint());
 		}
 	}
 
-	TimePointChanged(timepointMetric: string) {
-		console.log("timepointId changed: ..." + timepointMetric);
-		let currentTimePoint: TimePoint = new TimePoint();
-		currentTimePoint.itemId = this.item != null? this.item.itemId: 0;
-		currentTimePoint.timepointMetric = timepointMetric;
-		currentTimePoint.timepointValue = this.timepointFreq;
-		this._timePointsService.SetSelectedtimepoint(currentTimePoint);
+	TimePointChanged(unit: any) {
+
+		console.log("timepointId changed: ..." + JSON.stringify(unit));
+		//let currentTimePoint: TimePoint = new TimePoint();
+		this.currentTimePoint.itemId = this.item != null? this.item.itemId: 0;
+		this.currentTimePoint.timepointMetric = unit.name;
+		this.currentTimePoint.timepointValue = this.timepointFreq;
+		this._timePointsService.SetSelectedtimepoint(this.currentTimePoint);
 
 	}
 
 	add(timepointFreq: string) {
 
-		if (timepointFreq != '') {
+		if (timepointFreq != '' && this._timePointsService.Selectedtimepoint
+			&& this.currentTimePoint.timepointMetric != '') {
 			if (this.item != undefined) {
 
 				let newtimepoint: TimePoint = new TimePoint();
 				newtimepoint.itemId = this.item.itemId;
 				newtimepoint.timepointValue = timepointFreq;
-				newtimepoint.timepointMetric = this.unit;
+				if (this._timePointsService.Selectedtimepoint) {
+					newtimepoint.timepointMetric = this.currentTimePoint.timepointMetric;
+				}
+				// check for the same timepoint
+				if (this.timePointsList.filter( x=> x.timepointMetric == newtimepoint.timepointMetric)[0]
+					&& this.timePointsList.filter(x => x.timepointValue == newtimepoint.timepointValue)[0])
+				{
+					alert('The list already contains');
+					return;
+				}
+
 				this._timePointsService.Createtimepoint(newtimepoint).then(
 					(res: TimePoint) => {
 

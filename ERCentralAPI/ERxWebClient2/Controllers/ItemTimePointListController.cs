@@ -105,7 +105,9 @@ namespace ERxWebClient2.Controllers
                     ItemTimepointList result = dp.Fetch(criteria);
 
                     ItemTimepoint editTimePoint = result.FirstOrDefault(x => x.ItemTimepointId == data.itemTimepointId);
-                    editTimePoint = editTimePoint.Save();
+					editTimePoint.TimepointMetric = data.timepointMetric;
+					editTimePoint.TimepointValue = Convert.ToSingle(data.timepointValue);
+					editTimePoint = editTimePoint.Save();
 
                     return Ok(editTimePoint);
                 }
@@ -212,7 +214,7 @@ namespace ERxWebClient2.Controllers
 	{
 		public long itemId { get; set; }
 		public long ItemTimepointId { get; set; }
-		public long numCodings { get; set; }
+		public long numOutcomes { get; set; }
 
 	}
 }

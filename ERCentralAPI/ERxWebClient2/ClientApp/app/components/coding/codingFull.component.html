@@ -41,7 +41,7 @@
 							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Study Arms'">
+					<kendo-tabstrip-tab [title]="'Arms and Timepoints'">
 						<ng-template kendoTabContent>
 							<div *ngIf="item">
 								<armDetailsComp [item]="item"></armDetailsComp>
@@ -61,13 +61,13 @@
 							<codingRecordComp [item]="item"></codingRecordComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Study timepoints'">
+					<!--<kendo-tabstrip-tab [title]="'Study timepoints'">
 						<ng-template kendoTabContent>
 							<div *ngIf="item" style="min-height:600px;">
 								<timePointsComp #timepointscontainer [item]="item"></timePointsComp>
 							</div>
 						</ng-template>
-					</kendo-tabstrip-tab>
+					</kendo-tabstrip-tab>-->
 				</kendo-tabstrip>
 			</div>
 			
