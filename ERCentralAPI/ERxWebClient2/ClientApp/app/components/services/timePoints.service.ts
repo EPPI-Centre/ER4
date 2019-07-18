@@ -22,7 +22,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 
 	}
 	private _currentItem: Item = new Item();
-    private _timepoints: iTimePoint[] | null = null;//null when service has been instantiated, empty array when the item in question had no timepoints.
+    private _timepoints: iTimePoint[] | null = null;
 	public get timepoints(): iTimePoint[] {
         if (this._timepoints) return this._timepoints;
         else {
@@ -69,31 +69,6 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			return currentItem.timepoints;
 	}
 
-	public FetchPromisetimepoints(currentItem: Item): Promise<iTimePoint[]> {
-
-		this._BusyMethods.push("FetchPromisetimepoints");
-		this._currentItem = currentItem;
-		let body = JSON.stringify({ Value: currentItem.itemId });
-
-		return this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/Gettimepoints',
-
-			body).toPromise().then(
-
-				result => {
-					this.timepoints = result;
-					currentItem.timepoints = this.timepoints;
-					this.RemoveBusy("FetchPromisetimepoints");
-					return result;
-					
-			},
-
-			(error) => {
-				this.modalService.SendBackHomeWithError(error);
-				this.RemoveBusy("Fetchtimepoints");
-				return error;
-			}
-		);
-	}
 
 	public Createtimepoint(currenttimepoint: iTimePoint): Promise<iTimePoint> {
 

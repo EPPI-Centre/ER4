@@ -1,14 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
 import {  Item, TimePoint} from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemtimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
-import { currencyDisplay } from '@telerik/kendo-intl';
-
 
 @Component({
 	selector: 'timePointsComp',
@@ -33,9 +29,7 @@ export class timePointsComp implements OnInit {
 
 	public title: string = '';
 	@Input() item!: Item | undefined;
-
-	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
-
+	
 	ngOnInit() {
 
 		if (this.item) {
@@ -78,10 +72,10 @@ export class timePointsComp implements OnInit {
 	public unit: string = '';
 	swap: boolean = false;
 	public currentTimePoint: TimePoint = new TimePoint();
-	public currentTitle!: string;
+	//public currentTitle!: string;
 	public currentKey: number = 0;
 	public edit: boolean = false;
-	public titleModel: string = '';
+	public timepointModel: string = '';
 	public unitModel: string = '';
 	public timepointFreq: string = '';
 	public selected: string = '';
@@ -93,40 +87,30 @@ export class timePointsComp implements OnInit {
 
 		this.currentKey = key;
 		this.currentTimePoint = timepoint;
-		console.log(JSON.stringify(this.currentTimePoint));
+		//console.log(JSON.stringify(this.currentTimePoint));
 		this.edit = true;
 		this.unit = this.currentTimePoint.timepointMetric;
 		this.unitModel = this.Units.filter(x => x.name == this.currentTimePoint.timepointMetric)[0];
-		this.titleModel = this.currentTimePoint.timepointMetric;
+		this.timepointModel = this.currentTimePoint.timepointMetric;
 		this.timepointFreq = this.currentTimePoint.timepointValue;
 		this.selected = 'selected';
 	}
 
-	editField!: string;
+	//editField!: string;
 
 	UpdateList() {
 
-		this.currentTimePoint.timepointMetric = this.titleModel;
+		this.currentTimePoint.timepointMetric = this.timepointModel;
 		this.currentTimePoint.timepointValue = this.timepointFreq;
 		this.edit = false;
 		this.item!.timepoints[this.currentKey] = this.currentTimePoint;
-		console.log(JSON.stringify(this.currentTimePoint));
+		//console.log(JSON.stringify(this.currentTimePoint));
 		this._timePointsService.Updatetimepoint(this.item!.timepoints[this.currentKey]);
-		this.ClearAndCancelEdit();
-	}
-	
-	ClearAndCancelEdit() {
-
-		this.title = '';
-		this.unit = '';
-		this.timepointFreq = '';
-		this.currentTimePoint = new TimePoint();
-		this._timePointsService.SetSelectedtimepoint(new TimePoint());
-		this.edit = false;
-
+		this.Clear();
 	}
 
-	ClearAndCancelAdd() {
+
+	Clear() {
 
 		this.title = '';
 		this.unit = '';
@@ -138,8 +122,11 @@ export class timePointsComp implements OnInit {
 	}
 
 	public openConfirmationDialogDeletetimepoints(key: number) {
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an timepoint is a permanent operation and will delete all coding associated with the timepoint.' +
-			'<br />This timepoint is associated with 0 codes.', false, '')
+
+		this.confirmationDialogService.confirm('Please confirm',
+			'Deleting an timepoint is a permanent operation and will delete'
+			+'all outcome(s) associated with the timepoint.' +
+			'<br />This timepoint is associated with 0 outcome.', false, '')
 			.then(
 				(confirmed: any) => {
 					console.log('User confirmed:');
@@ -157,20 +144,18 @@ export class timePointsComp implements OnInit {
 
 	public openConfirmationDialogDeletetimepointsWithText(key: number, numCodings: number) {
 
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an timepoint is a permanent operation and will delete all coding associated with the timepoint.' +
+		this.confirmationDialogService.confirm('Please confirm',
+			'Deleting an timepoint is a permanent operation and will '
+			+ 'delete all outcome(s) associated with the timepoint.' +
 			'<br /><b>This timepoint is associated with ' + numCodings + ' outcomes(s).</b>' +
-			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, 'who knows here')
+			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.',
+			true, 'who knows here')
 			.then(
 				(confirm: any) => {
-
-					//console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
 
 					if (confirm && this.eventsService.UserInput == 'I confirm') {
 
 						this.ActuallyRemove(key);
-
-					} else {
-
 					}
 				}
 			)
@@ -179,19 +164,14 @@ export class timePointsComp implements OnInit {
 
 	removeWarning(key: number) {
 
-	
 		// first call the dialog then call this part
 		this._timePointsService.DeleteWarningtimepoint(this.timePointsList[key]).then(
 
-			
 			(res: ItemtimepointDeleteWarningCommandJSON) => {
 
-				alert(JSON.stringify(res));
-				console.log(JSON.stringify(res))
 				if (res == undefined || res.numOutcomes == 0  ) {
 
 					this.openConfirmationDialogDeletetimepoints(key);
-
 
 				} else if (res.numOutcomes == -1) {
 					return;
@@ -204,7 +184,6 @@ export class timePointsComp implements OnInit {
 			}
 		);
 	}
-
 
 	ActuallyRemove(key: number) {
 	
@@ -219,8 +198,6 @@ export class timePointsComp implements OnInit {
 
 	TimePointChanged(unit: any) {
 
-		console.log("timepointId changed: ..." + JSON.stringify(unit));
-		//let currentTimePoint: TimePoint = new TimePoint();
 		this.currentTimePoint.itemId = this.item != null? this.item.itemId: 0;
 		this.currentTimePoint.timepointMetric = unit.name;
 		this.currentTimePoint.timepointValue = this.timepointFreq;
@@ -244,6 +221,8 @@ export class timePointsComp implements OnInit {
 				if (this.timePointsList.filter( x=> x.timepointMetric == newtimepoint.timepointMetric)[0]
 					&& this.timePointsList.filter(x => x.timepointValue == newtimepoint.timepointValue)[0])
 				{
+					// Will ask Sergio if he wants a notification here
+					// or the alert errors panel to appear
 					alert('The list already contains');
 					return;
 				}
@@ -258,16 +237,8 @@ export class timePointsComp implements OnInit {
 			}
 			this.title = '';
 		}
-		this.ClearAndCancelAdd();
+		this.Clear();
 	}
-
-}
-
-
-
-export interface numCodings {
-
-	numCodings: number;
 }
 
 export interface iTimePoint {
