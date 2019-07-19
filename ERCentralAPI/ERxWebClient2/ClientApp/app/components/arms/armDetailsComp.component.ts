@@ -27,9 +27,15 @@ export class armDetailsComp implements OnInit {
 	}
 
 	public title: string = '';
+	public ShowArms: boolean = true;
+
+	public get ShowArmsBtnText(): string {
+		if (this.ShowArms) return "Collapse";
+		else return "Expand";
+	}
+
 	
-	//public currentItem!: Item;
-	
+
 	@Input() item!: Item | undefined;
 
 	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;

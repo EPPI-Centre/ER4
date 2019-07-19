@@ -21,6 +21,13 @@ export class timePointsComp implements OnInit {
 		private ReviewerIdentityServ: ReviewerIdentityService
 	) { }
 
+	public ShowTimePoints: boolean = true;
+
+	public get ShowTimePointsBtnText(): string {
+		if (this.ShowTimePoints) return "Collapse";
+		else return "Expand";
+	}
+
 	public get timePointsList(): iTimePoint[] {
 
 		if (!this.item || !this.item.timepoints) return [];

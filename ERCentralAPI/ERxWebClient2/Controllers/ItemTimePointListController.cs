@@ -160,22 +160,11 @@ namespace ERxWebClient2.Controllers
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-                    //DataPortal<ItemTimepointDeleteWarningCommand> dp = new DataPortal<ItemTimepointDeleteWarningCommand>();
-                    //ItemTimepointDeleteWarningCommand command = new ItemTimepointDeleteWarningCommand(CurrentTimePoint.itemId, CurrentTimePoint.ItemTimepointId);
-                    //ItemTimepointDeleteWarningCommand res = dp.Execute(command);
-
-                    //dp.Execute(command);
-
-                    // Actually need to end up with ItemTimepoint  currentTimePoint.Delete()
-
-
                     DataPortal<ItemTimepointList> dp = new DataPortal<ItemTimepointList>();
                     SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(CurrentTimePoint.itemId);
                     ItemTimepointList result = dp.Fetch(criteria);
 
                     ItemTimepoint CurrTimePoint = result.FirstOrDefault(x => x.ItemTimepointId == CurrentTimePoint.itemTimepointId);
-
-                    //result.Remove(CurrTimePoint);
 
                     CurrTimePoint.Delete();
                     CurrTimePoint = CurrTimePoint.Save();

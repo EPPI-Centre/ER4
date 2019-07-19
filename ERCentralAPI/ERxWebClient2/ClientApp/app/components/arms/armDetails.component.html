@@ -1,12 +1,19 @@
 <!-- Editable table -->
 <div class="card">
 	<h5 class="card-header text-center font-weight-bold py-4">Arms</h5>
+	<div class="col-md-12">
+		<div class="col-md-10"></div>
+		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+				(click)="ShowArms = !ShowArms">
+			{{ShowArmsBtnText}}
+		</button>
+	</div>
 	<div class="card-body">
-		<div id="table" class="table-editable">
+		<div id="table" class="table-editable" *ngIf="ShowArms">
 			<div class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
 				Create new study arm:
 				<input #titleModel="ngModel"
-					   required minlength="3" 
+					   required minlength="3"
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
@@ -27,10 +34,12 @@
 				<button *ngIf="!titleModel.invalid" [disabled]="!HasWriteRights"
 						class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
 					Add New Study Arm
-				</button >
+				</button>
 				<button *ngIf="!titleModel.invalid"
 						class="btn btn-danger mt-1 p-1 m-1"
-						(click)="ClearAndCancelAdd()">Cancel</button>
+						(click)="ClearAndCancelAdd()">
+					Cancel
+				</button>
 			</div>
 			<!---->
 			<table class="table table-bordered table-responsive-md table-striped text-center">
@@ -39,20 +48,23 @@
 					<th class="text-center" style="max-width: 10px;">Edit</th>
 					<th class="text-center" style="max-width: 10px;">Remove</th>
 				</tr>
-				<tr  *ngFor="let arm of armsList; let key = index">
+				<tr *ngFor="let arm of armsList; let key = index">
 					<td style="width: 150px;">{{arm.title}}</td>
-					<td style="width: 15px; white-space:nowrap;" >
-						<span class="table-remove" >
-							<button (click)="editTitle=true; setArm(arm, key)" 
-									 [disabled]="!HasWriteRights"
-									type="button" rounded="true" size="sm" class="btn btn-info">Edit
+					<td style="width: 15px; white-space:nowrap;">
+						<span class="table-remove">
+							<button (click)="editTitle=true; setArm(arm, key)"
+									[disabled]="!HasWriteRights"
+									type="button" rounded="true" size="sm" class="btn btn-info">
+								Edit
 							</button>
 						</span>
 					</td>
-					<td style="width: 15px; white-space:nowrap;" >
-						<span class="table-remove" >
-							<button type="button" rounded="true" size="sm" class="btn btn-danger" 
-									 [disabled]="!HasWriteRights" (click)="removeWarning(key)">Remove</button>
+					<td style="width: 15px; white-space:nowrap;">
+						<span class="table-remove">
+							<button type="button" rounded="true" size="sm" class="btn btn-danger"
+									[disabled]="!HasWriteRights" (click)="removeWarning(key)">
+								Remove
+							</button>
 						</span>
 					</td>
 				</tr>

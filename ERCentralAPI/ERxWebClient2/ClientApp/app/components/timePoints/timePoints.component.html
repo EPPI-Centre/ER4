@@ -1,16 +1,23 @@
 <!-- Editable table -->
 <div class="card">
 	<h5 class="card-header text-center font-weight-bold py-4">Timepoints</h5>
+	<div class="col-md-12">
+		<div class="col-md-10"></div>
+		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
+				(click)="ShowTimePoints = !ShowTimePoints">
+			{{ShowTimePointsBtnText}}
+		</button>
+	</div>
 	<div class="card-body">
-		<div id="table" class="table-editable">
+		<div id="table" class="table-editable" *ngIf="ShowTimePoints">
 			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
-				<div xlass="col-md-6">
+				<div class="col-md-6">
 					Enter a frequency and unit of a timepoint
 					<div class="row col-md-12">
 						<input #timepointModel="ngModel"
 							   required
 							   pattern="^[0-9]+$" class="form-control"
-							   type="text" [(ngModel)]="timepointFreq"/>
+							   type="text" [(ngModel)]="timepointFreq" />
 					</div>
 					<div *ngIf="timepointModel.invalid && (timepointModel.dirty || timepointModel.touched)"
 						 class="alert small alert-danger p-1">
@@ -27,8 +34,8 @@
 				</div>
 				<div class="form-group col-md-4">
 					<label class="m-0 p-0">Time Unit</label>
-					<select #unitM="ngModel" [(ngModel)]="unitModel" 
-							class="form-control col-md-12" 
+					<select #unitM="ngModel" [(ngModel)]="unitModel"
+							class="form-control col-md-12"
 							(change)="TimePointChanged(unitModel)">
 						<option value="" selected="selected">Choose time point metric</option>
 						<option [ngValue]="unit" *ngFor="let unit of Units">
