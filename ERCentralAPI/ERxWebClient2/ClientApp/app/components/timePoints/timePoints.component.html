@@ -1,26 +1,26 @@
 <!-- Editable table -->
 <div class="card">
-	<h5 class="card-header text-center font-weight-bold py-4">Timepoints</h5>
-	<div class="col-md-12">
-		<div class="col-md-10"></div>
+	<h5 class="m-1 p-1 font-weight-bold">
+		Timepoints
 		<button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right"
 				(click)="ShowTimePoints = !ShowTimePoints">
 			{{ShowTimePointsBtnText}}
 		</button>
-	</div>
-	<div class="card-body">
-		<div id="table" class="table-editable" *ngIf="ShowTimePoints">
+	</h5>
+	
+	<div class="card-body" style="max-height:360px;overflow:auto;">
+		<div id="table" class="small table table-striped bg-light" *ngIf="ShowTimePoints">
 			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
 				<div class="col-md-6">
 					Enter a frequency and unit of a timepoint
-					<div class="row col-md-12">
+					<div >
 						<input #timepointModel="ngModel"
 							   required
 							   pattern="^[0-9]+$" class="form-control"
 							   type="text" [(ngModel)]="timepointFreq" />
 					</div>
 					<div *ngIf="timepointModel.invalid && (timepointModel.dirty || timepointModel.touched)"
-						 class="alert small alert-danger p-1">
+						 class="alert small alert-danger p-1 col-md-4">
 
 						<div *ngIf="timepointModel.errors.required">
 							time point unit is required.
@@ -76,14 +76,14 @@
 						<span class="table-remove">
 							<button (click)="edit=true; setTimePoint(timepoint, key)"
 									[disabled]="!HasWriteRights"
-									type="button" rounded="true" size="sm" class="btn btn-info">
+									type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
 								Edit
 							</button>
 						</span>
 					</td>
 					<td style="width: 15px; white-space:nowrap;">
 						<span class="table-remove">
-							<button type="button" rounded="true" size="sm" class="btn btn-danger"
+							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
 									[disabled]="!HasWriteRights" (click)="removeWarning(key)">
 								Remove
 							</button>
