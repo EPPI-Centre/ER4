@@ -53,9 +53,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		this._currentItem = currentItem;
         let body = JSON.stringify({ Value: currentItem.itemId });
 
-		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/GetTimePoints',
-
-			   body).subscribe(result => {
+		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemtimepointList/GetTimePoints', body).subscribe(result => {
 				   this.timepoints = result;
 				   currentItem.timepoints = this.timepoints;
 				   this._selectedtimepoint = null;
@@ -65,8 +63,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("Fetchtimepoints");
 			}
-			);
-			return currentItem.timepoints;
+        );
 	}
 
 
@@ -86,7 +83,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 							return result;
 						}
 						, (error) => {
-							this.timepoints = this.Fetchtimepoints(this._currentItem);		
+							this.Fetchtimepoints(this._currentItem);		
 							this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("Createtimepoint");
 							return error;
@@ -94,7 +91,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 						)
 						.catch(
 							(error) => {
-								this.timepoints = this.Fetchtimepoints(this._currentItem);		
+								this.Fetchtimepoints(this._currentItem);		
 								this.modalService.GenericErrorMessage(ErrMsg);
 								this.RemoveBusy("Createtimepoint");
 								return error;
@@ -120,7 +117,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 					return result;
 				}
 				, (error) => {
-					this.timepoints = this.Fetchtimepoints(this._currentItem);		
+					 this.Fetchtimepoints(this._currentItem);		
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("Updatetimepoint");
 					return error;
@@ -181,7 +178,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 				}
 				, (error) => {
 
-					this.timepoints = this.Fetchtimepoints(this._currentItem);					
+					this.Fetchtimepoints(this._currentItem);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("Deletetimepoint");
 					return error;
