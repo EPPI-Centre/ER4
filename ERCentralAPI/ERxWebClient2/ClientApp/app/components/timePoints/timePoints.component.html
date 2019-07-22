@@ -13,8 +13,8 @@
 			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
 				<div class="col-md-6">
 					Enter a frequency and unit of a timepoint
-					<div >
-						<input #timepointModel="ngModel"
+					<div>
+						<input #timePointModel="ngModel"
 							   required
 							   pattern="^[0-9]+$" class="form-control"
 							   type="text" [(ngModel)]="timepointFreq" />
@@ -28,6 +28,12 @@
 						<div *ngIf="timepointModel.errors.pattern">
 							Frequency of a time point has to be a number
 						</div>
+						<div *ngIf="timepointModel.errors.nomatch">
+							Time exists already
+						</div>
+					</div>
+					<div *ngIf="TimePointTheSame" class="alert small alert-danger p-1 col-md-4">
+						Time Point exists already
 					</div>
 				</div>
 				<div class="col-md-2">
@@ -58,7 +64,7 @@
 					</button>
 					<button *ngIf="!timepointModel.invalid && unitModel !=''"
 							class="btn btn-danger mt-1 p-1 m-1"
-							(click)="ClearAndCancelAdd()">
+							(click)="Clear()">
 						Cancel
 					</button>
 				</div>

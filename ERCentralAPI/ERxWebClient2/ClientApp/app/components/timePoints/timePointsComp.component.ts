@@ -1,10 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import {  Item, TimePoint} from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemtimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
+import { NgModel } from '@angular/forms';
 
 @Component({
 	selector: 'timePointsComp',
@@ -21,6 +22,8 @@ export class timePointsComp implements OnInit {
 		private ReviewerIdentityServ: ReviewerIdentityService
 	) { }
 
+	@ViewChild('timePointModel') timePointModel!: NgModel;
+
 	public ShowTimePoints: boolean = true;
 
 	public get ShowTimePointsBtnText(): string {
@@ -31,11 +34,11 @@ export class timePointsComp implements OnInit {
 	public get timePointsList(): iTimePoint[] {
 
 		if (!this.item || !this.item.timepoints) {
-			console.log('empty:!!! ');
+			//console.log('empty:!!! ');
 			return [];
 		}
 		else {
-			console.log('timepoints: ' + this.item.timepoints.length);
+			//console.log('timepoints: ' + this.item.timepoints.length);
 			return this.item.timepoints;
 		}
 	}
@@ -90,6 +93,7 @@ export class timePointsComp implements OnInit {
 	public currentKey: number = 0;
 	public edit: boolean = false;
 	public timepointModel: string = '';
+	
 	public unitModel: string = '';
 	public timepointFreq: string = '';
 	public selected: string = '';
@@ -218,9 +222,10 @@ export class timePointsComp implements OnInit {
 		this._timePointsService.SetSelectedtimepoint(this.currentTimePoint);
 
 	}
-
+	public TimePointTheSame: boolean = false;
 	add(timepointFreq: string) {
 
+		this.TimePointTheSame = false;
 		if (timepointFreq != '' && this._timePointsService.Selectedtimepoint
 			&& this.currentTimePoint.timepointMetric != '') {
 			if (this.item != undefined) {
@@ -232,13 +237,32 @@ export class timePointsComp implements OnInit {
 					newtimepoint.timepointMetric = this.currentTimePoint.timepointMetric;
 				}
 				// check for the same timepoint
-				if (this.timePointsList.filter( x=> x.timepointMetric == newtimepoint.timepointMetric)[0]
-					&& this.timePointsList.filter(x => x.timepointValue == newtimepoint.timepointValue)[0])
+				let ans: Array<iTimePoint> = [];
+				ans = this.timePointsList.filter(x =>
+					x.timepointMetric == newtimepoint.timepointMetric && x.timepointValue == newtimepoint.timepointValue);
+				if (ans.length > 0)
 				{
+
+					//console.log('metric/unit being added: ' + newtimepoint.timepointMetric);
+					//console.log('number or value: ' + newtimepoint.timepointValue);
+					//console.log('==================================================');
+					//console.log(this.timePointsList);
+					////console.log(this.timePointsList.filter(x => x.timepointValue == newtimepoint.timepointValue));
 					// Will ask Sergio if he wants a notification here
 					// or the alert errors panel to appear
-					alert('The list already contains');
+					this.TimePointTheSame = true;
+					
+					//this.timepointModel = 'The list already contains';
+					this.timePointModel.control.setErrors({ 'nomatch': true });
+					this.timePointModel.control.updateValueAndValidity();
+					//alert('The list already contains');
 					return;
+				} else {
+
+					//console.log('not the same actually=====================');
+					this.TimePointTheSame = false;
+					//this.timePointModel.control.setErrors({  });
+					//this.timepointModel = '';
 				}
 
 				this._timePointsService.Createtimepoint(newtimepoint).then(
