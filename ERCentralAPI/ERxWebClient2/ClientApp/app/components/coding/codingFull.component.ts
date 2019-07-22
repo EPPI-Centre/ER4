@@ -19,6 +19,7 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { WebViewerComponent } from '../PDFTron/webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
+import { timePointsService } from '../services/timePoints.service';
 
 
 @Component({
@@ -44,12 +45,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         public PriorityScreeningService: PriorityScreeningService
         , private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
-        private armservice: ArmsService,
+		private armservice: ArmsService,
+		private timePointsService: timePointsService,
         private notificationService: NotificationService
     ) { }
    
     @ViewChild('ArmsCmp')
-    private ArmsCompRef!: any;
+	private ArmsCompRef!: any;
     @ViewChild('ItemDetailsCmp')
     private ItemDetailsCompRef!: any; 
 
@@ -216,7 +218,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.ItemDocsService.FetchDocList(this.itemID);
         if (this.item) {
             this.ArmsCompRef.CurrentItem = this.item;
-            this.armservice.FetchArms(this.item);
+			this.armservice.FetchArms(this.item);
+			this.timePointsService.Fetchtimepoints(this.item);
         }
         this.ItemCodingService.Fetch(this.itemID);    
 

@@ -30,8 +30,14 @@ export class timePointsComp implements OnInit {
 
 	public get timePointsList(): iTimePoint[] {
 
-		if (!this.item || !this.item.timepoints) return [];
-		else return this.item.timepoints;
+		if (!this.item || !this.item.timepoints) {
+			console.log('empty:!!! ');
+			return [];
+		}
+		else {
+			console.log('timepoints: ' + this.item.timepoints.length);
+			return this.item.timepoints;
+		}
 	}
 
 	public title: string = '';
@@ -40,6 +46,7 @@ export class timePointsComp implements OnInit {
 	ngOnInit() {
 
 		if (this.item) {
+			console.log('got in here servuce time points');
 			this._timePointsService.Fetchtimepoints(this.item);
 		}
 	}
