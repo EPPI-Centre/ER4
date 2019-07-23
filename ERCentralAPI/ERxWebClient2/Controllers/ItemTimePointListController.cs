@@ -130,7 +130,7 @@ namespace ERxWebClient2.Controllers
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                     DataPortal<ItemTimepointDeleteWarningCommand> dp = new DataPortal<ItemTimepointDeleteWarningCommand>();
-                    ItemTimepointDeleteWarningCommand command = new ItemTimepointDeleteWarningCommand(TimePointJSON.itemId, TimePointJSON.ItemTimepointId);
+                    ItemTimepointDeleteWarningCommand command = new ItemTimepointDeleteWarningCommand(TimePointJSON.itemId, TimePointJSON.itemTimepointId);
                     ItemTimepointDeleteWarningCommand result = dp.Execute(command);
 
 
@@ -143,7 +143,7 @@ namespace ERxWebClient2.Controllers
             }
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when delete warning is called: {0}", TimePointJSON.ItemTimepointId);
+				_logger.LogError(e, "Error when delete warning is called: {0}", TimePointJSON.itemTimepointId);
 				return StatusCode(500, e.Message);
 			}
 
@@ -196,7 +196,7 @@ namespace ERxWebClient2.Controllers
 	public class ItemTimepointDeleteWarningCommandJSON
 	{
 		public long itemId { get; set; }
-		public long ItemTimepointId { get; set; }
+		public long itemTimepointId { get; set; }
 		public long numOutcomes { get; set; }
 
 	}

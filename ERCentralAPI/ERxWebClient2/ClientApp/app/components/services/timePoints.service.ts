@@ -129,11 +129,11 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 	public DeleteWarningtimepoint(timepoint: iTimePoint) {
 		this._BusyMethods.push("DeleteWarningtimepoint");
 		let ErrMsg = "Something went wrong when warning of deleting a timepoint. \r\n If the problem persists, please contact EPPISupport.";
-		let cmd: ItemtimepointDeleteWarningCommandJSON = new ItemtimepointDeleteWarningCommandJSON();
-		cmd.timepointId = timepoint.itemTimepointId;
+		let cmd: ItemTimepointDeleteWarningCommandJSON = new ItemTimepointDeleteWarningCommandJSON();
+		cmd.itemTimepointId = timepoint.itemTimepointId;
 		cmd.itemId = timepoint.itemId;
 
-		return this._http.post<ItemtimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ItemTimepointList/DeleteWarningTimePoint',
+		return this._http.post<ItemTimepointDeleteWarningCommandJSON>(this._baseUrl + 'api/ItemTimepointList/DeleteWarningTimePoint',
 
 			cmd).toPromise()
 			.then(
@@ -191,11 +191,11 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 
 }
 
-export class ItemtimepointDeleteWarningCommandJSON {
+export class ItemTimepointDeleteWarningCommandJSON {
 
 	numOutcomes: number = 0;
     itemId: number = 0;
-	timepointId: number = 0;
+	itemTimepointId: number = 0;
 }
 
 

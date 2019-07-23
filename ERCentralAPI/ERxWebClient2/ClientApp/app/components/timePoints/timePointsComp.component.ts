@@ -4,7 +4,7 @@ import {  Item, TimePoint} from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { timePointsService, ItemtimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
+import { timePointsService, ItemTimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
 import { NgModel } from '@angular/forms';
 
 @Component({
@@ -187,7 +187,7 @@ export class timePointsComp implements OnInit {
 		// first call the dialog then call this part
 		this._timePointsService.DeleteWarningtimepoint(this.timePointsList[key]).then(
 
-			(res: ItemtimepointDeleteWarningCommandJSON) => {
+			(res: ItemTimepointDeleteWarningCommandJSON) => {
 
 				if (res == undefined || res.numOutcomes == 0  ) {
 
