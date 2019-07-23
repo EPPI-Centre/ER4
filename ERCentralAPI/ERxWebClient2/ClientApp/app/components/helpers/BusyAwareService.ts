@@ -1,4 +1,5 @@
 ﻿export abstract class BusyAwareService {
+
     protected _BusyMethods: string[] = [];
     //private _IsBusy: boolean = false;
     public get IsBusy(): boolean {

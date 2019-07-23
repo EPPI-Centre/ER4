@@ -67,6 +67,7 @@
 				</div>
 			</div>
 			<!---->
+			<div *ngIf="_timePointsService.IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 			<table class="table table-bordered table-responsive-md table-striped text-sm-center">
 				<tr>
 					<th class="text-sm-center">Timepoint</th>

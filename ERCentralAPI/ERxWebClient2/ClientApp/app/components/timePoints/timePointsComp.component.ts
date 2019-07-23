@@ -6,6 +6,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemTimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
 import { NgModel } from '@angular/forms';
+import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Component({
 	selector: 'timePointsComp',
@@ -13,7 +14,7 @@ import { NgModel } from '@angular/forms';
     providers: []
 })
 
-export class timePointsComp implements OnInit {
+export class timePointsComp extends BusyAwareService implements OnInit {
 
 	constructor(
 		private _timePointsService: timePointsService,
@@ -21,7 +22,7 @@ export class timePointsComp implements OnInit {
 		private eventsService: EventEmitterService,
 		private ReviewerIdentityServ: ReviewerIdentityService
 	) {
-
+		super();
 	}
 
 	@ViewChild('timePointModel') timePointModel!: NgModel;
@@ -161,6 +162,8 @@ export class timePointsComp implements OnInit {
 			)
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
+	
+
 
 	public openConfirmationDialogDeletetimepointsWithText(key: number, numCodings: number) {
 

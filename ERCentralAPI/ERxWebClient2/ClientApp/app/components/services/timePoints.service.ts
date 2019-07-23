@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, TimePoint } from './ItemList.service';
 import { iTimePoint } from '../timePoints/timePointsComp.component';
+import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 
 @Injectable({
     providedIn: 'root',
@@ -33,7 +34,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 	public set timepoints(timepoints: iTimePoint[]) {
         this._timepoints = timepoints;
     }
-   @Output() gottimepoints = new EventEmitter();
+   @Output() gotNewTimepoints = new EventEmitter();
    // @Output() timepointChangedEE = new EventEmitter();
 	public get Selectedtimepoint(): iTimePoint | null {
 
@@ -44,7 +45,19 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 	public SetSelectedtimepoint(timepoint: TimePoint) {
 
 		this._selectedtimepoint = timepoint;
-        //this.timepointChangedEE.emit();
+		//if (this._selectedtimepoint != timepoint) {
+			this.gotNewTimepoints.emit();
+		//}
+
+	}
+
+	public IsServiceBusy(): boolean {
+
+		if (this._BusyMethods.length > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
     public Fetchtimepoints(currentItem: Item) {
@@ -58,7 +71,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			console.log('got inside the timepoints service: ' + this.timepoints.length);
 				   currentItem.timepoints = this.timepoints;
 				   this._selectedtimepoint = null;
-				   this.gottimepoints.emit(this.timepoints);
+				   this.gotNewTimepoints.emit(this.timepoints);
 				   this.RemoveBusy("Fetchtimepoints");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
