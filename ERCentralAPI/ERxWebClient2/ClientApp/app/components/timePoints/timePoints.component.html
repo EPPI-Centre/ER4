@@ -19,17 +19,14 @@
 							   pattern="^[0-9]+$" class="form-control"
 							   type="text" [(ngModel)]="timepointFreq" />
 					</div>
-					<div *ngIf="timepointModel.invalid && (timepointModel.dirty || timepointModel.touched)"
+					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched)"
 						 class="alert small alert-danger p-1 col-md-4">
 
-						<div *ngIf="timepointModel.errors.required">
+						<div *ngIf="timePointModel.errors.required">
 							time point unit is required.
 						</div>
-						<div *ngIf="timepointModel.errors.pattern">
+						<div *ngIf="timePointModel.errors.pattern">
 							Frequency of a time point has to be a number
-						</div>
-						<div *ngIf="timepointModel.errors.nomatch">
-							Time exists already
 						</div>
 					</div>
 					<div *ngIf="TimePointTheSame" class="alert small alert-danger p-1 col-md-4">
@@ -50,19 +47,19 @@
 					</select>
 				</div>
 				<div class="col-md-12 row">
-					<button *ngIf=" !timepointModel.invalid && unitModel !='' && edit == false"
+					<button *ngIf=" !timePointModel.invalid && unitModel !='' && edit == false"
 							[disabled]="!HasWriteRights"
 							class="btn btn-success mt-1 p-1 m-1" (click)="add(timepointFreq)">
 						Add Time Point
 					</button>
-					<button *ngIf=" !timepointModel.invalid &&
+					<button *ngIf=" !timePointModel.invalid &&
 							edit == true
 							&& unitModel !=''"
 							[disabled]="!HasWriteRights"
 							class="btn btn-warning mt-1 p-1 m-1" (click)="UpdateList()">
 						Update Time Point
 					</button>
-					<button *ngIf="!timepointModel.invalid && unitModel !=''"
+					<button *ngIf="!timePointModel.invalid && unitModel !=''"
 							class="btn btn-danger mt-1 p-1 m-1"
 							(click)="Clear()">
 						Cancel

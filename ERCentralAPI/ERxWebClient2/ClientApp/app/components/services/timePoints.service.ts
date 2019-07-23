@@ -80,6 +80,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 						(result) => {
 	
 							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+							this.Fetchtimepoints(this._currentItem);
 							this.RemoveBusy("Createtimepoint");
 							return result;
 						}

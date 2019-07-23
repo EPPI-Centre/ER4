@@ -18,7 +18,9 @@ export class armDetailsComp implements OnInit {
 		private confirmationDialogService: ConfirmationDialogService,
         private eventsService: EventEmitterService,
         private ReviewerIdentityServ: ReviewerIdentityService
-	) { }
+	) {
+		
+	}
 
     public get armsList(): iArm[] {
 

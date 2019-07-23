@@ -20,7 +20,9 @@ export class timePointsComp implements OnInit {
 		private confirmationDialogService: ConfirmationDialogService,
 		private eventsService: EventEmitterService,
 		private ReviewerIdentityServ: ReviewerIdentityService
-	) { }
+	) {
+
+	}
 
 	@ViewChild('timePointModel') timePointModel!: NgModel;
 
@@ -267,9 +269,10 @@ export class timePointsComp implements OnInit {
 
 				this._timePointsService.Createtimepoint(newtimepoint).then(
 					(res: TimePoint) => {
-
+						this.TimePointTheSame = false;
 						let key = this.timePointsList.length;
 						this.timePointsList.splice(key, 0, res);
+
 					}
 				);
 			}

@@ -149,7 +149,6 @@ export class ArmsService extends BusyAwareService implements OnInit  {
 
 	}
 
-
 	public UpdateArm(currentArm: iArm) {
 
 		this._BusyMethods.push("UpdateArm");
