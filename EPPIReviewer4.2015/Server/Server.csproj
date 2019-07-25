@@ -243,8 +243,11 @@
     <Compile Include="BusinessClasses\ItemDuplicateUnDUPCommand.cs" />
     <Compile Include="BusinessClasses\ItemLink.cs" />
     <Compile Include="BusinessClasses\ItemLinkList.cs" />
+    <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
+    <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
+    <Compile Include="BusinessClasses\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="BusinessClasses\MagPaper.cs" />
     <Compile Include="BusinessClasses\MagPaperList.cs" />
     <Compile Include="BusinessClasses\MagRelatedPapersRun.cs" />

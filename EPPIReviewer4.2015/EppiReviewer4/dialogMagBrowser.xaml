@@ -27,15 +27,39 @@
             <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
             <HyperlinkButton Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16"></HyperlinkButton>
             <HyperlinkButton Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16"></HyperlinkButton>
-            <HyperlinkButton Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" Width="76"></HyperlinkButton>
+            <HyperlinkButton Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Width="76"></HyperlinkButton>
+            <HyperlinkButton Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90"></HyperlinkButton>
             <HyperlinkButton Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31"></HyperlinkButton>
             <HyperlinkButton Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49"></HyperlinkButton>
 
         </Grid>
 
-        <Grid x:Name="PaperGrid" Grid.Row="1">
+        <Grid x:Name="StatusGrid" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="440"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+                <TextBlock Grid.Column="1" Grid.Row="0" FontSize="14" Margin="5,5,5,5">Introduction</TextBlock>
+            <TextBlock Grid.Column="1" Grid.Row="1" TextWrapping="Wrap"  Margin="5,0,5,5" Text="This part of the program gives you access to the Microsoft Academic dataset. It is updated regularly, and may contain many of the research studies that you are likely to include in your review.&#10;
+&#10;You can browse the dataset using the 'topic' search. Once you have found some relevant topics, then you can examine the research within those topics to find relevant studies for your review.
+&#10;
+&#10;Once you have some relevant research studies you can use the graph structure of this dataset to identify other studies that are likely to be relevant.
+ The 'related documents' feature in this dataset is very powerful, and can identify many - if not all - of the studies you are looking for with far less manual effort compared with conventional search methods.
+ In order to take full advantage of this feature, any records that you have imported from other sources should be matched up with records from the Microsoft Academic dataset.
+ It isn't possible to match all records correctly, as while the Microsoft Academic dataset contains the vast majority of journal articles, it may not contain 'grey' literature, such as dissertations, theses and trial registry records.
+ Use the functionality on this page to match your records into Microsoft Academic, and view the results of the automatic matching exercise."></TextBlock>
+            
+        </Grid>
+
+        <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -43,13 +67,11 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <!--<RichTextBlock x:Name="RTBPaper" Grid.Row="0" Grid.ColumnSpan="2"></RichTextBlock>-->
+            <TextBlock x:Name="RTBPaperInfo" TextWrapping="Wrap" FontSize="18" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Grid.Row="0" Grid.ColumnSpan="2"></TextBlock>
 
             <ToolkitRef:WrapPanel x:Name="WPTopics" Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
                 <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
             </ToolkitRef:WrapPanel>
-
-
 
             <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="1" Grid.Column="1" TabStripPlacement="Top">
                 <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
@@ -68,9 +90,9 @@
                 </radDock:RadPane>
 
             </radDock:RadPaneGroup>
-            
-
-        </Grid>
+        </Grid> <!-- End papergrid -->
+        
+        
 
 
     
