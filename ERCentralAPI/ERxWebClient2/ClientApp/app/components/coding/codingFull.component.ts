@@ -75,8 +75,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
-    public ShowHighlights: boolean = false;
- 
+	public ShowHighlights: boolean = false;
+	public ShowCreateNewCode: boolean = false;
+
+	public SetCreateNewCode() {
+
+		this.ShowCreateNewCode = !this.ShowCreateNewCode;
+	}
 
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;

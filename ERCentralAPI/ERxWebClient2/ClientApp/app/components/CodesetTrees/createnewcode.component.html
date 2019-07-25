@@ -4,9 +4,9 @@
 			<div class="col-12">
 				<div class="form-group">
 					<label for="Codeset_TypeCollaborate">Code Type*</label>
-					<select #CodeTypeSelectCollaborate class="col-md-6 form-control" name="NewCode_TypeCollaborate"
+					<select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
 							[disabled]="!CurrentCodeCanHaveChildren">
-						<option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
+						<option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
 							{{type.value}}
 						</option>
 					</select>
@@ -28,7 +28,10 @@
 						  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
 			</div>
 			<div class="col-12">
-				<button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
+				<button  style="width:200px;"
+						type="submit" (click)="CreateNewCode()" 
+						class="btn btn-success ml-2 mr-2" 
+						[disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
 					Create
 				</button>
 				<button class="btn btn-outline-secondary ml-1"

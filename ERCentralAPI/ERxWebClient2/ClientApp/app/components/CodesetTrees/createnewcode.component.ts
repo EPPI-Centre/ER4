@@ -170,7 +170,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 	}
 	ngOnInit() {
 
-
+		//this.ReviewSetsEditingService.FetchSetTypes();
 	
 
 	}
@@ -179,8 +179,9 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 	}
 
 	
-    ngAfterViewInit() {
+	ngAfterViewInit() {
 
+		 this._reviewSetsService.AllowedChildTypesOfSelectedNode;  
 	}
 
 		 
