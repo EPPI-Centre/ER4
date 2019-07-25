@@ -214,6 +214,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
                 {
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                     command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
                     command.Parameters.Add(new SqlParameter("@RowsPerPage", _pageSize));
                     command.Parameters.Add(new SqlParameter("@Total", 0));
@@ -246,7 +247,6 @@ namespace BusinessLibrary.BusinessClasses
                 case "ItemMatchedPapersList":
                     command = new SqlCommand("st_ItemMatchedPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.ITEM_ID));
                     break;
                 case "CitationsList":
@@ -321,7 +321,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> ListTypeProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("ListType", "ListType", ""));
+        public static readonly PropertyInfo<string> ListTypeProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("ListType", "ListType", ""));
         public string ListType
         {
             get { return ReadProperty(ListTypeProperty); }
@@ -351,7 +351,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 1));
+        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 1));
         public int MagRelatedRunId
         {
             get { return ReadProperty(MagRelatedRunIdProperty); }
@@ -361,7 +361,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> PageNumberProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("PageNumber", "PageNumber", 0));
+        public static readonly PropertyInfo<int> PageNumberProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("PageNumber", "PageNumber", 0));
         public int PageNumber
         {
             get { return ReadProperty(PageNumberProperty); }
@@ -371,7 +371,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> PageSizeProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("PageSize", "PageSize", 1));
+        public static readonly PropertyInfo<int> PageSizeProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("PageSize", "PageSize", 1));
         public int PageSize
         {
             get { return ReadProperty(PageSizeProperty); }
@@ -381,7 +381,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> NumResultsProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("NumResults", "NumResults", 1));
+        public static readonly PropertyInfo<int> NumResultsProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("NumResults", "NumResults", 1));
         public int NumResults
         {
             get { return ReadProperty(NumResultsProperty); }

@@ -70,6 +70,9 @@ namespace EppiReviewer4
         private RadWindow windowItemReportWriter = new RadWindow();
         private dialogItemReportWriter dialogItemReportWriterControl = new dialogItemReportWriter();
 
+        private RadWindow windowMagBrowser = new RadWindow();
+        private dialogMagBrowser MagBrowserControl = new dialogMagBrowser();
+
         private RadWindow windowPleaseWait = new RadWindow();
         private BusyAnimation BusyPleaseWait = new BusyAnimation();
         
@@ -228,6 +231,20 @@ namespace EppiReviewer4
             grd.Children.Add(reportViewerControlDocuments);
             windowReportsDocuments.Content = grd;
             //end of windowReportsDocuments
+
+            //prepare windowMagBrowser
+            windowMagBrowser.Header = "Microsoft Academic Browser";
+            windowMagBrowser.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
+            windowMagBrowser.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            windowMagBrowser.WindowState = WindowState.Maximized;
+            windowMagBrowser.WindowStartupLocation = Telerik.Windows.Controls.WindowStartupLocation.CenterScreen;
+            windowMagBrowser.RestrictedAreaMargin = thk;
+            windowMagBrowser.CanClose = true;
+            windowMagBrowser.Width = 500;
+            Grid MagGrid = new Grid();
+            MagGrid.Children.Add(MagBrowserControl);
+            windowMagBrowser.Content = MagGrid;
+            //end of windowMagBrowser
 
             //prepare windowSearchDocuments
             windowSearchDocuments.Header = "Search";
@@ -6043,6 +6060,9 @@ on the right of the main screen");
             LoadCodeSets();
         }
 
-        
+        private void cmdMagBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.ShowDialog();
+        }
     }
 }

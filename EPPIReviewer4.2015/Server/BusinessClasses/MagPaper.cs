@@ -35,6 +35,11 @@ namespace BusinessLibrary.BusinessClasses
             return Authors + " (" + Year.ToString() + ") " + PaperTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
         }
 
+        public string ExternalMagLink()
+        {
+            return "https://academic.microsoft.com/paper/" + PaperId.ToString();
+        }
+
         private static PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
         public Int64 PaperId
         {
@@ -239,6 +244,28 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(URLsProperty);
+            }
+        }
+
+        private static PropertyInfo<Int64> LinkedITEM_IDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("LinkedITEM_ID", "LinkedITEM_ID"));
+        public Int64 LinkedITEM_ID
+        {
+            get
+            {
+                return GetProperty(LinkedITEM_IDProperty);
+            }
+        }
+
+        private static PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
+        public bool IsSelected
+        {
+            get
+            {
+                return GetProperty(IsSelectedProperty);
+            }
+            set
+            {
+                SetProperty(IsSelectedProperty, value);
             }
         }
 
@@ -448,6 +475,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int32>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
                             LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
                             LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
+                            LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
                         }
                     }
                 }
@@ -479,6 +507,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
             returnValue.LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
+            returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
 
             returnValue.MarkOld();
             return returnValue;

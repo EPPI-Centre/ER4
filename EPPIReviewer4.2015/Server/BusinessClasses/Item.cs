@@ -11,6 +11,9 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+
+using System.Globalization;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -18,6 +21,7 @@ using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
 using AuthorsHandling;
+using System.Data.SqlTypes;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -157,6 +161,14 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
         */
+
+        
+
+        public static string Truncate(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
 
         private string CleanAuthors(string inputAuthors)
         {
@@ -1225,6 +1237,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@IS_INCLUDED", ReadProperty(IsIncludedProperty)));
                     command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
                     command.Parameters.Add(new SqlParameter("@KEYWORDS", ReadProperty(KeywordsProperty)));
+                    command.Parameters.Add(new SqlParameter("@SearchText", ToShortSearchText(ReadProperty(TitleProperty))));
 
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -1390,6 +1403,64 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.SetItemStatusProperty();
             returnValue.MarkOld();
             return returnValue;
+        }
+
+        // *********************** BEGIN TOSHORTSEARCHTEXT **********************
+        // Similar to the SQL CLR version, but doesn't use SQL strings
+
+        private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
+
+        public static string ToShortSearchText(string ss)
+        {
+            if (ss == "") return "";
+
+            ss = RemoveLanguageAndThesisText(ss);
+            string r = Truncate(ToSimpleText(RemoveDiacritics(ss))
+                    .Replace("a", "")
+                    .Replace("e", "")
+                    .Replace("i", "")
+                    .Replace("o", "")
+                    .Replace("u", "")
+                    .Replace("ize", "")
+                    .Replace("ise", ""), 500);
+            return r;
+        }
+
+        public static string RemoveDiacritics(string stIn)
+        {
+            string stFormD = stIn.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+            for (int ich = 0; ich < stFormD.Length; ich++)
+            {
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(stFormD[ich]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(stFormD[ich]);
+                }
+            }
+            return (sb.ToString().Normalize(NormalizationForm.FormC));
+        }
+
+        public static string ToSimpleText(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return "";
+            return alphaNumericRegex.Value.Replace(s, "").ToLower();
+        }
+
+        // This added by JT. Removes [German] and [Master's thesis] etc from the end of the string
+        // so long as the text removed isn't more than 25% of the length of the title
+        public static string RemoveLanguageAndThesisText(string s)
+        {
+            s = s.TrimEnd(' ');
+            if (s.EndsWith("]"))
+            {
+                int i = s.LastIndexOf('[');
+                if ((s.Length - i) * 4 < s.Length)
+                {
+                    s = s.Substring(0, i).TrimEnd(' ');
+                }
+            }
+            return s;
         }
         
 

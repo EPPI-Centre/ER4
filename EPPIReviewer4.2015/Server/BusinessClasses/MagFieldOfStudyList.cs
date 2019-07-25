@@ -56,7 +56,6 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-
                 connection.Close();
             }
             RaiseListChangedEvents = true;
@@ -87,6 +86,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
                     break;
+                case "FieldOfStudySearchList":
+                    FullTextSearch fts = new FullTextSearch(criteria.SearchText);
+                    command = new SqlCommand("st_FieldsOfStudySearch", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@SearchText", fts.NormalForm));
+                    break;
             }
             return command;
         }
@@ -111,7 +116,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            public static readonly PropertyInfo<string> ListTypeProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("ListType", "ListType", ""));
+            public static readonly PropertyInfo<string> ListTypeProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("ListType", "ListType", ""));
             public string ListType
             {
                 get { return ReadProperty(ListTypeProperty); }
@@ -121,13 +126,23 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            public static readonly PropertyInfo<string> PaperIdListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("PaperIdList", "PaperIdList", ""));
+            public static readonly PropertyInfo<string> PaperIdListProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("PaperIdList", "PaperIdList", ""));
             public string PaperIdList
             {
                 get { return ReadProperty(PaperIdListProperty); }
                 set
                 {
                     SetProperty(PaperIdListProperty, value);
+                }
+            }
+
+            public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("SearchText", "SearchText", ""));
+            public string SearchText
+            {
+                get { return ReadProperty(SearchTextProperty); }
+                set
+                {
+                    SetProperty(SearchTextProperty, value);
                 }
             }
         }
