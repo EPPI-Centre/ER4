@@ -30,7 +30,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 		public _reviewInfoService: ReviewInfoService,
 		public _reviewerIdentityServ: ReviewerIdentityService
 	) { }
-
+	
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	public PanelName: string = '';
 	//@Input() PanelNameHolder: string = '';
@@ -137,6 +137,11 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 			);
 	}
 	CancelActivity(refreshTree?: boolean) {
+
+		if (this._NewCode) {
+			this._NewCode = new SetAttribute();
+		}
+
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
 				let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";

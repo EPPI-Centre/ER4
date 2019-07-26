@@ -53,7 +53,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     @ViewChild('ArmsCmp')
 	private ArmsCompRef!: any;
     @ViewChild('ItemDetailsCmp')
-    private ItemDetailsCompRef!: any; 
+	private ItemDetailsCompRef!: any; 
+
 
     @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
     @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
