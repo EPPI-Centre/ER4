@@ -20,6 +20,7 @@ import { WebViewerComponent } from '../PDFTron/webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 import { timePointsService } from '../services/timePoints.service';
+import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 
 
 @Component({
@@ -55,7 +56,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     @ViewChild('ItemDetailsCmp')
 	private ItemDetailsCompRef!: any; 
 
-
+	@ViewChild('CreateNewCode') createNewCodeRef!: CreateNewCodeComp;
     @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
     @ViewChild('tabstripCoding') public tabstrip!: TabStripComponent;
     @ViewChild('codesetTreeCoding') public codesetTreeCoding!: CodesetTreeCodingComponent;
@@ -78,6 +79,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
 	public ShowCreateNewCode: boolean = false;
+	public dynamicdata: string = 'This is dynamic data!';
 
 	public SetCreateNewCode() {
 

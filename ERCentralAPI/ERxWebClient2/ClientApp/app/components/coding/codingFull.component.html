@@ -14,7 +14,7 @@
 
 						<ArmsComp #ArmsCmp class="card-text"></ArmsComp>
 					</div>
-					<CreateNewCodeComp *ngIf="ShowCreateNewCode"></CreateNewCodeComp>
+					<CreateNewCodeComp (closeCreateNew)="SetCreateNewCode()"*ngIf="ShowCreateNewCode"></CreateNewCodeComp>
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
 				</div>
 			</div>

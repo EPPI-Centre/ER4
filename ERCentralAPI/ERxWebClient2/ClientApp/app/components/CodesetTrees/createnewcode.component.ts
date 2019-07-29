@@ -33,7 +33,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 	
 	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
 	public PanelName: string = '';
-	//@Input() PanelNameHolder: string = '';
+	@Output() closeCreateNew = new EventEmitter();
 	@Output() emitterCancel = new EventEmitter();
 
     public get AllowedChildTypes(): kvAllowedAttributeType[] {
@@ -137,10 +137,10 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 			);
 	}
 	CancelActivity(refreshTree?: boolean) {
-
 		if (this._NewCode) {
 			this._NewCode = new SetAttribute();
 		}
+		this.closeCreateNew.emit();
 
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
