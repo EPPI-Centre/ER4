@@ -21,6 +21,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 import { timePointsService } from '../services/timePoints.service';
 import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 
 
 @Component({
@@ -48,7 +49,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         public ItemDocsService: ItemDocsService,
 		private armservice: ArmsService,
 		private timePointsService: timePointsService,
-        private notificationService: NotificationService
+		private notificationService: NotificationService,
+		private _reviewSetsEditingService: ReviewSetsEditingService
     ) { }
    
     @ViewChild('ArmsCmp')
@@ -89,7 +91,34 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
-    }
+	}
+	public CanCreateNewCode(): boolean {
+		if (this.ReviewSetsService.selectedNode && this.CurrentCodeCanHaveChildren) return true;
+		else return false;
+	}
+	IsServiceBusy(): boolean {
+		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
+		else return false;
+	}
+	CanWrite(): boolean {
+		//console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
+		if (this.ReviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
+			//console.log('CanWrite', true);
+			return true;
+		}
+		else {
+			//console.log('CanWrite', false);
+			return false;
+		}
+	}
+	public get CurrentCodeCanHaveChildren(): boolean {
+		//safety first, if anything didn't work as expexcted return false;
+		if (!this.CanWrite()) return false;
+		else {
+			return this.ReviewSetsService.CurrentCodeCanHaveChildren;
+			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
+		}
+	}
     public HelpAndFeebackContext: string = "itemdetails";
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights

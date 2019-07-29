@@ -140,7 +140,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 		if (this._NewCode) {
 			this._NewCode = new SetAttribute();
 		}
-		this.closeCreateNew.emit();
+	
 
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
@@ -160,6 +160,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 				this._reviewSetsService.GetReviewSets();
 			}
 		}
+		this.closeCreateNew.emit();
+		this._reviewSetsService.selectedNode = null; 
 		this.PanelName = '';
 		this.emitterCancel.emit();
 
