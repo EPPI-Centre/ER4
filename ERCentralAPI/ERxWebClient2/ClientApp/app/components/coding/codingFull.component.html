@@ -8,11 +8,12 @@
 			<div class="row d-flex flex-wrap-reverse ml-1 mr-1 col-md-2 col-lg-2 ">
 				<div class="col-sm-12  pl-2 pr-2 align-self-end ">
 					<div class="row">
-						<button  [disabled]="!HasWriteRights  || !CanCreateNewCode()" class="btn btn-sm btn-warning" (click)="SetCreateNewCode()">
+						<button [disabled]="!HasWriteRights  || !CanCreateNewCode()" 
+								class="btn btn-sm btn-warning col-2 h-25" (click)="SetCreateNewCode()">
 							<i class="fa fa-plus" aria-hidden="true"></i>
 						</button>
-
-						<ArmsComp #ArmsCmp class="card-text"></ArmsComp>
+						
+						<ArmsComp #ArmsCmp class="card-text col-10"></ArmsComp>
 					</div>
 					<CreateNewCodeComp (closeCreateNew)="SetCreateNewCode()" *ngIf="ShowCreateNewCode"></CreateNewCodeComp>
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>

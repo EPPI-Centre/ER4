@@ -28,14 +28,14 @@
 						  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
 			</div>
 			<div class="col-12">
-				<button  style="width:200px;"
+				<button  
 						type="submit" (click)="CreateNewCode()" 
 						class="btn btn-success ml-2 mr-2" 
 						[disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
 					Create
 				</button>
-				<button class="btn btn-outline-secondary ml-1"
-						(click)="CancelActivity()" style="width:200px;">
+				<button class="btn btn-outline-secondary ml-2 mr-2"
+						(click)="CancelActivity()" >
 					Cancel
 				</button>
 			</div>
