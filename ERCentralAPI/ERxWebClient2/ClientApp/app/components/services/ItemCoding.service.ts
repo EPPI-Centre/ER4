@@ -1029,6 +1029,8 @@ export class OutcomeItemList {
     outcomesList: Outcome[] = [];
 }
 export class Outcome {
+
+
     outcomeId: number = 0;
     itemSetId: number = 0;
     outcomeTypeName: string = "";

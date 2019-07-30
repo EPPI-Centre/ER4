@@ -75,7 +75,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     private itemString: string = '0';
     public item?: Item;
-    public itemId = new Subject<number>();
+	public itemId = new Subject<number>();
+	public ShowOutComeList: boolean = false;
     
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
@@ -83,6 +84,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	public ShowCreateNewCode: boolean = false;
 	public dynamicdata: string = 'This is dynamic data!';
 
+	public TestShowingOutComes() {
+
+		this.ShowOutComeList = !this.ShowOutComeList;
+	}
 	public SetCreateNewCode() {
 
 		this.ShowCreateNewCode = !this.ShowCreateNewCode;
