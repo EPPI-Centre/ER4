@@ -414,6 +414,36 @@
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
       <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagBrowseHistory.cs">
+      <Link>BusinessClasses\MagBrowseHistory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
+      <Link>BusinessClasses\MagCurrentInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagFieldOfStudy.cs">
+      <Link>BusinessClasses\MagFieldOfStudy.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagFieldOfStudyList.cs">
+      <Link>BusinessClasses\MagFieldOfStudyList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs">
+      <Link>BusinessClasses\MagMatchItemsToPapersCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagPaper.cs">
+      <Link>BusinessClasses\MagPaper.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagPaperList.cs">
+      <Link>BusinessClasses\MagPaperList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRelatedPapersRun.cs">
+      <Link>BusinessClasses\MagRelatedPapersRun.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRelatedPapersRunList.cs">
+      <Link>BusinessClasses\MagRelatedPapersRunList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagReviewMagInfo.cs">
+      <Link>BusinessClasses\MagReviewMagInfo.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MetaAnalyse.cs">
       <Link>BusinessClasses\MetaAnalyse.cs</Link>
     </Compile>

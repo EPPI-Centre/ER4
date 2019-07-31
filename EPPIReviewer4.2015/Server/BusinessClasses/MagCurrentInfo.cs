@@ -221,9 +221,9 @@ namespace BusinessLibrary.BusinessClasses
             */
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<MagCurrentInfo, Int64> criteria) // used to return a specific FieldOfStudy
+        protected void DataPortal_Fetch()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_CurrentMagInfo", connection))

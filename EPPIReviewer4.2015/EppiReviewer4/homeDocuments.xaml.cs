@@ -6062,6 +6062,7 @@ on the right of the main screen");
 
         private void cmdMagBrowser_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserControl.ShowMagBrowser();
             windowMagBrowser.ShowDialog();
         }
     }
