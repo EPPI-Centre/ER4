@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewSetsService, singleNode, ReviewSet } from '../services/ReviewSets.service';
+import { ReviewSetsService, singleNode, ReviewSet, SetAttribute } from '../services/ReviewSets.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -11,7 +11,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { InfoBoxModalContent } from '../CodesetTrees/codesetTreeCoding.component';
 import { OutcomesService } from '../services/outcomes.service';
 import { Item } from '../services/ItemList.service';
-import { ItemCodingService, Outcome, OutcomeItemList } from '../services/ItemCoding.service';
+import { ItemCodingService, Outcome, OutcomeItemList, ItemSet } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -36,33 +36,38 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 
 	//private currentItem: Item = new Item();
-	@Input() item: Item = new Item();
+	@Input() itemSet: ItemSet = new ItemSet();
 	private ItemSetId: number = 0;
+	public ShowOutcomesStatistics: boolean = false;
+	public ShowOutcomesList: boolean = false;
 	public outcomeItemList: OutcomeItemList = new OutcomeItemList();
 	ngOnInit() {
 
 		console.log('============initiating outcome component');
-		this._reviewSetsService.GetReviewSets();
-		// hardcode for first draft
-		//if (this._reviewSetsService.selectedNode != null) {
+		//this._reviewSetsService.GetReviewSets();
 
-			var selectedNode = this._reviewSetsService.selectedNode as ReviewSet;
-			//alert('selected NOde is: ' + JSON.stringify(selectedNode));
+		//this._OutcomesService.ShowOutComeList.subscribe((res: SetAttribute) => {
 
-			if (selectedNode != null) {
+			//alert(JSON.stringify(res));
+			//var selectedNode = res as SetAttribute;
+			//console.log('selected NOde is: ' + JSON.stringify(selectedNode));
+			//if (selectedNode.nodeType == 'SetAttribute') {
 
-				//alert('Please: ' + selectedNode.ItemSetId);
-				var itemSet = this._ItemCodingService.FindItemSetByItemSetId(selectedNode.ItemSetId);
-				if (itemSet != null) {
-					this.outcomeItemList = itemSet.outcomeItemList;
-					console.log('=================================');
-					console.log(JSON.stringify(this.outcomeItemList.outcomesList));
-					console.log('=================================');
-				}
+			//	var itemSet = this._ItemCodingService.FindItemSetByItemSetId(selectedNode.set_id);
+			//	if (itemSet != null) {
+			//		//	this.outcomeItemList = itemSet.outcomeItemList;
+			//		//	console.log('=================================');
+			//		//	console.log(JSON.stringify(this.outcomeItemList.outcomesList));
+			//		//	console.log('=================================');
+			//		
+			//	}
+			//}
+			//console.log('=====Finished initiating outcome component');
+		//});
+
+		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
+		console.log('=====Finished initiating outcome component');
 			
-			//this._OutcomesService.FetchOutcomes(this.ItemSetId);
-			}
-		//}
 	}
 
 	public get OutcomeList(): Outcome[] {
@@ -86,7 +91,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		//var outcome = this.outcomeItemList.outcomesList[key];
 
 		//alert(JSON.stringify(outcome));
-		this._OutcomesService.DeleteOutcome(outcome);
+		this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId);
 	}
 
 	public sort: SortDescriptor[] = [{
@@ -141,16 +146,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 		this._reviewSetsService.selectedNode = null;
 	}
-	public isCollapsed: boolean = false;
-	public isCollapsed2: boolean = false;
-	CloseBMDropDown1() {
 
-		this.isCollapsed = false;
-	}
-	CloseBMDropDown2() {
-
-		this.isCollapsed2 = false;
-	}
 
     ngAfterViewInit() {
 

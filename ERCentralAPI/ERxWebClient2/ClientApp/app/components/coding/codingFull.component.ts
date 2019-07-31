@@ -7,7 +7,7 @@ import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
-import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute, singleNode, ReviewSet } from '../services/ReviewSets.service';
 import { CheckBoxClickedEventData, CodesetTreeCodingComponent } from '../CodesetTrees/codesetTreeCoding.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
@@ -22,6 +22,7 @@ import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 import { timePointsService } from '../services/timePoints.service';
 import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { OutcomesService } from '../services/outcomes.service';
 
 
 @Component({
@@ -50,7 +51,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		private armservice: ArmsService,
 		private timePointsService: timePointsService,
 		private notificationService: NotificationService,
-		private _reviewSetsEditingService: ReviewSetsEditingService
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		private _outcomeService: OutcomesService,
+		private _ItemCodingService: ItemCodingService
     ) { }
    
     @ViewChild('ArmsCmp')
@@ -72,27 +75,28 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get itemID(): number {
         if (this.item) return this.item.itemId;
         else return -1;
-    }
+	}
+	
     private itemString: string = '0';
-    public item?: Item;
+	public item?: Item;
+	public itemSet?: ItemSet;
 	public itemId = new Subject<number>();
-	public ShowOutComeList: boolean = false;
-    
+	public ShowOutComes: boolean = false;
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
 	public ShowCreateNewCode: boolean = false;
 	public dynamicdata: string = 'This is dynamic data!';
 
-	public TestShowingOutComes() {
+	public ShowingOutComes() {
 
-		this.ShowOutComeList = !this.ShowOutComeList;
+		this.ShowOutComes = !this.ShowOutComes
+		
 	}
 	public SetCreateNewCode() {
 
 		this.ShowCreateNewCode = !this.ShowCreateNewCode;
 	}
-
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -162,7 +166,27 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
+
+			this._outcomeService.ShowOutComeList.subscribe(
+
+				(res: any) => {
+				var selectedNode = res as SetAttribute;
+		
+				if (selectedNode.nodeType == 'SetAttribute') {
+
+					var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+
+					if (itemSet != null) {
+							this._outcomeService.FetchOutcomes(itemSet.itemSetId);
+							this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
+					}
+				}
+				this.ShowingOutComes();
+				}
+				// ERROR HANDLING IN HERE EVENTUALLY....
+			);
+			
             this.armservice.armChangedEE.subscribe(() => {
                 if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);

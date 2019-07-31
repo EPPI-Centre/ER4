@@ -78,7 +78,7 @@ namespace ERxWebClient2.Controllers
 
 		// DELETE
 		[HttpPost("[action]")]
-		public IActionResult DeleteOutcome( OutcomeJSON outcome)
+		public IActionResult DeleteOutcome([FromBody] OutcomeIds outcome)
 		{
 
 			try
@@ -88,7 +88,7 @@ namespace ERxWebClient2.Controllers
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
-					SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(outcome.itemSetId);
+					SingleCriteria<OutcomeItemList, Int64> criteria = new SingleCriteria<OutcomeItemList, Int64>(outcome.itemSetId);
 
 					OutcomeItemList result = dp.Fetch(criteria);
 
@@ -97,7 +97,7 @@ namespace ERxWebClient2.Controllers
 					currentOutcome.Delete();
 					currentOutcome = currentOutcome.Save();
 
-					return Ok(result);
+					return Ok();
 				}
 				else
 				{
@@ -114,16 +114,30 @@ namespace ERxWebClient2.Controllers
 
 	}
 
+	public class OutcomeIds
+	{
+		public int outcomeId { get; set; }
+		public int itemSetId { get; set; }
+	}
+
 	public class OutcomeJSON
 	{
 		public int outcomeId { get; set; }
 		public int itemSetId { get; set; }
 		public string outcomeTypeName { get; set; }
 		public int outcomeTypeId { get; set; }
+		public string timepointDisplayValue { get; set; }
+		public int itemTimepointId  { get; set; }
+		public string itemTimepointMetric  { get; set; }
+		public string itemTimepointValue { get; set; }
 		public OutcomeItemAttributesList outcomeCodes { get; set; }
 		public int itemAttributeIdIntervention { get; set; }
 		public int itemAttributeIdControl { get; set; }
 		public int itemAttributeIdOutcome { get; set; }
+		public int itemArmIdGrp1 { get; set; }
+		public int itemArmIdGrp2 { get; set; }
+		public int grp1ArmName { get; set; }
+		public int grp2ArmName { get; set; }
 		public string title { get; set; }
 		public string shortTitle { get; set; }
 		public string outcomeDescription { get; set; }
@@ -147,15 +161,15 @@ namespace ERxWebClient2.Controllers
 		public float feWeight	{ get; set; }
 		public float reWeight	{ get; set; }
 		public float smd	{ get; set; }
-		public float sesmd	{ get; set; }
+		public string sesmd	{ get; set; }
 		public float r	{ get; set; }
 		public float ser	{ get; set; }
 		public float oddsRatio	{ get; set; }
 		public float seOddsRatio	{ get; set; }
 		public float riskRatio	{ get; set; }
 		public float seRiskRatio	{ get; set; }
-		public float ciUpperSMD	{ get; set; }
-		public float ciLowerSMD	{ get; set; }
+		public string ciUpperSMD	{ get; set; }
+		public string ciLowerSMD	{ get; set; }
 		public float ciUpperR	{ get; set; }
 		public float ciLowerR	{ get; set; }
 		public float ciUpperOddsRatio	{ get; set; }
@@ -166,19 +180,19 @@ namespace ERxWebClient2.Controllers
 		public float ciLowerRiskDifference	{ get; set; }
 		public float ciUpperPetoOddsRatio	{ get; set; }
 		public float ciLowerPetoOddsRatio	{ get; set; }
-		public float ciUpperMeanDifference	{ get; set; }
-		public float ciLowerMeanDifference	{ get; set; }
+		public string ciUpperMeanDifference	{ get; set; }
+		public string ciLowerMeanDifference	{ get; set; }
 		public float riskDifference	{ get; set; }
 		public float seRiskDifference	{ get; set; }
 		public float meanDifference	{ get; set; }
-		public float seMeanDifference	{ get; set; }
+		public string seMeanDifference	{ get; set; }
 		public float petoOR	{ get; set; }
 		public float sePetoOR	{ get; set; }
 		public float es	{ get; set; }
-		public float sees	{ get; set; }
+		public string sees	{ get; set; }
 		public float nRows	{ get; set; }
-		public float ciLower	{ get; set; }
-		public float ciUpper	{ get; set; }
+		public string ciLower	{ get; set; }
+		public string ciUpper	{ get; set; }
 		public string esDesc { get; set; }
 		public string seDesc { get; set; }
 		public string data1Desc { get; set; }

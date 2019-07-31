@@ -29,42 +29,51 @@
 <div *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
 	<tree-root *ngIf="nodes" [nodes]="nodes" [options]="options" style="max-height: 800px;"
 			   (activate)="NodeSelected($event.node.data)">
-        <ng-template #treeNodeTemplate let-node let-index="index">
-            <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                <img *ngIf="node.data.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png"
-                     (click)="CompleteUncompleteShowPanel($event, node.data)" class="mr-1" />
-                <img *ngIf="!node.data.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="../assets/CodingNotComplete.png"
-                     (click)="CompleteUncompleteShowPanel($event, node.data)" class="mr-1" />
-                <img *ngIf="node.data.itemSetIsLocked" title="Coding locked: you can't change the codes already entered" 
-                     (click)="CompleteUncompleteShowPanel($event, node.data)" src="../assets/CodingLocked.png" class="mr-1" />
-                <img *ngIf="node.data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="../assets/CodeSetEditable.png" class="mr-1" />
-                <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+		<ng-template #treeNodeTemplate let-node let-index="index">
+			<span *ngIf="node.data.nodeType == 'ReviewSet'">
+				<img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+				<img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+				<img *ngIf="node.data.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png"
+					 (click)="CompleteUncompleteShowPanel($event, node.data)" class="mr-1" />
+				<img *ngIf="!node.data.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="../assets/CodingNotComplete.png"
+					 (click)="CompleteUncompleteShowPanel($event, node.data)" class="mr-1" />
+				<img *ngIf="node.data.itemSetIsLocked" title="Coding locked: you can't change the codes already entered"
+					 (click)="CompleteUncompleteShowPanel($event, node.data)" src="../assets/CodingLocked.png" class="mr-1" />
+				<img *ngIf="node.data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="../assets/CodeSetEditable.png" class="mr-1" />
+				<img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
 
-            </span>
-            <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
-                   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
-                   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
-            <span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
+			</span>
+			
+				<input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" [(ngModel)]="node.data.isSelected"
+					   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
+					   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
+
+					<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                               'AdminSet' : node.data.subTypeName == 'Administration',
                               'ExcludeCode' : node.data.subTypeName == 'Exclude'
                                 }">{{node.data.name}}</span>
-            <button *ngIf="node.data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
-            <div *ngIf="node.data.nodeType == 'ReviewSet' && node.data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
-                Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
-                                           [disabled]="!ReviewSetsService.CanWriteCoding(node.data) || !ItemSetProxy.CanChangeCompletion" /><br />
-                Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
-                                         [disabled]="!ReviewSetsService.CanWriteCoding(node.data)" /><br />
-                <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
-                <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
-                <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(node.data)">Apply</button>
-            </div>
-        </ng-template>
+
+					<button *ngIf="node.data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(node.data)">Info</button>
+
+
+					<button *ngIf="checkOutComes(node.data)" class="btn btn-outline-dark bt-infoBox ml-2" 
+							(click)="openOutcomePanel(node.data)">Outcomes</button>
+		
+			<div *ngIf="node.data.nodeType == 'ReviewSet' && node.data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
+				Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
+							   [disabled]="!ReviewSetsService.CanWriteCoding(node.data) || !ItemSetProxy.CanChangeCompletion" /><br />
+				Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
+							 [disabled]="!ReviewSetsService.CanWriteCoding(node.data)" /><br />
+				<span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
+				<button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
+				<button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(node.data)">Apply</button>
+			</div>
+		</ng-template>
 	</tree-root>
 </div>
 <div class="mt-2" *ngIf="SelectedCodeDescription != ''">
 	<div class="card card-title mb-0 font-weight-bold">Code description:</div>
 	<div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll" [innerHTML]="SelectedCodeDescription">
+
 	</div>
 </div>

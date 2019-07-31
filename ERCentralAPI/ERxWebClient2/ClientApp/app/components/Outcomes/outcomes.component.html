@@ -1,7 +1,7 @@
 
 <div class="container col-md-12 form p-0 ">
 	<p hidden>{{selectedNode?.name}}</p>
-	<div class="col-md-12 row card p-0 m-0">
+	<div *ngIf="ShowOutcomesList" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
 			<!--_OutcomesService.outcomesList.outcomesList-->
 			<table class="table table-bordered table-responsive-md table-striped text-center">
@@ -41,7 +41,53 @@
 			</button>
 			<button class="btn btn-danger mt-1 p-1 m-1 col-md-2"
 					(click)="ClearAndCancelEdit()">
-				Cancel 
+				Cancel
+			</button>
+
+		</div>
+	</div>
+
+	<div *ngIf="ShowOutcomesStatistics" class="col-md-12 row card p-0 m-0">
+		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
+			<!--_OutcomesService.outcomesList.outcomesList-->
+			<table class="table table-bordered table-responsive-md table-striped text-center">
+				<tr>
+					<th class="text-center">Outcome Title</th>
+					<th class="text-center">Intervention</th>
+					<th class="text-center" style="max-width: 10px;">Edit</th>
+					<th class="text-center" style="max-width: 10px;">Remove</th>
+				</tr>
+				<tr *ngFor="let outcome of outcomeItemList.outcomesList; let key = index">
+					<td style="width: 150px;">{{outcome.title}}</td>
+					<td style="width: 150px;">{{outcome.intervention}}</td>
+					<td style="width: 15px; white-space:nowrap;">
+						<span class="table-remove">
+							<button (click)="editTitle=true; setOutcome(outcome, key)"
+									[disabled]="!HasWriteRights"
+									type="button" rounded="true"
+									size="sm" class="btn btn-outline-info p-1 m-1">
+								Edit
+							</button>
+						</span>
+					</td>
+					<td style="width: 15px; white-space:nowrap;">
+						<span class="table-remove">
+							<button type="button" rounded="true"
+									size="sm" class="btn btn-outline-danger p-1 m-1"
+									[disabled]="!HasWriteRights" (click)="removeWarning(outcome)">
+								Remove
+							</button>
+						</span>
+					</td>
+				</tr>
+			</table>
+			<button class="btn btn-primary mt-1 p-1 m-1 col-md-2"
+					(click)="CreateNewOutcome()">
+				New Outcome
+			</button>
+			<button class="btn btn-danger mt-1 p-1 m-1 col-md-2"
+					(click)="ClearAndCancelEdit()">
+				Cancel
 			</button>
 
 		</div>

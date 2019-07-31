@@ -12,9 +12,9 @@
 								class="btn btn-sm btn-warning col-2 h-25" (click)="SetCreateNewCode()">
 							<i class="fa fa-plus" aria-hidden="true"></i>
 						</button>
-						<button class="btn btn-sm btn-warning col-2 h-25" (click)="TestShowingOutComes()">
+						<!--<button class="btn btn-sm btn-warning col-2 h-25" (click)="TestShowingOutComes()">
 							<i class="fa fa-ambulance" aria-hidden="true"></i>
-						</button>
+						</button>-->
 						<ArmsComp #ArmsCmp class="card-text col-10"></ArmsComp>
 					</div>
 					<CreateNewCodeComp (closeCreateNew)="SetCreateNewCode()" *ngIf="ShowCreateNewCode"></CreateNewCodeComp>
@@ -47,9 +47,9 @@
 				<div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
 					<LiveComparisonComp></LiveComparisonComp>
 				</div>
-				<div *ngIf="ShowOutComeList" 
+				<div *ngIf="ShowOutComes" 
 					 class="my-1 ml-0 pl-1 pr-0 container">
-					<OutcomesComp [item]="item"></OutcomesComp>
+					<OutcomesComp ></OutcomesComp>
 				</div>
 				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">

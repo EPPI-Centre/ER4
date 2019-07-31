@@ -5,6 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Outcome } from '../services/ItemCoding.service';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { Item } from './ItemList.service';
+import { SetAttribute } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
@@ -23,7 +24,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 
 	}
 	private _currentItemSetId: number = 0;
-	private _Outcomes: Outcome[] | null = null;
+	private _Outcomes: Outcome[] = [];
 
 	public get outcomesList(): Outcome[] {
         if (this._Outcomes) return this._Outcomes;
@@ -31,12 +32,14 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
             this._Outcomes = [];
             return this._Outcomes;
         }
-    }
+	}
+	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
+	
 	public set outcomesList(Outcomes: Outcome[]) {
         this._Outcomes = Outcomes;
     }
-   @Output() gotNewOutcomes = new EventEmitter();
-   // @Output() outcomeChangedEE = new EventEmitter();
+    @Output() gotNewOutcomes = new EventEmitter();
+    // @Output() outcomeChangedEE = new EventEmitter();
 	public get Selectedoutcome(): Outcome | null {
 
         return this._selectedoutcome;
@@ -70,10 +73,10 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 
 
 			this.outcomesList = result;
-			console.log(JSON.stringify(result));
-			console.log('=============================');
-			console.log(JSON.stringify(this.outcomesList));
-			console.log('got inside the Outcomes service: ' + this.outcomesList.length);
+			//console.log(JSON.stringify(result));
+			//console.log('=============================');
+			//console.log(JSON.stringify(this.outcomesList));
+			//console.log('got inside the Outcomes service: ' + this.outcomesList.length);
 
 			this.gotNewOutcomes.emit(this.outcomesList);
 				   this.RemoveBusy("FetchOutcomes");
@@ -144,24 +147,27 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 	}
 
 
-	DeleteOutcome(OutcomeJSON: Outcome) {
+	DeleteOutcome(outcomeId: number, itemSetId: number) {
 
 		this._BusyMethods.push("DeleteOutcome");
 			let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		console.log('outcome deleting: ' + JSON.stringify(OutcomeJSON));
-		let body = JSON.stringify({ OutcomeJSON: OutcomeJSON });		
+		console.log('outcome deleting: ' + JSON.stringify(outcomeId) + 'asdfsadf: ==== ' + JSON.stringify(itemSetId) );
+		let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId  });		
 		this._http.post<Outcome>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
 
 			body).subscribe(
 				(result) => {
 
+					console.log('Checking if error returned anything: ' + JSON.stringify(result));
+					this.FetchOutcomes(this._currentItemSetId);	
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return result;
 				}
 				, (error) => {
 
+					//console.log(JSON.stringify(error));
 					this.FetchOutcomes(this._currentItemSetId);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
