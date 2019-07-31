@@ -96,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -104,7 +104,25 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@NInReviewIncluded", 0));
+                    command.Parameters["@NInReviewIncluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NInReviewExcluded", 0));
+                    command.Parameters["@NInReviewExcluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NMatchedAccuratelyIncluded", 0));
+                    command.Parameters["@NMatchedAccuratelyIncluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NMatchedAccuratelyExcluded", 0));
+                    command.Parameters["@NMatchedAccuratelyExcluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NRequiringManualCheckIncluded", 0));
+                    command.Parameters["@NRequiringManualCheckIncluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NRequiringManualCheckExcluded", 0));
+                    command.Parameters["@NRequiringManualCheckExcluded"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    _NInReviewIncluded = Convert.ToInt32(command.Parameters["@NInReviewIncluded"].Value);
+                    _NInReviewExcluded = Convert.ToInt32(command.Parameters["@NInReviewExcluded"].Value);
+                    _NMatchedAccuratelyIncluded = Convert.ToInt32(command.Parameters["@NMatchedAccuratelyIncluded"].Value);
+                    _NMatchedAccuratelyExcluded = Convert.ToInt32(command.Parameters["@NMatchedAccuratelyExcluded"].Value);
+                    _NRequiringManualCheckIncluded = Convert.ToInt32(command.Parameters["@NRequiringManualCheckIncluded"].Value);
+                    _NRequiringManualCheckExcluded = Convert.ToInt32(command.Parameters["@NRequiringManualCheckExcluded"].Value);
                 }
                 connection.Close();
             }

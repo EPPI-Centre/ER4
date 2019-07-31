@@ -49,6 +49,26 @@ namespace EppiReviewer4
             };
             //BusyLoading.IsRunning = true;
             dp.BeginFetch(mci);
+
+            DataPortal<MAgReviewMagInfoCommand> dp2 = new DataPortal<MAgReviewMagInfoCommand>();
+            MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                //BusyLoading.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
+                    TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
+                    LBListMatches.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
+                    LBManualCheck.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            dp2.BeginExecute(mrmic);
         }
 
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
@@ -73,6 +93,11 @@ namespace EppiReviewer4
             PaperGrid.Visibility = Visibility.Visible;
             TopicsGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void LBListMatches_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
