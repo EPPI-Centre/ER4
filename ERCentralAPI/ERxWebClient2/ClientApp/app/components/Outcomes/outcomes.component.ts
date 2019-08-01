@@ -10,8 +10,9 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { InfoBoxModalContent } from '../CodesetTrees/codesetTreeCoding.component';
 import { OutcomesService } from '../services/outcomes.service';
-import { Item } from '../services/ItemList.service';
+import { Item, iTimePoint, iArm } from '../services/ItemList.service';
 import { ItemCodingService, Outcome, OutcomeItemList, ItemSet } from '../services/ItemCoding.service';
+
 
 
 @Component({
@@ -36,39 +37,82 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 
 	//private currentItem: Item = new Item();
-	@Input() itemSet: ItemSet = new ItemSet();
+	//@Input() itemSet: ItemSet = new ItemSet();
 	private ItemSetId: number = 0;
 	public ShowOutcomesStatistics: boolean = false;
-	public ShowOutcomesList: boolean = false;
+	public ShowOutcomesList: boolean = true;
 	public outcomeItemList: OutcomeItemList = new OutcomeItemList();
+	@Input() item!: Item | undefined;
+	public OutcomeTypeList: string[] = [];
+
 	ngOnInit() {
 
 		console.log('============initiating outcome component');
-		//this._reviewSetsService.GetReviewSets();
+		this.OutcomeTypeList[0] = "Continuous: d (Hedges g)";
+		this.OutcomeTypeList[1] = "Continuous: r";
+		this.OutcomeTypeList[2] = "Binary: odds ratio";
+		this.OutcomeTypeList[3] = "Binary: risk ratio";
+		this.OutcomeTypeList[4] = "Binary: risk difference";
+		this.OutcomeTypeList[5] = "Binary: diagnostic test OR";
+		this.OutcomeTypeList[6] = "Binary: Peto OR";
+		this.OutcomeTypeList[7] = "Continuous: mean difference";
 
-		//this._OutcomesService.ShowOutComeList.subscribe((res: SetAttribute) => {
 
-			//alert(JSON.stringify(res));
-			//var selectedNode = res as SetAttribute;
-			//console.log('selected NOde is: ' + JSON.stringify(selectedNode));
-			//if (selectedNode.nodeType == 'SetAttribute') {
-
-			//	var itemSet = this._ItemCodingService.FindItemSetByItemSetId(selectedNode.set_id);
-			//	if (itemSet != null) {
-			//		//	this.outcomeItemList = itemSet.outcomeItemList;
-			//		//	console.log('=================================');
-			//		//	console.log(JSON.stringify(this.outcomeItemList.outcomesList));
-			//		//	console.log('=================================');
-			//		
-			//	}
-			//}
-			//console.log('=====Finished initiating outcome component');
-		//});
+		this.GetReviewSetOutcomeList();
 
 		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
+		for (var i = 0; i < this._OutcomesService.outcomesList.length; i++) {
+			console.log('==============================');
+			console.log(this._OutcomesService.outcomesList[i].outcomeDescription + '\n');
+			console.log(this._OutcomesService.outcomesList[i].outcomeText + '\n');
+			console.log(this._OutcomesService.outcomesList[i].outcomeTypeName + '\n');
+		}
 		console.log('=====Finished initiating outcome component');
 			
 	}
+	public GetReviewSetOutcomeList() {
+
+		this._OutcomesService.FetchReviewSetOutcomeList(3514232, 0);
+
+	}
+	public get timePointsList(): iTimePoint[] {
+
+		if (!this.item || !this.item.timepoints) {
+			//console.log('empty:!!! ');
+			return [];
+		}
+		else {
+			//console.log('timepoints: ' + this.item.timepoints.length);
+			return this.item.timepoints;
+		}
+	}
+	public get armsList(): iArm[] {
+
+		if (!this.item || !this.item.arms) return [];
+		else return this.item.arms;
+	}
+	
+	public outcomeTypeModel: string = '';
+	public GroupOneArmModel: string = '';
+	public GroupOneArm: string = '';
+	public GroupTwoArmModel: string = '';
+	public GroupTwoArm: string = '';
+	public timePoint: string = '';
+	public timePointModel: string = '';
+	public title: string = '';
+	public titleModel: string = '';
+	public group1N: string = '0';
+	public group1NModel: string = '';
+	public group2N: string = '0';
+	public group2NModel: string = '';
+	public group1Mean: string = '0';
+	public group1MeanModel: string = '';
+	public group2Mean: string = '0';
+	public group2MeanModel: string = '';
+	public group1SD: string = '0';
+	public group1SDModel: string = '';
+	public group2SD: string = '0';
+	public group2SDModel: string = '';
 
 	public get OutcomeList(): Outcome[] {
 
@@ -85,7 +129,13 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 
 	private canDelete: boolean = false;
-	
+	public setOutcome(outcome: Outcome, key: number) {
+
+		this.ShowOutcomesStatistics = true;
+		this.ShowOutcomesList = false;
+
+
+	}
 	removeWarning(outcome: Outcome) {
 
 		//var outcome = this.outcomeItemList.outcomesList[key];

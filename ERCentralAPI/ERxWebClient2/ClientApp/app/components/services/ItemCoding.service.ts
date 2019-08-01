@@ -1028,6 +1028,19 @@ export class ReadOnlyItemAttribute {
 export class OutcomeItemList {
     outcomesList: Outcome[] = [];
 }
+
+//export class ReviewSetOutcomeList{
+
+//	reviewSetOutcomeList: ReviewSetOutcome[] = [];
+//}
+
+export class ReviewSetOutcome {
+
+	public attributeId: number = 0;
+	public attributeName: string = '';
+
+}
+
 export class Outcome {
 
 

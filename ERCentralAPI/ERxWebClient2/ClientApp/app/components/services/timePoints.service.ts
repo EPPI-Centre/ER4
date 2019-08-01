@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, TimePoint } from './ItemList.service';
-import { iTimePoint } from '../timePoints/timePointsComp.component';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 
 @Injectable({
@@ -209,6 +208,15 @@ export class ItemTimepointDeleteWarningCommandJSON {
 	numOutcomes: number = 0;
     itemId: number = 0;
 	itemTimepointId: number = 0;
+}
+
+export interface iTimePoint {
+
+	itemId: number;
+	timepointValue: string;
+	timepointMetric: string;
+	itemTimepointId: number;
+
 }
 
 

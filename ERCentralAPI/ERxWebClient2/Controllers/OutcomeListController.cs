@@ -15,66 +15,90 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetOutcomeList;
 
 namespace ERxWebClient2.Controllers
 {
-    
-    [Authorize]
-    [Route("api/[controller]")]
-    public class OutcomeListController : CSLAController
-    {
 
-        private readonly ILogger _logger;
+	[Authorize]
+	[Route("api/[controller]")]
+	public class OutcomeListController : CSLAController
+	{
 
-        public OutcomeListController(ILogger<OutcomeListController> logger)
-        {
-            _logger = logger;
-        }
-    
-        [HttpPost("[action]")]
-        public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)
-        {
-            try
-            {
-                SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+		private readonly ILogger _logger;
+
+		public OutcomeListController(ILogger<OutcomeListController> logger)
+		{
+			_logger = logger;
+		}
+
+		[HttpPost("[action]")]
+		public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
 				SingleCriteria<OutcomeItemList, Int64> criteria = new SingleCriteria<OutcomeItemList, Int64>(ItemIDCrit.Value);
 				OutcomeItemList result = dp.Fetch(criteria);
 
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Fetching OoutcomeList Errors");
-                return StatusCode(500, e.Message);
-            }
-        }
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Fetching OoutcomeList Errors");
+				return StatusCode(500, e.Message);
+			}
+		}
 
-        
-        [HttpPost("[action]")]
-        public IActionResult UpdateOutcome([FromBody] ItemJSON item)
-        {
+		//FetchReviewSetOutcomeList
+		[HttpPost("[action]")]
+		public IActionResult FetchReviewSetOutcomeList([FromBody] ReadOnlyReviewSetOutcomeListParams parameters)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<ReadOnlyReviewSetOutcomeList> dp = new DataPortal<ReadOnlyReviewSetOutcomeList>();
+				ReadOnlyReviewSetOutcomeListSelectionCriteria criteria =
+					new ReadOnlyReviewSetOutcomeListSelectionCriteria(typeof(ReadOnlyReviewSetOutcomeList), parameters.itemSetId,
+					parameters.setId);
+				ReadOnlyReviewSetOutcomeList result = dp.Fetch(criteria);
 
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-                    DataPortal<Outcome> dp = new DataPortal<Outcome>();
-                    SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
-                    return Ok();
-                }
-                else
-                {
-                    return Forbid();
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error when Updating an Outcome : {0}", item);
-                return StatusCode(500, e.Message);
-            }
-        }
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Fetch ReviewSetOutcomeList Errors");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
+		[HttpPost("[action]")]
+		public IActionResult UpdateOutcome([FromBody] ItemJSON item)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<Outcome> dp = new DataPortal<Outcome>();
+					SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
+					return Ok();
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when Updating an Outcome : {0}", item);
+				return StatusCode(500, e.Message);
+			}
+		}
 
 		// DELETE
 		[HttpPost("[action]")]
@@ -111,6 +135,13 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+
+	}
+
+	public class ReadOnlyReviewSetOutcomeListParams
+	{
+		public long itemSetId { get; set; }
+		public long setId { get; set; }
 
 	}
 

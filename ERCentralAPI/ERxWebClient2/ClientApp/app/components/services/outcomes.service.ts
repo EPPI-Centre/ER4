@@ -2,7 +2,7 @@ import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core'
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Outcome } from '../services/ItemCoding.service';
+import { Outcome, ReviewSetOutcome } from '../services/ItemCoding.service';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { Item } from './ItemList.service';
 import { SetAttribute } from './ReviewSets.service';
@@ -54,7 +54,8 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		//}
 
 	}
-
+	public ReviewSetOutcomeList: ReviewSetOutcome[] = [];
+	
 	public IsServiceBusy(): boolean {
 
 		if (this._BusyMethods.length > 0) {
@@ -86,7 +87,26 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 			}
         );
 	}
+	public FetchReviewSetOutcomeList(itemSetId: number, setId: number) {
 
+		this._BusyMethods.push("FetchReviewSetOutcomeList");
+		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
+
+		this._http.post<ReviewSetOutcome[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
+			body)
+			.subscribe(result => {
+
+				this.ReviewSetOutcomeList = result;
+				console.log('asdfasdf' + JSON.stringify(result));
+				this.gotNewOutcomes.emit(this.outcomesList);
+				this.RemoveBusy("FetchReviewSetOutcomeList");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetOutcomeList");
+		}
+		);
+
+	}
 
 	public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
 
@@ -121,7 +141,6 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		);
 
 	}
-
 
 	public Updateoutcome(currentOutcome: Outcome) {
 

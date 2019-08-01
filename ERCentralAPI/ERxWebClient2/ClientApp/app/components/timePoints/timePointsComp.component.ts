@@ -5,6 +5,7 @@ import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemTimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
+import { iTimePoint } from '../services/ItemList.service';
 import { NgModel } from '@angular/forms';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
@@ -283,13 +284,4 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		}
 		this.Clear();
 	}
-}
-
-export interface iTimePoint {
-
-	itemId: number ;
-	timepointValue: string ;
-	timepointMetric: string ;
-    itemTimepointId: number ;
-
 }

@@ -187,8 +187,6 @@ export class armDetailsComp implements OnInit {
 
 }
 
-
-
 export interface numCodings {
 
 	numCodings: number;

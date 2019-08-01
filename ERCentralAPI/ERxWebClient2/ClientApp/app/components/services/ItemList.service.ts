@@ -13,7 +13,7 @@ import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
-import { iTimePoint } from '../timePoints/timePointsComp.component';
+
 
 @Injectable({
 
@@ -775,7 +775,7 @@ export class Arm {
 export interface iTimePoint {
 	[key: number]: any;  // Add index signature
 	itemId: number ;
-	timepointValue: number ;
+	timepointValue: string ;
 	timepointMetric: string ;
 	itemTimepointId: number ;
 }
