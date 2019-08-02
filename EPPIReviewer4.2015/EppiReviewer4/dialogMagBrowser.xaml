@@ -71,14 +71,22 @@
             <TextBlock Grid.Column="0" Grid.Row="1" Text="Number of items in review (included / excluded): " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
             <TextBlock x:Name="TBNumInReview" Grid.Column="1" Grid.Row="1" Text="N" HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
             <TextBlock Grid.Column="0" Grid.Row="2" Text="Number matched to Microsoft Academic records: " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
-            <HyperlinkButton x:Name="LBListMatches" Grid.Column="1" Grid.Row="2" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatches_Click"></HyperlinkButton>
+            <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
+                <HyperlinkButton x:Name="LBListMatchesIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatches_Click"></HyperlinkButton>
+                <TextBlock Text=" / " Margin="2,5,2,5"></TextBlock>
+                <HyperlinkButton x:Name="LBListMatchesExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatches_Click"></HyperlinkButton>
+            </StackPanel>
             <TextBlock Grid.Column="0" Grid.Row="3" Text="Number that could use manual checking: " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
-            <HyperlinkButton x:Name="LBManualCheck" Grid.Column="1" Grid.Row="3" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                <HyperlinkButton x:Name="LBManualCheckIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+                <TextBlock Text=" / " Margin="2,5,2,5"></TextBlock>
+                <HyperlinkButton x:Name="LBManualCheckExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            </StackPanel>
             <TextBlock Grid.Column="0" Grid.Row="4" Text="ACTIONS: " HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
-            <HyperlinkButton Grid.Column="0" Grid.Row="5" Content="Match all included items" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
-            <HyperlinkButton Grid.Column="0" Grid.Row="6" Content="Browse dataset by topic" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
-            <HyperlinkButton Grid.Column="0" Grid.Row="7" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
-            <HyperlinkButton Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBMatchAllIncluded" Grid.Column="0" Grid.Row="5" Content="Match all included items" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBBrowseByTopic" Grid.Column="0" Grid.Row="6" Content="Browse dataset by topic" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBBrowseByTopic_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="7" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllWithThisCode" Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
             
             <TextBlock Grid.Column="3" Grid.Row="0" FontSize="14" Margin="5,5,5,5">Introduction</TextBlock>
             <TextBlock Grid.Column="3" Grid.Row="1" Grid.RowSpan="8" TextWrapping="Wrap"  Margin="5,0,5,5" Text="This part of the program gives you access to the Microsoft Academic dataset. It is updated regularly, and may contain many of the research studies that you are likely to include in your review.&#10;
@@ -128,7 +136,7 @@
             </radDock:RadPaneGroup>
         </Grid> <!-- End papergrid -->
 
-        <Grid x:Name="TopicsGrid" Grid.Row="1" Visibility="Collapsed">
+        <Grid x:Name="TopicsAndPaperListGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="150"></RowDefinition>
@@ -151,7 +159,7 @@
                 <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
             </ToolkitRef:WrapPanel>
 
-            <telerikGridView:RadGridView x:Name="TopicsBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="TopicsAndPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"

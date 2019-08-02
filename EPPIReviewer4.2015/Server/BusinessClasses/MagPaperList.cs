@@ -244,6 +244,11 @@ namespace BusinessLibrary.BusinessClasses
             SqlCommand command = null;
             switch (criteria.ListType)
             {
+                case "ReviewMatchedPapers":
+                    command = new SqlCommand("st_ReviewMatchedPapers", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@INCLUDED", criteria.Included));
+                    break;
                 case "ItemMatchedPapersList":
                     command = new SqlCommand("st_ItemMatchedPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -358,6 +363,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(MagRelatedRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> IncludedProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("Included", "Included", string.Empty));
+        public string Included
+        {
+            get { return ReadProperty(IncludedProperty); }
+            set
+            {
+                SetProperty(IncludedProperty, value);
             }
         }
 

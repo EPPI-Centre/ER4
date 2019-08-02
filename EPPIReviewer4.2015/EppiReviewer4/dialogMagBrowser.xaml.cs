@@ -24,6 +24,7 @@ namespace EppiReviewer4
 
         public void ShowMagBrowser()
         {
+            HLShowSummary_Click(null, null);
             DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
             MagCurrentInfo mci = new MagCurrentInfo();
             dp.FetchCompleted += (o, e2) =>
@@ -63,8 +64,10 @@ namespace EppiReviewer4
                 {
                     MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
                     TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
-                    LBListMatches.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
-                    LBManualCheck.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
+                    LBListMatchesIncluded.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
+                    LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
+                    LBManualCheckIncluded.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
+                    LBManualCheckExcluded.Content = mrmic2.NRequiringManualCheckExcluded.ToString();
                 }
             };
             //BusyLoading.IsRunning = true;
@@ -75,7 +78,7 @@ namespace EppiReviewer4
         {
             StatusGrid.Visibility = Visibility.Visible;
             PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Collapsed;
+            TopicsAndPaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
         }
 
@@ -83,15 +86,23 @@ namespace EppiReviewer4
         {
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Collapsed;
+            TopicsAndPaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Visible;
         }
 
         private void HLShowSelected_Click(object sender, RoutedEventArgs e)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Visible;
-            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsAndPaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void LBBrowseByTopic_Click(object sender, RoutedEventArgs e)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsAndPaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
         }
 
@@ -99,5 +110,7 @@ namespace EppiReviewer4
         {
 
         }
+
+        
     }
 }
