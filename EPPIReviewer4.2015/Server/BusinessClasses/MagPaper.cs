@@ -30,14 +30,19 @@ namespace BusinessLibrary.BusinessClasses
         private MagPaper() { }
 #endif
 
-        public override string ToString()
-        {
-            return Authors + " (" + Year.ToString() + ") " + PaperTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
-        }
-
+        private static PropertyInfo<string> ExternalMagLinkProperty = RegisterProperty<string>(new PropertyInfo<string>("ExternalMagLink", "ExternalMagLink", string.Empty));
         public string ExternalMagLink()
         {
             return "https://academic.microsoft.com/paper/" + PaperId.ToString();
+        }
+
+        private static PropertyInfo<string> FullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("FullRecord", "FullRecord", string.Empty));
+        public string FullRecord
+        {
+            get
+            {
+                return Authors + " (" + Year.ToString() + ") " + PaperTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
+            }
         }
 
         private static PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
@@ -121,8 +126,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> JournalIdProperty = RegisterProperty<int>(new PropertyInfo<int>("JournalId", "JournalId", 0));
-        public int JournalId
+        private static PropertyInfo<Int64> JournalIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("JournalId", "JournalId"));
+        public Int64 JournalId
         {
             get
             {
@@ -193,8 +198,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ReferenceCountProperty = RegisterProperty<int>(new PropertyInfo<int>("ReferenceCount", "ReferenceCount", 0));
-        public int ReferenceCount
+        private static PropertyInfo<Int64> ReferenceCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ReferenceCount", "ReferenceCount"));
+        public Int64 ReferenceCount
         {
             get
             {
@@ -202,8 +207,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> CitationCountProperty = RegisterProperty<int>(new PropertyInfo<int>("CitationCount", "CitationCount", 0));
-        public int CitationCount
+        private static PropertyInfo<Int64> CitationCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("CitationCount", "CitationCount"));
+        public Int64 CitationCount
         {
             get
             {
@@ -211,7 +216,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> EstimatedCitationCountProperty = RegisterProperty<int>(new PropertyInfo<int>("EstimatedCitationCount", "EstimatedCitationCount", 0));
+        private static PropertyInfo<int> EstimatedCitationCountProperty = RegisterProperty<int>(new PropertyInfo<int>("EstimatedCitationCount", "EstimatedCitationCount"));
         public int EstimatedCitationCount
         {
             get
@@ -463,16 +468,16 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int32>(YearProperty, reader.GetInt32("Year"));
                             LoadProperty<SmartDate>(DateProperty, reader.GetSmartDate("Date"));
                             LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
-                            LoadProperty<Int32>(JournalIdProperty, reader.GetInt32("JournalId"));
-                            LoadProperty<string>(JournalProperty, reader.GetString("NormalizedName"));
+                            LoadProperty<Int64>(JournalIdProperty, reader.GetInt64("JournalId"));
+                            LoadProperty<string>(JournalProperty, reader.GetString("DisplayName"));
                             LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
                             LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
                             LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
                             LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
                             LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));
-                            LoadProperty<Int32>(ReferenceCountProperty, reader.GetInt32("ReferenceCount"));
-                            LoadProperty<Int32>(CitationCountProperty, reader.GetInt32("CitationCount"));
-                            LoadProperty<Int32>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
+                            LoadProperty<Int64>(ReferenceCountProperty, reader.GetInt64("ReferenceCount"));
+                            LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
+                            LoadProperty<int>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
                             LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
                             LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
                             LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
@@ -495,16 +500,16 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(YearProperty, reader.GetInt32("Year"));
             returnValue.LoadProperty<SmartDate>(DateProperty, reader.GetSmartDate("Date"));
             returnValue.LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
-            returnValue.LoadProperty<Int32>(JournalIdProperty, reader.GetInt32("JournalId"));
-            returnValue.LoadProperty<string>(JournalProperty, reader.GetString("NormalizedName"));
+            returnValue.LoadProperty<Int64>(JournalIdProperty, reader.GetInt64("JournalId"));
+            returnValue.LoadProperty<string>(JournalProperty, reader.GetString("DisplayName"));
             returnValue.LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
             returnValue.LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
             returnValue.LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
             returnValue.LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
             returnValue.LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));
-            returnValue.LoadProperty<Int32>(ReferenceCountProperty, reader.GetInt32("ReferenceCount"));
-            returnValue.LoadProperty<Int32>(CitationCountProperty, reader.GetInt32("CitationCount"));
-            returnValue.LoadProperty<Int32>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
+            returnValue.LoadProperty<Int64>(ReferenceCountProperty, reader.GetInt64("ReferenceCount"));
+            returnValue.LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
+            returnValue.LoadProperty<int>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
             returnValue.LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
             returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));

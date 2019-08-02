@@ -209,14 +209,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
                 {
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                     command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
-                    command.Parameters.Add(new SqlParameter("@RowsPerPage", _pageSize));
+                    command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
                     command.Parameters.Add(new SqlParameter("@Total", 0));
                     command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))

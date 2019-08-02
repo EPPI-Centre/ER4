@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
@@ -101,7 +101,8 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
-                // used to define the parameters for the query.
+    }
+        // used to define the parameters for the query.
         [Serializable]
         public class MagFieldOfStudyListSelectionCriteria : BusinessBase //Csla.CriteriaBase
         {
@@ -148,7 +149,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        }
-
     
+
 }

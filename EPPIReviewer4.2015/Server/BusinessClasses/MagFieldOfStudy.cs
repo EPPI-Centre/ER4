@@ -111,8 +111,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<float> SimilarityScoreProperty = RegisterProperty<float>(new PropertyInfo<float>("SimilarityScore", "SimilarityScore"));
-        public float SimilarityScore
+        private static PropertyInfo<decimal> SimilarityScoreProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("SimilarityScore", "SimilarityScore"));
+        public decimal SimilarityScore
         {
             get
             {
@@ -325,7 +325,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
                             LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
                             LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
-                            LoadProperty<float>(SimilarityScoreProperty, reader.GetFloat("sum_similarity"));
+                            LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity")));
                         }
                     }
                 }
@@ -339,7 +339,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
             returnValue.LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
             returnValue.LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
-            returnValue.LoadProperty<float>(SimilarityScoreProperty, reader.GetFloat("sum_similarity"));
+            //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
 
             returnValue.MarkOld();
             return returnValue;
