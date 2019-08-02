@@ -54,6 +54,7 @@
 						<label class="col-md-3">Title</label>
 						<input #titleModel="ngModel" placeholder="Title"
 						required minlength="3"
+						value="title"
 						pattern="^(?!\s*$).+" 
 						[(ngModel)]="title" 
 						type="text" class="form-control col-md-8 form-input" />
@@ -61,11 +62,10 @@
 					<div class="col-md-6 row ">
 						<label class="col-md-3">Timepoint</label>
 						<div class="d-inline-block col-md-8">
-							<select #timePoint="ngModel" [(ngModel)]="timePointModel"
-									class="form-control col-md-12"
-									(change)="alert('something')">
-								<option value="" selected="selected">Timepoints</option>
-								<option [ngValue]="unit" *ngFor="let timepoint of timePointsList">
+							<select #timePoint  [(ngModel)]="timePointModel" 
+									class="form-control col-md-12">
+								<option  [ngValue]="timepoint" [selected]="timepoint.key == timePointModel.key" 
+										*ngFor="let timepoint of timePointsList">
 									{{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
 								</option>
 							</select>
@@ -76,23 +76,25 @@
 					<div class="col-md-6 row">
 						<label class="col-md-3">Outcome type</label>
 						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<select #outcomeType="ngModel" [(ngModel)]="outcomeTypeModel"
-									class="form-control col-md-12"
-									(change)="alert('something')">
-								<option value="" selected="selected">Outcome Type</option>
-								<option [ngValue]="outcome" *ngFor="let outcomeType of OutcomeTypeList">
-									{{outcomeType}}
+							<select #outcomeType [(ngModel)]="outcomeTypeModel" 
+									class="form-control col-md-12">
+								<option [ngValue]="outcomeT" [selected]="outcomeT == outcomeTypeModel" 
+										*ngFor="let outcomeT of OutcomeTypeList">
+									{{outcomeT}}
 								</option>
 							</select>
 						</div>
 					</div>
 					<div class="col-md-6 row">
 						<label class="col-md-3">Outcome</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3"
-									[attr.aria-expanded]="!isCollapsed3" aria-controls="collapseCodeTree3">
-								Test drop down 1&nbsp;
-							</button>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8" placeholder="Outcomes">
+							<select #outcomeDD [(ngModel)]="outcomeDDModel" 
+									class="form-control col-md-12">
+								<option [ngValue]="out" [selected]="out == outcomeDDModel" 
+										*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
+									{{out.attributeName}}
+								</option>
+							</select>
 						</div>
 					</div>
 					</div>
@@ -100,19 +102,25 @@
 					<div class="col-md-6 row">
 						<label class="col-md-3">Intervention</label>
 						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree4"
-									[attr.aria-expanded]="!isCollapsed4" aria-controls="collapseCodeTree4">
-								Test drop down 1&nbsp;
-							</button>
+							<select #interventionDD="ngModel" [(ngModel)]="interventionDDModel"  
+									class="form-control col-md-12">
+								<option [ngValue]="intervention" [selected]="intervention == interventionDDModel" 
+										*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
+									{{intervention.attributeName}}
+								</option>
+							</select>
 						</div>
 					</div>
 					<div class="col-md-6 row">
 						<label class="col-md-3">Comparison</label>
 						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree5"
-									[attr.aria-expanded]="!isCollapsed5" aria-controls="collapseCodeTree5">
-								Test drop down 1&nbsp;
-							</button>
+							<select #controlDD="ngModel" [(ngModel)]="controlDDModel" 
+									class="form-control col-md-12">
+								<option [ngValue]="control" [selected]="control == controlDDModel"
+										*ngFor="let control of _OutcomesService.ReviewSetControlList">
+									{{control.attributeName}}
+								</option>
+							</select>
 						</div>
 						</div>
 					</div>
@@ -120,11 +128,11 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 1 arm</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupOneArm="ngModel" [(ngModel)]="GroupOneArmModel"
-										class="form-control col-md-12"
-										(change)="alert('something')">
+								<select #GroupOneArm [(ngModel)]="GroupOneArmModel"
+										class="form-control col-md-12" >
 									<option value="" selected="selected">Group 1 arm</option>
-									<option [ngValue]="outcome" *ngFor="let arm of armsList">
+									<option [ngValue]="arm" [selected]="arm == GroupOneArmModel"
+											*ngFor="let arm of armsList">
 										{{arm.title}}
 									</option>
 								</select>
@@ -133,11 +141,11 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 2 arm</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupTwoArm="ngModel" [(ngModel)]="GroupTwoArmModel"
-										class="form-control col-md-12"
-										(change)="alert('something')">
+								<select #GroupTwoArm [(ngModel)]="GroupTwoArmModel"
+										class="form-control col-md-12">
 									<option value="" selected="selected">Group 2 arm</option>
-									<option [ngValue]="outcome" *ngFor="let arm of armsList">
+									<option [ngValue]="arm" [selected]="arm == GroupTwoArmModel"
+											*ngFor="let arm of armsList">
 										{{arm.title}}
 									</option>
 								</select>
@@ -148,13 +156,15 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 1 N</label>
 							<input #group1NModel="ngModel"
-								[(ngModel)]="group1N" 
+								[(ngModel)]="group1N"
+								   value="group1N"
 								   type="text" class="form-control col-md-8" />
 						</div>
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 2 N</label>
 							<input #group2NModel="ngModel"
 								[(ngModel)]="group2N" 
+								   value="group2N"
 								   type="text" class="form-control col-md-8" />
 						</div>
 					</div>
@@ -163,12 +173,14 @@
 							<label class="col-md-3">Group 1 mean</label>
 							<input #group1MeanModel="ngModel"
 								[(ngModel)]="group1Mean" 
+								   value="group1Mean"
 								   type="text" class="form-control col-md-8" />
 						</div>
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 2 mean</label>
 							<input #group2MeanModel="ngModel"
 								[(ngModel)]="group2Mean" 
+								   value="group2Mean"
 								   type="text" class="form-control col-md-8" />
 						</div>
 					</div>
@@ -176,13 +188,15 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 1 SD</label>
 							<input #group1SDModel="ngModel"
-								[(ngModel)]="group1SD" 
+								[(ngModel)]="group1SD"
+								   value="group1SD"
 								   type="text" class="form-control col-md-8" />
 						</div>
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 2 SD</label>
 							<input #group2SDModel="ngModel"
-								[(ngModel)]="group2SD" 
+								[(ngModel)]="group2SD"
+								   value="group2SD"
 								   type="text" class="form-control col-md-8" />
 						</div>
 					</div>

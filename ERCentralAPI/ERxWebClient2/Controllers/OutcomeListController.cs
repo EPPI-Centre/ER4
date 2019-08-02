@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetControlList;
+using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetInterventionList;
 using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetOutcomeList;
 
 namespace ERxWebClient2.Controllers
@@ -71,6 +73,53 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Fetch ReviewSetOutcomeList Errors");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+		//FetchReviewSetInterventionList
+		[HttpPost("[action]")]
+		public IActionResult FetchReviewSetInterventionList([FromBody] ReadOnlyReviewSetOutcomeListParams parameters)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<ReadOnlyReviewSetInterventionList> dp = new DataPortal<ReadOnlyReviewSetInterventionList>();
+				ReadOnlyReviewSetInterventionListSelectionCriteria criteria =
+					new ReadOnlyReviewSetInterventionListSelectionCriteria(typeof(ReadOnlyReviewSetInterventionList), parameters.itemSetId,
+					parameters.setId);
+				ReadOnlyReviewSetInterventionList result = dp.Fetch(criteria);
+
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Fetch FetchReviewSetInterventionList Errors");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+
+		//FetchReviewSetControlList
+		[HttpPost("[action]")]
+		public IActionResult FetchReviewSetControlList([FromBody] ReadOnlyReviewSetOutcomeListParams parameters)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<ReadOnlyReviewSetControlList> dp = new DataPortal<ReadOnlyReviewSetControlList>();
+				ReadOnlyReviewSetControlListSelectionCriteria criteria =
+					new ReadOnlyReviewSetControlListSelectionCriteria(typeof(ReadOnlyReviewSetControlList), parameters.itemSetId,
+					parameters.setId);
+				ReadOnlyReviewSetControlList result = dp.Fetch(criteria);
+
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Fetch ReviewSetControlList Errors");
 				return StatusCode(500, e.Message);
 			}
 		}

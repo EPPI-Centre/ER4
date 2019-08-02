@@ -1034,7 +1034,7 @@ export class OutcomeItemList {
 //	reviewSetOutcomeList: ReviewSetOutcome[] = [];
 //}
 
-export class ReviewSetOutcome {
+export class ReviewSetDropDownDResult {
 
 	public attributeId: number = 0;
 	public attributeName: string = '';

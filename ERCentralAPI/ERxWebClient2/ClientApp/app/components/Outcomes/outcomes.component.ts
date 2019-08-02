@@ -59,6 +59,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 
 		this.GetReviewSetOutcomeList();
+		this.GetReviewSetInterventionList();
+		this.GetReviewSetControlList();
 
 		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
 		for (var i = 0; i < this._OutcomesService.outcomesList.length; i++) {
@@ -73,6 +75,16 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	public GetReviewSetOutcomeList() {
 
 		this._OutcomesService.FetchReviewSetOutcomeList(3514232, 0);
+
+	}
+	public GetReviewSetInterventionList() {
+
+		this._OutcomesService.FetchReviewSetInterventionList(3514232, 0);
+
+	}
+	public GetReviewSetControlList() {
+
+		this._OutcomesService.FetchReviewSetControlList(3514232, 0);
 
 	}
 	public get timePointsList(): iTimePoint[] {
@@ -91,7 +103,13 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		if (!this.item || !this.item.arms) return [];
 		else return this.item.arms;
 	}
-	
+
+	public interventionDD: string = '';
+	public interventionDDModel: string = '';
+	public controlDD: string = '';
+	public controlDDModel: string = '';
+	public outcomeDD: string = '';
+	public outcomeDDModel: string = '';
 	public outcomeTypeModel: string = '';
 	public GroupOneArmModel: string = '';
 	public GroupOneArm: string = '';
@@ -148,7 +166,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		field: 'modelId',
 		dir: 'desc'
 	}];
-
+	public selected: string = '';
+	public outcome: string = '';
 	public modelsToBeDeleted: number[] = [];
 	
 	public checkBoxSelected: boolean = false;
@@ -168,6 +187,34 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		}
 
 	};
+	public outcomeType: string = '';
+	public control: any;
+	public Intervention: any;
+	public Timepoint!: iTimePoint;
+	public armOne!: iArm;
+	public armTwo!: iArm;
+	public setGroupTwoArm(arm: iArm) {
+		this.armTwo = arm;
+	}
+	public setGroupOneArm(arm: iArm) {
+		this.armOne = arm;
+	}
+	public setOutcomeType(outcomeType: string) {
+
+		this.outcomeType = outcomeType;
+	}
+	public setControl(control: any) {
+
+		this.control = control;
+	}
+	public setIntervention(Intervention: any) {
+
+		this.Intervention = Intervention;
+	}
+	public setTimepoint(Timepoint: iTimePoint) {
+
+		this.Timepoint = Timepoint;
+	}
 	public allModelsSelected: boolean = false;
 	public selectAllModelsChange() {
 
@@ -184,6 +231,25 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		}
 		this.allModelsSelected = true;
 
+	}
+	public SaveOutcome() {
+
+		console.log('title' + this.title);
+		console.log('GroupOneArmModel' + JSON.stringify(this.GroupOneArmModel));
+		console.log('GroupTwoArmModel' + JSON.stringify(this.GroupTwoArmModel));
+		console.log('controlDDModel' + JSON.stringify(this.controlDDModel));
+		console.log('interventionDDModel' + JSON.stringify(this.interventionDDModel));
+		console.log('outcomeDDModel' + JSON.stringify(this.outcomeDDModel));
+		console.log('Timepoint' + JSON.stringify(this.timePointModel));
+		console.log('outcomeTypeModel' + JSON.stringify(this.outcomeTypeModel));
+
+		console.log('group2N' + this.group2N);
+		console.log('group1N' + this.group1N);
+		console.log('group1Mean' + this.group1Mean);
+		console.log('group2Mean' + this.group2Mean);
+		console.log('group1SD' + this.group1SD);
+		console.log('group2SD' + this.group2SD);
+		
 	}
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;

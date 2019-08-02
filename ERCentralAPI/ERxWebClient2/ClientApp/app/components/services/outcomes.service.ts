@@ -2,7 +2,7 @@ import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core'
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Outcome, ReviewSetOutcome } from '../services/ItemCoding.service';
+import { Outcome, ReviewSetDropDownDResult } from '../services/ItemCoding.service';
 import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { Item } from './ItemList.service';
 import { SetAttribute } from './ReviewSets.service';
@@ -54,7 +54,9 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		//}
 
 	}
-	public ReviewSetOutcomeList: ReviewSetOutcome[] = [];
+	public ReviewSetOutcomeList: ReviewSetDropDownDResult[] = [];
+	public ReviewSetControlList: ReviewSetDropDownDResult[] = [];
+	public ReviewSetInterventionList: ReviewSetDropDownDResult[] = [];
 	
 	public IsServiceBusy(): boolean {
 
@@ -92,12 +94,12 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("FetchReviewSetOutcomeList");
 		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-		this._http.post<ReviewSetOutcome[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
+		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
 			body)
 			.subscribe(result => {
 
 				this.ReviewSetOutcomeList = result;
-				console.log('asdfasdf' + JSON.stringify(result));
+				console.log('Outcome' + JSON.stringify(result));
 				this.gotNewOutcomes.emit(this.outcomesList);
 				this.RemoveBusy("FetchReviewSetOutcomeList");
 			}, error => {
@@ -105,6 +107,49 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 				this.RemoveBusy("FetchReviewSetOutcomeList");
 		}
 		);
+
+	}
+
+	public FetchReviewSetInterventionList(itemSetId: number, setId: number) {
+
+		this._BusyMethods.push("FetchReviewSetInterventionList");
+		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
+
+		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetInterventionList',
+			body)
+			.subscribe(result => {
+
+				this.ReviewSetInterventionList = result;
+				console.log('Intervention' + JSON.stringify(result));
+				//this.gotNewOutcomes.emit(this.outcomesList);
+				this.RemoveBusy("FetchReviewSetInterventionList");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetInterventionList");
+			}
+			);
+
+	}
+
+	public FetchReviewSetControlList(itemSetId: number, setId: number) {
+
+		this._BusyMethods.push("FetchReviewSetControlList");
+		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
+
+		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetControlList',
+			body)
+			.subscribe(result => {
+
+				this.ReviewSetControlList = result;
+				console.log('Control' + JSON.stringify(result));
+				//this.gotNewOutcomes.emit(this.outcomesList);
+				this.RemoveBusy("FetchReviewSetControlList");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetControlList");
+			}
+			);
+
 
 	}
 
