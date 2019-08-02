@@ -199,6 +199,26 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info)
+        {
+            base.OnSetState(info);
+            // Paging properties
+            _pageIndex = info.GetValue<int>("_pageIndex");
+            _totalItemCount = info.GetValue<int>("_totalItemCount");
+            _pageSize = info.GetValue<int>("_pageSize");
+            _isPageChanging = info.GetValue<bool>("_isPageChanging");
+        }
+
+        protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
+        {
+            base.OnGetState(info);
+            // Paging properties
+            info.AddValue("_pageIndex", _pageIndex);
+            info.AddValue("_totalItemCount", _totalItemCount);
+            info.AddValue("_pageSize", _pageSize);
+            info.AddValue("_isPageChanging", _isPageChanging);
+        }
+
 
 #if SILVERLIGHT
        
@@ -209,6 +229,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
+            PageSize = selectionCriteria.PageSize;
             using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
@@ -228,7 +249,7 @@ namespace BusinessLibrary.BusinessClasses
                         reader.NextResult();
                         if (reader.Read())
                         {
-                            //_pageIndex = reader.GetInt32("@CurrentPage") - 1;  //JT - I'm not sure why we do this in the reader??
+                            _pageIndex = selectionCriteria.PageNumber;
                             _totalItemCount = reader.GetInt32("@Total");
                         }
                     }

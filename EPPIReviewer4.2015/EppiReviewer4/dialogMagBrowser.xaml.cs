@@ -204,12 +204,12 @@ namespace EppiReviewer4
             HyperlinkButton hl = sender as HyperlinkButton;
             TBMainTopic.Text = hl.Content.ToString();
 
-            getParentAndChildFieldsOfStudy("FieldOfStudyParentsList", Convert.ToInt64(hl.Tag), WPParentTopics);
-            getParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", Convert.ToInt64(hl.Tag), WPChildTopics);
+            getParentAndChildFieldsOfStudy("FieldOfStudyParentsList", Convert.ToInt64(hl.Tag), WPParentTopics, "Parent topics");
+            getParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", Convert.ToInt64(hl.Tag), WPChildTopics, "Child topics");
             getPaperListForTopic(Convert.ToInt64(hl.Tag));
         }
 
-        private void getParentAndChildFieldsOfStudy(string ListType, Int64 FieldOfStudyId, WrapPanel wp)
+        private void getParentAndChildFieldsOfStudy(string ListType, Int64 FieldOfStudyId, WrapPanel wp, string desc)
         {
             MagFieldOfStudyListSelectionCriteria selectionCriteria = new MagFieldOfStudyListSelectionCriteria();
             selectionCriteria.ListType = ListType;
@@ -219,6 +219,12 @@ namespace EppiReviewer4
             dp.FetchCompleted += (o, e2) =>
             {
                 wp.Children.Clear();
+                TextBlock tb = new TextBlock();
+                tb.Text = desc;
+                tb.FontSize = 12;
+                tb.FontStyle = FontStyles.Italic;
+                tb.Margin = new Thickness(5, 5, 15, 5);
+                wp.Children.Add(tb);
                 MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
                 foreach (MagFieldOfStudy fos in FosList)
                 {
@@ -308,6 +314,53 @@ namespace EppiReviewer4
             provider3.FactoryParameters.Add(selectionCriteria3);
             provider3.FactoryMethod = "GetMagPaperList";
             provider3.Refresh();
+
+            MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
+            selectionCriteria4.ListType = "PaperFieldOfStudyList";
+            selectionCriteria4.PaperIdList = paper.PaperId.ToString();
+            DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
+            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+            dp.FetchCompleted += (o, e2) =>
+            {
+                WPPaperTopics.Children.Clear();
+                TextBlock tb = new TextBlock();
+                tb.Text = "Topics";
+                tb.FontSize = 15;
+                tb.FontStyle = FontStyles.Italic;
+                tb.Margin = new Thickness(5, 5, 15, 5);
+                WPPaperTopics.Children.Add(tb);
+                MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
+                double i = 15;
+                foreach (MagFieldOfStudy fos in FosList)
+                {
+                    HyperlinkButton newHl = new HyperlinkButton();
+                    newHl.Content = fos.DisplayName;
+                    newHl.Tag = fos.FieldOfStudyId.ToString();
+                    newHl.Click += HlNavigateToTopic_Click;
+                    newHl.FontSize = i;
+                    newHl.Margin = new Thickness(5, 5, 5, 5);
+                    WPPaperTopics.Children.Add(newHl);
+                    if (i > 10)
+                    {
+                        i -= 0.5;
+                    }
+                }
+            };
+            dp.BeginFetch(selectionCriteria4);
+        }
+
+        private void PaperListBibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = e.NewPageIndex;
+            selectionCriteria.ListType = "ReviewMatchedPapers";
+            selectionCriteria.Included = "included";
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
         }
     }
 }
