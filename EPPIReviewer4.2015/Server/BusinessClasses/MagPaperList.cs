@@ -199,6 +199,59 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+
+        private Int64 _FieldOfStudyId;
+        public Int64 FieldOfStudyId
+        {
+            get
+            {
+                return _FieldOfStudyId;
+            }
+            set
+            {
+                _FieldOfStudyId = value;
+            }
+        }
+
+        private Int64 _PaperId;
+        public Int64 PaperId
+        {
+            get
+            {
+                return _PaperId;
+            }
+            set
+            {
+                _PaperId = value;
+            }
+        }
+
+        private Int64 _AuthorId;
+        public Int64 AuthorId
+        {
+            get
+            {
+                return _AuthorId;
+            }
+            set
+            {
+                _AuthorId = value;
+            }
+        }
+
+        private Int64 _MagRelatedRunId;
+        public Int64 MagRelatedRunId
+        {
+            get
+            {
+                return _MagRelatedRunId;
+            }
+            set
+            {
+                _MagRelatedRunId = value;
+            }
+        }
+
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info)
         {
             base.OnSetState(info);
@@ -207,6 +260,10 @@ namespace BusinessLibrary.BusinessClasses
             _totalItemCount = info.GetValue<int>("_totalItemCount");
             _pageSize = info.GetValue<int>("_pageSize");
             _isPageChanging = info.GetValue<bool>("_isPageChanging");
+            _FieldOfStudyId = info.GetValue<Int64>("_FieldOfStudyId");
+            _PaperId = info.GetValue<Int64>("_PaperId");
+            _AuthorId = info.GetValue<Int64>("_AuthorId");
+            _MagRelatedRunId = info.GetValue<Int64>("_MagRelatedRunId");
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
@@ -217,6 +274,10 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_totalItemCount", _totalItemCount);
             info.AddValue("_pageSize", _pageSize);
             info.AddValue("_isPageChanging", _isPageChanging);
+            info.AddValue("_FieldOfStudyId", _FieldOfStudyId);
+            info.AddValue("_PaperId", _PaperId);
+            info.AddValue("_AuthorId", _AuthorId);
+            info.AddValue("_MagRelatedRunId", _MagRelatedRunId);
         }
 
 
@@ -254,7 +315,6 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                
                 connection.Close();
             }
             RaiseListChangedEvents = true;
@@ -279,36 +339,43 @@ namespace BusinessLibrary.BusinessClasses
                     command = new SqlCommand("st_PaperCitations", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId; // storing this in the object helps with paging
                     break;
                 case "CitedByList":
                     command = new SqlCommand("st_PaperCitedBy", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
                     break;
                 case "RecommendationsList":
                     command = new SqlCommand("st_PaperRecommendations", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
                     break;
                 case "RecommendedByList":
                     command = new SqlCommand("st_PaperRecommendedBy", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
                     break;
                 case "PaperFieldsOfStudyList":
                     command = new SqlCommand("st_FieldOfStudyPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+                    this.FieldOfStudyId = criteria.FieldOfStudyId;
                     break;
                 case "AuthorPaperList":
                     command = new SqlCommand("st_AuthorPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@AuthorId", criteria.AuthorId));
+                    this.AuthorId = criteria.AuthorId;
                     break;
                 case "MagRelatedPapersRunList":
                     command = new SqlCommand("st_MagRelatedPapersList", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", criteria.MagRelatedRunId));
+                    this.MagRelatedRunId = criteria.MagRelatedRunId;
                     break;
             }
             return command;

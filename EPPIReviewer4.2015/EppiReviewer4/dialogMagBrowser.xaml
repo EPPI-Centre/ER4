@@ -161,32 +161,50 @@
 
             <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="1" Grid.Column="1" TabStripPlacement="Top">
                 <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
-                    <telerikGridView:RadGridView x:Name="BibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <telerikGridView:RadGridView x:Name="BibliographyGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                    ItemsSource="{Binding Source={StaticResource CitationPaperListData}, Path=Data, Mode=TwoWay}"
+                                    ItemsSource="{Binding PagedSource, ElementName=BibliographyPager}"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
-                        <telerikGridView:RadGridView.Columns>
-                            <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
-                                <telerikGridView:GridViewSelectColumn.Header>
-                                    <CheckBox Tag="Bibliography" />
-                                </telerikGridView:GridViewSelectColumn.Header>
-                            </telerikGridView:GridViewSelectColumn>
-                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
-                                <telerikGridView:GridViewDataColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
-                                    </DataTemplate>
-                                </telerikGridView:GridViewDataColumn.CellTemplate>
-                            </telerikGridView:GridViewDataColumn>
-                        </telerikGridView:RadGridView.Columns>
-                    </telerikGridView:RadGridView>
+                            <telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
+                                    <telerikGridView:GridViewSelectColumn.Header>
+                                        <CheckBox Tag="Bibliography" />
+                                    </telerikGridView:GridViewSelectColumn.Header>
+                                </telerikGridView:GridViewSelectColumn>
+                                <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                                    <telerikGridView:GridViewDataColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                                        </DataTemplate>
+                                    </telerikGridView:GridViewDataColumn.CellTemplate>
+                                </telerikGridView:GridViewDataColumn>
+                            </telerikGridView:RadGridView.Columns>
+                        </telerikGridView:RadGridView>
+
+                        <dpager:RadDataPager Grid.Row="1" x:Name="BibliographyPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource CitationPaperListData}, Path=Data}"
+                PageIndexChanging="BibliographyPager_PageIndexChanging"></dpager:RadDataPager>
+
+                    </Grid>
                 </radDock:RadPane>
+                
                 <radDock:RadPane Header="Cited by" CanUserClose="False" CanFloat="False">
-                    <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                    
+                    <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                    ItemsSource="{Binding Source={StaticResource CitedByListData}, Path=Data, Mode=TwoWay}"
+                                    ItemsSource="{Binding PagedSource, ElementName=CitedByPager}"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -205,6 +223,13 @@
                             </telerikGridView:GridViewDataColumn>
                         </telerikGridView:RadGridView.Columns>
                     </telerikGridView:RadGridView>
+
+                        <dpager:RadDataPager Grid.Row="1" x:Name="CitedByPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource CitedByListData}, Path=Data}"
+                PageIndexChanging="CitedByPager_PageIndexChanging"></dpager:RadDataPager>
+                        
+                    </Grid>
+                    
                 </radDock:RadPane>
                 <radDock:RadPane Header="Related" CanUserClose="False" CanFloat="False">
                     <telerikGridView:RadGridView x:Name="RelatedGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
@@ -228,6 +253,7 @@
                             </telerikGridView:GridViewDataColumn>
                         </telerikGridView:RadGridView.Columns>
                     </telerikGridView:RadGridView>
+                    <!-- n.b. no data pager needed here, as there are only 20 related documents-->
                 </radDock:RadPane>
 
             </radDock:RadPaneGroup>
@@ -286,6 +312,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"></ColumnDefinition>
@@ -308,7 +335,7 @@
 
             <telerikGridView:RadGridView x:Name="TopicPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                    ItemsSource="{Binding Source={StaticResource TopicPaperListData}, Path=Data, Mode=TwoWay}"
+                                    ItemsSource="{Binding PagedSource, ElementName=TopicPaperListBibliographyPager}"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -327,6 +354,11 @@
                     </telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
+
+            <dpager:RadDataPager Grid.Column="1" Grid.Row="2" x:Name="TopicPaperListBibliographyPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource TopicPaperListData}, Path=Data}"
+                PageIndexChanging="TopicPaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
+
         </Grid>
 
         <!-- end TopicsGrid -->

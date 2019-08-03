@@ -362,5 +362,50 @@ namespace EppiReviewer4
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
         }
+
+        private void TopicPaperListBibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
+            MagPaperList mpl = provider.Data as MagPaperList;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = e.NewPageIndex;
+            selectionCriteria.ListType = "PaperFieldsOfStudyList";
+            selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
+        private void CitedByPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["CitedByListData"] as CslaDataProvider;
+            MagPaperList mpl = provider.Data as MagPaperList;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = e.NewPageIndex;
+            selectionCriteria.ListType = "CitedByList";
+            selectionCriteria.MagPaperId = mpl.PaperId;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
+        private void BibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["CitationPaperListData"] as CslaDataProvider;
+            MagPaperList mpl = provider.Data as MagPaperList;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = e.NewPageIndex;
+            selectionCriteria.ListType = "CitationsList";
+            selectionCriteria.MagPaperId = mpl.PaperId;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
     }
 }
