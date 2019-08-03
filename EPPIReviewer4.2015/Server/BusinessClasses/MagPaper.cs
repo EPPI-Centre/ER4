@@ -274,6 +274,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract", string.Empty));
+        public string Abstract
+        {
+            get
+            {
+                return GetProperty(AbstractProperty);
+            }
+        }
+
         /*
         public static readonly PropertyInfo<MagPaperList> CitationsProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("Citations", "Citations"));
         public MagPaperList Citations
@@ -481,6 +490,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
                             LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
                             LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+                            LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
                         }
                     }
                 }
@@ -513,6 +523,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
             returnValue.LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
             returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+            returnValue.LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
 
             returnValue.MarkOld();
             return returnValue;
