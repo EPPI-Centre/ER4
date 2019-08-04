@@ -281,6 +281,7 @@ namespace EppiReviewer4
             CitationPane.SelectedIndex = 0;
 
             RTBPaperInfo.Text = paper.FullRecord;
+            tbAbstract.Text = paper.Abstract;
 
             CslaDataProvider provider = this.Resources["CitationPaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -406,6 +407,23 @@ namespace EppiReviewer4
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
+        }
+
+        private void HLExpandContract_Click(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl.Tag.ToString() == "expand")
+            {
+                hl.Tag = "contract";
+                hl.Content = "^^^ Contract ^^^";
+                PaperGridAbstractRow.Height = new GridLength(50, GridUnitType.Auto);
+            }
+            else
+            {
+                hl.Tag = "expand";
+                hl.Content = "<<< Expand >>>";
+                PaperGridAbstractRow.Height = new GridLength(0);
+            }
         }
     }
 }

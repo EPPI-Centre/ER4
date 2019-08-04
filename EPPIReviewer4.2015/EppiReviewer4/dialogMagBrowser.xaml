@@ -84,6 +84,7 @@
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Width="76" Click="HLShowHistory_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowSummary" Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowSummary_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLImportEntireList" Grid.Column="2" Content="Import list" Margin="0,5,5,5" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="90"></HyperlinkButton>
             <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31"></HyperlinkButton>
             <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49"></HyperlinkButton>
 
@@ -129,6 +130,7 @@
             <HyperlinkButton x:Name="LBBrowseByTopic" Grid.Column="0" Grid.Row="6" Content="Browse dataset by topic" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBBrowseByTopic_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="7" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
             <HyperlinkButton x:Name="LBListAllWithThisCode" Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllRelatedToItemsWithThisCode" Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
             
             <TextBlock Grid.Column="3" Grid.Row="0" FontSize="14" Margin="5,5,5,5">Introduction</TextBlock>
             <TextBlock Grid.Column="3" Grid.Row="1" Grid.RowSpan="8" TextWrapping="Wrap"  Margin="5,0,5,5" Text="This part of the program gives you access to the Microsoft Academic dataset. It is updated regularly, and may contain many of the research studies that you are likely to include in your review.&#10;
@@ -143,23 +145,26 @@
         </Grid> <!-- end statusgrid -->
 
         <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="70"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+            <Grid.RowDefinitions>
+                    <RowDefinition x:Name="PaperGridHeadingRow" Height="67"></RowDefinition>
+                    <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
+                    <RowDefinition Height="25"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="RTBPaperInfo" TextWrapping="Wrap" FontSize="18" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="5,5,5,5" Grid.Row="0" Grid.ColumnSpan="2"></TextBlock>
-
-            <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+            <TextBlock x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="18" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="5,5,5,5" ></TextBlock>
+            <TextBox x:Name="tbAbstract" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
+            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="2" Grid.ColumnSpan="2" FontSize="14" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
+            <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
                 <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
             </ToolkitRef:WrapPanel>
 
-            <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="1" Grid.Column="1" TabStripPlacement="Top">
+            <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="3" Grid.Column="1" TabStripPlacement="Top">
                 <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
                     <Grid>
                         <Grid.RowDefinitions>
