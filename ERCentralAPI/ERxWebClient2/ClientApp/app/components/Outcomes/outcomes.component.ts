@@ -64,10 +64,10 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
 		for (var i = 0; i < this._OutcomesService.outcomesList.length; i++) {
-			console.log('==============================');
-			console.log(this._OutcomesService.outcomesList[i].outcomeDescription + '\n');
-			console.log(this._OutcomesService.outcomesList[i].outcomeText + '\n');
+			console.log('==============================outcome title etc');
+			console.log(this._OutcomesService.outcomesList[i].title + '\n');
 			console.log(this._OutcomesService.outcomesList[i].outcomeTypeName + '\n');
+			console.log(this._OutcomesService.outcomesList[i].outcomeDescription + '\n');
 		}
 		console.log('=====Finished initiating outcome component');
 			
@@ -104,6 +104,9 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		else return this.item.arms;
 	}
 
+	public currentOutcome: Outcome = new Outcome();
+	public outcomeDescription: string = '';
+	public outcomeDescriptionModel: string = '';
 	public interventionDD: string = '';
 	public interventionDDModel: string = '';
 	public controlDD: string = '';
@@ -151,8 +154,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
-
-
+		this.currentOutcome = outcome;
+		console.log('la la and po: ' + JSON.stringify(this.currentOutcome));
 	}
 	removeWarning(outcome: Outcome) {
 
@@ -249,7 +252,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		console.log('group2Mean' + this.group2Mean);
 		console.log('group1SD' + this.group1SD);
 		console.log('group2SD' + this.group2SD);
-		
+
+		alert('not implemented yet but useful values printed in console.log');
 	}
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;
@@ -257,13 +261,12 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 	BackToMain() {
 		this.router.navigate(['Main']);
+
 	}
 	ngOnDestroy() {
 
 		this._reviewSetsService.selectedNode = null;
 	}
-
-
     ngAfterViewInit() {
 
 	}
@@ -271,12 +274,18 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 
 	}
+	ClearAndCancelSave() {
+
+		this.ShowOutcomesStatistics = false;
+		this.ShowOutcomesList = true;
+		// need to clear fields
+	}
 	ClearAndCancelEdit() {
 
+		this._OutcomesService.ShowOutComeList.emit(new SetAttribute());
 
 	}
 	Clear() {
 		
 	}
-
 }

@@ -144,10 +144,12 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 	public OutcomePanel: boolean = false;
 	public openOutcomePanel(data: singleNode) {
 
+		
 		//if (this.OutcomePanel) {
 			let node = data as SetAttribute;
 			if (node != null) {
-				this._outcomeService.ShowOutComeList.emit(node);
+				//this._outcomeService.ShowOutComeList.emit(node);
+				this._outcomeService.outcomesChangedEE.emit(node);
 			}
 		//}
 		//this.OutcomePanel = !this.OutcomePanel;

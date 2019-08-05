@@ -39,7 +39,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
         this._Outcomes = Outcomes;
     }
     @Output() gotNewOutcomes = new EventEmitter();
-    // @Output() outcomeChangedEE = new EventEmitter();
+    @Output() outcomesChangedEE = new EventEmitter();
 	public get Selectedoutcome(): Outcome | null {
 
         return this._selectedoutcome;
@@ -50,7 +50,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 
 		this._selectedoutcome = outcome;
 		//if (this._selectedoutcome != outcome) {
-			this.gotNewOutcomes.emit();
+		this.outcomesChangedEE.emit();
 		//}
 
 	}
@@ -81,7 +81,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 			//console.log(JSON.stringify(this.outcomesList));
 			//console.log('got inside the Outcomes service: ' + this.outcomesList.length);
 
-			this.gotNewOutcomes.emit(this.outcomesList);
+			//this.outcomesChangedEE.emit(this.outcomesList[0].itemSetId);
 				   this.RemoveBusy("FetchOutcomes");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
@@ -100,7 +100,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 
 				this.ReviewSetOutcomeList = result;
 				console.log('Outcome' + JSON.stringify(result));
-				this.gotNewOutcomes.emit(this.outcomesList);
+				//this.outcomesChangedEE.emit(this.outcomesList);
 				this.RemoveBusy("FetchReviewSetOutcomeList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
@@ -199,6 +199,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 				(result) => {
 
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					this.FetchOutcomes(this._currentItemSetId);	
 					this.RemoveBusy("UpdateOutcome");
 					return result;
 				}

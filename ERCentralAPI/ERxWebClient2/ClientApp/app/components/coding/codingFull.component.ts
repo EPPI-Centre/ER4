@@ -23,6 +23,7 @@ import { timePointsService } from '../services/timePoints.service';
 import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { OutcomesService } from '../services/outcomes.service';
+import { OutcomesComponent } from '../Outcomes/outcomes.component';
 
 
 @Component({
@@ -58,6 +59,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
    
     @ViewChild('ArmsCmp')
 	private ArmsCompRef!: any;
+	@ViewChild('OutcomesCmp')
+	private OutcomesCmpRef!: OutcomesComponent;
     @ViewChild('ItemDetailsCmp')
 	private ItemDetailsCompRef!: any; 
 
@@ -168,23 +171,32 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
 		else {
 
-			this._outcomeService.ShowOutComeList.subscribe(
+			this._outcomeService.outcomesChangedEE.subscribe(
 
 				(res: any) => {
-				var selectedNode = res as SetAttribute;
+
+					console.log('got inside subsrciprtion');
+					var selectedNode = res as SetAttribute;
 		
-				if (selectedNode.nodeType == 'SetAttribute') {
+					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
 
-					var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
 
-					if (itemSet != null) {
-							this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-							this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
+						if (itemSet != null) {
+								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
+								this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
+						}
+						this.ShowingOutComes();
+					} else {
+
+						if (this.OutcomesCmpRef) {
+							this.OutcomesCmpRef.outcomeItemList.outcomesList = [];
+							this.OutcomesCmpRef.ShowOutcomesList = false;
+						}
+						
 					}
 				}
-				this.ShowingOutComes();
-				}
-				// ERROR HANDLING IN HERE EVENTUALLY....
+				// ERROR HANDLING IN HERE NEXT....
 			);
 			
             this.armservice.armChangedEE.subscribe(() => {
@@ -284,12 +296,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.tabstrip) this.tabstrip.selectTab(0);
     }
     private GetItemCoding() {
-        //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        console.log('Getting item coding for itemID: ' + this.itemID);
         this.ItemDocsService.FetchDocList(this.itemID);
-        if (this.item) {
+		if (this.item) {
+
+			this._outcomeService.outcomesChangedEE.emit();
             this.ArmsCompRef.CurrentItem = this.item;
 			this.armservice.FetchArms(this.item);
 			this.timePointsService.Fetchtimepoints(this.item);
+
         }
         this.ItemCodingService.Fetch(this.itemID);    
 
