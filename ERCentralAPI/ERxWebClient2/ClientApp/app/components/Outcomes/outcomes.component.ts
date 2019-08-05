@@ -11,7 +11,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { InfoBoxModalContent } from '../CodesetTrees/codesetTreeCoding.component';
 import { OutcomesService } from '../services/outcomes.service';
 import { Item, iTimePoint, iArm } from '../services/ItemList.service';
-import { ItemCodingService, Outcome, OutcomeItemList, ItemSet } from '../services/ItemCoding.service';
+import { ItemCodingService, Outcome, OutcomeItemList, ItemSet, OutcomeType } from '../services/ItemCoding.service';
 
 
 
@@ -43,19 +43,21 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	public ShowOutcomesList: boolean = true;
 	public outcomeItemList: OutcomeItemList = new OutcomeItemList();
 	@Input() item!: Item | undefined;
-	public OutcomeTypeList: string[] = [];
+	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
 
 		console.log('============initiating outcome component');
-		this.OutcomeTypeList[0] = "Continuous: d (Hedges g)";
-		this.OutcomeTypeList[1] = "Continuous: r";
-		this.OutcomeTypeList[2] = "Binary: odds ratio";
-		this.OutcomeTypeList[3] = "Binary: risk ratio";
-		this.OutcomeTypeList[4] = "Binary: risk difference";
-		this.OutcomeTypeList[5] = "Binary: diagnostic test OR";
-		this.OutcomeTypeList[6] = "Binary: Peto OR";
-		this.OutcomeTypeList[7] = "Continuous: mean difference";
+		this.OutcomeTypeList = [
+			{ "outcomeTypeId": 0, "outcomeTypeName": "Continuous: d (Hedges g)" },
+			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: r" },
+			{ "outcomeTypeId": 2, "outcomeTypeName": "Binary: odds ratio" },
+			{ "outcomeTypeId": 3, "outcomeTypeName": "Binary: risk ratio" },
+			{ "outcomeTypeId": 4, "outcomeTypeName": "Binary: risk difference" },
+			{ "outcomeTypeId": 5, "outcomeTypeName": "Binary: diagnostic test OR" },
+			{ "outcomeTypeId": 6, "outcomeTypeName": "Binary: Peto OR" },
+			{ "outcomeTypeId": 7, "outcomeTypeName": "Continuous: mean difference" }
+		];
 
 
 		this.GetReviewSetOutcomeList();
@@ -64,11 +66,22 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
 		for (var i = 0; i < this._OutcomesService.outcomesList.length; i++) {
-			console.log('==============================outcome title etc');
-			console.log(this._OutcomesService.outcomesList[i].title + '\n');
-			console.log(this._OutcomesService.outcomesList[i].outcomeTypeName + '\n');
-			console.log(this._OutcomesService.outcomesList[i].outcomeDescription + '\n');
+			//console.log('==============================outcome title etc');
+			//console.log(this._OutcomesService.outcomesList[i].title + '\n');
+			//console.log(this._OutcomesService.outcomesList[i].outcomeTypeName + '\n');
+			//console.log(this._OutcomesService.outcomesList[i].outcomeDescription + '\n');
 		}
+		this.currentOutcome = this.outcomeItemList.outcomesList[0];
+		var testTimePoint = <iTimePoint>{};
+		if (this.item) {
+			testTimePoint.itemId = this.item.itemId;
+		}
+		testTimePoint.itemTimepointId = this.currentOutcome.itemTimepointId;
+		testTimePoint.timepointMetric = this.currentOutcome.itemTimepointMetric;
+		testTimePoint.timepointValue = this.currentOutcome.itemTimepointValue;
+		this, this.currentOutcome.outcomeTimePoint = testTimePoint;
+		console.log('This is the current outcome timepoint is: ');
+		console.log(this.currentOutcome.outcomeTimePoint);
 		console.log('=====Finished initiating outcome component');
 			
 	}
@@ -87,6 +100,12 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		this._OutcomesService.FetchReviewSetControlList(3514232, 0);
 
 	}
+	public GetItemArmList() {
+
+		this._OutcomesService.FetchItemArmList(3514232, 0);
+
+	}
+
 	public get timePointsList(): iTimePoint[] {
 
 		if (!this.item || !this.item.timepoints) {
@@ -103,7 +122,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		if (!this.item || !this.item.arms) return [];
 		else return this.item.arms;
 	}
-
 	public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
@@ -282,7 +300,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 	ClearAndCancelEdit() {
 
-		this._OutcomesService.ShowOutComeList.emit(new SetAttribute());
+		// !!!!!!!!!Need to clear what is relevant here...
+		this.ShowOutcomesList = false;
 
 	}
 	Clear() {

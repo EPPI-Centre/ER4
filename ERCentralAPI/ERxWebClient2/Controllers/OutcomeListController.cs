@@ -124,6 +124,27 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+		//FetchItemArmList
+		[HttpPost("[action]")]
+		public IActionResult FetchItemArmList([FromBody] long itemId)
+		{
+			try
+			{
+				SetCSLAUser();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
+				SingleCriteria<Item, Int64> criteria =
+					new SingleCriteria<Item, Int64>(itemId);
+				ItemArmList result = dp.Fetch(criteria);
+
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Fetch FetchItemArmList Errors");
+				return StatusCode(500, e.Message);
+			}
+		}
 
 		[HttpPost("[action]")]
 		public IActionResult UpdateOutcome([FromBody] ItemJSON item)

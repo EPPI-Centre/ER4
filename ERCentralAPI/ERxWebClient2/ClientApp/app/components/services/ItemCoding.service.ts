@@ -9,7 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Item, ItemListService } from './ItemList.service';
+import { Item, ItemListService, TimePoint, iTimePoint } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand } from './ReviewSets.service';
 import { Review } from './review.service';
 import { ArmsService } from './arms.service';
@@ -1029,11 +1029,12 @@ export class OutcomeItemList {
     outcomesList: Outcome[] = [];
 }
 
-//export class ReviewSetOutcomeList{
+export class OutcomeType {
 
-//	reviewSetOutcomeList: ReviewSetOutcome[] = [];
-//}
+	outcomeTypeId: number = 0;
+	outcomeTypeName: string = '';
 
+}
 export class ReviewSetDropDownDResult {
 
 	public attributeId: number = 0;
@@ -1051,7 +1052,14 @@ export class Outcome {
     outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
     itemAttributeIdIntervention: number = 0;
     itemAttributeIdControl: number = 0;
-    itemAttributeIdOutcome: number = 0;
+	itemAttributeIdOutcome: number = 0;
+	itemArmIdGrp1: number = 0;
+	itemArmIdGrp2: number = 0;
+	itemId: number = 0;
+	itemTimepointValue: string = '';
+	itemTimepointMetric: string = '';
+	itemTimepointId: number = 0;
+	outcomeTimePoint = {} as iTimePoint;
     title: string = "";
     shortTitle: string = "";
     outcomeDescription: string = "";

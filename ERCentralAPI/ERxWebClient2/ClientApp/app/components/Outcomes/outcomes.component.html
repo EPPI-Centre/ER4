@@ -62,9 +62,10 @@
 					<div class="col-md-6 row ">
 						<label class="col-md-3">Timepoint</label>
 						<div class="d-inline-block col-md-8">
-							<select #timePoint [(ngModel)]="timePointModel"
+							<select #timePoint [(ngModel)]="currentOutcome.itemTimepointId"
 									class="form-control col-md-12">
-								<option [ngValue]="timepoint" [selected]="timepoint.key == timePointModel.key"
+								<option [ngValue]="timepoint.itemTimepointId"
+										[selected]="timepoint.itemTimepointId == currentOutcome.itemTimepointId"
 										*ngFor="let timepoint of timePointsList">
 									{{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
 								</option>
@@ -85,11 +86,12 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Outcome type</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #outcomeType [(ngModel)]="outcomeTypeModel"
+								<select #outcomeType [(ngModel)]="currentOutcome.outcomeTypeId"
 										class="form-control col-md-12">
-									<option [ngValue]="outcomeT" [selected]="outcomeT == outcomeTypeModel"
+									<option [ngValue]="outcomeT.outcomeTypeId"
+											[selected]="outcomeT.outcomeTypeId == currentOutcome.outcomeTypeId"
 											*ngFor="let outcomeT of OutcomeTypeList">
-										{{outcomeT}}
+										{{outcomeT.outcomeTypeName}}
 									</option>
 								</select>
 							</div>
@@ -97,9 +99,10 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Outcome</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8" placeholder="Outcomes">
-								<select #outcomeDD [(ngModel)]="outcomeDDModel"
+								<select #outcomeDD [(ngModel)]="currentOutcome.itemAttributeIdOutcome"
 										class="form-control col-md-12">
-									<option [ngValue]="out" [selected]="out == outcomeDDModel"
+									<option [ngValue]="out.attributeId" 
+											[selected]="out.attributeId == currentOutcome.itemAttributeIdOutcome"
 											*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
 										{{out.attributeName}}
 									</option>
@@ -111,9 +114,10 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Intervention</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #interventionDD="ngModel" [(ngModel)]="interventionDDModel"
+								<select #interventionDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdIntervention"
 										class="form-control col-md-12">
-									<option [ngValue]="intervention" [selected]="intervention == interventionDDModel"
+									<option [ngValue]="intervention.attributeId" 
+											[selected]="intervention.attributeId == currentOutcome.itemAttributeIdIntervention"
 											*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
 										{{intervention.attributeName}}
 									</option>
@@ -123,9 +127,10 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Comparison</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #controlDD="ngModel" [(ngModel)]="controlDDModel"
+								<select #controlDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdControl"
 										class="form-control col-md-12">
-									<option [ngValue]="control" [selected]="control == controlDDModel"
+									<option [ngValue]="control.attributeId" 
+											[selected]="control.attributeId == currentOutcome.itemAttributeIdControl"
 											*ngFor="let control of _OutcomesService.ReviewSetControlList">
 										{{control.attributeName}}
 									</option>
@@ -137,10 +142,10 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 1 arm</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupOneArm [(ngModel)]="GroupOneArmModel"
+								<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
 										class="form-control col-md-12">
-									<option value="" selected="selected">Group 1 arm</option>
-									<option [ngValue]="arm" [selected]="arm == GroupOneArmModel"
+									<option [ngValue]="arm.itemArmIdGrp1" 
+											[selected]="arm.itemArmIdGrp1 == currentOutcome.itemArmIdGrp1"
 											*ngFor="let arm of armsList">
 										{{arm.title}}
 									</option>
@@ -150,10 +155,10 @@
 						<div class="col-md-6 row">
 							<label class="col-md-3">Group 2 arm</label>
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupTwoArm [(ngModel)]="GroupTwoArmModel"
+								<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
 										class="form-control col-md-12">
-									<option value="" selected="selected">Group 2 arm</option>
-									<option [ngValue]="arm" [selected]="arm == GroupTwoArmModel"
+									<option [ngValue]="arm.itemArmIdGrp2" 
+											[selected]="arm.itemArmIdGrp2 == currentOutcome.itemArmIdGrp2"
 											*ngFor="let arm of armsList">
 										{{arm.title}}
 									</option>
@@ -165,39 +170,39 @@
 
 						<label class="col-md-1">Group 1 N</label>
 						<input #group1NModel="ngModel"
-							   [(ngModel)]="group1N"
-							   value="group1N"
+							   [(ngModel)]="currentOutcome.data1"
+							   value="currentOutcome.data1"
 							   type="text" class="form-control col-md-2" />
 
 						<label class="col-md-1">Group 2 N</label>
 						<input #group2NModel="ngModel"
-							   [(ngModel)]="group2N"
-							   value="group2N"
+							   [(ngModel)]="currentOutcome.data2"
+							   value="currentOutcome.data2"
 							   type="text" class="form-control col-md-2" />
 
 
 						<label class="col-md-1">Group 1 mean</label>
 						<input #group1MeanModel="ngModel"
-							   [(ngModel)]="group1Mean"
-							   value="group1Mean"
+							   [(ngModel)]="currentOutcome.data3"
+							   value="currentOutcome.data3"
 							   type="text" class="form-control col-md-2" />
 
 						<label class="col-md-1">Group 2 mean</label>
 						<input #group2MeanModel="ngModel"
-							   [(ngModel)]="group2Mean"
-							   value="group2Mean"
+							   [(ngModel)]="currentOutcome.data4"
+							   value="currentOutcome.data4"
 							   type="text" class="form-control col-md-2" />
 
 						<label class="col-md-1">Group 1 SD</label>
 						<input #group1SDModel="ngModel"
-							   [(ngModel)]="group1SD"
-							   value="group1SD"
+							   [(ngModel)]="currentOutcome.data5"
+							   value="currentOutcome.data5"
 							   type="text" class="form-control col-md-2" />
 
 						<label class="col-md-1">Group 2 SD</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="group2SD"
-							   value="group2SD"
+							   [(ngModel)]="currentOutcome.data6"
+							   value="currentOutcome.data6"
 							   type="text" class="form-control col-md-2" />
 
 						<label class="col-md-1">SMD</label>

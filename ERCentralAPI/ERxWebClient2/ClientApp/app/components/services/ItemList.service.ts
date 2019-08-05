@@ -782,6 +782,13 @@ export interface iTimePoint {
 
 export class TimePoint {
 
+	constructor(ItemId: number, TimepointValue: string, TimepointMetric: string,
+		ItemTimepointId: number) {
+		this.itemId = ItemId;
+		this.timepointValue = TimepointValue;
+		this.timepointMetric = TimepointMetric;
+		this.itemTimepointId = ItemTimepointId;
+	}
 	itemId: number = 0;
 	timepointValue: string = '';
 	timepointMetric: string = '';

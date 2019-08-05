@@ -45,7 +45,6 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
         return this._selectedoutcome;
     }
 	private _selectedoutcome: Outcome | null = null;
-
 	public SetSelectedoutcome(outcome: Outcome) {
 
 		this._selectedoutcome = outcome;
@@ -57,7 +56,8 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 	public ReviewSetOutcomeList: ReviewSetDropDownDResult[] = [];
 	public ReviewSetControlList: ReviewSetDropDownDResult[] = [];
 	public ReviewSetInterventionList: ReviewSetDropDownDResult[] = [];
-	
+	public ReviewSetItemArmList: ReviewSetDropDownDResult[] = [];
+
 	public IsServiceBusy(): boolean {
 
 		if (this._BusyMethods.length > 0) {
@@ -147,6 +147,27 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchReviewSetControlList");
+			}
+			);
+
+
+	}
+
+	public FetchItemArmList(itemId: number) {
+
+		this._BusyMethods.push("FetchItemArmList");
+		let body = JSON.stringify({ itemId: itemId});
+
+		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchItemArmList',
+			body)
+			.subscribe(result => {
+
+				this.ReviewSetItemArmList = result;
+				console.log('Control' + JSON.stringify(result));
+				this.RemoveBusy("FetchItemArmList");
+			}, error => {
+				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchItemArmList");
 			}
 			);
 
