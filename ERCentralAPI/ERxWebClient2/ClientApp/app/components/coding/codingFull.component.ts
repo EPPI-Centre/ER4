@@ -183,6 +183,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
 
 						if (itemSet != null) {
+								this._outcomeService.ItemSetId = itemSet.itemSetId;
 								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
 								this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
 						}

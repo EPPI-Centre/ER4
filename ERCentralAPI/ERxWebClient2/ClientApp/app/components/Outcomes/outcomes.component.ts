@@ -42,11 +42,12 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
 	public outcomeItemList: OutcomeItemList = new OutcomeItemList();
-	@Input() item!: Item | undefined;
+	@Input() item: Item | undefined;
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
 
+		alert('the item being passed in is: ' + JSON.stringify(this.item));
 		console.log('============initiating outcome component');
 		this.OutcomeTypeList = [
 			{ "outcomeTypeId": 0, "outcomeTypeName": "Continuous: d (Hedges g)" },
@@ -59,11 +60,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			{ "outcomeTypeId": 7, "outcomeTypeName": "Continuous: mean difference" }
 		];
 
-
-		this.GetReviewSetOutcomeList();
-		this.GetReviewSetInterventionList();
-		this.GetReviewSetControlList();
-
 		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
 		for (var i = 0; i < this._OutcomesService.outcomesList.length; i++) {
 			//console.log('==============================outcome title etc');
@@ -73,6 +69,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		}
 		this.currentOutcome = this.outcomeItemList.outcomesList[0];
 		var testTimePoint = <iTimePoint>{};
+
 		if (this.item) {
 			testTimePoint.itemId = this.item.itemId;
 		}
@@ -83,26 +80,36 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		console.log('This is the current outcome timepoint is: ');
 		console.log(this.currentOutcome.outcomeTimePoint);
 		console.log('=====Finished initiating outcome component');
-			
+
+		this.ItemSetId = this._OutcomesService.ItemSetId;
+		if (this.ItemSetId != 0) {
+
+			this.GetReviewSetOutcomeList(this.ItemSetId);
+			this.GetReviewSetInterventionList(this.ItemSetId);
+			this.GetReviewSetControlList(this.ItemSetId);
+			this.GetItemArmList();
+		}
 	}
-	public GetReviewSetOutcomeList() {
+	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
-		this._OutcomesService.FetchReviewSetOutcomeList(3514232, 0);
-
-	}
-	public GetReviewSetInterventionList() {
-
-		this._OutcomesService.FetchReviewSetInterventionList(3514232, 0);
+		this._OutcomesService.FetchReviewSetOutcomeList(ItemSetId, 0);
 
 	}
-	public GetReviewSetControlList() {
+	public GetReviewSetInterventionList(ItemSetId: number ) {
 
-		this._OutcomesService.FetchReviewSetControlList(3514232, 0);
+		this._OutcomesService.FetchReviewSetInterventionList(ItemSetId, 0);
+
+	}
+	public GetReviewSetControlList(ItemSetId: number ) {
+
+		this._OutcomesService.FetchReviewSetControlList(ItemSetId, 0);
 
 	}
 	public GetItemArmList() {
 
-		this._OutcomesService.FetchItemArmList(3514232, 0);
+		if (this.item) {
+			this._OutcomesService.FetchItemArmList(this.item.itemId);
+		}
 
 	}
 

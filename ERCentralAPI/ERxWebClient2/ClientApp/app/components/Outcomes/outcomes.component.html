@@ -144,9 +144,9 @@
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
 								<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
 										class="form-control col-md-12">
-									<option [ngValue]="arm.itemArmIdGrp1" 
-											[selected]="arm.itemArmIdGrp1 == currentOutcome.itemArmIdGrp1"
-											*ngFor="let arm of armsList">
+									<option [ngValue]="arm.itemArmId"
+											[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp1"
+											*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
 										{{arm.title}}
 									</option>
 								</select>
@@ -157,9 +157,9 @@
 							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
 								<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
 										class="form-control col-md-12">
-									<option [ngValue]="arm.itemArmIdGrp2" 
-											[selected]="arm.itemArmIdGrp2 == currentOutcome.itemArmIdGrp2"
-											*ngFor="let arm of armsList">
+									<option [ngValue]="arm.itemArmId"
+											[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp2"
+											*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
 										{{arm.title}}
 									</option>
 								</select>

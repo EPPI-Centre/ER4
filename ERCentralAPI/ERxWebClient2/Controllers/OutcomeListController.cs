@@ -126,7 +126,7 @@ namespace ERxWebClient2.Controllers
 
 		//FetchItemArmList
 		[HttpPost("[action]")]
-		public IActionResult FetchItemArmList([FromBody] long itemId)
+		public IActionResult FetchItemArmList([FromBody] SingleIntCriteria itemId)
 		{
 			try
 			{
@@ -134,7 +134,7 @@ namespace ERxWebClient2.Controllers
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
 				SingleCriteria<Item, Int64> criteria =
-					new SingleCriteria<Item, Int64>(itemId);
+					new SingleCriteria<Item, Int64>(itemId.Value);
 				ItemArmList result = dp.Fetch(criteria);
 
 				return Ok(result);
