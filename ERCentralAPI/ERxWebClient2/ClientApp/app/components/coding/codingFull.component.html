@@ -12,9 +12,6 @@
 								class="btn btn-sm btn-warning col-2 h-25" (click)="SetCreateNewCode()">
 							<i class="fa fa-plus" aria-hidden="true"></i>
 						</button>
-						<!--<button class="btn btn-sm btn-warning col-2 h-25" (click)="TestShowingOutComes()">
-							<i class="fa fa-ambulance" aria-hidden="true"></i>
-						</button>-->
 						<ArmsComp #ArmsCmp class="card-text col-10"></ArmsComp>
 					</div>
 					<CreateNewCodeComp (closeCreateNew)="SetCreateNewCode()" *ngIf="ShowCreateNewCode"></CreateNewCodeComp>

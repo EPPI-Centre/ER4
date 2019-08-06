@@ -241,13 +241,13 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 
 		console.log('outcome deleting: ' + JSON.stringify(outcomeId) + 'asdfsadf: ==== ' + JSON.stringify(itemSetId) );
 		let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId  });		
-		this._http.post<Outcome>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
+		this._http.post<any>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
 
 			body).subscribe(
 				(result) => {
 
-					console.log('Checking if error returned anything: ' + JSON.stringify(result));
-					this.FetchOutcomes(this._currentItemSetId);	
+					//console.log('Checking if error returned anything: ' + JSON.stringify(result));
+					//this.FetchOutcomes(itemSetId);	
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return result;
@@ -255,7 +255,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 				, (error) => {
 
 					//console.log(JSON.stringify(error));
-					this.FetchOutcomes(this._currentItemSetId);					
+					//this.FetchOutcomes(itemSetId);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return error;

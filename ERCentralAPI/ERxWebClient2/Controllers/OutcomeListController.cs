@@ -1,23 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
-using Csla.Data;
-using ERxWebClient2.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetControlList;
 using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetInterventionList;
 using static BusinessLibrary.BusinessClasses.ReadOnlyReviewSetOutcomeList;
+
 
 namespace ERxWebClient2.Controllers
 {
@@ -53,6 +46,37 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+
+		// CREATE
+		//adds an Outcome to the list and then calls data portal insert
+		[HttpPost("[action]")]
+		public IActionResult CreateOutcome([FromBody] JObject outcomeData)
+		{
+
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+					Outcome outcome = new Outcome();
+					outcome = outcomeData.ToObject<Outcome>();
+					Outcome result = outcome.Save();
+
+					return Ok(result);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when Creating a Outcome : {0}");
+				return StatusCode(500, e.Message);
+			}
+		}
+
 
 		//FetchReviewSetOutcomeList
 		[HttpPost("[action]")]
@@ -95,7 +119,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Fetch FetchReviewSetInterventionList Errors");
+				_logger.LogError(e, "Fetch ReviewSetInterventionList Errors");
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -180,18 +204,16 @@ namespace ERxWebClient2.Controllers
 				if (SetCSLAUser4Writing())
 				{
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
 					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
-					SingleCriteria<OutcomeItemList, Int64> criteria = new SingleCriteria<OutcomeItemList, Int64>(outcome.itemSetId);
+					SingleCriteria<OutcomeItemList, Int64> criteria = 
+						new SingleCriteria<OutcomeItemList, Int64>(outcome.itemSetId);
 
 					OutcomeItemList result = dp.Fetch(criteria);
-
 					Outcome currentOutcome = result.FirstOrDefault(x => x.OutcomeId == outcome.outcomeId);
-
 					currentOutcome.Delete();
 					currentOutcome = currentOutcome.Save();
 
-					return Ok();
+					return Ok(result);
 				}
 				else
 				{
