@@ -151,7 +151,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	removeWarning(outcome: Outcome, key: number) {
 
 		if (outcome != null) {
-			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId);
+			this._OutcomesService.DeleteOutcome(outcome.OutcomeId, outcome.itemSetId);
 			this.outcomeItemList.outcomesList.splice(key, 1);
 		}
 	}
@@ -187,25 +187,25 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 	public SaveOutcome() {
 
-		console.log('title' + this.title);
-		console.log('GroupOneArmModel' + JSON.stringify(this.GroupOneArmModel));
-		console.log('GroupTwoArmModel' + JSON.stringify(this.GroupTwoArmModel));
-		console.log('controlDDModel' + JSON.stringify(this.controlDDModel));
-		console.log('interventionDDModel' + JSON.stringify(this.interventionDDModel));
-		console.log('outcomeDDModel' + JSON.stringify(this.outcomeDDModel));
-		console.log('Timepoint' + JSON.stringify(this.timePointModel));
-		console.log('outcomeTypeModel' + JSON.stringify(this.outcomeTypeModel));
+		//console.log('title' + this.title);
+		//console.log('GroupOneArmModel' + JSON.stringify(this.GroupOneArmModel));
+		//console.log('GroupTwoArmModel' + JSON.stringify(this.GroupTwoArmModel));
+		//console.log('controlDDModel' + JSON.stringify(this.controlDDModel));
+		//console.log('interventionDDModel' + JSON.stringify(this.interventionDDModel));
+		//console.log('outcomeDDModel' + JSON.stringify(this.outcomeDDModel));
+		//console.log('Timepoint' + JSON.stringify(this.timePointModel));
+		//console.log('outcomeTypeModel' + JSON.stringify(this.outcomeTypeModel));
 
-		console.log('group2N' + this.group2N);
-		console.log('group1N' + this.group1N);
-		console.log('group1Mean' + this.group1Mean);
-		console.log('group2Mean' + this.group2Mean);
-		console.log('group1SD' + this.group1SD);
-		console.log('group2SD' + this.group2SD);
+		//console.log('group2N' + this.group2N);
+		//console.log('group1N' + this.group1N);
+		//console.log('group1Mean' + this.group1Mean);
+		//console.log('group2Mean' + this.group2Mean);
+		//console.log('group1SD' + this.group1SD);
+		//console.log('group2SD' + this.group2SD);
 
 		//alert('not implemented yet but useful values printed in console.log');
 		if (this.currentOutcome) {
-			this._OutcomesService.Createoutcome(this.currentOutcome);
+			this._OutcomesService.Updateoutcome(this.currentOutcome);
 		}
 	}
 
@@ -218,7 +218,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 	CreateNewOutcome() {
 
-		alert('not implemented');
+		this._OutcomesService.Createoutcome(new Outcome());
 
 	}
 	ClearAndCancelSave() {

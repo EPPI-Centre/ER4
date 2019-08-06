@@ -35,7 +35,8 @@ namespace ERxWebClient2.Controllers
 				SetCSLAUser();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
-				SingleCriteria<OutcomeItemList, Int64> criteria = new SingleCriteria<OutcomeItemList, Int64>(ItemIDCrit.Value);
+				SingleCriteria<OutcomeItemList, Int64> criteria =
+					new SingleCriteria<OutcomeItemList, Int64>(ItemIDCrit.Value);
 				OutcomeItemList result = dp.Fetch(criteria);
 
 				return Ok(result);
@@ -72,7 +73,43 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when Creating a Outcome : {0}");
+				_logger.LogError(e, "Error when Creating an Outcome : {0}");
+				return StatusCode(500, e.Message);
+			}
+		}
+
+		// UPDATE
+		[HttpPost("[action]")]
+		public IActionResult UpdateOutcome([FromBody] OutcomeJSON outcomeData)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
+					long itemSetId = outcomeData.ItemSetId;//Convert.ToInt64(outcomeData["itemSetId"].ToString());
+					long outcomeId = outcomeData.OutcomeId; //Convert.ToInt64(outcomeData["outcomeId"].ToString());
+					SingleCriteria<OutcomeItemList, Int64> criteria = 
+						new SingleCriteria<OutcomeItemList, Int64>(itemSetId);
+					OutcomeItemList result = dp.Fetch(criteria);
+
+					Outcome editOutcome = result.FirstOrDefault(x => x.OutcomeId == outcomeId);
+					//editOutcome = outcomeData.ToObject<Outcome>();
+					var test = editOutcome.OutcomeId;
+					editOutcome = editOutcome.Save();
+
+					return Ok(editOutcome);
+				}
+				else
+				{
+					return Forbid();
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "Error when updating an Outcome: {0}");
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -169,30 +206,7 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-
-		[HttpPost("[action]")]
-		public IActionResult UpdateOutcome([FromBody] ItemJSON item)
-		{
-
-			try
-			{
-				if (SetCSLAUser4Writing())
-				{
-					DataPortal<Outcome> dp = new DataPortal<Outcome>();
-					SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
-					return Ok();
-				}
-				else
-				{
-					return Forbid();
-				}
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, "Error when Updating an Outcome : {0}", item);
-				return StatusCode(500, e.Message);
-			}
-		}
+			
 
 		// DELETE
 		[HttpPost("[action]")]
@@ -243,44 +257,46 @@ namespace ERxWebClient2.Controllers
 		public int itemSetId { get; set; }
 	}
 
+
+	// Make all of this captilised and try to update again...
 	public class OutcomeJSON
 	{
-		public int outcomeId { get; set; }
-		public int itemSetId { get; set; }
-		public string outcomeTypeName { get; set; }
-		public int outcomeTypeId { get; set; }
-		public string timepointDisplayValue { get; set; }
-		public int itemTimepointId  { get; set; }
-		public string itemTimepointMetric  { get; set; }
-		public string itemTimepointValue { get; set; }
-		public OutcomeItemAttributesList outcomeCodes { get; set; }
-		public int itemAttributeIdIntervention { get; set; }
-		public int itemAttributeIdControl { get; set; }
-		public int itemAttributeIdOutcome { get; set; }
-		public int itemArmIdGrp1 { get; set; }
-		public int itemArmIdGrp2 { get; set; }
-		public int grp1ArmName { get; set; }
-		public int grp2ArmName { get; set; }
-		public string title { get; set; }
-		public string shortTitle { get; set; }
-		public string outcomeDescription { get; set; }
-		public float data1	{ get; set; }
-		public float data2	{ get; set; }
-		public float data3	{ get; set; }
-		public float data4	{ get; set; }
-		public float data5	{ get; set; }
-		public float data6	{ get; set; }
-		public float data7	{ get; set; }
-		public float data8	{ get; set; }
-		public float data9	{ get; set; }
-		public float data10	{ get; set; }
-		public float data11	{ get; set; }
-		public float data12	{ get; set; }
-		public float data13	{ get; set; }
-		public float data14	{ get; set; }
-		public string interventionText	{ get; set; }
-		public string controlText	{ get; set; }
-		public string outcomeText	{ get; set; }
+		public int OutcomeId { get; set; }
+		public int ItemSetId { get; set; }
+		public string OutcomeTypeName { get; set; }
+		public int OutcomeTypeId { get; set; }
+		public string TimepointDisplayValue { get; set; }
+		public int ItemTimepointId  { get; set; }
+		public string ItemTimepointMetric  { get; set; }
+		public string ItemTimepointValue { get; set; }
+		public OutcomeItemAttributesList OutcomeCodes { get; set; }
+		public int ItemAttributeIdIntervention { get; set; }
+		public int ItemAttributeIdControl { get; set; }
+		public int ItemAttributeIdOutcome { get; set; }
+		public int ItemArmIdGrp1 { get; set; }
+		public int ItemArmIdGrp2 { get; set; }
+		public int Grp1ArmName { get; set; }
+		public int Grp2ArmName { get; set; }
+		public string Title { get; set; }
+		public string ShortTitle { get; set; }
+		public string OutcomeDescription { get; set; }
+		public float Data1	{ get; set; }
+		public float Data2	{ get; set; }
+		public float Data3	{ get; set; }
+		public float Data4	{ get; set; }
+		public float Data5	{ get; set; }
+		public float Data6	{ get; set; }
+		public float Data7	{ get; set; }
+		public float Data8	{ get; set; }
+		public float Data9	{ get; set; }
+		public float Data10	{ get; set; }
+		public float Data11	{ get; set; }
+		public float Data12	{ get; set; }
+		public float Data13	{ get; set; }
+		public float Data14	{ get; set; }
+		public string InterventionText	{ get; set; }
+		public string ControlText	{ get; set; }
+		public string OutcomeText	{ get; set; }
 		public float feWeight	{ get; set; }
 		public float reWeight	{ get; set; }
 		public float smd	{ get; set; }
@@ -318,20 +334,20 @@ namespace ERxWebClient2.Controllers
 		public string ciUpper	{ get; set; }
 		public string esDesc { get; set; }
 		public string seDesc { get; set; }
-		public string data1Desc { get; set; }
-		public string data2Desc { get; set; }
-		public string data3Desc { get; set; }
-		public string data4Desc { get; set; }
-		public string data5Desc { get; set; }
-		public string data6Desc { get; set; }
-		public string data7Desc { get; set; }
-		public string data8Desc { get; set; }
-		public string data9Desc { get; set; }
-		public string data10Desc { get; set; }
-		public string data11Desc { get; set; }
-		public string data12Desc { get; set; }
-		public string data13Desc { get; set; }
-		public string data14Desc { get; set; }
+		public string Data1Desc { get; set; }
+		public string Data2Desc { get; set; }
+		public string Data3Desc { get; set; }
+		public string Data4Desc { get; set; }
+		public string Data5Desc { get; set; }
+		public string Data6Desc { get; set; }
+		public string Data7Desc { get; set; }
+		public string Data8Desc { get; set; }
+		public string Data9Desc { get; set; }
+		public string Data10Desc { get; set; }
+		public string Data11Desc { get; set; }
+		public string Data12Desc { get; set; }
+		public string Data13Desc { get; set; }
+		public string Data14Desc { get; set; }
 	}
 
 
@@ -341,10 +357,10 @@ namespace ERxWebClient2.Controllers
 	}
 	public interface iOutcomeItemAttribute
 	{
-		int outcomeItemAttributeId { get; set; }
-		int outcomeId { get; set; }
-		int attributeId { get; set; }
-		string additionalText { get; set; }
-		string attributeName { get; set; }
+		int OutcomeItemAttributeId { get; set; }
+		int OutcomeId { get; set; }
+		int AttributeId { get; set; }
+		string AdditionalText { get; set; }
+		string AttributeName { get; set; }
 	}
 }

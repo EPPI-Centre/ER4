@@ -1045,7 +1045,7 @@ export class ReviewSetDropDownDResult {
 export class Outcome {
 
 
-    outcomeId: number = 0;
+    OutcomeId: number = 0;
     itemSetId: number = 0;
     outcomeTypeName: string = "";
     outcomeTypeId: number = 0;
