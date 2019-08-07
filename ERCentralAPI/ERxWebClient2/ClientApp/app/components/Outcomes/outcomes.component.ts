@@ -12,7 +12,6 @@ import { Item, iTimePoint, iArm } from '../services/ItemList.service';
 import { ItemCodingService, Outcome, OutcomeItemList, ItemSet, OutcomeType } from '../services/ItemCoding.service';
 
 
-
 @Component({
     selector: 'OutcomesComp',
     templateUrl: './outcomes.component.html',
@@ -33,9 +32,20 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	private ItemSetId: number = 0;
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
-	public outcomeItemList: OutcomeItemList = new OutcomeItemList();
 	@Input() item: Item | undefined;
+
 	public OutcomeTypeList: OutcomeType[] = [];
+	private _Outcomes: Outcome[] = [];
+	public get outcomesList(): Outcome[] {
+		if (this._Outcomes) return this._Outcomes;
+		else {
+			this._Outcomes = [];
+			return this._Outcomes;
+		}
+	}
+	public set outcomesList(Outcomes: Outcome[]) {
+		this._Outcomes = Outcomes;
+	}
 
 	ngOnInit() {
 
@@ -49,8 +59,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			{ "outcomeTypeId": 6, "outcomeTypeName": "Binary: Peto OR" },
 			{ "outcomeTypeId": 7, "outcomeTypeName": "Continuous: mean difference" }
 		];
-		this.outcomeItemList.outcomesList = this._OutcomesService.outcomesList;
-		this.currentOutcome = this.outcomeItemList.outcomesList[0];
+		this.outcomesList = this._OutcomesService.outcomesList;
+		this.currentOutcome = this.outcomesList[0];
 		var outcomeTimePoint = <iTimePoint>{};
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;
@@ -87,7 +97,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			this._OutcomesService.FetchItemArmList(this.item.itemId);
 		}
 	}
-
 	public get timePointsList(): iTimePoint[] {
 
 		if (!this.item || !this.item.timepoints) {
@@ -97,11 +106,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			return this.item.timepoints;
 		}
 	}
-	//public get armsList(): iArm[] {
-
-	//	if (!this.item || !this.item.arms) return [];
-	//	else return this.item.arms;
-	//}
 	public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
@@ -133,11 +137,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	public group2SD: string = '0';
 	public group2SDModel: string = '';
 
-	//public get OutcomeList(): Outcome[] {
-
-	//	if (!this.ItemSetId || !this._OutcomesService.outcomesList) return [];
-	//	else return this._OutcomesService.outcomesList;
-	//}
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
@@ -146,13 +145,12 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
 		this.currentOutcome = outcome;
-		console.log('la la and po: ' + JSON.stringify(this.currentOutcome));
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
 		if (outcome != null) {
-			this._OutcomesService.DeleteOutcome(outcome.OutcomeId, outcome.itemSetId);
-			this.outcomeItemList.outcomesList.splice(key, 1);
+			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId);
+			this.outcomesList.splice(key, 1);
 		}
 	}
 	public selected: string = '';
@@ -187,28 +185,27 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	}
 	public SaveOutcome() {
 
-		//console.log('title' + this.title);
-		//console.log('GroupOneArmModel' + JSON.stringify(this.GroupOneArmModel));
-		//console.log('GroupTwoArmModel' + JSON.stringify(this.GroupTwoArmModel));
-		//console.log('controlDDModel' + JSON.stringify(this.controlDDModel));
-		//console.log('interventionDDModel' + JSON.stringify(this.interventionDDModel));
-		//console.log('outcomeDDModel' + JSON.stringify(this.outcomeDDModel));
-		//console.log('Timepoint' + JSON.stringify(this.timePointModel));
-		//console.log('outcomeTypeModel' + JSON.stringify(this.outcomeTypeModel));
+		if (this.currentOutcome &&
+			this.ItemSetId != 0) {
+			
+			if (this.currentOutcome.outcomeId == 0 ) {
 
-		//console.log('group2N' + this.group2N);
-		//console.log('group1N' + this.group1N);
-		//console.log('group1Mean' + this.group1Mean);
-		//console.log('group2Mean' + this.group2Mean);
-		//console.log('group1SD' + this.group1SD);
-		//console.log('group2SD' + this.group2SD);
+				this.currentOutcome.itemSetId = this.ItemSetId;
+				this._OutcomesService.Createoutcome(this.currentOutcome).then(
 
-		//alert('not implemented yet but useful values printed in console.log');
-		if (this.currentOutcome) {
-			this._OutcomesService.Updateoutcome(this.currentOutcome);
+					() => {
+							this._OutcomesService.FetchOutcomes(this.ItemSetId);
+							this.outcomesList = this._OutcomesService.outcomesList;
+						}
+					);
+
+			} else {
+				this._OutcomesService.Updateoutcome(this.currentOutcome);
+			}
 		}
+		this.ShowOutcomesStatistics = false;
+		this.ShowOutcomesList = true;
 	}
-
 	ngOnDestroy() {
 
 		this._reviewSetsService.selectedNode = null;
@@ -217,21 +214,17 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 	}
 	CreateNewOutcome() {
-
-		this._OutcomesService.Createoutcome(new Outcome());
-
+		this.currentOutcome = new Outcome();
+		this.ShowOutcomesStatistics = true;
+		this.ShowOutcomesList = false;
 	}
 	ClearAndCancelSave() {
-
 		this.ShowOutcomesStatistics = false;
 		this.ShowOutcomesList = true;
 	}
 	ClearAndCancelEdit() {
-
 		this.ShowOutcomesList = false;
-
 	}
 	Clear() {
-		
 	}
 }

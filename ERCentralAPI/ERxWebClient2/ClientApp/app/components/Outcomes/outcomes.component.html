@@ -10,13 +10,13 @@
 					<th class="text-center" style="max-width: 10px;">Edit</th>
 					<th class="text-center" style="max-width: 10px;">Remove</th>
 				</tr>
-				<tr *ngFor="let outcome of outcomeItemList.outcomesList; let key = index">
+				<tr *ngFor="let outcome of outcomesList; let key = index">
 					<td style="width: 150px;">{{outcome.title}}</td>
 					<td style="width: 150px;">{{outcome.intervention}}</td>
 					<td style="width: 15px; white-space:nowrap;">
 						<span class="table-remove">
 							<button (click)="editOutcome(outcome, key)"
-									[disabled]="!HasWriteRights"
+									[disabled]="!HasWriteRights && !IsServiceBusy"
 									type="button" rounded="true"
 									size="sm" class="btn btn-outline-info p-1 m-1">
 								Edit
@@ -27,7 +27,7 @@
 						<span class="table-remove">
 							<button type="button" rounded="true"
 									size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights" (click)="removeWarning(outcome, key)">
+									[disabled]="!HasWriteRights && !IsServiceBusy" (click)="removeWarning(outcome, key)">
 								Remove
 							</button>
 						</span>
@@ -212,7 +212,8 @@
 					</div>
 				</div>
 				<div class="row col-md-12">
-					<button [disabled]="!HasWriteRights" class="btn btn-sm btn-primary mt-1 p-1 m-1 col-md-2"
+					<button [disabled]="!HasWriteRights && !IsServiceBusy" 
+							class="btn btn-sm btn-primary mt-1 p-1 m-1 col-md-2"
 							(click)="SaveOutcome()">
 						Save Outcome
 					</button>

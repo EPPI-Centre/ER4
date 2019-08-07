@@ -73,7 +73,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private subGotPDFforViewing: Subscription | null = null;
-    private ItemArmsDataChanged: Subscription | null = null;
     
     public get itemID(): number {
         if (this.item) return this.item.itemId;
@@ -175,26 +174,28 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
 				(res: any) => {
 
-					console.log('got inside subsrciprtion');
 					var selectedNode = res as SetAttribute;
 		
 					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
 
+						console.log('a node has been selected');
 						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
-
 						if (itemSet != null) {
 								this._outcomeService.ItemSetId = itemSet.itemSetId;
 								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
 								this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
 						}
 						this.ShowingOutComes();
+
 					} else {
 
+						console.log('a code is not selected');
 						if (this.OutcomesCmpRef) {
-							this.OutcomesCmpRef.outcomeItemList.outcomesList = [];
+							console.log('inside OutcomesCmpRef');
+							this.OutcomesCmpRef.outcomesList = [];
 							this.OutcomesCmpRef.ShowOutcomesList = false;
+							this.ShowingOutComes();
 						}
-						
 					}
 				}
 				// ERROR HANDLING IN HERE NEXT....

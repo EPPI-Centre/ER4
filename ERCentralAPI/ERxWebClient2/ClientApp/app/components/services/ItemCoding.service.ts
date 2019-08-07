@@ -1035,7 +1035,7 @@ export class OutcomeType {
 	outcomeTypeName: string = '';
 
 }
-export class ReviewSetDropDownDResult {
+export class ReviewSetDropDownResult {
 
 	public attributeId: number = 0;
 	public attributeName: string = '';
@@ -1045,7 +1045,7 @@ export class ReviewSetDropDownDResult {
 export class Outcome {
 
 
-    OutcomeId: number = 0;
+    outcomeId: number = 0;
     itemSetId: number = 0;
     outcomeTypeName: string = "";
     outcomeTypeId: number = 0;

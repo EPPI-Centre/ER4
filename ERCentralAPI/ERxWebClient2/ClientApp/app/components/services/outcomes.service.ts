@@ -1,17 +1,15 @@
-import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Outcome, ReviewSetDropDownDResult } from '../services/ItemCoding.service';
-import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
-import { Item } from './ItemList.service';
+import { Outcome, ReviewSetDropDownResult } from '../services/ItemCoding.service';
 import { SetAttribute } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class OutcomesService extends BusyAwareService implements OnInit  {
+export class OutcomesService extends BusyAwareService implements OnInit, OnDestroy  {
 
     constructor(
 		private _http: HttpClient,
@@ -23,10 +21,14 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 	ngOnInit() {
 
 	}
-	private _currentItemSetId: number = 0;
-	private _Outcomes: Outcome[] = [];
-	public ItemSetId: number = 0;
+	ngOnDestroy() {
 
+		this.outcomesChangedEE.unsubscribe();
+	}
+	private _currentItemSetId: number = 0;
+	public _Outcomes: Outcome[] = [];
+	public ItemSetId: number = 0;
+	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 	public get outcomesList(): Outcome[] {
         if (this._Outcomes) return this._Outcomes;
         else {
@@ -34,31 +36,17 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
             return this._Outcomes;
         }
 	}
-	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
+	
 	
 	public set outcomesList(Outcomes: Outcome[]) {
         this._Outcomes = Outcomes;
     }
-    @Output() gotNewOutcomes = new EventEmitter();
-    @Output() outcomesChangedEE = new EventEmitter();
-	public get Selectedoutcome(): Outcome | null {
+	@Output() outcomesChangedEE = new EventEmitter();
 
-        return this._selectedoutcome;
-    }
-	private _selectedoutcome: Outcome | null = null;
-	public SetSelectedoutcome(outcome: Outcome) {
-
-		this._selectedoutcome = outcome;
-		//if (this._selectedoutcome != outcome) {
-		this.outcomesChangedEE.emit();
-		//}
-
-	}
-	public ReviewSetOutcomeList: ReviewSetDropDownDResult[] = [];
-	public ReviewSetControlList: ReviewSetDropDownDResult[] = [];
-	public ReviewSetInterventionList: ReviewSetDropDownDResult[] = [];
+	public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
+	public ReviewSetControlList: ReviewSetDropDownResult[] = [];
+	public ReviewSetInterventionList: ReviewSetDropDownResult[] = [];
 	public ReviewSetItemArmList: ItemArm[] = [];
-
 	public IsServiceBusy(): boolean {
 
 		if (this._BusyMethods.length > 0) {
@@ -68,39 +56,37 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		}
 	}
 
-    public FetchOutcomes(ItemSetId: number) {
+    public FetchOutcomes(ItemSetId: number): Outcome[] {
 
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
 
 		this._http.post<Outcome[]>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
 
+				console.log('can see the new outcome in here: ' + JSON.stringify(result));
+				//this.outcomesList = result;
+				this.RemoveBusy("FetchOutcomes");
 
-			this.outcomesList = result;
-			//console.log(JSON.stringify(result));
-			//console.log('=============================');
-			//console.log(JSON.stringify(this.outcomesList));
-			//console.log('got inside the Outcomes service: ' + this.outcomesList.length);
-
-			//this.outcomesChangedEE.emit(this.outcomesList[0].itemSetId);
-				   this.RemoveBusy("FetchOutcomes");
-			}, error => {
+		}, error => {
+				
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchOutcomes");
 			}
-        );
+		);
+		return this.outcomesList;
 	}
+
 	public FetchReviewSetOutcomeList(itemSetId: number, setId: number) {
 
 		this._BusyMethods.push("FetchReviewSetOutcomeList");
 		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
+		this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
 			body)
 			.subscribe(result => {
 
 				this.ReviewSetOutcomeList = result;
-				console.log('Outcome' + JSON.stringify(result));
+				
 				//this.outcomesChangedEE.emit(this.outcomesList);
 				this.RemoveBusy("FetchReviewSetOutcomeList");
 			}, error => {
@@ -116,13 +102,12 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("FetchReviewSetInterventionList");
 		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetInterventionList',
+		this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetInterventionList',
 			body)
 			.subscribe(result => {
 
 				this.ReviewSetInterventionList = result;
-				console.log('Intervention' + JSON.stringify(result));
-				//this.gotNewOutcomes.emit(this.outcomesList);
+			
 				this.RemoveBusy("FetchReviewSetInterventionList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
@@ -137,13 +122,12 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("FetchReviewSetControlList");
 		let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-		this._http.post<ReviewSetDropDownDResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetControlList',
+		this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetControlList',
 			body)
 			.subscribe(result => {
 
 				this.ReviewSetControlList = result;
-				console.log('Control' + JSON.stringify(result));
-				//this.gotNewOutcomes.emit(this.outcomesList);
+				
 				this.RemoveBusy("FetchReviewSetControlList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
@@ -164,15 +148,13 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 			.subscribe(result => {
 
 				this.ReviewSetItemArmList = result;
-				console.log('Arm' + JSON.stringify(result));
+				
 				this.RemoveBusy("FetchItemArmList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchItemArmList");
 			}
 			);
-
-
 	}
 
 	public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
@@ -185,30 +167,32 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 			currentoutcome).toPromise()
 						.then(
 						(result) => {
-	
-							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-							this.FetchOutcomes(this._currentItemSetId);
+
+							var testObj = result as Outcome;
+							alert(JSON.stringify(testObj));
+							this._Outcomes.push(testObj);							
+							//if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
-							return result;
+							
 						}
 						, (error) => {
-							this.FetchOutcomes(this._currentItemSetId);		
+
+							//this.FetchOutcomes(this._currentItemSetId);		
 							this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
 							return error;
 						}
-						)
-						.catch(
-							(error) => {
-								this.FetchOutcomes(this._currentItemSetId);		
-								this.modalService.GenericErrorMessage(ErrMsg);
-								this.RemoveBusy("CreateOutcome");
-								return error;
-						}
+					)
+					.catch(
+						(error) => {
+							this.FetchOutcomes(this._currentItemSetId);		
+							this.modalService.GenericErrorMessage(ErrMsg);
+							this.RemoveBusy("CreateOutcome");
+							return error;
+					}
 		);
-
 	}
-
+	
 	public Updateoutcome(currentOutcome: Outcome) {
 
 		this._BusyMethods.push("UpdateOutcome");
@@ -232,8 +216,7 @@ export class OutcomesService extends BusyAwareService implements OnInit  {
 					return error;
 				});
 	}
-
-
+	
 	DeleteOutcome(outcomeId: number, itemSetId: number) {
 
 		this._BusyMethods.push("DeleteOutcome");
@@ -272,12 +255,4 @@ export class ItemArm {
 	title: string = '';
 
 }
-
-export class ItemOutcomeDeleteWarningCommandJSON {
-
-	numOutcomes: number = 0;
-    itemId: number = 0;
-	itemoutcomeId: number = 0;
-}
-
 
