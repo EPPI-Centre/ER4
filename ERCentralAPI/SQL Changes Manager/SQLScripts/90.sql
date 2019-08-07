@@ -18,7 +18,7 @@ As
 SET NOCOUNT ON
 --the local variables here stop all sniffing possibilities, according to:
 --https://stackoverflow.com/questions/440944/sql-server-query-fast-but-slow-from-procedure
---and: 
+--and: http://www.sqlpointers.com/2006/11/parameter-sniffing-stored-procedures.html
 DECLARE @rid INT
 set @rid = @REVIEW_ID
 DECLARE @sid INT 
