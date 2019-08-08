@@ -111,7 +111,9 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 	public attributeType: string = '';
 	public outcomesPresent: boolean = false;
 	public checkOutComes(data: singleNode): boolean {
-		
+
+		//console.log('checking this node');
+		var selectedNode: boolean = false;
 		var itemSetId = 0;
 		if (data.nodeType == 'ReviewSet') {
 			//let node = data as ReviewSet;
@@ -128,13 +130,19 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 				}
 				itemSetId = itemSet.itemSetId
 			}
+			
+			selectedNode = data.isSelected;
 		}
 		let okayAttType: boolean = false;
-		if (nodeAttType == 'Outcome' || nodeAttType == 'Intervention' || nodeAttType == 'Comparison') {
+		if (nodeAttType == 'Outcome'
+			|| nodeAttType == 'Intervention'
+			|| nodeAttType == 'Comparison') {
 			okayAttType = true;
 		}
 		//var itemSet = this._ItemCodingService.FindItemSetByItemSetId(itemSetId);
-		if (this.outcomesPresent && okayAttType) {
+		if (this.outcomesPresent && okayAttType
+			) {
+
 			return true;
 		} else {
 			return false;
@@ -145,7 +153,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 	public openOutcomePanel(data: singleNode) {
 
 			let node = data as SetAttribute;
-			if (node != null) {
+			if (node != null && node.isSelected) {
 				this._outcomeService.outcomesChangedEE.emit(node);
 			}
 	}

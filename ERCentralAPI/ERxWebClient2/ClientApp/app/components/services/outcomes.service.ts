@@ -21,10 +21,7 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 	ngOnInit() {
 
 	}
-	ngOnDestroy() {
 
-		this.outcomesChangedEE.unsubscribe();
-	}
 	private _currentItemSetId: number = 0;
 	public _Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
@@ -47,6 +44,7 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 	public ReviewSetControlList: ReviewSetDropDownResult[] = [];
 	public ReviewSetInterventionList: ReviewSetDropDownResult[] = [];
 	public ReviewSetItemArmList: ItemArm[] = [];
+
 	public IsServiceBusy(): boolean {
 
 		if (this._BusyMethods.length > 0) {
@@ -217,7 +215,7 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 				});
 	}
 	
-	DeleteOutcome(outcomeId: number, itemSetId: number) {
+	public DeleteOutcome(outcomeId: number, itemSetId: number) {
 
 		this._BusyMethods.push("DeleteOutcome");
 			let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
@@ -247,6 +245,10 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 
 	}
 
+	ngOnDestroy() {
+
+	}
+
 }
 
 export class ItemArm {
@@ -255,8 +257,6 @@ export class ItemArm {
 	title: string = '';
 
 }
-
-
 export class OutcomeItemList {
 	outcomesList: Outcome[] = [];
 }

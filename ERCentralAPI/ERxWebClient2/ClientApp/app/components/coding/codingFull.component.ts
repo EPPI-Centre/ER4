@@ -159,7 +159,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return false;
     }
 
-
+	private outcomeSubscription: Subscription | null = null;
 
 
     ngOnInit() {
@@ -170,7 +170,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
 		else {
 
-			this._outcomeService.outcomesChangedEE.subscribe(
+			this.outcomeSubscription = 	this._outcomeService.outcomesChangedEE.subscribe(
 
 				(res: any) => {
 
@@ -393,12 +393,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
         }
-        this.ItemCodingService.Clear();
+		this.ItemCodingService.Clear();
     }
     goToItem(item: Item) {
         this.WipeHighlights();
@@ -572,7 +571,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
-        if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
+
     }
 }
 

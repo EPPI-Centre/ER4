@@ -6,7 +6,7 @@ import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { ArmsService } from './arms.service';
+import { ArmsService, iArm } from './arms.service';
 import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
@@ -757,45 +757,8 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-export interface iArm {
-	[key: number]: any;  // Add index signature
-	itemArmId: number;
-    itemId: number;
-    ordering: number;
-    title: string;
-}
-export class Arm {
-    
-    itemArmId: number = 0;
-    itemId: number = 0;
-    ordering: number = 0;
-    title: string = '';
 
-}
 
-export interface iTimePoint {
-	[key: number]: any;  // Add index signature
-	itemId: number ;
-	timepointValue: string ;
-	timepointMetric: string ;
-	itemTimepointId: number ;
-}
-
-export class TimePoint {
-
-	constructor(ItemId: number, TimepointValue: string, TimepointMetric: string,
-		ItemTimepointId: number) {
-		this.itemId = ItemId;
-		this.timepointValue = TimepointValue;
-		this.timepointMetric = TimepointMetric;
-		this.itemTimepointId = ItemTimepointId;
-	}
-	itemId: number = 0;
-	timepointValue: string = '';
-	timepointMetric: string = '';
-	itemTimepointId: number = 0;
-
-}
 
 export class ItemDocumentList {
 

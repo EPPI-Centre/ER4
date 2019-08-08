@@ -77,7 +77,7 @@ import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
 import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
-import { timePointsComp } from './components/timePoints/timePointsComp.component';
+import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.component';
 import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 
 @NgModule({

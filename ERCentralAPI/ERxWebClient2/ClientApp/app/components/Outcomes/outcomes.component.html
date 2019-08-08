@@ -1,5 +1,5 @@
 
-<div class="container col-md-12 form p-0 ">
+<div *ngIf="outcomesList && outcomesList.length > 0" class="container col-md-12 form p-0 ">
 	<p hidden>{{selectedNode?.name}}</p>
 	<div *ngIf="ShowOutcomesList" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">

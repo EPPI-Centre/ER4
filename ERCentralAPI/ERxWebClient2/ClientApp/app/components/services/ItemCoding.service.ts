@@ -9,11 +9,12 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Item, ItemListService, TimePoint, iTimePoint } from './ItemList.service';
+import { Item, ItemListService } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand } from './ReviewSets.service';
 import { Review } from './review.service';
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
+import { Outcome, OutcomeItemList } from './outcomes.service';
 
 @Injectable({
     providedIn: 'root',

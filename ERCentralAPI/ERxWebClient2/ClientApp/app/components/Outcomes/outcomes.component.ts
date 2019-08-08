@@ -7,9 +7,11 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { OutcomesService } from '../services/outcomes.service';
-import { Item, iTimePoint, iArm } from '../services/ItemList.service';
-import { ItemCodingService, Outcome, OutcomeItemList, ItemSet, OutcomeType } from '../services/ItemCoding.service';
+import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.service';
+import { Item } from '../services/ItemList.service';
+import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
+import { iTimePoint } from '../services/timePoints.service';
+import { iArm } from '../services/arms.service';
 
 
 @Component({
@@ -68,7 +70,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		outcomeTimePoint.itemTimepointId = this.currentOutcome.itemTimepointId;
 		outcomeTimePoint.timepointMetric = this.currentOutcome.itemTimepointMetric;
 		outcomeTimePoint.timepointValue = this.currentOutcome.itemTimepointValue;
-		this, this.currentOutcome.outcomeTimePoint = outcomeTimePoint;
+		this.currentOutcome.outcomeTimePoint = outcomeTimePoint;
 
 		this.ItemSetId = this._OutcomesService.ItemSetId;
 		if (this.ItemSetId != 0) {
@@ -226,5 +228,6 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		this.ShowOutcomesList = false;
 	}
 	Clear() {
+
 	}
 }

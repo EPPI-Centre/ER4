@@ -211,19 +211,25 @@ export class ItemTimepointDeleteWarningCommandJSON {
 }
 
 export interface iTimePoint {
-
-    itemId: number;
-    timepointValue: string;
-    timepointMetric: string;
-    itemTimepointId: number;
-
+	[key: number]: any;  // Add index signature
+	itemId: number;
+	timepointValue: string;
+	timepointMetric: string;
+	itemTimepointId: number;
 }
+
 export class TimePoint {
 
-    itemId: number = 0;
-    timepointValue: string = '';
-    timepointMetric: string = '';
-    itemTimepointId: number = 0;
+	constructor(ItemId: number, TimepointValue: string, TimepointMetric: string,
+		ItemTimepointId: number) {
+		this.itemId = ItemId;
+		this.timepointValue = TimepointValue;
+		this.timepointMetric = TimepointMetric;
+		this.itemTimepointId = ItemTimepointId;
+	}
+	itemId: number = 0;
+	timepointValue: string = '';
+	timepointMetric: string = '';
+	itemTimepointId: number = 0;
 
 }
-
