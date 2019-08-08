@@ -1,11 +1,10 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import {  Item, TimePoint} from '../services/ItemList.service';
+import {  Item } from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { timePointsService, ItemTimepointDeleteWarningCommandJSON } from '../services/timePoints.service';
-import { iTimePoint } from '../services/ItemList.service';
+import { timePointsService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint } from '../services/timePoints.service';
 import { NgModel } from '@angular/forms';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
@@ -285,3 +284,4 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		this.Clear();
 	}
 }
+

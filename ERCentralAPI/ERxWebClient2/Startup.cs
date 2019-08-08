@@ -22,10 +22,13 @@ namespace ERxWebClient2
         public Startup(IConfiguration configuration, ILogger<Program> logger)
         {
             Configuration = configuration;
+            Logger = logger;
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
         }
 
-        public IConfiguration Configuration { get; }
+        //makes the logger available within CSLA objects, used in TrainingRunCommand, list may grow...
+        public static ILogger<Program> Logger { get; private set; }
+        public static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

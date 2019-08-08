@@ -19,18 +19,18 @@
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
-					 class="alert small alert-danger p-1">
+					 class="alert alert-danger p-1 mb-1">
 
 					<div *ngIf="titleModel.errors.pattern">
-						title cannot be empty
+						Arm name cannot be empty
 					</div>
 
-					<div *ngIf="titleModel.errors.required">
-						title is required.
-					</div>
-					<div *ngIf="titleModel.errors.minlength">
-						title must be at least 3 characters long.
-					</div>
+                    <div *ngIf="titleModel.errors.required">
+                        Arm name is required
+                    </div>
+                    <div *ngIf="titleModel.errors.minlength">
+                        Arm name must be at least 3 characters long
+                    </div>
 
 				</div>
 				<button *ngIf="!titleModel.invalid" [disabled]="!HasWriteRights"

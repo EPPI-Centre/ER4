@@ -16,7 +16,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ArmsService } from '../services/arms.service';
-import { armsComp } from '../arms/armsComp.component';
+import { armsComp } from '../ArmsAndTimePoints/armsComp.component';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 
