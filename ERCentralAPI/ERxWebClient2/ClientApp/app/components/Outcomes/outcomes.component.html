@@ -72,7 +72,7 @@
 							</select>
 						</div>
 					</div>
-				</div> 
+				</div>
 				<div class="row col-md-12  p-1 m-1">
 					<label class="col-md-2">Outcome Description</label>
 					<input #outcomeDescriptionModel="ngModel"
@@ -83,134 +83,160 @@
 						   type="text" class="form-control col-md-8  form-input" />
 				</div>
 				<div class="row col-md-12">
-						<div class="col-md-6 row">
-							<label class="col-md-3">Outcome type</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #outcomeType [(ngModel)]="currentOutcome.outcomeTypeId"
-										class="form-control col-md-12">
-									<option [ngValue]="outcomeT.outcomeTypeId"
-											[selected]="outcomeT.outcomeTypeId == currentOutcome.outcomeTypeId"
-											*ngFor="let outcomeT of OutcomeTypeList">
-										{{outcomeT.outcomeTypeName}}
-									</option>
-								</select>
-							</div>
-						</div>
-						<div class="col-md-6 row">
-							<label class="col-md-3">Outcome</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8" placeholder="Outcomes">
-								<select #outcomeDD [(ngModel)]="currentOutcome.itemAttributeIdOutcome"
-										class="form-control col-md-12">
-									<option [ngValue]="out.attributeId" 
-											[selected]="out.attributeId == currentOutcome.itemAttributeIdOutcome"
-											*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
-										{{out.attributeName}}
-									</option>
-								</select>
-							</div>
+					<div class="col-md-6 row">
+						<label class="col-md-3">Outcome type</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+							<select #outcomeType [(ngModel)]="currentOutcome.outcomeTypeId"
+									class="form-control col-md-12">
+								<option [ngValue]="outcomeT.outcomeTypeId"
+										[selected]="outcomeT.outcomeTypeId == currentOutcome.outcomeTypeId"
+										*ngFor="let outcomeT of OutcomeTypeList">
+									{{outcomeT.outcomeTypeName}}
+								</option>
+							</select>
 						</div>
 					</div>
-					<div class="row col-md-12">
-						<div class="col-md-6 row">
-							<label class="col-md-3">Intervention</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #interventionDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdIntervention"
-										class="form-control col-md-12">
-									<option [ngValue]="intervention.attributeId" 
-											[selected]="intervention.attributeId == currentOutcome.itemAttributeIdIntervention"
-											*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
-										{{intervention.attributeName}}
-									</option>
-								</select>
-							</div>
+					<div class="col-md-6 row">
+						<label class="col-md-3">Outcome</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8" placeholder="Outcomes">
+							<select #outcomeDD [(ngModel)]="currentOutcome.itemAttributeIdOutcome"
+									class="form-control col-md-12">
+								<option [ngValue]="out.attributeId"
+										[selected]="out.attributeId == currentOutcome.itemAttributeIdOutcome"
+										*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
+									{{out.attributeName}}
+								</option>
+							</select>
 						</div>
-						<div class="col-md-6 row">
-							<label class="col-md-3">Comparison</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #controlDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdControl"
-										class="form-control col-md-12">
-									<option [ngValue]="control.attributeId" 
-											[selected]="control.attributeId == currentOutcome.itemAttributeIdControl"
-											*ngFor="let control of _OutcomesService.ReviewSetControlList">
-										{{control.attributeName}}
-									</option>
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="row col-md-12">
-						<div class="col-md-6 row">
-							<label class="col-md-3">Group 1 arm</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
-										class="form-control col-md-12">
-									<option [ngValue]="arm.itemArmId"
-											[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp1"
-											*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
-										{{arm.title}}
-									</option>
-								</select>
-							</div>
-						</div>
-						<div class="col-md-6 row">
-							<label class="col-md-3">Group 2 arm</label>
-							<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-								<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
-										class="form-control col-md-12">
-									<option [ngValue]="arm.itemArmId"
-											[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp2"
-											*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
-										{{arm.title}}
-									</option>
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="row col-md-12 p-1 m-1">
-
-						<label class="col-md-1">Group 1 N</label>
-						<input #group1NModel="ngModel"
-							   [(ngModel)]="currentOutcome.data1"
-							   value="currentOutcome.data1"
-							   type="text" class="form-control col-md-2" />
-
-						<label class="col-md-1">Group 2 N</label>
-						<input #group2NModel="ngModel"
-							   [(ngModel)]="currentOutcome.data2"
-							   value="currentOutcome.data2"
-							   type="text" class="form-control col-md-2" />
-
-
-						<label class="col-md-1">Group 1 mean</label>
-						<input #group1MeanModel="ngModel"
-							   [(ngModel)]="currentOutcome.data3"
-							   value="currentOutcome.data3"
-							   type="text" class="form-control col-md-2" />
-
-						<label class="col-md-1">Group 2 mean</label>
-						<input #group2MeanModel="ngModel"
-							   [(ngModel)]="currentOutcome.data4"
-							   value="currentOutcome.data4"
-							   type="text" class="form-control col-md-2" />
-
-						<label class="col-md-1">Group 1 SD</label>
-						<input #group1SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data5"
-							   value="currentOutcome.data5"
-							   type="text" class="form-control col-md-2" />
-
-						<label class="col-md-1">Group 2 SD</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data6"
-							   value="currentOutcome.data6"
-							   type="text" class="form-control col-md-2" />
-
-						<label class="col-md-1">SMD</label>
-						<p class="col-md-2">4356.436</p>
-						<label class="col-md-1 text-capitalize">SE</label>
-						<p class="col-md-2">NaN</p>
 					</div>
 				</div>
+				<div class="row col-md-12">
+					<div class="col-md-6 row">
+						<label class="col-md-3">Intervention</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+							<select #interventionDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdIntervention"
+									class="form-control col-md-12">
+								<option [ngValue]="intervention.attributeId"
+										[selected]="intervention.attributeId == currentOutcome.itemAttributeIdIntervention"
+										*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
+									{{intervention.attributeName}}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6 row">
+						<label class="col-md-3">Comparison</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+							<select #controlDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdControl"
+									class="form-control col-md-12">
+								<option [ngValue]="control.attributeId"
+										[selected]="control.attributeId == currentOutcome.itemAttributeIdControl"
+										*ngFor="let control of _OutcomesService.ReviewSetControlList">
+									{{control.attributeName}}
+								</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="row col-md-12">
+					<div class="col-md-6 row">
+						<label class="col-md-3">Group 1 arm</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+							<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
+									class="form-control col-md-12">
+								<option [ngValue]="arm.itemArmId"
+										[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp1"
+										*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+									{{arm.title}}
+								</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-6 row">
+						<label class="col-md-3">Group 2 arm</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+							<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
+									class="form-control col-md-12">
+								<option [ngValue]="arm.itemArmId"
+										[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp2"
+										*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
+									{{arm.title}}
+								</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<!-- Need 8 sections here for the different outcomeTypes that can occur -->
+				<div *ngIf="currentOutcome.outcomeTypeId == 0">
+					<p>manual entry</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 1">
+					<p>Continuous: n, mean, SD</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 2">
+					<p>binary 2 x 2 table</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 3">
+					<p>n, mean SE</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 4">
+					<p>n, mean CI</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 5">
+					<p>N, t- or p-value</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 6">
+					<p>diagnostic binary 2 x 2 table</p>
+				</div>
+				<div *ngIf="currentOutcome.outcomeTypeId == 7">
+					<p>correlation coefficient r</p>
+				</div>
+				<div class="row col-md-12 p-1 m-1">
+
+					<label class="col-md-1">Group 1 N</label>
+					<input #group1NModel="ngModel"
+						   [(ngModel)]="currentOutcome.data1"
+						   value="currentOutcome.data1"
+						   type="text" class="form-control col-md-2" />
+
+					<label class="col-md-1">Group 2 N</label>
+					<input #group2NModel="ngModel"
+						   [(ngModel)]="currentOutcome.data2"
+						   value="currentOutcome.data2"
+						   type="text" class="form-control col-md-2" />
+
+
+					<label class="col-md-1">Group 1 mean</label>
+					<input #group1MeanModel="ngModel"
+						   [(ngModel)]="currentOutcome.data3"
+						   value="currentOutcome.data3"
+						   type="text" class="form-control col-md-2" />
+
+					<label class="col-md-1">Group 2 mean</label>
+					<input #group2MeanModel="ngModel"
+						   [(ngModel)]="currentOutcome.data4"
+						   value="currentOutcome.data4"
+						   type="text" class="form-control col-md-2" />
+
+					<label class="col-md-1">Group 1 SD</label>
+					<input #group1SDModel="ngModel"
+						   [(ngModel)]="currentOutcome.data5"
+						   value="currentOutcome.data5"
+						   type="text" class="form-control col-md-2" />
+
+					<label class="col-md-1">Group 2 SD</label>
+					<input #group2SDModel="ngModel"
+						   [(ngModel)]="currentOutcome.data6"
+						   value="currentOutcome.data6"
+						   type="text" class="form-control col-md-2" />
+
+					<label class="col-md-1">SMD</label>
+					<p class="col-md-2">4356.436</p>
+					<label class="col-md-1 text-capitalize">SE</label>
+					<p class="col-md-2">NaN</p>
+				</div>
+			</div>
 				<div class="row col-md-12">
 					<button [disabled]="!HasWriteRights && !IsServiceBusy" 
 							class="btn btn-sm btn-primary mt-1 p-1 m-1 col-md-2"

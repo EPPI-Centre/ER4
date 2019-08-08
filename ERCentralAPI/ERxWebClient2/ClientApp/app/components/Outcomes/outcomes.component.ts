@@ -80,6 +80,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
+		console.log('current outcome' + JSON.stringify(this.currentOutcome));
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
