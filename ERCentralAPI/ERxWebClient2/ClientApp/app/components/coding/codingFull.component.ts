@@ -7,7 +7,7 @@ import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
-import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
+import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute, singleNode, ReviewSet } from '../services/ReviewSets.service';
 import { CheckBoxClickedEventData, CodesetTreeCodingComponent } from '../CodesetTrees/codesetTreeCoding.component';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
@@ -22,6 +22,8 @@ import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 import { timePointsService } from '../services/timePoints.service';
 import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { OutcomesService } from '../services/outcomes.service';
+import { OutcomesComponent } from '../Outcomes/outcomes.component';
 
 
 @Component({
@@ -50,11 +52,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		private armservice: ArmsService,
 		private timePointsService: timePointsService,
 		private notificationService: NotificationService,
-		private _reviewSetsEditingService: ReviewSetsEditingService
+		private _reviewSetsEditingService: ReviewSetsEditingService,
+		private _outcomeService: OutcomesService,
+		private _ItemCodingService: ItemCodingService
     ) { }
    
     @ViewChild('ArmsCmp')
 	private ArmsCompRef!: any;
+	@ViewChild('OutcomesCmp')
+	private OutcomesCmpRef!: OutcomesComponent;
     @ViewChild('ItemDetailsCmp')
 	private ItemDetailsCompRef!: any; 
 
@@ -67,27 +73,32 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
     private ItemCodingServiceDataChanged: Subscription | null = null;
     private subGotPDFforViewing: Subscription | null = null;
-    private ItemArmsDataChanged: Subscription | null = null;
     
     public get itemID(): number {
         if (this.item) return this.item.itemId;
         else return -1;
-    }
+	}
+	
     private itemString: string = '0';
-    public item?: Item;
-    public itemId = new Subject<number>();
-    
+	public item?: Item;
+	public itemSet?: ItemSet;
+	public itemId = new Subject<number>();
+	public ShowOutComes: boolean = false;
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
 	public ShowCreateNewCode: boolean = false;
 	public dynamicdata: string = 'This is dynamic data!';
 
+	public ShowingOutComes() {
+
+		this.ShowOutComes = !this.ShowOutComes
+		
+	}
 	public SetCreateNewCode() {
 
 		this.ShowCreateNewCode = !this.ShowCreateNewCode;
 	}
-
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
@@ -148,7 +159,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         else return false;
     }
 
-
+	private outcomeSubscription: Subscription | null = null;
 
 
     ngOnInit() {
@@ -157,7 +168,39 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
+
+			this.outcomeSubscription = 	this._outcomeService.outcomesChangedEE.subscribe(
+
+				(res: any) => {
+
+					var selectedNode = res as SetAttribute;
+		
+					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
+
+						console.log('a node has been selected');
+						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+						if (itemSet != null) {
+								this._outcomeService.ItemSetId = itemSet.itemSetId;
+								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
+								this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
+						}
+						this.ShowingOutComes();
+
+					} else {
+
+						console.log('a code is not selected');
+						if (this.OutcomesCmpRef) {
+							console.log('inside OutcomesCmpRef');
+							this.OutcomesCmpRef.outcomesList = [];
+							this.OutcomesCmpRef.ShowOutcomesList = false;
+							this.ShowingOutComes();
+						}
+					}
+				}
+				// ERROR HANDLING IN HERE NEXT....
+			);
+			
             this.armservice.armChangedEE.subscribe(() => {
                 if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);
@@ -255,12 +298,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.tabstrip) this.tabstrip.selectTab(0);
     }
     private GetItemCoding() {
-        //console.log('sdjghklsdjghfjklh ' + this.itemID);
+        console.log('Getting item coding for itemID: ' + this.itemID);
         this.ItemDocsService.FetchDocList(this.itemID);
-        if (this.item) {
+		if (this.item) {
+
+			this._outcomeService.outcomesChangedEE.emit();
             this.ArmsCompRef.CurrentItem = this.item;
 			this.armservice.FetchArms(this.item);
 			this.timePointsService.Fetchtimepoints(this.item);
+
         }
         this.ItemCodingService.Fetch(this.itemID);    
 
@@ -347,12 +393,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this._hasNext = null;
         this._hasPrevious = null;
         this.item = undefined;
-        //this.itemID = -1;
         this.ItemCodingService.ItemCodingList = [];
         if (this.ReviewSetsService) {
             this.ReviewSetsService.clearItemData();
         }
-        this.ItemCodingService.Clear();
+		this.ItemCodingService.Clear();
     }
     goToItem(item: Item) {
         this.WipeHighlights();
@@ -526,7 +571,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
-        if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
+
     }
 }
 

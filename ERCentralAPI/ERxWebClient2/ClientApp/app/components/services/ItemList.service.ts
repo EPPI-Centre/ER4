@@ -6,7 +6,7 @@ import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { ArmsService } from './arms.service';
+import { ArmsService, iArm } from './arms.service';
 import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
@@ -14,6 +14,7 @@ import { EventEmitterService } from './EventEmitter.service';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
 import { iTimePoint } from './timePoints.service';
+
 
 @Injectable({
 
@@ -755,21 +756,6 @@ export class Criteria {
     setId: number = 0;
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
-}
-export interface iArm {
-	[key: number]: any;  // Add index signature
-	itemArmId: number;
-    itemId: number;
-    ordering: number;
-    title: string;
-}
-export class Arm {
-    
-    itemArmId: number = 0;
-    itemId: number = 0;
-    ordering: number = 0;
-    title: string = '';
-
 }
 
 

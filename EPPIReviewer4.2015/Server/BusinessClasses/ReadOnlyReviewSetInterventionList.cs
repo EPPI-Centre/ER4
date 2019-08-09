@@ -23,7 +23,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReadOnlyReviewSetInterventionList() { }
 #else
-        private ReadOnlyReviewSetInterventionList() { }
+        public ReadOnlyReviewSetInterventionList() { }
 #endif
 
         public static void GetReadOnlyReviewSetInterventionList(Int64 ItemSetId, Int64 SetId, EventHandler<DataPortalResult<ReadOnlyReviewSetInterventionList>> handler)

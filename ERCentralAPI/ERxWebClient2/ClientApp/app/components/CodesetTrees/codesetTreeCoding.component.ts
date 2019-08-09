@@ -15,6 +15,8 @@ import { ItemCodingService, ItemAttPDFCodingCrit, ItemSet} from '../services/Ite
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { itemAt } from '@progress/kendo-angular-grid/dist/es2015/data/data.iterators';
+import { OutcomesService } from '../services/outcomes.service';
 
 @Component({
     selector: 'codesetTreeCoding',
@@ -43,7 +45,9 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
        private ItemDocsService: ItemDocsService,
        private armsService: ArmsService,
        private ReviewInfoService: ReviewInfoService,
-       private NotificationService: NotificationService
+	   private NotificationService: NotificationService,
+	   private _ItemCodingService: ItemCodingService,
+	   private _outcomeService: OutcomesService
     ) { }
     //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
@@ -104,8 +108,55 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 
 		//firstNode.setActiveAndVisible();
 	}
-    
+	public attributeType: string = '';
+	public outcomesPresent: boolean = false;
+	public checkOutComes(data: singleNode): boolean {
 
+		//console.log('checking this node');
+		var selectedNode: boolean = false;
+		var itemSetId = 0;
+		if (data.nodeType == 'ReviewSet') {
+			//let node = data as ReviewSet;
+			//itemSetId = node.ItemSetId;
+			return false;
+		} else {
+			let node = data as SetAttribute;
+			var nodeAttType = node.attribute_type;
+			this.attributeType = nodeAttType;
+			var itemSet = this._ItemCodingService.FindItemSetBySetId(node.set_id);
+			if (itemSet) {
+				if (itemSet.outcomeItemList.outcomesList.length > 0) {
+					this.outcomesPresent = true;
+				}
+				itemSetId = itemSet.itemSetId
+			}
+			
+			selectedNode = data.isSelected;
+		}
+		let okayAttType: boolean = false;
+		if (nodeAttType == 'Outcome'
+			|| nodeAttType == 'Intervention'
+			|| nodeAttType == 'Comparison') {
+			okayAttType = true;
+		}
+		//var itemSet = this._ItemCodingService.FindItemSetByItemSetId(itemSetId);
+		if (this.outcomesPresent && okayAttType
+			) {
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+	//public ShowOutComeList: EventEmitter<boolean> = new EventEmitter();
+	public OutcomePanel: boolean = false;
+	public openOutcomePanel(data: singleNode) {
+
+			let node = data as SetAttribute;
+			if (node != null && node.isSelected) {
+				this._outcomeService.outcomesChangedEE.emit(node);
+			}
+	}
     //nodes: singleNode[] = [];
     get nodes(): singleNode[] | null {
         //console.log('Getting codetree nodes');

@@ -78,6 +78,7 @@ import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.componen
 import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
 import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
 import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.component';
+import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 
 @NgModule({
     declarations: [
@@ -136,7 +137,8 @@ import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.co
 		timePointsComp,
         PdfTronContainer,
         WebViewerComponent,
-		codingRecordComp
+		codingRecordComp,
+		OutcomesComponent
 	],
     providers: [
         EventEmitterService,

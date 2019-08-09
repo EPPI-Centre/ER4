@@ -91,7 +91,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 	
 	public unit: string = '';
 	swap: boolean = false;
-	public currentTimePoint: TimePoint = new TimePoint();
+	public currentTimePoint: TimePoint = new TimePoint(0, '', '',0);
 	//public currentTitle!: string;
 	public currentKey: number = 0;
 	public edit: boolean = false;
@@ -136,8 +136,8 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		this.title = '';
 		this.unit = '';
 		this.timepointFreq = '';
-		this.currentTimePoint = new TimePoint();
-		this._timePointsService.SetSelectedtimepoint(new TimePoint());
+		this.currentTimePoint = new TimePoint(0, '', '', 0);
+		this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
 		this.unitModel = '';
 		this.edit = false;
 	}
@@ -215,7 +215,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 			let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
 			this._timePointsService.Deletetimepoint(ToRemove);
 			this.timePointsList.splice(key, 1);
-			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint());
+			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
 		}
 	}
 
@@ -235,7 +235,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 			&& this.currentTimePoint.timepointMetric != '') {
 			if (this.item != undefined) {
 
-				let newtimepoint: TimePoint = new TimePoint();
+				let newtimepoint: TimePoint = new TimePoint(0, '', '', 0);
 				newtimepoint.itemId = this.item.itemId;
 				newtimepoint.timepointValue = timepointFreq;
 				if (this._timePointsService.Selectedtimepoint) {
