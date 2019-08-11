@@ -32,35 +32,42 @@
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagFieldOfStudyList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagFieldOfStudyList" 
-                           DataChanged="CslaDataProvider_DataChanged_2">
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
         <cslaXAML:CslaDataProvider x:Key="TopicPaperListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagPaperList" 
-                           DataChanged="TopicPaperListData_DataChanged">
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
         <cslaXAML:CslaDataProvider x:Key="CitationPaperListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagPaperList" 
-                           DataChanged="TopicPaperListData_DataChanged">
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
         <cslaXAML:CslaDataProvider x:Key="CitedByListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagPaperList" 
-                           DataChanged="TopicPaperListData_DataChanged">
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
         <cslaXAML:CslaDataProvider x:Key="RecommendationsListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagPaperList" 
-                           DataChanged="TopicPaperListData_DataChanged">
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="HistoryListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="True"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagBrowseHistoryList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagBrowseHistoryList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
     </UserControl.Resources>
     
@@ -372,14 +379,17 @@
 
         <Grid x:Name="HistoryGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="150"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
+
+            <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="True" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource HistoryListData}, Path=Data, Mode=TwoWay}"
+                                    RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                
+            </telerikGridView:RadGridView>
 
         </Grid> <!-- end history grid -->
 

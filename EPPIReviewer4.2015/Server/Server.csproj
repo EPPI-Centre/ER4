@@ -244,6 +244,7 @@
     <Compile Include="BusinessClasses\ItemLink.cs" />
     <Compile Include="BusinessClasses\ItemLinkList.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
+    <Compile Include="BusinessClasses\MagBrowseHistoryList.cs" />
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />

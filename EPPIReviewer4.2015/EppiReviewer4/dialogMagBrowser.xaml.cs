@@ -260,16 +260,6 @@ namespace EppiReviewer4
 
         }
 
-        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
-        {
-
-        }
-
-        private void TopicPaperListData_DataChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void PaperListBibliographyGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
@@ -425,5 +415,18 @@ namespace EppiReviewer4
                 PaperGridAbstractRow.Height = new GridLength(0);
             }
         }
+
+        private void CslaDataProvider_HandleDataChangeError(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = sender as CslaDataProvider;
+            if (provider != null)
+            {
+                if (provider.Error != null)
+                {
+                    RadWindow.Alert(provider.Error.Message);
+                }
+            }
+        }
+
     }
 }

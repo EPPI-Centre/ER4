@@ -417,6 +417,9 @@
     <Compile Include="..\Server\BusinessClasses\MagBrowseHistory.cs">
       <Link>BusinessClasses\MagBrowseHistory.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagBrowseHistoryList.cs">
+      <Link>BusinessClasses\MagBrowseHistoryList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>
     </Compile>
