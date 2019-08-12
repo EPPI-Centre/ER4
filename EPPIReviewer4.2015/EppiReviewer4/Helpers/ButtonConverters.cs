@@ -476,6 +476,22 @@ namespace EppiReviewer4.Helpers
             throw new NotImplementedException();
         }
     }
+
+    public class SelectedNotSelectedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string val = value.ToString();
+            if (val == "False") return "Select";
+            else return "Unselect";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class ReconcilingCodesConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

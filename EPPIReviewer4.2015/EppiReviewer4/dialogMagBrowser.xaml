@@ -6,9 +6,11 @@
     xmlns:ToolkitRef="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Toolkit"
     xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking"
     xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
     xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
     xmlns:dpager="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Data"
     mc:Ignorable="d"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
     d:DesignHeight="800" d:DesignWidth="1000">
 
     <UserControl.Resources>
@@ -69,6 +71,20 @@
                            FactoryMethod="GetMagBrowseHistoryList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+
+        <helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
+
+        <Style TargetType="grid:GridViewCell" x:Name="cellSelectedNotSelected">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <HyperlinkButton x:Name="HLSelectUnSelect" Margin="5,2,5,2" VerticalAlignment="Center" HorizontalAlignment="Center" Click="HLSelectUnSelect_Click"
+                                    Content="{Binding IsSelected, Converter={StaticResource SelectedNotSelectedText}, Mode=TwoWay}"></HyperlinkButton>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
     
     <Grid x:Name="LayoutRoot" Background="White">
@@ -87,8 +103,8 @@
 
             <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="16" FontWeight="Bold" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
             <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="HLShowHistory_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowSummary" Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowSummary_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportEntireList" Grid.Column="2" Content="Import list" Margin="0,5,5,5" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="90"></HyperlinkButton>
@@ -181,7 +197,7 @@
                         <telerikGridView:RadGridView x:Name="BibliographyGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=BibliographyPager}"
-                                    RowIndicatorVisibility="Collapsed"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False"
                                     SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                             <telerikGridView:RadGridView.Columns>
@@ -197,6 +213,7 @@
                                         </DataTemplate>
                                     </telerikGridView:GridViewDataColumn.CellTemplate>
                                 </telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="50" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                             </telerikGridView:RadGridView.Columns>
                         </telerikGridView:RadGridView>
 
@@ -233,7 +250,8 @@
                                     </DataTemplate>
                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                             </telerikGridView:GridViewDataColumn>
-                        </telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="50" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                            </telerikGridView:RadGridView.Columns>
                     </telerikGridView:RadGridView>
 
                         <dpager:RadDataPager Grid.Row="1" x:Name="CitedByPager" IsTotalItemCountFixed="True"
@@ -263,6 +281,7 @@
                                     </DataTemplate>
                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                             </telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="50" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                         </telerikGridView:RadGridView.Columns>
                     </telerikGridView:RadGridView>
                     <!-- n.b. no data pager needed here, as there are only 20 related documents-->
@@ -292,28 +311,25 @@
 
             <telerikGridView:RadGridView x:Name="PaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                    ItemsSource="{Binding PagedSource, ElementName=PaperListBibliographyPager}"
+                                    ItemsSource="{Binding PagedSource, ElementName=PaperListBibliographyPager, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed"
-                                    SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
+                                    SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                 <telerikGridView:RadGridView.Columns>
-                    <telerikGridView:GridViewSelectColumn UniqueName="columnSelectPaper" Width="Auto">
-                        <telerikGridView:GridViewSelectColumn.Header>
-                            <CheckBox Tag="TopicsAndPaperListBibliographyGrid" />
-                        </telerikGridView:GridViewSelectColumn.Header>
-                    </telerikGridView:GridViewSelectColumn>
-                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                    
+                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}" Header="">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="50" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
             <dpager:RadDataPager Grid.Column="1" Grid.Row="2" x:Name="PaperListBibliographyPager" IsTotalItemCountFixed="True"
-                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource PaperListData}, Path=Data}"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource PaperListData}, Path=Data, Mode=TwoWay}"
                 PageIndexChanging="PaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
         </Grid>
         
@@ -364,6 +380,7 @@
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="50" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
@@ -389,7 +406,7 @@
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                 <telerikGridView:RadGridView.Columns>
-                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Pages browsed in order (earliest at the top)" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>

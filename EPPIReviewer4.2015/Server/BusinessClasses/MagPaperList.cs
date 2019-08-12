@@ -252,6 +252,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private string _PaperIds;
+        public string PaperIds
+        {
+            get
+            {
+                return _PaperIds;
+            }
+            set
+            {
+                _PaperIds = value;
+            }
+        }
+
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info)
         {
             base.OnSetState(info);
@@ -264,6 +277,7 @@ namespace BusinessLibrary.BusinessClasses
             _PaperId = info.GetValue<Int64>("_PaperId");
             _AuthorId = info.GetValue<Int64>("_AuthorId");
             _MagRelatedRunId = info.GetValue<Int64>("_MagRelatedRunId");
+            _PaperIds = info.GetValue<string>("_PaperIds");
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
@@ -278,6 +292,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_PaperId", _PaperId);
             info.AddValue("_AuthorId", _AuthorId);
             info.AddValue("_MagRelatedRunId", _MagRelatedRunId);
+            info.AddValue("_PaperIds", _PaperIds);
         }
 
 
@@ -329,6 +344,7 @@ namespace BusinessLibrary.BusinessClasses
                     command = new SqlCommand("st_ReviewMatchedPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@INCLUDED", criteria.Included));
+                    this.PaperIds = ""; // probably unnecessary, but just in case...
                     break;
                 case "ItemMatchedPapersList":
                     command = new SqlCommand("st_ItemMatchedPapers", connection);
@@ -358,6 +374,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
                     this.PaperId = criteria.MagPaperId;
+                    this.PaperIds = "";
                     break;
                 case "PaperFieldsOfStudyList":
                     command = new SqlCommand("st_FieldOfStudyPapers", connection);
@@ -376,6 +393,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", criteria.MagRelatedRunId));
                     this.MagRelatedRunId = criteria.MagRelatedRunId;
+                    break;
+                case "PaperListById":
+                    command = new SqlCommand("st_PaperListById", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperIds", criteria.PaperIds));
+                    this.PaperIds = criteria.PaperIds;
+                    this._PaperId = 0;
                     break;
             }
             return command;
@@ -451,6 +475,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(MagRelatedRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> PaperIdsProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("PaperIds", "PaperIds", ""));
+        public string PaperIds
+        {
+            get { return ReadProperty(PaperIdsProperty); }
+            set
+            {
+                SetProperty(PaperIdsProperty, value);
             }
         }
 

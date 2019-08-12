@@ -20,6 +20,7 @@ namespace EppiReviewer4
     public partial class dialogMagBrowser : UserControl
     {
         private int CurrentBrowsePosition = 0;
+        private List<Int64> SelectedPaperIds;
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -28,6 +29,8 @@ namespace EppiReviewer4
         public void ShowMagBrowser()
         {
             HLShowSummary_Click(null, null);
+            SelectedPaperIds = new List<Int64>();
+            UpdateSelectedCount();
         }
 
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
@@ -212,7 +215,11 @@ namespace EppiReviewer4
         // ***************************************** Included matches page *************************
         private void ShowIncludedMatchesPage()
         {
-            HLShowSelected_Click(null, null);
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -242,6 +249,28 @@ namespace EppiReviewer4
             getPaperListForTopic(FieldOfStudyId);
         }
 
+        // ***************************** List selected papers page **************************************
+
+        private void ShowSelectedPapersPage()
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+
+            CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = 0;
+            selectionCriteria.ListType = "PaperListById";
+            selectionCriteria.PaperIds = GetSelectedIds();
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
             CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
@@ -257,6 +286,21 @@ namespace EppiReviewer4
             ShowIncludedMatchesPage();
         }
 
+        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; 
+                }
+            }
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "");
+            ShowSelectedPapersPage();
+        }
+
         private void CslaDataProvider_DataChanged(object sender, EventArgs e)
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["PaperListData"]);
@@ -266,6 +310,7 @@ namespace EppiReviewer4
             }
             else
             {
+                SetSelected(provider);
                 GetAssociatedTopics();
             }
         }
@@ -415,11 +460,21 @@ namespace EppiReviewer4
         {
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
+            MagPaperList mpl = provider.Data as MagPaperList;
             MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
             selectionCriteria.PageSize = 20;
             selectionCriteria.PageNumber = e.NewPageIndex;
-            selectionCriteria.ListType = "ReviewMatchedPapers";
-            selectionCriteria.Included = "included";
+
+            if (mpl.PaperIds == "")
+            {
+                selectionCriteria.ListType = "ReviewMatchedPapers";
+                selectionCriteria.Included = "included";
+            }
+            else
+            {
+                selectionCriteria.ListType = "PaperListById";
+                selectionCriteria.PaperIds = mpl.PaperIds;
+            }
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
@@ -499,6 +554,10 @@ namespace EppiReviewer4
                 {
                     RadWindow.Alert(provider.Error.Message);
                 }
+                else
+                {
+                    SetSelected(provider);
+                }
             }
         }
 
@@ -576,6 +635,9 @@ namespace EppiReviewer4
                             case "BrowseTopic":
                                 ShowTopicPage(mbh.FieldOfStudyId, mbh.FieldOfStudy);
                                 break;
+                            case "SelectedPapers":
+                                ShowSelectedPapersPage();
+                                break;
                         }
                     }
                     else
@@ -648,16 +710,128 @@ namespace EppiReviewer4
             }
         }
 
+        // ******************************** Selected paper list handling *******************************
+
+        private void ClearSelectedPaperList()
+        {
+            SelectedPaperIds.Clear();
+            UpdateSelectedCount();
+        }
+
+        private void UpdateSelectedCount()
+        {
+            HLShowSelected.Content = "Show selected (" + SelectedPaperIds.Count.ToString() + ")";
+        }
+
+        private void HLClearSelected_Click(object sender, RoutedEventArgs e)
+        {
+            ClearSelectedPaperList();
+        }
+
+        private void RemoveFromSelectedList(Int64 PaperId)
+        {
+            int pos = SelectedPaperIds.IndexOf(PaperId);
+            if (pos > -1)
+                SelectedPaperIds.RemoveAt(pos);
+            UpdateSelectedCount();
+        }
+
+        private bool IsInSelectedList(Int64 PaperId)
+        {
+            if (SelectedPaperIds.IndexOf(PaperId) > -1)
+                return true;
+            else
+                return false;
+        }
+
+        private void AddToSelectedList(Int64 PaperId)
+        {
+            if (!IsInSelectedList(PaperId))
+            {
+                SelectedPaperIds.Add(PaperId);
+                UpdateSelectedCount();
+            }
+        }
+
+        private void HLSelectUnSelect_Click(object sender, RoutedEventArgs e)
+        {
+            MagPaper paper = (sender as HyperlinkButton).DataContext as MagPaper;
+            if (paper != null)
+            {
+                if (paper.IsSelected)
+                {
+                    RemoveFromSelectedList(paper.PaperId);
+                    paper.IsSelected = false;
+                }
+                else
+                {
+                    AddToSelectedList(paper.PaperId);
+                    paper.IsSelected = true;
+                }
+            }
+        }
+
+        private void SetSelected(CslaDataProvider provider)
+        {
+            MagPaperList mpl = provider.Data as MagPaperList;
+            if (mpl != null)
+            {
+                foreach (MagPaper paper in mpl)
+                {
+                    if (IsInSelectedList(paper.PaperId))
+                    {
+                        paper.IsSelected = true;
+                    }
+                }
+            }
+        }
+
+        private string GetSelectedIds()
+        {
+            string ids = "";
+            for (int i = 0; i < SelectedPaperIds.Count; i++)
+            {
+                if (i == 0)
+                    ids = SelectedPaperIds[i].ToString();
+                else
+                    ids += "," + SelectedPaperIds[i].ToString();
+            }
+            return ids;
+        }
+
+        private void HLImportSelected_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to import these items?", this.ImportSelected);
+        }
+
+        private void ImportSelected(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds());
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    //BusyLoading.IsRunning = false;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Items imported: " + SelectedPaperIds.Count.ToString());
+                        ClearSelectedPaperList();
+                    }
+                };
+                //BusyLoading.IsRunning = true;
+                dp2.BeginExecute(command);
+            }
+        }
+
 
         // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
-        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
-        {
-            StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Collapsed;
-            PaperListGrid.Visibility = Visibility.Visible;
-            HistoryGrid.Visibility = Visibility.Collapsed;
-        }
+
 
         private void LBBrowseByTopic_Click(object sender, RoutedEventArgs e)
         {
@@ -667,6 +841,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
         }
-   
+
+        
     }
 }
