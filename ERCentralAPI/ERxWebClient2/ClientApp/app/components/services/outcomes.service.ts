@@ -291,7 +291,8 @@ export class Outcome {
 	itemTimepointId: number = 0;
 	outcomeTimePoint = {} as iTimePoint;
 	title: string = "";
-	shortTitle: string = "";
+    shortTitle: string = "";
+    timepointDisplayValue: string = "";
 	outcomeDescription: string = "";
 	data1: number = 0;
 	data2: number = 0;
