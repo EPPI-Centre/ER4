@@ -144,8 +144,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ConferenceSeriesIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ConferenceSeriesId", "ConferenceSeriesId", 0));
-        public int ConferenceSeriesId
+        private static PropertyInfo<Int64> ConferenceSeriesIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ConferenceSeriesId", "ConferenceSeriesId"));
+        public Int64 ConferenceSeriesId
         {
             get
             {
@@ -153,8 +153,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ConferenceInstanceIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ConferenceInstanceId", "ConferenceInstanceId", 0));
-        public int ConferenceInstanceId
+        private static PropertyInfo<Int64> ConferenceInstanceIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ConferenceInstanceId", "ConferenceInstanceId"));
+        public Int64 ConferenceInstanceId
         {
             get
             {
@@ -479,8 +479,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
                             LoadProperty<Int64>(JournalIdProperty, reader.GetInt64("JournalId"));
                             LoadProperty<string>(JournalProperty, reader.GetString("DisplayName"));
-                            LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
-                            LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
+                            LoadProperty<Int64>(ConferenceSeriesIdProperty, reader.GetInt64("ConferenceSeriesId"));
+                            LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
                             LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
                             LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
                             LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));
@@ -512,8 +512,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
             returnValue.LoadProperty<Int64>(JournalIdProperty, reader.GetInt64("JournalId"));
             returnValue.LoadProperty<string>(JournalProperty, reader.GetString("DisplayName"));
-            returnValue.LoadProperty<Int32>(ConferenceSeriesIdProperty, reader.GetInt32("ConferenceSeriesId"));
-            returnValue.LoadProperty<Int32>(ConferenceInstanceIdProperty, reader.GetInt32("ConferenceInstanceId"));
+            returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, reader.GetInt64("ConferenceSeriesId"));
+            returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
             returnValue.LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
             returnValue.LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
             returnValue.LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));

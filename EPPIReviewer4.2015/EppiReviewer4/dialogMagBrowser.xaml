@@ -79,21 +79,21 @@
 
         <Grid x:Name="HeaderGrid" Grid.Row="0" Background="LightYellow">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="450*"></ColumnDefinition>
-                <ColumnDefinition Width="445*"></ColumnDefinition>
-                <ColumnDefinition Width="150*"></ColumnDefinition>
-                <ColumnDefinition Width="99*"></ColumnDefinition>
+                <ColumnDefinition Width="400*"></ColumnDefinition>
+                <ColumnDefinition Width="400*"></ColumnDefinition>
+                <ColumnDefinition Width="200*"></ColumnDefinition>
+                <ColumnDefinition Width="100*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="16" FontWeight="Bold" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
             <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Width="76" Click="HLShowHistory_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="HLShowHistory_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowSummary" Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowSummary_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportEntireList" Grid.Column="2" Content="Import list" Margin="0,5,5,5" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="90"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click"></HyperlinkButton>
 
         </Grid>
 
@@ -382,13 +382,29 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="True" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource HistoryListData}, Path=Data, Mode=TwoWay}"
-                                    RowIndicatorVisibility="Collapsed"
+                                    RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
-                
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Go!" Margin="10, 0, 10, 0" Click="HyperlinkButton_Click_1"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
         </Grid> <!-- end history grid -->

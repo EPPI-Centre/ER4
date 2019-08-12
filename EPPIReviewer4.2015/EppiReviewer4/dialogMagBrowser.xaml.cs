@@ -13,11 +13,13 @@ using BusinessLibrary.BusinessClasses;
 using Csla;
 using Telerik.Windows.Controls;
 using Csla.Xaml;
+using BusinessLibrary.Security;
 
 namespace EppiReviewer4
 {
     public partial class dialogMagBrowser : UserControl
     {
+        private int CurrentBrowsePosition = 0;
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -29,6 +31,38 @@ namespace EppiReviewer4
         }
 
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "");
+            ShowSummaryPage();
+        }
+
+        private void HLShowHistory_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "");
+            ShowHistoryPage();
+        }
+
+        // ************************************* SUMMARY PAGE ******************************************
+
+        private void ShowSummaryPage()
         {
             StatusGrid.Visibility = Visibility.Visible;
             PaperGrid.Visibility = Visibility.Collapsed;
@@ -56,7 +90,6 @@ namespace EppiReviewer4
                     {
                         tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
                     }
-
                 }
             };
             //BusyLoading.IsRunning = true;
@@ -85,7 +118,9 @@ namespace EppiReviewer4
             dp2.BeginExecute(mrmic);
         }
 
-        private void HLShowHistory_Click(object sender, RoutedEventArgs e)
+        // ********************************* HISTORY PAGE **********************************
+
+        private void ShowHistoryPage()
         {
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Collapsed;
@@ -94,25 +129,88 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Visible;
         }
 
-        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
+        // ******************************** PAPER DETAILS PAGE **************************************
+        private void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Visible;
             TopicsGrid.Visibility = Visibility.Collapsed;
-            PaperListGrid.Visibility = Visibility.Visible;
-            HistoryGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private void LBBrowseByTopic_Click(object sender, RoutedEventArgs e)
-        {
-            StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Visible;
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            CitationPane.SelectedIndex = 0;
+
+            RTBPaperInfo.Text = FullRecord;
+            tbAbstract.Text = Abstract;
+
+            CslaDataProvider provider = this.Resources["CitationPaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = 0;
+            selectionCriteria.ListType = "CitationsList";
+            selectionCriteria.MagPaperId = PaperId;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+
+            CslaDataProvider provider2 = this.Resources["CitedByListData"] as CslaDataProvider;
+            provider2.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria2 = new MagPaperListSelectionCriteria();
+            selectionCriteria2.PageSize = 20;
+            selectionCriteria2.PageNumber = 0;
+            selectionCriteria2.ListType = "CitedByList";
+            selectionCriteria2.MagPaperId = PaperId;
+            provider2.FactoryParameters.Add(selectionCriteria2);
+            provider2.FactoryMethod = "GetMagPaperList";
+            provider2.Refresh();
+
+            CslaDataProvider provider3 = this.Resources["RecommendationsListData"] as CslaDataProvider;
+            provider3.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria3 = new MagPaperListSelectionCriteria();
+            selectionCriteria3.PageSize = 20;
+            selectionCriteria3.PageNumber = 0;
+            selectionCriteria3.ListType = "RecommendationsList";
+            selectionCriteria3.MagPaperId = PaperId;
+            provider3.FactoryParameters.Add(selectionCriteria3);
+            provider3.FactoryMethod = "GetMagPaperList";
+            provider3.Refresh();
+
+            MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
+            selectionCriteria4.ListType = "PaperFieldOfStudyList";
+            selectionCriteria4.PaperIdList = PaperId.ToString();
+            DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
+            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+            dp.FetchCompleted += (o, e2) =>
+            {
+                WPPaperTopics.Children.Clear();
+                TextBlock tb = new TextBlock();
+                tb.Text = "Topics";
+                tb.FontSize = 15;
+                tb.FontStyle = FontStyles.Italic;
+                tb.Margin = new Thickness(5, 5, 15, 5);
+                WPPaperTopics.Children.Add(tb);
+                MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
+                double i = 15;
+                foreach (MagFieldOfStudy fos in FosList)
+                {
+                    HyperlinkButton newHl = new HyperlinkButton();
+                    newHl.Content = fos.DisplayName;
+                    newHl.Tag = fos.FieldOfStudyId.ToString();
+                    newHl.Click += HlNavigateToTopic_Click;
+                    newHl.FontSize = i;
+                    newHl.Margin = new Thickness(5, 5, 5, 5);
+                    WPPaperTopics.Children.Add(newHl);
+                    if (i > 10)
+                    {
+                        i -= 0.5;
+                    }
+                }
+            };
+            dp.BeginFetch(selectionCriteria4);
         }
 
-        private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
+        // ***************************************** Included matches page *************************
+        private void ShowIncludedMatchesPage()
         {
             HLShowSelected_Click(null, null);
 
@@ -126,6 +224,37 @@ namespace EppiReviewer4
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
+        }
+
+        // *********************************** Topic page *********************************
+        private void ShowTopicPage(Int64 FieldOfStudyId, string FieldOfStudy)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Visible;
+            PaperListGrid.Visibility = Visibility.Collapsed;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+            
+            TBMainTopic.Text = FieldOfStudy;
+
+            getParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, WPParentTopics, "Parent topics");
+            getParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, WPChildTopics, "Child topics");
+            getPaperListForTopic(FieldOfStudyId);
+        }
+
+        private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "");
+            ShowIncludedMatchesPage();
         }
 
         private void CslaDataProvider_DataChanged(object sender, EventArgs e)
@@ -195,18 +324,22 @@ namespace EppiReviewer4
 
         private void HlNavigateToTopic_Click(object sender, RoutedEventArgs e)
         {
-            StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Visible;
-            PaperListGrid.Visibility = Visibility.Collapsed;
-            HistoryGrid.Visibility = Visibility.Collapsed;
-
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
             HyperlinkButton hl = sender as HyperlinkButton;
-            TBMainTopic.Text = hl.Content.ToString();
-
-            getParentAndChildFieldsOfStudy("FieldOfStudyParentsList", Convert.ToInt64(hl.Tag), WPParentTopics, "Parent topics");
-            getParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", Convert.ToInt64(hl.Tag), WPChildTopics, "Child topics");
-            getPaperListForTopic(Convert.ToInt64(hl.Tag));
+            if (hl != null)
+            {
+                AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "",
+                    Convert.ToInt64(hl.Tag), hl.Content.ToString());
+                ShowTopicPage(Convert.ToInt64(hl.Tag), hl.Content.ToString());
+            }
         }
 
         private void getParentAndChildFieldsOfStudy(string ListType, Int64 FieldOfStudyId, WrapPanel wp, string desc)
@@ -257,88 +390,26 @@ namespace EppiReviewer4
         private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
             
-
         }
 
         private void PaperListBibliographyGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
-            StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Visible;
-            TopicsGrid.Visibility = Visibility.Collapsed;
-            PaperListGrid.Visibility = Visibility.Collapsed;
-            HistoryGrid.Visibility = Visibility.Collapsed;
-            CitationPane.SelectedIndex = 0;
-
-            RTBPaperInfo.Text = paper.FullRecord;
-            tbAbstract.Text = paper.Abstract;
-
-            CslaDataProvider provider = this.Resources["CitationPaperListData"] as CslaDataProvider;
-            provider.FactoryParameters.Clear();
-            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
-            selectionCriteria.PageSize = 20;
-            selectionCriteria.PageNumber = 0;
-            selectionCriteria.ListType = "CitationsList";
-            selectionCriteria.MagPaperId = paper.PaperId;
-            provider.FactoryParameters.Add(selectionCriteria);
-            provider.FactoryMethod = "GetMagPaperList";
-            provider.Refresh();
-
-            CslaDataProvider provider2 = this.Resources["CitedByListData"] as CslaDataProvider;
-            provider2.FactoryParameters.Clear();
-            MagPaperListSelectionCriteria selectionCriteria2 = new MagPaperListSelectionCriteria();
-            selectionCriteria2.PageSize = 20;
-            selectionCriteria2.PageNumber = 0;
-            selectionCriteria2.ListType = "CitedByList";
-            selectionCriteria2.MagPaperId = paper.PaperId;
-            provider2.FactoryParameters.Add(selectionCriteria2);
-            provider2.FactoryMethod = "GetMagPaperList";
-            provider2.Refresh();
-
-            CslaDataProvider provider3 = this.Resources["RecommendationsListData"] as CslaDataProvider;
-            provider3.FactoryParameters.Clear();
-            MagPaperListSelectionCriteria selectionCriteria3 = new MagPaperListSelectionCriteria();
-            selectionCriteria3.PageSize = 20;
-            selectionCriteria3.PageNumber = 0;
-            selectionCriteria3.ListType = "RecommendationsList";
-            selectionCriteria3.MagPaperId = paper.PaperId;
-            provider3.FactoryParameters.Add(selectionCriteria3);
-            provider3.FactoryMethod = "GetMagPaperList";
-            provider3.Refresh();
-
-            MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
-            selectionCriteria4.ListType = "PaperFieldOfStudyList";
-            selectionCriteria4.PaperIdList = paper.PaperId.ToString();
-            DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
-            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
-            dp.FetchCompleted += (o, e2) =>
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
             {
-                WPPaperTopics.Children.Clear();
-                TextBlock tb = new TextBlock();
-                tb.Text = "Topics";
-                tb.FontSize = 15;
-                tb.FontStyle = FontStyles.Italic;
-                tb.Margin = new Thickness(5, 5, 15, 5);
-                WPPaperTopics.Children.Add(tb);
-                MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
-                double i = 15;
-                foreach (MagFieldOfStudy fos in FosList)
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
                 {
-                    HyperlinkButton newHl = new HyperlinkButton();
-                    newHl.Content = fos.DisplayName;
-                    newHl.Tag = fos.FieldOfStudyId.ToString();
-                    newHl.Click += HlNavigateToTopic_Click;
-                    newHl.FontSize = i;
-                    newHl.Margin = new Thickness(5, 5, 5, 5);
-                    WPPaperTopics.Children.Add(newHl);
-                    if (i > 10)
-                    {
-                        i -= 0.5;
-                    }
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
                 }
-            };
-            dp.BeginFetch(selectionCriteria4);
+            }
+            AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
+                paper.Abstract, 0, "");
+            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract);
         }
+
+        // **************************** Managing page changes on the paper grid list views *****************
 
         private void PaperListBibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
         {
@@ -399,6 +470,8 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
+
+        // *********************** Showing / hiding abstracts *********************************
         private void HLExpandContract_Click(object sender, RoutedEventArgs e)
         {
             HyperlinkButton hl = sender as HyperlinkButton;
@@ -416,6 +489,7 @@ namespace EppiReviewer4
             }
         }
 
+        // Generic error handler for DataProviders
         private void CslaDataProvider_HandleDataChangeError(object sender, EventArgs e)
         {
             CslaDataProvider provider = sender as CslaDataProvider;
@@ -428,5 +502,171 @@ namespace EppiReviewer4
             }
         }
 
+        // ***************************** Keeping track of, and navigating within, browsing history ***************************************
+        private void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
+            string PaperAbstract, Int64 FieldOfStudyId, string FieldOfStudy)
+        {
+            MagBrowseHistory mbh = new MagBrowseHistory();
+            mbh.Title = title;
+            mbh.BrowseType = browseType;
+            mbh.PaperId = PaperId;
+            mbh.PaperFullRecord = PaperFullRecord;
+            mbh.PaperAbstract = PaperAbstract;
+            mbh.FieldOfStudyId = FieldOfStudyId;
+            mbh.FieldOfStudy = FieldOfStudy;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            mbh.ContactId = ri.UserId;
+            mbh.DateBrowsed = DateTime.Now;
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    mbhl.Add(mbh);
+                }
+            }
+            CheckForwardAndBackButtonState();
+        }
+
+        private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            MagBrowseHistory mbh = (sender as HyperlinkButton).DataContext as MagBrowseHistory;
+            if (mbh != null)
+            {
+                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                    if (mbhl != null)
+                    {
+                        mbhl.Remove(mbh);
+                        CheckForwardAndBackButtonState();
+                    }
+                }
+            }
+        }
+
+        private void NavigateToThisPoint(int BrowsePosition)
+        {
+            if (BrowsePosition > 0)
+            {
+                CurrentBrowsePosition = BrowsePosition;
+                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                    if (mbhl != null && BrowsePosition <= mbhl.Count)
+                    {
+                        MagBrowseHistory mbh = mbhl[BrowsePosition - 1];
+                        switch (mbh.BrowseType)
+                        {
+                            case "History":
+                                ShowHistoryPage();
+                                break;
+                            case "Summary":
+                                ShowSummaryPage();
+                                break;
+                            case "PaperDetail":
+                                ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract);
+                                break;
+                            case "MatchesIncluded":
+                                ShowIncludedMatchesPage();
+                                break;
+                            case "BrowseTopic":
+                                ShowTopicPage(mbh.FieldOfStudyId, mbh.FieldOfStudy);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Index point too high");
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Index point too low");
+            }
+            CheckForwardAndBackButtonState();
+        }
+
+        private void HyperlinkButton_Click_1(object sender, RoutedEventArgs e)
+        { 
+            MagBrowseHistory mbh = (sender as HyperlinkButton).DataContext as MagBrowseHistory;
+            if (mbh != null)
+            {
+                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                    if (mbhl != null)
+                    {
+                        NavigateToThisPoint(mbhl.IndexOf(mbh) + 1);
+                    }
+                }
+            }
+        }
+
+        private void HLBack_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToThisPoint(CurrentBrowsePosition - 1);
+        }
+
+        private void HLForward_Click(object sender, RoutedEventArgs e)
+        {
+            NavigateToThisPoint(CurrentBrowsePosition + 1);
+        }
+
+        private void CheckForwardAndBackButtonState()
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    HLShowHistory.Content = "Show history (" + CurrentBrowsePosition.ToString() + " / " +
+                        mbhl.Count.ToString() + ")";
+                    if (CurrentBrowsePosition > 1)
+                    {
+                        HLBack.IsEnabled = true;
+                    }
+                    else
+                    {
+                        HLBack.IsEnabled = false;
+                    }
+                    if (CurrentBrowsePosition < mbhl.Count)
+                    {
+                        HLForward.IsEnabled = true;
+                    }
+                    else
+                    {
+                        HLForward.IsEnabled = false;
+                    }
+                }
+            }
+        }
+
+
+        // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
+        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void LBBrowseByTopic_Click(object sender, RoutedEventArgs e)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Visible;
+            PaperListGrid.Visibility = Visibility.Collapsed;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+        }
+   
     }
 }

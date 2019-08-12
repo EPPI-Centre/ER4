@@ -56,16 +56,42 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> PaperIdPrimaryProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperIdPrimary", "PaperIdPrimary"));
-        public Int64 PaperIdPrimary
+        private static PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
+        public Int64 PaperId
         {
             get
             {
-                return GetProperty(PaperIdPrimaryProperty);
+                return GetProperty(PaperIdProperty);
             }
             set
             {
-                SetProperty(PaperIdPrimaryProperty, value);
+                SetProperty(PaperIdProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> PaperFullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperFullRecord", "PaperFullRecord", string.Empty));
+        public string PaperFullRecord
+        {
+            get
+            {
+                return GetProperty(PaperFullRecordProperty);
+            }
+            set
+            {
+                SetProperty(PaperFullRecordProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> PaperAbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperAbstract", "PaperAbstract", string.Empty));
+        public string PaperAbstract
+        {
+            get
+            {
+                return GetProperty(PaperAbstractProperty);
+            }
+            set
+            {
+                SetProperty(PaperAbstractProperty, value);
             }
         }
 
@@ -79,6 +105,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(FieldOfStudyIdProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> FieldOfStudyProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldOfStudy", "FieldOfStudy", string.Empty));
+        public string FieldOfStudy
+        {
+            get
+            {
+                return GetProperty(FieldOfStudyProperty);
+            }
+            set
+            {
+                SetProperty(FieldOfStudyProperty, value);
             }
         }
 
