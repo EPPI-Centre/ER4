@@ -52,14 +52,14 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 
 		this.OutcomeTypeList = [
-			{ "outcomeTypeId": 0, "outcomeTypeName": "Continuous: d (Hedges g)" },
-			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: r" },
-			{ "outcomeTypeId": 2, "outcomeTypeName": "Binary: odds ratio" },
-			{ "outcomeTypeId": 3, "outcomeTypeName": "Binary: risk ratio" },
-			{ "outcomeTypeId": 4, "outcomeTypeName": "Binary: risk difference" },
-			{ "outcomeTypeId": 5, "outcomeTypeName": "Binary: diagnostic test OR" },
-			{ "outcomeTypeId": 6, "outcomeTypeName": "Binary: Peto OR" },
-			{ "outcomeTypeId": 7, "outcomeTypeName": "Continuous: mean difference" }
+			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
+			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
+			{ "outcomeTypeId": 2, "outcomeTypeName": "Binary: 2 x 2 table" },
+			{ "outcomeTypeId": 3, "outcomeTypeName": "Continuous: N, Mean, and SE" },
+			{ "outcomeTypeId": 4, "outcomeTypeName": "Continuous: N, Mean, and CI" },
+			{ "outcomeTypeId": 5, "outcomeTypeName": "Continuous: N, t- or p-value" },
+			{ "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
+			{ "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
 		];
 		this.outcomesList = this._OutcomesService.outcomesList;
 		this.currentOutcome = this.outcomesList[0];
@@ -109,6 +109,32 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			return this.item.timepoints;
 		}
 	}
+	private _calculatedEffectSize: number = 0;
+
+	public CalculatedEffectSize(): number {
+
+		if (this.currentOutcome.esDesc == 'Effect size') {
+			//console.log('got in here: Effect size');
+			return this.currentOutcome.es;
+		}
+		if (this.currentOutcome.esDesc == 'SMD') {
+			//console.log('got in here: smd');
+			return this.currentOutcome.smd;
+		}
+		if (this.currentOutcome.esDesc == 'Diagnostic OR') {
+			//console.log('got in here: petoOR could be wrong');
+			return this.currentOutcome.petoOR;
+		}
+		if (this.currentOutcome.esDesc == 'r') {
+
+			//console.log('got in here: petoOR could be wrong');
+			return this.currentOutcome.r;
+		}
+
+		return this._calculatedEffectSize;
+
+	}
+
 	public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';

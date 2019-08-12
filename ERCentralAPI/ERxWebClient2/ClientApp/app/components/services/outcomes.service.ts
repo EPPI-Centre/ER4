@@ -279,6 +279,7 @@ export class Outcome {
 	itemSetId: number = 0;
 	outcomeTypeName: string = "";
 	outcomeTypeId: number = 0;
+	NRows: number = 0;
 	outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
 	itemAttributeIdIntervention: number = 0;
 	itemAttributeIdControl: number = 0;
