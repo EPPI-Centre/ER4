@@ -21,7 +21,7 @@ export class OutcomesService extends BusyAwareService  {
 
 	private _currentItemSetId: number = 0;
 	private _Outcomes: Outcome[] = [];
-	public Outcomes: Outcome[] = [];
+	//public Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
 	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 
@@ -61,18 +61,24 @@ export class OutcomesService extends BusyAwareService  {
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
 
-		this._http.post<Outcome[]>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
+        this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
+            //console.log("count of outcomes is:", this._Outcomes.length);
+            //console.log('can see the new outcome in here: ' + JSON.stringify(result));
+            for (let iO of result.outcomesList) {
+                //console.log("iO is:", iO);
+                let RealOutcome: Outcome = new Outcome(iO);
+                this._Outcomes.push(RealOutcome);
+                //console.log("count of outcomes is:", this._Outcomes.length);
+            }
+            //console.log("count of outcomes is:", this._Outcomes.length);
+            this.RemoveBusy("FetchOutcomes");
 
-					console.log('can see the new outcome in here: ' + JSON.stringify(result));
-					this._Outcomes = result;
-					this.RemoveBusy("FetchOutcomes");
+        }, error => {
 
-				}, error => {
-				
-					this.modalService.SendBackHomeWithError(error);
-					this.RemoveBusy("FetchOutcomes");
-					return error;
-				}
+            this.modalService.SendBackHomeWithError(error);
+            this.RemoveBusy("FetchOutcomes");
+            return error;
+        }
 		);
 		return this._Outcomes;
 	}
@@ -170,7 +176,7 @@ export class OutcomesService extends BusyAwareService  {
 						.then(
 						(result) => {
 
-							this.Outcomes.push(result);
+							this.outcomesList.push(result);
 							
 							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
@@ -230,7 +236,7 @@ export class OutcomesService extends BusyAwareService  {
 			body).subscribe(
 				(result) => {
 
-					this.Outcomes.splice(key, 1);
+                    this.outcomesList.splice(key, 1);
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return result;
@@ -256,8 +262,11 @@ export class ItemArm {
 	title: string = '';
 
 }
+export interface iOutcomeList {
+	outcomesList: iOutcome[];
+}
 export class OutcomeItemList {
-	outcomesList: Outcome[] = [];
+    outcomesList: iOutcome[] = [];
 }
 export class OutcomeType {
 
@@ -272,9 +281,117 @@ export class ReviewSetDropDownResult {
 
 }
 
+export interface iOutcome {
+    outcomeId: number;
+    itemSetId: number;
+    outcomeTypeName: string;
+    outcomeTypeId: number;
+    NRows: number;
+    outcomeCodes: OutcomeItemAttributesList;
+    itemAttributeIdIntervention: number;
+    itemAttributeIdControl: number;
+    itemAttributeIdOutcome: number;
+    itemArmIdGrp1: number;
+    itemArmIdGrp2: number;
+    itemId: number;
+    itemTimepointValue: string;
+    itemTimepointMetric: string;
+    itemTimepointId: number;
+    outcomeTimePoint: iTimePoint;
+    title: string;
+    shortTitle: string;
+    timepointDisplayValue: string;
+    outcomeDescription: string;
+    data1: number;
+    data2: number;
+    data3: number;
+    data4: number;
+    data5: number;
+    data6: number;
+    data7: number;
+    data8: number;
+    data9: number;
+    data10: number;
+    data11: number;
+    data12: number;
+    data13: number;
+    data14: number;
+    interventionText: string;
+    controlText: string;
+    outcomeText: string;
+    feWeight: number;
+    reWeight: number;
+    smd: number;
+    sesmd: number;
+    r: number;
+    ser: number;
+    oddsRatio: number;
+    seOddsRatio: number;
+    riskRatio: number;
+    seRiskRatio: number;
+    ciUpperSMD: number;
+    ciLowerSMD: number;
+    ciUpperR: number;
+    ciLowerR: number;
+    ciUpperOddsRatio: number;
+    ciLowerOddsRatio: number;
+    ciUpperRiskRatio: number;
+    ciLowerRiskRatio: number;
+    ciUpperRiskDifference: number;
+    ciLowerRiskDifference: number;
+    ciUpperPetoOddsRatio: number;
+    ciLowerPetoOddsRatio: number;
+    ciUpperMeanDifference: number;
+    ciLowerMeanDifference: number;
+    riskDifference: number;
+    seRiskDifference: number;
+    meanDifference: number;
+    seMeanDifference: number;
+    petoOR: number;
+    sePetoOR: number;
+    es: number;
+    sees: number;
+    nRows: number;
+    ciLower: number;
+    ciUpper: number;
+    esDesc: string;
+    seDesc: string;
+    data1Desc: string;
+    data2Desc: string;
+    data3Desc: string;
+    data4Desc: string;
+    data5Desc: string;
+    data6Desc: string;
+    data7Desc: string;
+    data8Desc: string;
+    data9Desc: string;
+    data10Desc: string;
+    data11Desc: string;
+    data12Desc: string;
+    data13Desc: string;
+    data14Desc: string;
+}
 export class Outcome {
+    public constructor(iO?: iOutcome) {
+        if (iO) {
+            this.title = iO.title;
+            this.outcomeId = iO.outcomeId;
+            this._data1 = iO.data1;
+            this.data2 = iO.data2;
+            this.data3 = iO.data3;
+            this.data4 = iO.data4;
+            this.data5 = iO.data5;
+            this.data6 = iO.data6;
+            this.SetCalculatedValues();
+        }
+    }
+    private SetCalculatedValues() {
+        console.log("SetCalculatedValues");
+        this.SetEffectSizes();
+    }
+    private SetEffectSizes() {
 
-
+    }
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	outcomeTypeName: string = "";
@@ -295,7 +412,14 @@ export class Outcome {
     shortTitle: string = "";
     timepointDisplayValue: string = "";
 	outcomeDescription: string = "";
-	data1: number = 0;
+    private _data1: number = 0;
+    public get data1(): number {
+        return this._data1;
+    }
+    public set data1(val: number) {
+        this._data1 = val;
+        this.SetCalculatedValues();
+    }
 	data2: number = 0;
 	data3: number = 0;
 	data4: number = 0;

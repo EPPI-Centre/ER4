@@ -210,7 +210,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 						if (itemSet != null) {
 								this._outcomeService.ItemSetId = itemSet.itemSetId;
 								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-								this._outcomeService.outcomesList = itemSet.outcomeItemList.outcomesList;
+								//this._outcomeService.outcomesList = itemSet.OutcomeList;
 						}
 						this.ShowingOutComes();
 
