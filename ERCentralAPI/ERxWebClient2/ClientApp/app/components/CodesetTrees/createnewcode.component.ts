@@ -30,172 +30,173 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 		public _reviewInfoService: ReviewInfoService,
 		public _reviewerIdentityServ: ReviewerIdentityService
 	) { }
-	
-	@ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
-	public PanelName: string = '';
-	@Output() closeCreateNew = new EventEmitter();
-	@Output() emitterCancel = new EventEmitter();
 
-    public get AllowedChildTypes(): kvAllowedAttributeType[] {
-        return this._reviewSetsService.AllowedChildTypesOfSelectedNode;  
-	}
-	IsNewCodeNameValid() {
+    @ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
+    public PanelName: string = '';
+    @Output() closeCreateNew = new EventEmitter();
+    @Output() emitterCancel = new EventEmitter();
+    @Input() IsSmall: boolean = false;
 
-		return true;
-		//if (this.PanelName == 'NewCodeSection') {
-		//	if (this._NewCode.attribute_name.trim() != "") return true;
-		//	else return false;
-		//} 
-	}
-	IsServiceBusy(): boolean {
-		if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this._reviewInfoService.IsBusy) return true;
-		else return false;
-	}
-	CanWrite(): boolean {
-		//console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
-		if (this._reviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
-			//console.log('CanWrite', true);
-			return true;
-		}
-		else {
-			//console.log('CanWrite', false);
-			return false;
-		}
-	}
-	public get CurrentCodeCanHaveChildren(): boolean {
-		//safety first, if anything didn't work as expexcted return false;
-		if (!this.CanWrite()) return false;
-		else {
-			return this._reviewSetsService.CurrentCodeCanHaveChildren;
-			//end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
-		}
-	}
-	private _NewReviewSet: ReviewSet = new ReviewSet();
-	public get NewReviewSet(): ReviewSet {
-		return this._NewReviewSet;
-	}
-	private _NewCode: SetAttribute = new SetAttribute();
-	public get CurrentNode(): singleNode | null {
-		if (!this._reviewSetsService.selectedNode) return null;
-		else return this._reviewSetsService.selectedNode;
-	}
-	public get NewCode(): SetAttribute {
-		return this._NewCode;
-	}
-	CreateNewCode() {
+        public get AllowedChildTypes(): kvAllowedAttributeType[] {
+            return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
+        }
+    IsNewCodeNameValid() {
 
-		if (this.CurrentNode) {
+        return true;
+        //if (this.PanelName == 'NewCodeSection') {
+        //	if (this._NewCode.attribute_name.trim() != "") return true;
+        //	else return false;
+        //} 
+    }
+    IsServiceBusy(): boolean {
+        if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this._reviewInfoService.IsBusy) return true;
+        else return false;
+    }
+    CanWrite(): boolean {
+        //console.log('CanWrite', this.ReviewerIdentityServ.HasWriteRights, this.IsServiceBusy());
+        if (this._reviewerIdentityServ.HasWriteRights && !this.IsServiceBusy()) {
+            //console.log('CanWrite', true);
+            return true;
+        }
+        else {
+            //console.log('CanWrite', false);
+            return false;
+        }
+    }
+    public get CurrentCodeCanHaveChildren(): boolean {
+        //safety first, if anything didn't work as expexcted return false;
+        if (!this.CanWrite()) return false;
+        else {
+            return this._reviewSetsService.CurrentCodeCanHaveChildren;
+            //end of bit that goes into "ReviewSetsService.CanNodeHaveChildren(node: singleNode): boolean"
+        }
+    }
+    private _NewReviewSet: ReviewSet = new ReviewSet();
+    public get NewReviewSet(): ReviewSet {
+        return this._NewReviewSet;
+    }
+    private _NewCode: SetAttribute = new SetAttribute();
+    public get CurrentNode(): singleNode | null {
+        if (!this._reviewSetsService.selectedNode) return null;
+        else return this._reviewSetsService.selectedNode;
+    }
+    public get NewCode(): SetAttribute {
+        return this._NewCode;
+    }
+    CreateNewCode() {
 
-			this._NewCode.order = this.CurrentNode.attributes.length;
+        if (this.CurrentNode) {
 
-			if (this.CurrentNode.nodeType == "ReviewSet") {
-				this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
-				this._NewCode.parent_attribute_id = 0;
-			}
-			else if (this.CurrentNode.nodeType == "SetAttribute") {
-				this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
-				this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
-			}
-		}
-		else {
-			this._NewReviewSet.order = 0;
-		}
-		console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
+            this._NewCode.order = this.CurrentNode.attributes.length;
 
-		if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
-			this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
-			this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
-		}
-		else {
-			this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
-			this._NewCode.attribute_type = "Not selectable(no checkbox)";
-		}
+            if (this.CurrentNode.nodeType == "ReviewSet") {
+                this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
+                this._NewCode.parent_attribute_id = 0;
+            }
+            else if (this.CurrentNode.nodeType == "SetAttribute") {
+                this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
+                this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
+            }
+        }
+        else {
+            this._NewReviewSet.order = 0;
+        }
+        console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
 
-		console.log("will create:", this._NewCode, this.CodeTypeSelect);
-		this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
-			.then(
-				success => {
-					if (success && this.CurrentNode) {
-						this.CurrentNode.attributes.push(success);
-						this._reviewSetsService.GetReviewSets();
+        if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
+            this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
+            this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
+        }
+        else {
+            this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
+            this._NewCode.attribute_type = "Not selectable(no checkbox)";
+        }
 
-					}
-					this._NewCode = new SetAttribute();
-					this.CancelActivity();
+        console.log("will create:", this._NewCode, this.CodeTypeSelect);
+        this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
+            .then(
+                success => {
+                    if (success && this.CurrentNode) {
+                        this.CurrentNode.attributes.push(success);
+                        this._reviewSetsService.GetReviewSets();
 
-				},
-				error => {
-					this.CancelActivity();
-					console.log("error saving new code:", error, this._NewCode);
+                    }
+                    this._NewCode = new SetAttribute();
+                    this.CancelActivity();
 
-				})
-			.catch(
-				error => {
-					console.log("error(catch) saving new code:", error, this._NewCode);
-					this.CancelActivity();
-				}
-			);
-	}
-	CancelActivity(refreshTree?: boolean) {
-		if (this._NewCode) {
-			this._NewCode = new SetAttribute();
-		}
-	
+                },
+                error => {
+                    this.CancelActivity();
+                    console.log("error saving new code:", error, this._NewCode);
 
-		if (refreshTree) {
-			if (this._reviewSetsService.selectedNode) {
-				let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
-				let Id: number = -1;
-				if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
-				else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
-				let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
-					console.log("trying to reselect: ", Id);
-					if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
-					else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
-					if (sub) sub.unsubscribe();
-				}
-					, () => { if (sub) sub.unsubscribe(); }
-				);
-				this._reviewSetsService.selectedNode = null;
-				this._reviewSetsService.GetReviewSets();
-			}
-		}
-		this.closeCreateNew.emit();
-		this._reviewSetsService.selectedNode = null; 
-		this.PanelName = '';
-		this.emitterCancel.emit();
+                })
+            .catch(
+                error => {
+                    console.log("error(catch) saving new code:", error, this._NewCode);
+                    this.CancelActivity();
+                }
+            );
+    }
+    CancelActivity(refreshTree?: boolean) {
+        if (this._NewCode) {
+            this._NewCode = new SetAttribute();
+        }
 
-	}
 
-	public NewCodeSectionOpen() {
+        if (refreshTree) {
+            if (this._reviewSetsService.selectedNode) {
+                let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
+                let Id: number = -1;
+                if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
+                else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
+                let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
+                    console.log("trying to reselect: ", Id);
+                    if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
+                    else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
+                    if (sub) sub.unsubscribe();
+                }
+                    , () => { if (sub) sub.unsubscribe(); }
+                );
+                this._reviewSetsService.selectedNode = null;
+                this._reviewSetsService.GetReviewSets();
+            }
+        }
+        this.closeCreateNew.emit();
+        
+        this.PanelName = '';
+        this.emitterCancel.emit();
 
-		if (this.PanelName == 'NewCodeSection') {
-			this.PanelName = '';
-		} else {
-			this.PanelName = 'NewCodeSection';
-		}
-	}
-	ngOnInit() {
+    }
 
-		//this.ReviewSetsEditingService.FetchSetTypes();
-	
+    public NewCodeSectionOpen() {
 
-	}
-	ngOnDestroy() {
+        if (this.PanelName == 'NewCodeSection') {
+            this.PanelName = '';
+        } else {
+            this.PanelName = 'NewCodeSection';
+        }
+    }
+    ngOnInit() {
 
-	}
+        //this.ReviewSetsEditingService.FetchSetTypes();
 
-	
-	ngAfterViewInit() {
 
-		 this._reviewSetsService.AllowedChildTypesOfSelectedNode;  
-	}
+    }
+    ngOnDestroy() {
 
-		 
+    }
+
+
+    ngAfterViewInit() {
+
+        this._reviewSetsService.AllowedChildTypesOfSelectedNode;
+    }
+
+
 }
 
 
 export interface kvSelectFrom {
-	key: number;
-	value: string;
+    key: number;
+    value: string;
 }

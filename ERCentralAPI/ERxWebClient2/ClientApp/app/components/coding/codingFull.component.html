@@ -4,88 +4,106 @@
      width:99.6%;"></HeaderComponent>-->
     <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
 	<div class="h-100 mh-100 pr-0 ">
-		<div class="row">
-			<div class="row d-flex flex-wrap-reverse ml-1 mr-1 col-md-2 col-lg-2 ">
-				<div class="col-sm-12  pl-2 pr-2 align-self-end ">
-					<div class="row">
-						<button [disabled]="!HasWriteRights  || !CanCreateNewCode()" 
-								class="btn btn-sm btn-primary col-2 h-auto" (click)="SetCreateNewCode()">
-							<i class="fa fa-plus" aria-hidden="true"></i>
-						</button>
-						<ArmsComp #ArmsCmp class="card-text col-10 p-0"></ArmsComp>
-					</div>
-					<CreateNewCodeComp (closeCreateNew)="SetCreateNewCode()" *ngIf="ShowCreateNewCode"></CreateNewCodeComp>
-					<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
-				</div>
-			</div>
-			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
-				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
-					<itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-
-					<div class="pr-0 pl-0 col-12 col-sm pr-0">
-						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-							Close/back
-						</button>
-						<div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
-							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-								Auto Advance?
-								<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-							</div>
-						</div>
-						<div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
-							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-								Show terms?
-								<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-							</div>
-						</div>
-					</div>
-				</div>
-				<div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
-					<LiveComparisonComp></LiveComparisonComp>
-				</div>
-				<div *ngIf="ShowOutComes" 
-					 class="my-1 ml-0 pl-1 pr-0 container">
-					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
-				</div>
-				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
-					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-						<ng-template kendoTabContent>
-							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
-						</ng-template>
-					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Arms and Timepoints'">
-						<ng-template kendoTabContent>
-							<div *ngIf="item">
-								<armDetailsComp [item]="item"></armDetailsComp>
-								<timePointsComp [item]="item"></timePointsComp>
-							</div>
-						</ng-template>
-					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
-						<ng-template kendoTabContent>
-							<div *ngIf="item" style="min-height:600px;">
-								<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
-								<pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
-							</div>
-						</ng-template>
-					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Coding Record'">
-						<ng-template kendoTabContent>
-							<codingRecordComp [item]="item"></codingRecordComp>
-						</ng-template>
-					</kendo-tabstrip-tab>
-					<!--<kendo-tabstrip-tab [title]="'Study timepoints'">
-			<ng-template kendoTabContent>
-				<div *ngIf="item" style="min-height:600px;">
-					<timePointsComp #timepointscontainer [item]="item"></timePointsComp>
-				</div>
-			</ng-template>
-		</kendo-tabstrip-tab>-->
-				</kendo-tabstrip>
-			</div>
-		</div>
 		
-	</div>
+        <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+            <div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
+                <div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
+
+                    <button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
+                            [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
+                        <!--<i class="fa fa-plus" aria-hidden="true"></i>-->
+                    </button>
+                    <button kendoButton [icon]="'arrow-60-up'" class="small m-1" title="Move up Code/Tool..."
+                            [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
+                        <!--<i class="fa fa-plus" aria-hidden="true"></i>-->
+                    </button>
+                    <button kendoButton [icon]="'arrow-60-down'" class="small m-1" title="Move Down Code/Tool..."
+                            [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()">
+                    </button>
+                </div>
+                <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
+                    <div class="col-12 small row px-0 py-1 m-0">
+                        Add child to:
+                        <div class="mx-1 border border-dark font-weight-bold "
+                             [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+                    </div>
+                    <div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note: </b> form is disabled - this code can't have children.</div>
+                    <CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
+                </div>
+
+                <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
+                <codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
+            </div>
+
+            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
+                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
+                    <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+
+                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
+                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+                            Close/back
+                        </button>
+                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Auto Advance?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+                            </div>
+                        </div>
+                        <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+                                Show terms?
+                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
+                    <LiveComparisonComp></LiveComparisonComp>
+                </div>
+                <div *ngIf="ShowOutComes"
+                     class="my-1 ml-0 pl-1 pr-0 container">
+                    <OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
+                </div>
+                <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
+                    <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+                        <ng-template kendoTabContent>
+                            <itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
+                        </ng-template>
+                    </kendo-tabstrip-tab>
+                    <kendo-tabstrip-tab [title]="'Arms and Timepoints'">
+                        <ng-template kendoTabContent>
+                            <div *ngIf="item">
+                                <armDetailsComp [item]="item"></armDetailsComp>
+                                <timePointsComp [item]="item"></timePointsComp>
+                            </div>
+                        </ng-template>
+                    </kendo-tabstrip-tab>
+                    <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+                        <ng-template kendoTabContent>
+                            <div *ngIf="item" style="min-height:600px;">
+                                <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
+                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
+                            </div>
+                        </ng-template>
+                    </kendo-tabstrip-tab>
+                    <kendo-tabstrip-tab [title]="'Coding Record'">
+                        <ng-template kendoTabContent>
+                            <codingRecordComp [item]="item"></codingRecordComp>
+                        </ng-template>
+                    </kendo-tabstrip-tab>
+                    <!--<kendo-tabstrip-tab [title]="'Study timepoints'">
+                <ng-template kendoTabContent>
+                    <div *ngIf="item" style="min-height:600px;">
+                        <timePointsComp #timepointscontainer [item]="item"></timePointsComp>
+                    </div>
+                </ng-template>
+            </kendo-tabstrip-tab>-->
+                </kendo-tabstrip>
+            </div>
+
+
+        </div>
         <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
 </div>
+    </div>

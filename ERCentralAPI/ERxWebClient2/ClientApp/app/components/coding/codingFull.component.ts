@@ -87,26 +87,50 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
-	public ShowCreateNewCode: boolean = false;
-	public dynamicdata: string = 'This is dynamic data!';
+	public EditCodesPanel: string = "";
 
 	public ShowingOutComes() {
-
-		this.ShowOutComes = !this.ShowOutComes
-		
+        this.ShowOutComes = !this.ShowOutComes;
 	}
 	public SetCreateNewCode() {
-
-		this.ShowCreateNewCode = !this.ShowCreateNewCode;
+        if (this.EditCodesPanel == "CreateNewCode") this.EditCodesPanel = "";
+        else this.EditCodesPanel = "CreateNewCode";
 	}
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
         else return true;
 	}
-	public CanCreateNewCode(): boolean {
+    public CanCreateNewCode(): boolean {
+        //console.log("Can create:", this.ReviewSetsService.selectedNode != null, this.CurrentCodeCanHaveChildren);
 		if (this.ReviewSetsService.selectedNode && this.CurrentCodeCanHaveChildren) return true;
 		else return false;
-	}
+    }
+    public CanMoveNodeDown(): boolean {
+        if (this.ReviewSetsService.selectedNode == null) return false;
+        else return this._reviewSetsEditingService.CanMoveDown(this.ReviewSetsService.selectedNode);
+    }
+    public CanMoveNodeUp(): boolean {
+        if (this.ReviewSetsService.selectedNode == null) return false;
+        else return this._reviewSetsEditingService.CanMoveUp(this.ReviewSetsService.selectedNode);
+    }
+    public async MoveUpNode() {
+        if (this.ReviewSetsService.selectedNode == null) return false;
+        else {
+            await this._reviewSetsEditingService.MoveUpNode(this.ReviewSetsService.selectedNode);
+            //and notify the tree:
+            this.codesetTreeCoding.UpdateTree();
+        }
+        
+    }
+    public async MoveDownNode() {
+        if (this.ReviewSetsService.selectedNode == null) return false;
+        else {
+            await this._reviewSetsEditingService.MoveDownNode(this.ReviewSetsService.selectedNode);
+            //and notify the tree:
+            this.codesetTreeCoding.UpdateTree();
+        }
+        
+    }
 	IsServiceBusy(): boolean {
 		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
 		else return false;
@@ -121,7 +145,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 			//console.log('CanWrite', false);
 			return false;
 		}
-	}
+    }
+    public get CurrentNode(): singleNode | null {
+        return this.ReviewSetsService.selectedNode;
+    }
 	public get CurrentCodeCanHaveChildren(): boolean {
 		//safety first, if anything didn't work as expexcted return false;
 		if (!this.CanWrite()) return false;

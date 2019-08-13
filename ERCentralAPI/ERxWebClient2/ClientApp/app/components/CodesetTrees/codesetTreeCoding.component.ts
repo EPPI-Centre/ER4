@@ -376,6 +376,12 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             this.ItemCodingService.SelectedSetAttribute = null;//remove selection, PDF should not load highlights.
         }
     }
+
+    public UpdateTree() {
+        if (this.treeComponent) this.treeComponent.treeModel.update();
+        else console.log("Update tree failed, no tree component!");
+    }
+
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
         
