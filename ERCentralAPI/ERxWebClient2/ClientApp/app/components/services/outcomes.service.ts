@@ -275,10 +275,6 @@ export class ReviewSetDropDownResult {
 
 export class Outcome {
 
-	public test() {
-		console.log('this method worked!?');
-
-	}
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	outcomeTypeName: string = "";
