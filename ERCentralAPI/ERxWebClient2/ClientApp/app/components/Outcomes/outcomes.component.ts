@@ -37,32 +37,30 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	@Input() item: Item | undefined;
 
 	public OutcomeTypeList: OutcomeType[] = [];
-	private _Outcomes: Outcome[] = [];
-	public get outcomesList(): Outcome[] {
-		if (this._Outcomes) return this._Outcomes;
-		else {
-			this._Outcomes = [];
-			return this._Outcomes;
-		}
-	}
-	public set outcomesList(Outcomes: Outcome[]) {
-		this._Outcomes = Outcomes;
-	}
+
+	//private _Outcomes: Outcome[] = [];
+
+
+
+	//public set outcomesList(Outcomes: Outcome[]) {
+	//	this._Outcomes = Outcomes;
+	//}
 
 	ngOnInit() {
 
 		this.OutcomeTypeList = [
-			{ "outcomeTypeId": 0, "outcomeTypeName": "Continuous: d (Hedges g)" },
-			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: r" },
-			{ "outcomeTypeId": 2, "outcomeTypeName": "Binary: odds ratio" },
-			{ "outcomeTypeId": 3, "outcomeTypeName": "Binary: risk ratio" },
-			{ "outcomeTypeId": 4, "outcomeTypeName": "Binary: risk difference" },
-			{ "outcomeTypeId": 5, "outcomeTypeName": "Binary: diagnostic test OR" },
-			{ "outcomeTypeId": 6, "outcomeTypeName": "Binary: Peto OR" },
-			{ "outcomeTypeId": 7, "outcomeTypeName": "Continuous: mean difference" }
+			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
+			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
+			{ "outcomeTypeId": 2, "outcomeTypeName": "Binary: 2 x 2 table" },
+			{ "outcomeTypeId": 3, "outcomeTypeName": "Continuous: N, Mean, and SE" },
+			{ "outcomeTypeId": 4, "outcomeTypeName": "Continuous: N, Mean, and CI" },
+			{ "outcomeTypeId": 5, "outcomeTypeName": "Continuous: N, t- or p-value" },
+			{ "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
+			{ "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
 		];
-		this.outcomesList = this._OutcomesService.outcomesList;
-		this.currentOutcome = this.outcomesList[0];
+
+		this._OutcomesService.Outcomes = this._OutcomesService.outcomesList;
+		this.currentOutcome = this._OutcomesService.outcomesList[0];
 		var outcomeTimePoint = <iTimePoint>{};
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;
@@ -80,6 +78,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
+		console.log('current outcome' + JSON.stringify(this.currentOutcome));
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -108,6 +107,32 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			return this.item.timepoints;
 		}
 	}
+	private _calculatedEffectSize: number = 0;
+
+	public CalculatedEffectSize(): number {
+
+		if (this.currentOutcome.esDesc == 'Effect size') {
+			//console.log('got in here: Effect size');
+			return this.currentOutcome.es;
+		}
+		if (this.currentOutcome.esDesc == 'SMD') {
+			//console.log('got in here: smd');
+			return this.currentOutcome.smd;
+		}
+		if (this.currentOutcome.esDesc == 'Diagnostic OR') {
+			//console.log('got in here: petoOR could be wrong');
+			return this.currentOutcome.petoOR;
+		}
+		if (this.currentOutcome.esDesc == 'r') {
+
+			//console.log('got in here: petoOR could be wrong');
+			return this.currentOutcome.r;
+		}
+
+		return this._calculatedEffectSize;
+
+	}
+
 	public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
@@ -151,8 +176,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	removeWarning(outcome: Outcome, key: number) {
 
 		if (outcome != null) {
-			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId);
-			this.outcomesList.splice(key, 1);
+			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId, key);
+			
 		}
 	}
 	public selected: string = '';
@@ -196,8 +221,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 				this._OutcomesService.Createoutcome(this.currentOutcome).then(
 
 					() => {
+						this._OutcomesService.outcomesList =
 							this._OutcomesService.FetchOutcomes(this.ItemSetId);
-							this.outcomesList = this._OutcomesService.outcomesList;
 						}
 					);
 
@@ -216,6 +241,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 	}
 	CreateNewOutcome() {
+
 		this.currentOutcome = new Outcome();
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;

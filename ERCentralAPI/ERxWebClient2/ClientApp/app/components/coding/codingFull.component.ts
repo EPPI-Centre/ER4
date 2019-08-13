@@ -219,7 +219,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 						console.log('a code is not selected');
 						if (this.OutcomesCmpRef) {
 							console.log('inside OutcomesCmpRef');
-							this.OutcomesCmpRef.outcomesList = [];
+							this._outcomeService.outcomesList = [];
 							this.OutcomesCmpRef.ShowOutcomesList = false;
 							this.ShowingOutComes();
 						}
