@@ -63,7 +63,8 @@ export class OutcomesService extends BusyAwareService  {
 
 		this._http.post<Outcome[]>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
 
-					console.log('can see the new outcome in here: ' + JSON.stringify(result));
+			console.log('can see the new outcome in here: ' + JSON.stringify(result));
+					
 					this._Outcomes = result;
 					this.RemoveBusy("FetchOutcomes");
 
@@ -274,7 +275,10 @@ export class ReviewSetDropDownResult {
 
 export class Outcome {
 
+	public test() {
+		console.log('this method worked!?');
 
+	}
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	outcomeTypeName: string = "";
