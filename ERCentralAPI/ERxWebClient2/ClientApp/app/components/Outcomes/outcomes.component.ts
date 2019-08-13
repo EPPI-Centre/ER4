@@ -37,17 +37,14 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	@Input() item: Item | undefined;
 
 	public OutcomeTypeList: OutcomeType[] = [];
-	private _Outcomes: Outcome[] = [];
-	public get outcomesList(): Outcome[] {
-		if (this._Outcomes) return this._Outcomes;
-		else {
-			this._Outcomes = [];
-			return this._Outcomes;
-		}
-	}
-	public set outcomesList(Outcomes: Outcome[]) {
-		this._Outcomes = Outcomes;
-	}
+
+	//private _Outcomes: Outcome[] = [];
+
+
+
+	//public set outcomesList(Outcomes: Outcome[]) {
+	//	this._Outcomes = Outcomes;
+	//}
 
 	ngOnInit() {
 
@@ -61,8 +58,9 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			{ "outcomeTypeId": 6, "outcomeTypeName": "Diagnostic test: 2 x 2 table" },
 			{ "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
 		];
-		this.outcomesList = this._OutcomesService.outcomesList;
-		this.currentOutcome = this.outcomesList[0];
+
+		this._OutcomesService.Outcomes = this._OutcomesService.outcomesList;
+		this.currentOutcome = this._OutcomesService.outcomesList[0];
 		var outcomeTimePoint = <iTimePoint>{};
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;
@@ -178,8 +176,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 	removeWarning(outcome: Outcome, key: number) {
 
 		if (outcome != null) {
-			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId);
-			this.outcomesList.splice(key, 1);
+			this._OutcomesService.DeleteOutcome(outcome.outcomeId, outcome.itemSetId, key);
+			
 		}
 	}
 	public selected: string = '';
@@ -223,8 +221,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 				this._OutcomesService.Createoutcome(this.currentOutcome).then(
 
 					() => {
+						this._OutcomesService.outcomesList =
 							this._OutcomesService.FetchOutcomes(this.ItemSetId);
-							this.outcomesList = this._OutcomesService.outcomesList;
 						}
 					);
 
@@ -243,6 +241,7 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 	}
 	CreateNewOutcome() {
+
 		this.currentOutcome = new Outcome();
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;

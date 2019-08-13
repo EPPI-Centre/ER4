@@ -1,5 +1,5 @@
 
-<div *ngIf="outcomesList && outcomesList.length > 0" class="container col-md-12 form p-0 ">
+<div  class="container col-md-12 form p-0 ">
 	<p hidden>{{selectedNode?.name}}</p>
 	<div *ngIf="ShowOutcomesList" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
@@ -10,7 +10,7 @@
 					<th class="text-center" style="max-width: 10px;">Edit</th>
 					<th class="text-center" style="max-width: 10px;">Remove</th>
 				</tr>
-				<tr *ngFor="let outcome of outcomesList; let key = index">
+				<tr *ngFor="let outcome of _OutcomesService.Outcomes; let key = index">
 					<td style="width: 150px;">{{outcome.title}}</td>
 					<td style="width: 150px;">{{outcome.intervention}}</td>
 					<td style="width: 15px; white-space:nowrap;">
@@ -27,7 +27,8 @@
 						<span class="table-remove">
 							<button type="button" rounded="true"
 									size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights && !IsServiceBusy" (click)="removeWarning(outcome, key)">
+									[disabled]="!HasWriteRights && !IsServiceBusy" 
+									(click)="removeWarning(outcome, key)">
 								Remove
 							</button>
 						</span>

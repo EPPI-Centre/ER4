@@ -9,7 +9,7 @@ import { iTimePoint } from './timePoints.service';
     providedIn: 'root',
 })
 
-export class OutcomesService extends BusyAwareService implements OnInit, OnDestroy  {
+export class OutcomesService extends BusyAwareService  {
 
     constructor(
 		private _http: HttpClient,
@@ -18,26 +18,27 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
     ) {
         super();
     }
-	ngOnInit() {
-
-	}
 
 	private _currentItemSetId: number = 0;
-	public _Outcomes: Outcome[] = [];
+	private _Outcomes: Outcome[] = [];
+	public Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
 	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
+
 	public get outcomesList(): Outcome[] {
+
         if (this._Outcomes) return this._Outcomes;
         else {
             this._Outcomes = [];
             return this._Outcomes;
-        }
+		}
+
 	}
-	
-	
+
 	public set outcomesList(Outcomes: Outcome[]) {
         this._Outcomes = Outcomes;
     }
+
 	@Output() outcomesChangedEE = new EventEmitter();
 
 	public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
@@ -54,6 +55,7 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 		}
 	}
 
+	// this is in draft stage still!!!!!!!!!!!!!!!!!!
     public FetchOutcomes(ItemSetId: number): Outcome[] {
 
 		this._BusyMethods.push("FetchOutcomes");
@@ -61,17 +63,18 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 
 		this._http.post<Outcome[]>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
 
-				console.log('can see the new outcome in here: ' + JSON.stringify(result));
-				//this.outcomesList = result;
-				this.RemoveBusy("FetchOutcomes");
+					console.log('can see the new outcome in here: ' + JSON.stringify(result));
+					this._Outcomes = result;
+					this.RemoveBusy("FetchOutcomes");
 
-		}, error => {
+				}, error => {
 				
-				this.modalService.SendBackHomeWithError(error);
-				this.RemoveBusy("FetchOutcomes");
-			}
+					this.modalService.SendBackHomeWithError(error);
+					this.RemoveBusy("FetchOutcomes");
+					return error;
+				}
 		);
-		return this.outcomesList;
+		return this._Outcomes;
 	}
 
 	public FetchReviewSetOutcomeList(itemSetId: number, setId: number) {
@@ -155,6 +158,7 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 			);
 	}
 
+	public listOutcomes: Outcome[] = [];
 	public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
 
 		this._BusyMethods.push("CreateOutcome");
@@ -166,16 +170,15 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 						.then(
 						(result) => {
 
-							var testObj = result as Outcome;
-							alert(JSON.stringify(testObj));
-							this._Outcomes.push(testObj);							
-							//if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+							this.Outcomes.push(result);
+							
+							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
 							
 						}
 						, (error) => {
 
-							//this.FetchOutcomes(this._currentItemSetId);		
+							this.FetchOutcomes(this._currentItemSetId);		
 							this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
 							return error;
@@ -214,42 +217,38 @@ export class OutcomesService extends BusyAwareService implements OnInit, OnDestr
 					return error;
 				});
 	}
-	
-	public DeleteOutcome(outcomeId: number, itemSetId: number) {
+
+	public DeleteOutcome(outcomeId: number, itemSetId: number, key: number) {
 
 		this._BusyMethods.push("DeleteOutcome");
 			let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		console.log('outcome deleting: ' + JSON.stringify(outcomeId) + 'asdfsadf: ==== ' + JSON.stringify(itemSetId) );
+		//console.log('outcome deleting: ' + JSON.stringify(outcomeId) + 'asdfsadf: ==== ' + JSON.stringify(itemSetId) );
 		let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId  });		
 		this._http.post<any>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
 
 			body).subscribe(
 				(result) => {
 
-					//console.log('Checking if error returned anything: ' + JSON.stringify(result));
-					//this.FetchOutcomes(itemSetId);	
+					this.Outcomes.splice(key, 1);
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return result;
 				}
 				, (error) => {
 
-					//console.log(JSON.stringify(error));
-					//this.FetchOutcomes(itemSetId);					
+
+					this.FetchOutcomes(this._currentItemSetId);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
 					return error;
-				}
+					}
 				);
-
 	}
 
-	ngOnDestroy() {
-
-	}
 
 }
+
 
 export class ItemArm {
 
@@ -272,6 +271,7 @@ export class ReviewSetDropDownResult {
 	public attributeName: string = '';
 
 }
+
 export class Outcome {
 
 
