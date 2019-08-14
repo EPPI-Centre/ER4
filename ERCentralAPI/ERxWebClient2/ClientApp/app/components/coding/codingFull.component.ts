@@ -71,7 +71,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private subItemIDinPath: Subscription | null = null;
     public ShowLiveComparison: boolean = false;
     private subCodingCheckBoxClickedEvent: Subscription | null = null;
-    private ItemCodingServiceDataChanged: Subscription | null = null;
+    private ItemCodingServiceDataChanged: Subscription | null = null; 
+    private ReloadItemCoding: Subscription | null = null; 
     private subGotPDFforViewing: Subscription | null = null;
     
     public get itemID(): number {
@@ -88,7 +89,80 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
 	public EditCodesPanel: string = "";
+    ngOnInit() {
+        //console.log('init!');
 
+        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
+            this.router.navigate(['home']);
+        }
+        else {
+
+            this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
+
+                (res: any) => {
+
+                    var selectedNode = res as SetAttribute;
+
+                    if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
+
+                        console.log('a node has been selected');
+                        var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+                        if (itemSet != null) {
+                            this._outcomeService.ItemSetId = itemSet.itemSetId;
+                            this._outcomeService.FetchOutcomes(itemSet.itemSetId);
+                            //this._outcomeService.outcomesList = itemSet.OutcomeList;
+                        }
+                        this.ShowingOutComes();
+
+                    } else {
+
+                        console.log('a code is not selected');
+                        if (this.OutcomesCmpRef) {
+                            console.log('inside OutcomesCmpRef');
+                            this._outcomeService.outcomesList = [];
+                            this.OutcomesCmpRef.ShowOutcomesList = false;
+                            this.ShowingOutComes();
+                        }
+                    }
+                }
+                // ERROR HANDLING IN HERE NEXT....
+            );
+
+            this.armservice.armChangedEE.subscribe(() => {
+                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+                else this.SetArmCoding(0);
+            });
+            this.timePointsService.gotNewTimepoints.subscribe(() => {
+
+                console.log('need to do something here of course....');
+            });
+            this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
+                this.ShowLiveComparison = !this.ShowLiveComparison;
+            })
+            this.subItemIDinPath = this.route.params.subscribe(params => {
+                this.itemString = params['itemId'];
+                this.GetItem();
+                //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+            });
+            this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
+
+                () => {
+                    console.log('ItemCodingService data changed event caught');
+                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
+                        this.SetCoding();
+                    }
+                }
+            );
+            this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
+                () => { this.SetCoding(); }
+            );
+            this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
+            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab())
+
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
+            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
+        }
+    }
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;
 	}
@@ -130,6 +204,43 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.codesetTreeCoding.UpdateTree();
         }
         
+    }
+    CanEditCode(): boolean {
+        if (!this.CanWrite) return false;
+        else if (!this.ReviewSetsService.selectedNode) return false;
+        else if (this.ReviewSetsService.selectedNode.nodeType == "ReviewSet") return false;//in here only editing of codes is allowed...
+        else return this.ReviewSetsService.CanEditSelectedNode;
+    }
+    public get CanChangeSelectedCode(): boolean {
+        if (this.EditCodesPanel == 'EditCode') return false;
+        else return true;
+    }
+    EditCode() {
+        if (this.EditCodesPanel == "EditCode") this.EditCodesPanel = "";
+        else this.EditCodesPanel = "EditCode";
+    }
+    CancelActivity(refreshTree?: boolean) {
+        if (refreshTree) {
+            if (this.ReviewSetsService.selectedNode) {
+                //this.codesetTreeCoding.UpdateTree();
+                let IsSet: boolean = this.ReviewSetsService.selectedNode.nodeType == "ReviewSet";
+                let Id: number = -1;
+                if (IsSet) Id = (this.ReviewSetsService.selectedNode as ReviewSet).set_id;
+                else Id = (this.ReviewSetsService.selectedNode as SetAttribute).attribute_id;
+                let sub: Subscription = this.ReviewSetsService.GetReviewStatsEmit.subscribe(() => {
+                    console.log("trying to reselect: ", Id);
+                    if (IsSet) this.ReviewSetsService.selectedNode = this.ReviewSetsService.FindSetById(Id);
+                    else this.ReviewSetsService.selectedNode = this.ReviewSetsService.FindAttributeById(Id);
+                    if (sub) sub.unsubscribe();
+                }
+                    , () => { if (sub) sub.unsubscribe(); }
+                );
+                //this.SetCoding();
+                this.ReviewSetsService.selectedNode = null;
+                this.ReviewSetsService.GetReviewSets();
+            }
+        }
+        this.EditCodesPanel = "";
     }
 	IsServiceBusy(): boolean {
 		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
@@ -189,79 +300,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	private outcomeSubscription: Subscription | null = null;
 
 
-    ngOnInit() {
-        //console.log('init!');
-        
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-		else {
-
-			this.outcomeSubscription = 	this._outcomeService.outcomesChangedEE.subscribe(
-
-				(res: any) => {
-
-					var selectedNode = res as SetAttribute;
-		
-					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
-
-						console.log('a node has been selected');
-						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
-						if (itemSet != null) {
-								this._outcomeService.ItemSetId = itemSet.itemSetId;
-								this._outcomeService.FetchOutcomes(itemSet.itemSetId);
-								//this._outcomeService.outcomesList = itemSet.OutcomeList;
-						}
-						this.ShowingOutComes();
-
-					} else {
-
-						console.log('a code is not selected');
-						if (this.OutcomesCmpRef) {
-							console.log('inside OutcomesCmpRef');
-							this._outcomeService.outcomesList = [];
-							this.OutcomesCmpRef.ShowOutcomesList = false;
-							this.ShowingOutComes();
-						}
-					}
-				}
-				// ERROR HANDLING IN HERE NEXT....
-			);
-			
-            this.armservice.armChangedEE.subscribe(() => {
-                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
-                else this.SetArmCoding(0);
-			});
-			this.timePointsService.gotNewTimepoints.subscribe(() => {
-
-				console.log('need to do something here of course....');
-			});
-            this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
-                this.ShowLiveComparison = !this.ShowLiveComparison;
-            })
-            this.subItemIDinPath = this.route.params.subscribe(params => {
-                this.itemString = params['itemId'];
-				this.GetItem();
-				//console.log('coding full sajdhfkjasfdh: ' + this.itemID);
-            });
-            this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-
-                () => {
-                    console.log('ItemCodingService data changed event caught');
-                    if (this.ItemCodingService && this.ItemCodingService.ItemCodingList) {
-                        this.SetCoding();
-                    }
-                }
-            );
-            this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab())
-
-            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
-            //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
-        }
-
-
-    }
+    
     async CheckAndMoveToPDFTab() {
         //console.log("CheckAndMoveToPDFTab", this.ItemDocsService.CurrentDoc, this.tabstrip);
         if (this.HasDocForView) {
@@ -600,7 +639,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
 		if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
 		if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
-
+        if (this.ReloadItemCoding) this.ReloadItemCoding.unsubscribe();
     }
 }
 

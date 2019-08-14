@@ -18,8 +18,9 @@
                         <!--<i class="fa fa-plus" aria-hidden="true"></i>-->
                     </button>
                     <button kendoButton [icon]="'arrow-60-down'" class="small m-1" title="Move Down Code/Tool..."
-                            [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()">
-                    </button>
+                            [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
+                    <button kendoButton [icon]="'edit'" class="small m-1" title="Edit Code..."
+                            [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
                 </div>
                 <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
                     <div class="col-12 small row px-0 py-1 m-0">
@@ -27,12 +28,21 @@
                         <div class="mx-1 border border-dark font-weight-bold "
                              [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
                     </div>
-                    <div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note: </b> form is disabled - this code can't have children.</div>
+                    <div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - this code can't have children.</div>
                     <CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
+                </div>
+                <div class="col-12 bg-light" *ngIf="EditCodesPanel =='EditCode'">
+                    <div class="col-12 small row px-0 py-1 m-0">
+                        Current Code Name:
+                        <div class="mx-1 border border-dark font-weight-bold "
+                             [ngClass]="{'alert-danger' : !CanEditCode(), 'alert-primary' : CanEditCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+                    </div>
+                    <div *ngIf="!CanEditCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - you can't edit this.</div>
+                    <EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNode" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
                 </div>
 
                 <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
-                <codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
+                <codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"></codesetTreeCoding>
             </div>
 
             <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">

@@ -118,11 +118,11 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
                 success => {
                     if (success && this.CurrentNode) {
                         this.CurrentNode.attributes.push(success);
-                        this._reviewSetsService.GetReviewSets();
+                        //this._reviewSetsService.GetReviewSets();
 
                     }
                     this._NewCode = new SetAttribute();
-                    this.CancelActivity();
+                    this.CancelActivity(true);
 
                 },
                 error => {

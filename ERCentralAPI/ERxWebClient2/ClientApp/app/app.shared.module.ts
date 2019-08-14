@@ -79,6 +79,7 @@ import { codingRecordComp } from './components/CodingRecord/codingRecord.compone
 import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
 import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.component';
 import { OutcomesComponent } from './components/Outcomes/outcomes.component'
+import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 
 @NgModule({
     declarations: [
@@ -138,7 +139,8 @@ import { OutcomesComponent } from './components/Outcomes/outcomes.component'
         PdfTronContainer,
         WebViewerComponent,
 		codingRecordComp,
-		OutcomesComponent
+        OutcomesComponent,
+        EditCodeComp
 	],
     providers: [
         EventEmitterService,

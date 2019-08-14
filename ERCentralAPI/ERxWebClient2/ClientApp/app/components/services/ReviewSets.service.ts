@@ -91,7 +91,28 @@ export class ReviewSetsService extends BusyAwareService {
         }
         else return false;
     }
-
+    public get CanEditSelectedNode(): boolean {
+        if (this.selectedNode == null) return false;
+        else if (this.selectedNode.nodeType == 'ReviewSet') {
+            //console.log("AAAAAAAAA", node);
+            return this.selectedNode.allowEditingCodeset;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = this.selectedNode as SetAttribute;
+            if (SetAtt) {
+                //is the set editable?
+                let MySet = this.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    return MySet.allowEditingCodeset;
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
     GetReviewSets(): ReviewSet[] {
          //console.log("GetReviewSets");
          this._BusyMethods.push("GetReviewSets");
