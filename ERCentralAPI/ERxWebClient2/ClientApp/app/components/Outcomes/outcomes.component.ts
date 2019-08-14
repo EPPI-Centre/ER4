@@ -59,8 +59,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 			{ "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
 		];
 
-		this._OutcomesService.Outcomes = this._OutcomesService.outcomesList;
-		this.currentOutcome = this._OutcomesService.outcomesList[0];
+		//this._OutcomesService.Outcomes = this._OutcomesService.outcomesList;
+		//this.currentOutcome = this._OutcomesService.outcomesList[0];
 		var outcomeTimePoint = <iTimePoint>{};
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;

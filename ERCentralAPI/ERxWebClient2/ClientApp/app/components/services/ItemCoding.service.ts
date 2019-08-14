@@ -68,9 +68,13 @@ export class ItemCodingService extends BusyAwareService {
         //this.itemID.next(ItemId); 
         //console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
-        this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
+        this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
-                this.ItemCodingList = result;
+                this.ItemCodingList = [];
+                for (let iSet of result) {
+                    let NewRealItemSet: ItemSet = new ItemSet(iSet);
+                    this.ItemCodingList.push(NewRealItemSet);
+                }
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
@@ -462,7 +466,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         result += "</ul></p>";
         //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
-        result += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+        result += "<p>" + this.OutcomesTable(itemSet.OutcomeList) + "</p>";
         return result;
     }
 
@@ -533,7 +537,7 @@ export class ItemCodingService extends BusyAwareService {
                         }
                         this._CodingReport += "</ul></p>";
                         //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
-                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.OutcomeList) + "</p>";
                     }
 
                 }
@@ -1006,7 +1010,43 @@ export class ItemCodingService extends BusyAwareService {
     }
 }
 
+
+export interface iItemSet {
+    itemSetId: number;
+    setId: number;
+    itemId: number;
+    contactId: number;
+    contactName: string;
+    setName: string;
+    isCompleted: boolean;
+    isLocked: boolean;
+    itemAttributesList: ReadOnlyItemAttribute[];
+    isSelected: boolean;
+    outcomeItemList: OutcomeItemList;//this is stale data that shouldn't be normally used!
+}
+
 export class ItemSet {
+    public constructor(iISet?: iItemSet) {
+        if (iISet) {
+            this.itemSetId = iISet.itemSetId;
+            this.setId = iISet.setId;
+            this.itemId = iISet.itemId;
+            this.contactId = iISet.contactId;
+            this.contactName = iISet.contactName;
+            this.setName = iISet.setName;
+            this.isCompleted = iISet.isCompleted;
+            this.isLocked = iISet.isLocked;
+            this.itemAttributesList = iISet.itemAttributesList;
+            this.isSelected = iISet.isSelected;
+            this.OutcomeList = [];
+            if (iISet.outcomeItemList.outcomesList) {
+                for (let iO of iISet.outcomeItemList.outcomesList) {
+                    let RealOutcome: Outcome = new Outcome(iO);
+                    this.OutcomeList.push(RealOutcome);
+                }
+            }
+        }
+    }
     itemSetId: number = 0;
     setId: number = 0;
     itemId: number = 0;
@@ -1017,7 +1057,8 @@ export class ItemSet {
     isLocked: boolean = true;
     itemAttributesList: ReadOnlyItemAttribute[] = [];
     isSelected: boolean = false;
-    outcomeItemList: OutcomeItemList = new OutcomeItemList();
+    //outcomeItemList: OutcomeItemList = new OutcomeItemList();//this is stale data that shouldn't be normally used!
+    OutcomeList: Outcome[] = [];
 }
 export class ReadOnlyItemAttribute {
     attributeId: number = 0;

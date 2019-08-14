@@ -10,7 +10,7 @@
 					<th class="text-center" style="max-width: 10px;">Edit</th>
 					<th class="text-center" style="max-width: 10px;">Remove</th>
 				</tr>
-				<tr *ngFor="let outcome of _OutcomesService.Outcomes; let key = index">
+				<tr *ngFor="let outcome of _OutcomesService.outcomesList; let key = index">
 					<td style="width: 150px;">{{outcome.title}}</td>
 					<td style="width: 150px;">{{outcome.intervention}}</td>
 					<td style="width: 15px; white-space:nowrap;">

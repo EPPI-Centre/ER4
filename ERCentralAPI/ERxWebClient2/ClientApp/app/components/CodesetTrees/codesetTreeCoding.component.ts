@@ -125,7 +125,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 			this.attributeType = nodeAttType;
 			var itemSet = this._ItemCodingService.FindItemSetBySetId(node.set_id);
 			if (itemSet) {
-				if (itemSet.outcomeItemList.outcomesList.length > 0) {
+				if (itemSet.OutcomeList.length > 0) {
 					this.outcomesPresent = true;
 				}
 				itemSetId = itemSet.itemSetId
