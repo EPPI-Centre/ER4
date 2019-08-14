@@ -372,6 +372,8 @@ export interface iOutcome {
     data14Desc: string;
 }
 export class Outcome {
+
+    unifiedOutcomeTypeIdProperty: number = 0;
     public constructor(iO?: iOutcome) {
         if (iO) {
             this.title = iO.title;
@@ -389,13 +391,405 @@ export class Outcome {
         console.log("SetCalculatedValues");
         this.SetEffectSizes();
     }
-    private SetEffectSizes() {
+	private SetEffectSizes() {
 
+		let es: number = 0;
+		let se: number = 0;
+		this.unifiedOutcomeTypeIdProperty = this.outcomeTypeId;
+
+		switch (this.outcomeTypeId) {
+
+			case 0: // manual entry
+
+				this.smd = this.data1;
+				this.sesmd = this.CorrectForClustering(this.data2);
+				this.r = this.data3;
+				this.ser = this.data4;
+				this.oddsRatio = this.data5;
+				this.seOddsRatio = this.CorrectForClustering(this.data6);
+				this.riskRatio = this.data7;
+				this.seRiskRatio = this.CorrectForClustering(this.data8);
+				this.riskDifference = this.data11;
+				this.seRiskDifference = this.CorrectForClustering(this.data12);
+				this.meanDifference = this.data13;
+				this.seMeanDifference = this.CorrectForClustering(this.data14);
+				this.SetESforManualEntry();
+
+				break;
+
+			case 1: // n, mean, SD
+
+				this.smd = this.SmdFromNMeanSD();
+				this.sesmd = this.CorrectForClustering(this.getSEforD(this.data1, this.data2, this.smd));
+				this.meanDifference = this.MeanDiff();
+				this.seMeanDifference = this.CorrectForClustering(this.getSEforMeanDiff(this.data1,
+					this.data2, this.data5, this.data6));
+				this.es = this.smd;
+				this.sees = this.sesmd;
+						
+				break;
+
+			case 2: // binary 2 x 2 table
+
+				this.oddsRatio = this.CalcOddsRatio();
+				this.seOddsRatio = this.CorrectForClustering(this.CalcOddsRatioSE());
+				this.riskRatio = this.CalcRiskRatio();
+				this.seRiskRatio = this.CorrectForClustering(this.CalcRiskRatioSE());
+				this.riskDifference = this.CalcRiskDifference();
+				this.seRiskDifference = this.CorrectForClustering(this.CalcRiskDifferenceSE());
+				this.petoOR = this.CalcPetoOR();
+				this.sePetoOR = this.CorrectForClustering(this.CalcPetoORSE());
+				this.es = this.oddsRatio;
+				this.sees = this.seOddsRatio;
+
+				break;
+
+			case 3: //n, mean SE
+
+				this.smd = this.SmdFromNMeanSe();
+
+				this.sesmd = this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd));
+
+				this.meanDifference =  this.MeanDiff();
+
+				this.seMeanDifference = this.CorrectForClustering(this.GetSEforMeanDiff(
+					this.data1, this.data2, this.data5, this.data6));
+
+				this.es = this.smd;
+				this.sees = this.sesmd;
+				break;
+
+			case 4: //n, mean CI
+
+				this.smd =  this.SmdFromNMeanCI();
+				this.sesmd = this.CorrectForClustering(this.GetSEforD(
+					this.data1, this.data2, this.smd));
+
+				this.meanDifference = this.MeanDiff();
+
+				this.seMeanDifference = this.CorrectForClustering(
+					this.GetSEforMeanDiff(this.data1, this.data2,
+						this.data5, this.data6));
+				
+				this.es = this.smd;
+
+				this.sees = this.sesmd;
+
+				break;
+
+			case 5: // N, t- or p-value
+
+				if (this.data4 != 0) {
+					this.smd = this.CorrectG(this.data1, this.data2, this.SmdFromP());
+				}
+				else {
+					this.smd = this.SmdFromT(this.data3);
+				}
+				this.sesmd = this.CorrectForClustering(this.GetSEforD(
+					this.data1, this.data2, this.smd));
+				this.meanDifference = this.MeanDiff();
+				this.seMeanDifference = this.CorrectForClustering(
+					this.GetSEforMeanDiff(this.data1, this.data2, this.data5, this.data6));
+
+				this.es = this.smd;
+				this.sees = this.sesmd;
+
+				break;
+
+			case 6: // diagnostic binary 2 x 2 table
+
+				this.es = this.CalcOddsRatio();
+				this.seOddsRatio = this.CalcOddsRatioSE();
+				this.es = this.oddsRatio;
+				this.sees = this.seOddsRatio;
+				break;
+
+			case 7: // correlation coefficient r
+
+				this.r = this.data2;
+				this.ser =  Math.sqrt(1 / (this.data1 - 3));
+				this.es = this.r;
+				this.sees = this.ser;
+				break;
+
+			default:
+				break;
+		}
+
+		this.ciLower = this.smd - (1.96 * this.sees);
+		this.ciUpper = this.smd + (1.96 * this.sees);
+
+	}
+
+	private getSEforD(n1: number, n2: number, d: number): number {
+		let top, lower, left, right, se: number;
+
+		left = (n1 + n2) / (n1 * n2);
+		top = d * d;
+		lower = 2 * (n1 + n2 - 3.94);
+		right = top / lower;
+		se = Math.sqrt(left + right);
+		return se;
+	}
+	private getSEforMeanDiff(n1: number, n2: number,
+		SD1: number, SD2: number): number {
+		return Math.sqrt(SD1 * SD1 / n1 + SD2 * SD2 / n2);
+	}
+	private SmdFromNMeanSD(): number {
+		let SD: number = this.PoolSDs(this.data1, this.data2, this.data5, this.data6);
+		if (SD == 0) {
+			return 0;
+		}
+		let cohensD: number = (this.data3 - this.data4) / SD;
+		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
+	}
+
+	private MeanDiff(): number {
+		return this.data3 - this.data4;
+	}
+	private SmdFromNMeanSe(): number {
+		let SD: number = this.PoolSDs(this.data1, this.data2,
+			this.SdFromSe(this.data5, this.data1), this.SdFromSe(this.data6, this.data1));
+		if (SD == 0) {
+			return 0;
+		}
+		let cohensD: number = (this.data3 - this.data4) / SD;
+		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
+	}
+	private SmdFromNMeanCI(): number {
+		let SD: number = PoolSDs(this.data1, this.data2,
+			this.SdFromSe(SeFromCi(this.data7, this.data5), this.data1),
+			this.SdFromSe(SeFromCi(this.data8, this.data6), this.data1));
+		if (SD == 0) {
+			return 0;
+		}
+		let cohensD: number = (this.data3 - this.data4) / SD;
+		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
+	}
+	private SmdFromP(): number {
+		let t = this.StatFunctions.qt(this.data4 / 2, this.data1 + this.data2 - 2, false);
+		return this.SmdFromT(t);
+	}
+	private SmdFromT(double t): number  {
+		double g, top, lower;
+
+		if (Data1 == Data2) {
+			top = 2 * t;
+			lower = System.Math.Sqrt(Data1 + Data2);
+		}
+		else {
+			top = t * System.Math.Sqrt(Data1 + Data2);
+			lower = System.Math.Sqrt(Data1 * Data2);
+		}
+		if (lower != 0) {
+			g = top / lower;
+		}
+		else {
+			g = 0;
+		}
+		return g;
+	}
+
+	private double CorrectG(double n1, double n2, double g) // for single group studies n2=0
+	{
+		double gc, top, lower;
+
+		top = 3;
+		lower = (4 * (n1 + n2)) - 9;
+		if (lower != 0) {
+			gc = g * (1 - (top / lower));
+		}
+		else {
+			gc = 0;
+		}
+		return gc;
+	}
+
+	private double calcOddsRatio() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return (d1 * d4) / (d3 * d2);
+	}
+
+	private double calcOddsRatioSE() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return Math.Sqrt((1 / d1) + (1 / d2) + (1 / d3) + (1 / d4));
+	}
+
+	private double calcRiskRatio() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return (d1 / (d1 + d3)) / (d2 / (d2 + d4));
+	}
+
+	private double calcRiskRatioSE() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return Math.Sqrt((1 / d1) + (1 / d2) - (1 / (d1 + d3)) - (1 / (d2 + d4)));
+	}
+
+	private double calcRiskDifference() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return (d1 / (d1 + d3)) - (d2 / (d2 + d4));
+	}
+
+	private double calcRiskDifferenceSE() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		return Math.Sqrt((d1 * d3 / Math.Pow((d1 + d3), 3)) + (d2 * d4 / Math.Pow((d2 + d4), 3)));
+	}
+
+	private double calcPetoOR() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		double n1 = d1 + d3;
+		double n2 = d2 + d4;
+		double n = n1 + n2;
+
+		double v = (n1 * n2 * (d1 + d2) * (d3 + d4)) / (n * n * (n - 1));
+		double e = n1 * (d1 + d2) / n;
+		return Math.Exp((d1 - e) / v);
+	}
+
+	private double calcPetoORSE() {
+		double d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+		if ((Data1 == 0) || (Data2 == 0) || (Data3 == 0) || (Data4 == 0)) {
+			d1 = Data1 + 0.5;
+			d2 = Data2 + 0.5;
+			d3 = Data3 + 0.5;
+			d4 = Data4 + 0.5;
+		}
+		else {
+			d1 = Data1;
+			d2 = Data2;
+			d3 = Data3;
+			d4 = Data4;
+		}
+		double n1 = d1 + d3;
+		double n2 = d2 + d4;
+		double n = n1 + n2;
+
+		double v = (n1 * n2 * (d1 + d2) * (d3 + d4)) / (n * n * (n - 1));
+		return Math.Sqrt(1 / v);
+	}
+
+	private double PoolSDs(double n1, double n2, double sd1, double sd2) {
+		if (n1 + n2 < 3) {
+			return 0;
+		}
+		double s = (((n1 - 1) * sd1 * sd1) + ((n2 - 1) * sd2 * sd2)) / (n1 + n2 - 2);
+		s = Math.Sqrt(s);
+		return s;
+	}
+
+	private double SdFromSe(double se, double n) {
+		return se * Math.Sqrt(n);
+	}
+
+	private double SeFromCi(double ciUpper, double ciLower) {
+		double se = Math.Abs((0.5 * (ciUpper - ciLower)) / 1.96);
+		return se;
+	}
+	CorrectForClustering(se: number): number {
+
+		if (this.data9 != 0) {
+			let deff: number = 1 + (this.data9 - 1) * this.data10;
+			return se * Math.sqrt(deff);
+		}
+		else {
+			return se;
+		}
     }
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	outcomeTypeName: string = "";
-	outcomeTypeId: number = 0;
+	private _outcomeTypeId: number = 0;
+	public get outcomeTypeId(): number {
+		return this._outcomeTypeId;
+	}
+	public set outcomeTypeId(val: number) {
+		this._outcomeTypeId = val;
+		this.SetCalculatedValues();
+	}
 	NRows: number = 0;
 	outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
 	itemAttributeIdIntervention: number = 0;
@@ -420,19 +814,110 @@ export class Outcome {
         this._data1 = val;
         this.SetCalculatedValues();
     }
-	data2: number = 0;
-	data3: number = 0;
-	data4: number = 0;
-	data5: number = 0;
-	data6: number = 0;
-	data7: number = 0;
-	data8: number = 0;
-	data9: number = 0;
-	data10: number = 0;
-	data11: number = 0;
-	data12: number = 0;
-	data13: number = 0;
-	data14: number = 0;
+	private _data2: number = 0;
+	public get data2(): number {
+		return this._data2;
+	}
+	public set data2(val: number) {
+		this._data2 = val;
+		this.SetCalculatedValues();
+	}
+	private _data3: number = 0;
+	public get data3(): number {
+		return this._data3;
+	}
+	public set data3(val: number) {
+		this._data3 = val;
+		this.SetCalculatedValues();
+	}
+	private _data4: number = 0;
+	public get data4(): number {
+		return this._data4;
+	}
+	public set data4(val: number) {
+		this._data4 = val;
+		this.SetCalculatedValues();
+	}
+	private _data5: number = 0;
+	public get data5(): number {
+		return this._data5;
+	}
+	public set data5(val: number) {
+		this._data5 = val;
+		this.SetCalculatedValues();
+	}
+	private _data6: number = 0;
+	public get data6(): number {
+		return this._data6;
+	}
+	public set data6(val: number) {
+		this._data6 = val;
+		this.SetCalculatedValues();
+	}
+	private _data7: number = 0;
+	public get data7(): number {
+		return this._data7;
+	}
+	public set data7(val: number) {
+		this._data7 = val;
+		this.SetCalculatedValues();
+	}
+	private _data8: number = 0;
+	public get data8(): number {
+		return this._data8;
+	}
+	public set data8(val: number) {
+		this._data8 = val;
+		this.SetCalculatedValues();
+	}
+	private _data9: number = 0;
+	public get data9(): number {
+		return this._data9;
+	}
+	public set data9(val: number) {
+		this._data9 = val;
+		this.SetCalculatedValues();
+	}
+	private _data10: number = 0;
+	public get data10(): number {
+		return this._data10;
+	}
+	public set data10(val: number) {
+		this._data10 = val;
+		this.SetCalculatedValues();
+	}
+	private _data11: number = 0;
+	public get data11(): number {
+		return this._data11;
+	}
+	public set data11(val: number) {
+		this._data11 = val;
+		this.SetCalculatedValues();
+	}
+	private _data12: number = 0;
+	public get data12(): number {
+		return this._data12;
+	}
+	public set data12(val: number) {
+		this._data12 = val;
+		this.SetCalculatedValues();
+	}
+	private _data13: number = 0;
+	public get data13(): number {
+		return this._data13;
+	}
+	public set data13(val: number) {
+		this._data13 = val;
+		this.SetCalculatedValues();
+	}
+	private _data14: number = 0;
+	public get data14(): number {
+		return this._data14;
+	}
+	public set data14(val: number) {
+		this._data14 = val;
+		this.SetCalculatedValues();
+	}
 	interventionText: string = "";
 	controlText: string = "";
 	outcomeText: string = "";
@@ -473,20 +958,62 @@ export class Outcome {
 	ciUpper: number = 0;
 	esDesc: string = "";
 	seDesc: string = "";
-	data1Desc: string = "";
-	data2Desc: string = "";
-	data3Desc: string = "";
-	data4Desc: string = "";
-	data5Desc: string = "";
-	data6Desc: string = "";
-	data7Desc: string = "";
-	data8Desc: string = "";
-	data9Desc: string = "";
-	data10Desc: string = "";
-	data11Desc: string = "";
-	data12Desc: string = "";
-	data13Desc: string = "";
-	data14Desc: string = "";
+	private _data1Desc: number = 0;
+	public get data1Desc(): number {
+		return this._data1Desc;
+	}
+	private _data2Desc: number = 0;
+	public get data2Desc(): number {
+		return this._data2Desc;
+	}
+	private _data3Desc: number = 0;
+	public get data3Desc(): number {
+		return this._data3Desc;
+	}
+	private _data4Desc: number = 0;
+	public get data4Desc(): number {
+		return this._data4Desc;
+	}
+	private _data5Desc: number = 0;
+	public get data5Desc(): number {
+		return this._data5Desc;
+	}
+	private _data6Desc: number = 0;
+	public get data6Desc(): number {
+		return this._data6Desc;
+	}
+	private _data7Desc: number = 0;
+	public get data7Desc(): number {
+		return this._data7Desc;
+	}
+	private _data8Desc: number = 0;
+	public get data8Desc(): number {
+		return this._data8Desc;
+	}
+	private _data9Desc: number = 0;
+	public get data9Desc(): number {
+		return this._data9Desc;
+	}
+	private _data10Desc: number = 0;
+	public get data10Desc(): number {
+		return this._data10Desc;
+	}
+	private _data11Desc: number = 0;
+	public get data11Desc(): number {
+		return this._data11Desc;
+	}
+	private _data12Desc: number = 0;
+	public get data12Desc(): number {
+		return this._data12Desc;
+	}
+	private _data13Desc: number = 0;
+	public get data13Desc(): number {
+		return this._data13Desc;
+	}
+	private _data14Desc: number = 0;
+	public get data14Desc(): number {
+		return this._data14Desc;
+	}
 }
 export class OutcomeItemAttributesList {
 	outcomeItemAttributesList: OutcomeItemAttribute[] = [];
