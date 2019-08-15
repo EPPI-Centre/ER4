@@ -62,16 +62,15 @@ export class OutcomesService extends BusyAwareService  {
 		let body = JSON.stringify({ Value: ItemSetId });
 		this._Outcomes = [];
         this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
-            //console.log("count of outcomes is:", this._Outcomes.length);
-            //console.log('can see the new outcome in here: ' + JSON.stringify(result));
+   
             for (let iO of result.outcomesList) {
-                //console.log("iO is:", iO);
+   
 				let RealOutcome: Outcome = new Outcome(iO);
 				
                 this._Outcomes.push(RealOutcome);
-                //console.log("count of outcomes is:", this._Outcomes.length);
+       
             }
-            //console.log("count of outcomes is:", this._Outcomes.length);
+        
             this.RemoveBusy("FetchOutcomes");
 
         }, error => {
@@ -230,7 +229,6 @@ export class OutcomesService extends BusyAwareService  {
 		this._BusyMethods.push("DeleteOutcome");
 			let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		//console.log('outcome deleting: ' + JSON.stringify(outcomeId) + 'asdfsadf: ==== ' + JSON.stringify(itemSetId) );
 		let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId  });		
 		this._http.post<any>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
 
@@ -402,20 +400,20 @@ export class Outcome {
 			this.shortTitle = iO.shortTitle;
 			this.outcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
-            this._data1 = iO.data1;
-            this._data2 = iO.data2;
-            this._data3 = iO.data3;
-            this._data4 = iO.data4;
-            this._data5 = iO.data5;
-			this._data6 = iO.data6;
-			this._data7 = iO.data7;
-			this._data8 = iO.data8;
-			this._data9 = iO.data9;
-			this._data10 = iO.data10;
-			this._data11 = iO.data11;
-			this._data12 = iO.data12;
-			this._data13 = iO.data13;
-			this._data14 = iO.data14;
+            this._data1 = Number(iO.data1);
+			this._data2 = Number(iO.data2);
+			this._data3 = Number(iO.data3);
+			this._data4 = Number(iO.data4);
+			this._data5 = Number(iO.data5);
+			this._data6 = Number(iO.data6);
+			this._data7 = Number(iO.data7);
+			this._data8 = Number(iO.data8);
+			this._data9 = Number(iO.data9);
+			this._data10 = Number(iO.data10);
+			this._data11 = Number(iO.data11);
+			this._data12 = Number(iO.data12);
+			this._data13 = Number(iO.data13);
+			this._data14 = Number(iO.data14);
 			this.interventionText = iO.interventionText;
 			this.controlText = iO.controlText;
 			this.outcomeText = iO.outcomeText;
@@ -438,8 +436,7 @@ export class Outcome {
 	}
 
     private SetCalculatedValues() {
-		console.log("outcomeTypeId value is now: " + this.outcomeTypeId);
-
+		
 		this.SetEffectSizes();
 		switch (this.outcomeTypeId) {
 			case 0: // manual entry
@@ -627,24 +624,7 @@ export class Outcome {
 				this.outcomeTypeName= "";
 				break;
 		}
-		console.log("es value is now: " + this.es);
-		console.log('and the rest are: ');
-		console.log(this.es);
-		console.log(this.sees);
-		console.log(this.data1);
-		console.log(this.data2);
-		console.log(this.data3);
-		console.log(this.data4);
-		console.log(this.data5);
-		console.log(this.data6);
-		console.log(this.data7);
-		console.log(this.data8);
-		console.log(this.data9);
-		console.log(this.data10);
-		console.log(this.data11);
-		console.log(this.data12);
-		console.log(this.data13);
-		console.log(this.data14);
+
 
 	}
 	private SetEffectSizes() {
@@ -683,7 +663,6 @@ export class Outcome {
 					this.data2, this.data5, this.data6));
 				this.es = this.smd;
 				this.sees = this.sesmd;
-				console.log('focus on getting one es number correct first:' + this.smd  + ' smd and es: ' + this.es);
 				break;
 
 			case 2: // binary 2 x 2 table
@@ -704,18 +683,13 @@ export class Outcome {
 			case 3: //n, mean SE
 
 				this.smd = this.SmdFromNMeanSe();
-				console.log('in case 3 smd: ' + this.smd);
 				this.sesmd = this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd));
-				console.log('in case 3 sesmd: ' + this.sesmd);
 				this.meanDifference =  this.MeanDiff();
-				console.log('in case 3 meanDifference: ' + this.meanDifference);
 				this.seMeanDifference = this.CorrectForClustering(this.GetSEforMeanDiff(
 					this.data1, this.data2, this.data5, this.data6));
-				console.log('in case 3 seMeanDifference: ' + this.seMeanDifference);
 				this.es = this.smd;
 				this.sees = this.sesmd;
-				console.log('This is case type 3:' + this.smd + ' smd and es: ' + this.es);
-
+				
 				break;
 
 			case 4: //n, mean CI
@@ -758,9 +732,9 @@ export class Outcome {
 			case 6: // diagnostic binary 2 x 2 table
 
 				this.es = this.CalcOddsRatio();
-				this.seOddsRatio = this.CalcOddsRatioSE();
-				this.es = this.oddsRatio;
-				this.sees = this.seOddsRatio;
+				this.sees = this.CalcOddsRatioSE();
+				this.oddsRatio = this.es;
+				this.seOddsRatio = this.sees;
 				break;
 
 			case 7: // correlation coefficient r
@@ -854,9 +828,7 @@ export class Outcome {
 	}
 	private SmdFromNMeanSD(): number {
 
-		console.log('checking function SmdFromNMeanSD');
-		console.log('checking data values, 1,2,5,6: ' + this.data1, this.data2, this.data5, this.data6);
-
+	
 		let SD: number = this.PoolSDs(this.data1, this.data2, this.data5, this.data6);
 		if (SD == 0) {
 			return 0;
@@ -868,19 +840,15 @@ export class Outcome {
 		return this.data3 - this.data4;
 	}
 	private SmdFromNMeanSe(): number {
-		console.log('checking function SmdFromNMeanSe');
-		console.log('checking data values, 1,2,5,6: ' + this.data1, this.data2, this.data5, this.data6);
-
+		
 		let thirdArg: number = this.SdFromSe(this.data5, this.data1);
 		let fourthArg: number = this.SdFromSe(this.data6, this.data1);
 		let SD: number = this.PoolSDs(this.data1, this.data2,
 			thirdArg, fourthArg);
-		console.log('checking Pool SD: '+ SD );
 		if (SD == 0) {
 			return 0;
 		}
 		let cohensD: number = (this.data3 - this.data4) / SD;
-		console.log('checking cohensD: ' + cohensD);
 		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
 	}
 	private SmdFromNMeanCI(): number {
@@ -955,12 +923,12 @@ export class Outcome {
 			d4 = this.data4 + 0.5;
 		}
 		else {
-			d1 = this.data1;
-			d2 = this.data2;
-			d3 = this.data3;
-			d4 = this.data4;
+			d1 = Number(this.data1);
+			d2 = Number(this.data2);
+			d3 = Number(this.data3);
+			d4 = Number(this.data4);
 		}
-		return Math.sqrt((1 / d1) + (1 / d2) + (1 / d3) + (1 / d4));
+		return Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
 	}
 	private CalcRiskRatio(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number  = 0;
@@ -1070,31 +1038,23 @@ export class Outcome {
 		return Math.sqrt(1 / v);
 	}
 	private PoolSDs(n1: number, n2: number, sd1: number, sd2: number): number {
-		console.log('checking input numbers to PoolSds function:');
-		console.log('n1, n2, sd1, sd2: ' + n1 + ' ' + n2 + ' ' + sd1 + ' ' +sd2);
+		n1 = Number(n1);
+		n2 = Number(n2);
+		sd1 = Number(sd1);
+		sd2 = Number(sd2);
 		if (n1 + n2 < 3) {
 			return 0;
 		}
 		let part1Of1: number = ((n1 - 1) * sd1 * sd1);
-		console.log('part1Of1: ' + part1Of1);
 		let part2Of1: number = ((n2 - 1) * sd2 * sd2);
-		console.log('part2Of1: ' + part2Of1);
 		let part1OfS: number = (part1Of1 + part2Of1);
-		console.log('part1OfS: ' + part1OfS);
-		console.log(n1);
-		console.log(n2);
 		let part2OfS: number = 0;
-		part2OfS = n1.valueOf() + n2.valueOf() -2 ;
-		console.log('part2OfS  n1 + n2 - 2: n1 :' + n1 + ' n2: '  + n2 + ' ans: ' + part2OfS);
+		part2OfS = n1 + n2 -2;
 		let s: number = part1OfS / part2OfS;
-		console.log('the poolSD result before the sqrt call: ' + s);
 		let ans: number = Math.sqrt(s);
-		console.log('the poolSD result after the sqrt call: ' + ans);
 		return ans;
 	}
 	private SdFromSe(se: number, n: number): number {
-		console.log('checking SdFromSe: ' + se + ' ' + n);
-		console.log('ans: ' + se * Math.sqrt(n));
 		return se * Math.sqrt(n);
 	}
 	private SeFromCi(ciUpper: number, ciLower: number): number {
@@ -1140,7 +1100,7 @@ export class Outcome {
 	outcomeDescription: string = "";
     private _data1: number = 0;
     public get data1(): number {
-        return this._data1;
+        return Number(this._data1);
     }
     public set data1(val: number) {
         this._data1 = val;
@@ -1148,7 +1108,7 @@ export class Outcome {
     }
 	private _data2: number = 0;
 	public get data2(): number {
-		return this._data2;
+		return Number(this._data2);
 	}
 	public set data2(val: number) {
 		this._data2 = val;
@@ -1156,7 +1116,7 @@ export class Outcome {
 	}
 	private _data3: number = 0;
 	public get data3(): number {
-		return this._data3;
+		return Number(this._data3);
 	}
 	public set data3(val: number) {
 		this._data3 = val;
@@ -1164,7 +1124,7 @@ export class Outcome {
 	}
 	private _data4: number = 0;
 	public get data4(): number {
-		return this._data4;
+		return Number(this._data4);
 	}
 	public set data4(val: number) {
 		this._data4 = val;
